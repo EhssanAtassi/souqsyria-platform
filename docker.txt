@@ -1,0 +1,50 @@
+ 1. Access Swagger API (Backend Testing):
+  http://localhost:3005/api/docs
+  Look for "Cart - Guest Sessions" section and test POST /cart/guest
+
+  2. Access Frontend:
+  http://localhost:4201
+  http://localhost:4201/cart
+
+  3. Test Guest Cart Creation (via Swagger):
+  1. Go to http://localhost:3005/api/docs
+  2. Find POST /api/cart/guest
+  3. Click "Try it out"
+  4. Use this payload:
+  {
+    "items": [{
+      "variantId": 1,
+      "quantity": 2,
+      "priceAtAdd": 50000
+    }],
+    "clientVersion": 0,
+    "clientTimestamp": "2025-11-12T10:00:00Z"
+  }
+  5. Click "Execute"
+  6. Expected: Status 201 with cart data
+
+  4. Verify Database:
+  docker exec -i souqsyria-mysql mysql -uroot -psouqsyria_root_2025 souqsyria_dev -e "SELECT * FROM
+  guest_sessions LIMIT 5;"
+
+  ---
+  📊 Service Status
+
+  # Check all services
+  docker ps | grep souqsyria
+
+  Current Status:
+  - MySQL: ✅ Healthy
+  - Backend: ✅ Running on port 3005
+  - Frontend: ✅ Running on port 4201
+
+  ---
+  📝 Created Documentation
+
+  1. /DOCKER_TESTING_GUIDE.md - Complete Docker testing instructions
+  2. /QUICK_START_TESTING.md - Quick 5-minute testing guide
+  3. /INTEGRATION_VERIFICATION_REPORT.md - Detailed integration analysis
+  4. /docker-migrate-cart.sh - Migration script (executable)
+
+  ---
+  🔧 Next Steps

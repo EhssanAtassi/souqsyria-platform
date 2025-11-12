@@ -43,7 +43,7 @@ services:
     container_name: souqsyria-backend
     restart: unless-stopped
     ports:
-      - "3002:3001"
+      - "3005:3001"
     environment:
       NODE_ENV: production
       PORT: 3001
@@ -85,7 +85,7 @@ services:
     ports:
       - "4201:4200"
     environment:
-      - API_URL=http://backend:3001/api
+      - API_URL=http://localhost:3005/api
     depends_on:
       - backend
     networks:
