@@ -192,3 +192,5 @@ specs/
 .idea/
 *.iml
 
+# Exclude all markdown files
+*.md
