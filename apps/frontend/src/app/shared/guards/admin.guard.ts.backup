@@ -1,0 +1,339 @@
+import { Injectable } from '@angular/core';
+import { CanActivate, CanActivateChild, Router, ActivatedRouteSnapshot, RouterStateSnapshot } from '@angular/router';
+import { Observable, of } from 'rxjs';
+import { map, catchError } from 'rxjs/operators';
+import { AdminAuthService } from '../services/admin-auth.service';
+import { AdminPermission, AdminRole } from '../interfaces/admin.interface';
+
+/**
+ * Admin Guard for Syrian Marketplace Admin Panel
+ *
+ * Protects admin routes with authentication and role-based access control
+ * Ensures only authenticated admins with proper permissions can access admin features
+ * Supports granular permission checking for specific admin operations
+ *
+ * @swagger
+ * components:
+ *   schemas:
+ *     AdminGuard:
+ *       type: object
+ *       description: Route guard for admin panel access control
+ *       properties:
+ *         canActivate:
+ *           type: boolean
+ *           description: Whether route can be activated
+ *         redirectUrl:
+ *           type: string
+ *           description: URL to redirect if access denied
+ */
+@Injectable({
+  providedIn: 'root'
+})
+export class AdminGuard implements CanActivate, CanActivateChild {
+
+  constructor(
+    private adminAuthService: AdminAuthService,
+    private router: Router
+  ) {}
+
+  /**
+   * Guard route activation for admin panel
+   * Checks authentication status and required permissions
+   *
+   * @param route - Activated route snapshot
+   * @param state - Router state snapshot
+   * @returns Observable<boolean> Whether route can be activated
+   */
+  canActivate(
+    route: ActivatedRouteSnapshot,
+    state: RouterStateSnapshot
+  ): Observable<boolean> {
+    return this.checkAccess(route, state);
+  }
+
+  /**
+   * Guard child route activation for admin panel
+   * Ensures nested admin routes are properly protected
+   *
+   * @param childRoute - Child route snapshot
+   * @param state - Router state snapshot
+   * @returns Observable<boolean> Whether child route can be activated
+   */
+  canActivateChild(
+    childRoute: ActivatedRouteSnapshot,
+    state: RouterStateSnapshot
+  ): Observable<boolean> {
+    return this.checkAccess(childRoute, state);
+  }
+
+  /**
+   * Check admin access permissions
+   * Validates authentication, role, and specific permissions
+   *
+   * @param route - Route snapshot
+   * @param state - Router state snapshot
+   * @returns Observable<boolean> Access granted status
+   */
+  private checkAccess(
+    route: ActivatedRouteSnapshot,
+    state: RouterStateSnapshot
+  ): Observable<boolean> {
+    // Check if admin is authenticated
+    if (!this.adminAuthService.isAuthenticated()) {
+      console.warn('Admin access denied: Not authenticated');
+      this.redirectToLogin(state.url);
+      return of(false);
+    }
+
+    // Check session expiry
+    return this.adminAuthService.checkSessionExpiry().pipe(
+      map(sessionValid => {
+        if (!sessionValid) {
+          console.warn('Admin access denied: Session expired');
+          this.redirectToLogin(state.url);
+          return false;
+        }
+
+        // Check required roles if specified in route data
+        const requiredRoles = route.data?.['roles'] as AdminRole[];
+        if (requiredRoles && requiredRoles.length > 0) {
+          if (!this.adminAuthService.hasAnyRole(requiredRoles)) {
+            console.warn('Admin access denied: Insufficient role permissions', {
+              required: requiredRoles,
+              current: this.adminAuthService.getCurrentRole()
+            });
+            this.redirectToUnauthorized();
+            return false;
+          }
+        }
+
+        // Check required permissions if specified in route data
+        const requiredPermissions = route.data?.['permissions'] as AdminPermission[];
+        if (requiredPermissions && requiredPermissions.length > 0) {
+          if (!this.adminAuthService.hasAllPermissions(requiredPermissions)) {
+            console.warn('Admin access denied: Missing required permissions', {
+              required: requiredPermissions,
+              current: this.adminAuthService.permissions()
+            });
+            this.redirectToUnauthorized();
+            return false;
+          }
+        }
+
+        // Check if any permission is required (user needs at least one)
+        const anyPermissions = route.data?.['anyPermissions'] as AdminPermission[];
+        if (anyPermissions && anyPermissions.length > 0) {
+          if (!this.adminAuthService.hasAnyPermission(anyPermissions)) {
+            console.warn('Admin access denied: No matching permissions', {
+              anyOf: anyPermissions,
+              current: this.adminAuthService.permissions()
+            });
+            this.redirectToUnauthorized();
+            return false;
+          }
+        }
+
+        // All checks passed
+        return true;
+      }),
+      catchError(error => {
+        console.error('Admin guard error:', error);
+        this.redirectToLogin(state.url);
+        return of(false);
+      })
+    );
+  }
+
+  /**
+   * Redirect to admin login page
+   * Stores return URL for post-login redirect
+   *
+   * @param returnUrl - URL to return to after login
+   */
+  private redirectToLogin(returnUrl: string): void {
+    // Store return URL for post-login redirect
+    sessionStorage.setItem('admin_return_url', returnUrl);
+
+    // Navigate to admin login
+    this.router.navigate(['/admin/login'], {
+      queryParams: { returnUrl },
+      replaceUrl: true
+    });
+  }
+
+  /**
+   * Redirect to unauthorized page
+   * Shows access denied message for insufficient permissions
+   */
+  private redirectToUnauthorized(): void {
+    this.router.navigate(['/admin/unauthorized'], {
+      replaceUrl: true
+    });
+  }
+}
+
+/**
+ * Permission-specific guard for admin operations
+ * Can be used as a functional guard with specific permission requirements
+ */
+export class AdminPermissionGuard {
+
+  constructor(
+    private adminAuthService: AdminAuthService,
+    private router: Router
+  ) {}
+
+  /**
+   * Create a guard function for specific permission
+   *
+   * @param permission - Required permission
+   * @returns Guard function
+   */
+  static requirePermission(permission: AdminPermission) {
+    return (route: ActivatedRouteSnapshot, state: RouterStateSnapshot): Observable<boolean> => {
+      const adminAuthService = new AdminAuthService();
+      const router = new Router();
+
+      if (!adminAuthService.isAuthenticated()) {
+        router.navigate(['/admin/login']);
+        return of(false);
+      }
+
+      if (!adminAuthService.hasPermission(permission)) {
+        router.navigate(['/admin/unauthorized']);
+        return of(false);
+      }
+
+      return of(true);
+    };
+  }
+
+  /**
+   * Create a guard function for multiple permissions (all required)
+   *
+   * @param permissions - Required permissions (all must be present)
+   * @returns Guard function
+   */
+  static requireAllPermissions(permissions: AdminPermission[]) {
+    return (route: ActivatedRouteSnapshot, state: RouterStateSnapshot): Observable<boolean> => {
+      const adminAuthService = new AdminAuthService();
+      const router = new Router();
+
+      if (!adminAuthService.isAuthenticated()) {
+        router.navigate(['/admin/login']);
+        return of(false);
+      }
+
+      if (!adminAuthService.hasAllPermissions(permissions)) {
+        router.navigate(['/admin/unauthorized']);
+        return of(false);
+      }
+
+      return of(true);
+    };
+  }
+
+  /**
+   * Create a guard function for any of multiple permissions
+   *
+   * @param permissions - Required permissions (at least one must be present)
+   * @returns Guard function
+   */
+  static requireAnyPermission(permissions: AdminPermission[]) {
+    return (route: ActivatedRouteSnapshot, state: RouterStateSnapshot): Observable<boolean> => {
+      const adminAuthService = new AdminAuthService();
+      const router = new Router();
+
+      if (!adminAuthService.isAuthenticated()) {
+        router.navigate(['/admin/login']);
+        return of(false);
+      }
+
+      if (!adminAuthService.hasAnyPermission(permissions)) {
+        router.navigate(['/admin/unauthorized']);
+        return of(false);
+      }
+
+      return of(true);
+    };
+  }
+
+  /**
+   * Create a guard function for specific role
+   *
+   * @param role - Required admin role
+   * @returns Guard function
+   */
+  static requireRole(role: AdminRole) {
+    return (route: ActivatedRouteSnapshot, state: RouterStateSnapshot): Observable<boolean> => {
+      const adminAuthService = new AdminAuthService();
+      const router = new Router();
+
+      if (!adminAuthService.isAuthenticated()) {
+        router.navigate(['/admin/login']);
+        return of(false);
+      }
+
+      if (!adminAuthService.hasRole(role)) {
+        router.navigate(['/admin/unauthorized']);
+        return of(false);
+      }
+
+      return of(true);
+    };
+  }
+
+  /**
+   * Create a guard function for any of multiple roles
+   *
+   * @param roles - Required admin roles (at least one must match)
+   * @returns Guard function
+   */
+  static requireAnyRole(roles: AdminRole[]) {
+    return (route: ActivatedRouteSnapshot, state: RouterStateSnapshot): Observable<boolean> => {
+      const adminAuthService = new AdminAuthService();
+      const router = new Router();
+
+      if (!adminAuthService.isAuthenticated()) {
+        router.navigate(['/admin/login']);
+        return of(false);
+      }
+
+      if (!adminAuthService.hasAnyRole(roles)) {
+        router.navigate(['/admin/unauthorized']);
+        return of(false);
+      }
+
+      return of(true);
+    };
+  }
+}
+
+/**
+ * Super Admin Guard
+ * Restricts access to super admin only routes
+ */
+@Injectable({
+  providedIn: 'root'
+})
+export class SuperAdminGuard implements CanActivate {
+
+  constructor(
+    private adminAuthService: AdminAuthService,
+    private router: Router
+  ) {}
+
+  canActivate(): Observable<boolean> {
+    if (!this.adminAuthService.isAuthenticated()) {
+      this.router.navigate(['/admin/login']);
+      return of(false);
+    }
+
+    if (!this.adminAuthService.hasRole('super_admin')) {
+      this.router.navigate(['/admin/unauthorized']);
+      return of(false);
+    }
+
+    return of(true);
+  }
+}

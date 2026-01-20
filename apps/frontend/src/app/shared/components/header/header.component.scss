@@ -1,0 +1,530 @@
+/**
+ * SouqSyria Header Component Styles
+ * @description Custom SCSS styles for the header navigation component
+ * Combines Tailwind CSS utilities with component-specific styles
+ * Includes responsive design, RTL support, and accessibility features
+ */
+
+// Component-scoped styles
+.sq-header {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  
+  // RTL direction support
+  &.rtl {
+    direction: rtl;
+    
+    .sq-logo {
+      flex-direction: row-reverse;
+    }
+    
+    .sq-search-form {
+      .sq-category-select {
+        border-left: 1px solid theme('colors.gray.300');
+        border-right: none;
+      }
+    }
+  }
+}
+
+// Container utility class
+.sq-container {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 1rem;
+  
+  @media (min-width: 768px) {
+    padding: 0 1.5rem;
+  }
+  
+  @media (min-width: 1024px) {
+    padding: 0 2rem;
+  }
+}
+
+// Main header toolbar
+.sq-main-header {
+  min-height: 64px;
+  
+  @media (min-width: 1024px) {
+    min-height: 72px;
+  }
+  
+  // Logo styles
+  .sq-logo {
+    transition: transform 0.2s ease;
+    
+    &:hover {
+      transform: scale(1.02);
+    }
+    
+    h1 {
+      background: linear-gradient(135deg, theme('colors.primary.600'), theme('colors.primary.800'));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+  }
+  
+  // Search form styles
+  .sq-search-form {
+    .sq-category-select {
+      min-width: 140px;
+      
+      ::ng-deep {
+        .mat-mdc-form-field-subscript-wrapper {
+          display: none;
+        }
+        
+        .mat-mdc-form-field-infix {
+          border: none;
+          padding: 0.75rem 1rem;
+        }
+        
+        .mdc-text-field {
+          background: transparent;
+          border-radius: 0.5rem 0 0 0.5rem;
+        }
+        
+        .mat-mdc-select-arrow {
+          color: theme('colors.neutral.500');
+        }
+      }
+    }
+    
+    // Search suggestions
+    .search-suggestions {
+      max-height: 300px;
+      overflow-y: auto;
+      scrollbar-width: thin;
+      scrollbar-color: theme('colors.neutral.300') transparent;
+      
+      &::-webkit-scrollbar {
+        width: 4px;
+      }
+      
+      &::-webkit-scrollbar-track {
+        background: transparent;
+      }
+      
+      &::-webkit-scrollbar-thumb {
+        background: theme('colors.neutral.300');
+        border-radius: 2px;
+      }
+    }
+  }
+  
+  // Button styles
+  .sq-search-btn {
+    background: linear-gradient(135deg, theme('colors.primary.600'), theme('colors.primary.700'));
+    border: none;
+    transition: background 0.2s ease, transform 0.1s ease;
+    
+    &:hover {
+      background: linear-gradient(135deg, theme('colors.primary.700'), theme('colors.primary.800'));
+      transform: translateY(-1px);
+    }
+    
+    &:active {
+      transform: translateY(0);
+    }
+  }
+  
+  .sq-location-btn,
+  .sq-login-btn,
+  .sq-user-btn {
+    min-height: 40px;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+    
+    &:hover {
+      background: theme('colors.primary.50');
+      color: theme('colors.primary.700');
+    }
+  }
+  
+  .sq-cart-btn {
+    position: relative;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    transition: all 0.2s ease;
+    
+    &:hover {
+      background: theme('colors.primary.50');
+      color: theme('colors.primary.700');
+      transform: scale(1.05);
+    }
+    
+    ::ng-deep .mat-badge-content {
+      background: theme('colors.accent.600');
+      color: white;
+      font-size: 0.75rem;
+      font-weight: 600;
+      min-width: 18px;
+      height: 18px;
+      line-height: 18px;
+    }
+  }
+  
+  .sq-language-toggle {
+    height: 32px;
+    
+    .sq-lang-btn {
+      min-height: 32px;
+      min-width: 48px;
+      border: none;
+      font-weight: 500;
+      position: relative;
+      overflow: hidden;
+      
+      &:first-child {
+        border-top-right-radius: 0;
+        border-bottom-right-radius: 0;
+      }
+      
+      &:last-child {
+        border-top-left-radius: 0;
+        border-bottom-left-radius: 0;
+        border-left: 1px solid theme('colors.gray.300');
+      }
+      
+      &:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+      
+      &:focus-visible {
+        outline: 2px solid theme('colors.primary.500');
+        outline-offset: 2px;
+        z-index: 1;
+      }
+      
+      &[aria-pressed="true"] {
+        box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+    }
+  }
+}
+
+// Category navigation
+.sq-category-nav {
+  background: linear-gradient(135deg, theme('colors.primary.700'), theme('colors.primary.800'));
+  
+  .sq-categories-btn {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    transition: all 0.2s ease;
+    
+    &:hover {
+      background: rgba(255, 255, 255, 0.2);
+      transform: translateY(-1px);
+    }
+  }
+  
+  .sq-nav-link {
+    position: relative;
+    padding: 0.75rem 0;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    
+    &:hover {
+      color: theme('colors.primary.200');
+      transform: translateY(-1px);
+    }
+    
+    &:after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 0;
+      height: 2px;
+      background: theme('colors.primary.200');
+      transition: width 0.3s ease;
+    }
+    
+    &:hover:after,
+    &.active:after {
+      width: 100%;
+    }
+  }
+}
+
+// Mega menu overlay
+.sq-mega-menu-overlay {
+  backdrop-filter: blur(2px);
+  animation: fadeIn 0.2s ease;
+}
+
+// Menu customizations
+::ng-deep {
+  .sq-location-menu,
+  .sq-user-menu,
+  .sq-categories-mega-menu {
+    .mat-mdc-menu-content {
+      padding: 0;
+      border-radius: 8px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+      border: 1px solid theme('colors.gray.200');
+      overflow: hidden;
+    }
+    
+    .mat-mdc-menu-item {
+      transition: all 0.2s ease;
+      
+      &:hover {
+        background: theme('colors.primary.50');
+        color: theme('colors.primary.700');
+      }
+    }
+  }
+  
+  .sq-categories-mega-menu .mat-mdc-menu-content {
+    min-width: 600px;
+    max-width: 800px;
+  }
+}
+
+// Mobile navigation wrapper
+.sq-mobile-menu-wrapper {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1000;
+  pointer-events: none;
+  
+  &.sq-mobile-menu-open {
+    pointer-events: auto;
+  }
+  
+  // Hide on desktop
+  @media (min-width: 1024px) {
+    display: none;
+  }
+}
+
+// Mobile navigation
+.sq-mobile-nav {
+  ::ng-deep .mat-drawer-inner-container {
+    overflow-x: hidden;
+    scrollbar-width: thin;
+    scrollbar-color: theme('colors.neutral.300') transparent;
+    
+    &::-webkit-scrollbar {
+      width: 4px;
+    }
+    
+    &::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    
+    &::-webkit-scrollbar-thumb {
+      background: theme('colors.neutral.300');
+      border-radius: 2px;
+    }
+  }
+  
+  .sq-mobile-nav-header {
+    background: linear-gradient(135deg, theme('colors.primary.600'), theme('colors.primary.800'));
+  }
+  
+  .sq-mobile-nav-content {
+    // Category expansion panels
+    ::ng-deep {
+      .mat-expansion-panel {
+        margin-bottom: 0.5rem;
+        border-radius: 8px;
+        overflow: hidden;
+        
+        &:not(.mat-expanded) {
+          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        
+        .mat-expansion-panel-header {
+          padding: 0 1rem;
+          height: 48px;
+          
+          &:hover {
+            background: theme('colors.primary.50');
+          }
+        }
+        
+        .mat-expansion-panel-content {
+          .mat-expansion-panel-body {
+            padding: 0.5rem 1rem 1rem;
+          }
+        }
+      }
+    }
+  }
+}
+
+// Responsive design
+@media (max-width: 768px) {
+  .sq-header {
+    .sq-main-header {
+      min-height: 56px;
+      
+      .sq-container {
+        padding: 0 0.75rem;
+      }
+      
+      .sq-logo {
+        h1 {
+          font-size: 1.125rem;
+        }
+        
+        p {
+          font-size: 0.625rem;
+        }
+      }
+    }
+  }
+  
+  .sq-mobile-nav {
+    width: 100vw;
+    max-width: 320px;
+  }
+}
+
+@media (max-width: 480px) {
+  .sq-header {
+    .sq-logo {
+      .hidden {
+        display: none !important;
+      }
+    }
+  }
+}
+
+// Animation keyframes
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+// Focus and accessibility styles
+.sq-header {
+  button,
+  a,
+  input,
+  select {
+    &:focus-visible {
+      outline: 2px solid theme('colors.primary.500');
+      outline-offset: 2px;
+      border-radius: 4px;
+    }
+  }
+  
+  // High contrast mode support
+  @media (prefers-contrast: high) {
+    .sq-main-header {
+      border-bottom: 2px solid theme('colors.neutral.900');
+    }
+    
+    .sq-category-nav {
+      background: theme('colors.neutral.900');
+    }
+    
+    .sq-nav-link {
+      &:hover,
+      &:focus {
+        background: theme('colors.neutral.100');
+        color: theme('colors.neutral.900');
+      }
+    }
+  }
+  
+  // Reduced motion support
+  @media (prefers-reduced-motion: reduce) {
+    * {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}
+
+// Colorful Separator Line
+.sq-colorful-separator {
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s ease;
+
+  // Add subtle shimmer animation
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      rgba(255, 255, 255, 0.3),
+      transparent
+    );
+    animation: shimmer 3s ease-in-out infinite;
+  }
+
+  // Smooth color transitions between segments
+  div {
+    transition: all 0.3s ease;
+    position: relative;
+
+    &:hover {
+      transform: scaleY(1.5);
+      filter: brightness(1.1);
+      z-index: 1;
+    }
+  }
+
+  // Responsive height adjustments
+  @media (max-width: 768px) {
+    height: 3px;
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    left: -100%;
+  }
+  50% {
+    left: 0%;
+  }
+  100% {
+    left: 100%;
+  }
+}
+
+// Print styles
+@media print {
+  .sq-header {
+    display: none;
+  }
+
+  .sq-colorful-separator {
+    display: none;
+  }
+}

@@ -1,0 +1,432 @@
+/**
+ * Golden Wheat Design System - Badge Styles
+ *
+ * Badge and chip components for Syrian marketplace
+ * Heritage badges, status indicators, labels
+ *
+ * @description Badge system including:
+ * - Heritage badges (UNESCO, Artisan, Damascus Steel)
+ * - Status badges (Sale, New, Hot)
+ * - Stock indicators
+ * - Chips (removable tags)
+ *
+ * @usage Import design tokens first, then this file
+ */
+
+// ============================================================================
+// BASE BADGE STYLES
+// ============================================================================
+
+/**
+ * Base badge class
+ * Small label component
+ */
+.badge,
+%badge-base {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: $badge-padding-y $badge-padding-x;    // 4px 8px
+  font-family: $font-family-sans;
+  font-size: $font-size-xs;                      // 12px
+  font-weight: $font-weight-semibold;            // 600
+  line-height: $line-height-tight;
+  border-radius: $badge-radius;                  // 4px
+  white-space: nowrap;
+  transition: all 0.2s ease;
+}
+
+// ============================================================================
+// HERITAGE/CULTURAL BADGES
+// ============================================================================
+
+/**
+ * UNESCO World Heritage badge
+ * Gold with special glow effect
+ */
+.badge-unesco {
+  @extend %badge-base;
+  background-color: $badge-unesco;               // Syrian gold
+  color: $neutral-900;                           // Dark text
+  box-shadow: $badge-shadow-unesco;
+  font-weight: $font-weight-bold;
+
+  &::before {
+    content: '🏛️ ';                              // UNESCO icon
+    margin-right: $space-1;
+  }
+}
+
+/**
+ * Artisan Crafted badge
+ * Golden wheat theme
+ */
+.badge-artisan {
+  @extend %badge-base;
+  background-color: $badge-artisan;              // Golden wheat
+  color: $neutral-50;
+
+  &::before {
+    content: '✋ ';                               // Hand icon
+    margin-right: $space-1;
+  }
+}
+
+/**
+ * Damascus Steel Authentic badge
+ * Dark, premium feel
+ */
+.badge-damascus-steel {
+  @extend %badge-base;
+  background-color: $badge-damascus-steel;       // Charcoal
+  color: $neutral-50;
+
+  &::before {
+    content: '⚔️ ';                              // Sword icon
+    margin-right: $space-1;
+  }
+}
+
+/**
+ * Verified Seller badge
+ * Green checkmark
+ */
+.badge-verified {
+  @extend %badge-base;
+  background-color: $badge-verified;             // Forest green
+  color: $neutral-50;
+
+  &::before {
+    content: '✓ ';                               // Check icon
+    margin-right: $space-1;
+  }
+}
+
+// ============================================================================
+// STATUS/PROMOTIONAL BADGES
+// ============================================================================
+
+/**
+ * Sale badge
+ * Red, urgent attention
+ */
+.badge-sale {
+  @extend %badge-base;
+  background-color: $badge-sale;                 // Syrian red
+  color: $neutral-50;
+  box-shadow: $badge-shadow-sale;
+  animation: pulse-badge 2s infinite;
+}
+
+/**
+ * New badge
+ * Forest green
+ */
+.badge-new {
+  @extend %badge-base;
+  background-color: $badge-new;                  // Forest green
+  color: $neutral-50;
+}
+
+/**
+ * Hot Deal badge
+ * Accent red
+ */
+.badge-hot {
+  @extend %badge-base;
+  background-color: $badge-hot;                  // Accent red
+  color: $neutral-50;
+
+  &::before {
+    content: '🔥 ';
+    margin-right: $space-1;
+  }
+}
+
+/**
+ * Limited Stock badge
+ * Dark accent
+ */
+.badge-limited {
+  @extend %badge-base;
+  background-color: $badge-limited;              // Dark accent
+  color: $neutral-50;
+}
+
+// ============================================================================
+// STOCK STATUS BADGES
+// ============================================================================
+
+/**
+ * In Stock badge
+ * Green indicator
+ */
+.badge-in-stock {
+  @extend %badge-base;
+  background-color: $stock-in-stock;
+  color: $neutral-50;
+
+  &::before {
+    content: '●';
+    margin-right: $space-1;
+    color: lighten($stock-in-stock, 30%);
+  }
+}
+
+/**
+ * Low Stock badge
+ * Warning yellow/golden
+ */
+.badge-low-stock {
+  @extend %badge-base;
+  background-color: $stock-low;
+  color: $neutral-900;
+
+  &::before {
+    content: '●';
+    margin-right: $space-1;
+    color: darken($stock-low, 20%);
+  }
+}
+
+/**
+ * Out of Stock badge
+ * Red/error
+ */
+.badge-out-of-stock {
+  @extend %badge-base;
+  background-color: $stock-out;
+  color: $neutral-50;
+
+  &::before {
+    content: '●';
+    margin-right: $space-1;
+    color: lighten($stock-out, 30%);
+  }
+}
+
+// ============================================================================
+// SHIPPING BADGES
+// ============================================================================
+
+/**
+ * Free Shipping badge
+ */
+.badge-free-shipping {
+  @extend %badge-base;
+  background-color: $shipping-free;
+  color: $neutral-50;
+
+  &::before {
+    content: '📦 ';
+    margin-right: $space-1;
+  }
+}
+
+/**
+ * Express Shipping badge
+ */
+.badge-express-shipping {
+  @extend %badge-base;
+  background-color: $shipping-express;
+  color: $neutral-50;
+
+  &::before {
+    content: '⚡ ';
+    margin-right: $space-1;
+  }
+}
+
+// ============================================================================
+// BADGE VARIANTS (Size, Style)
+// ============================================================================
+
+/**
+ * Small badge
+ */
+.badge-sm {
+  padding: $space-0-5 $space-2;                  // 2px 8px
+  font-size: $font-size-2xs;                     // 10px
+}
+
+/**
+ * Large badge
+ */
+.badge-lg {
+  padding: $space-2 $space-4;                    // 8px 16px
+  font-size: $font-size-sm;                      // 14px
+}
+
+/**
+ * Pill badge (fully rounded)
+ */
+.badge-pill {
+  border-radius: $border-radius-full;
+}
+
+/**
+ * Outline badge
+ */
+.badge-outline {
+  background-color: transparent;
+  border: $border-width-thin solid currentColor;
+
+  &.badge-primary {
+    color: $primary-600;
+    border-color: $primary-600;
+  }
+
+  &.badge-success {
+    color: $success-600;
+    border-color: $success-600;
+  }
+}
+
+// ============================================================================
+// CHIPS (Removable tags)
+// ============================================================================
+
+/**
+ * Chip component
+ * Removable tag with close button
+ */
+.chip {
+  @extend %badge-base;
+  padding: $chip-padding-y $chip-padding-x;      // 4px 12px
+  border-radius: $chip-radius;                   // Fully rounded
+  background-color: $neutral-200;
+  color: $neutral-700;
+  gap: $space-2;
+
+  .chip-label {
+    flex: 1;
+  }
+
+  .chip-remove {
+    width: 1rem;
+    height: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    border-radius: $border-radius-full;
+    transition: background-color 0.2s ease;
+
+    &:hover {
+      background-color: rgba(0, 0, 0, 0.1);
+    }
+
+    &::before {
+      content: '×';
+      font-size: 1.25rem;
+      line-height: 1;
+    }
+  }
+}
+
+/**
+ * Primary chip
+ */
+.chip-primary {
+  background-color: $primary-100;
+  color: $primary-800;
+
+  .chip-remove:hover {
+    background-color: $primary-200;
+  }
+}
+
+/**
+ * Secondary chip
+ */
+.chip-secondary {
+  background-color: $secondary-100;
+  color: $secondary-800;
+
+  .chip-remove:hover {
+    background-color: $secondary-200;
+  }
+}
+
+// ============================================================================
+// BADGE ANIMATIONS
+// ============================================================================
+
+/**
+ * Pulse animation for sale badges
+ */
+@keyframes pulse-badge {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(206, 17, 38, 0.7);
+  }
+  50% {
+    box-shadow: 0 0 0 6px rgba(206, 17, 38, 0);
+  }
+}
+
+/**
+ * Shimmer animation for premium badges
+ */
+@keyframes shimmer {
+  0% {
+    background-position: -100% 0;
+  }
+  100% {
+    background-position: 100% 0;
+  }
+}
+
+.badge-shimmer {
+  background: linear-gradient(
+    90deg,
+    $syrian-gold-500 0%,
+    $syrian-gold-300 50%,
+    $syrian-gold-500 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 3s infinite;
+}
+
+// ============================================================================
+// BADGE GROUPS
+// ============================================================================
+
+/**
+ * Badge group
+ * Multiple badges stacked
+ */
+.badge-group {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: $badge-gap;                               // 4px
+  align-items: center;
+}
+
+// ============================================================================
+// RTL SUPPORT
+// ============================================================================
+
+[dir="rtl"] {
+  .badge,
+  .chip {
+    &::before {
+      margin-right: 0;
+      margin-left: $space-1;
+    }
+  }
+}
+
+// ============================================================================
+// RESPONSIVE ADJUSTMENTS
+// ============================================================================
+
+@media (max-width: 640px) {
+  .badge {
+    font-size: $font-size-2xs;                   // Smaller on mobile
+    padding: $space-0-5 $space-1-5;
+  }
+
+  .badge-lg {
+    font-size: $font-size-xs;
+  }
+}

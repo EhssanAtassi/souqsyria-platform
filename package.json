@@ -1,0 +1,38 @@
+{
+  "name": "souqsyria-platform",
+  "version": "1.0.0",
+  "description": "SouqSyria - Syrian E-commerce Platform Monorepo",
+  "private": true,
+  "workspaces": [
+    "apps/*"
+  ],
+  "scripts": {
+    "frontend": "npm run start --workspace=apps/frontend",
+    "backend": "npm run start:dev --workspace=apps/backend",
+    "frontend:build": "npm run build --workspace=apps/frontend",
+    "backend:build": "npm run build --workspace=apps/backend",
+    "frontend:test": "npm run test --workspace=apps/frontend",
+    "backend:test": "npm run test --workspace=apps/backend",
+    "test": "npm run frontend:test && npm run backend:test",
+    "build": "npm run frontend:build && npm run backend:build",
+    "install:all": "npm install",
+    "clean": "rm -rf node_modules apps/*/node_modules",
+    "dev": "concurrently \"npm run backend\" \"npm run frontend\"",
+    "docker:up": "docker-compose up -d",
+    "docker:down": "docker-compose down",
+    "docker:logs": "docker-compose logs -f"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=9.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/EhssanAtassi/souqsyria-platform.git"
+  },
+  "author": "Ehssan Atassi",
+  "license": "UNLICENSED"
+}

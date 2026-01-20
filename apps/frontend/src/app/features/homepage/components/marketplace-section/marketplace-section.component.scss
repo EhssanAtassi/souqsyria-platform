@@ -1,0 +1,47 @@
+/**
+ * Marketplace Section Styles
+ *
+ * Homepage marketplace section container.
+ * Uses Golden Wheat design system with RTL support.
+ */
+
+@import '../../../../shared/styles/variables';
+@import '../../../../shared/styles/mixins';
+
+.marketplace-section {
+  @include section-spacing;
+  background: linear-gradient(to bottom, #ffffff 0%, $golden-wheat-light 100%);
+
+  /**
+   * Error State
+   */
+  &__error {
+    @include card-base;
+    padding: $space-8;
+    text-align: center;
+    background: rgba($umber-light, 0.1);
+    border: 1px solid $umber-medium;
+
+    p {
+      margin: 0;
+      font-size: $font-size-base;
+      color: $umber-medium;
+      font-weight: $font-weight-medium;
+    }
+  }
+
+  /**
+   * RTL mode adjustments
+   */
+  &.rtl-mode {
+    direction: rtl;
+  }
+
+  /**
+   * Mobile optimizations
+   */
+  @media (max-width: $breakpoint-sm) {
+    padding-top: $space-8;
+    padding-bottom: $space-8;
+  }
+}

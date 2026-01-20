@@ -1,0 +1,260 @@
+<!-- Product Recommendations Sidebar for SouqSyria Syrian Marketplace -->
+<aside class="product-recommendations"
+       [class]="'layout-' + layout"
+       [class.loading]="isLoadingProducts()"
+       role="complementary"
+       [attr.aria-label]="title + ' - ' + titleArabic">
+
+  <!-- Section Header -->
+  <div class="recommendations-header">
+    <h3 class="section-title">
+      <mat-icon class="title-icon syrian-red" aria-hidden="true">recommend</mat-icon>
+      <span class="title-text">
+        <span class="title-english">{{title}}</span>
+        <span class="title-arabic" [attr.lang]="'ar'">{{titleArabic}}</span>
+      </span>
+    </h3>
+
+    <!-- Cultural Products Badge -->
+    <div *ngIf="culturalProductsCount() > 0"
+         class="cultural-badge"
+         [attr.title]="'Syrian cultural products available'">
+      <mat-icon class="text-gold-500">heritage</mat-icon>
+      <span class="badge-text">
+        {{culturalProductsCount()}} Cultural Products
+      </span>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="isLoadingProducts()"
+       class="loading-state"
+       role="status"
+       aria-live="polite"
+       aria-label="Loading product recommendations">
+    <div class="loading-content">
+      <mat-spinner diameter="40" aria-hidden="true"></mat-spinner>
+      <span class="loading-text">
+        جاري التحميل... | Loading recommendations...
+      </span>
+    </div>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="!isLoadingProducts() && productsError()"
+       class="error-state"
+       role="alert"
+       aria-live="assertive">
+    <div class="error-content">
+      <mat-icon class="error-icon">error_outline</mat-icon>
+      <div class="error-message">
+        <h4 class="error-title">
+          خطأ في التحميل | Loading Error
+        </h4>
+        <p class="error-description">
+          {{productsError()}}
+        </p>
+        <button mat-raised-button
+                color="primary"
+                (click)="onRetryLoad()"
+                class="retry-button"
+                [attr.aria-label]="'Retry loading recommendations'">
+          <mat-icon>refresh</mat-icon>
+          إعادة المحاولة | Retry
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Empty State -->
+  <div *ngIf="!isLoadingProducts() && !productsError() && !hasProducts()"
+       class="empty-state"
+       role="status">
+    <div class="empty-content">
+      <mat-icon class="empty-icon">shopping_basket</mat-icon>
+      <div class="empty-message">
+        <h4 class="empty-title">
+          لا توجد توصيات | No Recommendations
+        </h4>
+        <p class="empty-description">
+          لا توجد منتجات مقترحة في الوقت الحالي
+          <br>
+          No product recommendations available at the moment
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Products Grid -->
+  <div *ngIf="!isLoadingProducts() && !productsError() && hasProducts()"
+       class="products-grid"
+       [attr.data-testid]="'recommendations-grid-' + campaignType">
+
+    <div *ngFor="let product of recommendedProducts(); let i = index; trackBy: trackProduct"
+         class="product-card"
+         [class.cultural-product]="isSyrianCulturalProduct(product)"
+         (click)="onProductClick(product)"
+         [attr.aria-label]="product.name + ' - ' + (product.nameArabic || '')"
+         [attr.data-testid]="'recommendation-product-' + product.id"
+         role="button"
+         tabindex="0"
+         (keydown.enter)="onProductClick(product)"
+         (keydown.space)="onProductClick(product, $event)"
+         matRipple>
+
+      <!-- Product Image -->
+      <div class="product-image">
+        <img [src]="product.images[0]?.url || '/assets/images/placeholder-image.svg'"
+             [alt]="product.images[0]?.alt || product.name"
+             class="product-img"
+             loading="lazy"
+             [attr.aria-hidden]="true">
+
+        <!-- Cultural Badge -->
+        <div *ngIf="getCulturalBadge(product) as badge"
+             class="cultural-badge-overlay"
+             [class]="'badge-' + badge.color"
+             [attr.title]="badge.text">
+          <mat-icon class="badge-icon">{{badge.icon}}</mat-icon>
+        </div>
+
+        <!-- Discount Badge -->
+        <div *ngIf="product.price.discount && product.price.discount > 0"
+             class="discount-badge"
+             [attr.title]="product.price.discount + '% discount'">
+          <span class="discount-text">{{product.price.discount}}%</span>
+        </div>
+
+        <!-- Stock Status -->
+        <div *ngIf="!product.inventory.inStock"
+             class="stock-status out-of-stock"
+             [attr.title]="'Out of stock'">
+          <mat-icon>inventory_2</mat-icon>
+          <span>نفدت الكمية</span>
+        </div>
+      </div>
+
+      <!-- Product Info -->
+      <div class="product-info">
+
+        <!-- Product Name -->
+        <h4 class="product-name">
+          <span class="name-english">{{product.name}}</span>
+          <span *ngIf="product.nameArabic"
+                class="name-arabic"
+                [attr.lang]="'ar'">{{product.nameArabic}}</span>
+        </h4>
+
+        <!-- Product Rating -->
+        <div *ngIf="product.reviews.averageRating > 0"
+             class="product-rating">
+          <div class="rating-stars">
+            <ng-container *ngFor="let star of [1,2,3,4,5]; let starIndex = index">
+              <mat-icon class="star"
+                        [class.filled]="starIndex < product.reviews.averageRating"
+                        [class.half]="starIndex === Math.floor(product.reviews.averageRating) && product.reviews.averageRating % 1 >= 0.5"
+                        aria-hidden="true">
+                {{starIndex < product.reviews.averageRating ? 'star' : 'star_border'}}
+              </mat-icon>
+            </ng-container>
+          </div>
+          <span class="rating-text">
+            ({{product.reviews.totalReviews}})
+          </span>
+        </div>
+
+        <!-- Product Price -->
+        <div *ngIf="showPrices"
+             class="product-pricing">
+          <ng-container *ngIf="getFormattedPrice(product) as pricing">
+            <div class="price-current syrian-red">
+              {{pricing.current}}
+            </div>
+            <div *ngIf="pricing.original"
+                 class="price-original">
+              {{pricing.original}}
+            </div>
+          </ng-container>
+        </div>
+
+        <!-- Product Category -->
+        <div class="product-category">
+          <mat-icon class="category-icon">category</mat-icon>
+          <span class="category-text">{{product.category.name}}</span>
+        </div>
+
+        <!-- Syrian Heritage Info -->
+        <div *ngIf="isSyrianCulturalProduct(product)"
+             class="heritage-info">
+          <mat-icon class="heritage-icon text-gold-500">heritage</mat-icon>
+          <span class="heritage-text">
+            Syrian Heritage | تراث سوري
+          </span>
+        </div>
+
+      </div>
+
+      <!-- Product Actions -->
+      <div class="product-actions">
+
+        <!-- Add to Cart Button -->
+        <button *ngIf="showAddToCart && product.inventory.inStock"
+                type="button"
+                mat-mini-fab
+                color="primary"
+                class="add-to-cart-btn"
+                (click)="onAddToCart(product, $event)"
+                [attr.aria-label]="'Add ' + product.name + ' to cart'"
+                [attr.data-testid]="'add-to-cart-' + product.id"
+                matRipple>
+          <mat-icon>add_shopping_cart</mat-icon>
+        </button>
+
+        <!-- View Product Button -->
+        <button type="button"
+                mat-mini-fab
+                color="accent"
+                class="view-product-btn"
+                (click)="onProductClick(product, $event)"
+                [attr.aria-label]="'View ' + product.name + ' details'"
+                [attr.data-testid]="'view-product-' + product.id"
+                matRipple>
+          <mat-icon>visibility</mat-icon>
+        </button>
+
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- View More Button -->
+  <div *ngIf="hasProducts() && recommendedProducts().length >= maxProducts"
+       class="view-more-section">
+    <button mat-stroked-button
+            color="primary"
+            class="view-more-btn"
+            routerLink="/search"
+            [queryParams]="{campaign: campaignType}"
+            [attr.aria-label]="'View more recommendations'"
+            [attr.data-testid]="'view-more-recommendations'">
+      <mat-icon>visibility</mat-icon>
+      <span class="btn-text">
+        عرض المزيد | View More
+      </span>
+    </button>
+  </div>
+
+  <!-- Campaign Context Info -->
+  <div *ngIf="hasProducts() && campaignType !== 'general'"
+       class="campaign-context">
+    <div class="context-content">
+      <mat-icon class="context-icon">info</mat-icon>
+      <div class="context-text">
+        <span class="context-label">Campaign Context:</span>
+        <span class="context-value">{{campaignType | titlecase}}</span>
+      </div>
+    </div>
+  </div>
+
+</aside>

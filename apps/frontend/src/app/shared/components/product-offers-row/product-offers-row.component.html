@@ -1,0 +1,39 @@
+<!-- Product Offers Row Section -->
+<section
+  class="product-offers-row-section"
+  [style.background-color]="bgColor()"
+  role="region"
+  [attr.aria-label]="sectionTitle() + ' - ' + sectionTitleAr()">
+
+  <div class="container">
+
+    <!-- Section Header (Optional) -->
+    @if (showTitle()) {
+      <div class="section-header">
+        <h2 class="section-title">
+          <span class="title-ar">{{ sectionTitleAr() }}</span>
+          <span class="title-divider">|</span>
+          <span class="title-en">{{ sectionTitle() }}</span>
+        </h2>
+      </div>
+    }
+
+    <!-- Offers Grid (3 columns) -->
+    <div class="offers-grid">
+      @for (offer of offers(); track trackByOfferId($index, offer)) {
+        <app-product-offer-card
+          [offer]="offer"
+          (cardClick)="onOfferCardClick($event)" />
+      }
+    </div>
+
+    <!-- Empty State -->
+    @if (offers().length === 0) {
+      <div class="empty-state">
+        <p class="empty-message-ar">لا توجد عروض متاحة حالياً</p>
+        <p class="empty-message-en">No offers available at the moment</p>
+      </div>
+    }
+
+  </div>
+</section>

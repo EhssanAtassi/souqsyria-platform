@@ -1,0 +1,37 @@
+/**
+ * Hero Progress Component Styles
+ */
+
+.hero-progress {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.3);
+  z-index: 10;
+  overflow: hidden;
+}
+
+.hero-progress__bar {
+  height: 100%;
+  transition: width 0.1s linear;
+
+  &--golden-wheat {
+    background: var(--golden-wheat-dark, #988561);
+  }
+
+  &--forest {
+    background: var(--forest, #002623);
+  }
+
+  &--deep-umber {
+    background: var(--deep-umber, #4a151e);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-progress__bar {
+    transition: none;
+  }
+}

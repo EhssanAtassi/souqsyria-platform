@@ -1,0 +1,515 @@
+/**
+ * Golden Wheat Design System - Form Styles
+ *
+ * Complete form component styles for Syrian marketplace
+ * Inputs, selects, checkboxes, radios with Golden Wheat theme
+ *
+ * @description Form system including:
+ * - Text inputs and textareas
+ * - Select dropdowns
+ * - Checkboxes and radios
+ * - Form groups and labels
+ * - Validation states
+ * - RTL support
+ *
+ * @usage Import design tokens first, then this file
+ */
+
+// ============================================================================
+// BASE FORM STYLES
+// ============================================================================
+
+/**
+ * Form group
+ * Container for label + input
+ */
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: $form-label-margin;                       // 8px
+  margin-bottom: $form-field-gap;                // 16px
+}
+
+/**
+ * Form label
+ */
+.form-label {
+  font-family: $font-family-sans;
+  font-size: $font-size-sm;                      // 14px
+  font-weight: $font-weight-medium;              // 500
+  color: $text-primary;
+  line-height: $line-height-tight;
+
+  // Required asterisk
+  &.required::after {
+    content: ' *';
+    color: $error-500;
+  }
+}
+
+/**
+ * Form helper text
+ */
+.form-helper {
+  font-size: $font-size-xs;                      // 12px
+  color: $text-secondary;
+  line-height: $line-height-snug;
+  margin-top: $space-1;
+}
+
+/**
+ * Form error text
+ */
+.form-error {
+  font-size: $font-size-xs;
+  color: $error-500;
+  line-height: $line-height-snug;
+  margin-top: $space-1;
+  display: flex;
+  align-items: center;
+  gap: $space-1;
+
+  &::before {
+    content: '⚠';
+  }
+}
+
+// ============================================================================
+// TEXT INPUTS
+// ============================================================================
+
+/**
+ * Base input styles
+ * Text, email, password, number, etc.
+ */
+.form-input,
+%input-base {
+  // Typography
+  font-family: $font-family-sans;
+  font-size: $font-size-base;                    // 16px (prevents zoom on iOS)
+  font-weight: $font-weight-normal;
+  color: $text-primary;
+
+  // Layout
+  width: 100%;
+  padding: $input-padding-y $input-padding-x;    // 8px 12px
+  min-height: 44px;                              // WCAG touch target
+
+  // Visual
+  background-color: $bg-input;                   // White
+  border: $input-border;                         // 1px solid light gray
+  border-radius: $input-radius;                  // 8px
+  box-shadow: $shadow-inner-sm;                  // Subtle inset shadow
+
+  // Behavior
+  transition: all 0.2s ease;
+  outline: none;
+
+  // Placeholder
+  &::placeholder {
+    color: $text-placeholder;
+    opacity: 1;
+  }
+
+  // Hover state
+  &:hover:not(:disabled) {
+    border-color: $border-color-input-hover;     // Golden wheat
+  }
+
+  // Focus state
+  &:focus {
+    border: $input-border-focus;                 // 2px golden wheat
+    box-shadow: $shadow-focus-primary;
+    background-color: $neutral-50;
+  }
+
+  // Disabled state
+  &:disabled {
+    background-color: $bg-disabled;
+    color: $text-disabled;
+    cursor: not-allowed;
+    opacity: 0.6;
+  }
+
+  // Read-only state
+  &:read-only {
+    background-color: $neutral-100;
+    cursor: default;
+  }
+}
+
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="number"],
+input[type="tel"],
+input[type="url"],
+input[type="search"],
+input[type="date"],
+input[type="time"],
+input[type="datetime-local"] {
+  @extend %input-base;
+}
+
+// ============================================================================
+// TEXTAREA
+// ============================================================================
+
+/**
+ * Textarea
+ * Multi-line text input
+ */
+textarea.form-input {
+  @extend %input-base;
+  min-height: 120px;
+  resize: vertical;
+  line-height: $line-height-normal;
+}
+
+// ============================================================================
+// SELECT DROPDOWN
+// ============================================================================
+
+/**
+ * Select dropdown
+ */
+select.form-input {
+  @extend %input-base;
+  appearance: none;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right $space-3 center;
+  background-size: 1.25rem;
+  padding-right: $space-8;                       // Space for arrow
+
+  // RTL support
+  [dir="rtl"] & {
+    background-position: left $space-3 center;
+    padding-right: $input-padding-x;
+    padding-left: $space-8;
+  }
+}
+
+// ============================================================================
+// CHECKBOXES & RADIOS
+// ============================================================================
+
+/**
+ * Checkbox wrapper
+ */
+.form-checkbox,
+.form-radio {
+  display: flex;
+  align-items: center;
+  gap: $space-2;                                 // 8px
+  cursor: pointer;
+  user-select: none;
+
+  input[type="checkbox"],
+  input[type="radio"] {
+    // Hide default
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+
+    // Custom styling
+    width: 1.25rem;                              // 20px
+    height: 1.25rem;
+    border: $border-width-md solid $border-color-medium;
+    background-color: $bg-input;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: all 0.2s ease;
+
+    // Hover
+    &:hover:not(:disabled) {
+      border-color: $primary-400;
+    }
+
+    // Focus
+    &:focus-visible {
+      outline: none;
+      box-shadow: $shadow-focus-primary;
+    }
+
+    // Checked
+    &:checked {
+      background-color: $primary-400;            // Golden wheat
+      border-color: $primary-400;
+      background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='20 6 9 17 4 12'%3e%3c/polyline%3e%3c/svg%3e");
+      background-repeat: no-repeat;
+      background-position: center;
+      background-size: 0.875rem;
+    }
+
+    // Disabled
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+  }
+
+  // Checkbox specific
+  input[type="checkbox"] {
+    border-radius: $border-radius-sm;            // 4px
+  }
+
+  // Radio specific
+  input[type="radio"] {
+    border-radius: $border-radius-full;          // Circular
+
+    &:checked {
+      background-image: radial-gradient(circle, white 40%, transparent 40%);
+    }
+  }
+
+  // Label
+  label {
+    flex: 1;
+    cursor: pointer;
+    font-size: $font-size-base;
+    color: $text-primary;
+  }
+}
+
+// ============================================================================
+// INPUT SIZES
+// ============================================================================
+
+/**
+ * Small input
+ */
+.form-input-sm {
+  padding: $space-1-5 $space-3;                  // 6px 12px
+  font-size: $font-size-sm;                      // 14px
+  min-height: 36px;
+  border-radius: $input-radius-sm;               // 4px
+}
+
+/**
+ * Large input
+ */
+.form-input-lg {
+  padding: $space-3 $space-4;                    // 12px 16px
+  font-size: $font-size-lg;                      // 18px
+  min-height: 52px;
+  border-radius: $input-radius-lg;               // 12px
+}
+
+// ============================================================================
+// VALIDATION STATES
+// ============================================================================
+
+/**
+ * Input with error
+ */
+.form-input-error,
+.form-input.is-invalid {
+  border: $input-border-error;                   // 2px red
+  background-color: rgba($error-500, 0.05);
+
+  &:focus {
+    box-shadow: $shadow-focus-error;
+  }
+}
+
+/**
+ * Input with success
+ */
+.form-input-success,
+.form-input.is-valid {
+  border-color: $success-500;
+
+  &:focus {
+    box-shadow: $shadow-focus-success;
+  }
+}
+
+// ============================================================================
+// INPUT GROUPS (with icons or buttons)
+// ============================================================================
+
+/**
+ * Input group
+ * Input with prepended/appended elements
+ */
+.input-group {
+  display: flex;
+  align-items: stretch;
+  width: 100%;
+
+  .form-input {
+    flex: 1;
+    min-width: 0;                                // Allow shrinking
+
+    &:not(:first-child) {
+      border-top-left-radius: 0;
+      border-bottom-left-radius: 0;
+    }
+
+    &:not(:last-child) {
+      border-top-right-radius: 0;
+      border-bottom-right-radius: 0;
+    }
+  }
+
+  // Prepend/append
+  .input-group-prepend,
+  .input-group-append {
+    display: flex;
+    align-items: center;
+    padding: $space-2 $space-3;
+    background-color: $neutral-100;
+    border: $border-width-thin solid $border-color-light;
+    color: $text-secondary;
+    white-space: nowrap;
+  }
+
+  .input-group-prepend {
+    border-right: none;
+    border-radius: $input-radius 0 0 $input-radius;
+  }
+
+  .input-group-append {
+    border-left: none;
+    border-radius: 0 $input-radius $input-radius 0;
+  }
+
+  // RTL support
+  [dir="rtl"] & {
+    .input-group-prepend {
+      border-right: $border-width-thin solid $border-color-light;
+      border-left: none;
+      border-radius: 0 $input-radius $input-radius 0;
+    }
+
+    .input-group-append {
+      border-left: $border-width-thin solid $border-color-light;
+      border-right: none;
+      border-radius: $input-radius 0 0 $input-radius;
+    }
+
+    .form-input {
+      &:not(:first-child) {
+        border-top-left-radius: $input-radius;
+        border-bottom-left-radius: $input-radius;
+        border-top-right-radius: 0;
+        border-bottom-right-radius: 0;
+      }
+
+      &:not(:last-child) {
+        border-top-right-radius: $input-radius;
+        border-bottom-right-radius: $input-radius;
+        border-top-left-radius: 0;
+        border-bottom-left-radius: 0;
+      }
+    }
+  }
+}
+
+// ============================================================================
+// SEARCH INPUT
+// ============================================================================
+
+/**
+ * Search input with icon
+ */
+.search-input {
+  position: relative;
+
+  .form-input {
+    padding-left: $space-10;                     // Space for icon
+
+    [dir="rtl"] & {
+      padding-left: $input-padding-x;
+      padding-right: $space-10;
+    }
+  }
+
+  .search-icon {
+    position: absolute;
+    left: $space-3;
+    top: 50%;
+    transform: translateY(-50%);
+    color: $text-tertiary;
+    width: 1.25rem;
+    height: 1.25rem;
+    pointer-events: none;
+
+    [dir="rtl"] & {
+      left: auto;
+      right: $space-3;
+    }
+  }
+}
+
+// ============================================================================
+// FORM LAYOUTS
+// ============================================================================
+
+/**
+ * Inline form
+ * Horizontal layout
+ */
+.form-inline {
+  display: flex;
+  gap: $space-4;
+  align-items: flex-end;
+
+  .form-group {
+    margin-bottom: 0;
+    flex: 1;
+  }
+}
+
+/**
+ * Form grid
+ * Multi-column layout
+ */
+.form-grid {
+  display: grid;
+  gap: $form-field-gap;
+  grid-template-columns: repeat(2, 1fr);
+
+  &.form-grid-3 {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  &.form-grid-4 {
+    grid-template-columns: repeat(4, 1fr);
+  }
+
+  // Full width items
+  .form-group-full {
+    grid-column: 1 / -1;
+  }
+
+  // Responsive
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+
+    &.form-grid-3,
+    &.form-grid-4 {
+      grid-template-columns: 1fr;
+    }
+  }
+}
+
+// ============================================================================
+// RESPONSIVE ADJUSTMENTS
+// ============================================================================
+
+@media (max-width: 640px) {
+  .form-inline {
+    flex-direction: column;
+    align-items: stretch;
+
+    .form-group {
+      width: 100%;
+    }
+  }
+
+  .form-input {
+    font-size: 16px;                             // Prevent zoom on iOS
+  }
+}

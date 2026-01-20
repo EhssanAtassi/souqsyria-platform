@@ -1,0 +1,526 @@
+/**
+ * Loading animations and smooth transitions for Syrian marketplace
+ * Professional micro-interactions and loading states
+ */
+
+// Fade in animations
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeInScale {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+// Pulse animation for loading states
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200px 0;
+  }
+  100% {
+    background-position: calc(200px + 100%) 0;
+  }
+}
+
+// Skeleton loading animations
+@keyframes skeletonLoading {
+  0% {
+    background-color: #f3f4f6;
+  }
+  50% {
+    background-color: #e5e7eb;
+  }
+  100% {
+    background-color: #f3f4f6;
+  }
+}
+
+// Bounce animations
+@keyframes bounceIn {
+  0% {
+    opacity: 0;
+    transform: scale(0.3);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.05);
+  }
+  70% {
+    transform: scale(0.9);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+// Loading spinner animations
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes rotate {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+// Utility classes for animations
+.animate-fadeIn {
+  animation: fadeIn 0.3s ease-out forwards;
+}
+
+.animate-fadeInScale {
+  animation: fadeInScale 0.4s ease-out forwards;
+}
+
+.animate-slideInUp {
+  animation: slideInUp 0.5s ease-out forwards;
+}
+
+.animate-slideInLeft {
+  animation: slideInLeft 0.4s ease-out forwards;
+}
+
+.animate-slideInRight {
+  animation: slideInRight 0.4s ease-out forwards;
+}
+
+.animate-pulse {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.animate-shimmer {
+  background: linear-gradient(90deg, #f3f4f6 25%, #e5e7eb 50%, #f3f4f6 75%);
+  background-size: 200px 100%;
+  animation: shimmer 1.5s infinite linear;
+}
+
+.animate-skeleton {
+  animation: skeletonLoading 1.5s infinite ease-in-out;
+}
+
+.animate-bounceIn {
+  animation: bounceIn 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards;
+}
+
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+
+.animate-rotate {
+  animation: rotate 2s linear infinite;
+}
+
+// Staggered animations for lists
+.stagger-animation > *:nth-child(1) { animation-delay: 0.1s; }
+.stagger-animation > *:nth-child(2) { animation-delay: 0.2s; }
+.stagger-animation > *:nth-child(3) { animation-delay: 0.3s; }
+.stagger-animation > *:nth-child(4) { animation-delay: 0.4s; }
+.stagger-animation > *:nth-child(5) { animation-delay: 0.5s; }
+.stagger-animation > *:nth-child(6) { animation-delay: 0.6s; }
+.stagger-animation > *:nth-child(7) { animation-delay: 0.7s; }
+.stagger-animation > *:nth-child(8) { animation-delay: 0.8s; }
+
+// Component-specific animations
+
+// Product cards
+.product-card {
+  transition: all 0.3s ease-in-out;
+  
+  &:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+  }
+  
+  .product-image {
+    transition: transform 0.3s ease-in-out;
+    
+    &:hover {
+      transform: scale(1.05);
+    }
+  }
+  
+  .product-badge {
+    animation: bounceIn 0.5s ease-out;
+  }
+}
+
+// Button animations
+.btn-animated {
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s ease;
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    transition: all 0.6s ease;
+    transform: translate(-50%, -50%);
+  }
+  
+  &:hover::before {
+    width: 300px;
+    height: 300px;
+  }
+  
+  &:active {
+    transform: scale(0.95);
+  }
+}
+
+// Cart animations
+.cart-item {
+  animation: slideInUp 0.4s ease-out;
+  transition: all 0.3s ease;
+  
+  &.removing {
+    animation: slideOutRight 0.3s ease-in forwards;
+    transform-origin: right center;
+  }
+}
+
+@keyframes slideOutRight {
+  from {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateX(100%);
+  }
+}
+
+// Loading states for different components
+.loading-product {
+  .skeleton-image {
+    width: 100%;
+    height: 200px;
+    border-radius: 8px;
+    animation: skeletonLoading 1.5s infinite ease-in-out;
+  }
+  
+  .skeleton-title {
+    height: 20px;
+    width: 80%;
+    border-radius: 4px;
+    margin: 12px 0;
+    animation: skeletonLoading 1.5s infinite ease-in-out;
+  }
+  
+  .skeleton-price {
+    height: 16px;
+    width: 60%;
+    border-radius: 4px;
+    animation: skeletonLoading 1.5s infinite ease-in-out;
+  }
+}
+
+.loading-cart {
+  .skeleton-item {
+    height: 80px;
+    width: 100%;
+    border-radius: 8px;
+    margin-bottom: 16px;
+    animation: skeletonLoading 1.5s infinite ease-in-out;
+  }
+}
+
+// Page transition animations
+.page-transition {
+  &.page-enter {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  
+  &.page-enter-active {
+    opacity: 1;
+    transform: translateY(0);
+    transition: all 0.4s ease-out;
+  }
+  
+  &.page-exit {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  
+  &.page-exit-active {
+    opacity: 0;
+    transform: translateY(-20px);
+    transition: all 0.3s ease-in;
+  }
+}
+
+// Modal animations
+.modal-backdrop {
+  animation: fadeIn 0.2s ease-out;
+}
+
+.modal-content {
+  animation: fadeInScale 0.3s ease-out;
+}
+
+// Snackbar animations
+.snackbar-enter {
+  transform: translateY(100%);
+  opacity: 0;
+}
+
+.snackbar-enter-active {
+  transform: translateY(0);
+  opacity: 1;
+  transition: all 0.3s ease-out;
+}
+
+.snackbar-exit {
+  transform: translateY(0);
+  opacity: 1;
+}
+
+.snackbar-exit-active {
+  transform: translateY(100%);
+  opacity: 0;
+  transition: all 0.3s ease-in;
+}
+
+// Search suggestions animations
+.search-suggestions {
+  animation: slideInUp 0.2s ease-out;
+  
+  .suggestion-item {
+    transition: all 0.2s ease;
+    
+    &:hover {
+      background-color: #f3f4f6;
+      transform: translateX(4px);
+    }
+  }
+}
+
+// Notification animations
+.notification-success {
+  animation: bounceIn 0.5s ease-out;
+  
+  &::after {
+    content: '';
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    right: -2px;
+    bottom: -2px;
+    background: linear-gradient(45deg, #10b981, #34d399, #10b981);
+    border-radius: inherit;
+    z-index: -1;
+    opacity: 0;
+    animation: successGlow 0.8s ease-out;
+  }
+}
+
+@keyframes successGlow {
+  0% {
+    opacity: 0;
+  }
+  50% {
+    opacity: 0.3;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+// Price animation
+.price-change {
+  transition: all 0.3s ease;
+  
+  &.price-increased {
+    animation: priceIncrease 0.5s ease-out;
+  }
+  
+  &.price-decreased {
+    animation: priceDecrease 0.5s ease-out;
+  }
+}
+
+@keyframes priceIncrease {
+  0% { color: inherit; }
+  50% { color: #ef4444; transform: scale(1.1); }
+  100% { color: inherit; transform: scale(1); }
+}
+
+@keyframes priceDecrease {
+  0% { color: inherit; }
+  50% { color: #10b981; transform: scale(1.1); }
+  100% { color: inherit; transform: scale(1); }
+}
+
+// Loading spinner variations
+.spinner-dots {
+  display: inline-flex;
+  gap: 4px;
+  
+  .dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: currentColor;
+    animation: dotPulse 1.4s infinite ease-in-out;
+    
+    &:nth-child(1) { animation-delay: -0.32s; }
+    &:nth-child(2) { animation-delay: -0.16s; }
+    &:nth-child(3) { animation-delay: 0s; }
+  }
+}
+
+@keyframes dotPulse {
+  0%, 80%, 100% {
+    transform: scale(0.8);
+    opacity: 0.5;
+  }
+  40% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+// Smooth transitions for all interactive elements
+* {
+  transition-property: color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform, filter, backdrop-filter;
+  transition-duration: 150ms;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+// Disable animations for users who prefer reduced motion
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+// Performance optimizations
+.animate-gpu {
+  transform: translateZ(0);
+  will-change: transform;
+}
+
+.animate-smooth {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+// Syrian marketplace specific animations
+.syrian-flag-wave {
+  position: relative;
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(196, 30, 58, 0.1), transparent);
+    animation: waveEffect 2s infinite;
+  }
+}
+
+@keyframes waveEffect {
+  0% {
+    left: -100%;
+  }
+  100% {
+    left: 100%;
+  }
+}
+
+// Golden ratio based easing
+.ease-golden {
+  transition-timing-function: cubic-bezier(0.618, 0.001, 0.382, 1);
+}
+
+// Micro-interactions for Syrian cultural elements
+.damascus-pattern-reveal {
+  background: linear-gradient(45deg, #b9a779, #054239);
+  background-size: 200% 200%;
+  animation: damascusShimmer 3s ease-in-out infinite;
+}
+
+@keyframes damascusShimmer {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}

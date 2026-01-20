@@ -1,0 +1,263 @@
+<!-- Category Page with Marketplace Layout -->
+<div class="category-page min-h-screen bg-gray-50">
+
+  <!-- Main Content Container -->
+  <div class="container mx-auto px-4 py-6">
+
+    <!-- Loading State with Skeleton Cards -->
+    @if (isLoading()) {
+      <div class="skeleton-loading-container">
+        <!-- Skeleton Header -->
+        <div class="bg-white rounded-lg p-6 border border-golden-wheat-light mb-6">
+          <div class="h-10 w-64 bg-gray-200 rounded animate-pulse mb-2"></div>
+          <div class="h-6 w-96 bg-gray-100 rounded animate-pulse"></div>
+        </div>
+
+        <!-- Skeleton Toolbar -->
+        <div class="bg-white rounded-lg p-4 border border-golden-wheat-light mb-6">
+          <div class="flex justify-between items-center">
+            <div class="h-10 w-48 bg-gray-200 rounded animate-pulse"></div>
+            <div class="flex gap-4">
+              <div class="h-10 w-32 bg-gray-200 rounded animate-pulse"></div>
+              <div class="h-10 w-24 bg-gray-200 rounded animate-pulse"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Skeleton Product Grid -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          @for (item of [1,2,3,4,5,6,7,8]; track item) {
+            <div class="bg-white rounded-lg border border-gray-200 overflow-hidden">
+              <!-- Image Skeleton -->
+              <div class="h-64 bg-gray-200 animate-pulse"></div>
+              <!-- Content Skeleton -->
+              <div class="p-4 space-y-3">
+                <div class="h-4 bg-gray-200 rounded animate-pulse w-3/4"></div>
+                <div class="h-4 bg-gray-100 rounded animate-pulse w-full"></div>
+                <div class="h-6 bg-gray-200 rounded animate-pulse w-1/2"></div>
+                <div class="flex gap-2 mt-4">
+                  <div class="h-10 bg-gray-200 rounded animate-pulse flex-1"></div>
+                  <div class="h-10 w-10 bg-gray-200 rounded animate-pulse"></div>
+                </div>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+    }
+
+    <!-- Category Content -->
+    @if (!isLoading()) {
+
+      <!-- Breadcrumb Navigation -->
+      @if (category()) {
+        <nav class="breadcrumb-nav mb-4">
+          <ol class="flex items-center space-x-2 text-sm text-gray-600">
+            <li>
+              <a routerLink="/" class="hover:text-golden-wheat-primary transition-colors">
+                <mat-icon class="text-base">home</mat-icon>
+              </a>
+            </li>
+            @for (crumb of category()!.breadcrumb; track crumb; let last = $last) {
+              <li class="flex items-center">
+                <mat-icon class="mx-2 text-gray-400 text-xs">chevron_right</mat-icon>
+                <span [class]="last ? 'text-golden-wheat-primary font-medium' : 'hover:text-gray-700'">
+                  {{ crumb }}
+                </span>
+              </li>
+            }
+          </ol>
+        </nav>
+      }
+
+      <!-- Category Header -->
+      @if (category()) {
+        <div class="category-header mb-6 bg-white rounded-lg p-6 border border-golden-wheat-light">
+          <h1 class="text-3xl md:text-4xl font-bold text-forest-dark mb-2">
+            {{ category()?.name || 'All Products' }}
+          </h1>
+          @if (category()?.nameArabic) {
+            <p class="text-xl text-gray-600 font-arabic">
+              {{ category()!.nameArabic }}
+            </p>
+          }
+          @if (category()?.description) {
+            <p class="text-gray-600 mt-3 text-base max-w-4xl">
+              {{ category()!.description }}
+            </p>
+          }
+        </div>
+      }
+
+      <!-- Marketplace Layout with Filters -->
+      <app-marketplace-layout [language]="'en'" [sidebarPosition]="'left'">
+
+        <!-- SIDEBAR: Filter Sidebar -->
+        <div sidebar>
+          <app-filter-sidebar
+            [language]="'en'"
+            [category]="category()"
+            [initialFilters]="currentFilters()"
+            (filtersChange)="onFiltersChange($event)"
+            (clearFilters)="onClearAllFilters()">
+          </app-filter-sidebar>
+        </div>
+
+        <!-- CONTENT: Products Area -->
+        <div content>
+
+          <!-- Active Filters Chips -->
+          <app-active-filters-chips
+            [filters]="currentFilters()"
+            [language]="'en'"
+            (removeFilter)="onRemoveFilter($event)"
+            (clearAll)="onClearAllFilters()">
+          </app-active-filters-chips>
+
+          <!-- Products Toolbar -->
+          <app-products-toolbar
+            [totalProducts]="pagination()?.total || 0"
+            [currentSort]="getCurrentSortValue()"
+            [currentView]="currentViewMode().mode"
+            [language]="'en'"
+            (sortChange)="onSortChangeFromToolbar($event)"
+            (viewChange)="onViewModeChange($event)"
+            (toggleFilters)="toggleSidebar()">
+          </app-products-toolbar>
+
+          <!-- Products Grid View -->
+          @if (currentViewMode().mode === 'grid' && products().length > 0) {
+            <div class="products-grid grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-8">
+              @for (product of products(); track product.id) {
+                <app-product-card
+                  [product]="product"
+                  viewMode="grid"
+                  [showWishlist]="true"
+                  [showQuickAdd]="true"
+                  (addToCart)="onAddToCart($event)"
+                  (toggleWishlist)="onToggleWishlist($event)"
+                  (productClick)="onProductClick($event)">
+                </app-product-card>
+              }
+            </div>
+          }
+
+          <!-- Products List View -->
+          @if (currentViewMode().mode === 'list' && products().length > 0) {
+            <div class="products-list space-y-4 mb-8">
+              @for (product of products(); track product.id) {
+                <app-product-card
+                  [product]="product"
+                  viewMode="list"
+                  [showWishlist]="true"
+                  [showQuickAdd]="true"
+                  (addToCart)="onAddToCart($event)"
+                  (toggleWishlist)="onToggleWishlist($event)"
+                  (productClick)="onProductClick($event)">
+                </app-product-card>
+              }
+            </div>
+          }
+
+          <!-- Empty State -->
+          @if (products().length === 0) {
+            <div class="empty-state flex flex-col items-center justify-center py-16 text-center bg-white rounded-lg border border-golden-wheat-light">
+              <mat-icon class="text-6xl text-golden-wheat-light mb-4">search_off</mat-icon>
+              <h3 class="text-2xl font-semibold text-forest-dark mb-2">No products found</h3>
+              <p class="text-gray-600 mb-6 max-w-md">
+                We couldn't find any products matching your criteria. Try adjusting your filters or browsing other categories.
+              </p>
+              <div class="flex gap-3">
+                <button
+                  mat-raised-button
+                  color="primary"
+                  (click)="onClearAllFilters()">
+                  <mat-icon class="mr-2">clear_all</mat-icon>
+                  Clear Filters
+                </button>
+                <button
+                  mat-stroked-button
+                  routerLink="/">
+                  <mat-icon class="mr-2">home</mat-icon>
+                  Back to Homepage
+                </button>
+              </div>
+            </div>
+          }
+
+          <!-- Pagination -->
+          @if (pagination()?.totalPages && pagination()!.totalPages > 1) {
+            <div class="pagination-container flex justify-center mt-12">
+              <mat-paginator
+                [length]="pagination()?.total"
+                [pageSize]="itemsPerPage()"
+                [pageIndex]="currentPage() - 1"
+                [pageSizeOptions]="[12, 20, 40, 60]"
+                (page)="onPageChange($event.pageIndex + 1); onPageSizeChange($event.pageSize)"
+                showFirstLastButtons>
+              </mat-paginator>
+            </div>
+          }
+
+        </div>
+
+      </app-marketplace-layout>
+
+      <!-- Product Recommendations Section -->
+      @if (products().length > 0 && category()) {
+        <div class="mt-12">
+          <app-product-recommendations-carousel
+            [productId]="products()[0].id"
+            [type]="'bestsellers'"
+            [categorySlug]="categorySlug()"
+            [title]="'Similar Products in ' + category()!.name"
+            [titleAr]="'منتجات مشابهة في ' + category()!.nameArabic"
+            [limit]="8"
+            [showViewAll]="false"
+            [language]="'en'"
+            (productClick)="onProductClick($event)"
+            (addToCart)="onAddToCart($event)">
+          </app-product-recommendations-carousel>
+        </div>
+      }
+
+      <!-- Related Categories Section -->
+      @if (category()) {
+        <div class="related-categories-section mt-16 mb-12 bg-gradient-to-br from-golden-wheat-light to-white rounded-xl p-8 border border-golden-wheat-light">
+          <div class="text-center mb-8">
+            <h2 class="text-3xl font-bold text-forest-dark mb-2">Explore Related Categories</h2>
+            <p class="text-lg text-gray-600 font-arabic">استكشف الفئات ذات الصلة</p>
+          </div>
+
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+            @for (relatedCat of relatedCategories(); track relatedCat.slug) {
+              <button
+                class="related-category-card group bg-white rounded-lg p-6 border-2 border-golden-wheat-light hover:border-golden-wheat-primary transition-all duration-300 transform hover:scale-105 hover:shadow-lg cursor-pointer"
+                (click)="onRelatedCategoryClick(relatedCat.slug)">
+                <div class="text-5xl mb-3 group-hover:scale-110 transition-transform">{{ relatedCat.image }}</div>
+                <h3 class="text-lg font-semibold text-forest-dark group-hover:text-golden-wheat-primary transition-colors">
+                  {{ relatedCat.name }}
+                </h3>
+                <p class="text-sm text-gray-500 font-arabic mt-1">{{ relatedCat.nameArabic }}</p>
+                <mat-icon class="mt-2 text-golden-wheat-primary group-hover:translate-x-1 transition-transform">arrow_forward</mat-icon>
+              </button>
+            }
+          </div>
+        </div>
+      }
+
+    }
+  </div>
+
+  <!-- Back to Top Button -->
+  @if (showBackToTop()) {
+    <button
+      mat-fab
+      class="back-to-top-btn fixed bottom-8 right-8 z-50 bg-golden-wheat-primary hover:bg-golden-wheat-medium shadow-lg transition-all duration-300 transform hover:scale-110"
+      [matTooltip]="'Back to Top'"
+      matTooltipPosition="left"
+      (click)="scrollToTop()">
+      <mat-icon class="text-white">keyboard_arrow_up</mat-icon>
+    </button>
+  }
+</div>

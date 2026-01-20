@@ -1,0 +1,19 @@
+<!-- Hero Dots Component Template -->
+<!-- Pure presentational component - displays pagination dots -->
+
+<div class="hero-dots" [class]="'hero-dots--' + variant" role="tablist" aria-label="Carousel navigation">
+  @for (index of slideIndices; track index) {
+    <button
+      class="hero-dot"
+      [class.hero-dot--active]="isActive(index)"
+      [class]="'hero-dot--' + size"
+      [attr.role]="'tab'"
+      [attr.aria-label]="getDotAriaLabel(index)"
+      [attr.aria-selected]="isActive(index)"
+      [attr.aria-controls]="'slide-' + index"
+      (click)="onDotClick(index)"
+      type="button">
+      <span class="sr-only">Slide {{ index + 1 }}</span>
+    </button>
+  }
+</div>

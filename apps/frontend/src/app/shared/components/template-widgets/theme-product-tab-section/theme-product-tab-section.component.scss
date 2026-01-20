@@ -1,0 +1,166 @@
+/**
+ * Theme Product Tab Section Component Styles
+ * Golden Wheat Design System
+ * Primary: #988561 (golden-wheat-primary)
+ * Medium: #b9a779 (golden-wheat-medium)
+ * Light: #edebe0 (golden-wheat-light)
+ * Forest Dark: #002623
+ */
+
+.theme-product-tab-section {
+  width: 100%;
+  margin: 3rem 0;
+
+  &__header {
+    margin-bottom: 2rem;
+  }
+
+  &__loading {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 200px;
+    color: #6B7280;
+    font-size: 1.125rem;
+  }
+
+  &__tabs {
+    width: 100%;
+
+    // Customize Material tabs to match Golden Wheat design
+    ::ng-deep {
+      .mat-mdc-tab-group {
+        font-family: inherit;
+      }
+
+      .mat-mdc-tab-labels {
+        border-bottom: 2px solid #E5E7EB;
+        background: white;
+      }
+
+      .mat-mdc-tab {
+        min-width: 120px;
+        padding: 0 1.5rem;
+        height: 56px;
+        font-weight: 600;
+        color: #6B7280;
+        transition: all 0.3s ease;
+
+        @media (max-width: 768px) {
+          min-width: 80px;
+          padding: 0 1rem;
+          height: 48px;
+          font-size: 0.875rem;
+        }
+
+        &:hover {
+          color: #002623;  // forest-dark
+          background: rgba(152, 133, 97, 0.1);  // golden-wheat-primary with opacity
+        }
+
+        &.mat-mdc-tab-active {
+          color: #002623;  // forest-dark
+          font-weight: 700;
+        }
+      }
+
+      .mat-mdc-tab-label-content {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      // Active tab indicator (Golden Wheat underline)
+      .mat-mdc-tab-header-pagination-chevron {
+        border-color: #988561;  // golden-wheat-primary
+      }
+
+      .mdc-tab-indicator__content--underline {
+        border-color: #988561;  // golden-wheat-primary
+        border-width: 3px;
+      }
+
+      .mat-mdc-tab-body-content {
+        padding: 2rem 0;
+        overflow: visible;
+
+        @media (max-width: 768px) {
+          padding: 1.5rem 0;
+        }
+      }
+
+      // Tab header scroll buttons styling
+      .mat-mdc-tab-header-pagination {
+        background: white;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+
+        &-chevron {
+          border-color: #988561;  // golden-wheat-primary
+        }
+
+        &-disabled {
+          opacity: 0.3;
+        }
+      }
+    }
+  }
+
+  &__tab-label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  &__tab-icon {
+    font-size: 1.25rem;
+    line-height: 1;
+  }
+
+  &__content {
+    width: 100%;
+  }
+
+  &__empty {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 200px;
+    color: #9CA3AF;
+    font-size: 1.125rem;
+
+    p {
+      margin: 0;
+    }
+  }
+}
+
+// RTL support
+[dir="rtl"] {
+  .theme-product-tab-section {
+    &__tab-label {
+      flex-direction: row-reverse;
+    }
+
+    &__tabs ::ng-deep {
+      .mat-mdc-tab-header-pagination-chevron {
+        transform: rotate(180deg);
+      }
+    }
+  }
+}
+
+// Additional tab animations
+@keyframes tabFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.theme-product-tab-section__content {
+  animation: tabFadeIn 0.3s ease-out;
+}

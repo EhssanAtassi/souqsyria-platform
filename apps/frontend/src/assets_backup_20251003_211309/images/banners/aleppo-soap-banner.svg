@@ -1,0 +1,47 @@
+<svg width="1200" height="675" viewBox="0 0 1200 675" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Aleppo Soap Banner Background -->
+  <defs>
+    <linearGradient id="aleppoBg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#b9a779;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#988561;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#6d5f45;stop-opacity:1" />
+    </linearGradient>
+
+    <!-- Laurel leaf pattern -->
+    <pattern id="laurelPattern" x="0" y="0" width="80" height="80" patternUnits="userSpaceOnUse">
+      <ellipse cx="40" cy="40" rx="12" ry="20" fill="#edebe0" opacity="0.1" transform="rotate(45 40 40)"/>
+      <ellipse cx="40" cy="40" rx="12" ry="20" fill="#edebe0" opacity="0.1" transform="rotate(-45 40 40)"/>
+    </pattern>
+  </defs>
+
+  <!-- Background with gradient -->
+  <rect width="1200" height="675" fill="url(#aleppoBg)"/>
+
+  <!-- Laurel pattern overlay -->
+  <rect width="1200" height="675" fill="url(#laurelPattern)" opacity="0.4"/>
+
+  <!-- Decorative soap bars (stacked, right side) -->
+  <g opacity="0.2" transform="translate(750, 150)">
+    <!-- Soap bar 1 -->
+    <rect x="0" y="0" width="300" height="120" rx="8" fill="#edebe0"/>
+    <rect x="10" y="10" width="280" height="100" rx="4" fill="#b9a779"/>
+
+    <!-- Soap bar 2 (offset) -->
+    <rect x="50" y="140" width="300" height="120" rx="8" fill="#edebe0"/>
+    <rect x="60" y="150" width="280" height="100" rx="4" fill="#988561"/>
+
+    <!-- Soap bar 3 (offset) -->
+    <rect x="100" y="280" width="300" height="120" rx="8" fill="#edebe0"/>
+    <rect x="110" y="290" width="280" height="100" rx="4" fill="#6d5f45"/>
+  </g>
+
+  <!-- Title Area (right aligned for overlay text) -->
+  <g transform="translate(640, 280)">
+    <!-- Subtle backing for text legibility -->
+    <rect x="-20" y="-40" width="520" height="180" fill="#161616" opacity="0.3" rx="8"/>
+  </g>
+
+  <!-- Decorative accent lines -->
+  <line x1="900" y1="450" x2="1140" y2="450" stroke="#edebe0" stroke-width="3" opacity="0.7"/>
+  <line x1="950" y1="460" x2="1140" y2="460" stroke="#edebe0" stroke-width="2" opacity="0.5"/>
+</svg>

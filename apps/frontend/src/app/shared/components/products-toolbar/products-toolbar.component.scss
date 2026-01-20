@@ -1,0 +1,402 @@
+// Golden Wheat Color Palette
+$golden-wheat-primary: #988561;
+$golden-wheat-medium: #b9a779;
+$golden-wheat-light: #edebe0;
+$forest-dark: #002623;
+$forest-medium: #054239;
+
+.products-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem 1.25rem;
+  background: white;
+  border: 1px solid $golden-wheat-light;
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+
+  // Sticky positioning for better UX
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  transition: all 0.3s ease;
+
+  // Enhanced shadow when scrolled/sticky
+  &.is-stuck {
+    box-shadow: 0 4px 12px rgba(152, 133, 97, 0.15);
+    border-bottom: 2px solid $golden-wheat-primary;
+  }
+
+  // Left Section
+  .toolbar-left {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex: 1;
+
+    // Mobile Filter Toggle Button
+    .filter-toggle-btn {
+      display: none;
+      padding: 0.5rem 1rem;
+      background: $golden-wheat-light;
+      color: $forest-dark;
+      font-weight: 600;
+
+      mat-icon {
+        margin-right: 0.5rem;
+        color: $golden-wheat-primary;
+      }
+
+      &:hover {
+        background: $golden-wheat-medium;
+        color: white;
+
+        mat-icon {
+          color: white;
+        }
+      }
+
+      &.mobile-only {
+        @media (max-width: 768px) {
+          display: flex;
+          align-items: center;
+        }
+      }
+    }
+
+    // Product Count
+    .product-count {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem 1rem;
+      background: linear-gradient(135deg, $golden-wheat-light 0%, rgba($golden-wheat-light, 0.5) 100%);
+      border-radius: 6px;
+
+      .count-icon {
+        font-size: 1.25rem;
+        width: 1.25rem;
+        height: 1.25rem;
+        color: $golden-wheat-primary;
+      }
+
+      .count-text {
+        font-size: 0.9375rem;
+        font-weight: 600;
+        color: $forest-dark;
+      }
+    }
+  }
+
+  // Right Section
+  .toolbar-right {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+
+    // Sort Control
+    .sort-control {
+      .sort-select {
+        min-width: 200px;
+        font-size: 0.9375rem;
+
+        ::ng-deep {
+          .mat-mdc-text-field-wrapper {
+            background-color: white;
+            height: 44px;
+          }
+
+          .mat-mdc-form-field-flex {
+            height: 44px;
+          }
+
+          // Outline colors
+          .mdc-notched-outline__leading,
+          .mdc-notched-outline__notch,
+          .mdc-notched-outline__trailing {
+            border-color: $golden-wheat-light !important;
+          }
+
+          &.mat-focused {
+            .mdc-notched-outline__leading,
+            .mdc-notched-outline__notch,
+            .mdc-notched-outline__trailing {
+              border-color: $golden-wheat-primary !important;
+              border-width: 2px;
+            }
+          }
+
+          // Label
+          .mat-mdc-floating-label {
+            display: flex;
+            align-items: center;
+            gap: 0.375rem;
+            color: $golden-wheat-medium;
+
+            .select-icon {
+              font-size: 1.125rem;
+              width: 1.125rem;
+              height: 1.125rem;
+              color: $golden-wheat-primary;
+            }
+          }
+
+          &.mat-focused .mat-mdc-floating-label {
+            color: $golden-wheat-primary;
+          }
+
+          // Select value
+          .mat-mdc-select-value {
+            color: $forest-dark;
+            font-weight: 500;
+          }
+
+          // Dropdown arrow
+          .mat-mdc-select-arrow {
+            color: $golden-wheat-primary;
+          }
+        }
+
+        // Option styling in dropdown
+        ::ng-deep .mat-mdc-option {
+          .option-icon {
+            font-size: 1.125rem;
+            width: 1.125rem;
+            height: 1.125rem;
+            margin-right: 0.5rem;
+            color: $golden-wheat-medium;
+            vertical-align: middle;
+          }
+
+          &.mat-mdc-option-active,
+          &:hover {
+            background-color: $golden-wheat-light;
+
+            .option-icon {
+              color: $golden-wheat-primary;
+            }
+          }
+
+          &.mdc-list-item--selected {
+            background-color: rgba($golden-wheat-primary, 0.15);
+
+            .option-icon {
+              color: $golden-wheat-primary;
+            }
+          }
+        }
+      }
+    }
+
+    // View Toggle Buttons
+    .view-toggle {
+      border: 2px solid $golden-wheat-light;
+      border-radius: 6px;
+      overflow: hidden;
+
+      ::ng-deep {
+        .mat-button-toggle {
+          border: none;
+
+          .mat-button-toggle-button {
+            height: 40px;
+            padding: 0 0.75rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+          }
+
+          .mat-button-toggle-label-content {
+            line-height: 1;
+            padding: 0;
+
+            mat-icon {
+              color: $golden-wheat-medium;
+              font-size: 1.375rem;
+              width: 1.375rem;
+              height: 1.375rem;
+            }
+          }
+
+          &:hover {
+            background-color: $golden-wheat-light;
+
+            mat-icon {
+              color: $golden-wheat-primary;
+            }
+          }
+
+          &.mat-button-toggle-checked {
+            background-color: $golden-wheat-primary;
+
+            mat-icon {
+              color: white;
+            }
+          }
+        }
+
+        .mat-button-toggle-appearance-standard {
+          &:not(:last-child) {
+            border-right: 1px solid $golden-wheat-light;
+          }
+        }
+      }
+    }
+  }
+}
+
+// RTL Support
+[dir="rtl"] {
+  .products-toolbar {
+    .toolbar-left {
+      .filter-toggle-btn {
+        mat-icon {
+          margin-right: 0;
+          margin-left: 0.5rem;
+        }
+      }
+    }
+
+    .toolbar-right {
+      .sort-control {
+        .sort-select {
+          ::ng-deep {
+            .mat-mdc-floating-label {
+              flex-direction: row-reverse;
+            }
+
+            .mat-mdc-select-arrow {
+              margin-left: 0;
+              margin-right: 4px;
+            }
+          }
+
+          ::ng-deep .mat-mdc-option {
+            .option-icon {
+              margin-right: 0;
+              margin-left: 0.5rem;
+            }
+          }
+        }
+      }
+
+      .view-toggle {
+        ::ng-deep .mat-button-toggle-appearance-standard {
+          &:not(:last-child) {
+            border-right: none;
+            border-left: 1px solid $golden-wheat-light;
+          }
+        }
+      }
+    }
+  }
+}
+
+// Tablet Responsive
+@media (max-width: 768px) {
+  .products-toolbar {
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    padding: 0.875rem 1rem;
+
+    .toolbar-left {
+      flex: 1 1 100%;
+      width: 100%;
+    }
+
+    .toolbar-right {
+      flex: 1 1 100%;
+      justify-content: space-between;
+      width: 100%;
+
+      .sort-control {
+        flex: 1;
+
+        .sort-select {
+          width: 100%;
+          min-width: auto;
+
+          ::ng-deep .mat-mdc-text-field-wrapper {
+            height: 40px;
+          }
+
+          ::ng-deep .mat-mdc-form-field-flex {
+            height: 40px;
+          }
+        }
+      }
+    }
+  }
+}
+
+// Mobile Responsive
+@media (max-width: 480px) {
+  .products-toolbar {
+    padding: 0.75rem;
+
+    .toolbar-left {
+      .product-count {
+        flex: 1;
+        justify-content: center;
+        padding: 0.5rem 0.75rem;
+
+        .count-text {
+          font-size: 0.875rem;
+        }
+      }
+    }
+
+    .toolbar-right {
+      .sort-control {
+        .sort-select {
+          min-width: auto;
+
+          ::ng-deep {
+            .mat-mdc-floating-label {
+              font-size: 0.875rem;
+
+              .select-icon {
+                font-size: 1rem;
+                width: 1rem;
+                height: 1rem;
+              }
+            }
+          }
+        }
+      }
+
+      .view-toggle {
+        ::ng-deep .mat-button-toggle {
+          .mat-button-toggle-button {
+            height: 36px;
+            padding: 0 0.625rem;
+          }
+
+          .mat-button-toggle-label-content mat-icon {
+            font-size: 1.25rem;
+            width: 1.25rem;
+            height: 1.25rem;
+          }
+        }
+      }
+    }
+  }
+}
+
+// Animation for toggle
+@keyframes toggle-select {
+  0% {
+    transform: scale(0.95);
+  }
+  50% {
+    transform: scale(1.02);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.view-toggle ::ng-deep .mat-button-toggle.mat-button-toggle-checked {
+  animation: toggle-select 0.3s ease-out;
+}

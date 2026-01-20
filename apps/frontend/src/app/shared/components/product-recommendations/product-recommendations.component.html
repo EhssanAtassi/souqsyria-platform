@@ -1,0 +1,316 @@
+<!-- Syrian Marketplace Product Recommendations Component -->
+<div *ngIf="displayedProducts().length > 0" class="product-recommendations-section">
+
+  <!-- Standard Card Layout -->
+  <mat-card *ngIf="displayStyle === 'grid'" class="overflow-hidden recommendation-card">
+
+    <!-- Card Header with Theme Styling -->
+    <mat-card-header [class]="themeConfig().cardHeaderClass">
+      <mat-card-title class="flex items-center" [class]="themeConfig().titleClass">
+        <mat-icon class="mr-2" [class]="themeConfig().iconClass">{{ themeConfig().icon }}</mat-icon>
+        {{ title }}
+      </mat-card-title>
+      <mat-card-subtitle *ngIf="subtitle" [class]="themeConfig().titleClass.replace('800', '700')">
+        {{ subtitle }}
+      </mat-card-subtitle>
+    </mat-card-header>
+
+    <!-- Card Content with Product Grid -->
+    <mat-card-content class="p-6">
+      <div [class]="gridClasses()">
+
+        <!-- Individual Product Card -->
+        <div *ngFor="let product of displayedProducts()"
+             class="bg-white border border-gray-200 rounded-lg overflow-hidden hover:shadow-lg transition-all duration-300 cursor-pointer group product-item"
+             (click)="onProductClick(product)">
+
+          <!-- Product Image Container -->
+          <div class="aspect-square overflow-hidden relative product-image-container">
+            <img [src]="product.images[0].url || '/assets/images/placeholder-image.svg'"
+                 [alt]="product.name"
+                 class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
+
+            <!-- Top Badge (Theme-based) -->
+            <div *ngIf="getBadgeConfig(product) as badge"
+                 class="absolute top-2 left-2 px-2 py-1 rounded-md text-xs font-bold flex items-center"
+                 [class]="badge.class">
+              <mat-icon *ngIf="badge.icon"
+                        class="text-xs mr-1"
+                        [style.font-size.px]="10"
+                        [style.width.px]="10"
+                        [style.height.px]="10">{{ badge.icon }}</mat-icon>
+              {{ badge.text }}
+            </div>
+
+            <!-- Bottom Badge (Authenticity) -->
+            <div *ngIf="getBottomBadge(product) as bottomBadge"
+                 class="absolute bottom-2 left-2 px-2 py-1 rounded-md text-xs font-bold flex items-center"
+                 [class]="bottomBadge.class">
+              <mat-icon *ngIf="bottomBadge.icon"
+                        class="text-xs mr-1"
+                        [style.font-size.px]="10"
+                        [style.width.px]="10"
+                        [style.height.px]="10">{{ bottomBadge.icon }}</mat-icon>
+              {{ bottomBadge.text }}
+            </div>
+
+            <!-- Quick Actions Overlay -->
+            <div class="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col gap-1">
+
+              <!-- Wishlist Button -->
+              <button *ngIf="showWishlist"
+                      mat-icon-button
+                      class="bg-white bg-opacity-90 hover:bg-opacity-100 shadow-sm h-8 w-8"
+                      matTooltip="Add to Wishlist"
+                      (click)="onToggleWishlist(product, $event)">
+                <mat-icon class="text-sm text-gray-600 hover:text-red-500">favorite_border</mat-icon>
+              </button>
+
+              <!-- Quick Add to Cart Button -->
+              <button *ngIf="showQuickAdd"
+                      mat-icon-button
+                      class="bg-white bg-opacity-90 hover:bg-opacity-100 shadow-sm h-8 w-8"
+                      matTooltip="Quick Add to Cart"
+                      [disabled]="!product.inventory.inStock"
+                      (click)="onAddToCart(product.id, $event)">
+                <mat-icon class="text-sm text-gray-600 hover:text-green-500">add_shopping_cart</mat-icon>
+              </button>
+            </div>
+          </div>
+
+          <!-- Product Information -->
+          <div class="p-4 product-info">
+
+            <!-- Product Name -->
+            <h3 class="font-medium text-gray-900 text-sm mb-1 line-clamp-2 transition-colors"
+                [class]="themeConfig().hoverClass + ' group-hover:' + themeConfig().hoverClass.split(':')[1]">
+              {{ product.name }}
+            </h3>
+
+            <!-- Arabic Name -->
+            <p *ngIf="product.nameArabic" class="text-xs text-gray-600 font-arabic mb-2 product-name-arabic">
+              {{ product.nameArabic }}
+            </p>
+
+            <!-- Seller Info -->
+            <div *ngIf="showSeller" class="text-xs text-gray-600 mb-2 flex items-center">
+              <mat-icon class="text-xs mr-1">store</mat-icon>
+              {{ product.seller.name }}
+              <mat-icon *ngIf="product.seller.verified" class="text-green-600 text-xs ml-1">verified</mat-icon>
+            </div>
+
+            <!-- Cultural Technique (for artisan theme) -->
+            <div *ngIf="theme === 'artisan' && getPrimaryTechnique(product)" class="mb-2">
+              <mat-chip [class]="themeConfig().badgeClass" class="text-xs">
+                {{ getPrimaryTechnique(product) }}
+              </mat-chip>
+            </div>
+
+            <!-- Rating -->
+            <div *ngIf="showRating" class="flex items-center gap-1 mb-2">
+              <div class="flex text-yellow-400 text-xs">
+                <mat-icon *ngFor="let star of [1,2,3,4,5]"
+                  [class.text-gray-300]="star > product.reviews.averageRating"
+                  class="text-xs"
+                  [style.font-size.px]="10"
+                  [style.width.px]="10"
+                  [style.height.px]="10">star</mat-icon>
+              </div>
+              <span class="text-xs text-gray-500">({{ product.reviews.totalReviews }})</span>
+            </div>
+
+            <!-- Price Section -->
+            <div *ngIf="showPrice" class="flex items-baseline gap-1 mb-3">
+              <span class="font-bold text-green-600 text-sm">
+                {{ formatPrice(product.price.amount, product.price.currency) }}
+              </span>
+              <span *ngIf="product.price.originalPrice && shouldShowDiscount(product)"
+                    class="text-xs text-gray-500 line-through">
+                {{ formatPrice(product.price.originalPrice, product.price.currency) }}
+              </span>
+            </div>
+
+            <!-- Quick Add Button (Bottom) -->
+            <button *ngIf="showQuickAdd"
+                    mat-stroked-button
+                    class="w-full h-8 text-xs transition-colors"
+                    [class]="themeConfig().buttonClass"
+                    [disabled]="!product.inventory.inStock"
+                    (click)="onAddToCart(product.id, $event)">
+              <mat-icon class="text-sm mr-1"
+                        [style.font-size.px]="12"
+                        [style.width.px]="12"
+                        [style.height.px]="12">
+                {{ product.inventory.inStock ? 'add_shopping_cart' : 'inventory_2' }}
+              </mat-icon>
+              {{ product.inventory.inStock ? 'Quick Add' : 'Out of Stock' }}
+            </button>
+          </div>
+        </div>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Compact List Layout -->
+  <div *ngIf="displayStyle === 'compact'" class="compact-recommendations">
+
+    <!-- Section Header -->
+    <div class="flex items-center justify-between mb-4">
+      <div class="flex items-center">
+        <mat-icon class="mr-2" [class]="themeConfig().iconClass">{{ themeConfig().icon }}</mat-icon>
+        <h3 class="text-lg font-bold" [class]="themeConfig().titleClass">{{ title }}</h3>
+      </div>
+      <span *ngIf="subtitle" class="text-sm" [class]="themeConfig().titleClass.replace('800', '600')">
+        {{ subtitle }}
+      </span>
+    </div>
+
+    <!-- Compact Product List -->
+    <div class="space-y-3">
+      <div *ngFor="let product of displayedProducts()"
+           class="flex items-center gap-3 p-3 bg-white border border-gray-200 rounded-lg hover:shadow-md transition-shadow cursor-pointer"
+           (click)="onProductClick(product)">
+
+        <!-- Product Image -->
+        <div class="flex-shrink-0">
+          <img [src]="product.images[0].url || '/assets/images/placeholder-image.svg'"
+               [alt]="product.name"
+               class="w-16 h-16 object-cover rounded-md">
+        </div>
+
+        <!-- Product Info -->
+        <div class="flex-1 min-w-0">
+          <h4 class="font-medium text-sm text-gray-900 truncate">{{ product.name }}</h4>
+          <p *ngIf="showRating" class="text-xs text-gray-600 flex items-center gap-1">
+            <span class="text-yellow-400">★</span>
+            {{ product.reviews.averageRating }} ({{ product.reviews.totalReviews }})
+          </p>
+          <p *ngIf="showPrice" class="font-bold text-green-600 text-sm">
+            {{ formatPrice(product.price.amount, product.price.currency) }}
+          </p>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="flex-shrink-0 flex gap-1">
+          <button *ngIf="showQuickAdd"
+                  mat-icon-button
+                  size="small"
+                  [disabled]="!product.inventory.inStock"
+                  (click)="onAddToCart(product.id, $event)">
+            <mat-icon class="text-sm">add_shopping_cart</mat-icon>
+          </button>
+          <button *ngIf="showWishlist"
+                  mat-icon-button
+                  size="small"
+                  (click)="onToggleWishlist(product, $event)">
+            <mat-icon class="text-sm">favorite_border</mat-icon>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Carousel Layout (for future implementation) -->
+  <div *ngIf="displayStyle === 'carousel'" class="carousel-recommendations">
+    <!-- TODO: Implement carousel layout with horizontal scrolling -->
+    <p class="text-gray-500 text-center py-8">Carousel layout - Coming Soon</p>
+  </div>
+
+  <!-- List Layout -->
+  <div *ngIf="displayStyle === 'list'" class="list-recommendations">
+
+    <!-- Section Header -->
+    <div class="mb-6">
+      <div class="flex items-center" [class]="themeConfig().cardHeaderClass + ' p-4 rounded-lg'">
+        <mat-icon class="mr-2" [class]="themeConfig().iconClass">{{ themeConfig().icon }}</mat-icon>
+        <div>
+          <h3 class="text-lg font-bold" [class]="themeConfig().titleClass">{{ title }}</h3>
+          <p *ngIf="subtitle" class="text-sm" [class]="themeConfig().titleClass.replace('800', '700')">
+            {{ subtitle }}
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- List Items -->
+    <div class="space-y-4">
+      <div *ngFor="let product of displayedProducts()"
+           class="flex flex-col sm:flex-row gap-4 p-4 bg-white border border-gray-200 rounded-lg hover:shadow-md transition-shadow cursor-pointer"
+           (click)="onProductClick(product)">
+
+        <!-- Product Image -->
+        <div class="flex-shrink-0">
+          <img [src]="product.images[0].url || '/assets/images/placeholder-image.svg'"
+               [alt]="product.name"
+               class="w-24 h-24 sm:w-32 sm:h-32 object-cover rounded-lg mx-auto sm:mx-0">
+        </div>
+
+        <!-- Product Details -->
+        <div class="flex-1 space-y-2">
+          <h4 class="font-bold text-lg">{{ product.name }}</h4>
+          <p *ngIf="product.nameArabic" class="text-sm text-gray-600 font-arabic">{{ product.nameArabic }}</p>
+
+          <!-- Authenticity Badges -->
+          <div *ngIf="showAuthenticity && product.authenticity?.badges" class="flex flex-wrap gap-1">
+            <mat-chip *ngFor="let badge of product.authenticity.badges.slice(0, 2)"
+                     class="bg-green-100 text-green-800 text-xs">
+              {{ badge }}
+            </mat-chip>
+          </div>
+
+          <!-- Rating and Reviews -->
+          <div *ngIf="showRating" class="flex items-center gap-2">
+            <div class="flex text-yellow-400">
+              <mat-icon *ngFor="let star of [1,2,3,4,5]"
+                [class.text-gray-300]="star > product.reviews.averageRating">star</mat-icon>
+            </div>
+            <span class="text-sm text-gray-600">
+              {{ product.reviews.averageRating }} ({{ product.reviews.totalReviews }} reviews)
+            </span>
+          </div>
+
+          <!-- Description Preview -->
+          <p class="text-gray-700 text-sm line-clamp-2">{{ product.description }}</p>
+        </div>
+
+        <!-- Price and Actions -->
+        <div class="flex flex-col justify-between items-end min-w-[150px]">
+
+          <!-- Price -->
+          <div *ngIf="showPrice" class="text-right mb-4">
+            <div class="text-xl font-bold text-green-600">
+              {{ formatPrice(product.price.amount, product.price.currency) }}
+            </div>
+            <div *ngIf="product.price.originalPrice && shouldShowDiscount(product)"
+                 class="text-sm text-gray-500 line-through">
+              {{ formatPrice(product.price.originalPrice, product.price.currency) }}
+            </div>
+          </div>
+
+          <!-- Action Buttons -->
+          <div class="flex gap-2">
+            <button *ngIf="showWishlist"
+                    mat-stroked-button
+                    (click)="onToggleWishlist(product, $event)">
+              <mat-icon>favorite_border</mat-icon>
+            </button>
+            <button *ngIf="showQuickAdd"
+                    mat-raised-button
+                    color="primary"
+                    [disabled]="!product.inventory.inStock"
+                    (click)="onAddToCart(product.id, $event)">
+              <mat-icon>add_shopping_cart</mat-icon>
+              {{ product.inventory.inStock ? 'Add to Cart' : 'Out of Stock' }}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Empty State -->
+<div *ngIf="displayedProducts().length === 0" class="text-center py-8 text-gray-500">
+  <mat-icon class="text-4xl mb-2 text-gray-400">inventory_2</mat-icon>
+  <p>No recommendations available at this time.</p>
+</div>

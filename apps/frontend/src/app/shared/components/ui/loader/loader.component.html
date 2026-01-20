@@ -1,0 +1,31 @@
+<!-- Loader Container -->
+<div class="loader-container" [class.loader-container--overlay]="overlay">
+  <!-- Animated Spinner -->
+  <div class="loader" [class]="'loader--' + size">
+    <!-- Golden Wheat spinning circle -->
+    <div class="loader__spinner">
+      <svg viewBox="0 0 50 50">
+        <circle
+          class="loader__circle"
+          cx="25"
+          cy="25"
+          r="20"
+          fill="none"
+          stroke-width="4"
+        />
+      </svg>
+    </div>
+
+    <!-- Syrian cultural pattern decoration (8-pointed star) -->
+    <div class="loader__pattern">
+      <svg width="16" height="16" viewBox="0 0 16 16">
+        <path d="M8 0L10 6L16 8L10 10L8 16L6 10L0 8L6 6Z" fill="currentColor"/>
+      </svg>
+    </div>
+  </div>
+
+  <!-- Loading message (bilingual support) -->
+  <p class="loader__message" *ngIf="message">
+    {{ message }}
+  </p>
+</div>

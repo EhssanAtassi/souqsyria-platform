@@ -1,0 +1,354 @@
+<!-- Campaign Hero Section for SouqSyria Syrian Marketplace -->
+<section class="campaign-hero-section"
+         [class.loading]="isLoading()"
+         [style.height]="heroHeight"
+         role="banner"
+         aria-label="Syrian Marketplace Featured Campaigns">
+
+  <!-- Swiper Container -->
+  <swiper-container
+    #swiperRef
+    class="campaigns-swiper"
+    [class.has-multiple]="hasMultipleCampaigns()"
+    (mouseenter)="onMouseEnter()"
+    (mouseleave)="onMouseLeave()"
+    (swiperslidechange)="handleSwiperSlideChange($event)"
+    (swiperinit)="onSwiperReady()"
+    slides-per-view="1"
+    space-between="0"
+    centered-slides="true"
+    loop="true"
+    autoplay="true"
+    autoplay-delay="5000"
+    autoplay-disable-on-interaction="false"
+    autoplay-pause-on-mouse-enter="true"
+    effect="fade"
+    speed="1000"
+    grab-cursor="true"
+    navigation="true"
+    pagination="true"
+    pagination-clickable="true"
+    pagination-dynamic-bullets="true"
+    keyboard="true"
+    keyboard-only-in-viewport="true"
+    a11y="true"
+    watch-slides-progress="true"
+    update-on-window-resize="true">
+
+
+    <!-- Campaign Slides -->
+    <swiper-slide *ngFor="let campaign of availableCampaigns(); let i = index; trackBy: trackCampaign"
+                 class="campaign-slide"
+                 [attr.data-testid]="'campaign-slide-' + campaign.id">
+
+      <!-- Campaign Background -->
+      <div class="campaign-background"
+           [style.background-image]="'url(' + getCampaignImageUrl(campaign) + ')'"
+           [attr.aria-label]="getCampaignImageAlt(campaign)"
+           role="img">
+
+        <!-- Background Overlay for Syrian Branding -->
+        <div class="campaign-overlay syrian-brand-overlay"></div>
+
+        <!-- Traditional Syrian Pattern -->
+        <div class="damascus-pattern-overlay"></div>
+      </div>
+
+      <!-- Campaign Content -->
+      <div class="campaign-content">
+
+        <div class="container mx-auto px-4 h-full">
+          <div class="grid lg:grid-cols-2 gap-8 h-full items-center">
+
+            <!-- Left Side - Campaign Message -->
+            <div class="campaign-message text-center lg:text-left">
+
+              <!-- Campaign Headline -->
+              <h1 class="campaign-headline text-3xl lg:text-4xl xl:text-5xl font-bold mb-4 leading-tight">
+                <span class="headline-english text-white drop-shadow-lg">
+                  {{campaign.headline.english}}
+                </span>
+                <span *ngIf="campaign.headline.arabic"
+                      class="headline-arabic block text-xl lg:text-2xl text-gold-300 mt-2 font-semibold"
+                      [attr.lang]="'ar'">
+                  {{campaign.headline.arabic}}
+                </span>
+              </h1>
+
+              <!-- Campaign Subheadline -->
+              <div *ngIf="campaign.subheadline"
+                   class="campaign-subheadline mb-6">
+                <p class="text-lg lg:text-xl text-cream-200 font-medium">
+                  {{campaign.subheadline.english}}
+                </p>
+                <p *ngIf="campaign.subheadline.arabic"
+                   class="text-base text-cream-300 mt-1"
+                   [attr.lang]="'ar'">
+                  {{campaign.subheadline.arabic}}
+                </p>
+              </div>
+
+              <!-- Campaign Description -->
+              <div *ngIf="campaign.description"
+                   class="campaign-description mb-8 max-w-2xl mx-auto lg:mx-0">
+                <p class="text-cream-200">
+                  {{campaign.description.english}}
+                </p>
+                <p *ngIf="campaign.description.arabic"
+                   class="text-cream-300 mt-2 text-sm"
+                   [attr.lang]="'ar'">
+                  {{campaign.description.arabic}}
+                </p>
+              </div>
+
+              <!-- Syrian Cultural Context -->
+              <div *ngIf="campaign.syrianData?.culturalContext"
+                   class="cultural-context mb-6 p-4 bg-black bg-opacity-20 rounded-lg border border-gold-400 border-opacity-30">
+                <div class="flex items-center mb-2">
+                  <mat-icon class="text-gold-400 mr-2">heritage</mat-icon>
+                  <span class="text-gold-300 font-semibold text-sm">Syrian Heritage</span>
+                  <mat-icon *ngIf="campaign.syrianData?.unescoRecognition"
+                            class="text-gold-400 ml-2"
+                            [attr.title]="'UNESCO World Heritage Recognition'">
+                    verified
+                  </mat-icon>
+                </div>
+                <p class="text-cream-200 text-sm">
+                  {{campaign.syrianData?.culturalContext?.english}}
+                </p>
+                <p *ngIf="campaign.syrianData?.culturalContext?.arabic"
+                   class="text-cream-300 text-xs mt-1"
+                   [attr.lang]="'ar'">
+                  {{campaign.syrianData?.culturalContext?.arabic}}
+                </p>
+              </div>
+
+              <!-- Campaign CTA Button -->
+              <div class="campaign-cta">
+                <button type="button"
+                        mat-raised-button
+                        [color]="campaign.cta.color === 'syrian-red' ? 'warn' : 'primary'"
+                        [class]="'cta-button cta-' + campaign.cta.variant + ' cta-' + campaign.cta.size + ' cta-' + campaign.cta.color"
+                        (click)="onCampaignClick(campaign, $event)"
+                        [attr.aria-label]="campaign.cta.text.english + ' - ' + (campaign.cta.text.arabic || '')"
+                        [attr.data-testid]="'campaign-cta-' + campaign.id"
+                        matRipple>
+
+                  <mat-icon *ngIf="campaign.cta.icon && campaign.cta.iconPosition !== 'right'"
+                            [attr.aria-hidden]="true">
+                    {{campaign.cta.icon}}
+                  </mat-icon>
+
+                  <span class="cta-text">
+                    <span class="english">{{campaign.cta.text.english}}</span>
+                    <span *ngIf="campaign.cta.text.arabic"
+                          class="arabic"
+                          [attr.lang]="'ar'">
+                      | {{campaign.cta.text.arabic}}
+                    </span>
+                  </span>
+
+                  <mat-icon *ngIf="campaign.cta.icon && campaign.cta.iconPosition === 'right'"
+                            [attr.aria-hidden]="true">
+                    {{campaign.cta.icon}}
+                  </mat-icon>
+                </button>
+              </div>
+
+            </div>
+
+            <!-- Right Side - Campaign Visual Elements -->
+            <div class="campaign-visuals hidden lg:block">
+
+              <!-- Campaign Stats/Badges -->
+              <div class="campaign-badges grid grid-cols-2 gap-4 mb-6">
+
+                <!-- Discount Badge -->
+                <div *ngIf="campaign.syrianData?.specialties?.length"
+                     class="stat-card bg-white bg-opacity-10 backdrop-blur rounded-lg p-4 border border-white border-opacity-20">
+                  <div class="flex items-center">
+                    <mat-icon class="text-gold-400 mr-2">local_offer</mat-icon>
+                    <div>
+                      <div class="text-2xl font-bold text-gold-300">
+                        {{campaign.syrianData?.specialties?.length}}+
+                      </div>
+                      <div class="text-xs text-cream-200">Specialties | منتجات مميزة</div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Heritage Badge -->
+                <div *ngIf="campaign.syrianData?.unescoRecognition"
+                     class="stat-card bg-white bg-opacity-10 backdrop-blur rounded-lg p-4 border border-white border-opacity-20">
+                  <div class="flex items-center">
+                    <mat-icon class="text-gold-400 mr-2">verified</mat-icon>
+                    <div>
+                      <div class="text-lg font-bold text-gold-300">UNESCO</div>
+                      <div class="text-xs text-cream-200">Heritage | تراث</div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Region Badge -->
+                <div *ngIf="campaign.syrianData?.region"
+                     class="stat-card bg-white bg-opacity-10 backdrop-blur rounded-lg p-4 border border-white border-opacity-20 col-span-2">
+                  <div class="flex items-center justify-center">
+                    <mat-icon class="text-gold-400 mr-2">location_on</mat-icon>
+                    <div class="text-center">
+                      <div class="text-lg font-bold text-gold-300 capitalize">
+                        {{campaign.syrianData?.region}}
+                      </div>
+                      <div class="text-xs text-cream-200">Syrian Region | المنطقة السورية</div>
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+
+              <!-- Artisan Information -->
+              <div *ngIf="campaign.syrianData?.artisan"
+                   class="artisan-info bg-white bg-opacity-10 backdrop-blur rounded-lg p-4 border border-white border-opacity-20">
+                <div class="flex items-center space-x-3">
+                  <div *ngIf="campaign.syrianData?.artisan?.profileImage"
+                       class="artisan-avatar w-12 h-12 rounded-full bg-cover bg-center border-2 border-gold-400"
+                       [style.background-image]="'url(' + campaign.syrianData?.artisan?.profileImage + ')'">
+                  </div>
+                  <div *ngIf="!campaign.syrianData?.artisan?.profileImage"
+                       class="artisan-avatar w-12 h-12 rounded-full bg-gold-500 flex items-center justify-center">
+                    <mat-icon class="text-white">person</mat-icon>
+                  </div>
+                  <div class="flex-1">
+                    <div class="text-white font-semibold">
+                      {{campaign.syrianData?.artisan?.name?.english}}
+                    </div>
+                    <div class="text-cream-300 text-sm">
+                      {{campaign.syrianData?.artisan?.experience}} years | {{campaign.syrianData?.artisan?.location}}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+
+    </swiper-slide>
+
+  </swiper-container>
+
+  <!-- No Campaigns State -->
+  <div *ngIf="availableCampaigns().length === 0"
+       class="no-campaigns-state"
+       role="status"
+       aria-live="polite">
+    <div class="placeholder-content syrian-gradient">
+      <div class="placeholder-overlay">
+        <div class="placeholder-text">
+          <h2 class="text-2xl font-bold text-white mb-4">
+            <span class="block text-gold-400" [attr.lang]="'ar'">سوق سوريا</span>
+            <span class="block">SOUQ SYRIA MARKETPLACE</span>
+          </h2>
+          <p class="text-cream-200 mb-6">
+            أصالة السوق السوري | Authentic Syrian Market Experience
+          </p>
+          <button mat-raised-button
+                  color="primary"
+                  routerLink="/search"
+                  class="cta-button"
+                  [attr.aria-label]="'Browse Syrian marketplace products'">
+            <mat-icon>shopping_cart</mat-icon>
+            <span [attr.lang]="'ar'">تسوق الآن</span> | Shop Now
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Navigation Controls -->
+  <div *ngIf="hasMultipleCampaigns()"
+       class="campaign-navigation"
+       role="navigation"
+       aria-label="Campaign slides navigation">
+
+    <!-- Previous Arrow -->
+    <button type="button"
+            class="nav-arrow nav-arrow-left"
+            [disabled]="!canNavigatePrevious()"
+            (click)="goToPreviousSlide()"
+            [attr.aria-label]="'Previous campaign'"
+            [attr.data-testid]="'campaign-nav-previous'"
+            mat-icon-button
+            matRipple>
+      <mat-icon>chevron_left</mat-icon>
+    </button>
+
+    <!-- Next Arrow -->
+    <button type="button"
+            class="nav-arrow nav-arrow-right"
+            [disabled]="!canNavigateNext()"
+            (click)="goToNextSlide()"
+            [attr.aria-label]="'Next campaign'"
+            [attr.data-testid]="'campaign-nav-next'"
+            mat-icon-button
+            matRipple>
+      <mat-icon>chevron_right</mat-icon>
+    </button>
+
+  </div>
+
+  <!-- Slide Indicators -->
+  <div *ngIf="hasMultipleCampaigns()"
+       class="slide-indicators"
+       role="tablist"
+       aria-label="Campaign slides">
+
+    <button *ngFor="let campaign of availableCampaigns(); let i = index; trackBy: trackCampaign"
+            type="button"
+            class="slide-indicator"
+            [class.active]="i === currentSlideIndex()"
+            (click)="goToSlide(i)"
+            [attr.aria-label]="'Go to slide ' + (i + 1) + ': ' + campaign.name"
+            [attr.aria-selected]="i === currentSlideIndex()"
+            [attr.data-testid]="'campaign-indicator-' + i"
+            role="tab"
+            matRipple>
+      <span class="indicator-content"
+            [style.width]="i === currentSlideIndex() && showProgressBar ? autoPlayProgress() + '%' : '100%'">
+      </span>
+    </button>
+
+  </div>
+
+  <!-- Auto-Play Progress Bar -->
+  <div *ngIf="hasMultipleCampaigns() && showProgressBar && isAutoPlayActive()"
+       class="auto-play-progress"
+       role="progressbar"
+       [attr.aria-valuenow]="autoPlayProgress()"
+       aria-valuemin="0"
+       aria-valuemax="100"
+       [attr.aria-label]="'Auto-play progress: ' + autoPlayProgress() + '%'">
+    <div class="progress-bar"
+         [style.width]="autoPlayProgress() + '%'">
+    </div>
+  </div>
+
+  <!-- Auto-Play Controls -->
+  <div *ngIf="hasMultipleCampaigns()"
+       class="auto-play-controls">
+
+    <button type="button"
+            class="auto-play-toggle"
+            (click)="toggleAutoPlay()"
+            [attr.aria-label]="isAutoPlayActive() ? 'Pause auto-play' : 'Resume auto-play'"
+            [attr.data-testid]="'campaign-auto-play-toggle'"
+            mat-icon-button
+            matRipple>
+      <mat-icon>{{isAutoPlayActive() ? 'pause' : 'play_arrow'}}</mat-icon>
+    </button>
+
+  </div>
+
+</section>

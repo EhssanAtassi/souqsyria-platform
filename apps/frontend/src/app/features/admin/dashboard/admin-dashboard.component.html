@@ -1,0 +1,68 @@
+<section class="dashboard" aria-label="Admin dashboard overview">
+  <header class="dashboard__header">
+    <div>
+      <h2 class="dashboard__title">Marketplace pulse</h2>
+      <p class="dashboard__subtitle">
+        Monitoring SouqSyria operations across Damascus, Aleppo, Lattakia, and beyond.
+      </p>
+    </div>
+    <div class="dashboard__badge">{{ totalOrdersInFlight() }} live orders</div>
+  </header>
+
+  <section class="dashboard__metrics" aria-label="Key performance metrics">
+    <article *ngFor="let metric of metrics()" class="metric-card">
+      <header class="metric-card__header">
+        <h3>{{ metric.title }}</h3>
+        <span class="metric-card__trend" [class.metric-card__trend--down]="metric.trend === 'down'">
+          {{ metric.delta }}
+        </span>
+      </header>
+      <p class="metric-card__value">{{ metric.value }}</p>
+      <p class="metric-card__hint">{{ metric.hint }}</p>
+    </article>
+  </section>
+
+  <section class="dashboard__grid">
+    <div class="dashboard__orders" aria-label="Order status breakdown">
+      <header class="section-header">
+        <h3>Order flow</h3>
+        <p>Real-time mix of cash-on-delivery and prepaid orders.</p>
+      </header>
+      <div class="order-grid">
+        <article *ngFor="let status of orderStatuses()" class="order-card">
+          <span class="order-card__badge" [style.background]="status.badgeColor"></span>
+          <div>
+            <h4>{{ status.label }}</h4>
+            <p>{{ status.count }} orders</p>
+          </div>
+        </article>
+      </div>
+    </div>
+
+    <aside class="dashboard__highlights" aria-label="Operational highlights">
+      <header class="section-header">
+        <h3>Focus actions</h3>
+        <p>Priority items for the operations leads today.</p>
+      </header>
+      <article *ngFor="let highlight of highlights()" class="highlight-card">
+        <h4>{{ highlight.title }}</h4>
+        <p>{{ highlight.description }}</p>
+        <a class="highlight-card__action" [routerLink]="highlight.actionRoute">{{ highlight.actionLabel }}</a>
+      </article>
+    </aside>
+  </section>
+
+  <section class="dashboard__activity" aria-label="Recent activity log">
+    <header class="section-header">
+      <h3>Live activity</h3>
+      <p>Enterprise events from orders, vendors, support, and system monitors.</p>
+    </header>
+
+    <ul class="activity-list">
+      <li *ngFor="let activity of activities()" class="activity-list__item" [attr.data-category]="activity.category">
+        <span class="activity-list__timestamp">{{ activity.timestamp }}</span>
+        <p>{{ activity.description }}</p>
+      </li>
+    </ul>
+  </section>
+</section>

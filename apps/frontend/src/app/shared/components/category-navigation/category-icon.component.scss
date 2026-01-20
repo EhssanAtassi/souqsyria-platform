@@ -1,0 +1,378 @@
+/**
+ * SouqSyria Category Icon Component Styles
+ * @description Specialized styling for category icons with Syrian e-commerce theming
+ * @author SouqSyria Development Team
+ * @version 1.0.0
+ */
+
+// Import Tailwind utilities
+@import 'tailwindcss/utilities';
+
+// Base icon container styles
+:host {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  
+  &.sq-category-icon {
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+}
+
+// Icon container
+.sq-icon-container {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  
+  // Size-specific containers
+  &[data-size="xs"] {
+    width: 0.75rem;
+    height: 0.75rem;
+  }
+  
+  &[data-size="sm"] {
+    width: 1rem;
+    height: 1rem;
+  }
+  
+  &[data-size="md"] {
+    width: 1.25rem;
+    height: 1.25rem;
+  }
+  
+  &[data-size="lg"] {
+    width: 1.5rem;
+    height: 1.5rem;
+  }
+  
+  &[data-size="xl"] {
+    width: 2rem;
+    height: 2rem;
+  }
+  
+  &[data-size="2xl"] {
+    width: 2.5rem;
+    height: 2.5rem;
+  }
+}
+
+// Main category icon styles
+.sq-category-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  
+  // Material icon font optimization
+  font-feature-settings: 'liga';
+  -webkit-font-feature-settings: 'liga';
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  
+  // Size variants
+  &.text-xs { font-size: 0.75rem; line-height: 1; }
+  &.text-sm { font-size: 0.875rem; line-height: 1; }
+  &.text-base { font-size: 1rem; line-height: 1; }
+  &.text-lg { font-size: 1.125rem; line-height: 1; }
+  &.text-xl { font-size: 1.25rem; line-height: 1; }
+  &.text-2xl { font-size: 1.5rem; line-height: 1; }
+  
+  // Color variants
+  &.text-current { color: currentColor; }
+  &.text-primary-600 { color: theme('colors.primary.600'); }
+  &.text-primary-200 { color: theme('colors.primary.200'); }
+  &.text-neutral-600 { color: theme('colors.neutral.600'); }
+  &.text-neutral-400 { color: theme('colors.neutral.400'); }
+  &.text-white { color: theme('colors.white'); }
+  &.text-accent-600 { color: theme('colors.accent.600'); }
+}
+
+// Hover effects
+.sq-icon-hover {
+  &:hover {
+    .sq-category-icon {
+      transform: scale(1.1);
+      filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+      
+      // Color-specific hover effects
+      &.text-primary-600 { 
+        color: theme('colors.primary.700');
+        filter: drop-shadow(0 2px 8px rgba(59, 130, 246, 0.3));
+      }
+      
+      &.text-neutral-600 { 
+        color: theme('colors.neutral.700'); 
+      }
+      
+      &.text-white { 
+        text-shadow: 0 0 8px rgba(255, 255, 255, 0.5);
+      }
+      
+      &.text-accent-600 { 
+        color: theme('colors.accent.700');
+        filter: drop-shadow(0 2px 8px rgba(236, 72, 153, 0.3));
+      }
+    }
+    
+    .sq-hover-overlay {
+      opacity: 0.1;
+    }
+  }
+}
+
+// Custom badge styles (for badges longer than 3 characters)
+.sq-custom-badge {
+  font-size: 0.625rem;
+  line-height: 1;
+  white-space: nowrap;
+  animation: badgePulse 2s infinite;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  
+  // Size adjustments based on parent icon size
+  :host[data-size="xs"] &,
+  :host[data-size="sm"] & {
+    font-size: 0.5rem;
+    padding: 0.125rem 0.25rem;
+    min-width: 0.875rem;
+    height: 0.875rem;
+  }
+  
+  :host[data-size="xl"] &,
+  :host[data-size="2xl"] & {
+    font-size: 0.75rem;
+    padding: 0.25rem 0.5rem;
+    min-width: 1.5rem;
+    height: 1.5rem;
+  }
+}
+
+// Material badge customization
+::ng-deep {
+  .mat-badge-content {
+    background: theme('colors.accent.600') !important;
+    color: theme('colors.white') !important;
+    font-size: 0.625rem !important;
+    font-weight: 600 !important;
+    line-height: 1 !important;
+    
+    // Size-specific badge adjustments
+    :host[data-size="xs"] &,
+    :host[data-size="sm"] & {
+      font-size: 0.5rem !important;
+      padding: 0.125rem !important;
+      min-width: 0.75rem !important;
+      height: 0.75rem !important;
+    }
+    
+    :host[data-size="xl"] &,
+    :host[data-size="2xl"] & {
+      font-size: 0.75rem !important;
+      padding: 0.25rem !important;
+      min-width: 1.25rem !important;
+      height: 1.25rem !important;
+    }
+  }
+  
+  .mat-badge-small .mat-badge-content {
+    font-size: 0.5rem !important;
+    padding: 0.125rem !important;
+    min-width: 0.75rem !important;
+    height: 0.75rem !important;
+  }
+  
+  .mat-badge-medium .mat-badge-content {
+    font-size: 0.625rem !important;
+    padding: 0.1875rem !important;
+    min-width: 1rem !important;
+    height: 1rem !important;
+  }
+}
+
+// Loading skeleton
+.sq-icon-skeleton {
+  border-radius: 0.25rem;
+  
+  &.w-3 { width: 0.75rem; height: 0.75rem; }
+  &.w-4 { width: 1rem; height: 1rem; }
+  &.w-5 { width: 1.25rem; height: 1.25rem; }
+  &.w-6 { width: 1.5rem; height: 1.5rem; }
+  &.w-8 { width: 2rem; height: 2rem; }
+  &.w-10 { width: 2.5rem; height: 2.5rem; }
+}
+
+// Hover overlay
+.sq-hover-overlay {
+  pointer-events: none;
+  border-radius: 50%;
+  transition: opacity 0.2s ease;
+}
+
+// Category-specific icon styling
+:host {
+  // Electronics category
+  &[data-category="electronics"] .sq-category-icon {
+    color: theme('colors.blue.600');
+    
+    &:hover {
+      color: theme('colors.blue.700');
+      filter: drop-shadow(0 2px 8px rgba(37, 99, 235, 0.3));
+    }
+  }
+  
+  // Fashion category
+  &[data-category="fashion"] .sq-category-icon {
+    color: theme('colors.pink.600');
+    
+    &:hover {
+      color: theme('colors.pink.700');
+      filter: drop-shadow(0 2px 8px rgba(219, 39, 119, 0.3));
+    }
+  }
+  
+  // Home & Garden category
+  &[data-category="home-garden"] .sq-category-icon {
+    color: theme('colors.green.600');
+    
+    &:hover {
+      color: theme('colors.green.700');
+      filter: drop-shadow(0 2px 8px rgba(22, 163, 74, 0.3));
+    }
+  }
+  
+  // Beauty category
+  &[data-category="beauty"] .sq-category-icon {
+    color: theme('colors.purple.600');
+    
+    &:hover {
+      color: theme('colors.purple.700');
+      filter: drop-shadow(0 2px 8px rgba(147, 51, 234, 0.3));
+    }
+  }
+  
+  // Sports category
+  &[data-category="sports"] .sq-category-icon {
+    color: theme('colors.orange.600');
+    
+    &:hover {
+      color: theme('colors.orange.700');
+      filter: drop-shadow(0 2px 8px rgba(234, 88, 12, 0.3));
+    }
+  }
+  
+  // Books category
+  &[data-category="books"] .sq-category-icon {
+    color: theme('colors.indigo.600');
+    
+    &:hover {
+      color: theme('colors.indigo.700');
+      filter: drop-shadow(0 2px 8px rgba(79, 70, 229, 0.3));
+    }
+  }
+  
+  // Automotive category
+  &[data-category="automotive"] .sq-category-icon {
+    color: theme('colors.gray.600');
+    
+    &:hover {
+      color: theme('colors.gray.700');
+      filter: drop-shadow(0 2px 8px rgba(75, 85, 99, 0.3));
+    }
+  }
+  
+  // Food category
+  &[data-category="food"] .sq-category-icon {
+    color: theme('colors.red.600');
+    
+    &:hover {
+      color: theme('colors.red.700');
+      filter: drop-shadow(0 2px 8px rgba(220, 38, 38, 0.3));
+    }
+  }
+}
+
+// Animation keyframes
+@keyframes badgePulse {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.8;
+    transform: scale(0.95);
+  }
+}
+
+@keyframes iconBounce {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+}
+
+// Accessibility and focus styles
+:host {
+  &:focus-visible {
+    outline: 2px solid theme('colors.primary.500');
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+}
+
+// High contrast mode support
+@media (prefers-contrast: high) {
+  .sq-category-icon {
+    &.text-primary-600,
+    &.text-primary-200 { 
+      color: theme('colors.black') !important; 
+    }
+    
+    &.text-neutral-600,
+    &.text-neutral-400 { 
+      color: theme('colors.black') !important; 
+    }
+    
+    &.text-white { 
+      color: theme('colors.white') !important;
+      text-shadow: 0 0 0 1px theme('colors.black');
+    }
+  }
+  
+  .sq-custom-badge {
+    background: theme('colors.black') !important;
+    color: theme('colors.white') !important;
+    border: 1px solid theme('colors.white');
+  }
+}
+
+// Reduced motion support
+@media (prefers-reduced-motion: reduce) {
+  .sq-category-icon,
+  .sq-custom-badge,
+  .sq-hover-overlay {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+  
+  .sq-icon-hover:hover .sq-category-icon {
+    transform: none !important;
+  }
+}
+
+// Print styles
+@media print {
+  .sq-custom-badge {
+    display: none;
+  }
+  
+  .sq-category-icon {
+    color: theme('colors.black') !important;
+    filter: none !important;
+  }
+}

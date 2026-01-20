@@ -1,0 +1,71 @@
+<!--
+  Back to Top Button
+  Syrian Golden Wheat themed floating action button
+  Appears when user scrolls down, scrolls to top on click
+-->
+
+<button
+  *ngIf="isVisible()"
+  class="back-to-top"
+  type="button"
+  (click)="scrollToTop()"
+  (keypress)="onKeyPress($event)"
+  [attr.aria-label]="'Scroll to top'"
+  [attr.title]="'Back to top'"
+  [@fadeInOut]>
+
+  <!-- Scroll Progress Circle -->
+  <svg
+    class="back-to-top__progress"
+    width="48"
+    height="48"
+    viewBox="0 0 48 48">
+    <!-- Background Circle -->
+    <circle
+      class="back-to-top__progress-bg"
+      cx="24"
+      cy="24"
+      r="20"
+      fill="none"
+      stroke-width="3" />
+
+    <!-- Progress Circle -->
+    <circle
+      class="back-to-top__progress-fill"
+      cx="24"
+      cy="24"
+      r="20"
+      fill="none"
+      stroke-width="3"
+      [style.stroke-dasharray]="'125.6'"
+      [style.stroke-dashoffset]="125.6 - (scrollProgress() * 125.6 / 100)"
+      transform="rotate(-90 24 24)" />
+  </svg>
+
+  <!-- Up Arrow Icon with Damascus Pattern -->
+  <svg
+    class="back-to-top__icon"
+    width="24"
+    height="24"
+    viewBox="0 0 24 24"
+    fill="none">
+    <!-- Arrow Shape -->
+    <path
+      d="M12 5L5 12h4v7h6v-7h4L12 5z"
+      fill="currentColor"
+      class="back-to-top__arrow" />
+
+    <!-- Damascus Pattern Detail (subtle decorative element) -->
+    <circle
+      cx="12"
+      cy="10"
+      r="1.5"
+      fill="currentColor"
+      opacity="0.3" />
+  </svg>
+
+  <!-- Text Label (shows on hover on desktop) -->
+  <span class="back-to-top__label">
+    إلى الأعلى
+  </span>
+</button>

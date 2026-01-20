@@ -1,0 +1,116 @@
+// Offers Section Component Styles
+.offers-section {
+
+  .offer-card {
+    min-height: 320px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(10px);
+
+    &:hover {
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+    }
+
+    &:focus {
+      outline: 2px solid #c41e3a;
+      outline-offset: 2px;
+    }
+
+    // Disabled state
+    &.opacity-75 {
+      filter: grayscale(0.3);
+    }
+
+    img {
+      transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    // Content positioning
+    .relative {
+      position: relative;
+    }
+
+    // Gradient overlay effects
+    &::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(
+        135deg,
+        rgba(255, 255, 255, 0.1) 0%,
+        rgba(255, 255, 255, 0.05) 50%,
+        rgba(0, 0, 0, 0.1) 100%
+      );
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      pointer-events: none;
+      z-index: 15;
+    }
+
+    &:hover::before {
+      opacity: 1;
+    }
+  }
+
+  // Section header styles
+  h2 {
+    background: linear-gradient(135deg, #1a365d 0%, #c41e3a 100%);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+
+  // Responsive adjustments
+  @media (max-width: 768px) {
+    .offer-card {
+      min-height: 280px;
+
+      h3 {
+        font-size: 1.125rem;
+      }
+
+      h4 {
+        font-size: 1rem;
+      }
+
+      p {
+        font-size: 0.875rem;
+      }
+    }
+  }
+
+  @media (max-width: 640px) {
+    .grid {
+      grid-template-columns: 1fr;
+      gap: 1rem;
+    }
+
+    .offer-card {
+      min-height: 250px;
+    }
+  }
+}
+
+// Animation for the cards
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.offer-card {
+  animation: fadeInUp 0.6s ease-out;
+
+  &:nth-child(1) { animation-delay: 0.1s; }
+  &:nth-child(2) { animation-delay: 0.2s; }
+  &:nth-child(3) { animation-delay: 0.3s; }
+}
+

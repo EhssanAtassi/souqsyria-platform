@@ -1,0 +1,37 @@
+<!-- Alert Container (slide-in animation) -->
+<div
+  *ngIf="isVisible"
+  class="alert"
+  [class]="'alert--' + type"
+  role="alert"
+  [attr.aria-live]="type === 'error' ? 'assertive' : 'polite'">
+
+  <!-- Alert Icon -->
+  <div class="alert__icon">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+      <path
+        [attr.d]="iconPath"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"/>
+    </svg>
+  </div>
+
+  <!-- Alert Message -->
+  <div class="alert__content">
+    <p class="alert__message">{{ displayMessage }}</p>
+  </div>
+
+  <!-- Close Button -->
+  <button
+    *ngIf="dismissible"
+    type="button"
+    class="alert__close"
+    (click)="dismiss()"
+    aria-label="Dismiss alert">
+    <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+      <path d="M15 5L5 15M5 5L15 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+  </button>
+</div>

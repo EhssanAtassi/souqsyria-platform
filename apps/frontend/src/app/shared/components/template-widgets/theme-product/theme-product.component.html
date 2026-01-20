@@ -1,0 +1,128 @@
+<div class="theme-product" [ngClass]="'theme-product--' + displayMode">
+  <!-- Loading state -->
+  <div class="theme-product__loading" *ngIf="isLoading()">
+    <div class="theme-product__spinner">Loading products...</div>
+  </div>
+
+  <!-- Products grid -->
+  <div class="theme-product__grid" [ngClass]="gridClass" *ngIf="!isLoading() && displayedProducts().length > 0">
+    <div class="theme-product__item" *ngFor="let product of displayedProducts()">
+      <mat-card class="product-card">
+        <a [routerLink]="['/product', product.slug]" class="product-card__link">
+          <!-- Product image with badges -->
+          <div class="product-card__image-wrapper">
+            <img
+              [src]="getPrimaryImage(product)"
+              [alt]="getImageAlt(product)"
+              class="product-card__image"
+              loading="lazy">
+
+            <!-- Discount badge -->
+            <span class="product-card__badge product-card__badge--discount" *ngIf="hasDiscount(product)">
+              -{{ getDiscountPercentage(product) }}%
+            </span>
+
+            <!-- Authenticity badge -->
+            <span class="product-card__badge product-card__badge--authentic" *ngIf="product.authenticity.certified">
+              <mat-icon>verified</mat-icon>
+            </span>
+
+            <!-- Stock status -->
+            <span
+              class="product-card__badge product-card__badge--stock"
+              *ngIf="!product.inventory.inStock">
+              {{ language === 'ar' ? 'نفذت الكمية' : 'Out of Stock' }}
+            </span>
+          </div>
+
+          <!-- Product info -->
+          <mat-card-content class="product-card__content">
+            <!-- Category -->
+            <div class="product-card__category">
+              {{ language === 'ar' && product.category.nameArabic
+                ? product.category.nameArabic
+                : product.category.name }}
+            </div>
+
+            <!-- Product name -->
+            <h3 class="product-card__title">
+              {{ getProductName(product) }}
+            </h3>
+
+            <!-- Rating -->
+            <div class="product-card__rating">
+              <div class="product-card__stars">
+                <span
+                  *ngFor="let filled of getStarArray(product.reviews.averageRating)"
+                  class="product-card__star"
+                  [ngClass]="{'product-card__star--filled': filled}">
+                  ★
+                </span>
+              </div>
+              <span class="product-card__rating-text">
+                ({{ product.reviews.totalReviews }})
+              </span>
+            </div>
+
+            <!-- Price -->
+            <div class="product-card__price-wrapper">
+              <div class="product-card__price">
+                <span class="product-card__price-current">
+                  ${{ product.price.amount }}
+                </span>
+                <span class="product-card__price-original" *ngIf="hasDiscount(product)">
+                  ${{ product.price.originalPrice }}
+                </span>
+              </div>
+            </div>
+
+            <!-- Seller info -->
+            <div class="product-card__seller">
+              <mat-icon class="product-card__seller-icon">store</mat-icon>
+              <span class="product-card__seller-name">
+                {{ language === 'ar' && product.seller.nameArabic
+                  ? product.seller.nameArabic
+                  : product.seller.name }}
+              </span>
+              <mat-icon
+                class="product-card__seller-verified"
+                *ngIf="product.seller.verified">
+                verified
+              </mat-icon>
+            </div>
+          </mat-card-content>
+
+          <!-- Action buttons -->
+          <mat-card-actions class="product-card__actions">
+            <button
+              mat-raised-button
+              color="primary"
+              class="product-card__cart-btn"
+              *ngIf="showAddToCart && product.inventory.inStock"
+              (click)="onAddToCart(product, $event)">
+              <mat-icon>shopping_cart</mat-icon>
+              {{ language === 'ar' ? 'أضف للسلة' : 'Add to Cart' }}
+            </button>
+
+            <button
+              mat-icon-button
+              class="product-card__wishlist-btn"
+              *ngIf="showWishlist"
+              (click)="onAddToWishlist(product, $event)"
+              [title]="language === 'ar' ? 'أضف للمفضلة' : 'Add to Wishlist'">
+              <mat-icon>favorite_border</mat-icon>
+            </button>
+          </mat-card-actions>
+        </a>
+      </mat-card>
+    </div>
+  </div>
+
+  <!-- Empty state -->
+  <div class="theme-product__empty" *ngIf="!isLoading() && displayedProducts().length === 0">
+    <mat-icon class="theme-product__empty-icon">inventory_2</mat-icon>
+    <p class="theme-product__empty-text">
+      {{ language === 'ar' ? 'لا توجد منتجات لعرضها' : 'No products to display' }}
+    </p>
+  </div>
+</div>

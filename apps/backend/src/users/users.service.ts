@@ -1,0 +1,371 @@
+import {
+  Injectable,
+  Logger,
+  NotFoundException,
+  BadRequestException,
+} from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { User } from './entities/user.entity';
+import { Repository } from 'typeorm';
+import { Role } from '../roles/entities/role.entity';
+import { Address } from '../addresses/entities/address.entity';
+import { UpdateProfileDto } from './dto/update-profile.dto';
+import { ChangePasswordDto } from './dto/change-password.dto';
+import * as bcrypt from 'bcrypt';
+
+@Injectable()
+export class UsersService {
+  private readonly logger = new Logger(UsersService.name);
+
+  constructor(
+    @InjectRepository(User)
+    private readonly userRepository: Repository<User>,
+    @InjectRepository(Role)
+    private readonly roleRepository: Repository<Role>,
+    @InjectRepository(Address)
+    private readonly addressRepository: Repository<Address>,
+  ) {}
+
+  /**
+   * Find an existing user by Firebase UID or create a new one with default role
+   * @param firebaseUser { uid: string, email?: string, phone?: string }
+   */
+  async findOrCreateByFirebaseUid(firebaseUser: {
+    uid: string;
+    email?: string;
+    phone?: string;
+  }): Promise<User> {
+    this.logger.log(`Checking user existence for UID: ${firebaseUser.uid}`);
+
+    let user = await this.userRepository.findOne({
+      where: { firebaseUid: firebaseUser.uid },
+      relations: ['role'],
+    });
+
+    if (!user) {
+      this.logger.log(`User already exists with ID: ${user.id}`);
+      const defaultRole = await this.roleRepository.findOne({
+        where: { name: 'buyer' },
+      });
+      this.logger.log(`User not found. Creating new user...`);
+      if (!defaultRole) {
+        this.logger.error(`Default role "buyer" not found`);
+        throw new Error('Default role "buyer" not found');
+      }
+
+      user = this.userRepository.create({
+        firebaseUid: firebaseUser.uid,
+        email: firebaseUser.email,
+        phone: firebaseUser.phone,
+        role: defaultRole,
+      });
+      const savedUser = await this.userRepository.save(user);
+      this.logger.log(`New user created with ID: ${savedUser.id}`);
+    }
+
+    return user;
+  }
+
+  /**
+   * GET USER PROFILE
+   *
+   * Retrieves complete user profile with relationships
+   *
+   * @param userId - User ID to retrieve
+   * @returns Promise<User> - Complete user profile
+   */
+  async getUserProfile(userId: number): Promise<User> {
+    this.logger.log(`🔍 Retrieving profile for user ${userId}`);
+
+    const user = await this.userRepository.findOne({
+      where: { id: userId },
+      relations: [
+        'role',
+        'addresses',
+        'addresses.city',
+        'addresses.region',
+        'addresses.country',
+      ],
+      select: {
+        id: true,
+        firebaseUid: true,
+        email: true,
+        phone: true,
+        fullName: true,
+        isVerified: true,
+        lastLoginAt: true,
+        lastActivityAt: true,
+        createdAt: true,
+        updatedAt: true,
+        metadata: true,
+        role: {
+          id: true,
+          name: true,
+        },
+        addresses: {
+          id: true,
+          label: true,
+          isDefault: true,
+          addressLine1: true,
+          addressLine2: true,
+          city: { id: true, name: true },
+          region: { id: true, name: true },
+          country: { id: true, name: true },
+        },
+      },
+    });
+
+    if (!user) {
+      throw new NotFoundException(`User with ID ${userId} not found`);
+    }
+
+    return user;
+  }
+
+  /**
+   * UPDATE USER PROFILE
+   *
+   * Updates user profile information with validation
+   *
+   * @param userId - User ID to update
+   * @param updateProfileDto - Profile update data
+   * @returns Promise<User> - Updated user profile
+   */
+  async updateUserProfile(
+    userId: number,
+    updateProfileDto: UpdateProfileDto,
+  ): Promise<User> {
+    this.logger.log(`✏️ Updating profile for user ${userId}`);
+
+    const user = await this.userRepository.findOne({
+      where: { id: userId },
+    });
+
+    if (!user) {
+      throw new NotFoundException(`User with ID ${userId} not found`);
+    }
+
+    // Update basic profile fields
+    if (updateProfileDto.fullName) {
+      user.fullName = updateProfileDto.fullName;
+    }
+
+    if (updateProfileDto.email) {
+      // Check if email is already taken by another user
+      const existingUser = await this.userRepository.findOne({
+        where: { email: updateProfileDto.email },
+      });
+
+      if (existingUser && existingUser.id !== userId) {
+        throw new BadRequestException('Email is already taken by another user');
+      }
+
+      user.email = updateProfileDto.email;
+    }
+
+    if (updateProfileDto.phone) {
+      // Check if phone is already taken by another user
+      const existingUser = await this.userRepository.findOne({
+        where: { phone: updateProfileDto.phone },
+      });
+
+      if (existingUser && existingUser.id !== userId) {
+        throw new BadRequestException(
+          'Phone number is already taken by another user',
+        );
+      }
+
+      user.phone = updateProfileDto.phone;
+    }
+
+    // Update preferences (merge with existing)
+    if (updateProfileDto.preferences) {
+      const currentPreferences = user.metadata?.preferences || {};
+      user.metadata = {
+        ...user.metadata,
+        preferences: {
+          ...currentPreferences,
+          ...updateProfileDto.preferences,
+        },
+      };
+    }
+
+    // Update last activity
+    user.lastActivityAt = new Date();
+
+    const updatedUser = await this.userRepository.save(user);
+    this.logger.log(`✅ Profile updated successfully for user ${userId}`);
+
+    return updatedUser;
+  }
+
+  /**
+   * CHANGE PASSWORD
+   *
+   * Changes user password with current password verification
+   *
+   * @param userId - User ID
+   * @param changePasswordDto - Password change data
+   * @returns Promise<void>
+   */
+  async changePassword(
+    userId: number,
+    changePasswordDto: ChangePasswordDto,
+  ): Promise<void> {
+    this.logger.log(`🔐 Changing password for user ${userId}`);
+
+    // Validate that new password and confirm password match
+    if (changePasswordDto.newPassword !== changePasswordDto.confirmPassword) {
+      throw new BadRequestException(
+        'New password and confirm password do not match',
+      );
+    }
+
+    const user = await this.userRepository.findOne({
+      where: { id: userId },
+      select: ['id', 'passwordHash'],
+    });
+
+    if (!user) {
+      throw new NotFoundException(`User with ID ${userId} not found`);
+    }
+
+    // Verify current password
+    if (!user.passwordHash) {
+      throw new BadRequestException(
+        'User does not have a password set. Please use password reset instead.',
+      );
+    }
+
+    const isCurrentPasswordValid = await bcrypt.compare(
+      changePasswordDto.currentPassword,
+      user.passwordHash,
+    );
+
+    if (!isCurrentPasswordValid) {
+      throw new BadRequestException('Current password is incorrect');
+    }
+
+    // Hash new password
+    const saltRounds = 12;
+    const hashedNewPassword = await bcrypt.hash(
+      changePasswordDto.newPassword,
+      saltRounds,
+    );
+
+    // Update password and password change timestamp
+    await this.userRepository.update(userId, {
+      passwordHash: hashedNewPassword,
+      passwordChangedAt: new Date(),
+      lastActivityAt: new Date(),
+    });
+
+    this.logger.log(`✅ Password changed successfully for user ${userId}`);
+  }
+
+  /**
+   * GET USER ADDRESSES
+   *
+   * Retrieves all addresses for a user
+   *
+   * @param userId - User ID
+   * @returns Promise<Address[]> - User addresses
+   */
+  async getUserAddresses(userId: number): Promise<Address[]> {
+    this.logger.log(`🏠 Retrieving addresses for user ${userId}`);
+
+    const addresses = await this.addressRepository.find({
+      where: {
+        user: { id: userId },
+        deletedAt: null, // Only active addresses
+      },
+      relations: ['city', 'region', 'country'],
+      order: {
+        isDefault: 'DESC', // Default address first
+        createdAt: 'DESC',
+      },
+    });
+
+    return addresses;
+  }
+
+  /**
+   * GET USER STATISTICS
+   *
+   * Calculates user account statistics for profile display
+   *
+   * @param userId - User ID
+   * @returns Promise<object> - User statistics
+   */
+  async getUserStatistics(userId: number): Promise<{
+    totalOrders: number;
+    totalSpent: number;
+    wishlistItems: number;
+    savedAddresses: number;
+  }> {
+    this.logger.log(`📊 Calculating statistics for user ${userId}`);
+
+    const [totalOrders, totalSpent, wishlistItems, savedAddresses] =
+      await Promise.all([
+        // Total orders count
+        this.userRepository
+          .createQueryBuilder('user')
+          .leftJoin('user.orders', 'order')
+          .where('user.id = :userId', { userId })
+          .getCount(),
+
+        // Total spent (placeholder - would need orders relationship)
+        Promise.resolve(0),
+
+        // Wishlist items count
+        this.userRepository
+          .createQueryBuilder('user')
+          .leftJoin('user.wishlist', 'wishlist')
+          .where('user.id = :userId', { userId })
+          .getCount(),
+
+        // Saved addresses count
+        this.addressRepository.count({
+          where: {
+            user: { id: userId },
+            deletedAt: null,
+          },
+        }),
+      ]);
+
+    return {
+      totalOrders,
+      totalSpent,
+      wishlistItems,
+      savedAddresses,
+    };
+  }
+
+  /**
+   * UPDATE LAST ACTIVITY
+   *
+   * Updates user's last activity timestamp for session management
+   *
+   * @param userId - User ID
+   */
+  async updateLastActivity(userId: number): Promise<void> {
+    await this.userRepository.update(userId, {
+      lastActivityAt: new Date(),
+    });
+  }
+
+  /**
+   * FIND USER BY ID
+   *
+   * Simple user lookup by ID
+   *
+   * @param userId - User ID
+   * @returns Promise<User | null> - User entity or null
+   */
+  async findById(userId: number): Promise<User | null> {
+    return this.userRepository.findOne({
+      where: { id: userId },
+      relations: ['role'],
+    });
+  }
+}

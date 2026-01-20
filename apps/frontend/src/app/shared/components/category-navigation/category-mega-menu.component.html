@@ -1,0 +1,261 @@
+<!-- SouqSyria Category-Specific Mega Menu Component -->
+<!-- Dynamic mega menu with category-specific content and updated Syrian theme -->
+
+<div
+  class="sq-mega-menu-container absolute left-0 right-0 bg-white shadow-2xl border-t-4 border-amber-600 z-50"
+  style="top: 0; margin-top: -1px; background: linear-gradient(135deg, #ffffff 0%, #fefdf8 30%, #fef7e0 70%, #fef3c7 100%) !important; background-color: #ffffff !important;"
+  [attr.dir]="config.rtl ? 'rtl' : 'ltr'"
+  [style.display]="isVisible ? 'block' : 'none'"
+  role="menu"
+  [attr.aria-label]="getCategorySpecificAriaLabel()"
+  (mouseenter)="onMenuMouseEnter()"
+  (mouseleave)="onMenuMouseLeave()"
+>
+
+  <!-- Mega Menu Content -->
+  <div class="sq-container max-w-7xl mx-auto p-8">
+
+    <!-- All Categories Layout -->
+    <div *ngIf="!currentCategory" class="all-categories-layout">
+      <div class="mb-6 pb-4 border-b border-amber-200">
+        <h2 class="text-2xl font-bold text-amber-900 flex items-center">
+          <mat-icon class="mr-3 rtl:mr-0 rtl:ml-3 text-amber-700" aria-hidden="true">apps</mat-icon>
+          {{ config.language === 'ar' ? 'جميع الفئات' : 'All Categories' }}
+        </h2>
+        <p class="text-sm text-amber-700 mt-1">
+          {{ config.language === 'ar' ? 'تصفح جميع فئات المنتجات السورية التراثية' : 'Browse all Syrian heritage product categories' }}
+        </p>
+      </div>
+
+      <!-- All Categories Grid -->
+      <div class="grid grid-cols-4 gap-6">
+        <div
+          *ngFor="let category of categories; trackBy: trackByCategory"
+          class="sq-category-card bg-white rounded-lg p-4 hover:shadow-md transition-all duration-200 border border-amber-200 hover:border-amber-400 cursor-pointer"
+          (click)="onCategoryClick(category)"
+        >
+          <div class="text-center">
+            <div class="w-16 h-16 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-3">
+              <mat-icon class="text-amber-600 text-2xl">{{ category.icon }}</mat-icon>
+            </div>
+            <h3 class="font-semibold text-amber-900 mb-2">
+              {{ config.language === 'ar' ? category.nameAr : category.name }}
+            </h3>
+            <p class="text-xs text-amber-600" *ngIf="category.subcategories">
+              {{ category.subcategories.length }} {{ config.language === 'ar' ? 'فئة فرعية' : 'subcategories' }}
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Category-Specific Layout -->
+    <div *ngIf="currentCategory" class="category-specific-layout">
+      <!-- Category Header with Breadcrumb -->
+      <div class="mb-6 pb-4 border-b border-amber-200">
+        <h2 class="text-2xl font-bold text-amber-900 flex items-center">
+          <mat-icon
+            class="mr-3 rtl:mr-0 rtl:ml-3 text-amber-700"
+            aria-hidden="true"
+          >
+            {{ currentCategory ? currentCategory.icon : 'category' }}
+          </mat-icon>
+          {{ getCategoryText(currentCategory) }}
+        </h2>
+        <p class="text-sm text-amber-700 mt-1" *ngIf="getCategoryDescription()">
+          {{ getCategoryDescription() }}
+        </p>
+      </div>
+
+      <!-- Category-Specific Content Grid -->
+      <div class="grid grid-cols-12 gap-8">
+
+      <!-- Subcategories Section (8 columns) -->
+      <div class="col-span-8">
+        <h3 class="font-semibold text-lg text-amber-800 mb-4 flex items-center">
+          <mat-icon class="mr-2 rtl:mr-0 rtl:ml-2 text-amber-700">category</mat-icon>
+          {{ config.language === 'ar' ? 'الفئات الفرعية' : 'Subcategories' }}
+        </h3>
+
+        <div class="grid grid-cols-3 gap-4" *ngIf="getCategorySubcategories().length > 0; else noSubcategories">
+          <div
+            *ngFor="let subcategory of getCategorySubcategories(); trackBy: trackBySubcategory"
+            class="sq-mega-subcategory-card bg-white rounded-lg p-4 hover:shadow-md transition-all duration-200 border border-amber-200 hover:border-amber-400"
+          >
+            <!-- Main Subcategory -->
+            <a
+              [routerLink]="subcategory.url"
+              class="block group mb-3"
+              (click)="onSubcategoryClick(subcategory)"
+              [attr.aria-label]="getSubcategoryText(subcategory)"
+            >
+              <div class="flex items-center mb-2">
+                <mat-icon class="text-amber-600 mr-2 rtl:mr-0 rtl:ml-2 group-hover:scale-110 transition-transform">{{ subcategory.icon || 'label' }}</mat-icon>
+                <h4 class="font-medium text-amber-900 group-hover:text-amber-700 transition-colors">
+                  {{ getSubcategoryText(subcategory) }}
+                </h4>
+              </div>
+              <p class="text-xs text-amber-600 group-hover:text-amber-700" *ngIf="subcategory.description">
+                {{ config.language === 'ar' ? subcategory.descriptionAr : subcategory.description }}
+              </p>
+            </a>
+
+            <!-- Child Subcategories -->
+            <div *ngIf="hasChildrenToShow(subcategory)" class="border-t border-amber-100 pt-3 mt-3">
+              <h5 class="text-xs font-medium text-amber-800 mb-2 uppercase tracking-wide">
+                {{ config.language === 'ar' ? 'فئات فرعية' : 'Sub-items' }}
+              </h5>
+              <div class="space-y-2">
+                <a
+                  *ngFor="let child of getChildSubcategories(subcategory); trackBy: trackByChild"
+                  [routerLink]="child.url"
+                  (click)="onChildSubcategoryClick(child)"
+                  class="flex items-center text-xs text-amber-700 hover:text-amber-900 transition-colors py-1 px-2 rounded hover:bg-amber-50"
+                  [attr.aria-label]="config.language === 'ar' ? child.nameAr : child.name"
+                >
+                  <mat-icon class="text-amber-600 mr-2 rtl:mr-0 rtl:ml-2" style="font-size: 14px; width: 14px; height: 14px;">
+                    {{ child.icon || 'circle' }}
+                  </mat-icon>
+                  <span class="truncate">
+                    {{ config.language === 'ar' ? child.nameAr : child.name }}
+                  </span>
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <ng-template #noSubcategories>
+          <div class="text-center py-8 text-amber-600">
+            <mat-icon class="text-4xl mb-2 opacity-50">category</mat-icon>
+            <p>{{ config.language === 'ar' ? 'لا توجد فئات فرعية متاحة' : 'No subcategories available' }}</p>
+          </div>
+        </ng-template>
+      </div>
+
+      <!-- Category-Specific Features Section (4 columns) -->
+      <div class="col-span-4">
+
+        <!-- Category-Specific Promotion -->
+        <div class="mb-6">
+          <h3 class="font-semibold text-lg text-amber-800 mb-4 flex items-center">
+            <mat-icon class="mr-2 rtl:mr-0 rtl:ml-2 text-amber-700">local_offer</mat-icon>
+            {{ getCategoryPromotionTitle() }}
+          </h3>
+
+          <!-- Dynamic Category Offer Card -->
+          <div class="sq-category-promotion-card relative overflow-hidden rounded-xl cursor-pointer transform transition-all duration-300 hover:scale-105 hover:shadow-xl"
+               [ngClass]="getCategoryPromotionTheme()">
+            <div class="p-6 relative z-10" style="color: white !important;">
+              <div class="flex items-start justify-between mb-3">
+                <h4 class="font-bold text-lg" style="color: white !important;">
+                  {{ getCategoryPromotionText() }}
+                </h4>
+                <span class="bg-white/20 backdrop-blur-sm px-3 py-1 rounded-full text-sm font-bold" style="color: white !important;">
+                  {{ getCategoryDiscountText() }}
+                </span>
+              </div>
+              <p class="text-sm opacity-90 mb-4" style="color: white !important;">
+                {{ getCategoryPromotionDescription() }}
+              </p>
+
+              <button
+                mat-raised-button
+                class="bg-white/95 hover:bg-white font-semibold shadow-lg hover:shadow-xl transition-all border border-amber-200"
+                style="color: #92400e !important;"
+                (click)="onCategorySpecificClick()"
+              >
+                {{ config.language === 'ar' ? 'تصفح الآن' : 'Browse Now' }}
+                <mat-icon class="ml-1 rtl:ml-0 rtl:mr-1" style="color: #92400e !important;" aria-hidden="true">arrow_forward</mat-icon>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Category-Specific Featured Products -->
+        <div class="mb-6">
+          <h4 class="font-semibold text-amber-800 mb-4 flex items-center">
+            <mat-icon class="mr-2 rtl:mr-0 rtl:ml-2 text-amber-700">star</mat-icon>
+            {{ config.language === 'ar' ? 'منتجات مختارة' : 'Featured Items' }}
+          </h4>
+
+          <div class="space-y-3" *ngIf="getCategoryFeaturedProducts().length > 0; else noFeaturedProducts">
+            <div
+              *ngFor="let product of getCategoryFeaturedProducts().slice(0, 3); trackBy: trackByProduct"
+              class="sq-featured-product-card group bg-white rounded-lg p-3 hover:shadow-md transition-all duration-200 cursor-pointer border border-amber-200 hover:border-amber-400"
+              (click)="onProductClick(product)"
+            >
+              <div class="flex items-center space-x-3 rtl:space-x-reverse">
+                <div class="w-12 h-12 bg-amber-100 rounded-md flex items-center justify-center flex-shrink-0">
+                  <mat-icon class="text-amber-600 group-hover:text-amber-700 transition-colors">image</mat-icon>
+                </div>
+                <div class="flex-1 min-w-0">
+                  <h5 class="text-sm font-medium text-amber-900 truncate group-hover:text-amber-700">
+                    {{ config.language === 'ar' ? product.nameAr : product.name }}
+                  </h5>
+                  <p class="text-xs text-amber-700 font-semibold">
+                    {{ formatPrice(product.price) }}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <ng-template #noFeaturedProducts>
+            <div class="text-center py-6 text-amber-600">
+              <mat-icon class="text-2xl mb-1 opacity-50">inventory_2</mat-icon>
+              <p class="text-sm">{{ config.language === 'ar' ? 'لا توجد منتجات مميزة' : 'No featured products' }}</p>
+            </div>
+          </ng-template>
+        </div>
+
+        <!-- Category-Specific Quick Actions -->
+        <div class="border-t border-amber-200 pt-4">
+          <h4 class="font-medium text-amber-700 mb-3 text-sm uppercase tracking-wide">
+            {{ config.language === 'ar' ? 'إجراءات سريعة' : 'Quick Actions' }}
+          </h4>
+
+          <div class="space-y-2">
+            <button
+              mat-stroked-button
+              class="w-full justify-start text-left rtl:text-right text-sm p-2 h-auto border-amber-300 hover:border-amber-500 hover:bg-amber-100 text-amber-800 hover:text-amber-900"
+              (click)="onViewAllCategoryProducts()"
+            >
+              <mat-icon class="mr-2 rtl:mr-0 rtl:ml-2 text-sm text-amber-700">visibility</mat-icon>
+              {{ config.language === 'ar' ? 'عرض جميع المنتجات' : 'View All Products' }}
+            </button>
+
+            <button
+              mat-stroked-button
+              class="w-full justify-start text-left rtl:text-right text-sm p-2 h-auto border-amber-300 hover:border-amber-500 hover:bg-amber-100 text-amber-800 hover:text-amber-900"
+              (click)="onCategoryGuideClick()"
+            >
+              <mat-icon class="mr-2 rtl:mr-0 rtl:ml-2 text-sm text-amber-700">help_outline</mat-icon>
+              {{ getCategoryGuideText() }}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+    </div> <!-- End category-specific-layout -->
+  </div>
+
+  <!-- Close Button -->
+  <button
+    mat-icon-button
+    class="absolute top-4 right-4 rtl:right-auto rtl:left-4 text-amber-600 hover:text-amber-800 hover:bg-amber-100 rounded-full transition-all duration-200 z-10 shadow-sm border border-amber-200"
+    (click)="closeMegaMenu()"
+    [attr.aria-label]="config.language === 'ar' ? 'إغلاق القائمة' : 'Close menu'"
+  >
+    <mat-icon>close</mat-icon>
+  </button>
+
+</div>
+
+<!-- Background Overlay (when mega menu is open) -->
+<div
+  *ngIf="isVisible"
+  class="fixed inset-0 bg-gradient-to-br from-amber-900/10 via-orange-900/15 to-yellow-900/10 backdrop-blur-sm z-40"
+  (click)="closeMegaMenu()"
+  aria-hidden="true"
+></div>

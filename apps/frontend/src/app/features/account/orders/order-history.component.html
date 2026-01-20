@@ -1,0 +1,623 @@
+<!-- Order History & Tracking System for Syrian Marketplace -->
+<div class="order-history-container" [class.rtl]="currentLanguage() === 'ar'">
+  
+  <!-- Header Section -->
+  <div class="order-history-header">
+    <div class="header-content">
+      <div class="title-section">
+        <h1 class="page-title">
+          <mat-icon class="page-icon">shopping_bag</mat-icon>
+          <span *ngIf="currentLanguage() === 'ar'">تاريخ الطلبات</span>
+          <span *ngIf="currentLanguage() === 'en'">Order History</span>
+        </h1>
+        <p class="page-subtitle">
+          <span *ngIf="currentLanguage() === 'ar'">تتبع وإدارة جميع طلباتك من السوق السوري</span>
+          <span *ngIf="currentLanguage() === 'en'">Track and manage all your Syrian marketplace orders</span>
+        </p>
+      </div>
+
+      <!-- Language Toggle -->
+      <button 
+        mat-icon-button 
+        (click)="toggleLanguage()" 
+        class="language-toggle"
+        matTooltip="تبديل اللغة / Toggle Language">
+        <mat-icon>translate</mat-icon>
+      </button>
+    </div>
+
+    <!-- Order Summary Stats -->
+    <div class="order-stats-grid">
+      <mat-card class="stat-card total-orders">
+        <mat-card-content>
+          <div class="stat-content">
+            <div class="stat-icon">
+              <mat-icon>receipt_long</mat-icon>
+            </div>
+            <div class="stat-info">
+              <div class="stat-value">{{ totalFilteredOrders() }}</div>
+              <div class="stat-label">
+                <span *ngIf="currentLanguage() === 'ar'">إجمالي الطلبات</span>
+                <span *ngIf="currentLanguage() === 'en'">Total Orders</span>
+              </div>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="stat-card total-spent">
+        <mat-card-content>
+          <div class="stat-content">
+            <div class="stat-icon">
+              <mat-icon>account_balance_wallet</mat-icon>
+            </div>
+            <div class="stat-info">
+              <div class="stat-value">{{ totalSpentDisplay() }}</div>
+              <div class="stat-label">
+                <span *ngIf="currentLanguage() === 'ar'">إجمالي المبلغ</span>
+                <span *ngIf="currentLanguage() === 'en'">Total Spent</span>
+              </div>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="stat-card pending-orders">
+        <mat-card-content>
+          <div class="stat-content">
+            <div class="stat-icon">
+              <mat-icon>schedule</mat-icon>
+            </div>
+            <div class="stat-info">
+              <div class="stat-value">{{ orderStatusSummary().pending || 0 }}</div>
+              <div class="stat-label">
+                <span *ngIf="currentLanguage() === 'ar'">طلبات قيد التنفيذ</span>
+                <span *ngIf="currentLanguage() === 'en'">Pending Orders</span>
+              </div>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="stat-card recent-deliveries">
+        <mat-card-content>
+          <div class="stat-content">
+            <div class="stat-icon">
+              <mat-icon>done_all</mat-icon>
+            </div>
+            <div class="stat-info">
+              <div class="stat-value">{{ orderStatusSummary().delivered || 0 }}</div>
+              <div class="stat-label">
+                <span *ngIf="currentLanguage() === 'ar'">تم التوصيل مؤخراً</span>
+                <span *ngIf="currentLanguage() === 'en'">Recent Deliveries</span>
+              </div>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+  </div>
+
+  <!-- Filters Section -->
+  <mat-card class="filters-card">
+    <mat-card-content>
+      <div class="filters-header">
+        <h3 class="filters-title">
+          <mat-icon>filter_list</mat-icon>
+          <span *ngIf="currentLanguage() === 'ar'">تصفية الطلبات</span>
+          <span *ngIf="currentLanguage() === 'en'">Filter Orders</span>
+        </h3>
+        
+        <div class="filter-actions">
+          <button mat-button (click)="clearFilters()" class="clear-filters-btn">
+            <mat-icon>clear_all</mat-icon>
+            <span *ngIf="currentLanguage() === 'ar'">مسح الفلاتر</span>
+            <span *ngIf="currentLanguage() === 'en'">Clear Filters</span>
+          </button>
+
+          <button mat-button [matMenuTriggerFor]="exportMenu" class="export-btn">
+            <mat-icon>download</mat-icon>
+            <span *ngIf="currentLanguage() === 'ar'">تصدير</span>
+            <span *ngIf="currentLanguage() === 'en'">Export</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Filter Controls Grid -->
+      <div class="filters-grid">
+        <!-- Search Field -->
+        <mat-form-field class="search-field">
+          <mat-label>
+            <span *ngIf="currentLanguage() === 'ar'">البحث في الطلبات</span>
+            <span *ngIf="currentLanguage() === 'en'">Search Orders</span>
+          </mat-label>
+          <input 
+            matInput 
+            [value]="filters().searchQuery" 
+            (input)="onSearchInput($event)"
+            placeholder="Order number, product name...">
+          <mat-icon matSuffix>search</mat-icon>
+        </mat-form-field>
+
+        <!-- Status Filter -->
+        <mat-form-field class="status-filter">
+          <mat-label>
+            <span *ngIf="currentLanguage() === 'ar'">حالة الطلب</span>
+            <span *ngIf="currentLanguage() === 'en'">Order Status</span>
+          </mat-label>
+          <mat-select 
+            multiple 
+            [value]="filters().status || []"
+            (selectionChange)="onStatusFilterChange($event.value)">
+            <mat-option *ngFor="let status of availableStatuses" [value]="status.value">
+              <span class="status-option">
+                <mat-icon [style.color]="'var(--' + status.color + '-500)'">circle</mat-icon>
+                <span *ngIf="currentLanguage() === 'ar'">{{ status.labelAr }}</span>
+                <span *ngIf="currentLanguage() === 'en'">{{ status.labelEn }}</span>
+              </span>
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <!-- Sort Options -->
+        <mat-form-field class="sort-field">
+          <mat-label>
+            <span *ngIf="currentLanguage() === 'ar'">ترتيب حسب</span>
+            <span *ngIf="currentLanguage() === 'en'">Sort By</span>
+          </mat-label>
+          <mat-select 
+            [value]="filters().sortBy" 
+            (selectionChange)="onSortChange($event.value)">
+            <mat-option *ngFor="let option of sortOptions" [value]="option.value">
+              <span *ngIf="currentLanguage() === 'ar'">{{ option.labelAr }}</span>
+              <span *ngIf="currentLanguage() === 'en'">{{ option.labelEn }}</span>
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <!-- Quick Date Filters -->
+        <div class="quick-date-filters">
+          <span class="filter-label">
+            <span *ngIf="currentLanguage() === 'ar'">فترة زمنية:</span>
+            <span *ngIf="currentLanguage() === 'en'">Time Period:</span>
+          </span>
+          <div class="date-filter-chips">
+            <mat-chip-listbox class="date-chips">
+              <mat-chip-option 
+                *ngFor="let filter of quickDateFilters" 
+                (click)="applyQuickDateFilter(filter.key)"
+                [selected]="false">
+                <span *ngIf="currentLanguage() === 'ar'">{{ filter.labelAr }}</span>
+                <span *ngIf="currentLanguage() === 'en'">{{ filter.labelEn }}</span>
+              </mat-chip-option>
+            </mat-chip-listbox>
+          </div>
+        </div>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Orders List -->
+  <div class="orders-section">
+    <div *ngIf="isLoading()" class="loading-container">
+      <mat-progress-spinner diameter="50"></mat-progress-spinner>
+      <p class="loading-text">
+        <span *ngIf="currentLanguage() === 'ar'">جاري تحميل الطلبات...</span>
+        <span *ngIf="currentLanguage() === 'en'">Loading orders...</span>
+      </p>
+    </div>
+
+    <div *ngIf="!isLoading() && filteredOrders().length === 0" class="no-orders">
+      <mat-icon class="no-orders-icon">shopping_bag</mat-icon>
+      <h3 class="no-orders-title">
+        <span *ngIf="currentLanguage() === 'ar'">لا توجد طلبات</span>
+        <span *ngIf="currentLanguage() === 'en'">No Orders Found</span>
+      </h3>
+      <p class="no-orders-message">
+        <span *ngIf="currentLanguage() === 'ar'">لم يتم العثور على طلبات تطابق معايير البحث المحددة</span>
+        <span *ngIf="currentLanguage() === 'en'">No orders match your current search criteria</span>
+      </p>
+      <button mat-raised-button color="primary" routerLink="/">
+        <span *ngIf="currentLanguage() === 'ar'">تسوق الآن</span>
+        <span *ngIf="currentLanguage() === 'en'">Start Shopping</span>
+      </button>
+    </div>
+
+    <!-- Orders List -->
+    <div class="orders-list" *ngIf="!isLoading() && filteredOrders().length > 0">
+      <mat-card 
+        *ngFor="let order of filteredOrders(); trackBy: trackByOrderId" 
+        class="order-card"
+        [class.expanded]="selectedOrder()?.id === order.id">
+        
+        <!-- Order Header -->
+        <mat-card-header class="order-header">
+          <div class="order-basic-info">
+            <div class="order-number-section">
+              <h3 class="order-number">{{ order.orderNumber }}</h3>
+              <div class="order-date">{{ formatDate(order.placedAt) }}</div>
+            </div>
+
+            <div class="order-status-section">
+              <mat-chip 
+                [class]="getStatusChipClass(order.status)"
+                class="status-chip">
+                <mat-icon class="status-icon">{{ getOrderStatusInfo(order.status).icon }}</mat-icon>
+                {{ getOrderStatusInfo(order.status).label }}
+              </mat-chip>
+              
+              <!-- Tracking Progress for Active Orders -->
+              <div 
+                *ngIf="['preparing', 'in_transit_domestic', 'in_transit_international', 'out_for_delivery'].includes(order.status)"
+                class="tracking-progress">
+                <mat-progress-bar 
+                  mode="determinate" 
+                  [value]="getTrackingProgress(order)">
+                </mat-progress-bar>
+                <span class="progress-text">{{ getTrackingProgress(order) }}%</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="order-actions">
+            <button 
+              mat-icon-button 
+              (click)="viewOrderDetails(order.id)"
+              class="details-btn"
+              [matTooltip]="currentLanguage() === 'ar' ? 'عرض التفاصيل' : 'View Details'">
+              <mat-icon>visibility</mat-icon>
+            </button>
+
+            <button 
+              mat-icon-button 
+              [matMenuTriggerFor]="orderActionsMenu"
+              class="more-actions-btn"
+              [matTooltip]="currentLanguage() === 'ar' ? 'المزيد' : 'More Actions'">
+              <mat-icon>more_vert</mat-icon>
+            </button>
+
+            <!-- Order Actions Menu -->
+            <mat-menu #orderActionsMenu="matMenu">
+              <button 
+                mat-menu-item 
+                (click)="reorderItems(order.id)">
+                <mat-icon>refresh</mat-icon>
+                <span *ngIf="currentLanguage() === 'ar'">إعادة الطلب</span>
+                <span *ngIf="currentLanguage() === 'en'">Reorder</span>
+              </button>
+
+              <button 
+                mat-menu-item 
+                (click)="downloadInvoice(order.id)">
+                <mat-icon>receipt</mat-icon>
+                <span *ngIf="currentLanguage() === 'ar'">تحميل الفاتورة</span>
+                <span *ngIf="currentLanguage() === 'en'">Download Invoice</span>
+              </button>
+
+              <button 
+                mat-menu-item 
+                *ngIf="canCancelOrder(order)"
+                (click)="cancelOrder(order.id)"
+                class="cancel-action">
+                <mat-icon>cancel</mat-icon>
+                <span *ngIf="currentLanguage() === 'ar'">إلغاء الطلب</span>
+                <span *ngIf="currentLanguage() === 'en'">Cancel Order</span>
+              </button>
+
+              <button 
+                mat-menu-item 
+                *ngIf="canReturnOrder(order)"
+                (click)="requestReturn(order.id, 'return')">
+                <mat-icon>keyboard_return</mat-icon>
+                <span *ngIf="currentLanguage() === 'ar'">طلب استرداد</span>
+                <span *ngIf="currentLanguage() === 'en'">Request Return</span>
+              </button>
+
+              <button 
+                mat-menu-item 
+                *ngIf="canReturnOrder(order)"
+                (click)="requestReturn(order.id, 'exchange')">
+                <mat-icon>swap_horiz</mat-icon>
+                <span *ngIf="currentLanguage() === 'ar'">طلب استبدال</span>
+                <span *ngIf="currentLanguage() === 'en'">Request Exchange</span>
+              </button>
+            </mat-menu>
+          </div>
+        </mat-card-header>
+
+        <!-- Order Summary -->
+        <mat-card-content class="order-summary">
+          <div class="order-items-preview">
+            <div class="items-info">
+              <span class="items-count">
+                <span *ngIf="currentLanguage() === 'ar'">
+                  {{ order.items.length }} منتج{{ order.items.length > 1 ? 'ات' : '' }}
+                </span>
+                <span *ngIf="currentLanguage() === 'en'">
+                  {{ order.items.length }} item{{ order.items.length > 1 ? 's' : '' }}
+                </span>
+              </span>
+              
+              <!-- First few items preview -->
+              <div class="items-preview">
+                <div 
+                  *ngFor="let item of order.items.slice(0, 3); trackBy: trackByItemId" 
+                  class="item-preview">
+                  <img 
+                    [src]="item.image" 
+                    [alt]="currentLanguage() === 'ar' ? item.nameAr : item.nameEn"
+                    class="item-image"
+                    loading="lazy">
+                  <div class="item-info">
+                    <span class="item-name">
+                      <span *ngIf="currentLanguage() === 'ar'">{{ item.nameAr }}</span>
+                      <span *ngIf="currentLanguage() === 'en'">{{ item.nameEn }}</span>
+                    </span>
+                    <span class="item-details">
+                      <span class="quantity">{{ item.quantity }}x</span>
+                      <span class="price">{{ formatCurrency(item.unitPrice) }}</span>
+                    </span>
+                  </div>
+                </div>
+                
+                <div *ngIf="order.items.length > 3" class="more-items">
+                  <span class="more-count">+{{ order.items.length - 3 }}</span>
+                  <span *ngIf="currentLanguage() === 'ar'">أكثر</span>
+                  <span *ngIf="currentLanguage() === 'en'">more</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="order-total">
+              <div class="total-amount">
+                <span class="currency-primary">{{ formatCurrency(order.total) }}</span>
+                <span class="currency-secondary">${{ order.totalUSD }}</span>
+              </div>
+              
+              <!-- Gift Badge -->
+              <mat-chip *ngIf="order.isGift" class="gift-badge">
+                <mat-icon>card_giftcard</mat-icon>
+                <span *ngIf="currentLanguage() === 'ar'">هدية</span>
+                <span *ngIf="currentLanguage() === 'en'">Gift</span>
+              </mat-chip>
+            </div>
+          </div>
+
+          <!-- Shipping Address -->
+          <div class="shipping-address">
+            <mat-icon class="address-icon">location_on</mat-icon>
+            <div class="address-details">
+              <span class="recipient-name">{{ order.shippingAddress.recipientName }}</span>
+              <span class="address-line">
+                {{ order.shippingAddress.city }}, {{ order.shippingAddress.country }}
+              </span>
+            </div>
+            
+            <!-- Tracking Number -->
+            <div *ngIf="order.trackingNumber" class="tracking-number">
+              <mat-icon>local_shipping</mat-icon>
+              <span class="tracking-label">
+                <span *ngIf="currentLanguage() === 'ar'">رقم التتبع:</span>
+                <span *ngIf="currentLanguage() === 'en'">Tracking:</span>
+              </span>
+              <span class="tracking-value">{{ order.trackingNumber }}</span>
+            </div>
+          </div>
+        </mat-card-content>
+
+        <!-- Expanded Order Details -->
+        <div *ngIf="selectedOrder()?.id === order.id" class="order-details-expanded">
+          <mat-divider></mat-divider>
+          
+          <!-- Detailed Items List -->
+          <div class="detailed-items">
+            <h4 class="section-title">
+              <mat-icon>shopping_cart</mat-icon>
+              <span *ngIf="currentLanguage() === 'ar'">تفاصيل المنتجات</span>
+              <span *ngIf="currentLanguage() === 'en'">Order Items</span>
+            </h4>
+            
+            <div class="items-table">
+              <div 
+                *ngFor="let item of order.items; trackBy: trackByItemId" 
+                class="item-row">
+                <div class="item-image-col">
+                  <img 
+                    [src]="item.image" 
+                    [alt]="currentLanguage() === 'ar' ? item.nameAr : item.nameEn"
+                    class="item-detail-image">
+                </div>
+                
+                <div class="item-details-col">
+                  <h5 class="item-name">
+                    <span *ngIf="currentLanguage() === 'ar'">{{ item.nameAr }}</span>
+                    <span *ngIf="currentLanguage() === 'en'">{{ item.nameEn }}</span>
+                  </h5>
+                  <div class="item-meta">
+                    <span class="craft-origin">
+                      <mat-icon>place</mat-icon>
+                      {{ item.craftOrigin }}
+                    </span>
+                    <span *ngIf="item.artisanInfo" class="artisan-info">
+                      <mat-icon>person</mat-icon>
+                      {{ item.artisanInfo }}
+                    </span>
+                  </div>
+                </div>
+                
+                <div class="item-quantity-col">
+                  <span class="quantity-label">
+                    <span *ngIf="currentLanguage() === 'ar'">الكمية:</span>
+                    <span *ngIf="currentLanguage() === 'en'">Qty:</span>
+                  </span>
+                  <span class="quantity-value">{{ item.quantity }}</span>
+                </div>
+                
+                <div class="item-price-col">
+                  <div class="unit-price">{{ formatCurrency(item.unitPrice) }}</div>
+                  <div class="total-price">{{ formatCurrency(item.totalPrice) }}</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Order Tracking Timeline -->
+          <div class="order-tracking">
+            <h4 class="section-title">
+              <mat-icon>timeline</mat-icon>
+              <span *ngIf="currentLanguage() === 'ar'">تتبع الطلب</span>
+              <span *ngIf="currentLanguage() === 'en'">Order Tracking</span>
+            </h4>
+            
+            <div class="tracking-timeline">
+              <div 
+                *ngFor="let event of order.tracking; trackBy: trackByEventId" 
+                class="tracking-event"
+                [class.completed]="event.isCompleted"
+                [class.current]="!event.isCompleted && event.status === order.status">
+                
+                <div class="event-marker">
+                  <mat-icon 
+                    *ngIf="event.isCompleted"
+                    class="completed-icon">
+                    check_circle
+                  </mat-icon>
+                  <mat-icon 
+                    *ngIf="!event.isCompleted && event.status === order.status"
+                    class="current-icon">
+                    radio_button_checked
+                  </mat-icon>
+                  <mat-icon 
+                    *ngIf="!event.isCompleted && event.status !== order.status"
+                    class="pending-icon">
+                    radio_button_unchecked
+                  </mat-icon>
+                </div>
+                
+                <div class="event-details">
+                  <h5 class="event-title">
+                    <span *ngIf="currentLanguage() === 'ar'">{{ event.titleAr }}</span>
+                    <span *ngIf="currentLanguage() === 'en'">{{ event.titleEn }}</span>
+                  </h5>
+                  <p class="event-description">
+                    <span *ngIf="currentLanguage() === 'ar'">{{ event.descriptionAr }}</span>
+                    <span *ngIf="currentLanguage() === 'en'">{{ event.descriptionEn }}</span>
+                  </p>
+                  <div class="event-meta">
+                    <span *ngIf="event.location" class="event-location">
+                      <mat-icon>location_on</mat-icon>
+                      {{ event.location }}
+                    </span>
+                    <span *ngIf="event.timestamp" class="event-timestamp">
+                      <mat-icon>access_time</mat-icon>
+                      {{ formatDate(event.timestamp) }}
+                    </span>
+                    <span *ngIf="event.estimatedDate && !event.timestamp" class="estimated-date">
+                      <mat-icon>schedule</mat-icon>
+                      <span *ngIf="currentLanguage() === 'ar'">متوقع: </span>
+                      <span *ngIf="currentLanguage() === 'en'">Expected: </span>
+                      {{ formatDate(event.estimatedDate) }}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Order Summary Details -->
+          <div class="order-summary-details">
+            <h4 class="section-title">
+              <mat-icon>receipt</mat-icon>
+              <span *ngIf="currentLanguage() === 'ar'">ملخص الطلب</span>
+              <span *ngIf="currentLanguage() === 'en'">Order Summary</span>
+            </h4>
+            
+            <div class="summary-table">
+              <div class="summary-row">
+                <span class="summary-label">
+                  <span *ngIf="currentLanguage() === 'ar'">المجموع الفرعي:</span>
+                  <span *ngIf="currentLanguage() === 'en'">Subtotal:</span>
+                </span>
+                <span class="summary-value">{{ formatCurrency(order.subtotal) }}</span>
+              </div>
+              
+              <div class="summary-row">
+                <span class="summary-label">
+                  <span *ngIf="currentLanguage() === 'ar'">الشحن:</span>
+                  <span *ngIf="currentLanguage() === 'en'">Shipping:</span>
+                </span>
+                <span class="summary-value">{{ formatCurrency(order.shippingCost) }}</span>
+              </div>
+              
+              <div class="summary-row" *ngIf="order.tax > 0">
+                <span class="summary-label">
+                  <span *ngIf="currentLanguage() === 'ar'">الضريبة:</span>
+                  <span *ngIf="currentLanguage() === 'en'">Tax:</span>
+                </span>
+                <span class="summary-value">{{ formatCurrency(order.tax) }}</span>
+              </div>
+              
+              <mat-divider></mat-divider>
+              
+              <div class="summary-row total-row">
+                <span class="summary-label">
+                  <span *ngIf="currentLanguage() === 'ar'">الإجمالي:</span>
+                  <span *ngIf="currentLanguage() === 'en'">Total:</span>
+                </span>
+                <span class="summary-value">
+                  <span class="primary-total">{{ formatCurrency(order.total) }}</span>
+                  <span class="secondary-total">${{ order.totalUSD }}</span>
+                </span>
+              </div>
+            </div>
+            
+            <!-- Payment Method -->
+            <div class="payment-info">
+              <span class="payment-label">
+                <mat-icon>payment</mat-icon>
+                <span *ngIf="currentLanguage() === 'ar'">طريقة الدفع:</span>
+                <span *ngIf="currentLanguage() === 'en'">Payment Method:</span>
+              </span>
+              <span class="payment-method">{{ order.paymentMethod }}</span>
+              <mat-chip 
+                [class]="'payment-status-' + order.paymentStatus"
+                class="payment-status">
+                {{ order.paymentStatus | titlecase }}
+              </mat-chip>
+            </div>
+          </div>
+        </div>
+      </mat-card>
+    </div>
+
+    <!-- Pagination -->
+    <mat-paginator 
+      *ngIf="!isLoading() && filteredOrders().length > 0"
+      [length]="totalFilteredOrders()"
+      [pageSize]="filters().pageSize"
+      [pageIndex]="filters().currentPage - 1"
+      [pageSizeOptions]="[5, 10, 25, 50]"
+      (page)="onPageChange($event)"
+      class="orders-paginator">
+    </mat-paginator>
+  </div>
+</div>
+
+<!-- Export Menu -->
+<mat-menu #exportMenu="matMenu">
+  <button mat-menu-item (click)="exportHistory('pdf')">
+    <mat-icon>picture_as_pdf</mat-icon>
+    <span *ngIf="currentLanguage() === 'ar'">PDF</span>
+    <span *ngIf="currentLanguage() === 'en'">PDF</span>
+  </button>
+  <button mat-menu-item (click)="exportHistory('csv')">
+    <mat-icon>table_chart</mat-icon>
+    <span *ngIf="currentLanguage() === 'ar'">CSV</span>
+    <span *ngIf="currentLanguage() === 'en'">CSV</span>
+  </button>
+  <button mat-menu-item (click)="exportHistory('json')">
+    <mat-icon>data_object</mat-icon>
+    <span *ngIf="currentLanguage() === 'ar'">JSON</span>
+    <span *ngIf="currentLanguage() === 'en'">JSON</span>
+  </button>
+</mat-menu>

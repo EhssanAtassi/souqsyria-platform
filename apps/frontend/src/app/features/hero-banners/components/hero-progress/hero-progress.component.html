@@ -1,0 +1,15 @@
+<!-- Hero Progress Component Template -->
+@if (visible) {
+  <div
+    class="hero-progress"
+    role="progressbar"
+    [attr.aria-valuenow]="progress"
+    [attr.aria-valuemin]="0"
+    [attr.aria-valuemax]="100">
+    <div
+      class="hero-progress__bar"
+      [class]="'hero-progress__bar--' + color"
+      [style.width.%]="progress">
+    </div>
+  </div>
+}

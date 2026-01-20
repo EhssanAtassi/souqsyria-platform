@@ -1,0 +1,317 @@
+/**
+ * Product List Component Styles - Syrian Marketplace
+ *
+ * Golden Wheat design system with grid/list view support.
+ * Fully responsive with RTL layout support for Arabic.
+ *
+ * @import Design tokens from shared styles
+ */
+@import '../../../../app/shared/styles/variables';
+
+.product-list {
+  max-width: $container-max-width;
+  margin: 0 auto;
+  padding: $space-6 $space-4;
+
+  // RTL layout adjustments
+  &--rtl {
+    direction: rtl;
+
+    .product-list__controls {
+      flex-direction: row-reverse;
+    }
+
+    .product-list__view-toggle {
+      margin-right: auto;
+      margin-left: 0;
+    }
+  }
+
+  // ===========================================================================
+  // BREADCRUMB SECTION
+  // ===========================================================================
+  &__breadcrumb {
+    margin-bottom: $space-6;
+  }
+
+  // ===========================================================================
+  // HEADER SECTION
+  // ===========================================================================
+  &__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: $space-6;
+    margin-bottom: $space-8;
+    padding-bottom: $space-6;
+    border-bottom: 2px solid $golden-wheat-light;
+
+    @media (max-width: $breakpoint-md) {
+      flex-direction: column;
+      gap: $space-4;
+    }
+  }
+
+  &__title-section {
+    flex: 1;
+  }
+
+  &__title {
+    font-size: $font-size-3xl;
+    font-weight: $font-weight-bold;
+    color: $forest-dark;
+    margin: 0 0 $space-2 0;
+    line-height: $line-height-tight;
+
+    @media (max-width: $breakpoint-sm) {
+      font-size: $font-size-2xl;
+    }
+  }
+
+  &__subtitle {
+    font-size: $font-size-base;
+    color: $charcoal-medium;
+    margin: 0;
+  }
+
+  // ===========================================================================
+  // CONTROLS SECTION
+  // ===========================================================================
+  &__controls {
+    display: flex;
+    align-items: center;
+    gap: $space-4;
+    flex-wrap: wrap;
+
+    @media (max-width: $breakpoint-md) {
+      width: 100%;
+      justify-content: space-between;
+    }
+  }
+
+  &__sort,
+  &__per-page {
+    min-width: 180px;
+
+    @media (max-width: $breakpoint-sm) {
+      min-width: 140px;
+    }
+
+    ::ng-deep .mat-mdc-form-field-flex {
+      background-color: $charcoal-light;
+      border-radius: $border-radius-md;
+    }
+
+    ::ng-deep .mat-mdc-text-field-wrapper {
+      background-color: transparent;
+    }
+  }
+
+  &__view-toggle {
+    display: flex;
+    gap: $space-1;
+    margin-left: auto;
+
+    @media (max-width: $breakpoint-md) {
+      margin-left: 0;
+    }
+
+    button {
+      color: $charcoal-medium;
+      transition: all $transition-fast $ease-in-out;
+
+      &:hover {
+        color: $golden-wheat-primary;
+        background-color: rgba($golden-wheat-light, 0.3);
+      }
+
+      &.active {
+        color: $golden-wheat-primary;
+        background-color: $golden-wheat-light;
+
+        mat-icon {
+          color: $golden-wheat-primary;
+        }
+      }
+    }
+  }
+
+  // ===========================================================================
+  // LOADING & ERROR STATES
+  // ===========================================================================
+  &__loading {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 400px;
+  }
+
+  &__error {
+    margin: $space-8 0;
+  }
+
+  // ===========================================================================
+  // CONTENT SECTION
+  // ===========================================================================
+  &__content {
+    min-height: 600px;
+  }
+
+  // Grid Layout (4 columns desktop, 3 tablet, 2 mobile)
+  &__grid {
+    display: grid;
+    gap: $grid-gap;
+    margin-bottom: $space-8;
+
+    &--4-col {
+      grid-template-columns: repeat(4, 1fr);
+
+      @media (max-width: $breakpoint-lg) {
+        grid-template-columns: repeat(3, 1fr);
+      }
+
+      @media (max-width: $breakpoint-md) {
+        grid-template-columns: repeat(2, 1fr);
+        gap: $grid-gap-small;
+      }
+
+      @media (max-width: $breakpoint-xs) {
+        grid-template-columns: 1fr;
+      }
+    }
+  }
+
+  // List Layout (single column)
+  &__list {
+    display: flex;
+    flex-direction: column;
+    gap: $grid-gap-small;
+    margin-bottom: $space-8;
+  }
+
+  // ===========================================================================
+  // EMPTY STATE
+  // ===========================================================================
+  &__empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: $space-16 $space-4;
+    min-height: 400px;
+  }
+
+  &__empty-icon {
+    mat-icon {
+      font-size: 96px;
+      width: 96px;
+      height: 96px;
+      color: $golden-wheat-medium;
+      margin-bottom: $space-6;
+    }
+  }
+
+  &__empty-title {
+    font-size: $font-size-2xl;
+    font-weight: $font-weight-bold;
+    color: $forest-dark;
+    margin: 0 0 $space-3 0;
+  }
+
+  &__empty-text {
+    font-size: $font-size-base;
+    color: $charcoal-medium;
+    margin: 0 0 $space-8 0;
+    max-width: 400px;
+  }
+
+  &__empty-action {
+    min-width: 200px;
+  }
+
+  // ===========================================================================
+  // PAGINATION
+  // ===========================================================================
+  &__pagination {
+    display: flex;
+    justify-content: center;
+    margin-top: $space-8;
+    padding-top: $space-6;
+    border-top: 1px solid $golden-wheat-light;
+  }
+
+  // ===========================================================================
+  // FOOTER HERITAGE NOTE
+  // ===========================================================================
+  &__footer {
+    margin-top: $space-12;
+    padding-top: $space-8;
+    border-top: 2px solid $golden-wheat-light;
+  }
+
+  &__heritage-note {
+    display: flex;
+    align-items: center;
+    gap: $space-3;
+    padding: $space-4 $space-6;
+    background: linear-gradient(135deg, rgba($golden-wheat-light, 0.3), rgba($forest-light, 0.1));
+    border-radius: $border-radius-lg;
+    border-left: 4px solid $golden-wheat-primary;
+
+    &--rtl & {
+      border-left: none;
+      border-right: 4px solid $golden-wheat-primary;
+    }
+  }
+
+  &__heritage-icon {
+    color: $golden-wheat-primary;
+    font-size: 32px;
+    width: 32px;
+    height: 32px;
+    flex-shrink: 0;
+  }
+
+  &__heritage-text {
+    font-size: $font-size-base;
+    color: $forest-dark;
+    margin: 0;
+    line-height: $line-height-normal;
+  }
+}
+
+// ===========================================================================
+// RESPONSIVE ADJUSTMENTS
+// ===========================================================================
+@media (max-width: $breakpoint-md) {
+  .product-list {
+    padding: $space-4 $space-3;
+
+    &__header {
+      padding-bottom: $space-4;
+    }
+
+    &__pagination {
+      margin-top: $space-6;
+    }
+  }
+}
+
+@media (max-width: $breakpoint-sm) {
+  .product-list {
+    &__title {
+      font-size: $font-size-xl;
+    }
+
+    &__controls {
+      gap: $space-2;
+    }
+
+    &__heritage-note {
+      flex-direction: column;
+      text-align: center;
+      padding: $space-3 $space-4;
+    }
+  }
+}

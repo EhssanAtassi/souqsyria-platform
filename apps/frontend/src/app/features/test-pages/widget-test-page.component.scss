@@ -1,0 +1,254 @@
+/**
+ * Widget Test Page Styles
+ * Golden Wheat Design System
+ * Colors: #D4AF37 (gold), #C41E3A (red), #1E3A8A (navy)
+ */
+
+.widget-test-page {
+  min-height: 100vh;
+  background: linear-gradient(to bottom, #F9FAFB 0%, #FFFFFF 100%);
+
+  &__header {
+    background: linear-gradient(135deg, #1E3A8A 0%, #2563EB 100%);
+    color: white;
+    padding: 3rem 0;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
+
+  &__header-content {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 0 1.5rem;
+  }
+
+  &__title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin: 0 0 1rem 0;
+    line-height: 1.2;
+
+    @media (max-width: 768px) {
+      font-size: 2rem;
+    }
+  }
+
+  &__subtitle {
+    font-size: 1.25rem;
+    opacity: 0.9;
+    margin: 0 0 2rem 0;
+    line-height: 1.5;
+
+    @media (max-width: 768px) {
+      font-size: 1rem;
+    }
+  }
+
+  &__actions {
+    margin-bottom: 2rem;
+
+    button {
+      background: linear-gradient(135deg, #D4AF37 0%, #F4D03F 100%);
+      color: #1E3A8A;
+      font-weight: 600;
+
+      &:hover {
+        background: linear-gradient(135deg, #F4D03F 0%, #D4AF37 100%);
+      }
+    }
+  }
+
+  &__nav {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+
+    button {
+      color: white;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+
+      &:hover {
+        background: rgba(255, 255, 255, 0.1);
+        border-color: #D4AF37;
+      }
+    }
+  }
+
+  &__content {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 3rem 1.5rem;
+  }
+
+  &__section {
+    margin-bottom: 4rem;
+
+    &:last-child {
+      margin-bottom: 2rem;
+    }
+  }
+
+  &__section-header {
+    margin-bottom: 2rem;
+
+    h2 {
+      font-size: 2rem;
+      font-weight: 700;
+      color: #1E3A8A;
+      margin: 0 0 0.5rem 0;
+      line-height: 1.2;
+
+      @media (max-width: 768px) {
+        font-size: 1.5rem;
+      }
+    }
+
+    p {
+      font-size: 1.125rem;
+      color: #6B7280;
+      margin: 0;
+      line-height: 1.5;
+    }
+  }
+
+  &__examples {
+    display: flex;
+    flex-direction: column;
+    gap: 3rem;
+  }
+
+  &__example {
+    background: white;
+    border-radius: 8px;
+    padding: 2rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+
+    @media (max-width: 768px) {
+      padding: 1.5rem;
+    }
+  }
+
+  &__example-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #1E3A8A;
+    margin: 0 0 1.5rem 0;
+    padding-bottom: 0.75rem;
+    border-bottom: 2px solid #D4AF37;
+  }
+
+  &__divider {
+    margin: 3rem 0;
+    background: linear-gradient(90deg, transparent 0%, #D4AF37 50%, transparent 100%);
+    height: 2px;
+  }
+
+  &__footer {
+    margin-top: 4rem;
+    padding-top: 3rem;
+  }
+
+  &__footer-content {
+    text-align: center;
+    padding: 2rem;
+
+    h3 {
+      font-size: 1.75rem;
+      font-weight: 700;
+      color: #1E3A8A;
+      margin: 0 0 1rem 0;
+    }
+
+    p {
+      font-size: 1.125rem;
+      color: #6B7280;
+      margin: 0 0 1.5rem 0;
+      line-height: 1.6;
+      max-width: 800px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    ul {
+      list-style: none;
+      padding: 0;
+      margin: 1.5rem 0 0 0;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+
+      li {
+        font-size: 1.125rem;
+        color: #059669;
+        font-weight: 600;
+      }
+    }
+  }
+}
+
+// Smooth scroll behavior
+html {
+  scroll-behavior: smooth;
+}
+
+// RTL support
+[dir="rtl"] {
+  .widget-test-page {
+    &__nav {
+      direction: rtl;
+    }
+  }
+}
+
+// Sidebar demo container styles
+.sidebar-demo-container {
+  display: flex;
+  gap: 24px;
+  align-items: flex-start;
+
+  &.rtl-demo {
+    direction: rtl;
+  }
+
+  .demo-content {
+    flex: 1;
+    background: #f9fafb;
+    padding: 24px;
+    border-radius: 8px;
+
+    h4 {
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: #1E3A8A;
+      margin: 0 0 1rem 0;
+    }
+
+    p {
+      color: #6B7280;
+      line-height: 1.6;
+      margin-bottom: 1rem;
+    }
+
+    ul {
+      color: #374151;
+      line-height: 1.8;
+      padding-left: 1.5rem;
+
+      [dir="rtl"] & {
+        padding-left: 0;
+        padding-right: 1.5rem;
+      }
+
+      li {
+        margin-bottom: 0.5rem;
+      }
+    }
+  }
+
+  @media (max-width: 1023px) {
+    flex-direction: column;
+
+    &.rtl-demo {
+      flex-direction: column;
+    }
+  }
+}

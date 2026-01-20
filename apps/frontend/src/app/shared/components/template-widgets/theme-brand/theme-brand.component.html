@@ -1,0 +1,66 @@
+<div class="theme-brand">
+  <div class="theme-brand__container">
+    <div class="theme-brand__grid">
+      <div class="theme-brand__item" *ngFor="let brand of brands">
+        <!-- Brand with link -->
+        <a
+          *ngIf="brand.link"
+          [routerLink]="brand.link"
+          class="theme-brand__link">
+          <div class="theme-brand__logo-wrapper">
+            <img
+              [src]="brand.logoUrl"
+              [alt]="language === 'ar' && brand.nameAr ? brand.nameAr : brand.name"
+              class="theme-brand__logo"
+              loading="lazy">
+
+            <!-- Verification badge -->
+            <span
+              class="theme-brand__verified"
+              *ngIf="showVerification && brand.verified"
+              title="Verified Syrian Artisan">
+              ✓
+            </span>
+          </div>
+          <div class="theme-brand__info">
+            <h4 class="theme-brand__name">
+              {{ language === 'ar' && brand.nameAr ? brand.nameAr : brand.name }}
+            </h4>
+            <p class="theme-brand__location" *ngIf="brand.location">
+              {{ brand.location }}
+            </p>
+          </div>
+        </a>
+
+        <!-- Brand without link -->
+        <div
+          *ngIf="!brand.link"
+          class="theme-brand__static">
+          <div class="theme-brand__logo-wrapper">
+            <img
+              [src]="brand.logoUrl"
+              [alt]="language === 'ar' && brand.nameAr ? brand.nameAr : brand.name"
+              class="theme-brand__logo"
+              loading="lazy">
+
+            <!-- Verification badge -->
+            <span
+              class="theme-brand__verified"
+              *ngIf="showVerification && brand.verified"
+              title="Verified Syrian Artisan">
+              ✓
+            </span>
+          </div>
+          <div class="theme-brand__info">
+            <h4 class="theme-brand__name">
+              {{ language === 'ar' && brand.nameAr ? brand.nameAr : brand.name }}
+            </h4>
+            <p class="theme-brand__location" *ngIf="brand.location">
+              {{ brand.location }}
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

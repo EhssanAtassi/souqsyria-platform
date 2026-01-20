@@ -1,0 +1,363 @@
+/**
+ * Golden Wheat Design System - Spacing Tokens
+ *
+ * Consistent spacing system for Syrian marketplace
+ * Based on 4px base unit for perfect alignment
+ *
+ * @description Spacing system including:
+ * - Base spacing scale (4px increments)
+ * - Component-specific spacing
+ * - Layout spacing (containers, sections)
+ * - Responsive spacing utilities
+ *
+ * @usage Import this file via design-tokens/index.scss
+ */
+
+// ============================================================================
+// BASE SPACING SCALE (4px base unit)
+// ============================================================================
+
+/**
+ * Spacing Scale - Powers of 4px
+ * Provides consistent, predictable spacing throughout the design
+ * All values are in rem for accessibility and scalability
+ */
+
+$space-0: 0;                         // 0px - No space
+$space-px: 1px;                      // 1px - Hairline borders
+$space-0-5: 0.125rem;                // 2px - Micro spacing
+$space-1: 0.25rem;                   // 4px - Tiny spacing
+$space-1-5: 0.375rem;                // 6px - Small spacing
+$space-2: 0.5rem;                    // 8px - Extra small
+$space-2-5: 0.625rem;                // 10px - Small-medium
+$space-3: 0.75rem;                   // 12px - Small
+$space-3-5: 0.875rem;                // 14px - Small-medium
+$space-4: 1rem;                      // 16px - Base unit (DEFAULT)
+$space-5: 1.25rem;                   // 20px - Medium
+$space-6: 1.5rem;                    // 24px - Medium-large
+$space-7: 1.75rem;                   // 28px - Large
+$space-8: 2rem;                      // 32px - Extra large
+$space-9: 2.25rem;                   // 36px - XXL
+$space-10: 2.5rem;                   // 40px - XXL
+$space-11: 2.75rem;                  // 44px - XXXL
+$space-12: 3rem;                     // 48px - XXXL
+$space-14: 3.5rem;                   // 56px - Huge
+$space-16: 4rem;                     // 64px - Huge
+$space-18: 4.5rem;                   // 72px - Giant (custom from Tailwind config)
+$space-20: 5rem;                     // 80px - Giant
+$space-24: 6rem;                     // 96px - Massive
+$space-28: 7rem;                     // 112px - Massive
+$space-32: 8rem;                     // 128px - Enormous
+$space-36: 9rem;                     // 144px - Enormous
+$space-40: 10rem;                    // 160px - Maximum
+$space-44: 11rem;                    // 176px - Extra maximum
+$space-48: 12rem;                    // 192px - Extra maximum
+$space-52: 13rem;                    // 208px - Ultra maximum
+$space-56: 14rem;                    // 224px - Ultra maximum
+$space-60: 15rem;                    // 240px - Ultra maximum
+$space-64: 16rem;                    // 256px - Ultra maximum
+$space-72: 18rem;                    // 288px - Mega
+$space-80: 20rem;                    // 320px - Mega
+$space-88: 22rem;                    // 352px - Mega (custom from Tailwind config)
+$space-96: 24rem;                    // 384px - Maximum
+
+// ============================================================================
+// SEMANTIC SPACING (Component-specific)
+// ============================================================================
+
+/**
+ * Component Spacing
+ * Pre-defined spacing for common UI components
+ */
+
+// Button spacing
+$button-padding-x-sm: $space-3;               // 12px horizontal
+$button-padding-y-sm: $space-1-5;             // 6px vertical
+$button-padding-x: $space-4;                  // 16px horizontal
+$button-padding-y: $space-2;                  // 8px vertical
+$button-padding-x-lg: $space-6;               // 24px horizontal
+$button-padding-y-lg: $space-3;               // 12px vertical
+
+// Card spacing
+$card-padding-sm: $space-3;                   // 12px - Compact cards
+$card-padding: $space-4;                      // 16px - Standard cards
+$card-padding-lg: $space-6;                   // 24px - Spacious cards
+$card-padding-xl: $space-8;                   // 32px - Extra spacious
+
+// Form spacing
+$form-field-gap: $space-4;                    // 16px - Between form fields
+$form-label-margin: $space-2;                 // 8px - Label to input
+$form-group-margin: $space-6;                 // 24px - Between form groups
+$input-padding-x: $space-3;                   // 12px horizontal
+$input-padding-y: $space-2;                   // 8px vertical
+
+// Grid spacing
+$grid-gap-xs: $space-2;                       // 8px - Extra tight grid
+$grid-gap-sm: $space-3;                       // 12px - Tight grid
+$grid-gap: $space-4;                          // 16px - Standard grid
+$grid-gap-md: $space-6;                       // 24px - Comfortable grid
+$grid-gap-lg: $space-8;                       // 32px - Spacious grid
+$grid-gap-xl: $space-12;                      // 48px - Extra spacious
+
+// From existing variables
+$grid-gap-small: $space-4;                    // 16px (from _variables.scss)
+$grid-gap-large: $space-8;                    // 32px (from _variables.scss)
+
+// Section spacing
+$section-padding-sm: $space-8;                // 32px - Compact sections
+$section-padding: $space-12;                  // 48px - Standard sections
+$section-padding-lg: $space-16;               // 64px - Spacious sections
+$section-padding-xl: $space-24;               // 96px - Extra spacious
+
+// Container spacing
+$container-padding-mobile: $space-4;          // 16px - Mobile containers
+$container-padding-tablet: $space-6;          // 24px - Tablet containers
+$container-padding-desktop: $space-8;         // 32px - Desktop containers
+
+// ============================================================================
+// LAYOUT SPACING (Page structure)
+// ============================================================================
+
+/**
+ * Layout Spacing
+ * Spacing for page-level layout elements
+ */
+
+// Header & footer
+$header-height: $space-16;                    // 64px - Header height
+$header-padding: $space-4;                    // 16px - Header padding
+$footer-padding: $space-8;                    // 32px - Footer padding
+
+// Sidebar
+$sidebar-width: 280px;                        // Standard sidebar (from _variables.scss)
+$sidebar-width-mobile: 240px;                 // Mobile sidebar (from _variables.scss)
+$sidebar-padding: $space-6;                   // 24px - Sidebar padding
+$sidebar-gap: $space-4;                       // 16px - Between sidebar items
+
+// Content spacing
+$content-max-width: 1440px;                   // From _variables.scss
+$content-wide: 1680px;                        // From _variables.scss
+$content-narrow: 960px;                       // From _variables.scss
+$content-padding: $space-6;                   // 24px - Content padding
+
+// ============================================================================
+// COMPONENT-SPECIFIC SPACING
+// ============================================================================
+
+/**
+ * Badge spacing
+ */
+$badge-padding-x: $space-2;                   // 8px horizontal
+$badge-padding-y: $space-1;                   // 4px vertical
+$badge-gap: $space-1;                         // 4px - Between badges
+
+/**
+ * Chip spacing
+ */
+$chip-padding-x: $space-3;                    // 12px horizontal
+$chip-padding-y: $space-1;                    // 4px vertical
+$chip-gap: $space-2;                          // 8px - Between chips
+
+/**
+ * List spacing
+ */
+$list-item-padding: $space-3;                 // 12px - List item padding
+$list-item-gap: $space-2;                     // 8px - Between list items
+$list-gap: $space-4;                          // 16px - Between lists
+
+/**
+ * Table spacing
+ */
+$table-cell-padding-x: $space-4;              // 16px horizontal
+$table-cell-padding-y: $space-3;              // 12px vertical
+$table-row-gap: $space-1;                     // 4px - Between rows
+
+/**
+ * Modal spacing
+ */
+$modal-padding: $space-6;                     // 24px - Modal padding
+$modal-header-padding: $space-4;              // 16px - Modal header
+$modal-footer-padding: $space-4;              // 16px - Modal footer
+$modal-gap: $space-6;                         // 24px - Between modal sections
+
+/**
+ * Toast/Notification spacing
+ */
+$toast-padding: $space-4;                     // 16px - Toast padding
+$toast-gap: $space-3;                         // 12px - Between toasts
+
+/**
+ * Dropdown spacing
+ */
+$dropdown-padding: $space-2;                  // 8px - Dropdown padding
+$dropdown-item-padding-x: $space-4;           // 16px horizontal
+$dropdown-item-padding-y: $space-2;           // 8px vertical
+
+/**
+ * Breadcrumb spacing
+ */
+$breadcrumb-gap: $space-2;                    // 8px - Between breadcrumb items
+$breadcrumb-padding: $space-3;                // 12px - Breadcrumb padding
+
+/**
+ * Pagination spacing
+ */
+$pagination-gap: $space-2;                    // 8px - Between page numbers
+$pagination-padding-x: $space-3;              // 12px horizontal
+$pagination-padding-y: $space-2;              // 8px vertical
+
+/**
+ * Avatar spacing
+ */
+$avatar-gap: $space-2;                        // 8px - Between avatars
+$avatar-border-width: $space-0-5;             // 2px - Avatar border
+
+// ============================================================================
+// NEGATIVE SPACING
+// ============================================================================
+
+/**
+ * Negative spacing for overlap effects
+ * Use carefully for intentional overlaps
+ */
+
+$space-n-1: -$space-1;                        // -4px
+$space-n-2: -$space-2;                        // -8px
+$space-n-3: -$space-3;                        // -12px
+$space-n-4: -$space-4;                        // -16px
+$space-n-6: -$space-6;                        // -24px
+$space-n-8: -$space-8;                        // -32px
+$space-n-12: -$space-12;                      // -48px
+$space-n-16: -$space-16;                      // -64px
+
+// ============================================================================
+// RESPONSIVE SPACING MODIFIERS
+// ============================================================================
+
+/**
+ * Responsive spacing adjustments
+ * Use these to scale spacing on different screen sizes
+ */
+
+// Mobile spacing (reduce by 25%)
+$spacing-mobile-modifier: 0.75;
+
+// Tablet spacing (reduce by 12.5%)
+$spacing-tablet-modifier: 0.875;
+
+// Desktop spacing (default - no change)
+$spacing-desktop-modifier: 1;
+
+// Large desktop spacing (increase by 12.5%)
+$spacing-xl-modifier: 1.125;
+
+// ============================================================================
+// RTL SPACING
+// ============================================================================
+
+/**
+ * RTL-specific spacing utilities
+ * From Tailwind config - maintain compatibility
+ */
+
+$margin-rtl-0: 0;
+$margin-rtl-1: $space-1;                      // 4px (0.25rem from Tailwind config)
+$margin-rtl-2: $space-2;                      // 8px (0.5rem from Tailwind config)
+$margin-rtl-3: $space-3;                      // 12px (0.75rem from Tailwind config)
+$margin-rtl-4: $space-4;                      // 16px (1rem from Tailwind config)
+$margin-rtl-6: $space-6;                      // 24px (1.5rem from Tailwind config)
+$margin-rtl-8: $space-8;                      // 32px (2rem from Tailwind config)
+
+$padding-rtl-0: 0;
+$padding-rtl-1: $space-1;                     // 4px
+$padding-rtl-2: $space-2;                     // 8px
+$padding-rtl-3: $space-3;                     // 12px
+$padding-rtl-4: $space-4;                     // 16px
+$padding-rtl-6: $space-6;                     // 24px
+$padding-rtl-8: $space-8;                     // 32px
+
+// ============================================================================
+// INSET SPACING (for positioned elements)
+// ============================================================================
+
+/**
+ * Inset spacing for absolutely positioned elements
+ * Useful for overlays, badges, icons within containers
+ */
+
+$inset-0: 0;
+$inset-1: $space-1;                           // 4px
+$inset-2: $space-2;                           // 8px
+$inset-3: $space-3;                           // 12px
+$inset-4: $space-4;                           // 16px
+$inset-6: $space-6;                           // 24px
+$inset-8: $space-8;                           // 32px
+
+// ============================================================================
+// GAP UTILITIES (for flexbox/grid)
+// ============================================================================
+
+/**
+ * Gap spacing for flex and grid layouts
+ * Alias to base spacing for semantic clarity
+ */
+
+$gap-0: $space-0;
+$gap-1: $space-1;                             // 4px
+$gap-2: $space-2;                             // 8px
+$gap-3: $space-3;                             // 12px
+$gap-4: $space-4;                             // 16px
+$gap-5: $space-5;                             // 20px
+$gap-6: $space-6;                             // 24px
+$gap-8: $space-8;                             // 32px
+$gap-10: $space-10;                           // 40px
+$gap-12: $space-12;                           // 48px
+$gap-16: $space-16;                           // 64px
+
+// ============================================================================
+// EXPORTED SPACING MAP
+// ============================================================================
+
+/**
+ * Spacing map for programmatic access
+ * Can be used to generate utility classes
+ */
+$spacing-map: (
+  '0': $space-0,
+  'px': $space-px,
+  '0.5': $space-0-5,
+  '1': $space-1,
+  '1.5': $space-1-5,
+  '2': $space-2,
+  '2.5': $space-2-5,
+  '3': $space-3,
+  '3.5': $space-3-5,
+  '4': $space-4,
+  '5': $space-5,
+  '6': $space-6,
+  '7': $space-7,
+  '8': $space-8,
+  '9': $space-9,
+  '10': $space-10,
+  '11': $space-11,
+  '12': $space-12,
+  '14': $space-14,
+  '16': $space-16,
+  '18': $space-18,
+  '20': $space-20,
+  '24': $space-24,
+  '28': $space-28,
+  '32': $space-32,
+  '36': $space-36,
+  '40': $space-40,
+  '44': $space-44,
+  '48': $space-48,
+  '52': $space-52,
+  '56': $space-56,
+  '60': $space-60,
+  '64': $space-64,
+  '72': $space-72,
+  '80': $space-80,
+  '88': $space-88,
+  '96': $space-96
+);

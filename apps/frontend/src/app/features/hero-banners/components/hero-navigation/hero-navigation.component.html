@@ -1,0 +1,60 @@
+<!-- Hero Navigation Component Template -->
+<!-- Pure presentational component - displays previous/next arrows -->
+
+<div class="hero-navigation" [class]="'hero-navigation--' + variant">
+  <!-- Previous Button -->
+  @if (showPrevious) {
+    <button
+      class="hero-nav-btn hero-nav-btn--previous"
+      [class.hero-nav-btn--disabled]="disablePrevious"
+      [class]="'hero-nav-btn--' + size"
+      [disabled]="disablePrevious"
+      [attr.aria-label]="previousAriaLabel"
+      (click)="onPreviousClick()"
+      type="button">
+      <!-- Left Arrow Icon -->
+      <svg
+        class="hero-nav-icon"
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+        xmlns="http://www.w3.org/2000/svg"
+        aria-hidden="true">
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="M15 19l-7-7 7-7"/>
+      </svg>
+      <span class="sr-only">{{ previousAriaLabel }}</span>
+    </button>
+  }
+
+  <!-- Next Button -->
+  @if (showNext) {
+    <button
+      class="hero-nav-btn hero-nav-btn--next"
+      [class.hero-nav-btn--disabled]="disableNext"
+      [class]="'hero-nav-btn--' + size"
+      [disabled]="disableNext"
+      [attr.aria-label]="nextAriaLabel"
+      (click)="onNextClick()"
+      type="button">
+      <!-- Right Arrow Icon -->
+      <svg
+        class="hero-nav-icon"
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+        xmlns="http://www.w3.org/2000/svg"
+        aria-hidden="true">
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="M9 5l7 7-7 7"/>
+      </svg>
+      <span class="sr-only">{{ nextAriaLabel }}</span>
+    </button>
+  }
+</div>

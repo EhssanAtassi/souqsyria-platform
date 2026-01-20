@@ -1,0 +1,472 @@
+/* Syrian Marketplace Product Recommendations Component Styles */
+
+.product-recommendations-section {
+  // Component container styles
+  width: 100%;
+  margin-bottom: 2rem;
+
+  // Ensure proper spacing and alignment
+  .recommendation-card {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    transition: box-shadow 0.3s ease;
+
+    &:hover {
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+    }
+  }
+
+  // Product item hover effects
+  .product-item {
+    border: 1px solid #e5e7eb;
+    transition: all 0.3s ease;
+
+    &:hover {
+      border-color: #d1d5db;
+      transform: translateY(-2px);
+    }
+
+    // Image container optimizations
+    .product-image-container {
+      background-color: #f9fafb;
+      position: relative;
+      overflow: hidden;
+
+      img {
+        transition: transform 0.3s ease;
+        object-fit: cover;
+      }
+
+      // Badge positioning and styling
+      .absolute {
+        z-index: 10;
+
+        // Top badges
+        &.top-2.left-2 {
+          backdrop-filter: blur(4px);
+        }
+
+        // Bottom badges
+        &.bottom-2.left-2 {
+          backdrop-filter: blur(4px);
+        }
+
+        // Quick action buttons
+        &.top-2.right-2 {
+          button {
+            backdrop-filter: blur(8px);
+            transition: all 0.2s ease;
+
+            &:hover {
+              transform: scale(1.1);
+            }
+          }
+        }
+      }
+    }
+
+    // Product info section
+    .product-info {
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+
+      // Arabic text styling
+      .product-name-arabic {
+        font-family: 'Amiri', 'Arial Unicode MS', sans-serif;
+        direction: rtl;
+        text-align: right;
+        line-height: 1.4;
+      }
+
+      // Price section
+      .font-bold.text-green-600 {
+        color: #059669;
+        font-weight: 700;
+      }
+
+      // Rating stars
+      .text-yellow-400 {
+        color: #fbbf24;
+      }
+
+      // Quick add button
+      button[mat-stroked-button] {
+        border: 1px solid #d1d5db;
+        color: #374151;
+        transition: all 0.2s ease;
+        font-size: 0.75rem;
+        line-height: 1rem;
+
+        &:hover:not(:disabled) {
+          border-color: #4b5563;
+          background-color: rgba(75, 85, 99, 0.05);
+        }
+
+        &:disabled {
+          opacity: 0.6;
+          cursor: not-allowed;
+        }
+
+        mat-icon {
+          font-size: 12px;
+          width: 12px;
+          height: 12px;
+        }
+      }
+    }
+  }
+}
+
+// Compact layout specific styles
+.compact-recommendations {
+  .flex.items-center.gap-3 {
+    transition: all 0.2s ease;
+
+    &:hover {
+      background-color: #f9fafb;
+      transform: translateX(4px);
+    }
+
+    img {
+      border: 1px solid #e5e7eb;
+    }
+
+    // Rating stars in compact mode
+    .text-yellow-400 {
+      color: #fbbf24;
+      font-size: 0.875rem;
+    }
+  }
+}
+
+// List layout specific styles
+.list-recommendations {
+  .flex.flex-col.sm\\:flex-row {
+    transition: all 0.3s ease;
+
+    &:hover {
+      background-color: #fafafa;
+      transform: translateY(-1px);
+    }
+
+    // Image styling for list layout
+    img {
+      border: 1px solid #e5e7eb;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+
+    // Rating stars in list mode
+    .flex.text-yellow-400 mat-icon {
+      font-size: 1rem;
+      width: 1rem;
+      height: 1rem;
+    }
+
+    // Action buttons in list layout
+    .flex.gap-2 {
+      button {
+        min-width: auto;
+
+        &[mat-stroked-button] {
+          padding: 0.5rem;
+          min-width: 44px;
+        }
+
+        &[mat-raised-button] {
+          padding: 0.5rem 1rem;
+        }
+      }
+    }
+  }
+}
+
+// Responsive adjustments
+@media (max-width: 640px) {
+  .product-recommendations-section {
+    // Mobile-specific adjustments
+    .product-item {
+      .product-info {
+        padding: 0.75rem;
+
+        h3 {
+          font-size: 0.875rem;
+          line-height: 1.25;
+        }
+
+        .product-name-arabic {
+          font-size: 0.75rem;
+        }
+
+        // Mobile button adjustments
+        button[mat-stroked-button] {
+          height: 2rem;
+          font-size: 0.625rem;
+          padding: 0 0.5rem;
+        }
+      }
+
+      // Mobile badge adjustments
+      .absolute {
+        &.top-2.left-2,
+        &.bottom-2.left-2 {
+          padding: 0.25rem 0.5rem;
+          font-size: 0.625rem;
+
+          mat-icon {
+            font-size: 8px !important;
+            width: 8px !important;
+            height: 8px !important;
+          }
+        }
+
+        &.top-2.right-2 {
+          button {
+            width: 1.75rem;
+            height: 1.75rem;
+            padding: 0;
+
+            mat-icon {
+              font-size: 0.875rem;
+            }
+          }
+        }
+      }
+    }
+  }
+
+  // Compact layout mobile adjustments
+  .compact-recommendations {
+    .flex.items-center.gap-3 {
+      padding: 0.75rem;
+      gap: 0.75rem;
+
+      img {
+        width: 3rem;
+        height: 3rem;
+      }
+
+      .flex-1 {
+        h4 {
+          font-size: 0.875rem;
+        }
+
+        p {
+          font-size: 0.75rem;
+        }
+      }
+
+      .flex-shrink-0.flex.gap-1 {
+        button {
+          width: 2rem;
+          height: 2rem;
+          padding: 0;
+        }
+      }
+    }
+  }
+
+  // List layout mobile adjustments
+  .list-recommendations {
+    .flex.flex-col.sm\\:flex-row {
+      flex-direction: column;
+      text-align: center;
+
+      img {
+        width: 5rem;
+        height: 5rem;
+        margin: 0 auto;
+      }
+
+      .min-w-150 {
+        min-width: auto;
+        margin-top: 1rem;
+
+        .text-right {
+          text-align: center;
+        }
+
+        .flex.gap-2 {
+          justify-content: center;
+        }
+      }
+    }
+  }
+}
+
+// Theme-specific enhancements
+.product-recommendations-section {
+  // Related products theme
+  .from-amber-50 {
+    background: linear-gradient(to right, #fffbeb, #fefce8);
+  }
+
+  // Trending products theme
+  .from-purple-50 {
+    background: linear-gradient(to right, #faf5ff, #fdf2f8);
+  }
+
+  // Cart recommendations theme
+  .from-green-50 {
+    background: linear-gradient(to right, #f0fdf4, #ecfdf5);
+  }
+
+  // Artisan theme
+  .from-blue-50 {
+    background: linear-gradient(to right, #eff6ff, #eef2ff);
+  }
+
+  // Bundle theme
+  .from-orange-50 {
+    background: linear-gradient(to right, #fff7ed, #fffbeb);
+  }
+
+  // Popular theme
+  .from-rose-50 {
+    background: linear-gradient(to right, #fff1f2, #fef2f2);
+  }
+}
+
+// Accessibility improvements
+.product-recommendations-section {
+  // Focus indicators
+  button:focus,
+  .product-item:focus {
+    outline: 2px solid #3b82f6;
+    outline-offset: 2px;
+  }
+
+  // High contrast mode support
+  @media (prefers-contrast: high) {
+    .product-item {
+      border-color: #000;
+
+      &:hover {
+        border-color: #333;
+      }
+    }
+
+    .absolute {
+      background-color: #000 !important;
+      color: #fff !important;
+    }
+  }
+
+  // Reduced motion support
+  @media (prefers-reduced-motion: reduce) {
+    .product-item,
+    .product-image-container img,
+    button {
+      transition: none;
+    }
+
+    .product-item:hover {
+      transform: none;
+    }
+  }
+}
+
+// Print styles
+@media print {
+  .product-recommendations-section {
+    .absolute {
+      position: static !important;
+      display: inline-block;
+      margin: 0.25rem 0;
+    }
+
+    button {
+      display: none;
+    }
+  }
+}
+
+// Animation utilities
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.product-item {
+  animation: fadeInUp 0.3s ease-out;
+}
+
+// Grid system overrides for better responsive behavior
+.grid {
+  &.grid-cols-1 {
+    grid-template-columns: repeat(1, minmax(0, 1fr));
+  }
+
+  @media (min-width: 640px) {
+    &.sm\\:grid-cols-2 {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (min-width: 768px) {
+    &.md\\:grid-cols-3 {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+
+  @media (min-width: 1024px) {
+    &.lg\\:grid-cols-4 {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+  }
+
+  @media (min-width: 1280px) {
+    &.xl\\:grid-cols-6 {
+      grid-template-columns: repeat(6, minmax(0, 1fr));
+    }
+  }
+}
+
+// Text truncation utilities
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+// Syrian cultural enhancements
+.font-arabic {
+  font-family: 'Amiri', 'Arial Unicode MS', 'Tahoma', sans-serif;
+  font-weight: 400;
+}
+
+// Golden wheat accent colors (Syrian marketplace theme)
+.text-syrian-gold {
+  color: #d4af37;
+}
+
+.bg-syrian-gold {
+  background-color: #d4af37;
+}
+
+.border-syrian-gold {
+  border-color: #d4af37;
+}
+
+// Success and error states
+.success-state {
+  .product-item {
+    border-color: #10b981;
+    background-color: #f0fdf4;
+  }
+}
+
+.error-state {
+  .product-item {
+    border-color: #ef4444;
+    background-color: #fef2f2;
+    opacity: 0.7;
+  }
+}

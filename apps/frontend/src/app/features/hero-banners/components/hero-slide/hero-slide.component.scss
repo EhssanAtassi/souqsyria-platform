@@ -1,0 +1,475 @@
+/**
+ * Hero Slide Component Styles
+ * Presentational component styling for single banner slide
+ *
+ * Features:
+ * - Responsive design (mobile-first)
+ * - Smooth animations
+ * - Golden Wheat theme integration
+ * - RTL support
+ * - Accessibility
+ */
+
+// ============================================
+// Host Element
+// ============================================
+
+:host {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.6s ease-in-out, visibility 0.6s ease-in-out;
+  will-change: opacity;
+
+  // Active slide state
+  &.hero-slide--active {
+    opacity: 1;
+    visibility: visible;
+    z-index: 2;
+
+    // Zoom animation on background
+    .hero-slide__background {
+      transform: scale(1.05);
+    }
+
+    // Staggered fade-in animations for content
+    .hero-slide__headline {
+      animation: fadeInUp 0.6s ease-out 0.2s backwards;
+    }
+
+    .hero-slide__headline-ar {
+      animation: fadeInUp 0.6s ease-out 0.3s backwards;
+    }
+
+    .hero-slide__subheadline {
+      animation: fadeInUp 0.6s ease-out 0.4s backwards;
+    }
+
+    .hero-slide__cta {
+      animation: fadeInUp 0.6s ease-out 0.5s backwards;
+    }
+  }
+}
+
+// ============================================
+// Slide Inner Container
+// ============================================
+
+.hero-slide-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+// ============================================
+// Background Image
+// ============================================
+
+.hero-slide__background {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  transition: transform 0.6s ease-in-out;
+  transform: scale(1);
+  will-change: transform;
+}
+
+// ============================================
+// Lazy Loaded Image
+// ============================================
+
+.hero-slide__image {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  transition: opacity 0.3s ease-in-out;
+  will-change: opacity;
+
+  // Loading state (before image loads)
+  &[loading='lazy'] {
+    opacity: 0;
+
+    &:not([src]) {
+      opacity: 0;
+    }
+  }
+
+  // Loaded state
+  &.loaded,
+  &:not([loading='lazy']) {
+    opacity: 1;
+  }
+}
+
+// ============================================
+// Gradient Overlay
+// ============================================
+
+.hero-slide__overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+  transition: opacity 0.3s ease;
+}
+
+// Gradient directions
+.gradient-horizontal .hero-slide__overlay {
+  background: linear-gradient(
+    to right,
+    rgba(22, 22, 22, 0.6) 0%,
+    rgba(22, 22, 22, 0.3) 50%,
+    transparent 100%
+  );
+}
+
+.gradient-vertical .hero-slide__overlay {
+  background: linear-gradient(
+    to bottom,
+    rgba(22, 22, 22, 0.5) 0%,
+    rgba(22, 22, 22, 0.2) 50%,
+    transparent 100%
+  );
+}
+
+.gradient-diagonal .hero-slide__overlay {
+  background: linear-gradient(
+    135deg,
+    rgba(22, 22, 22, 0.6) 0%,
+    rgba(22, 22, 22, 0.3) 50%,
+    transparent 100%
+  );
+}
+
+// ============================================
+// Content Container
+// ============================================
+
+.hero-slide__content {
+  position: relative;
+  z-index: 2;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  padding: 2rem 1rem;
+
+  @media (min-width: 768px) {
+    padding: 2rem 2rem;
+  }
+}
+
+.hero-slide__text-container {
+  max-width: 42rem;
+  width: 100%;
+
+  @media (max-width: 768px) {
+    max-width: 100%;
+  }
+}
+
+// ============================================
+// Typography
+// ============================================
+
+.hero-slide__headline {
+  font-size: clamp(2rem, 5vw, 3.75rem);
+  font-weight: 700;
+  line-height: 1.1;
+  margin-bottom: 1rem;
+  font-family: var(--font-display), 'Poppins', system-ui, sans-serif;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+
+  &.text-light {
+    color: var(--charcoal-lighter, #ffffff);
+  }
+
+  &.text-dark {
+    color: var(--charcoal-dark, #161616);
+  }
+}
+
+.hero-slide__headline-ar {
+  font-size: clamp(1.5rem, 4vw, 2rem);
+  font-weight: 600;
+  line-height: 1.3;
+  margin-bottom: 1rem;
+  font-family: var(--font-arabic), 'Amiri', 'Noto Sans Arabic', system-ui, sans-serif;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  direction: rtl;
+  text-align: right;
+
+  &.text-light {
+    color: rgba(255, 255, 255, 0.95);
+  }
+
+  &.text-dark {
+    color: var(--neutral-700, #4a5568);
+  }
+}
+
+.hero-slide__subheadline {
+  font-size: clamp(1rem, 2vw, 1.25rem);
+  line-height: 1.5;
+  margin-bottom: 2rem;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+
+  &.text-light {
+    color: rgba(255, 255, 255, 0.9);
+  }
+
+  &.text-dark {
+    color: var(--neutral-600, #718096);
+  }
+
+  @media (max-width: 768px) {
+    margin-bottom: 1.5rem;
+  }
+}
+
+// ============================================
+// CTA Button
+// ============================================
+
+.hero-slide__cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-weight: 600;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  border: none;
+  outline: none;
+  font-family: inherit;
+
+  // Size variants
+  &.cta-size-small {
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+  }
+
+  &.cta-size-medium {
+    padding: 0.75rem 1.5rem;
+    font-size: 1rem;
+  }
+
+  &.cta-size-large {
+    padding: 1rem 2rem;
+    font-size: 1.125rem;
+  }
+
+  // Color variants
+  &.cta-golden-wheat {
+    background: var(--golden-wheat-dark, #988561);
+    color: white;
+
+    &:hover {
+      background: var(--golden-wheat, #b9a779);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 12px rgba(152, 133, 97, 0.3);
+    }
+  }
+
+  &.cta-forest {
+    background: var(--forest, #002623);
+    color: white;
+
+    &:hover {
+      background: var(--forest-light, #054239);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 12px rgba(0, 38, 35, 0.3);
+    }
+  }
+
+  &.cta-deep-umber {
+    background: var(--deep-umber, #4a151e);
+    color: white;
+
+    &:hover {
+      background: var(--deep-umber-light, #6b1f2a);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 12px rgba(74, 21, 30, 0.3);
+    }
+  }
+
+  &.cta-syrian-gold {
+    background: #D4AF37;
+    color: var(--charcoal-dark, #161616);
+
+    &:hover {
+      background: #FCD34D;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 12px rgba(212, 175, 55, 0.3);
+    }
+  }
+
+  // Variant styles
+  &.cta-outline {
+    background: transparent;
+    border: 2px solid currentColor;
+
+    &.cta-golden-wheat {
+      color: var(--golden-wheat-dark, #988561);
+
+      &:hover {
+        background: var(--golden-wheat-dark, #988561);
+        color: white;
+      }
+    }
+  }
+
+  &.cta-ghost {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.2);
+    }
+  }
+
+  // Focus state (accessibility)
+  &:focus-visible {
+    outline: 2px solid var(--golden-wheat-dark, #988561);
+    outline-offset: 4px;
+  }
+
+  // Active state
+  &:active {
+    transform: translateY(0);
+  }
+
+  // Icon styling
+  .cta-icon {
+    font-size: 1.25em;
+    display: flex;
+    align-items: center;
+  }
+}
+
+// ============================================
+// Click Overlay (for analytics)
+// ============================================
+
+.hero-slide__click-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+  cursor: pointer;
+  background: transparent;
+
+  &:focus-visible {
+    outline: 2px dashed var(--golden-wheat-dark, #988561);
+    outline-offset: -4px;
+  }
+}
+
+// ============================================
+// Animations
+// ============================================
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+// ============================================
+// RTL Support
+// ============================================
+
+[dir='rtl'] {
+  .hero-slide__text-container {
+    animation: slideInFromRight 0.8s ease-out;
+  }
+
+  .hero-slide__headline-ar {
+    text-align: left;
+    direction: ltr;
+  }
+
+  @keyframes slideInFromRight {
+    from {
+      opacity: 0;
+      transform: translateX(50px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+}
+
+// ============================================
+// Reduced Motion Support
+// ============================================
+
+@media (prefers-reduced-motion: reduce) {
+  :host,
+  .hero-slide__background,
+  .hero-slide__cta {
+    transition: none;
+    animation: none;
+  }
+
+  .hero-slide__headline,
+  .hero-slide__headline-ar,
+  .hero-slide__subheadline {
+    animation: none;
+  }
+
+  :host.hero-slide--active .hero-slide__background {
+    transform: none;
+  }
+}
+
+// ============================================
+// High Contrast Mode
+// ============================================
+
+@media (prefers-contrast: high) {
+  .hero-slide__cta {
+    border: 2px solid currentColor;
+  }
+
+  .hero-slide__overlay {
+    opacity: 0.7 !important;
+  }
+}
+
+// ============================================
+// Print Styles
+// ============================================
+
+@media print {
+  :host {
+    position: relative;
+    opacity: 1 !important;
+    visibility: visible !important;
+  }
+
+  .hero-slide__click-overlay {
+    display: none;
+  }
+}

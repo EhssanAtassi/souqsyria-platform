@@ -1,0 +1,205 @@
+<div class="advanced-search-container">
+  <!-- Search Input -->
+  <div class="search-input-wrapper">
+    <mat-icon class="search-icon">search</mat-icon>
+
+    <input
+      type="text"
+      class="search-input"
+      placeholder="Search Syrian products, categories, artisans..."
+      [value]="searchQuery()"
+      (input)="onSearchInput($any($event.target).value)"
+      (focus)="onFocus()"
+      (blur)="onBlur()"
+      (keydown)="onKeydown($event)"
+      [attr.aria-label]="'Search products'"
+    />
+
+    <!-- Loading Spinner -->
+    @if (isSearching()) {
+      <mat-spinner class="search-spinner" diameter="20"></mat-spinner>
+    }
+
+    <!-- Voice Search Button -->
+    @if (voiceSearchSupported() && !isVoiceSearching()) {
+      <button
+        mat-icon-button
+        class="voice-search-btn"
+        (click)="startVoiceSearch()"
+        [attr.aria-label]="'Voice search'"
+      >
+        <mat-icon>mic</mat-icon>
+      </button>
+    }
+
+    @if (isVoiceSearching()) {
+      <button mat-icon-button class="voice-search-btn listening">
+        <mat-icon>mic</mat-icon>
+      </button>
+    }
+
+    <!-- Clear Button -->
+    @if (hasSearchQuery()) {
+      <button
+        mat-icon-button
+        class="clear-btn"
+        (click)="clearSearch()"
+        [attr.aria-label]="'Clear search'"
+      >
+        <mat-icon>close</mat-icon>
+      </button>
+    }
+
+    <!-- Search Button -->
+    <button
+      mat-raised-button
+      color="primary"
+      class="search-btn"
+      (click)="onSearch()"
+      [disabled]="!hasSearchQuery()"
+    >
+      Search
+    </button>
+  </div>
+
+  <!-- Suggestions Dropdown -->
+  @if (displaySuggestions()) {
+    <div class="suggestions-dropdown" role="listbox">
+      <!-- Search Suggestions -->
+      @if (suggestions().length > 0) {
+        <div class="suggestions-section">
+          <div class="suggestions-header">
+            @if (hasSearchQuery()) {
+              <span>Suggestions</span>
+            } @else {
+              <span>Search</span>
+            }
+          </div>
+
+          @for (suggestion of suggestions(); track suggestion.text) {
+            <button
+              class="suggestion-item"
+              (click)="onSuggestionClick(suggestion)"
+              role="option"
+            >
+              <mat-icon class="suggestion-icon">
+                {{ getSuggestionIcon(suggestion.type) }}
+              </mat-icon>
+
+              @if (suggestion.imageUrl) {
+                <img
+                  [src]="suggestion.imageUrl"
+                  [alt]="suggestion.text"
+                  class="suggestion-image"
+                />
+              }
+
+              <div class="suggestion-content">
+                <div class="suggestion-text">{{ suggestion.text }}</div>
+                @if (suggestion.type !== 'product') {
+                  <div class="suggestion-meta">
+                    <span class="suggestion-type">
+                      {{ getSuggestionTypeLabel(suggestion.type) }}
+                    </span>
+                    @if (suggestion.resultCount) {
+                      <span class="suggestion-count">
+                        {{ suggestion.resultCount }} results
+                      </span>
+                    }
+                  </div>
+                }
+              </div>
+
+              <mat-icon class="suggestion-arrow">arrow_forward</mat-icon>
+            </button>
+          }
+        </div>
+      }
+
+      <!-- Recent Searches -->
+      @if (!hasSearchQuery() && recentSearches().length > 0) {
+        <div class="suggestions-section">
+          <div class="suggestions-header">
+            <span>Recent Searches</span>
+            <button
+              mat-button
+              class="clear-history-btn"
+              (click)="clearHistory()"
+            >
+              Clear All
+            </button>
+          </div>
+
+          @for (item of recentSearches().slice(0, 5); track item.query) {
+            <button
+              class="suggestion-item recent"
+              (click)="onRecentSearchClick(item.query)"
+              role="option"
+            >
+              <mat-icon class="suggestion-icon">history</mat-icon>
+              <div class="suggestion-content">
+                <div class="suggestion-text">{{ item.query }}</div>
+                <div class="suggestion-meta">
+                  @if (item.category) {
+                    <span class="suggestion-category">in {{ item.category }}</span>
+                  }
+                  <span class="suggestion-count">{{ item.resultsCount }} results</span>
+                </div>
+              </div>
+              <button
+                mat-icon-button
+                class="remove-btn"
+                (click)="removeFromHistory(item.query, $event)"
+                [attr.aria-label]="'Remove from history'"
+              >
+                <mat-icon>close</mat-icon>
+              </button>
+            </button>
+          }
+        </div>
+      }
+
+      <!-- Popular Searches -->
+      @if (!hasSearchQuery() && popularSearches().length > 0) {
+        <div class="suggestions-section">
+          <div class="suggestions-header">
+            <span>Popular Searches</span>
+          </div>
+
+          @for (item of popularSearches().slice(0, 5); track item.query) {
+            <button
+              class="suggestion-item popular"
+              (click)="onRecentSearchClick(item.query)"
+              role="option"
+            >
+              <mat-icon class="suggestion-icon">
+                {{ item.trending ? 'trending_up' : 'search' }}
+              </mat-icon>
+              <div class="suggestion-content">
+                <div class="suggestion-text">
+                  {{ item.query }}
+                  @if (item.trending) {
+                    <span class="trending-badge">Trending</span>
+                  }
+                </div>
+                <div class="suggestion-meta">
+                  <span class="suggestion-count">{{ item.searchCount }} searches</span>
+                </div>
+              </div>
+              <mat-icon class="suggestion-arrow">arrow_forward</mat-icon>
+            </button>
+          }
+        </div>
+      }
+
+      <!-- Empty State -->
+      @if (suggestions().length === 0 && hasSearchQuery()) {
+        <div class="empty-state">
+          <mat-icon>search_off</mat-icon>
+          <p>No suggestions found</p>
+          <p class="text-sm text-gray-500">Try different keywords</p>
+        </div>
+      }
+    </div>
+  }
+</div>

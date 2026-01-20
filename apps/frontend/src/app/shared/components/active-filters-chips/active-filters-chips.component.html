@@ -1,0 +1,50 @@
+<!-- Active Filters Chips Container -->
+@if (hasActiveFilters()) {
+  <div class="active-filters-chips" [attr.dir]="language() === 'ar' ? 'rtl' : 'ltr'">
+
+    <!-- Header Section -->
+    <div class="chips-header">
+      <div class="header-content">
+        <mat-icon class="header-icon">filter_alt</mat-icon>
+        <span class="header-text">{{ getActiveFiltersText() }}</span>
+      </div>
+
+      <!-- Clear All Button -->
+      <button
+        mat-button
+        class="clear-all-btn"
+        (click)="onClearAll()">
+        <mat-icon>clear_all</mat-icon>
+        {{ getClearAllLabel() }}
+      </button>
+    </div>
+
+    <!-- Chips List -->
+    <mat-chip-set class="filter-chips-set" aria-label="Active filters">
+      @for (chip of filterChips(); track chip.key) {
+        <mat-chip-row
+          class="filter-chip"
+          [class.price-chip]="chip.type === 'price'"
+          [class.rating-chip]="chip.type === 'rating'"
+          [class.authenticity-chip]="chip.type === 'authenticity'"
+          [class.availability-chip]="chip.type === 'availability'"
+          [class.region-chip]="chip.type === 'region'"
+          (removed)="onRemoveChip(chip)">
+
+          <!-- Chip Icon -->
+          <mat-icon matChipAvatar class="chip-icon">{{ getChipIcon(chip.type) }}</mat-icon>
+
+          <!-- Chip Label -->
+          <span class="chip-label">{{ getChipLabel(chip) }}</span>
+
+          <!-- Remove Button -->
+          <button matChipRemove aria-label="Remove filter">
+            <mat-icon>cancel</mat-icon>
+          </button>
+
+        </mat-chip-row>
+      }
+    </mat-chip-set>
+
+  </div>
+}

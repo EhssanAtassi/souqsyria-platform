@@ -1,0 +1,144 @@
+<!--
+  Skeleton Loader Template
+  Syrian Marketplace Loading States
+
+  Displays placeholder content while data is loading
+  Supports multiple skeleton types with smooth animations
+-->
+
+<!-- Grid Layout for Cards and Categories -->
+<div
+  *ngIf="isGridLayout(); else stackedLayout"
+  [ngClass]="getContainerClasses()"
+  role="status"
+  [attr.aria-label]="'Loading ' + count + ' items'"
+>
+  <div
+    *ngFor="let item of items(); trackBy: trackByIndex"
+    [ngClass]="getSkeletonClasses()"
+    [ngStyle]="getSkeletonStyles()"
+    [attr.aria-label]="getAriaLabel()"
+  >
+    <!-- Product Card Skeleton -->
+    <ng-container *ngIf="type === 'card'">
+      <div class="skeleton-card">
+        <!-- Image placeholder -->
+        <div class="skeleton-card__image"></div>
+
+        <!-- Content area -->
+        <div class="skeleton-card__content">
+          <!-- Heritage badges -->
+          <div class="skeleton-card__badges">
+            <div class="skeleton-badge"></div>
+            <div class="skeleton-badge"></div>
+          </div>
+
+          <!-- Title -->
+          <div class="skeleton-card__title"></div>
+
+          <!-- Subtitle -->
+          <div class="skeleton-card__subtitle"></div>
+
+          <!-- Rating -->
+          <div class="skeleton-card__rating">
+            <div class="skeleton-star"></div>
+            <div class="skeleton-star"></div>
+            <div class="skeleton-star"></div>
+            <div class="skeleton-star"></div>
+            <div class="skeleton-star"></div>
+          </div>
+
+          <!-- Price area -->
+          <div class="skeleton-card__price-row">
+            <div class="skeleton-card__price"></div>
+            <div class="skeleton-card__original-price"></div>
+          </div>
+
+          <!-- Action buttons -->
+          <div class="skeleton-card__actions">
+            <div class="skeleton-button skeleton-button--primary"></div>
+            <div class="skeleton-button skeleton-button--icon"></div>
+          </div>
+
+          <!-- Shipping info -->
+          <div class="skeleton-card__shipping"></div>
+        </div>
+      </div>
+    </ng-container>
+
+    <!-- Category Card Skeleton -->
+    <ng-container *ngIf="type === 'category'">
+      <div class="skeleton-category">
+        <!-- Category image -->
+        <div class="skeleton-category__image"></div>
+
+        <!-- Category content -->
+        <div class="skeleton-category__content">
+          <!-- Title -->
+          <div class="skeleton-category__title"></div>
+
+          <!-- Product count -->
+          <div class="skeleton-category__count"></div>
+        </div>
+      </div>
+    </ng-container>
+  </div>
+</div>
+
+<!-- Stacked Layout for Banner, Text, and Circle -->
+<ng-template #stackedLayout>
+  <div
+    [ngClass]="getContainerClasses()"
+    role="status"
+    [attr.aria-label]="'Loading ' + count + ' items'"
+  >
+    <div
+      *ngFor="let item of items(); trackBy: trackByIndex"
+      [ngClass]="getSkeletonClasses()"
+      [ngStyle]="getSkeletonStyles()"
+      [attr.aria-label]="getAriaLabel()"
+    >
+      <!-- Hero Banner Skeleton -->
+      <ng-container *ngIf="type === 'banner'">
+        <div class="skeleton-banner">
+          <!-- Banner background -->
+          <div class="skeleton-banner__bg"></div>
+
+          <!-- Banner content overlay -->
+          <div class="skeleton-banner__content">
+            <!-- Badge/Tag -->
+            <div class="skeleton-banner__badge"></div>
+
+            <!-- Heading -->
+            <div class="skeleton-banner__heading"></div>
+
+            <!-- Subheading -->
+            <div class="skeleton-banner__subheading"></div>
+
+            <!-- Description lines -->
+            <div class="skeleton-banner__description">
+              <div class="skeleton-banner__line"></div>
+              <div class="skeleton-banner__line skeleton-banner__line--short"></div>
+            </div>
+
+            <!-- CTA Button -->
+            <div class="skeleton-banner__cta"></div>
+          </div>
+        </div>
+      </ng-container>
+
+      <!-- Text Line Skeleton -->
+      <ng-container *ngIf="type === 'text'">
+        <div class="skeleton-text"></div>
+      </ng-container>
+
+      <!-- Circle Skeleton (Avatar/Icon) -->
+      <ng-container *ngIf="type === 'circle'">
+        <div class="skeleton-circle"></div>
+      </ng-container>
+    </div>
+  </div>
+</ng-template>
+
+<!-- Screen reader text -->
+<span class="sr-only">Loading content, please wait...</span>

@@ -1,0 +1,580 @@
+<!-- Syrian Marketplace Search Results -->
+<div class="min-h-screen bg-gray-50">
+
+  <!-- Search Header -->
+  <div class="bg-white border-b border-gray-200 sticky top-0 z-10">
+    <div class="container mx-auto px-4 py-4">
+      
+      <!-- Search Bar -->
+      <div class="flex items-center gap-4 mb-4">
+        <div class="flex-1 relative">
+          <mat-form-field appearance="outline" class="w-full">
+            <mat-label>Search Syrian products | البحث عن المنتجات السورية</mat-label>
+            <input matInput [(ngModel)]="searchQuery" [value]="searchQuery()" 
+                   (keyup.enter)="performSearch(searchQuery())"
+                   placeholder="Damascus steel, Aleppo soap, brocade... | فولاذ دمشقي، صابون حلبي، البروكار...">
+            <mat-icon matSuffix>search</mat-icon>
+          </mat-form-field>
+          
+          <!-- Search Suggestions -->
+          <div *ngIf="getSearchSuggestions().length > 0" 
+               class="absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-b-lg shadow-lg z-20">
+            <button *ngFor="let suggestion of getSearchSuggestions()" 
+                    (click)="onSuggestionClick(suggestion)"
+                    class="w-full text-left px-4 py-2 hover:bg-gray-50 border-b border-gray-100 last:border-b-0">
+              <mat-icon class="mr-2 text-gray-400">search</mat-icon>
+              {{ suggestion }}
+            </button>
+          </div>
+        </div>
+        
+        <button mat-raised-button color="primary" (click)="performSearch(searchQuery())">
+          <mat-icon>search</mat-icon>
+          Search
+        </button>
+        
+        <button *ngIf="originalSearchQuery()" mat-stroked-button (click)="clearSearch()">
+          <mat-icon>clear</mat-icon>
+          Clear
+        </button>
+      </div>
+
+      <!-- Breadcrumb -->
+      <nav *ngIf="originalSearchQuery()" class="text-sm">
+        <ol class="flex space-x-2 text-gray-600">
+          <li *ngFor="let crumb of getBreadcrumb(); let last = last">
+            <a *ngIf="!last" routerLink="/" class="hover:text-blue-600">{{ crumb }}</a>
+            <span *ngIf="last" class="text-gray-800 font-medium">{{ crumb }}</span>
+            <mat-icon *ngIf="!last" class="text-xs mx-1">chevron_right</mat-icon>
+          </li>
+        </ol>
+      </nav>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="isLoading()" class="flex justify-center items-center h-96">
+    <mat-spinner></mat-spinner>
+    <span class="ml-4 text-lg">Searching Syrian products...</span>
+  </div>
+
+  <!-- No Search Query State -->
+  <div *ngIf="!originalSearchQuery() && !isLoading()" class="container mx-auto px-4 py-16 text-center">
+    <mat-icon class="text-gray-400 text-8xl mb-6">search</mat-icon>
+    <h2 class="text-2xl font-bold text-gray-700 mb-4">Search Syrian Marketplace</h2>
+    <p class="text-gray-500 mb-8">Discover authentic Syrian products from trusted sellers</p>
+    
+    <!-- Popular Searches -->
+    <div class="max-w-2xl mx-auto">
+      <p class="text-sm text-gray-600 mb-4">Popular searches | البحث الشائع:</p>
+      <div class="space-y-4">
+        <!-- Syrian Heritage Products -->
+        <div>
+          <p class="text-xs text-gray-500 mb-2 flex items-center">
+            <mat-icon class="text-sm mr-1">heritage</mat-icon>
+            Syrian Heritage Products
+          </p>
+          <div class="flex flex-wrap gap-2 justify-center">
+            <mat-chip-set>
+              <mat-chip *ngFor="let term of ['Damascus steel', 'Aleppo soap', 'Syrian brocade', 'Mosaic art']"
+                       (click)="performSearch(term)" class="cursor-pointer bg-amber-100 text-amber-800">
+                {{ term }}
+              </mat-chip>
+            </mat-chip-set>
+          </div>
+        </div>
+        
+        <!-- Regional Specialties -->
+        <div>
+          <p class="text-xs text-gray-500 mb-2 flex items-center">
+            <mat-icon class="text-sm mr-1">location_on</mat-icon>
+            By Syrian Regions
+          </p>
+          <div class="flex flex-wrap gap-2 justify-center">
+            <mat-chip-set>
+              <mat-chip *ngFor="let region of ['Damascus', 'Aleppo', 'Homs', 'Hama']"
+                       (click)="performRegionalSearch(region)" class="cursor-pointer bg-blue-100 text-blue-800">
+                {{ region }} Products
+              </mat-chip>
+            </mat-chip-set>
+          </div>
+        </div>
+        
+        <!-- Product Categories -->
+        <div>
+          <p class="text-xs text-gray-500 mb-2 flex items-center">
+            <mat-icon class="text-sm mr-1">category</mat-icon>
+            Categories
+          </p>
+          <div class="flex flex-wrap gap-2 justify-center">
+            <mat-chip-set>
+              <mat-chip *ngFor="let term of ['Traditional crafts', 'Spices & food', 'Textiles', 'Beauty products']"
+                       (click)="performSearch(term)" class="cursor-pointer bg-green-100 text-green-800">
+                {{ term }}
+              </mat-chip>
+            </mat-chip-set>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Search Results Content -->
+  <div *ngIf="originalSearchQuery() && !isLoading()" class="container mx-auto px-4 py-6">
+    
+    <!-- Results Header -->
+    <div class="flex items-center justify-between mb-6">
+      <div>
+        <h1 class="text-2xl font-bold text-gray-900">
+          Search Results for "{{ originalSearchQuery() }}"
+        </h1>
+        <p class="text-gray-600 mt-1">
+          <span *ngIf="hasResults()">{{ totalResults() }} products found</span>
+          <span *ngIf="!hasResults()">No products found</span>
+        </p>
+      </div>
+      
+      <!-- View Toggle & Sort (Desktop) -->
+      <div *ngIf="hasResults()" class="hidden md:flex items-center gap-4">
+        <!-- View Mode Toggle -->
+        <mat-button-toggle-group [value]="currentViewMode().mode" 
+                                (change)="onViewModeChange($event.value)">
+          <mat-button-toggle *ngFor="let option of viewModeOptions" 
+                            [value]="option.value"
+                            [matTooltip]="option.label">
+            <mat-icon>{{ option.icon }}</mat-icon>
+          </mat-button-toggle>
+        </mat-button-toggle-group>
+        
+        <!-- Sort Dropdown -->
+        <mat-form-field appearance="outline" class="w-48">
+          <mat-label>Sort by</mat-label>
+          <mat-select [value]="currentSort()" (selectionChange)="onSortChange($event.value)">
+            <mat-option *ngFor="let sort of sortOptions" [value]="sort">
+              {{ sort.label }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+    </div>
+
+    <!-- No Results State -->
+    <div *ngIf="!hasResults()" class="text-center py-16">
+      <mat-icon class="text-gray-400 text-6xl mb-4">search_off</mat-icon>
+      <h3 class="text-xl font-bold text-gray-700 mb-4">No products found</h3>
+      <p class="text-gray-500 mb-8">Try adjusting your search terms or filters</p>
+      
+      <div class="flex flex-col md:flex-row gap-4 justify-center">
+        <button mat-raised-button color="primary" (click)="clearAllFilters()">
+          <mat-icon>filter_alt_off</mat-icon>
+          Clear All Filters
+        </button>
+        <button mat-stroked-button (click)="clearSearch()">
+          <mat-icon>refresh</mat-icon>
+          Start New Search
+        </button>
+      </div>
+      
+      <!-- Enhanced Search Suggestions -->
+      <div class="mt-8 max-w-2xl mx-auto">
+        <p class="text-sm text-gray-600 mb-4 text-center">Try searching for:</p>
+        <div class="space-y-4">
+          <!-- Syrian Heritage Terms -->
+          <div class="text-center">
+            <p class="text-xs text-amber-600 mb-2 flex items-center justify-center">
+              <mat-icon class="text-sm mr-1">heritage</mat-icon>
+              Heritage & Traditional
+            </p>
+            <div class="flex flex-wrap gap-2 justify-center">
+              <mat-chip-set>
+                <mat-chip *ngFor="let term of ['handcrafted', 'traditional', 'authentic', 'heritage']"
+                         (click)="performSearch(term)" class="cursor-pointer bg-amber-100 text-amber-800">
+                  {{ term }}
+                </mat-chip>
+              </mat-chip-set>
+            </div>
+          </div>
+          
+          <!-- Arabic Terms -->
+          <div class="text-center">
+            <p class="text-xs text-green-600 mb-2 flex items-center justify-center">
+              <mat-icon class="text-sm mr-1">language</mat-icon>
+              Arabic Terms | المصطلحات العربية
+            </p>
+            <div class="flex flex-wrap gap-2 justify-center">
+              <mat-chip-set>
+                <mat-chip *ngFor="let term of ['حرفي', 'تقليدي', 'أصيل', 'تراث']"
+                         (click)="performSearch(term)" class="cursor-pointer bg-green-100 text-green-800 font-arabic">
+                  {{ term }}
+                </mat-chip>
+              </mat-chip-set>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Results Layout -->
+    <div *ngIf="hasResults()" class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+      
+      <!-- Filters Sidebar -->
+      <div class="lg:col-span-1">
+        <div class="sticky top-24">
+          <!-- Mobile Filter Toggle -->
+          <button mat-stroked-button (click)="toggleSidebar()" 
+                  class="w-full lg:hidden mb-4" 
+                  [matBadge]="getActiveFiltersCount()" 
+                  [matBadgeHidden]="getActiveFiltersCount() === 0">
+            <mat-icon>filter_list</mat-icon>
+            Filters
+          </button>
+
+          <!-- Filters Panel -->
+          <div class="bg-white rounded-lg shadow-sm border p-6 space-y-6" [class.hidden]="!isSidenavOpen() && window.innerWidth < 768">
+            
+            <!-- Active Filters Summary -->
+            <div *ngIf="getActiveFiltersCount() > 0" class="pb-4 border-b">
+              <div class="flex items-center justify-between mb-2">
+                <span class="font-medium">Active Filters</span>
+                <mat-chip class="bg-blue-100 text-blue-800">{{ getActiveFiltersCount() }}</mat-chip>
+              </div>
+              <button mat-stroked-button (click)="clearAllFilters()" class="w-full">
+                <mat-icon>clear_all</mat-icon>
+                Clear All
+              </button>
+            </div>
+
+            <!-- Price Range -->
+            <mat-expansion-panel expanded>
+              <mat-expansion-panel-header>
+                <mat-panel-title>Price Range</mat-panel-title>
+              </mat-expansion-panel-header>
+              <div class="pt-4">
+                <mat-slider [min]="0" [max]="1000" [step]="10" 
+                           [displayWith]="formatSliderValue.bind(this)">
+                  <input matSliderStartThumb [(ngModel)]="priceRange" [ngModelOptions]="{updateOn: 'change'}" 
+                         [value]="priceRange().min">
+                  <input matSliderEndThumb [(ngModel)]="priceRange" [ngModelOptions]="{updateOn: 'change'}" 
+                         [value]="priceRange().max">
+                </mat-slider>
+                <div class="flex justify-between text-sm text-gray-600 mt-2">
+                  <span>${{ priceRange().min }}</span>
+                  <span>${{ priceRange().max }}</span>
+                </div>
+              </div>
+            </mat-expansion-panel>
+
+            <!-- Syrian Regions Filter -->
+            <mat-expansion-panel expanded>
+              <mat-expansion-panel-header>
+                <mat-panel-title class="flex items-center">
+                  <mat-icon class="mr-2 text-blue-600">location_on</mat-icon>
+                  Syrian Regions
+                </mat-panel-title>
+              </mat-expansion-panel-header>
+              <div class="pt-2 space-y-2">
+                <mat-checkbox *ngFor="let location of getSyrianRegions()" 
+                             [checked]="selectedLocations().includes(location)"
+                             (change)="toggleLocation(location)">
+                  {{ location }}
+                </mat-checkbox>
+              </div>
+            </mat-expansion-panel>
+
+            <!-- Categories Filter -->
+            <mat-expansion-panel *ngIf="availableFilters()?.categories?.length" expanded>
+              <mat-expansion-panel-header>
+                <mat-panel-title class="flex items-center">
+                  <mat-icon class="mr-2 text-purple-600">category</mat-icon>
+                  Categories
+                </mat-panel-title>
+              </mat-expansion-panel-header>
+              <div class="pt-2 space-y-2">
+                <mat-checkbox *ngFor="let category of availableFilters()!.categories.slice(0, 8)" 
+                             [checked]="selectedCategories().includes(category.id)"
+                             (change)="toggleCategory(category.id)">
+                  {{ category.name }}
+                  <span class="text-gray-500 text-sm">({{ category.count }})</span>
+                </mat-checkbox>
+              </div>
+            </mat-expansion-panel>
+
+            <!-- Syrian Heritage Filter -->
+            <mat-expansion-panel expanded>
+              <mat-expansion-panel-header>
+                <mat-panel-title class="flex items-center">
+                  <mat-icon class="mr-2 text-amber-600">heritage</mat-icon>
+                  Syrian Heritage
+                </mat-panel-title>
+              </mat-expansion-panel-header>
+              <div class="pt-2 space-y-2">
+                <mat-checkbox *ngFor="let heritage of ['Traditional', 'Modern', 'Contemporary']" 
+                             [checked]="selectedHeritage().includes(heritage.toLowerCase())"
+                             (change)="toggleHeritage(heritage.toLowerCase())">
+                  {{ heritage }} Crafts
+                </mat-checkbox>
+              </div>
+            </mat-expansion-panel>
+
+            <!-- Traditional Materials Filter -->
+            <mat-expansion-panel>
+              <mat-expansion-panel-header>
+                <mat-panel-title class="flex items-center">
+                  <mat-icon class="mr-2 text-green-600">build</mat-icon>
+                  Materials
+                </mat-panel-title>
+              </mat-expansion-panel-header>
+              <div class="pt-2 space-y-2">
+                <mat-checkbox *ngFor="let material of getTraditionalMaterials()" 
+                             [checked]="selectedMaterials().includes(material)"
+                             (change)="toggleMaterial(material)">
+                  {{ material }}
+                </mat-checkbox>
+              </div>
+            </mat-expansion-panel>
+
+            <!-- Rating Filter -->
+            <mat-expansion-panel expanded>
+              <mat-expansion-panel-header>
+                <mat-panel-title>Customer Rating</mat-panel-title>
+              </mat-expansion-panel-header>
+              <div class="pt-2 space-y-2">
+                <mat-checkbox *ngFor="let rating of [5,4,3,2,1]" 
+                             [checked]="selectedRatings().includes(rating)"
+                             (change)="toggleRating(rating)">
+                  <div class="flex items-center">
+                    <div class="flex text-yellow-400 mr-2">
+                      <mat-icon *ngFor="let star of [1,2,3,4,5]" 
+                        [class.text-gray-300]="star > rating" class="text-sm">star</mat-icon>
+                    </div>
+                    <span class="text-sm">& Up</span>
+                  </div>
+                </mat-checkbox>
+              </div>
+            </mat-expansion-panel>
+
+            <!-- Availability Filter -->
+            <mat-expansion-panel expanded>
+              <mat-expansion-panel-header>
+                <mat-panel-title>Availability</mat-panel-title>
+              </mat-expansion-panel-header>
+              <div class="pt-2 space-y-2">
+                <mat-checkbox [checked]="selectedAvailability().includes('in_stock')"
+                             (change)="toggleAvailability('in_stock')">
+                  In Stock
+                </mat-checkbox>
+                <mat-checkbox [checked]="selectedAvailability().includes('low_stock')"
+                             (change)="toggleAvailability('low_stock')">
+                  Low Stock
+                </mat-checkbox>
+                <mat-checkbox [checked]="selectedAvailability().includes('pre_order')"
+                             (change)="toggleAvailability('pre_order')">
+                  Pre-Order
+                </mat-checkbox>
+              </div>
+            </mat-expansion-panel>
+
+            <!-- Authenticity & Certification -->
+            <mat-expansion-panel expanded>
+              <mat-expansion-panel-header>
+                <mat-panel-title class="flex items-center">
+                  <mat-icon class="mr-2 text-green-600">verified</mat-icon>
+                  Authenticity
+                </mat-panel-title>
+              </mat-expansion-panel-header>
+              <div class="pt-2 space-y-3">
+                <mat-checkbox [checked]="onlyAuthentic()" (change)="onlyAuthentic.set($event.checked)"
+                             class="authenticity-filter">
+                  <div class="flex items-center">
+                    <mat-icon class="text-green-600 text-sm mr-1">verified</mat-icon>
+                    Certified Authentic
+                  </div>
+                </mat-checkbox>
+                <mat-checkbox [checked]="onlyUnesco()" (change)="onlyUnesco.set($event.checked)"
+                             class="unesco-filter">
+                  <div class="flex items-center">
+                    <mat-icon class="text-yellow-600 text-sm mr-1">stars</mat-icon>
+                    UNESCO Heritage
+                  </div>
+                </mat-checkbox>
+                <mat-checkbox [checked]="onlyMasterCraftsman()" (change)="onlyMasterCraftsman.set($event.checked)">
+                  <div class="flex items-center">
+                    <mat-icon class="text-blue-600 text-sm mr-1">person</mat-icon>
+                    Master Craftsman Made
+                  </div>
+                </mat-checkbox>
+              </div>
+            </mat-expansion-panel>
+
+            <!-- Special Offers -->
+            <mat-expansion-panel expanded>
+              <mat-expansion-panel-header>
+                <mat-panel-title class="flex items-center">
+                  <mat-icon class="mr-2 text-red-600">local_offer</mat-icon>
+                  Special Offers
+                </mat-panel-title>
+              </mat-expansion-panel-header>
+              <div class="pt-2 space-y-2">
+                <mat-checkbox [checked]="onlyOnSale()" (change)="onlyOnSale.set($event.checked)">
+                  <div class="flex items-center">
+                    <mat-icon class="text-red-600 text-sm mr-1">local_offer</mat-icon>
+                    On Sale
+                  </div>
+                </mat-checkbox>
+                <mat-checkbox [checked]="onlyFreeShipping()" (change)="onlyFreeShipping.set($event.checked)">
+                  <div class="flex items-center">
+                    <mat-icon class="text-blue-600 text-sm mr-1">local_shipping</mat-icon>
+                    Free Shipping
+                  </div>
+                </mat-checkbox>
+                <mat-checkbox [checked]="onlyInStock()" (change)="onlyInStock.set($event.checked)">
+                  <div class="flex items-center">
+                    <mat-icon class="text-green-600 text-sm mr-1">inventory</mat-icon>
+                    In Stock Only
+                  </div>
+                </mat-checkbox>
+              </div>
+            </mat-expansion-panel>
+
+            <!-- Apply Filters Button -->
+            <button mat-raised-button color="primary" (click)="applyFilters()" class="w-full">
+              <mat-icon>search</mat-icon>
+              Apply Filters
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Products Grid -->
+      <div class="lg:col-span-3">
+        
+        <!-- Mobile Sort & View Toggle -->
+        <div class="flex items-center justify-between mb-4 md:hidden">
+          <mat-form-field appearance="outline" class="flex-1 mr-4">
+            <mat-label>Sort</mat-label>
+            <mat-select [value]="currentSort()" (selectionChange)="onSortChange($event.value)">
+              <mat-option *ngFor="let sort of sortOptions" [value]="sort">
+                {{ sort.label }}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+          
+          <mat-button-toggle-group [value]="currentViewMode().mode" 
+                                  (change)="onViewModeChange($event.value)">
+            <mat-button-toggle value="grid">
+              <mat-icon>view_module</mat-icon>
+            </mat-button-toggle>
+            <mat-button-toggle value="list">
+              <mat-icon>view_list</mat-icon>
+            </mat-button-toggle>
+          </mat-button-toggle-group>
+        </div>
+
+        <!-- Results Grid -->
+        <div class="search-results-grid" 
+             [class.grid]="currentViewMode().mode === 'grid'"
+             [class.grid-cols-1]="currentViewMode().mode === 'grid'"
+             [class.sm:grid-cols-2]="currentViewMode().mode === 'grid'"
+             [class.lg:grid-cols-3]="currentViewMode().mode === 'grid'"
+             [class.gap-6]="currentViewMode().mode === 'grid'"
+             [class.space-y-4]="currentViewMode().mode === 'list'">
+          
+          <app-product-card *ngFor="let product of products()"
+                           [product]="product"
+                           [viewMode]="currentViewMode().mode"
+                           [showWishlist]="true"
+                           [showQuickAdd]="true"
+                           (addToCart)="onAddToCart($event)"
+                           (toggleWishlist)="onToggleWishlist($event)"
+                           (productClick)="onProductClick($event)">
+          </app-product-card>
+        </div>
+
+        <!-- Pagination -->
+        <div *ngIf="pagination() && pagination()!.totalPages > 1" 
+             class="flex justify-center mt-8">
+          <mat-paginator 
+            [length]="pagination()!.total"
+            [pageSize]="pagination()!.limit"
+            [pageIndex]="pagination()!.page - 1"
+            [pageSizeOptions]="[12, 20, 40, 60]"
+            (page)="onPageChange($event.pageIndex + 1); onPageSizeChange($event.pageSize)"
+            showFirstLastButtons>
+          </mat-paginator>
+        </div>
+
+        <!-- Load More Button (Alternative to Pagination) -->
+        <!--
+        <div *ngIf="pagination()?.hasNext" class="text-center mt-8">
+          <button mat-stroked-button (click)="onPageChange(pagination()!.page + 1)" class="px-8">
+            <mat-icon>expand_more</mat-icon>
+            Load More Products
+          </button>
+        </div>
+        -->
+      </div>
+    </div>
+
+    <!-- Syrian Marketplace Exploration -->
+    <div *ngIf="hasResults()" class="mt-12 space-y-8">
+      
+      <!-- Related Categories -->
+      <div *ngIf="availableFilters()?.categories?.length">
+        <h3 class="text-xl font-bold mb-4 flex items-center">
+          <mat-icon class="mr-2 text-purple-600">category</mat-icon>
+          Browse Related Categories
+        </h3>
+        <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+          <a *ngFor="let category of availableFilters()!.categories.slice(0, 6)" 
+             [routerLink]="['/category', category.id]"
+             class="bg-gradient-to-br from-white to-gray-50 rounded-lg p-4 text-center hover:shadow-md transition-all duration-300 border-2 border-transparent hover:border-purple-200">
+            <div class="font-medium text-sm text-gray-800">{{ category.name }}</div>
+            <div class="text-xs text-gray-500 mt-1">{{ category.count }} products</div>
+          </a>
+        </div>
+      </div>
+
+      <!-- Explore Syrian Regions -->
+      <div>
+        <h3 class="text-xl font-bold mb-4 flex items-center">
+          <mat-icon class="mr-2 text-blue-600">location_on</mat-icon>
+          Explore Syrian Regional Specialties
+        </h3>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div *ngFor="let region of getSyrianRegionalSpecialties()" 
+               (click)="performRegionalSearch(region.name)"
+               class="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-lg p-4 cursor-pointer hover:shadow-md transition-all duration-300 border-2 border-transparent hover:border-blue-200">
+            <div class="flex items-center mb-2">
+              <mat-icon class="text-blue-600 mr-2">location_city</mat-icon>
+              <div class="font-bold text-blue-800">{{ region.name }}</div>
+            </div>
+            <div class="text-sm text-blue-700">{{ region.specialty }}</div>
+            <div class="text-xs text-blue-600 mt-1">{{ region.productCount }} products</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- UNESCO Heritage Collection -->
+      <div>
+        <h3 class="text-xl font-bold mb-4 flex items-center">
+          <mat-icon class="mr-2 text-yellow-600">stars</mat-icon>
+          UNESCO Heritage Syrian Crafts
+        </h3>
+        <div class="bg-gradient-to-r from-yellow-50 via-amber-50 to-orange-50 rounded-lg p-6 border-2 border-yellow-200">
+          <div class="flex items-center mb-4">
+            <mat-icon class="text-yellow-600 mr-2">verified</mat-icon>
+            <p class="text-amber-800 font-medium">Discover authentic Syrian crafts recognized by UNESCO for their cultural significance</p>
+          </div>
+          <div class="flex flex-wrap gap-2">
+            <mat-chip *ngFor="let craft of getUNESCOCrafts()" 
+                     (click)="searchUNESCOCraft(craft)"
+                     class="bg-yellow-200 text-yellow-800 cursor-pointer hover:bg-yellow-300">
+              <mat-icon matChipAvatar>heritage</mat-icon>
+              {{ craft }}
+            </mat-chip>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

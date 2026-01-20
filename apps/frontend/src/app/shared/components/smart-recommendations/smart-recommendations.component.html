@@ -1,0 +1,137 @@
+<div class="recommendations-container">
+  <!-- Header -->
+  @if (showTitle()) {
+    <div class="section-header">
+      <div class="header-left">
+        <mat-icon>{{ getStrategyIcon() }}</mat-icon>
+        <h3>{{ title() }}</h3>
+        @if (showStrategy()) {
+          <span class="strategy-badge">{{ getStrategyDisplayName() }}</span>
+        }
+      </div>
+
+      @if (hasRecommendations() && recommendations().length > 4) {
+        <div class="header-actions">
+          <button mat-icon-button (click)="scrollLeft()" aria-label="Scroll left">
+            <mat-icon>chevron_left</mat-icon>
+          </button>
+          <button mat-icon-button (click)="scrollRight()" aria-label="Scroll right">
+            <mat-icon>chevron_right</mat-icon>
+          </button>
+        </div>
+      }
+    </div>
+  }
+
+  <!-- Loading State -->
+  @if (isLoading()) {
+    <div class="loading-state">
+      <mat-spinner diameter="40"></mat-spinner>
+      <p>Finding recommendations...</p>
+    </div>
+  }
+
+  <!-- Recommendations Carousel -->
+  @if (!isLoading() && hasRecommendations()) {
+    <div class="recommendations-carousel">
+      <div class="recommendations-scroll">
+        @for (product of recommendations(); track product.id) {
+          <div class="recommendation-card">
+            <a [routerLink]="['/product', product.slug]" class="product-link">
+              <!-- Product Image -->
+              <div class="product-image-wrapper">
+                <img
+                  [src]="product.images[0]?.url"
+                  [alt]="product.name"
+                  class="product-image"
+                  loading="lazy"
+                />
+
+                <!-- Discount Badge -->
+                @if (product.price.discount) {
+                  <div class="discount-badge">
+                    -{{ product.price.discount.percentage }}%
+                  </div>
+                }
+
+                <!-- UNESCO Badge -->
+                @if (product.authenticity.unescoRecognition) {
+                  <div class="unesco-badge">
+                    <mat-icon>verified</mat-icon>
+                  </div>
+                }
+              </div>
+
+              <!-- Product Info -->
+              <div class="product-info">
+                <h4 class="product-name">{{ product.name }}</h4>
+
+                <!-- Category -->
+                <div class="product-category">
+                  <mat-icon>category</mat-icon>
+                  <span>{{ product.category.name }}</span>
+                </div>
+
+                <!-- Rating -->
+                <div class="product-rating">
+                  <div class="stars">
+                    @for (star of [1,2,3,4,5]; track star) {
+                      <mat-icon [class.filled]="star <= product.reviews.averageRating">
+                        {{ star <= product.reviews.averageRating ? 'star' : 'star_border' }}
+                      </mat-icon>
+                    }
+                  </div>
+                  <span class="rating-text">
+                    {{ product.reviews.averageRating }} ({{ product.reviews.totalReviews }})
+                  </span>
+                </div>
+
+                <!-- Price -->
+                <div class="product-price">
+                  @if (product.price.originalPrice) {
+                    <span class="original-price">
+                      ${{ product.price.originalPrice }}
+                    </span>
+                  }
+                  <span class="current-price">
+                    ${{ product.price.amount }}
+                  </span>
+                </div>
+
+                <!-- Seller Info -->
+                <div class="seller-info">
+                  <mat-icon>store</mat-icon>
+                  <span>{{ product.seller.name }}</span>
+                  @if (product.seller.verified) {
+                    <mat-icon class="verified-icon">verified</mat-icon>
+                  }
+                </div>
+              </div>
+            </a>
+
+            <!-- Actions -->
+            <div class="product-actions">
+              <button
+                mat-raised-button
+                color="primary"
+                class="add-to-cart-btn"
+              >
+                <mat-icon>shopping_cart</mat-icon>
+                Add to Cart
+              </button>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+  }
+
+  <!-- Empty State -->
+  @if (!isLoading() && !hasRecommendations()) {
+    <div class="empty-state">
+      <mat-icon>{{ getStrategyIcon() }}</mat-icon>
+      <h4>No Recommendations Available</h4>
+      <p>We couldn't find any recommendations at this time</p>
+    </div>
+  }
+</div>

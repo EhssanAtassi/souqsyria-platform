@@ -1,0 +1,834 @@
+/**
+ * Checkout Component Styles
+ * Syrian marketplace checkout with Damascus gold theme and RTL support
+ */
+
+// Background gradient for Syrian theme
+.checkout-container {
+  background: linear-gradient(135deg, #fef7cd, #ffffff, #d1fae5);
+  min-height: 100vh;
+}
+
+// Header styling
+.checkout-header {
+  .checkout-title {
+    background: linear-gradient(135deg, #d97706, #f59e0b);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    font-weight: 800;
+    
+    &.rtl {
+      text-align: right;
+      direction: rtl;
+    }
+  }
+  
+  .back-button {
+    color: #6b7280;
+    transition: all 0.2s ease;
+    
+    &:hover {
+      color: #d97706;
+      background-color: rgba(217, 119, 6, 0.1);
+    }
+  }
+}
+
+// Progress indicator
+.progress-container {
+  .progress-bar {
+    background-color: #e5e7eb;
+    height: 8px;
+    border-radius: 4px;
+    overflow: hidden;
+    
+    .progress-fill {
+      background: linear-gradient(90deg, #d97706, #f59e0b);
+      height: 100%;
+      border-radius: 4px;
+      transition: width 0.5s ease;
+    }
+  }
+  
+  .progress-labels {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 8px;
+    font-size: 0.875rem;
+    color: #6b7280;
+  }
+}
+
+// Material stepper customization
+::ng-deep {
+  .mat-stepper-header {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    margin-bottom: 16px;
+    padding: 8px 16px;
+    
+    .mat-step-icon {
+      background-color: #e5e7eb;
+      color: #6b7280;
+      
+      &.mat-step-icon-selected {
+        background: linear-gradient(135deg, #d97706, #f59e0b);
+        color: white;
+      }
+      
+      &.mat-step-icon-state-done {
+        background: linear-gradient(135deg, #059669, #10b981);
+        color: white;
+      }
+    }
+    
+    .mat-step-label {
+      color: #374151;
+      font-weight: 500;
+      
+      &.mat-step-label-active {
+        color: #d97706;
+        font-weight: 600;
+      }
+      
+      &.mat-step-label-selected {
+        color: #d97706;
+      }
+    }
+  }
+  
+  .mat-step-content {
+    margin-top: 0;
+    padding: 0;
+  }
+}
+
+// Form styling
+.checkout-form {
+  .mat-mdc-form-field {
+    width: 100%;
+    margin-bottom: 8px;
+    
+    .mat-mdc-form-field-label {
+      color: #374151;
+      font-weight: 500;
+    }
+    
+    .mat-mdc-input-element {
+      color: #111827;
+      
+      &::placeholder {
+        color: #9ca3af;
+      }
+    }
+    
+    .mat-mdc-select {
+      color: #111827;
+    }
+    
+    &.mat-focused {
+      .mat-mdc-form-field-label {
+        color: #d97706;
+      }
+    }
+  }
+  
+  .mat-mdc-text-field-wrapper {
+    &.mdc-text-field--focused {
+      .mdc-notched-outline__leading,
+      .mdc-notched-outline__notch,
+      .mdc-notched-outline__trailing {
+        border-color: #d97706;
+      }
+    }
+  }
+}
+
+// Syrian governorate styling
+.governorate-section {
+  .governorate-label {
+    color: #374151;
+    font-weight: 600;
+    margin-bottom: 8px;
+    
+    &.rtl {
+      text-align: right;
+      direction: rtl;
+    }
+  }
+  
+  .mat-mdc-select-panel {
+    .mat-mdc-option {
+      &:hover {
+        background-color: #fef7cd;
+      }
+      
+      &.mat-mdc-option-selected {
+        background: linear-gradient(135deg, #fef7cd, #fde68a);
+        color: #92400e;
+      }
+    }
+  }
+}
+
+// Payment method styling
+.payment-methods {
+  .payment-option {
+    border: 2px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 16px;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    
+    &:hover {
+      border-color: #fbbf24;
+      background-color: #fffbeb;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(251, 191, 36, 0.15);
+    }
+    
+    &.selected {
+      border-color: #d97706;
+      background: linear-gradient(135deg, #fef7cd, #fde68a);
+      box-shadow: 0 4px 16px rgba(217, 119, 6, 0.2);
+      
+      .payment-icon {
+        color: #d97706;
+      }
+      
+      .payment-title {
+        color: #92400e;
+        font-weight: 700;
+      }
+      
+      .payment-description {
+        color: #a16207;
+      }
+    }
+    
+    .payment-icon {
+      font-size: 24px;
+      width: 24px;
+      height: 24px;
+      margin-right: 12px;
+      transition: color 0.2s ease;
+    }
+    
+    .payment-title {
+      font-size: 1.125rem;
+      font-weight: 600;
+      color: #111827;
+      margin-bottom: 4px;
+    }
+    
+    .payment-description {
+      font-size: 0.875rem;
+      color: #6b7280;
+    }
+    
+    .payment-badge {
+      font-size: 0.875rem;
+      font-weight: 600;
+      padding: 4px 8px;
+      border-radius: 4px;
+    }
+  }
+}
+
+// Payment details sections
+.payment-details {
+  border-radius: 12px;
+  padding: 16px;
+  margin-top: 16px;
+  
+  &.bank-transfer {
+    background: linear-gradient(135deg, #eff6ff, #dbeafe);
+    border: 1px solid #3b82f6;
+    
+    .details-title {
+      color: #1e40af;
+      font-weight: 700;
+      margin-bottom: 16px;
+    }
+    
+    .bank-info {
+      color: #374151;
+      font-size: 0.875rem;
+      line-height: 1.5;
+      
+      strong {
+        color: #1e40af;
+      }
+    }
+  }
+  
+  &.mobile-payment {
+    background: linear-gradient(135deg, #f3e8ff, #e9d5ff);
+    border: 1px solid #8b5cf6;
+    
+    .details-title {
+      color: #7c2d12;
+      font-weight: 700;
+      margin-bottom: 12px;
+    }
+    
+    .mobile-info {
+      color: #374151;
+      font-size: 0.875rem;
+    }
+  }
+}
+
+// Order summary styling
+.order-summary {
+  .summary-card {
+    border-radius: 12px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+    
+    .mat-mdc-card-header {
+      background: linear-gradient(135deg, #f8fafc, #f1f5f9);
+      border-radius: 12px 12px 0 0;
+      
+      .mat-mdc-card-title {
+        color: #374151;
+        font-weight: 700;
+      }
+    }
+    
+    .order-item {
+      display: flex;
+      align-items: center;
+      padding: 12px 0;
+      border-bottom: 1px solid #f3f4f6;
+      
+      &:last-child {
+        border-bottom: none;
+      }
+      
+      .item-image {
+        width: 48px;
+        height: 48px;
+        border-radius: 8px;
+        object-fit: cover;
+        margin-right: 12px;
+      }
+      
+      .item-info {
+        flex: 1;
+        
+        .item-name {
+          font-weight: 600;
+          color: #111827;
+          font-size: 0.875rem;
+          line-height: 1.25;
+        }
+        
+        .item-quantity {
+          color: #6b7280;
+          font-size: 0.75rem;
+        }
+      }
+      
+      .item-price {
+        font-weight: 600;
+        color: #374151;
+        font-size: 0.875rem;
+      }
+    }
+    
+    .totals-section {
+      margin-top: 16px;
+      
+      .total-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 8px 0;
+        
+        &.subtotal {
+          color: #6b7280;
+          font-size: 0.875rem;
+        }
+        
+        &.shipping {
+          color: #6b7280;
+          font-size: 0.875rem;
+        }
+        
+        &.tax {
+          color: #6b7280;
+          font-size: 0.875rem;
+        }
+        
+        &.grand-total {
+          border-top: 2px solid #e5e7eb;
+          margin-top: 8px;
+          padding-top: 12px;
+          font-size: 1.125rem;
+          font-weight: 700;
+          color: #111827;
+          
+          .total-amount {
+            background: linear-gradient(135deg, #d97706, #f59e0b);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+          }
+        }
+      }
+    }
+  }
+  
+  .payment-amount-card {
+    background: linear-gradient(135deg, #fef7cd, #fde68a);
+    border: 2px solid #f59e0b;
+    text-align: center;
+    
+    .payment-icon {
+      color: #d97706;
+      font-size: 2.5rem;
+      margin-bottom: 8px;
+    }
+    
+    .payment-label {
+      color: #92400e;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+    
+    .payment-amount {
+      background: linear-gradient(135deg, #d97706, #f59e0b);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      font-size: 2rem;
+      font-weight: 800;
+    }
+  }
+}
+
+// Review section
+.review-section {
+  .review-card {
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    margin-bottom: 24px;
+    
+    .mat-mdc-card-header {
+      background: linear-gradient(135deg, #f8fafc, #f1f5f9);
+      border-radius: 12px 12px 0 0;
+      
+      .review-title {
+        display: flex;
+        align-items: center;
+        color: #374151;
+        font-weight: 700;
+        
+        mat-icon {
+          margin-right: 8px;
+          color: #6b7280;
+        }
+      }
+      
+      .edit-button {
+        color: #3b82f6;
+        
+        &:hover {
+          background-color: rgba(59, 130, 246, 0.1);
+        }
+      }
+    }
+    
+    .review-content {
+      color: #374151;
+      line-height: 1.6;
+      
+      .info-item {
+        margin-bottom: 8px;
+        
+        &:last-child {
+          margin-bottom: 0;
+        }
+        
+        strong {
+          color: #111827;
+        }
+      }
+    }
+  }
+  
+  .order-items-review {
+    .item-row {
+      display: flex;
+      align-items: center;
+      padding: 16px;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      margin-bottom: 12px;
+      
+      &:last-child {
+        margin-bottom: 0;
+      }
+      
+      .item-image {
+        width: 64px;
+        height: 64px;
+        border-radius: 8px;
+        object-fit: cover;
+        margin-right: 16px;
+      }
+      
+      .item-details {
+        flex: 1;
+        
+        .item-title {
+          font-weight: 600;
+          color: #111827;
+          margin-bottom: 4px;
+        }
+        
+        .item-description {
+          color: #6b7280;
+          font-size: 0.875rem;
+          margin-bottom: 8px;
+        }
+        
+        .item-meta {
+          display: flex;
+          gap: 16px;
+          font-size: 0.875rem;
+          color: #6b7280;
+        }
+      }
+      
+      .item-total {
+        text-align: right;
+        
+        .total-price {
+          font-weight: 700;
+          color: #111827;
+          font-size: 1.125rem;
+        }
+      }
+    }
+    
+    .final-totals {
+      background: linear-gradient(135deg, #fef7cd, #fde68a);
+      border-radius: 12px;
+      padding: 16px;
+      margin-top: 16px;
+      
+      .totals-grid {
+        .total-item {
+          display: flex;
+          justify-content: space-between;
+          margin-bottom: 8px;
+          
+          &:last-child {
+            margin-bottom: 0;
+          }
+          
+          &.grand-total {
+            border-top: 2px solid #f59e0b;
+            padding-top: 12px;
+            margin-top: 8px;
+            font-size: 1.25rem;
+            font-weight: 800;
+            
+            .total-label {
+              color: #92400e;
+            }
+            
+            .total-value {
+              background: linear-gradient(135deg, #d97706, #f59e0b);
+              -webkit-background-clip: text;
+              -webkit-text-fill-color: transparent;
+              background-clip: text;
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+// Navigation buttons
+.navigation-buttons {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 32px;
+  
+  .nav-button {
+    min-width: 120px;
+    height: 48px;
+    border-radius: 8px;
+    font-weight: 600;
+    transition: all 0.2s ease;
+    
+    &.previous-button {
+      border: 2px solid #e5e7eb;
+      color: #6b7280;
+      
+      &:hover {
+        border-color: #3b82f6;
+        color: #3b82f6;
+        background-color: #eff6ff;
+      }
+    }
+    
+    &.next-button {
+      background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+      color: white;
+      
+      &:hover:not(:disabled) {
+        background: linear-gradient(135deg, #1d4ed8, #1e40af);
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+      }
+      
+      &:disabled {
+        background: linear-gradient(135deg, #9ca3af, #6b7280);
+        cursor: not-allowed;
+      }
+    }
+    
+    &.confirm-button {
+      background: linear-gradient(135deg, #059669, #10b981);
+      color: white;
+      
+      &:hover {
+        background: linear-gradient(135deg, #047857, #059669);
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+      }
+    }
+  }
+}
+
+// Order confirmation
+.confirmation-section {
+  text-align: center;
+  padding: 64px 16px;
+  
+  .confirmation-icon {
+    color: #10b981;
+    font-size: 5rem;
+    margin-bottom: 24px;
+  }
+  
+  .confirmation-title {
+    font-size: 2rem;
+    font-weight: 800;
+    color: #111827;
+    margin-bottom: 16px;
+  }
+  
+  .confirmation-message {
+    color: #6b7280;
+    font-size: 1.125rem;
+    margin-bottom: 32px;
+    max-width: 500px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  
+  .order-number-card {
+    background: linear-gradient(135deg, #fef7cd, #fde68a);
+    border: 2px solid #f59e0b;
+    border-radius: 12px;
+    padding: 24px;
+    margin: 32px auto;
+    max-width: 400px;
+    
+    .order-label {
+      color: #6b7280;
+      font-size: 0.875rem;
+      margin-bottom: 8px;
+    }
+    
+    .order-number {
+      background: linear-gradient(135deg, #d97706, #f59e0b);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      font-size: 2rem;
+      font-weight: 800;
+      margin-bottom: 16px;
+    }
+    
+    .email-notice {
+      color: #6b7280;
+      font-size: 0.875rem;
+    }
+  }
+  
+  .final-actions {
+    display: flex;
+    gap: 16px;
+    justify-content: center;
+    flex-wrap: wrap;
+    
+    .action-button {
+      min-width: 160px;
+      height: 48px;
+      border-radius: 8px;
+      font-weight: 600;
+      
+      &.primary-action {
+        background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+        color: white;
+        
+        &:hover {
+          background: linear-gradient(135deg, #1d4ed8, #1e40af);
+        }
+      }
+      
+      &.secondary-action {
+        border: 2px solid #e5e7eb;
+        color: #374151;
+        
+        &:hover {
+          border-color: #3b82f6;
+          color: #3b82f6;
+          background-color: #eff6ff;
+        }
+      }
+    }
+  }
+}
+
+// Processing state
+.processing-section {
+  text-align: center;
+  padding: 64px 16px;
+  
+  .processing-spinner {
+    margin-bottom: 24px;
+    
+    ::ng-deep {
+      .mat-mdc-progress-spinner circle {
+        stroke: #d97706;
+      }
+    }
+  }
+  
+  .processing-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #111827;
+    margin-bottom: 12px;
+  }
+  
+  .processing-message {
+    color: #6b7280;
+    font-size: 1.125rem;
+  }
+}
+
+// RTL support
+[dir="rtl"] {
+  .checkout-form {
+    .mat-mdc-form-field {
+      text-align: right;
+    }
+  }
+  
+  .payment-methods {
+    .payment-option {
+      .payment-icon {
+        margin-right: 0;
+        margin-left: 12px;
+      }
+    }
+  }
+  
+  .order-summary {
+    .order-item {
+      .item-image {
+        margin-right: 0;
+        margin-left: 12px;
+      }
+    }
+  }
+  
+  .review-section {
+    .item-row {
+      .item-image {
+        margin-right: 0;
+        margin-left: 16px;
+      }
+    }
+  }
+}
+
+// Responsive design
+@media (max-width: 768px) {
+  .checkout-container {
+    padding: 16px;
+  }
+  
+  .checkout-form {
+    .form-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+  
+  .payment-methods {
+    .payment-option {
+      padding: 12px;
+      
+      .payment-content {
+        flex-direction: column;
+        text-align: center;
+      }
+    }
+  }
+  
+  .order-summary {
+    .order-item {
+      flex-direction: column;
+      text-align: center;
+      gap: 8px;
+    }
+  }
+  
+  .navigation-buttons {
+    flex-direction: column;
+    gap: 16px;
+    
+    .nav-button {
+      width: 100%;
+    }
+  }
+  
+  .final-actions {
+    flex-direction: column;
+    
+    .action-button {
+      width: 100%;
+    }
+  }
+}
+
+// Print styles
+@media print {
+  .navigation-buttons,
+  .edit-button,
+  .back-button {
+    display: none !important;
+  }
+  
+  .checkout-container {
+    background: white !important;
+  }
+  
+  .review-card,
+  .order-number-card {
+    box-shadow: none !important;
+    border: 1px solid #e5e7eb !important;
+  }
+}

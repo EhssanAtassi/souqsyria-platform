@@ -1,0 +1,26 @@
+<!-- Simple 3-Card Offers Component -->
+<div class="offer-cards-container py-6">
+  <div class="container mx-auto px-4">
+
+    <!-- 3 Cards in a Row -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div
+        (click)="onCardClick(offer)"
+        *ngFor="let offer of offers"
+        class="offer-card cursor-pointer rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-all duration-300 transform hover:scale-105">
+
+        <!-- Card Image -->
+        <div class="w-full h-48 overflow-hidden">
+          <img
+            [alt]="offer.title"
+            [src]="offer.imageUrl"
+            class="w-full h-full object-cover"
+            loading="lazy">
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+</div>
+

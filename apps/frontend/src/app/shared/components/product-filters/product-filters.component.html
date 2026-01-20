@@ -1,0 +1,216 @@
+<!-- Product Filters Panel - Syrian Marketplace -->
+<div class="product-filters" [class.product-filters--rtl]="language() === 'ar'">
+  <!-- Filter Header -->
+  <div class="product-filters__header">
+    <h3 class="product-filters__title">
+      <mat-icon>filter_list</mat-icon>
+      {{ language() === 'ar' ? 'تصفية المنتجات' : 'Filter Products' }}
+    </h3>
+    <button
+      mat-button
+      color="accent"
+      class="product-filters__clear"
+      (click)="clearAllFilters()">
+      <mat-icon>clear_all</mat-icon>
+      {{ language() === 'ar' ? 'مسح الكل' : 'Clear All' }}
+    </button>
+  </div>
+
+  <mat-divider></mat-divider>
+
+  <!-- Categories -->
+  <mat-expansion-panel [expanded]="true" class="product-filters__panel">
+    <mat-expansion-panel-header>
+      <mat-panel-title>
+        <mat-icon>category</mat-icon>
+        {{ language() === 'ar' ? 'الفئات' : 'Categories' }}
+      </mat-panel-title>
+    </mat-expansion-panel-header>
+
+    <div class="product-filters__category-list">
+      <div
+        *ngFor="let category of categories"
+        class="product-filters__category-item"
+        [class.product-filters__category-item--active]="isCategorySelected(category.slug)">
+        <button
+          mat-button
+          class="product-filters__category-button"
+          (click)="toggleCategory(category.slug)">
+          <mat-icon class="product-filters__category-icon">{{ category.icon }}</mat-icon>
+          <span class="product-filters__category-name">
+            {{ getCategoryName(category) }}
+          </span>
+          <mat-icon class="product-filters__category-check" *ngIf="isCategorySelected(category.slug)">
+            check_circle
+          </mat-icon>
+        </button>
+      </div>
+    </div>
+  </mat-expansion-panel>
+
+  <mat-divider></mat-divider>
+
+  <!-- Price Range -->
+  <mat-expansion-panel [expanded]="true" class="product-filters__panel">
+    <mat-expansion-panel-header>
+      <mat-panel-title>
+        <mat-icon>attach_money</mat-icon>
+        {{ language() === 'ar' ? 'نطاق السعر' : 'Price Range' }}
+      </mat-panel-title>
+    </mat-expansion-panel-header>
+
+    <div class="product-filters__price-range">
+      <div class="product-filters__price-inputs">
+        <div class="product-filters__price-input-group">
+          <label>{{ language() === 'ar' ? 'من' : 'Min' }}</label>
+          <input
+            type="number"
+            class="product-filters__price-input"
+            [value]="minPrice()"
+            (input)="minPrice.set(+$any($event.target).value)"
+            (change)="updatePriceRange(minPrice(), maxPrice())"
+            min="0"
+            max="1000">
+        </div>
+        <span class="product-filters__price-separator">-</span>
+        <div class="product-filters__price-input-group">
+          <label>{{ language() === 'ar' ? 'إلى' : 'Max' }}</label>
+          <input
+            type="number"
+            class="product-filters__price-input"
+            [value]="maxPrice()"
+            (input)="maxPrice.set(+$any($event.target).value)"
+            (change)="updatePriceRange(minPrice(), maxPrice())"
+            min="0"
+            max="1000">
+        </div>
+      </div>
+
+      <mat-slider
+        class="product-filters__price-slider"
+        [min]="0"
+        [max]="1000"
+        [step]="10"
+        [discrete]="true"
+        [showTickMarks]="false">
+        <input
+          matSliderStartThumb
+          [value]="minPrice()"
+          (valueChange)="minPrice.set($event); updatePriceRange(minPrice(), maxPrice())">
+        <input
+          matSliderEndThumb
+          [value]="maxPrice()"
+          (valueChange)="maxPrice.set($event); updatePriceRange(minPrice(), maxPrice())">
+      </mat-slider>
+
+      <div class="product-filters__price-display">
+        {{ formatPrice(minPrice()) }} - {{ formatPrice(maxPrice()) }}
+      </div>
+    </div>
+  </mat-expansion-panel>
+
+  <mat-divider></mat-divider>
+
+  <!-- Rating Filter -->
+  <mat-expansion-panel [expanded]="true" class="product-filters__panel">
+    <mat-expansion-panel-header>
+      <mat-panel-title>
+        <mat-icon>star</mat-icon>
+        {{ language() === 'ar' ? 'التقييم' : 'Rating' }}
+      </mat-panel-title>
+    </mat-expansion-panel-header>
+
+    <mat-radio-group
+      class="product-filters__rating-group"
+      [value]="selectedRating()"
+      (change)="updateRating($event.value)">
+      <mat-radio-button
+        *ngFor="let rating of ratings"
+        [value]="rating.value"
+        class="product-filters__rating-option">
+        <div class="product-filters__rating-stars">
+          <span
+            *ngFor="let star of getStarArray(rating.stars)"
+            class="product-filters__star">
+            ★
+          </span>
+        </div>
+        <span class="product-filters__rating-label">
+          {{ getRatingLabel(rating) }}
+        </span>
+      </mat-radio-button>
+      <mat-radio-button [value]="0" class="product-filters__rating-option">
+        {{ language() === 'ar' ? 'جميع التقييمات' : 'All Ratings' }}
+      </mat-radio-button>
+    </mat-radio-group>
+  </mat-expansion-panel>
+
+  <mat-divider></mat-divider>
+
+  <!-- Authenticity & Heritage -->
+  <mat-expansion-panel [expanded]="true" class="product-filters__panel">
+    <mat-expansion-panel-header>
+      <mat-panel-title>
+        <mat-icon>verified</mat-icon>
+        {{ language() === 'ar' ? 'الأصالة والتراث' : 'Authenticity & Heritage' }}
+      </mat-panel-title>
+    </mat-expansion-panel-header>
+
+    <div class="product-filters__checkbox-group">
+      <mat-checkbox
+        [checked]="(isHeritageOnly$ | async) || false"
+        (change)="toggleHeritageFilter($event.checked)"
+        class="product-filters__checkbox">
+        <div class="product-filters__checkbox-label">
+          <mat-icon class="product-filters__unesco-icon">verified</mat-icon>
+          <span>
+            {{ language() === 'ar' ? 'تراث اليونسكو فقط' : 'UNESCO Heritage Only' }}
+          </span>
+        </div>
+      </mat-checkbox>
+
+      <mat-checkbox
+        [checked]="(inStockOnly$ | async) || false"
+        (change)="toggleInStockFilter($event.checked)"
+        class="product-filters__checkbox">
+        <div class="product-filters__checkbox-label">
+          <mat-icon>check_circle</mat-icon>
+          <span>
+            {{ language() === 'ar' ? 'متوفر في المخزون فقط' : 'In Stock Only' }}
+          </span>
+        </div>
+      </mat-checkbox>
+    </div>
+  </mat-expansion-panel>
+
+  <mat-divider></mat-divider>
+
+  <!-- Regional Origins -->
+  <mat-expansion-panel class="product-filters__panel">
+    <mat-expansion-panel-header>
+      <mat-panel-title>
+        <mat-icon>location_on</mat-icon>
+        {{ language() === 'ar' ? 'المنطقة' : 'Region of Origin' }}
+      </mat-panel-title>
+    </mat-expansion-panel-header>
+
+    <div class="product-filters__checkbox-group">
+      <mat-checkbox
+        *ngFor="let region of regions"
+        class="product-filters__checkbox">
+        {{ getRegionLabel(region) }}
+      </mat-checkbox>
+    </div>
+  </mat-expansion-panel>
+
+  <!-- Filter Actions -->
+  <div class="product-filters__actions">
+    <button
+      mat-raised-button
+      color="primary"
+      class="product-filters__apply-button"
+      (click)="filtersChange.emit()">
+      {{ language() === 'ar' ? 'تطبيق التصفية' : 'Apply Filters' }}
+    </button>
+  </div>
+</div>

@@ -1,0 +1,170 @@
+<!-- Product Recommendations Carousel Component -->
+<div class="recommendations-container" [attr.dir]="language() === 'ar' ? 'rtl' : 'ltr'">
+
+  <!-- Section Header -->
+  <div class="recommendations-header">
+    <div class="header-content">
+      <!-- English Title -->
+      <h3 class="recommendations-title" *ngIf="language() === 'en'">
+        {{ title() }}
+      </h3>
+
+      <!-- Arabic Title -->
+      <h3 class="recommendations-title recommendations-title-ar" *ngIf="language() === 'ar'">
+        {{ titleAr() }}
+      </h3>
+    </div>
+
+    <!-- View All Button -->
+    <button
+      *ngIf="showViewAll() && recommendations().length > 0"
+      class="view-all-btn"
+      mat-button
+      (click)="onViewAll()">
+      <span *ngIf="language() === 'en'">View All</span>
+      <span *ngIf="language() === 'ar'">عرض الكل</span>
+      <mat-icon [style.transform]="language() === 'ar' ? 'rotate(180deg)' : 'none'">
+        arrow_forward
+      </mat-icon>
+    </button>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="isLoading()" class="recommendations-loading">
+    <mat-spinner diameter="40" class="loading-spinner"></mat-spinner>
+    <p class="loading-text">
+      <span *ngIf="language() === 'en'">Loading recommendations...</span>
+      <span *ngIf="language() === 'ar'">جاري تحميل التوصيات...</span>
+    </p>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="error() && !isLoading()" class="recommendations-error">
+    <mat-icon class="error-icon">error_outline</mat-icon>
+    <p class="error-text">
+      <span *ngIf="language() === 'en'">{{ error() }}</span>
+      <span *ngIf="language() === 'ar'">فشل تحميل التوصيات</span>
+    </p>
+  </div>
+
+  <!-- Recommendations Carousel (Swiper) -->
+  <div
+    *ngIf="!isLoading() && !error() && recommendations().length > 0"
+    class="recommendations-carousel">
+
+    <swiper-container
+      class="recommendations-swiper"
+      slides-per-view="2"
+      space-between="16"
+      navigation="true"
+      pagination="false"
+      loop="false"
+      [dir]="language() === 'ar' ? 'rtl' : 'ltr'">
+
+      <!-- Product Slide -->
+      <swiper-slide
+        *ngFor="let product of recommendations(); trackBy: trackByProduct"
+        class="product-slide">
+
+        <div class="product-card" (click)="onProductClick(product)">
+
+          <!-- Product Image -->
+          <div class="product-image-container">
+            <img
+              [src]="product.images[0].url || '/assets/images/placeholder-image.svg'"
+              [alt]="product.name"
+              class="product-image"
+              loading="lazy">
+
+            <!-- Discount Badge -->
+            <div
+              *ngIf="hasDiscount(product)"
+              class="discount-badge">
+              {{ getDiscountPercentage(product.price.originalPrice!, product.price.amount) }}% OFF
+            </div>
+
+            <!-- Authenticity Badge -->
+            <div
+              *ngIf="getPrimaryBadge(product) as badge"
+              class="authenticity-badge">
+              <mat-icon class="badge-icon">verified</mat-icon>
+              <span>{{ badge }}</span>
+            </div>
+
+            <!-- Quick Add to Cart Button -->
+            <button
+              *ngIf="product.inventory.inStock"
+              class="quick-add-btn"
+              mat-mini-fab
+              color="primary"
+              [matTooltip]="language() === 'en' ? 'Add to Cart' : 'أضف للسلة'"
+              (click)="onAddToCart(product, $event)">
+              <mat-icon>add_shopping_cart</mat-icon>
+            </button>
+          </div>
+
+          <!-- Product Info -->
+          <div class="product-info">
+
+            <!-- Product Name -->
+            <h4 class="product-name">
+              {{ language() === 'en' ? product.name : (product.nameArabic || product.name) }}
+            </h4>
+
+            <!-- Rating -->
+            <div class="product-rating">
+              <div class="rating-stars">
+                <mat-icon
+                  *ngFor="let star of [1,2,3,4,5]"
+                  class="star-icon"
+                  [class.filled]="star <= product.reviews.averageRating">
+                  {{ star <= product.reviews.averageRating ? 'star' : 'star_border' }}
+                </mat-icon>
+              </div>
+              <span class="rating-count">({{ product.reviews.totalReviews }})</span>
+            </div>
+
+            <!-- Price -->
+            <div class="product-price">
+              <span class="current-price">
+                {{ formatPrice(product.price.amount, product.price.currency) }}
+              </span>
+              <span
+                *ngIf="hasDiscount(product)"
+                class="original-price">
+                {{ formatPrice(product.price.originalPrice!, product.price.currency) }}
+              </span>
+            </div>
+
+            <!-- Stock Status -->
+            <div class="stock-status" [class.out-of-stock]="!product.inventory.inStock">
+              <mat-icon class="stock-icon">
+                {{ product.inventory.inStock ? 'check_circle' : 'cancel' }}
+              </mat-icon>
+              <span *ngIf="language() === 'en'">
+                {{ product.inventory.inStock ? 'In Stock' : 'Out of Stock' }}
+              </span>
+              <span *ngIf="language() === 'ar'">
+                {{ product.inventory.inStock ? 'متوفر' : 'غير متوفر' }}
+              </span>
+            </div>
+          </div>
+        </div>
+
+      </swiper-slide>
+
+    </swiper-container>
+  </div>
+
+  <!-- Empty State -->
+  <div
+    *ngIf="!isLoading() && !error() && recommendations().length === 0"
+    class="recommendations-empty">
+    <mat-icon class="empty-icon">inventory_2</mat-icon>
+    <p class="empty-text">
+      <span *ngIf="language() === 'en'">No recommendations available</span>
+      <span *ngIf="language() === 'ar'">لا توجد توصيات متاحة</span>
+    </p>
+  </div>
+
+</div>

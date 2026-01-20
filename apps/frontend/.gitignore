@@ -1,0 +1,41 @@
+# Node
+node_modules/
+
+# Angular
+.angular/
+
+# IDE
+.idea/
+.vscode/
+.claude/
+
+# Documentation
+*BLUEPRINT*.md
+*SUMMARY*.md
+*COMPLETE*.md
+*URLS*.md
+*DEMO*.md
+CLAUDE.md
+heroPlan.md
+*.txt
+devDoc/
+template/
+
+# Backup files
+*.old
+*.bak
+
+# Speckit
+.specify/
+
+# Exclude all markdown files
+*.md
+
+# Exclude Claude Code settings
+.claude/
+
+# Exclude all markdown files
+*.md
+
+# Exclude Claude Code settings
+.claude/

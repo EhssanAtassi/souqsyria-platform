@@ -1,0 +1,27 @@
+/**
+ * CategoryShowcaseSection Component Styles - FIGMA DESIGN MATCH
+ * Syrian Marketplace - Simplified flat design
+ */
+
+.category-showcase-section {
+  .section-header {
+    h2 {
+      font-family: 'Inter', sans-serif;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+    }
+
+    .nav-link {
+      font-weight: 500;
+      text-decoration: none;
+
+      &:hover {
+        text-decoration: underline;
+      }
+    }
+  }
+
+  .showcase-content {
+    align-items: flex-start;
+  }
+}

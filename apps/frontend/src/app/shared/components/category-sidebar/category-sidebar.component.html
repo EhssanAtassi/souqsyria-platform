@@ -1,0 +1,188 @@
+<aside class="category-sidebar" [attr.dir]="direction()" [class.rtl-mode]="direction() === 'rtl'">
+
+  <!-- Sidebar Header -->
+  <div class="sidebar-header">
+    <div class="sidebar-header-content">
+      <mat-icon class="sidebar-icon">category</mat-icon>
+      <h3 class="sidebar-title">{{ sidebarTitle() }}</h3>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="isLoading()" class="sidebar-loading">
+    <mat-spinner diameter="40"></mat-spinner>
+    <p class="loading-text">
+      {{ language() === 'ar' ? 'جار التحميل...' : 'Loading categories...' }}
+    </p>
+  </div>
+
+  <!-- Categories Navigation -->
+  <nav class="sidebar-nav" *ngIf="!isLoading() && displayCategories().length > 0">
+    <mat-accordion [multi]="false" class="categories-accordion">
+
+      <!-- Loop through categories -->
+      <mat-expansion-panel
+        *ngFor="let category of displayCategories(); trackBy: trackCategory"
+        [expanded]="isCategoryExpanded(category.id)"
+        (opened)="toggleCategory(category.id)"
+        (closed)="toggleCategory(category.id)"
+        class="category-panel"
+        hideToggle>
+
+        <!-- Category Header -->
+        <mat-expansion-panel-header class="category-header">
+          <mat-panel-title class="category-title-wrapper">
+            <div class="category-header-content">
+
+              <!-- Category icon (if available) -->
+              <mat-icon *ngIf="category.icon" class="category-icon">
+                {{ category.icon }}
+              </mat-icon>
+
+              <!-- Default icon if no custom icon -->
+              <mat-icon *ngIf="!category.icon" class="category-icon category-icon-default">
+                folder
+              </mat-icon>
+
+              <!-- Category name -->
+              <div class="category-text">
+                <span class="category-name">{{ getCategoryName(category) }}</span>
+
+                <!-- Show both languages if available -->
+                <span class="category-name-alt" *ngIf="language() === 'en' && category.nameArabic">
+                  {{ category.nameArabic }}
+                </span>
+                <span class="category-name-alt" *ngIf="language() === 'ar' && category.name">
+                  {{ category.name }}
+                </span>
+              </div>
+
+              <!-- Product count badge -->
+              <span class="category-count" *ngIf="category.productCount">
+                {{ category.productCount }}
+              </span>
+
+              <!-- Expand/collapse icon -->
+              <mat-icon class="expand-icon">
+                {{ isCategoryExpanded(category.id) ? 'expand_less' : 'expand_more' }}
+              </mat-icon>
+            </div>
+          </mat-panel-title>
+        </mat-expansion-panel-header>
+
+        <!-- Category Content -->
+        <div class="category-content">
+
+          <!-- View All link -->
+          <a [routerLink]="['/category', category.slug]"
+             class="view-all-link"
+             (click)="onCategoryClick(category)">
+            <mat-icon>{{ direction() === 'rtl' ? 'arrow_back' : 'arrow_forward' }}</mat-icon>
+            <span>{{ language() === 'ar' ? 'عرض الكل' : 'View All' }}</span>
+          </a>
+
+          <!-- Subcategories (if available) -->
+          <div *ngIf="category.subcategories && category.subcategories.length > 0" class="subcategories">
+            <a *ngFor="let subcategory of category.subcategories"
+               [routerLink]="['/category', category.slug, subcategory.slug]"
+               class="subcategory-link"
+               (click)="onCategoryClick(subcategory)">
+              <mat-icon class="subcategory-icon">subdirectory_arrow_right</mat-icon>
+              <span class="subcategory-name">
+                {{ language() === 'ar' && subcategory.nameArabic ? subcategory.nameArabic : subcategory.name }}
+              </span>
+              <span class="subcategory-count" *ngIf="subcategory.productCount">
+                ({{ subcategory.productCount }})
+              </span>
+            </a>
+          </div>
+        </div>
+
+      </mat-expansion-panel>
+
+    </mat-accordion>
+  </nav>
+
+  <!-- Empty State -->
+  <div *ngIf="!isLoading() && displayCategories().length === 0" class="sidebar-empty">
+    <mat-icon class="empty-icon">category</mat-icon>
+    <p class="empty-message">
+      {{ language() === 'ar' ? 'لا توجد فئات متاحة' : 'No categories available' }}
+    </p>
+  </div>
+
+  <!-- Featured Products Section -->
+  <div *ngIf="showFeaturedProducts() && featuredProducts().length > 0" class="featured-products-section">
+
+    <!-- Section Header -->
+    <div class="featured-header">
+      <h4 class="featured-title">
+        <mat-icon class="featured-icon">star</mat-icon>
+        {{ featuredTitle() }}
+      </h4>
+    </div>
+
+    <!-- Featured Products List -->
+    <div class="featured-products-list">
+      <a *ngFor="let product of featuredProducts().slice(0, featuredProductsCount()); trackBy: trackProduct"
+         [routerLink]="['/product', product.slug]"
+         class="featured-product-item">
+
+        <!-- Product Image -->
+        <div class="product-image-wrapper">
+          <img [src]="product.image"
+               [alt]="getProductName(product)"
+               class="product-image"
+               loading="lazy">
+
+          <!-- UNESCO Badge -->
+          <span *ngIf="product.unesco" class="unesco-badge">
+            UNESCO
+          </span>
+        </div>
+
+        <!-- Product Info -->
+        <div class="product-info">
+          <h5 class="product-name">{{ getProductName(product) }}</h5>
+
+          <!-- Product Price -->
+          <div class="product-price">
+            <span class="price-amount">{{ product.price }}</span>
+            <span class="price-currency">{{ product.currency }}</span>
+          </div>
+
+          <!-- Product Rating -->
+          <div class="product-rating">
+            <div class="stars">
+              <mat-icon *ngFor="let star of [1,2,3,4,5]"
+                        class="star-icon"
+                        [class.filled]="star <= product.rating">
+                {{ star <= product.rating ? 'star' : 'star_border' }}
+              </mat-icon>
+            </div>
+            <span class="review-count">({{ product.reviews }})</span>
+          </div>
+        </div>
+
+      </a>
+    </div>
+  </div>
+
+  <!-- Promotional Banner Section -->
+  <div *ngIf="showPromotionalBanner()" class="promotional-banner">
+    <div class="banner-content">
+      <mat-icon class="banner-icon">local_offer</mat-icon>
+      <h4 class="banner-title">
+        {{ language() === 'ar' ? 'عروض خاصة' : 'Special Offers' }}
+      </h4>
+      <p class="banner-subtitle">
+        {{ language() === 'ar' ? 'اكتشف عروضنا الحصرية' : 'Discover our exclusive deals' }}
+      </p>
+      <a routerLink="/offers" class="banner-button">
+        {{ language() === 'ar' ? 'تصفح العروض' : 'Browse Offers' }}
+        <mat-icon>{{ direction() === 'rtl' ? 'arrow_back' : 'arrow_forward' }}</mat-icon>
+      </a>
+    </div>
+  </div>
+
+</aside>

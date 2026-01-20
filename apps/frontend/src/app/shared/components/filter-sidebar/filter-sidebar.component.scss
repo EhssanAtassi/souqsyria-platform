@@ -1,0 +1,309 @@
+// Golden Wheat Color Palette
+$golden-wheat-primary: #988561;
+$golden-wheat-medium: #b9a779;
+$golden-wheat-light: #edebe0;
+$forest-dark: #002623;
+$forest-medium: #054239;
+$umber-light: #6b1f2a;
+
+.filter-sidebar {
+  background: white;
+  border: 1px solid $golden-wheat-light;
+  border-radius: 8px;
+  overflow: hidden;
+
+  // Filter Header
+  .filter-header {
+    padding: 1.25rem;
+    background: linear-gradient(135deg, $golden-wheat-light 0%, white 100%);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+
+    .filter-title {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+
+      .filter-icon {
+        color: $golden-wheat-primary;
+        font-size: 1.5rem;
+        width: 1.5rem;
+        height: 1.5rem;
+      }
+
+      h3 {
+        margin: 0;
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: $forest-dark;
+      }
+    }
+
+    .clear-all-btn {
+      color: $umber-light;
+      font-size: 0.875rem;
+      padding: 0.25rem 0.75rem;
+
+      mat-icon {
+        font-size: 1.125rem;
+        width: 1.125rem;
+        height: 1.125rem;
+        margin-right: 0.25rem;
+      }
+
+      &:hover {
+        background: rgba($umber-light, 0.1);
+      }
+    }
+  }
+
+  // Active Filters Badge
+  .active-filters-badge {
+    margin: 1rem 1.25rem;
+    padding: 0.75rem 1rem;
+    background: $golden-wheat-light;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: $forest-dark;
+
+    mat-icon {
+      color: $golden-wheat-primary;
+      font-size: 1.125rem;
+      width: 1.125rem;
+      height: 1.125rem;
+    }
+  }
+
+  // Filter Accordion
+  .filter-accordion {
+    padding: 0;
+
+    .filter-panel {
+      box-shadow: none !important;
+      margin: 0;
+      border-bottom: 1px solid $golden-wheat-light;
+
+      &::before {
+        display: none;
+      }
+
+      ::ng-deep .mat-expansion-panel-header {
+        padding: 1rem 1.25rem;
+        height: auto;
+        font-family: inherit;
+
+        &:hover {
+          background: rgba($golden-wheat-light, 0.5) !important;
+        }
+
+        .mat-expansion-panel-header-title {
+          margin: 0;
+        }
+
+        .mat-panel-title {
+          display: flex;
+          align-items: center;
+          gap: 0.75rem;
+          font-weight: 500;
+          color: $forest-dark;
+
+          mat-icon {
+            color: $golden-wheat-primary;
+            font-size: 1.25rem;
+            width: 1.25rem;
+            height: 1.25rem;
+          }
+        }
+      }
+
+      ::ng-deep .mat-expansion-panel-body {
+        padding: 0 1.25rem 1.25rem 1.25rem;
+      }
+
+      // Special styling for authenticity panel
+      &.authenticity-panel {
+        ::ng-deep .mat-panel-title {
+          mat-icon {
+            color: $golden-wheat-medium;
+          }
+        }
+      }
+    }
+  }
+
+  // Filter Options Container
+  .filter-options {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+
+    &.region-filter {
+      max-height: 300px;
+      overflow-y: auto;
+      padding-right: 0.5rem;
+
+      // Custom scrollbar
+      &::-webkit-scrollbar {
+        width: 6px;
+      }
+
+      &::-webkit-scrollbar-track {
+        background: $golden-wheat-light;
+        border-radius: 3px;
+      }
+
+      &::-webkit-scrollbar-thumb {
+        background: $golden-wheat-medium;
+        border-radius: 3px;
+
+        &:hover {
+          background: $golden-wheat-primary;
+        }
+      }
+    }
+
+    .filter-checkbox {
+      ::ng-deep {
+        .mat-checkbox-frame {
+          border-color: $golden-wheat-medium;
+        }
+
+        .mat-checkbox-background {
+          background-color: $golden-wheat-primary !important;
+        }
+
+        .mat-checkbox-label {
+          color: $forest-dark;
+          font-size: 0.9375rem;
+        }
+
+        &.mat-checkbox-checked .mat-checkbox-background {
+          background-color: $golden-wheat-primary !important;
+        }
+      }
+    }
+  }
+
+  // Filter Actions (Mobile)
+  .filter-actions {
+    padding: 1.25rem;
+    background: white;
+    border-top: 1px solid $golden-wheat-light;
+
+    &.mobile-only {
+      display: none;
+
+      @media (max-width: 768px) {
+        display: block;
+      }
+    }
+
+    .apply-filters-btn {
+      width: 100%;
+      padding: 0.75rem 1.5rem;
+      font-size: 1rem;
+      font-weight: 600;
+      background: linear-gradient(135deg, $golden-wheat-primary 0%, $golden-wheat-medium 100%);
+      color: white;
+
+      mat-icon {
+        margin-right: 0.5rem;
+      }
+
+      &:hover {
+        background: linear-gradient(135deg, $golden-wheat-medium 0%, $golden-wheat-primary 100%);
+      }
+    }
+  }
+}
+
+// RTL Support
+[dir="rtl"] {
+  .filter-sidebar {
+    .filter-header {
+      .filter-title {
+        .filter-icon {
+          margin-right: 0;
+          margin-left: 0.75rem;
+        }
+      }
+
+      .clear-all-btn {
+        mat-icon {
+          margin-right: 0;
+          margin-left: 0.25rem;
+        }
+      }
+    }
+
+    .filter-accordion {
+      .filter-panel {
+        ::ng-deep .mat-panel-title {
+          mat-icon {
+            margin-right: 0;
+            margin-left: 0.75rem;
+          }
+        }
+      }
+    }
+
+    .filter-options {
+      &.region-filter {
+        padding-right: 0;
+        padding-left: 0.5rem;
+      }
+    }
+
+    .filter-actions {
+      .apply-filters-btn {
+        mat-icon {
+          margin-right: 0;
+          margin-left: 0.5rem;
+        }
+      }
+    }
+  }
+}
+
+// Desktop Responsive
+@media (min-width: 1024px) {
+  .filter-sidebar {
+    position: sticky;
+    top: 1rem;
+    max-height: calc(100vh - 2rem);
+    overflow-y: auto;
+
+    // Custom scrollbar for desktop
+    &::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    &::-webkit-scrollbar-track {
+      background: $golden-wheat-light;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background: $golden-wheat-medium;
+      border-radius: 4px;
+
+      &:hover {
+        background: $golden-wheat-primary;
+      }
+    }
+  }
+}
+
+// Mobile Responsive
+@media (max-width: 768px) {
+  .filter-sidebar {
+    border-radius: 0;
+    border-left: none;
+    border-right: none;
+  }
+}

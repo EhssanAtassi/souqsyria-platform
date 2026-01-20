@@ -1,0 +1,760 @@
+/**
+ * Campaign Page Component Styles
+ * Golden Wheat Design System
+ * Syrian Marketplace Theme
+ */
+
+// Design System Colors
+$golden-wheat-primary: #988561;
+$golden-wheat-medium: #b9a779;
+$golden-wheat-light: #edebe0;
+$damascus-gold: #D4AF37;
+$aleppo-green: #059669;
+$text-dark: #161616;
+$text-light: #6b7280;
+
+.campaign-page {
+  min-height: 100vh;
+  background-color: #fafaf9;
+
+  // ========================================
+  // Campaign Hero
+  // ========================================
+  .campaign-hero {
+    position: relative;
+    min-height: 500px;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    display: flex;
+    align-items: center;
+
+    .hero-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(135deg, rgba(0, 0, 0, 0.7) 0%, rgba(0, 0, 0, 0.5) 100%);
+    }
+
+    .hero-content {
+      position: relative;
+      z-index: 1;
+      text-align: center;
+      color: white;
+      max-width: 900px;
+      margin: 0 auto;
+
+      .campaign-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem 1.25rem;
+        border-radius: 20px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        margin-bottom: 1.5rem;
+
+        &.badge-active {
+          background: rgba(5, 150, 105, 0.9);
+          color: white;
+        }
+
+        &.badge-upcoming {
+          background: rgba(59, 130, 246, 0.9);
+          color: white;
+        }
+
+        &.badge-ended {
+          background: rgba(107, 114, 128, 0.9);
+          color: white;
+        }
+      }
+
+      .campaign-title {
+        font-size: 3.5rem;
+        font-weight: 700;
+        margin-bottom: 1rem;
+        text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+
+        @media (max-width: 768px) {
+          font-size: 2.5rem;
+        }
+      }
+
+      .campaign-subtitle {
+        font-size: 2rem;
+        font-weight: 600;
+        margin-bottom: 2rem;
+        opacity: 0.95;
+        font-family: 'Cairo', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+
+        @media (max-width: 768px) {
+          font-size: 1.5rem;
+        }
+      }
+
+      .campaign-meta {
+        display: flex;
+        justify-content: center;
+        gap: 2rem;
+        flex-wrap: wrap;
+        margin-bottom: 2rem;
+
+        .meta-item {
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+          font-size: 1.125rem;
+
+          mat-icon {
+            color: $damascus-gold;
+          }
+        }
+
+        @media (max-width: 768px) {
+          gap: 1rem;
+
+          .meta-item {
+            font-size: 1rem;
+          }
+        }
+      }
+
+      .countdown-timer {
+        background: rgba(212, 175, 55, 0.15);
+        border: 2px solid $damascus-gold;
+        border-radius: 16px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+        backdrop-filter: blur(10px);
+
+        .countdown-label {
+          font-size: 1.125rem;
+          font-weight: 600;
+          margin-bottom: 1rem;
+          color: $damascus-gold;
+        }
+
+        .countdown-blocks {
+          display: flex;
+          justify-content: center;
+          gap: 1rem;
+          align-items: center;
+
+          .countdown-block {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 1rem;
+            min-width: 70px;
+
+            .number {
+              font-size: 2rem;
+              font-weight: 700;
+              color: white;
+            }
+
+            .label {
+              font-size: 0.875rem;
+              opacity: 0.9;
+              margin-top: 0.25rem;
+            }
+          }
+
+          .separator {
+            font-size: 2rem;
+            font-weight: 700;
+            opacity: 0.7;
+          }
+        }
+
+        @media (max-width: 768px) {
+          .countdown-blocks {
+            gap: 0.5rem;
+
+            .countdown-block {
+              min-width: 60px;
+              padding: 0.75rem;
+
+              .number {
+                font-size: 1.5rem;
+              }
+
+              .label {
+                font-size: 0.75rem;
+              }
+            }
+
+            .separator {
+              font-size: 1.5rem;
+            }
+          }
+        }
+      }
+
+      .campaign-actions {
+        display: flex;
+        justify-content: center;
+        gap: 1.5rem;
+        flex-wrap: wrap;
+
+        button {
+          min-width: 180px;
+          height: 48px;
+          font-size: 1rem;
+          font-weight: 600;
+          border-radius: 24px;
+          box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+          transition: all 0.3s ease;
+
+          mat-icon {
+            margin-right: 0.5rem;
+          }
+
+          &:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 24px rgba(0, 0, 0, 0.4);
+          }
+        }
+      }
+    }
+  }
+
+  // ========================================
+  // Campaign Description
+  // ========================================
+  .campaign-description {
+    background: white;
+
+    .description-content {
+      max-width: 900px;
+      margin: 0 auto;
+
+      h2 {
+        font-size: 2rem;
+        font-weight: 700;
+        color: $text-dark;
+        margin-bottom: 1.5rem;
+      }
+
+      p {
+        font-size: 1.125rem;
+        line-height: 1.8;
+        color: $text-light;
+        margin-bottom: 1.5rem;
+      }
+
+      .arabic-text {
+        font-family: 'Cairo', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        direction: rtl;
+        text-align: right;
+        padding: 1.5rem;
+        background: linear-gradient(135deg, rgba(212, 175, 55, 0.05), rgba(185, 167, 121, 0.05));
+        border-radius: 12px;
+        border-right: 4px solid $damascus-gold;
+      }
+
+      .campaign-terms {
+        margin-top: 2rem;
+        padding: 1.5rem;
+        background: $golden-wheat-light;
+        border-radius: 12px;
+
+        h3 {
+          font-size: 1.25rem;
+          font-weight: 600;
+          color: $text-dark;
+          margin-bottom: 1rem;
+        }
+
+        ul {
+          list-style: none;
+          padding: 0;
+          margin: 0;
+
+          li {
+            position: relative;
+            padding-left: 2rem;
+            margin-bottom: 0.75rem;
+            color: $text-light;
+
+            &::before {
+              content: '✓';
+              position: absolute;
+              left: 0;
+              color: $aleppo-green;
+              font-weight: 700;
+              font-size: 1.25rem;
+            }
+
+            &:last-child {
+              margin-bottom: 0;
+            }
+          }
+        }
+      }
+    }
+  }
+
+  // ========================================
+  // Campaign Products
+  // ========================================
+  .campaign-products {
+    background: linear-gradient(135deg, rgba(212, 175, 55, 0.05), rgba(185, 167, 121, 0.1));
+
+    .section-header {
+      text-align: center;
+      margin-bottom: 3rem;
+
+      .section-title {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: $text-dark;
+        margin-bottom: 0.75rem;
+
+        &::after {
+          content: '';
+          display: block;
+          width: 80px;
+          height: 4px;
+          background: $damascus-gold;
+          margin: 1rem auto 0;
+          border-radius: 2px;
+        }
+      }
+
+      .section-subtitle {
+        font-size: 1.125rem;
+        color: $text-light;
+      }
+    }
+
+    .loading-state,
+    .error-state,
+    .empty-state {
+      text-align: center;
+      padding: 4rem 2rem;
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 4px 16px rgba(152, 133, 97, 0.1);
+
+      mat-icon,
+      mat-spinner {
+        margin-bottom: 1.5rem;
+      }
+
+      mat-icon {
+        font-size: 64px;
+        width: 64px;
+        height: 64px;
+        opacity: 0.6;
+      }
+
+      h3 {
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: $text-dark;
+        margin-bottom: 0.75rem;
+      }
+
+      p {
+        font-size: 1rem;
+        color: $text-light;
+        margin-bottom: 2rem;
+      }
+
+      button {
+        min-width: 180px;
+        height: 48px;
+        font-weight: 600;
+        border-radius: 24px;
+
+        mat-icon {
+          margin: 0 0.5rem 0 0;
+          width: 20px;
+          height: 20px;
+          font-size: 20px;
+        }
+      }
+    }
+
+    .products-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 2rem;
+
+      .product-card {
+        box-shadow: 0 4px 16px rgba(152, 133, 97, 0.1);
+        border-radius: 16px;
+        overflow: hidden;
+        transition: all 0.3s ease;
+        border: 1px solid rgba(152, 133, 97, 0.2);
+
+        &:hover {
+          transform: translateY(-8px);
+          box-shadow: 0 8px 32px rgba(152, 133, 97, 0.25);
+          border-color: $damascus-gold;
+        }
+
+        .product-image {
+          position: relative;
+          width: 100%;
+          padding-top: 100%;
+          background: $golden-wheat-light;
+          overflow: hidden;
+
+          img {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+          }
+
+          &:hover img {
+            transform: scale(1.05);
+          }
+
+          .discount-badge {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: linear-gradient(135deg, #dc2626, #ef4444);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-weight: 700;
+            font-size: 0.9rem;
+            box-shadow: 0 2px 8px rgba(220, 38, 38, 0.4);
+          }
+
+          .out-of-stock-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            font-size: 1.125rem;
+          }
+        }
+
+        mat-card-content {
+          padding: 1.25rem;
+
+          .product-category {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: $damascus-gold;
+            text-transform: uppercase;
+            margin-bottom: 0.5rem;
+          }
+
+          .product-name {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: $text-dark;
+            margin-bottom: 0.5rem;
+            line-height: 1.4;
+          }
+
+          .product-description {
+            font-size: 0.9rem;
+            color: $text-light;
+            line-height: 1.5;
+            margin-bottom: 1rem;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+          }
+
+          .product-price {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+
+            .original-price {
+              text-decoration: line-through;
+              color: lighten($text-light, 10%);
+              font-size: 1rem;
+            }
+
+            .discounted-price {
+              color: #dc2626;
+              font-size: 1.5rem;
+              font-weight: 700;
+            }
+
+            .current-price {
+              color: $text-dark;
+              font-size: 1.5rem;
+              font-weight: 700;
+            }
+          }
+
+          .product-meta {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+
+            .rating {
+              display: flex;
+              align-items: center;
+              gap: 0.25rem;
+              color: $text-light;
+
+              mat-icon {
+                color: #f59e0b;
+                font-size: 18px;
+                width: 18px;
+                height: 18px;
+              }
+
+              .review-count {
+                font-size: 0.85rem;
+                opacity: 0.7;
+              }
+            }
+
+            .unesco-badge {
+              display: flex;
+              align-items: center;
+              gap: 0.25rem;
+              padding: 0.25rem 0.75rem;
+              background: linear-gradient(135deg, rgba(5, 150, 105, 0.1), rgba(16, 185, 129, 0.1));
+              border-radius: 12px;
+              color: $aleppo-green;
+              font-size: 0.75rem;
+              font-weight: 600;
+
+              mat-icon {
+                font-size: 14px;
+                width: 14px;
+                height: 14px;
+              }
+            }
+          }
+        }
+
+        mat-card-actions {
+          padding: 0 1.25rem 1.25rem;
+          display: flex;
+          gap: 0.75rem;
+
+          .view-details-btn {
+            flex: 1;
+            height: 40px;
+            font-weight: 600;
+            border-radius: 20px;
+          }
+
+          .wishlist-btn {
+            mat-icon {
+              transition: all 0.3s ease;
+            }
+
+            &:hover mat-icon {
+              color: #dc2626;
+              transform: scale(1.1);
+            }
+          }
+        }
+      }
+    }
+  }
+
+  // ========================================
+  // Related Campaigns
+  // ========================================
+  .related-campaigns {
+    background: white;
+
+    .section-title {
+      font-size: 2rem;
+      font-weight: 700;
+      text-align: center;
+      color: $text-dark;
+      margin-bottom: 3rem;
+
+      &::after {
+        content: '';
+        display: block;
+        width: 80px;
+        height: 4px;
+        background: $damascus-gold;
+        margin: 1rem auto 0;
+        border-radius: 2px;
+      }
+    }
+
+    .campaigns-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 2rem;
+
+      .related-campaign-card {
+        cursor: pointer;
+        box-shadow: 0 4px 16px rgba(152, 133, 97, 0.1);
+        border-radius: 16px;
+        overflow: hidden;
+        transition: all 0.3s ease;
+        border: 1px solid rgba(152, 133, 97, 0.2);
+
+        &:hover {
+          transform: translateY(-8px);
+          box-shadow: 0 8px 32px rgba(152, 133, 97, 0.25);
+          border-color: $damascus-gold;
+        }
+
+        .campaign-image {
+          height: 200px;
+          background-size: cover;
+          background-position: center;
+          position: relative;
+
+          .campaign-status {
+            position: absolute;
+            top: 1rem;
+            left: 1rem;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-transform: uppercase;
+
+            &.status-active {
+              background: rgba(5, 150, 105, 0.9);
+              color: white;
+            }
+
+            &.status-upcoming {
+              background: rgba(59, 130, 246, 0.9);
+              color: white;
+            }
+
+            &.status-ended {
+              background: rgba(107, 114, 128, 0.9);
+              color: white;
+            }
+          }
+        }
+
+        mat-card-content {
+          padding: 1.5rem;
+
+          h3 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: $text-dark;
+            margin-bottom: 0.75rem;
+          }
+
+          p {
+            font-size: 0.95rem;
+            color: $text-light;
+            margin-bottom: 1rem;
+            line-height: 1.5;
+          }
+
+          .campaign-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 1rem;
+            border-top: 1px solid rgba(152, 133, 97, 0.2);
+
+            .discount {
+              color: #dc2626;
+              font-weight: 700;
+            }
+
+            .products {
+              color: $text-light;
+              font-size: 0.9rem;
+            }
+          }
+        }
+      }
+    }
+  }
+
+  // ========================================
+  // Not Found State
+  // ========================================
+  .not-found-state {
+    min-height: 500px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 4rem 2rem;
+
+    mat-icon {
+      font-size: 80px;
+      width: 80px;
+      height: 80px;
+      color: $golden-wheat-primary;
+      opacity: 0.5;
+      margin-bottom: 1.5rem;
+    }
+
+    h2 {
+      font-size: 2rem;
+      font-weight: 700;
+      color: $text-dark;
+      margin-bottom: 1rem;
+    }
+
+    p {
+      font-size: 1.125rem;
+      color: $text-light;
+      max-width: 500px;
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+
+    button {
+      min-width: 200px;
+      height: 48px;
+      font-weight: 600;
+      border-radius: 24px;
+
+      mat-icon {
+        margin: 0 0.5rem 0 0;
+        width: 20px;
+        height: 20px;
+        font-size: 20px;
+      }
+    }
+  }
+
+  // ========================================
+  // Responsive Adjustments
+  // ========================================
+  @media (max-width: 768px) {
+    .products-grid {
+      grid-template-columns: 1fr;
+      gap: 1.5rem;
+    }
+
+    .campaigns-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+}

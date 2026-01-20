@@ -1,0 +1,1249 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr" id="htmlRoot">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Management - SouqSyria Admin Portal</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'golden-wheat': '#988561',
+                        'golden-wheat-light': '#b9a779',
+                        'golden-wheat-bg': '#edebe0',
+                        'forest-green': '#002623',
+                        'charcoal': '#161616'
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        :root {
+            --golden-wheat: #988561;
+            --golden-wheat-light: #b9a779;
+            --golden-wheat-bg: #edebe0;
+            --forest-green: #002623;
+            --charcoal: #161616;
+        }
+
+        .bg-damascus-pattern {
+            background-image:
+                radial-gradient(circle at 30% 30%, rgba(152, 133, 97, 0.05) 1px, transparent 1px),
+                radial-gradient(circle at 70% 70%, rgba(152, 133, 97, 0.05) 1px, transparent 1px);
+            background-size: 60px 60px;
+        }
+
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--golden-wheat);
+            border-radius: 3px;
+        }
+
+        .sidebar-transition {
+            transition: all 0.3s ease-in-out;
+        }
+
+        .stats-card {
+            transition: all 0.3s ease;
+        }
+
+        .stats-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 24px rgba(152, 133, 97, 0.15);
+        }
+
+        .btn-golden {
+            background: linear-gradient(135deg, var(--golden-wheat), var(--golden-wheat-light));
+            transition: all 0.3s ease;
+        }
+
+        .btn-golden:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(152, 133, 97, 0.3);
+        }
+
+        .arabic-text {
+            font-family: 'Segoe UI', 'Arial Unicode MS', sans-serif;
+        }
+
+        .nav-active {
+            background: linear-gradient(135deg, var(--golden-wheat), var(--golden-wheat-light));
+            color: white;
+            box-shadow: 0 4px 12px rgba(152, 133, 97, 0.3);
+        }
+
+        .table-hover:hover {
+            background-color: rgba(152, 133, 97, 0.05);
+        }
+
+        .user-avatar {
+            background: linear-gradient(135deg, var(--golden-wheat), var(--golden-wheat-light));
+        }
+
+        .role-badge {
+            font-size: 0.75rem;
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.375rem;
+            font-weight: 500;
+        }
+
+        .role-super-admin {
+            background-color: #fee2e2;
+            color: #991b1b;
+        }
+
+        .role-admin {
+            background-color: #ddd6fe;
+            color: #5b21b6;
+        }
+
+        .role-manager {
+            background-color: #ecfdf5;
+            color: #065f46;
+        }
+
+        .role-staff {
+            background-color: #fef3c7;
+            color: #92400e;
+        }
+
+        .role-support {
+            background-color: #e0e7ff;
+            color: #3730a3;
+        }
+
+        .modal-overlay {
+            backdrop-filter: blur(4px);
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: #374151;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #d1d5db;
+            border-radius: 0.5rem;
+            focus: outline: none;
+            focus: ring: 2px solid var(--golden-wheat);
+            focus: border-color: var(--golden-wheat);
+        }
+
+        .form-select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #d1d5db;
+            border-radius: 0.5rem;
+            background-color: white;
+            focus: outline: none;
+            focus: ring: 2px solid var(--golden-wheat);
+            focus: border-color: var(--golden-wheat);
+        }
+
+        @media (max-width: 768px) {
+            .sidebar-mobile {
+                transform: translateX(-100%);
+            }
+
+            .sidebar-mobile.show {
+                transform: translateX(0);
+            }
+
+            .main-content-mobile {
+                margin-left: 0 !important;
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 bg-damascus-pattern min-h-screen">
+    <!-- Mobile Menu Overlay -->
+    <div id="mobileOverlay" class="fixed inset-0 bg-black bg-opacity-50 z-40 hidden md:hidden"></div>
+
+    <!-- Sidebar -->
+    <aside id="sidebar" class="sidebar fixed left-0 top-0 w-64 h-full bg-white shadow-xl z-50 sidebar-transition sidebar-mobile">
+        <!-- Logo Section -->
+        <div class="p-6 border-b border-gray-100">
+            <div class="text-center">
+                <h1 class="text-2xl font-bold arabic-text" style="color: var(--golden-wheat);">سوق سوريا</h1>
+                <h2 class="text-lg font-semibold text-gray-700">SouqSyria</h2>
+                <p class="text-sm text-gray-500 mt-1">Admin Portal</p>
+            </div>
+        </div>
+
+        <!-- User Info -->
+        <div class="p-4 border-b border-gray-100">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 rounded-full bg-gradient-to-br from-golden-wheat to-golden-wheat-light flex items-center justify-center">
+                    <i class="fas fa-user text-white text-sm"></i>
+                </div>
+                <div>
+                    <p class="font-semibold text-gray-800" id="adminName">Admin User</p>
+                    <p class="text-xs text-gray-500" id="adminRole">System Administrator</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Navigation Menu -->
+        <nav class="p-4 space-y-2">
+            <a href="/admin-dashboard.html" class="nav-item flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-gray-100 transition-all duration-200">
+                <i class="material-icons text-lg">dashboard</i>
+                <span class="font-medium">Dashboard</span>
+                <span class="text-sm arabic-text mr-auto">لوحة التحكم</span>
+            </a>
+
+            <a href="/admin-users.html" class="nav-item nav-active flex items-center space-x-3 px-4 py-3 rounded-lg transition-all duration-200">
+                <i class="material-icons text-lg">people</i>
+                <span class="font-medium">Users</span>
+                <span class="text-sm arabic-text mr-auto">المستخدمين</span>
+            </a>
+
+            <a href="/admin-categories.html" class="nav-item flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-gray-100 transition-all duration-200">
+                <i class="material-icons text-lg">category</i>
+                <span class="font-medium">Categories</span>
+                <span class="text-sm arabic-text mr-auto">التصنيفات</span>
+            </a>
+
+            <a href="/admin-vendors.html" class="nav-item flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-gray-100 transition-all duration-200">
+                <i class="material-icons text-lg">store</i>
+                <span class="font-medium">Vendors</span>
+                <span class="text-sm arabic-text mr-auto">التجار</span>
+            </a>
+
+            <a href="/admin-analytics.html" class="nav-item flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-gray-100 transition-all duration-200">
+                <i class="material-icons text-lg">analytics</i>
+                <span class="font-medium">Analytics</span>
+                <span class="text-sm arabic-text mr-auto">التحليلات</span>
+            </a>
+
+            <a href="/admin-financial.html" class="nav-item flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-gray-100 transition-all duration-200">
+                <i class="material-icons text-lg">account_balance</i>
+                <span class="font-medium">Financial</span>
+                <span class="text-sm arabic-text mr-auto">المالية</span>
+            </a>
+
+            <a href="/admin-system.html" class="nav-item flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-gray-100 transition-all duration-200">
+                <i class="material-icons text-lg">settings</i>
+                <span class="font-medium">System</span>
+                <span class="text-sm arabic-text mr-auto">النظام</span>
+            </a>
+
+            <a href="#" onclick="logout()" class="nav-item flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-red-50 hover:text-red-600 transition-all duration-200 text-gray-600">
+                <i class="material-icons text-lg">logout</i>
+                <span class="font-medium">Logout</span>
+                <span class="text-sm arabic-text mr-auto">تسجيل الخروج</span>
+            </a>
+        </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main id="mainContent" class="main-content ml-64 main-content-mobile transition-all duration-300">
+        <!-- Top Header -->
+        <header class="bg-white shadow-sm border-b border-gray-100 sticky top-0 z-30">
+            <div class="px-6 py-4">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center space-x-4">
+                        <button id="mobileMenuBtn" class="md:hidden p-2 rounded-lg hover:bg-gray-100">
+                            <i class="material-icons">menu</i>
+                        </button>
+                        <div>
+                            <h1 class="text-2xl font-bold text-gray-800">User Management</h1>
+                            <p class="text-sm text-gray-500 arabic-text">إدارة المستخدمين والصلاحيات</p>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center space-x-4">
+                        <button onclick="toggleLanguage()" class="p-2 rounded-lg hover:bg-gray-100 transition-colors">
+                            <i class="material-icons">language</i>
+                            <span class="text-sm ml-1" id="currentLang">EN</span>
+                        </button>
+
+                        <button onclick="showAddUserModal()" class="btn-golden text-white px-4 py-2 rounded-lg font-medium flex items-center space-x-2">
+                            <i class="material-icons text-sm">person_add</i>
+                            <span>Add User</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- User Management Content -->
+        <div class="p-6 space-y-6">
+            <!-- Stats Overview -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+                <div class="stats-card bg-white rounded-xl p-4 shadow-sm border border-gray-100">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-gray-500 text-sm font-medium">Super Admins</p>
+                            <p class="text-2xl font-bold text-gray-800 mt-1">3</p>
+                        </div>
+                        <div class="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center">
+                            <i class="material-icons text-red-600">admin_panel_settings</i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="stats-card bg-white rounded-xl p-4 shadow-sm border border-gray-100">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-gray-500 text-sm font-medium">Admins</p>
+                            <p class="text-2xl font-bold text-gray-800 mt-1">12</p>
+                        </div>
+                        <div class="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
+                            <i class="material-icons text-purple-600">shield</i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="stats-card bg-white rounded-xl p-4 shadow-sm border border-gray-100">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-gray-500 text-sm font-medium">Managers</p>
+                            <p class="text-2xl font-bold text-gray-800 mt-1">28</p>
+                        </div>
+                        <div class="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
+                            <i class="material-icons text-green-600">supervisor_account</i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="stats-card bg-white rounded-xl p-4 shadow-sm border border-gray-100">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-gray-500 text-sm font-medium">Staff</p>
+                            <p class="text-2xl font-bold text-gray-800 mt-1">67</p>
+                        </div>
+                        <div class="w-10 h-10 bg-yellow-100 rounded-lg flex items-center justify-center">
+                            <i class="material-icons text-yellow-600">badge</i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="stats-card bg-white rounded-xl p-4 shadow-sm border border-gray-100">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-gray-500 text-sm font-medium">Support</p>
+                            <p class="text-2xl font-bold text-gray-800 mt-1">19</p>
+                        </div>
+                        <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                            <i class="material-icons text-blue-600">support_agent</i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Filters and Search -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+                <div class="flex flex-col md:flex-row md:items-center md:justify-between space-y-4 md:space-y-0">
+                    <div class="flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-4">
+                        <div class="relative">
+                            <input type="text" id="searchInput" placeholder="Search users..." class="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-golden-wheat focus:border-golden-wheat">
+                            <i class="material-icons absolute left-3 top-2.5 text-gray-400 text-lg">search</i>
+                        </div>
+
+                        <select id="roleFilter" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-golden-wheat focus:border-golden-wheat">
+                            <option value="">All Roles</option>
+                            <option value="super_admin">Super Admin</option>
+                            <option value="admin">Admin</option>
+                            <option value="manager">Manager</option>
+                            <option value="staff">Staff</option>
+                            <option value="support">Support</option>
+                        </select>
+
+                        <select id="statusFilter" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-golden-wheat focus:border-golden-wheat">
+                            <option value="">All Status</option>
+                            <option value="active">Active</option>
+                            <option value="inactive">Inactive</option>
+                            <option value="suspended">Suspended</option>
+                        </select>
+                    </div>
+
+                    <div class="flex space-x-2">
+                        <button onclick="exportUsers()" class="flex items-center space-x-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+                            <i class="material-icons text-sm">file_download</i>
+                            <span>Export</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Users Table -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="w-full" id="usersTable">
+                        <thead class="bg-gray-50 border-b border-gray-100">
+                            <tr>
+                                <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User</th>
+                                <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Role</th>
+                                <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Department</th>
+                                <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Last Activity</th>
+                                <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                                <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="usersTableBody" class="bg-white divide-y divide-gray-100">
+                            <!-- User rows will be populated by JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Pagination -->
+                <div class="bg-gray-50 px-6 py-3 border-t border-gray-100">
+                    <div class="flex items-center justify-between">
+                        <div class="text-sm text-gray-500">
+                            Showing <span id="showingFrom">1</span> to <span id="showingTo">10</span> of <span id="totalUsers">129</span> users
+                        </div>
+                        <div class="flex space-x-2">
+                            <button onclick="previousPage()" id="prevPageBtn" class="px-3 py-1 text-sm border border-gray-300 rounded hover:bg-gray-100 transition-colors">Previous</button>
+                            <span id="pageNumbers" class="flex space-x-1">
+                                <!-- Page numbers will be populated by JavaScript -->
+                            </span>
+                            <button onclick="nextPage()" id="nextPageBtn" class="px-3 py-1 text-sm border border-gray-300 rounded hover:bg-gray-100 transition-colors">Next</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Add/Edit User Modal -->
+    <div id="userModal" class="fixed inset-0 bg-black bg-opacity-50 modal-overlay z-50 hidden">
+        <div class="flex items-center justify-center min-h-screen p-4">
+            <div class="bg-white rounded-xl shadow-xl max-w-2xl w-full max-h-screen overflow-y-auto">
+                <div class="p-6 border-b border-gray-100">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-lg font-semibold text-gray-800" id="modalTitle">Add New User</h3>
+                        <button onclick="closeUserModal()" class="text-gray-400 hover:text-gray-600 transition-colors">
+                            <i class="material-icons">close</i>
+                        </button>
+                    </div>
+                </div>
+
+                <form id="userForm" class="p-6 space-y-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="form-group">
+                            <label class="form-label" for="firstName">First Name *</label>
+                            <input type="text" id="firstName" name="firstName" class="form-input" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label" for="lastName">Last Name *</label>
+                            <input type="text" id="lastName" name="lastName" class="form-input" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label" for="email">Email Address *</label>
+                            <input type="email" id="email" name="email" class="form-input" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label" for="phone">Phone Number</label>
+                            <input type="tel" id="phone" name="phone" class="form-input">
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label" for="role">Role *</label>
+                            <select id="role" name="role" class="form-select" required>
+                                <option value="">Select Role</option>
+                                <option value="super_admin">Super Admin</option>
+                                <option value="admin">Admin</option>
+                                <option value="manager">Manager</option>
+                                <option value="staff">Staff</option>
+                                <option value="support">Support</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label" for="department">Department *</label>
+                            <select id="department" name="department" class="form-select" required>
+                                <option value="">Select Department</option>
+                                <option value="operations">Operations</option>
+                                <option value="marketing">Marketing</option>
+                                <option value="finance">Finance</option>
+                                <option value="customer_service">Customer Service</option>
+                                <option value="it">IT Support</option>
+                                <option value="logistics">Logistics</option>
+                                <option value="quality_assurance">Quality Assurance</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label" for="governorate">Governorate</label>
+                            <select id="governorate" name="governorate" class="form-select">
+                                <option value="">Select Governorate</option>
+                                <option value="damascus">Damascus - دمشق</option>
+                                <option value="aleppo">Aleppo - حلب</option>
+                                <option value="homs">Homs - حمص</option>
+                                <option value="hama">Hama - حماة</option>
+                                <option value="latakia">Latakia - اللاذقية</option>
+                                <option value="tartus">Tartus - طرطوس</option>
+                                <option value="idlib">Idlib - إدلب</option>
+                                <option value="deraa">Deraa - درعا</option>
+                                <option value="sweida">Sweida - السويداء</option>
+                                <option value="quneitra">Quneitra - القنيطرة</option>
+                                <option value="raqqa">Raqqa - الرقة</option>
+                                <option value="deir_ez_zor">Deir ez-Zor - دير الزور</option>
+                                <option value="hasakah">Hasakah - الحسكة</option>
+                                <option value="rif_dimashq">Rif Dimashq - ريف دمشق</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label" for="status">Status</label>
+                            <select id="status" name="status" class="form-select">
+                                <option value="active">Active</option>
+                                <option value="inactive">Inactive</option>
+                                <option value="suspended">Suspended</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Permissions Section -->
+                    <div class="border-t border-gray-200 pt-6">
+                        <h4 class="text-md font-semibold text-gray-800 mb-4">Permissions & Access</h4>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="space-y-3">
+                                <label class="flex items-center space-x-3">
+                                    <input type="checkbox" name="permissions" value="users_manage" class="rounded border-gray-300 text-golden-wheat focus:ring-golden-wheat">
+                                    <span class="text-sm text-gray-700">Manage Users</span>
+                                </label>
+                                <label class="flex items-center space-x-3">
+                                    <input type="checkbox" name="permissions" value="products_manage" class="rounded border-gray-300 text-golden-wheat focus:ring-golden-wheat">
+                                    <span class="text-sm text-gray-700">Manage Products</span>
+                                </label>
+                                <label class="flex items-center space-x-3">
+                                    <input type="checkbox" name="permissions" value="orders_manage" class="rounded border-gray-300 text-golden-wheat focus:ring-golden-wheat">
+                                    <span class="text-sm text-gray-700">Manage Orders</span>
+                                </label>
+                                <label class="flex items-center space-x-3">
+                                    <input type="checkbox" name="permissions" value="vendors_manage" class="rounded border-gray-300 text-golden-wheat focus:ring-golden-wheat">
+                                    <span class="text-sm text-gray-700">Manage Vendors</span>
+                                </label>
+                            </div>
+                            <div class="space-y-3">
+                                <label class="flex items-center space-x-3">
+                                    <input type="checkbox" name="permissions" value="analytics_view" class="rounded border-gray-300 text-golden-wheat focus:ring-golden-wheat">
+                                    <span class="text-sm text-gray-700">View Analytics</span>
+                                </label>
+                                <label class="flex items-center space-x-3">
+                                    <input type="checkbox" name="permissions" value="finance_manage" class="rounded border-gray-300 text-golden-wheat focus:ring-golden-wheat">
+                                    <span class="text-sm text-gray-700">Manage Finances</span>
+                                </label>
+                                <label class="flex items-center space-x-3">
+                                    <input type="checkbox" name="permissions" value="system_settings" class="rounded border-gray-300 text-golden-wheat focus:ring-golden-wheat">
+                                    <span class="text-sm text-gray-700">System Settings</span>
+                                </label>
+                                <label class="flex items-center space-x-3">
+                                    <input type="checkbox" name="permissions" value="reports_export" class="rounded border-gray-300 text-golden-wheat focus:ring-golden-wheat">
+                                    <span class="text-sm text-gray-700">Export Reports</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex justify-end space-x-4 border-t border-gray-200 pt-6">
+                        <button type="button" onclick="closeUserModal()" class="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors">
+                            Cancel
+                        </button>
+                        <button type="submit" class="btn-golden text-white px-6 py-2 rounded-lg font-medium">
+                            <span id="submitButtonText">Add User</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        /**
+         * SouqSyria User Management System
+         * Comprehensive user management with role-based permissions and Syrian context
+         */
+
+        // Global state
+        let currentUser = null;
+        let currentLanguage = 'en';
+        let users = [];
+        let filteredUsers = [];
+        let currentPage = 1;
+        let usersPerPage = 10;
+        let isEditMode = false;
+        let editingUserId = null;
+
+        /**
+         * Sample users data with Syrian context
+         */
+        const sampleUsers = [
+            {
+                id: 1,
+                firstName: 'Ahmad',
+                lastName: 'Al-Shami',
+                email: 'ahmad.shami@souqsyria.com',
+                phone: '+963-11-2345678',
+                role: 'super_admin',
+                department: 'operations',
+                governorate: 'damascus',
+                status: 'active',
+                lastActivity: '2024-01-15T10:30:00Z',
+                permissions: ['users_manage', 'products_manage', 'orders_manage', 'vendors_manage', 'analytics_view', 'finance_manage', 'system_settings', 'reports_export'],
+                createdAt: '2023-06-15T09:00:00Z'
+            },
+            {
+                id: 2,
+                firstName: 'Fatima',
+                lastName: 'Kabbani',
+                email: 'fatima.kabbani@souqsyria.com',
+                phone: '+963-21-3456789',
+                role: 'admin',
+                department: 'marketing',
+                governorate: 'aleppo',
+                status: 'active',
+                lastActivity: '2024-01-15T09:15:00Z',
+                permissions: ['products_manage', 'orders_manage', 'vendors_manage', 'analytics_view'],
+                createdAt: '2023-08-20T14:30:00Z'
+            },
+            {
+                id: 3,
+                firstName: 'Omar',
+                lastName: 'Darwish',
+                email: 'omar.darwish@souqsyria.com',
+                phone: '+963-31-4567890',
+                role: 'manager',
+                department: 'finance',
+                governorate: 'homs',
+                status: 'active',
+                lastActivity: '2024-01-14T16:45:00Z',
+                permissions: ['orders_manage', 'analytics_view', 'finance_manage'],
+                createdAt: '2023-09-10T11:00:00Z'
+            },
+            {
+                id: 4,
+                firstName: 'Layla',
+                lastName: 'Mansour',
+                email: 'layla.mansour@souqsyria.com',
+                phone: '+963-33-5678901',
+                role: 'staff',
+                department: 'customer_service',
+                governorate: 'hama',
+                status: 'active',
+                lastActivity: '2024-01-15T11:20:00Z',
+                permissions: ['orders_manage'],
+                createdAt: '2023-10-05T13:15:00Z'
+            },
+            {
+                id: 5,
+                firstName: 'Khalil',
+                lastName: 'Zahra',
+                email: 'khalil.zahra@souqsyria.com',
+                phone: '+963-41-6789012',
+                role: 'support',
+                department: 'customer_service',
+                governorate: 'latakia',
+                status: 'active',
+                lastActivity: '2024-01-15T08:30:00Z',
+                permissions: [],
+                createdAt: '2023-11-12T10:45:00Z'
+            },
+            {
+                id: 6,
+                firstName: 'Sara',
+                lastName: 'Habib',
+                email: 'sara.habib@souqsyria.com',
+                phone: '+963-43-7890123',
+                role: 'manager',
+                department: 'logistics',
+                governorate: 'tartus',
+                status: 'inactive',
+                lastActivity: '2024-01-10T14:15:00Z',
+                permissions: ['orders_manage', 'analytics_view'],
+                createdAt: '2023-07-30T16:20:00Z'
+            }
+        ];
+
+        /**
+         * Initialize the application
+         */
+        document.addEventListener('DOMContentLoaded', function() {
+            checkAuthentication();
+            initializeMobileMenu();
+            loadUsers();
+            setupEventListeners();
+        });
+
+        /**
+         * Check authentication and load user data
+         */
+        function checkAuthentication() {
+            const userData = localStorage.getItem('souqsyria_admin_user');
+            if (!userData) {
+                alert('Session expired. Please login again.');
+                window.location.href = '/admin-login.html';
+                return;
+            }
+
+            try {
+                currentUser = JSON.parse(userData);
+                displayUserInfo();
+            } catch (error) {
+                console.error('Error parsing user data:', error);
+                localStorage.removeItem('souqsyria_admin_user');
+                window.location.href = '/admin-login.html';
+            }
+        }
+
+        /**
+         * Display user information
+         */
+        function displayUserInfo() {
+            if (!currentUser) return;
+
+            document.getElementById('adminName').textContent = currentUser.name || 'Admin User';
+
+            const roleElement = document.getElementById('adminRole');
+            if (currentUser.role === 'admin') {
+                roleElement.textContent = 'System Administrator';
+                roleElement.style.color = 'var(--golden-wheat)';
+            }
+        }
+
+        /**
+         * Load and display users
+         */
+        function loadUsers() {
+            users = [...sampleUsers];
+            filteredUsers = [...users];
+            renderUsers();
+            updatePagination();
+        }
+
+        /**
+         * Render users table
+         */
+        function renderUsers() {
+            const tbody = document.getElementById('usersTableBody');
+            const startIndex = (currentPage - 1) * usersPerPage;
+            const endIndex = startIndex + usersPerPage;
+            const pageUsers = filteredUsers.slice(startIndex, endIndex);
+
+            tbody.innerHTML = pageUsers.map(user => `
+                <tr class="table-hover">
+                    <td class="px-6 py-4">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-10 h-10 rounded-full user-avatar flex items-center justify-center text-white font-semibold">
+                                ${user.firstName.charAt(0)}${user.lastName.charAt(0)}
+                            </div>
+                            <div>
+                                <p class="font-medium text-gray-800">${user.firstName} ${user.lastName}</p>
+                                <p class="text-sm text-gray-500">${user.email}</p>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4">
+                        <span class="role-badge role-${user.role.replace('_', '-')}">${getRoleDisplayName(user.role)}</span>
+                    </td>
+                    <td class="px-6 py-4">
+                        <p class="text-sm text-gray-800">${getDepartmentDisplayName(user.department)}</p>
+                        <p class="text-xs text-gray-500">${getGovernorateDisplayName(user.governorate)}</p>
+                    </td>
+                    <td class="px-6 py-4">
+                        <p class="text-sm text-gray-800">${formatDate(user.lastActivity)}</p>
+                        <p class="text-xs text-gray-500">${getTimeAgo(user.lastActivity)}</p>
+                    </td>
+                    <td class="px-6 py-4">
+                        <span class="status-badge ${user.status === 'active' ? 'bg-green-100 text-green-800' : user.status === 'inactive' ? 'bg-gray-100 text-gray-800' : 'bg-red-100 text-red-800'} px-2 py-1 text-xs font-medium rounded-full">
+                            ${user.status.charAt(0).toUpperCase() + user.status.slice(1)}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4">
+                        <div class="flex space-x-2">
+                            <button onclick="editUser(${user.id})" class="text-blue-600 hover:text-blue-800 transition-colors" title="Edit User">
+                                <i class="material-icons text-sm">edit</i>
+                            </button>
+                            <button onclick="viewUser(${user.id})" class="text-green-600 hover:text-green-800 transition-colors" title="View Details">
+                                <i class="material-icons text-sm">visibility</i>
+                            </button>
+                            <button onclick="deleteUser(${user.id})" class="text-red-600 hover:text-red-800 transition-colors" title="Delete User">
+                                <i class="material-icons text-sm">delete</i>
+                            </button>
+                            <button onclick="toggleUserStatus(${user.id})" class="text-yellow-600 hover:text-yellow-800 transition-colors" title="Toggle Status">
+                                <i class="material-icons text-sm">${user.status === 'active' ? 'pause_circle' : 'play_circle'}</i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        /**
+         * Setup event listeners
+         */
+        function setupEventListeners() {
+            // Search functionality
+            document.getElementById('searchInput').addEventListener('input', debounce(filterUsers, 300));
+
+            // Filter functionality
+            document.getElementById('roleFilter').addEventListener('change', filterUsers);
+            document.getElementById('statusFilter').addEventListener('change', filterUsers);
+
+            // User form submission
+            document.getElementById('userForm').addEventListener('submit', handleUserSubmit);
+
+            // Role-based permission updates
+            document.getElementById('role').addEventListener('change', updatePermissionsByRole);
+        }
+
+        /**
+         * Filter users based on search and filter criteria
+         */
+        function filterUsers() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const roleFilter = document.getElementById('roleFilter').value;
+            const statusFilter = document.getElementById('statusFilter').value;
+
+            filteredUsers = users.filter(user => {
+                const matchesSearch = !searchTerm ||
+                    user.firstName.toLowerCase().includes(searchTerm) ||
+                    user.lastName.toLowerCase().includes(searchTerm) ||
+                    user.email.toLowerCase().includes(searchTerm);
+
+                const matchesRole = !roleFilter || user.role === roleFilter;
+                const matchesStatus = !statusFilter || user.status === statusFilter;
+
+                return matchesSearch && matchesRole && matchesStatus;
+            });
+
+            currentPage = 1;
+            renderUsers();
+            updatePagination();
+        }
+
+        /**
+         * Show add user modal
+         */
+        function showAddUserModal() {
+            isEditMode = false;
+            editingUserId = null;
+            document.getElementById('modalTitle').textContent = 'Add New User';
+            document.getElementById('submitButtonText').textContent = 'Add User';
+            document.getElementById('userForm').reset();
+            document.getElementById('userModal').classList.remove('hidden');
+        }
+
+        /**
+         * Show edit user modal
+         */
+        function editUser(userId) {
+            const user = users.find(u => u.id === userId);
+            if (!user) return;
+
+            isEditMode = true;
+            editingUserId = userId;
+            document.getElementById('modalTitle').textContent = 'Edit User';
+            document.getElementById('submitButtonText').textContent = 'Update User';
+
+            // Populate form fields
+            document.getElementById('firstName').value = user.firstName;
+            document.getElementById('lastName').value = user.lastName;
+            document.getElementById('email').value = user.email;
+            document.getElementById('phone').value = user.phone;
+            document.getElementById('role').value = user.role;
+            document.getElementById('department').value = user.department;
+            document.getElementById('governorate').value = user.governorate;
+            document.getElementById('status').value = user.status;
+
+            // Set permissions
+            const permissionCheckboxes = document.querySelectorAll('input[name="permissions"]');
+            permissionCheckboxes.forEach(checkbox => {
+                checkbox.checked = user.permissions.includes(checkbox.value);
+            });
+
+            document.getElementById('userModal').classList.remove('hidden');
+        }
+
+        /**
+         * Close user modal
+         */
+        function closeUserModal() {
+            document.getElementById('userModal').classList.add('hidden');
+            document.getElementById('userForm').reset();
+        }
+
+        /**
+         * Handle user form submission
+         */
+        function handleUserSubmit(e) {
+            e.preventDefault();
+
+            const formData = new FormData(e.target);
+            const permissions = Array.from(document.querySelectorAll('input[name="permissions"]:checked')).map(cb => cb.value);
+
+            const userData = {
+                firstName: formData.get('firstName'),
+                lastName: formData.get('lastName'),
+                email: formData.get('email'),
+                phone: formData.get('phone'),
+                role: formData.get('role'),
+                department: formData.get('department'),
+                governorate: formData.get('governorate'),
+                status: formData.get('status'),
+                permissions: permissions
+            };
+
+            if (isEditMode && editingUserId) {
+                updateUser(editingUserId, userData);
+            } else {
+                addUser(userData);
+            }
+
+            closeUserModal();
+        }
+
+        /**
+         * Add new user
+         */
+        function addUser(userData) {
+            const newUser = {
+                id: Math.max(...users.map(u => u.id)) + 1,
+                ...userData,
+                lastActivity: new Date().toISOString(),
+                createdAt: new Date().toISOString()
+            };
+
+            users.push(newUser);
+            filterUsers();
+            showNotification('User added successfully', 'success');
+        }
+
+        /**
+         * Update existing user
+         */
+        function updateUser(userId, userData) {
+            const index = users.findIndex(u => u.id === userId);
+            if (index !== -1) {
+                users[index] = { ...users[index], ...userData };
+                filterUsers();
+                showNotification('User updated successfully', 'success');
+            }
+        }
+
+        /**
+         * Delete user
+         */
+        function deleteUser(userId) {
+            const user = users.find(u => u.id === userId);
+            if (!user) return;
+
+            const confirmed = confirm(`Are you sure you want to delete ${user.firstName} ${user.lastName}?\nهل أنت متأكد من حذف هذا المستخدم؟`);
+
+            if (confirmed) {
+                users = users.filter(u => u.id !== userId);
+                filterUsers();
+                showNotification('User deleted successfully', 'success');
+            }
+        }
+
+        /**
+         * Toggle user status
+         */
+        function toggleUserStatus(userId) {
+            const user = users.find(u => u.id === userId);
+            if (!user) return;
+
+            user.status = user.status === 'active' ? 'inactive' : 'active';
+            renderUsers();
+            showNotification(`User ${user.status === 'active' ? 'activated' : 'deactivated'} successfully`, 'success');
+        }
+
+        /**
+         * View user details
+         */
+        function viewUser(userId) {
+            const user = users.find(u => u.id === userId);
+            if (!user) return;
+
+            alert(`User Details:\n\nName: ${user.firstName} ${user.lastName}\nEmail: ${user.email}\nRole: ${getRoleDisplayName(user.role)}\nDepartment: ${getDepartmentDisplayName(user.department)}\nLocation: ${getGovernorateDisplayName(user.governorate)}\nStatus: ${user.status.charAt(0).toUpperCase() + user.status.slice(1)}\nLast Activity: ${formatDate(user.lastActivity)}`);
+        }
+
+        /**
+         * Export users data
+         */
+        function exportUsers() {
+            const csv = generateCSV(filteredUsers);
+            downloadCSV(csv, 'souqsyria_users_export.csv');
+            showNotification('Users data exported successfully', 'success');
+        }
+
+        /**
+         * Update permissions based on selected role
+         */
+        function updatePermissionsByRole() {
+            const role = document.getElementById('role').value;
+            const permissionCheckboxes = document.querySelectorAll('input[name="permissions"]');
+
+            // Clear all permissions first
+            permissionCheckboxes.forEach(cb => cb.checked = false);
+
+            // Set default permissions based on role
+            const rolePermissions = {
+                'super_admin': ['users_manage', 'products_manage', 'orders_manage', 'vendors_manage', 'analytics_view', 'finance_manage', 'system_settings', 'reports_export'],
+                'admin': ['products_manage', 'orders_manage', 'vendors_manage', 'analytics_view', 'reports_export'],
+                'manager': ['orders_manage', 'analytics_view', 'finance_manage'],
+                'staff': ['orders_manage'],
+                'support': []
+            };
+
+            if (rolePermissions[role]) {
+                permissionCheckboxes.forEach(cb => {
+                    if (rolePermissions[role].includes(cb.value)) {
+                        cb.checked = true;
+                    }
+                });
+            }
+        }
+
+        /**
+         * Pagination functions
+         */
+        function updatePagination() {
+            const totalPages = Math.ceil(filteredUsers.length / usersPerPage);
+            const showingFrom = (currentPage - 1) * usersPerPage + 1;
+            const showingTo = Math.min(currentPage * usersPerPage, filteredUsers.length);
+
+            document.getElementById('showingFrom').textContent = showingFrom;
+            document.getElementById('showingTo').textContent = showingTo;
+            document.getElementById('totalUsers').textContent = filteredUsers.length;
+
+            // Update page numbers
+            const pageNumbers = document.getElementById('pageNumbers');
+            pageNumbers.innerHTML = '';
+
+            for (let i = 1; i <= totalPages; i++) {
+                const pageBtn = document.createElement('button');
+                pageBtn.textContent = i;
+                pageBtn.className = `px-3 py-1 text-sm rounded ${i === currentPage ? 'bg-golden-wheat text-white' : 'border border-gray-300 hover:bg-gray-100'}`;
+                pageBtn.onclick = () => goToPage(i);
+                pageNumbers.appendChild(pageBtn);
+            }
+
+            // Update navigation buttons
+            document.getElementById('prevPageBtn').disabled = currentPage === 1;
+            document.getElementById('nextPageBtn').disabled = currentPage === totalPages;
+        }
+
+        function previousPage() {
+            if (currentPage > 1) {
+                currentPage--;
+                renderUsers();
+                updatePagination();
+            }
+        }
+
+        function nextPage() {
+            const totalPages = Math.ceil(filteredUsers.length / usersPerPage);
+            if (currentPage < totalPages) {
+                currentPage++;
+                renderUsers();
+                updatePagination();
+            }
+        }
+
+        function goToPage(page) {
+            currentPage = page;
+            renderUsers();
+            updatePagination();
+        }
+
+        /**
+         * Utility functions
+         */
+        function getRoleDisplayName(role) {
+            const roleNames = {
+                'super_admin': 'Super Admin',
+                'admin': 'Admin',
+                'manager': 'Manager',
+                'staff': 'Staff',
+                'support': 'Support'
+            };
+            return roleNames[role] || role;
+        }
+
+        function getDepartmentDisplayName(department) {
+            const departmentNames = {
+                'operations': 'Operations',
+                'marketing': 'Marketing',
+                'finance': 'Finance',
+                'customer_service': 'Customer Service',
+                'it': 'IT Support',
+                'logistics': 'Logistics',
+                'quality_assurance': 'Quality Assurance'
+            };
+            return departmentNames[department] || department;
+        }
+
+        function getGovernorateDisplayName(governorate) {
+            const governorateNames = {
+                'damascus': 'Damascus - دمشق',
+                'aleppo': 'Aleppo - حلب',
+                'homs': 'Homs - حمص',
+                'hama': 'Hama - حماة',
+                'latakia': 'Latakia - اللاذقية',
+                'tartus': 'Tartus - طرطوس',
+                'idlib': 'Idlib - إدلب',
+                'deraa': 'Deraa - درعا',
+                'sweida': 'Sweida - السويداء',
+                'quneitra': 'Quneitra - القنيطرة',
+                'raqqa': 'Raqqa - الرقة',
+                'deir_ez_zor': 'Deir ez-Zor - دير الزور',
+                'hasakah': 'Hasakah - الحسكة',
+                'rif_dimashq': 'Rif Dimashq - ريف دمشق'
+            };
+            return governorateNames[governorate] || governorate;
+        }
+
+        function formatDate(dateString) {
+            return new Date(dateString).toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+
+        function getTimeAgo(dateString) {
+            const now = new Date();
+            const date = new Date(dateString);
+            const diffMs = now - date;
+            const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+            const diffDays = Math.floor(diffHours / 24);
+
+            if (diffDays > 0) {
+                return `${diffDays} day${diffDays > 1 ? 's' : ''} ago`;
+            } else if (diffHours > 0) {
+                return `${diffHours} hour${diffHours > 1 ? 's' : ''} ago`;
+            } else {
+                return 'Less than 1 hour ago';
+            }
+        }
+
+        function debounce(func, wait) {
+            let timeout;
+            return function executedFunction(...args) {
+                const later = () => {
+                    clearTimeout(timeout);
+                    func(...args);
+                };
+                clearTimeout(timeout);
+                timeout = setTimeout(later, wait);
+            };
+        }
+
+        function generateCSV(data) {
+            const headers = ['ID', 'First Name', 'Last Name', 'Email', 'Role', 'Department', 'Governorate', 'Status', 'Last Activity'];
+            const rows = data.map(user => [
+                user.id,
+                user.firstName,
+                user.lastName,
+                user.email,
+                getRoleDisplayName(user.role),
+                getDepartmentDisplayName(user.department),
+                getGovernorateDisplayName(user.governorate),
+                user.status,
+                formatDate(user.lastActivity)
+            ]);
+
+            return [headers, ...rows].map(row => row.map(field => `"${field}"`).join(',')).join('\n');
+        }
+
+        function downloadCSV(csv, filename) {
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(url);
+        }
+
+        function showNotification(message, type = 'info') {
+            // Simple alert for now - in production, use a proper toast notification system
+            console.log(`${type}: ${message}`);
+        }
+
+        /**
+         * Mobile menu functionality
+         */
+        function initializeMobileMenu() {
+            const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('mobileOverlay');
+
+            mobileMenuBtn.addEventListener('click', function() {
+                sidebar.classList.toggle('show');
+                overlay.classList.toggle('hidden');
+            });
+
+            overlay.addEventListener('click', function() {
+                sidebar.classList.remove('show');
+                overlay.classList.add('hidden');
+            });
+        }
+
+        /**
+         * Toggle language
+         */
+        function toggleLanguage() {
+            const htmlRoot = document.getElementById('htmlRoot');
+            const currentLangElement = document.getElementById('currentLang');
+
+            if (currentLanguage === 'en') {
+                currentLanguage = 'ar';
+                htmlRoot.setAttribute('dir', 'rtl');
+                htmlRoot.setAttribute('lang', 'ar');
+                currentLangElement.textContent = 'العربية';
+            } else {
+                currentLanguage = 'en';
+                htmlRoot.setAttribute('dir', 'ltr');
+                htmlRoot.setAttribute('lang', 'en');
+                currentLangElement.textContent = 'EN';
+            }
+        }
+
+        /**
+         * Logout functionality
+         */
+        function logout() {
+            const confirmed = confirm('Are you sure you want to logout?\nهل أنت متأكد من تسجيل الخروج؟');
+
+            if (confirmed) {
+                localStorage.removeItem('souqsyria_admin_user');
+                window.location.href = '/admin-login.html';
+            }
+        }
+    </script>
+</body>
+</html>

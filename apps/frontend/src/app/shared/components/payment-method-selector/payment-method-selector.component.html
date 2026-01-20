@@ -1,0 +1,157 @@
+<!-- Payment Method Selector - Syrian Marketplace -->
+<div class="payment-method-selector" [class.compact]="compact" [attr.dir]="language === 'ar' ? 'rtl' : 'ltr'">
+
+  <!-- Section Header -->
+  <div class="selector-header" *ngIf="!compact">
+    <h3 class="selector-title">
+      {{ language === 'ar' ? 'اختر طريقة الدفع' : 'Select Payment Method' }}
+    </h3>
+    <p class="selector-subtitle">
+      {{ language === 'ar' ? 'جميع طرق الدفع آمنة ومحمية' : 'All payment methods are secure and protected' }}
+    </p>
+  </div>
+
+  <!-- Payment Methods List -->
+  <mat-radio-group
+    class="payment-methods-list"
+    [(ngModel)]="selectedMethodId"
+    (change)="onMethodSelect($event.value)">
+
+    <!-- Method Card -->
+    <mat-card
+      *ngFor="let method of availableMethods()"
+      class="payment-method-card"
+      [class.selected]="isMethodSelected(method)"
+      [class.recommended]="isRecommended(method)"
+      (click)="onMethodSelect(method)">
+
+      <div class="method-card-content">
+
+        <!-- Radio Button -->
+        <mat-radio-button
+          [value]="method.id"
+          [disabled]="!method.isAvailable"
+          class="method-radio">
+        </mat-radio-button>
+
+        <!-- Method Icon -->
+        <div class="method-icon-wrapper">
+          <mat-icon class="method-icon">{{ method.icon || 'payment' }}</mat-icon>
+        </div>
+
+        <!-- Method Info -->
+        <div class="method-info">
+          <div class="method-header">
+            <h4 class="method-name">{{ getMethodName(method) }}</h4>
+
+            <!-- Recommended Badge -->
+            <mat-chip
+              *ngIf="isRecommended(method)"
+              class="recommended-badge"
+              color="primary">
+              <mat-icon>star</mat-icon>
+              {{ language === 'ar' ? 'موصى به' : 'Recommended' }}
+            </mat-chip>
+
+            <!-- Trust Indicator -->
+            <mat-chip
+              *ngIf="showTrustIndicators && !isRecommended(method)"
+              class="trust-badge"
+              color="accent">
+              {{ getTrustIndicatorText(method) }}
+            </mat-chip>
+          </div>
+
+          <p class="method-description">{{ getMethodDescription(method) }}</p>
+
+          <!-- Processing Fee -->
+          <div class="method-fee" *ngIf="showFees">
+            <mat-icon class="fee-icon">receipt</mat-icon>
+            <span class="fee-label">
+              {{ language === 'ar' ? 'رسوم المعالجة:' : 'Processing Fee:' }}
+            </span>
+            <span class="fee-value">{{ getProcessingFeeText(method) }}</span>
+          </div>
+
+          <!-- Additional Method Details -->
+          <div class="method-details" *ngIf="isMethodSelected(method) && method.details">
+
+            <mat-divider></mat-divider>
+
+            <!-- Bank Transfer Details -->
+            <div class="bank-details" *ngIf="method.type === 'bank_transfer'">
+              <div class="detail-row">
+                <mat-icon>account_balance</mat-icon>
+                <div class="detail-text">
+                  <span class="detail-label">
+                    {{ language === 'ar' ? 'اسم البنك:' : 'Bank Name:' }}
+                  </span>
+                  <span class="detail-value">Commercial Bank of Syria</span>
+                </div>
+              </div>
+
+              <div class="detail-row">
+                <mat-icon>credit_card</mat-icon>
+                <div class="detail-text">
+                  <span class="detail-label">
+                    {{ language === 'ar' ? 'رقم الحساب:' : 'Account Number:' }}
+                  </span>
+                  <span class="detail-value">1234-5678-9012-3456</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Mobile Wallet Details -->
+            <div class="wallet-details" *ngIf="method.type === 'mobile_wallet'">
+              <div class="detail-row">
+                <mat-icon>phone_android</mat-icon>
+                <div class="detail-text">
+                  <span class="detail-label">
+                    {{ language === 'ar' ? 'رقم المحفظة:' : 'Wallet Number:' }}
+                  </span>
+                  <span class="detail-value">0933 123 456</span>
+                </div>
+              </div>
+
+              <div class="detail-info">
+                <mat-icon>info</mat-icon>
+                <p>
+                  {{ language === 'ar'
+                    ? 'أرسل لقطة شاشة للدفع إلى orders@souqsyria.com'
+                    : 'Send payment screenshot to orders@souqsyria.com' }}
+                </p>
+              </div>
+            </div>
+
+            <!-- COD Details -->
+            <div class="cod-details" *ngIf="method.type === 'cod'">
+              <div class="detail-info cod-info">
+                <mat-icon>local_atm</mat-icon>
+                <p>
+                  {{ language === 'ar'
+                    ? 'يرجى تحضير المبلغ المطلوب عند استلام الطلب'
+                    : 'Please prepare exact change when receiving your order' }}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Selection Indicator -->
+        <div class="selection-indicator" *ngIf="isMethodSelected(method)">
+          <mat-icon class="check-icon">check_circle</mat-icon>
+        </div>
+      </div>
+    </mat-card>
+  </mat-radio-group>
+
+  <!-- Security Notice -->
+  <div class="security-notice" *ngIf="showTrustIndicators && !compact">
+    <mat-icon>verified_user</mat-icon>
+    <p>
+      {{ language === 'ar'
+        ? 'جميع المعاملات محمية بأحدث معايير الأمان'
+        : 'All transactions are protected with the latest security standards' }}
+    </p>
+  </div>
+</div>

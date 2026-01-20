@@ -1,0 +1,239 @@
+<!-- SouqSyria Category Item Component -->
+<!-- Flexible category item display for multiple contexts -->
+
+<!-- Navigation Mode (Horizontal navigation bar) -->
+<ng-container *ngIf="displayMode === 'navigation'">
+  <a 
+    [routerLink]="category.url"
+    class="sq-nav-link text-white hover:text-primary-200 transition-colors font-medium text-sm py-3 flex items-center cursor-pointer"
+    [class.active]="isActive"
+    [attr.aria-label]="getAriaLabel()"
+    [attr.role]="'menuitem'"
+    [attr.tabindex]="isClickable ? 0 : -1"
+    (click)="onCategoryClick($event)"
+  >
+    <!-- Category Icon -->
+    <app-category-icon
+      *ngIf="showIcon"
+      [category]="category"
+      [size]="'sm'"
+      [color]="isActive ? 'primary-200' : 'current'"
+      class="mr-1 rtl:mr-0 rtl:ml-1"
+    ></app-category-icon>
+    
+    <!-- Category Text -->
+    <span class="category-text">{{ getCategoryText() }}</span>
+    
+    <!-- Active Indicator -->
+    <span 
+      *ngIf="isActive" 
+      class="absolute bottom-0 left-0 w-full h-0.5 bg-primary-200 rounded-full"
+      aria-hidden="true"
+    ></span>
+  </a>
+</ng-container>
+
+<!-- Dropdown Mode (Menu dropdown with subcategories) -->
+<ng-container *ngIf="displayMode === 'dropdown'">
+  <div class="sq-dropdown-item">
+    <!-- Main Category Button -->
+    <button 
+      mat-menu-item 
+      class="font-medium text-neutral-900 hover:text-primary-600 w-full justify-start"
+      [attr.aria-label]="getAriaLabel()"
+      [attr.aria-expanded]="hasSubcategories()"
+      [attr.tabindex]="isClickable ? 0 : -1"
+      (click)="onCategoryClick($event)"
+    >
+      <!-- Category Icon -->
+      <app-category-icon
+        *ngIf="showIcon"
+        [category]="category"
+        [size]="'md'"
+        [color]="'primary-600'"
+        class="mr-2 rtl:mr-0 rtl:ml-2"
+      ></app-category-icon>
+      
+      <!-- Category Text -->
+      <span class="category-text flex-1 text-left rtl:text-right">{{ getCategoryText() }}</span>
+      
+      <!-- Subcategory Indicator -->
+      <mat-icon 
+        *ngIf="hasSubcategories()" 
+        class="ml-auto text-neutral-400 rtl:ml-0 rtl:mr-auto"
+        aria-hidden="true"
+      >
+        {{ config.rtl ? 'chevron_left' : 'chevron_right' }}
+      </mat-icon>
+    </button>
+    
+    <!-- Subcategories List -->
+    <div 
+      *ngIf="showSubcategories && hasSubcategories()" 
+      class="ml-6 rtl:ml-0 rtl:mr-6 mt-1 space-y-1"
+      [attr.role]="'group'"
+      [attr.aria-labelledby]="category.id + '-category'"
+    >
+      <a 
+        *ngFor="let subcategory of category.subcategories; trackBy: trackBySubcategory"
+        [routerLink]="subcategory.url"
+        class="block text-sm text-neutral-600 hover:text-primary-600 py-1 px-2 rounded transition-colors"
+        [attr.aria-label]="getSubcategoryText(subcategory)"
+        (click)="onSubcategoryClick($event, subcategory)"
+      >
+        <mat-icon 
+          *ngIf="subcategory.icon" 
+          class="mr-1 rtl:mr-0 rtl:ml-1 text-xs"
+          aria-hidden="true"
+        >
+          {{ subcategory.icon }}
+        </mat-icon>
+        {{ getSubcategoryText(subcategory) }}
+      </a>
+    </div>
+  </div>
+</ng-container>
+
+<!-- Mobile Mode (Mobile menu list item) -->
+<ng-container *ngIf="displayMode === 'mobile'">
+  <div class="sq-mobile-item">
+    <!-- Main Category Button -->
+    <button 
+      mat-button
+      class="w-full justify-between text-left rtl:text-right p-3 hover:bg-primary-50 transition-colors"
+      [class.bg-primary-50]="isActive"
+      [attr.aria-label]="getAriaLabel()"
+      [attr.aria-expanded]="hasSubcategories() ? 'false' : undefined"
+      [attr.tabindex]="isClickable ? 0 : -1"
+      (click)="onCategoryClick($event)"
+    >
+      <div class="flex items-center space-x-3 rtl:space-x-reverse">
+        <!-- Category Icon -->
+        <app-category-icon
+          *ngIf="showIcon"
+          [category]="category"
+          [size]="'md'"
+          [color]="isActive ? 'primary-600' : 'neutral-600'"
+          class="flex-shrink-0"
+        ></app-category-icon>
+        
+        <!-- Category Text -->
+        <span class="category-text font-medium text-neutral-900">{{ getCategoryText() }}</span>
+      </div>
+      
+      <!-- Expansion Icon -->
+      <mat-icon 
+        *ngIf="hasSubcategories()" 
+        class="text-neutral-400 transform transition-transform"
+        [class.rotate-180]="isActive"
+        aria-hidden="true"
+      >
+        expand_more
+      </mat-icon>
+    </button>
+    
+    <!-- Subcategories (Expandable) -->
+    <div 
+      *ngIf="showSubcategories && hasSubcategories() && isActive"
+      class="bg-gray-50 border-t border-gray-200"
+      [attr.role]="'group'"
+      [attr.aria-labelledby]="category.id + '-category'"
+    >
+      <a 
+        *ngFor="let subcategory of category.subcategories; trackBy: trackBySubcategory"
+        [routerLink]="subcategory.url"
+        class="block py-2 px-6 text-sm text-neutral-600 hover:text-primary-600 hover:bg-white transition-colors"
+        [attr.aria-label]="getSubcategoryText(subcategory)"
+        (click)="onSubcategoryClick($event, subcategory)"
+      >
+        <mat-icon 
+          *ngIf="subcategory.icon" 
+          class="mr-2 rtl:mr-0 rtl:ml-2 text-sm"
+          aria-hidden="true"
+        >
+          {{ subcategory.icon }}
+        </mat-icon>
+        {{ getSubcategoryText(subcategory) }}
+      </a>
+    </div>
+  </div>
+</ng-container>
+
+<!-- Grid Mode (Grid layout for category pages) -->
+<ng-container *ngIf="displayMode === 'grid'">
+  <div class="sq-grid-item">
+    <button 
+      mat-raised-button
+      class="sq-category-card w-full h-full p-4 flex flex-col items-center text-center space-y-3 hover:shadow-lg transition-shadow"
+      [class.sq-active]="isActive"
+      [attr.aria-label]="getAriaLabel()"
+      [attr.tabindex]="isClickable ? 0 : -1"
+      (click)="onCategoryClick($event)"
+    >
+      <!-- Large Category Icon -->
+      <app-category-icon
+        [category]="category"
+        [size]="'xl'"
+        [color]="isActive ? 'primary-600' : 'neutral-600'"
+        class="mb-2"
+      ></app-category-icon>
+      
+      <!-- Category Name -->
+      <div class="category-text">
+        <h3 class="font-medium text-neutral-900 text-sm">{{ getCategoryText() }}</h3>
+        <p 
+          *ngIf="hasSubcategories()" 
+          class="text-xs text-neutral-500 mt-1"
+        >
+          {{ category.subcategories!.length }} 
+          {{ config.language === 'ar' ? 'فئة فرعية' : 'subcategories' }}
+        </p>
+      </div>
+    </button>
+  </div>
+</ng-container>
+
+<!-- List Mode (Vertical list for sidebar navigation) -->
+<ng-container *ngIf="displayMode === 'list'">
+  <div class="sq-list-item">
+    <button 
+      mat-button
+      class="w-full justify-start px-3 py-2 hover:bg-primary-50 transition-colors"
+      [class.bg-primary-100]="isActive"
+      [attr.aria-label]="getAriaLabel()"
+      [attr.tabindex]="isClickable ? 0 : -1"
+      (click)="onCategoryClick($event)"
+    >
+      <!-- Category Icon -->
+      <app-category-icon
+        *ngIf="showIcon"
+        [category]="category"
+        [size]="'sm'"
+        [color]="isActive ? 'primary-600' : 'neutral-600'"
+        class="mr-3 rtl:mr-0 rtl:ml-3"
+      ></app-category-icon>
+      
+      <!-- Category Text -->
+      <span class="category-text flex-1 text-left rtl:text-right font-medium">
+        {{ getCategoryText() }}
+      </span>
+      
+      <!-- Item Count Badge -->
+      <span 
+        *ngIf="hasSubcategories()" 
+        class="ml-auto bg-primary-100 text-primary-700 text-xs px-2 py-1 rounded-full rtl:ml-0 rtl:mr-auto"
+      >
+        {{ category.subcategories!.length }}
+      </span>
+    </button>
+  </div>
+</ng-container>
+
+<!-- Ripple Effect for Interactive Elements -->
+<div 
+  *ngIf="isClickable && displayMode !== 'dropdown'" 
+  matRipple
+  class="absolute inset-0 pointer-events-none"
+  [matRippleDisabled]="!isClickable"
+  [matRippleColor]="'rgba(59, 130, 246, 0.1)'"
+></div>

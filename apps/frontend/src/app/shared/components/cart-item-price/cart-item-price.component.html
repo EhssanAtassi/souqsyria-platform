@@ -1,0 +1,46 @@
+<div class="cart-item-price" [dir]="locale === 'ar' ? 'rtl' : 'ltr'">
+  <!-- Effective Price (Main Display) -->
+  <div class="price-main">
+    <span class="price-amount">{{ formatPrice(effectivePrice) }}</span>
+
+    <!-- Quantity Multiplier -->
+    @if (cartItem.quantity > 1) {
+      <span class="price-multiplier">
+        × {{ locale === 'ar' ? '٪' : '' }}{{ cartItem.quantity }}
+      </span>
+    }
+  </div>
+
+  <!-- Original Price (Strikethrough if reduced) -->
+  @if (priceStatus === 'reduced' && cartItem.priceAtAdd) {
+    <div class="price-original">
+      <span class="price-strikethrough">{{ formatPrice(cartItem.priceAtAdd) }}</span>
+    </div>
+  }
+
+  <!-- Price Status Badge -->
+  @if (priceStatus !== 'normal') {
+    <div class="price-badge" [ngClass]="getBadgeClass()">
+      <span class="material-icons badge-icon">
+        @switch (priceStatus) {
+          @case ('locked') { lock }
+          @case ('reduced') { trending_down }
+          @case ('expired') { lock_open }
+        }
+      </span>
+      <span class="badge-label">{{ getBadgeLabel() }}</span>
+    </div>
+  }
+
+  <!-- Total Price for Item (if quantity > 1) -->
+  @if (cartItem.quantity > 1) {
+    <div class="price-total">
+      <span class="price-total-label">
+        {{ locale === 'ar' ? 'الإجمالي:' : 'Total:' }}
+      </span>
+      <span class="price-total-amount">
+        {{ formatPrice(effectivePrice * cartItem.quantity) }}
+      </span>
+    </div>
+  }
+</div>

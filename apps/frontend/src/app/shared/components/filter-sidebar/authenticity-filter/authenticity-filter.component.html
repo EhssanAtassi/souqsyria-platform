@@ -1,0 +1,65 @@
+<!-- Authenticity Filter Container -->
+<div class="authenticity-filter" [attr.dir]="language() === 'ar' ? 'rtl' : 'ltr'">
+
+  <!-- Authenticity Options -->
+  <div class="authenticity-options">
+    @for (option of authenticityOptions; track option.key) {
+      <div class="authenticity-option" [class.selected]="isSelected(option.key)">
+        <mat-checkbox
+          [checked]="isSelected(option.key)"
+          (change)="onAuthenticityChange(option.key, $event.checked)"
+          class="authenticity-checkbox">
+
+          <!-- Option Content -->
+          <div class="option-content">
+            <!-- Icon with color -->
+            <div class="icon-container" [style.background-color]="option.color + '20'">
+              <mat-icon [style.color]="option.color" class="authenticity-icon">
+                {{ option.icon }}
+              </mat-icon>
+            </div>
+
+            <!-- Label and Description -->
+            <div class="option-info">
+              <div class="option-label">{{ getLabel(option) }}</div>
+              <div class="option-description">{{ getDescription(option) }}</div>
+            </div>
+
+            <!-- Info tooltip -->
+            <button
+              mat-icon-button
+              class="info-button"
+              [matTooltip]="getDescription(option)"
+              matTooltipPosition="above"
+              (click)="$event.stopPropagation()">
+              <mat-icon class="info-icon">info_outline</mat-icon>
+            </button>
+          </div>
+
+        </mat-checkbox>
+
+        <!-- Visual indicator for selected state -->
+        @if (isSelected(option.key)) {
+          <div class="selected-indicator" [style.background-color]="option.color">
+            <mat-icon>check</mat-icon>
+          </div>
+        }
+      </div>
+    }
+  </div>
+
+  <!-- Active Filters Summary -->
+  @if (hasSelectedFilters()) {
+    <div class="authenticity-summary">
+      <mat-icon class="summary-icon">verified</mat-icon>
+      <span class="summary-text">
+        {{ getSelectedCount() }}
+        {{ language() === 'ar'
+          ? (getSelectedCount() === 1 ? 'معيار أصالة نشط' : 'معايير أصالة نشطة')
+          : (getSelectedCount() === 1 ? 'authenticity filter active' : 'authenticity filters active')
+        }}
+      </span>
+    </div>
+  }
+
+</div>

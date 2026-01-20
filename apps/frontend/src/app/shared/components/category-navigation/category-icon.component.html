@@ -1,0 +1,57 @@
+<!-- SouqSyria Category Icon Component -->
+<!-- Specialized category icon with badge support and accessibility features -->
+
+<div 
+  class="sq-icon-container inline-flex items-center justify-center relative"
+  [class]="getIconClasses()"
+  [attr.aria-label]="getAriaLabel()"
+  role="img"
+>
+  <!-- Main Category Icon -->
+  <mat-icon
+    class="sq-category-icon transition-all duration-200 ease-in-out"
+    [class]="iconClasses"
+    [attr.aria-hidden]="!shouldShowBadge()"
+    [matBadge]="shouldShowBadge() ? badgeValue : ''"
+    [matBadgePosition]="getBadgePosition()"
+    [matBadgeSize]="getBadgeSize()"
+    [matBadgeColor]="'accent'"
+    [matBadgeHidden]="!shouldShowBadge()"
+  >
+    {{ getIconName() }}
+  </mat-icon>
+  
+  <!-- Custom Badge (Alternative to MatBadge for more control) -->
+  <span 
+    *ngIf="shouldShowBadge() && badgeValue.length > 3"
+    class="sq-custom-badge absolute -top-1 -right-1 bg-accent-600 text-white text-xs font-semibold px-1.5 py-0.5 rounded-full min-w-[1.25rem] h-5 flex items-center justify-center"
+    [attr.aria-label]="'Badge: ' + badgeValue"
+  >
+    {{ badgeValue }}
+  </span>
+  
+  <!-- Loading State (Optional) -->
+  <div 
+    *ngIf="!category" 
+    class="sq-icon-skeleton bg-gray-200 animate-pulse rounded"
+    [class]="sizeMap[size] || sizeMap['md']"
+  ></div>
+  
+  <!-- Hover Effect Overlay -->
+  <div 
+    *ngIf="enableHover" 
+    class="sq-hover-overlay absolute inset-0 rounded-full bg-current opacity-0 transition-opacity duration-200 pointer-events-none"
+  ></div>
+</div>
+
+<!-- Tooltip for Category Name (Optional enhancement) -->
+<!-- Uncomment if tooltip functionality is desired -->
+<!--
+<div 
+  class="sq-icon-tooltip absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-gray-900 text-white text-xs rounded opacity-0 pointer-events-none transition-opacity duration-200 z-10"
+  [class.opacity-100]="showTooltip"
+>
+  {{ category.name }}
+  <div class="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-2 border-r-2 border-t-2 border-transparent border-t-gray-900"></div>
+</div>
+-->

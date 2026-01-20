@@ -1,0 +1,150 @@
+@import '../../../styles/variables';
+
+/**
+ * Loader Component Styles
+ * Golden Wheat themed loading spinner with Syrian cultural pattern
+ */
+
+.loader-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: $space-8;
+
+  /**
+   * Full-screen overlay variant
+   * Used for modal loading states and page transitions
+   */
+  &--overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba($charcoal-light, 0.9);
+    z-index: $z-index-modal;
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+  }
+}
+
+.loader {
+  position: relative;
+
+  /**
+   * Size variants
+   */
+  &--small {
+    width: 24px;
+    height: 24px;
+  }
+
+  &--medium {
+    width: 48px;
+    height: 48px;
+  }
+
+  &--large {
+    width: 72px;
+    height: 72px;
+  }
+
+  /**
+   * Spinning animation container
+   */
+  &__spinner {
+    animation: rotate 1.5s linear infinite;
+
+    svg {
+      width: 100%;
+      height: 100%;
+    }
+  }
+
+  /**
+   * Animated circle with Golden Wheat color
+   */
+  &__circle {
+    stroke: $golden-wheat-primary;
+    stroke-linecap: round;
+    animation: dash 1.5s ease-in-out infinite;
+  }
+
+  /**
+   * Syrian 8-pointed star pattern overlay
+   * Pulsates in the center of the spinner
+   */
+  &__pattern {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: $golden-wheat-dark;
+    opacity: 0.3;
+    animation: pulse 2s ease-in-out infinite;
+  }
+
+  /**
+   * Loading message text
+   * Supports bilingual display (English/Arabic)
+   */
+  &__message {
+    margin-top: $space-4;
+    color: $charcoal-medium;
+    font-size: $font-size-sm;
+    text-align: center;
+    font-weight: $font-weight-medium;
+  }
+}
+
+/**
+ * Animations
+ */
+
+// Continuous rotation for spinner
+@keyframes rotate {
+  100% { transform: rotate(360deg); }
+}
+
+// Dash animation for circle stroke
+@keyframes dash {
+  0% {
+    stroke-dasharray: 1, 150;
+    stroke-dashoffset: 0;
+  }
+  50% {
+    stroke-dasharray: 90, 150;
+    stroke-dashoffset: -35;
+  }
+  100% {
+    stroke-dasharray: 90, 150;
+    stroke-dashoffset: -124;
+  }
+}
+
+// Pulsating animation for center pattern
+@keyframes pulse {
+  0%, 100% {
+    opacity: 0.3;
+    transform: translate(-50%, -50%) scale(1);
+  }
+  50% {
+    opacity: 0.5;
+    transform: translate(-50%, -50%) scale(1.1);
+  }
+}
+
+/**
+ * RTL Support
+ * Reverse rotation direction for Arabic layout
+ */
+[dir="rtl"] {
+  .loader__spinner {
+    animation: rotate-rtl 1.5s linear infinite;
+  }
+}
+
+@keyframes rotate-rtl {
+  100% { transform: rotate(-360deg); }
+}

@@ -1,0 +1,259 @@
+/**
+ * Featured Categories Grid Component Styles
+ *
+ * 2x2 grid of featured categories with colored backgrounds
+ * Syrian Golden Wheat theme: #C8A860
+ */
+
+// Variables
+$golden-wheat: #C8A860;
+$dark-text: #1F2937;
+$gray-text: #6B7280;
+$white: #FFFFFF;
+$shadow: rgba(0, 0, 0, 0.1);
+
+.featured-categories-section {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  background: $white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px $shadow;
+
+  // Section Header
+  .section-header {
+    margin-bottom: 16px;
+    border-bottom: 2px solid $golden-wheat;
+    padding-bottom: 12px;
+
+    .section-title {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: $dark-text;
+      margin: 0 0 4px 0;
+      line-height: 1.2;
+    }
+
+    .section-title-ar {
+      font-size: 1rem;
+      font-weight: 600;
+      color: $gray-text;
+      direction: rtl;
+      display: block;
+    }
+  }
+
+  // Categories Grid (2x2)
+  .categories-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    flex: 1;
+
+    // Category Card
+    .category-card {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 16px 12px;
+      border-radius: 8px;
+      text-decoration: none;
+      color: $white;
+      position: relative;
+      overflow: hidden;
+      transition: all 0.3s ease;
+      min-height: 100px;
+
+      // Gradient overlay on hover
+      &::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(135deg, rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.3));
+        opacity: 0;
+        transition: opacity 0.3s ease;
+        z-index: 0;
+      }
+
+      &:hover {
+        transform: translateY(-4px) scale(1.02);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
+
+        &::before {
+          opacity: 1;
+        }
+
+        .category-icon {
+          transform: scale(1.15) rotate(5deg);
+        }
+
+        .category-discount {
+          transform: scale(1.1);
+        }
+      }
+
+      // Material Icon
+      .category-icon {
+        font-size: 36px;
+        width: 36px;
+        height: 36px;
+        color: $white;
+        text-shadow: 2px 2px 6px rgba(0, 0, 0, 0.3);
+        margin-bottom: 8px;
+        transition: transform 0.3s ease;
+        z-index: 1;
+      }
+
+      // Category Info
+      .category-info {
+        text-align: center;
+        z-index: 1;
+        width: 100%;
+
+        .category-name {
+          font-size: 0.875rem;
+          font-weight: 700;
+          color: $white;
+          margin: 0 0 4px 0;
+          line-height: 1.2;
+          text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.4);
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
+
+        .category-name-ar {
+          font-size: 0.75rem;
+          font-weight: 600;
+          color: rgba(255, 255, 255, 0.9);
+          margin: 0 0 8px 0;
+          direction: rtl;
+          line-height: 1.3;
+          text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
+
+        // Discount Badge
+        .category-discount {
+          display: inline-block;
+          background: rgba(255, 255, 255, 0.25);
+          backdrop-filter: blur(8px);
+          border: 1px solid rgba(255, 255, 255, 0.4);
+          color: $white;
+          font-size: 0.75rem;
+          font-weight: 700;
+          padding: 4px 10px;
+          border-radius: 12px;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+          box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+          transition: transform 0.3s ease;
+        }
+      }
+    }
+  }
+}
+
+// Responsive Design
+@media (max-width: 1024px) {
+  .featured-categories-section {
+    padding: 16px;
+
+    .section-header {
+      margin-bottom: 12px;
+
+      .section-title {
+        font-size: 1.125rem;
+      }
+
+      .section-title-ar {
+        font-size: 0.875rem;
+      }
+    }
+
+    .categories-grid {
+      gap: 10px;
+
+      .category-card {
+        padding: 14px 10px;
+        min-height: 90px;
+
+        .category-icon {
+          font-size: 32px;
+          width: 32px;
+          height: 32px;
+        }
+
+        .category-info {
+          .category-name {
+            font-size: 0.8125rem;
+          }
+
+          .category-name-ar {
+            font-size: 0.6875rem;
+          }
+
+          .category-discount {
+            font-size: 0.6875rem;
+            padding: 3px 8px;
+          }
+        }
+      }
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .featured-categories-section {
+    padding: 12px;
+
+    .section-header {
+      margin-bottom: 10px;
+      padding-bottom: 8px;
+
+      .section-title {
+        font-size: 1rem;
+      }
+
+      .section-title-ar {
+        font-size: 0.8125rem;
+      }
+    }
+
+    .categories-grid {
+      gap: 8px;
+
+      .category-card {
+        padding: 12px 8px;
+        min-height: 80px;
+
+        .category-icon {
+          font-size: 28px;
+          width: 28px;
+          height: 28px;
+          margin-bottom: 6px;
+        }
+
+        .category-info {
+          .category-name {
+            font-size: 0.75rem;
+          }
+
+          .category-name-ar {
+            font-size: 0.625rem;
+            margin-bottom: 6px;
+          }
+
+          .category-discount {
+            font-size: 0.625rem;
+            padding: 2px 6px;
+          }
+        }
+      }
+    }
+  }
+}

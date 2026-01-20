@@ -1,0 +1,393 @@
+/**
+ * Golden Wheat Design System - Border Tokens
+ *
+ * Border system for Syrian marketplace
+ * Consistent borders, radii, and outlines
+ *
+ * @description Border system including:
+ * - Border widths
+ * - Border radii (roundness)
+ * - Border colors (from color tokens)
+ * - Border styles
+ *
+ * @usage Import this file via design-tokens/index.scss
+ */
+
+// ============================================================================
+// BORDER WIDTHS
+// ============================================================================
+
+/**
+ * Border Width Scale
+ * Consistent border thicknesses
+ */
+
+$border-width-0: 0;                           // No border
+$border-width-px: 1px;                        // Hairline border (minimum visible)
+$border-width-thin: 1px;                      // Thin border (DEFAULT)
+$border-width-sm: 1px;                        // Small border (alias)
+$border-width-md: 2px;                        // Medium border
+$border-width-lg: 3px;                        // Large border (emphasis)
+$border-width-xl: 4px;                        // Extra large border
+$border-width-2xl: 6px;                       // 2X large border
+$border-width-3xl: 8px;                       // 3X large border (decorative)
+
+// Semantic border width aliases
+$border-width-default: $border-width-thin;    // Default border
+$border-width-thick: $border-width-md;        // Thick border
+$border-width-heavy: $border-width-lg;        // Heavy border
+
+// Legacy compatibility (from _variables.scss)
+$border-width-medium: $border-width-md;       // 2px
+$border-width-thick-legacy: $border-width-lg; // 3px
+
+// ============================================================================
+// BORDER RADIUS (Roundness)
+// ============================================================================
+
+/**
+ * Border Radius Scale
+ * From sharp corners to fully round
+ */
+
+$border-radius-none: 0;                       // Sharp corners (no rounding)
+$border-radius-sm: 0.25rem;                   // 4px - Subtle rounding
+$border-radius-md: 0.5rem;                    // 8px - Standard rounding (DEFAULT)
+$border-radius-lg: 0.75rem;                   // 12px - Large rounding
+$border-radius-xl: 1rem;                      // 16px - Extra large rounding
+$border-radius-2xl: 1.5rem;                   // 24px - 2X large rounding
+$border-radius-3xl: 2rem;                     // 32px - 3X large rounding
+$border-radius-full: 9999px;                  // Fully rounded (pills, circles)
+
+// Legacy compatibility (from _variables.scss)
+$border-radius: $border-radius-md;            // 8px (default)
+
+// ============================================================================
+// COMPONENT-SPECIFIC BORDER RADII
+// ============================================================================
+
+/**
+ * Semantic border radius for common components
+ * Pre-configured for consistency
+ */
+
+// Buttons
+$button-radius-sm: $border-radius-sm;         // 4px - Compact buttons
+$button-radius: $border-radius-md;            // 8px - Standard buttons
+$button-radius-lg: $border-radius-lg;         // 12px - Large buttons
+$button-radius-pill: $border-radius-full;     // Fully rounded pill buttons
+
+// Cards
+$card-radius-sm: $border-radius-md;           // 8px - Compact cards
+$card-radius: $border-radius-lg;              // 12px - Standard cards
+$card-radius-lg: $border-radius-xl;           // 16px - Large cards
+
+// Inputs
+$input-radius: $border-radius-md;             // 8px - Standard inputs
+$input-radius-sm: $border-radius-sm;          // 4px - Compact inputs
+$input-radius-lg: $border-radius-lg;          // 12px - Large inputs
+
+// Badges & Chips
+$badge-radius: $border-radius-sm;             // 4px - Badges
+$chip-radius: $border-radius-full;            // Fully rounded - Chips
+
+// Modals & Dialogs
+$modal-radius: $border-radius-xl;             // 16px - Modals
+$dialog-radius: $border-radius-lg;            // 12px - Dialogs
+
+// Dropdowns & Popovers
+$dropdown-radius: $border-radius-md;          // 8px - Dropdowns
+$popover-radius: $border-radius-lg;           // 12px - Popovers
+
+// Images
+$image-radius: $border-radius-md;             // 8px - Standard images
+$image-radius-lg: $border-radius-lg;          // 12px - Large images
+$image-radius-circle: $border-radius-full;    // Circular images
+
+// Avatars
+$avatar-radius: $border-radius-full;          // Circular avatars
+$avatar-radius-square: $border-radius-md;     // Square avatars with rounded corners
+
+// Toasts & Notifications
+$toast-radius: $border-radius-md;             // 8px - Toasts
+$notification-radius: $border-radius-lg;      // 12px - Notifications
+
+// ============================================================================
+// BORDER COLORS
+// ============================================================================
+
+/**
+ * Border Color Tokens
+ * Note: These reference color tokens from _colors.scss
+ * In production, import _colors.scss first
+ */
+
+// For independence, defining basic values inline
+// In production, these should reference imported color tokens
+
+// Neutral borders (most common)
+$border-color-light: #e8e8e8;                 // Light gray (neutral-200)
+$border-color-medium: #d1d1d1;                // Medium gray (neutral-300)
+$border-color-dark: #4d4d4d;                  // Dark gray (neutral-600)
+
+// Primary borders
+$border-color-primary: #b9a779;               // Golden wheat (primary-400)
+$border-color-primary-light: #ddd5c4;         // Light golden wheat (primary-200)
+$border-color-primary-dark: #988561;          // Dark golden wheat (primary-600)
+
+// Secondary borders
+$border-color-secondary: #428177;             // Forest green (secondary-500)
+$border-color-secondary-light: #b8e1dc;       // Light forest (secondary-200)
+
+// Semantic borders
+$border-color-success: #428177;               // Success green
+$border-color-warning: #b9a779;               // Warning golden
+$border-color-error: #CE1126;                 // Error red
+$border-color-info: #a89862;                  // Info golden
+
+// Input borders
+$border-color-input: #e8e8e8;                 // Input default
+$border-color-input-hover: #b9a779;           // Input hover (primary)
+$border-color-input-focus: #988561;           // Input focus (primary dark)
+$border-color-input-error: #CE1126;           // Input error
+
+// Divider color
+$border-color-divider: #e8e8e8;               // Divider lines
+
+// Default border color (most used)
+$border-color-default: $border-color-light;   // Light gray
+
+// Legacy compatibility
+$border-color: $border-color-light;           // Default border
+
+// ============================================================================
+// BORDER STYLES
+// ============================================================================
+
+/**
+ * Border Style Tokens
+ * CSS border style values
+ */
+
+$border-style-solid: solid;                   // Solid line (DEFAULT)
+$border-style-dashed: dashed;                 // Dashed line
+$border-style-dotted: dotted;                 // Dotted line
+$border-style-double: double;                 // Double line
+$border-style-none: none;                     // No border
+
+// Default border style
+$border-style-default: $border-style-solid;
+
+// ============================================================================
+// COMPOSITE BORDER PROPERTIES
+// ============================================================================
+
+/**
+ * Complete border property sets
+ * Combine width, style, and color
+ */
+
+// Standard borders
+$border-thin: $border-width-thin $border-style-solid $border-color-light;
+$border-medium: $border-width-md $border-style-solid $border-color-light;
+$border-thick: $border-width-lg $border-style-solid $border-color-light;
+
+// Primary borders
+$border-primary: $border-width-thin $border-style-solid $border-color-primary;
+$border-primary-thick: $border-width-md $border-style-solid $border-color-primary;
+
+// Secondary borders
+$border-secondary: $border-width-thin $border-style-solid $border-color-secondary;
+
+// Semantic borders
+$border-success: $border-width-md $border-style-solid $border-color-success;
+$border-warning: $border-width-md $border-style-solid $border-color-warning;
+$border-error: $border-width-md $border-style-solid $border-color-error;
+
+// Dashed borders
+$border-dashed: $border-width-thin $border-style-dashed $border-color-light;
+$border-dashed-primary: $border-width-thin $border-style-dashed $border-color-primary;
+
+// ============================================================================
+// OUTLINE PROPERTIES (for focus states)
+// ============================================================================
+
+/**
+ * Outline Tokens
+ * Used for focus indicators and accessibility
+ * @accessibility WCAG 2.1 compliant focus indicators
+ */
+
+// Outline widths
+$outline-width-sm: 1px;
+$outline-width-md: 2px;
+$outline-width-lg: 3px;
+
+// Outline styles
+$outline-style-solid: solid;
+$outline-style-dashed: dashed;
+$outline-style-dotted: dotted;
+
+// Outline colors
+$outline-color-focus: #4299e1;                // Blue (default browser-like)
+$outline-color-primary: #b9a779;              // Golden wheat
+$outline-color-error: #CE1126;                // Red
+
+// Outline offset (space between element and outline)
+$outline-offset-sm: 1px;
+$outline-offset-md: 2px;
+$outline-offset-lg: 4px;
+
+// Complete outline properties
+$outline-focus: $outline-width-md $outline-style-solid $outline-color-focus;
+$outline-primary: $outline-width-md $outline-style-solid $outline-color-primary;
+$outline-error: $outline-width-md $outline-style-solid $outline-color-error;
+
+// ============================================================================
+// DIVIDER TOKENS
+// ============================================================================
+
+/**
+ * Divider properties
+ * For horizontal and vertical dividers
+ */
+
+$divider-color: $border-color-divider;        // Divider color
+$divider-width: $border-width-thin;           // Divider thickness
+$divider-style: $border-style-solid;          // Divider style
+
+// Complete divider border
+$divider: $divider-width $divider-style $divider-color;
+
+// ============================================================================
+// COMPONENT-SPECIFIC BORDER PRESETS
+// ============================================================================
+
+/**
+ * Card borders
+ */
+$card-border: $border-width-thin $border-style-solid $border-color-light;
+$card-border-hover: $border-width-thin $border-style-solid $border-color-primary;
+
+/**
+ * Input borders
+ */
+$input-border: $border-width-thin $border-style-solid $border-color-input;
+$input-border-hover: $border-width-thin $border-style-solid $border-color-input-hover;
+$input-border-focus: $border-width-md $border-style-solid $border-color-input-focus;
+$input-border-error: $border-width-md $border-style-solid $border-color-input-error;
+
+/**
+ * Button borders
+ */
+$button-border: $border-width-thin $border-style-solid $border-color-primary;
+$button-border-secondary: $border-width-thin $border-style-solid $border-color-secondary;
+
+/**
+ * Badge borders
+ */
+$badge-border: $border-width-thin $border-style-solid $border-color-primary;
+
+/**
+ * Table borders
+ */
+$table-border: $border-width-thin $border-style-solid $border-color-light;
+$table-border-header: $border-width-md $border-style-solid $border-color-medium;
+
+/**
+ * Modal borders
+ */
+$modal-border: $border-width-thin $border-style-solid $border-color-light;
+
+// ============================================================================
+// BORDER TRANSITIONS
+// ============================================================================
+
+/**
+ * Border transition utilities
+ * For smooth border animations
+ */
+
+$border-transition: border-color 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+$border-transition-fast: border-color 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+$border-transition-slow: border-color 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+
+// ============================================================================
+// SPECIAL BORDER EFFECTS
+// ============================================================================
+
+/**
+ * Gradient borders
+ * For premium or featured elements
+ */
+
+// Golden gradient border (for premium products)
+$border-gradient-gold: linear-gradient(135deg, #D4AF37 0%, #b9a779 50%, #D4AF37 100%);
+
+// Primary gradient border
+$border-gradient-primary: linear-gradient(135deg, #b9a779 0%, #988561 50%, #b9a779 100%);
+
+/**
+ * Decorative border patterns
+ */
+$border-pattern-dashed-primary: 2px dashed $border-color-primary;
+$border-pattern-dotted-primary: 2px dotted $border-color-primary;
+
+// ============================================================================
+// RESPONSIVE BORDER UTILITIES
+// ============================================================================
+
+/**
+ * Mobile-optimized borders
+ * Slightly thinner on mobile for cleaner look
+ */
+
+$border-mobile-width: $border-width-thin;
+$border-tablet-width: $border-width-thin;
+$border-desktop-width: $border-width-thin;
+
+// ============================================================================
+// RTL BORDER SUPPORT
+// ============================================================================
+
+/**
+ * RTL-aware border utilities
+ * For proper border direction in Arabic/RTL layouts
+ */
+
+// Border radius for RTL
+$border-radius-rtl-start: $border-radius-md;
+$border-radius-rtl-end: $border-radius-md;
+
+// Logical border properties (for RTL support)
+// Use border-inline-start instead of border-left
+// Use border-inline-end instead of border-right
+
+// ============================================================================
+// EXPORTED BORDER MAP
+// ============================================================================
+
+/**
+ * Border map for programmatic access
+ * Can be used to generate utility classes
+ */
+$border-radius-map: (
+  'none': $border-radius-none,
+  'sm': $border-radius-sm,
+  'md': $border-radius-md,
+  'lg': $border-radius-lg,
+  'xl': $border-radius-xl,
+  '2xl': $border-radius-2xl,
+  '3xl': $border-radius-3xl,
+  'full': $border-radius-full
+);
+
+$border-width-map: (
+  '0': $border-width-0,
+  'px': $border-width-px,
+  'sm': $border-width-sm,
+  'md': $border-width-md,
+  'lg': $border-width-lg,
+  'xl': $border-width-xl,
+  '2xl': $border-width-2xl
+);

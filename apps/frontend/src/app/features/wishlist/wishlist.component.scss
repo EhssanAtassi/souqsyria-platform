@@ -1,0 +1,429 @@
+/**
+ * Wishlist Component Styles - Syrian Marketplace
+ *
+ * Features:
+ * - Golden Wheat theme colors (#d4a24a primary, #5c9446 Aleppo green)
+ * - RTL support for Arabic language
+ * - Damascus rose pattern for empty state
+ * - Mobile-first responsive design
+ * - Material Design integration
+ * - Syrian cultural aesthetics
+ */
+
+// Golden Wheat Theme Colors
+$primary-color: #d4a24a;      // Golden Wheat
+$secondary-color: #5c9446;    // Aleppo Green
+$accent-color: #c41e3a;       // Syrian Red
+$background: #f8f9fa;
+$card-background: #ffffff;
+$text-primary: #2c3e50;
+$text-secondary: #6c757d;
+$border-color: #dee2e6;
+$success-color: #5c9446;
+$error-color: #dc3545;
+
+.wishlist {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+  min-height: calc(100vh - 200px);
+  background: $background;
+
+  // RTL Support
+  &--rtl {
+    direction: rtl;
+
+    .wishlist__title-icon {
+      margin-left: 0.75rem;
+      margin-right: 0;
+    }
+
+    .wishlist__header-actions {
+      flex-direction: row-reverse;
+    }
+
+    .wishlist__items--grid {
+      direction: rtl;
+    }
+  }
+
+  // Header Section
+  &__header {
+    margin-bottom: 2rem;
+    padding: 1.5rem;
+    background: $card-background;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    border-left: 4px solid $primary-color;
+  }
+
+  &__header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+  }
+
+  &__title-section {
+    flex: 1;
+  }
+
+  &__title {
+    display: flex;
+    align-items: center;
+    font-size: 2rem;
+    font-weight: 700;
+    color: $text-primary;
+    margin: 0 0 0.5rem 0;
+  }
+
+  &__title-icon {
+    margin-right: 0.75rem;
+    color: $accent-color;
+    font-size: 2rem;
+    width: 2rem;
+    height: 2rem;
+  }
+
+  &__subtitle {
+    font-size: 1rem;
+    color: $text-secondary;
+    margin: 0;
+  }
+
+  &__header-actions {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  &__view-toggle {
+    color: $text-secondary;
+  }
+
+  &__move-all-btn {
+    background-color: $primary-color !important;
+    color: white !important;
+
+    mat-icon {
+      margin-right: 0.5rem;
+    }
+  }
+
+  &__more-btn {
+    color: $text-secondary;
+  }
+
+  // Loading State
+  &__loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 4rem 2rem;
+    min-height: 400px;
+  }
+
+  &__loading-text {
+    margin-top: 1.5rem;
+    font-size: 1.1rem;
+    color: $text-secondary;
+  }
+
+  // Empty State
+  &__empty {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 500px;
+    padding: 3rem 2rem;
+  }
+
+  &__empty-content {
+    text-align: center;
+    max-width: 500px;
+  }
+
+  &__empty-icon {
+    margin-bottom: 2rem;
+    position: relative;
+
+    // Damascus Rose Pattern Background
+    &::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 200px;
+      height: 200px;
+      background: radial-gradient(circle, rgba(212, 162, 74, 0.1) 0%, transparent 70%);
+      border-radius: 50%;
+      z-index: 0;
+    }
+  }
+
+  &__empty-icon-large {
+    font-size: 120px;
+    width: 120px;
+    height: 120px;
+    color: rgba($accent-color, 0.3);
+    position: relative;
+    z-index: 1;
+  }
+
+  &__empty-title {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: $text-primary;
+    margin: 0 0 1rem 0;
+  }
+
+  &__empty-description {
+    font-size: 1.1rem;
+    color: $text-secondary;
+    margin: 0 0 2rem 0;
+    line-height: 1.6;
+  }
+
+  &__empty-cta {
+    background-color: $primary-color !important;
+    color: white !important;
+    padding: 0.75rem 2rem !important;
+    font-size: 1.1rem !important;
+
+    mat-icon {
+      margin-right: 0.5rem;
+    }
+  }
+
+  // Wishlist Items
+  &__items {
+    margin-bottom: 2rem;
+
+    &--grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 1.5rem;
+    }
+
+    &--list {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+  }
+
+  &__item {
+    position: relative;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+
+    &:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.12);
+
+      .wishlist__item-actions {
+        opacity: 1;
+        visibility: visible;
+      }
+    }
+  }
+
+  &__item-actions {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+    z-index: 10;
+
+    // Always visible on mobile
+    @media (max-width: 768px) {
+      opacity: 1;
+      visibility: visible;
+    }
+  }
+
+  &__item-action {
+    background-color: white !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15) !important;
+
+    &--share {
+      mat-icon {
+        color: $secondary-color;
+      }
+    }
+
+    &--remove {
+      background-color: $error-color !important;
+      color: white !important;
+    }
+  }
+
+  // Statistics Card
+  &__stats {
+    margin-top: 2rem;
+  }
+
+  &__stats-card {
+    background: linear-gradient(135deg, rgba($primary-color, 0.05) 0%, rgba($secondary-color, 0.05) 100%);
+    border: 1px solid rgba($primary-color, 0.2);
+  }
+
+  &__stats-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: $text-primary;
+    margin: 0 0 1.5rem 0;
+    padding-bottom: 0.75rem;
+    border-bottom: 2px solid rgba($primary-color, 0.2);
+  }
+
+  &__stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5rem;
+  }
+
+  &__stat {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem;
+    background: white;
+    border-radius: 8px;
+    border-left: 3px solid $primary-color;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  }
+
+  &__stat-icon {
+    font-size: 2rem;
+    width: 2rem;
+    height: 2rem;
+    color: $primary-color;
+  }
+
+  &__stat-content {
+    display: flex;
+    flex-direction: column;
+  }
+
+  &__stat-value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: $text-primary;
+    line-height: 1.2;
+  }
+
+  &__stat-label {
+    font-size: 0.875rem;
+    color: $text-secondary;
+    margin-top: 0.25rem;
+  }
+
+  // Responsive Design
+  @media (max-width: 1200px) {
+    &__items--grid {
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    }
+  }
+
+  @media (max-width: 768px) {
+    padding: 1rem 0.5rem;
+
+    &__header {
+      padding: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    &__header-content {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+
+    &__title {
+      font-size: 1.5rem;
+    }
+
+    &__header-actions {
+      width: 100%;
+      justify-content: space-between;
+    }
+
+    &__items--grid {
+      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+      gap: 1rem;
+    }
+
+    &__stats-grid {
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 1rem;
+    }
+
+    &__stat {
+      padding: 0.75rem;
+    }
+
+    &__stat-icon {
+      font-size: 1.5rem;
+      width: 1.5rem;
+      height: 1.5rem;
+    }
+
+    &__stat-value {
+      font-size: 1.25rem;
+    }
+  }
+
+  @media (max-width: 480px) {
+    &__items--grid {
+      grid-template-columns: 1fr;
+    }
+
+    &__move-all-btn span {
+      display: none;
+    }
+
+    &__empty-icon-large {
+      font-size: 80px;
+      width: 80px;
+      height: 80px;
+    }
+
+    &__empty-title {
+      font-size: 1.25rem;
+    }
+
+    &__empty-description {
+      font-size: 1rem;
+    }
+  }
+}
+
+// Material Design Overrides for Syrian Theme
+::ng-deep {
+  .success-snackbar {
+    background-color: $success-color !important;
+    color: white !important;
+  }
+
+  .error-snackbar {
+    background-color: $error-color !important;
+    color: white !important;
+  }
+
+  .info-snackbar {
+    background-color: $primary-color !important;
+    color: white !important;
+  }
+
+  .warning-snackbar {
+    background-color: #ffc107 !important;
+    color: #212529 !important;
+  }
+}

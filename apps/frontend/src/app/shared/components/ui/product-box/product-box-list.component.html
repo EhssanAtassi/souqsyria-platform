@@ -1,0 +1,119 @@
+<!-- Product Card (Horizontal List Layout) -->
+<div class="product-box-list">
+  <!-- Product Image -->
+  <div class="product-box-list__image-container">
+    <a [routerLink]="['/product', product.slug]" class="product-box-list__image-link">
+      <img
+        [src]="productImage"
+        [alt]="productName"
+        class="product-box-list__image"
+        loading="lazy">
+    </a>
+
+    <!-- Badges Overlay -->
+    <div class="product-box-list__badges">
+      <!-- UNESCO Badge -->
+      <app-badge
+        *ngIf="product.isUnescoHeritage"
+        type="unesco"
+        [language]="language">
+      </app-badge>
+
+      <!-- Sale Badge -->
+      <app-badge
+        *ngIf="isOnSale && discountPercentage"
+        type="sale"
+        [value]="'-' + discountPercentage + '%'"
+        [language]="language">
+      </app-badge>
+    </div>
+  </div>
+
+  <!-- Product Info -->
+  <div class="product-box-list__info">
+    <!-- Header (Title & Wishlist) -->
+    <div class="product-box-list__header">
+      <h3 class="product-box-list__title">
+        <a [routerLink]="['/product', product.slug]">
+          {{ productName }}
+        </a>
+      </h3>
+
+      <button
+        type="button"
+        class="product-box-list__wishlist-btn"
+        (click)="onAddToWishlist($event)"
+        [attr.aria-label]="language === 'ar' ? 'إضافة إلى المفضلة' : 'Add to Wishlist'">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+          <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" stroke="currentColor" stroke-width="2"/>
+        </svg>
+      </button>
+    </div>
+
+    <!-- Description -->
+    <p class="product-box-list__description">
+      {{ productDescription }}
+    </p>
+
+    <!-- Tags/Attributes -->
+    <div class="product-box-list__tags">
+      <span class="product-box-list__tag" *ngIf="product.artisanMade">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M12 2L15 8L21 9L16.5 13.5L18 20L12 17L6 20L7.5 13.5L3 9L9 8L12 2Z"/>
+        </svg>
+        {{ language === 'ar' ? 'صناعة حرفية' : 'Artisan Made' }}
+      </span>
+
+      <span class="product-box-list__tag" *ngIf="product.region">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+          <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z" stroke="currentColor" stroke-width="2"/>
+          <circle cx="12" cy="9" r="2.5" stroke="currentColor" stroke-width="2"/>
+        </svg>
+        {{ product.region }}
+      </span>
+    </div>
+
+    <!-- Price & Action -->
+    <div class="product-box-list__footer">
+      <!-- Price -->
+      <div class="product-box-list__price">
+        <span class="product-box-list__price-current">
+          {{ displayPrice | currency:'USD':'symbol':'1.2-2' }}
+        </span>
+        <span
+          *ngIf="isOnSale"
+          class="product-box-list__price-original">
+          {{ product.price | currency:'USD':'symbol':'1.2-2' }}
+        </span>
+      </div>
+
+      <!-- Rating -->
+      <div class="product-box-list__rating" *ngIf="product.rating">
+        <div class="product-box-list__stars">
+          <span class="product-box-list__stars-filled" [style.width.%]="(product.rating / 5) * 100">
+            ★★★★★
+          </span>
+          <span class="product-box-list__stars-empty">★★★★★</span>
+        </div>
+        <span class="product-box-list__rating-count">({{ product.reviewCount || 0 }})</span>
+      </div>
+
+      <!-- Add to Cart Button -->
+      <button
+        type="button"
+        class="product-box-list__cart-btn"
+        [disabled]="product.stockQuantity === 0"
+        (click)="onAddToCart($event)">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+          <path d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" stroke="currentColor" stroke-width="2"/>
+        </svg>
+        <span class="product-box-list__cart-text">
+          {{ product.stockQuantity === 0
+            ? (language === 'ar' ? 'غير متوفر' : 'Out of Stock')
+            : (language === 'ar' ? 'أضف للسلة' : 'Add to Cart')
+          }}
+        </span>
+      </button>
+    </div>
+  </div>
+</div>

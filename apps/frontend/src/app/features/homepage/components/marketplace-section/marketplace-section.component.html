@@ -1,0 +1,101 @@
+<!--
+  Marketplace Section Template
+
+  Main homepage marketplace section combining:
+  - Sidebar: Category navigation + Featured products
+  - Content: Product tabs + Promotional banners + Category sliders
+-->
+
+<section class="marketplace-section"
+         [attr.dir]="language() === 'ar' ? 'rtl' : 'ltr'"
+         [class.rtl-mode]="language() === 'ar'">
+
+  <app-marketplace-layout [language]="language()">
+
+    <!-- ========================================
+         SIDEBAR SLOT
+         ======================================== -->
+    <div sidebar>
+      @if (showSidebar()) {
+        <!-- Category Sidebar Navigation (Phase 2) -->
+        <app-category-sidebar
+          [showFeaturedProducts]="false"
+          [showPromotionalBanner]="false"
+          [language]="language()">
+        </app-category-sidebar>
+
+        <!-- Sidebar Featured Products (Phase 3 - NEW) -->
+        @if (!isLoading() && featuredProducts().length > 0) {
+          <app-sidebar-featured-products
+            [products]="featuredProducts()"
+            [title]="'Featured Products'"
+            [titleAr]="'منتجات مميزة'"
+            [language]="language()"
+            [showPrices]="true"
+            [maxProducts]="3"
+            (productClick)="onFeaturedProductClick($event)">
+          </app-sidebar-featured-products>
+        }
+      }
+    </div>
+
+    <!-- ========================================
+         CONTENT SLOT
+         ======================================== -->
+    <div content>
+
+      <!-- Error State -->
+      @if (error()) {
+        <div class="marketplace-section__error">
+          <p>{{ error() }}</p>
+        </div>
+      }
+
+      <!-- Main Content -->
+      @if (!error()) {
+        <!-- Product Tabs Section (Phase 1) -->
+        <app-theme-product-tab-section>
+        </app-theme-product-tab-section>
+
+        <!-- Promotional Banners (Phase 3 - NEW) -->
+        @if (promotionalBanners().length > 0) {
+          <app-promotional-banners
+            [banners]="promotionalBanners()"
+            [columns]="2"
+            [language]="language()"
+            [showCTA]="true"
+            [aspectRatio]="'16/9'"
+            (bannerClick)="onPromotionalBannerClick($event)">
+          </app-promotional-banners>
+        }
+
+        <!-- Damascus Steel Category Slider (Phase 1) -->
+        <app-theme-product
+          [categorySlug]="'damascus-steel'"
+          [displayMode]="'slider'"
+          [limit]="8"
+          [language]="language()">
+        </app-theme-product>
+
+        <!-- Beauty & Wellness Category Slider -->
+        <app-theme-product
+          [categorySlug]="'beauty-wellness'"
+          [displayMode]="'slider'"
+          [limit]="8"
+          [language]="language()">
+        </app-theme-product>
+
+        <!-- Textiles & Fabrics Category Slider -->
+        <app-theme-product
+          [categorySlug]="'textiles-fabrics'"
+          [displayMode]="'slider'"
+          [limit]="8"
+          [language]="language()">
+        </app-theme-product>
+      }
+
+    </div>
+
+  </app-marketplace-layout>
+
+</section>

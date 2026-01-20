@@ -1,0 +1,91 @@
+<!-- Product Grid Container -->
+<div class="product-grid-container">
+  
+  <!-- Header Section -->
+  <div class="grid-header mb-6">
+    <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+      
+      <!-- Search & Controls -->
+      <div class="flex items-center gap-4">
+        <!-- Search Input -->
+        <mat-form-field appearance="outline" class="flex-1 lg:w-80">
+          <mat-label>Search products...</mat-label>
+          <input matInput 
+                 type="text"
+                 [(ngModel)]="searchQuery"
+                 (ngModelChange)="onSearchChange($event)"
+                 placeholder="Search by name, category, or seller">
+          <mat-icon matSuffix>search</mat-icon>
+        </mat-form-field>
+      </div>
+      
+      <!-- Results Count & Sort -->
+      <div class="flex items-center gap-4">
+        <!-- Results Count -->
+        <span class="text-gray-600 text-sm">
+          {{ filteredProducts.length }} of {{ allProducts.length }} products
+        </span>
+        
+        <!-- Sort Options -->
+        <mat-form-field appearance="outline" class="w-48" *ngIf="showSorting">
+          <mat-label>Sort by</mat-label>
+          <mat-select [value]="currentSort" 
+                      (selectionChange)="onSortChange($event.value)">
+            <mat-option *ngFor="let option of sortOptions" 
+                        [value]="option.value">
+              {{ option.label }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Main Content Area -->
+  <div class="grid-content">
+    
+    <!-- Loading State -->
+    <div class="loading-state flex justify-center items-center py-12" *ngIf="isLoading">
+      <mat-spinner diameter="50"></mat-spinner>
+      <span class="ml-4 text-gray-600">Loading products...</span>
+    </div>
+    
+    <!-- Empty State -->
+    <div class="empty-state text-center py-12" *ngIf="!isLoading && filteredProducts.length === 0 && allProducts.length > 0">
+      <mat-icon class="text-6xl text-gray-400 mb-4">search_off</mat-icon>
+      <h3 class="text-xl font-semibold text-gray-700 mb-2">No products found</h3>
+      <p class="text-gray-600 mb-4">Try adjusting your search terms</p>
+      <button mat-raised-button color="primary" (click)="searchQuery = ''; onSearchChange('')">
+        Clear Search
+      </button>
+    </div>
+    
+    <!-- No Products State -->
+    <div class="no-products-state text-center py-12" *ngIf="!isLoading && allProducts.length === 0">
+      <mat-icon class="text-6xl text-gray-400 mb-4">inventory_2</mat-icon>
+      <h3 class="text-xl font-semibold text-gray-700 mb-2">No products available</h3>
+      <p class="text-gray-600">Check back later for new products</p>
+    </div>
+    
+    <!-- Products Grid -->
+    <div class="products-grid" *ngIf="!isLoading && filteredProducts.length > 0">
+      <!-- Responsive Grid: 1 col mobile, 2 cols tablet, 3 cols small desktop, 4 cols large desktop -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 auto-rows-max">
+        <app-product-card 
+          *ngFor="let product of filteredProducts; trackBy: trackByProductId"
+          [product]="product"
+          [currency]="currency"
+          [viewMode]="'grid'"
+          [showWishlist]="true"
+          [showQuickAdd]="true"
+          (productClick)="onProductClick($event)"
+          (addToCart)="onAddToCart($event)"
+          (toggleWishlist)="onToggleWishlist($event)"
+          class="product-card-wrapper h-full">
+        </app-product-card>
+      </div>
+    </div>
+    
+  </div>
+  
+</div>

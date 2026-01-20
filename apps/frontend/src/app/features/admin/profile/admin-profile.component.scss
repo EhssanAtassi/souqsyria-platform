@@ -1,0 +1,64 @@
+.admin-profile {
+  display: grid;
+  gap: 2rem;
+
+  &__header {
+    display: flex;
+    gap: 1.5rem;
+    align-items: center;
+    padding: 1.5rem;
+    border-radius: 1.5rem;
+    background: #f9f7ef;
+  }
+
+  &__avatar {
+    width: 64px;
+    height: 64px;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: white;
+    background: linear-gradient(135deg, #1e3a8a 0%, #c41e3a 100%);
+  }
+
+  &__role {
+    margin: 0.4rem 0 0;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: rgba(31, 41, 51, 0.6);
+  }
+
+  &__details {
+    display: grid;
+    gap: 1rem;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  }
+
+  article {
+    padding: 1.5rem;
+    border-radius: 1.25rem;
+    background: #ffffff;
+    box-shadow: 0 20px 45px rgba(20, 30, 50, 0.08);
+
+    h3 {
+      margin: 0 0 0.75rem;
+      font-size: 1rem;
+      color: #1f2933;
+    }
+
+    p {
+      margin: 0.25rem 0;
+      color: rgba(31, 41, 51, 0.7);
+    }
+  }
+
+  &__empty {
+    padding: 2rem;
+    text-align: center;
+    border-radius: 1.5rem;
+    background: rgba(196, 30, 58, 0.12);
+    color: #7f1d1d;
+  }
+}

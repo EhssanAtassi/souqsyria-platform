@@ -1,0 +1,299 @@
+<div class="filter-sidebar" [class.mobile-view]="showMobileView()">
+  <!-- Header -->
+  <div class="filter-header">
+    <div class="header-title">
+      <mat-icon>filter_list</mat-icon>
+      <h3>Filters</h3>
+      @if (activeFiltersCount() > 0) {
+        <span class="filter-count" [matBadge]="activeFiltersCount()" matBadgeColor="primary"></span>
+      }
+    </div>
+
+    <div class="header-actions">
+      @if (hasActiveFilters()) {
+        <button mat-button class="clear-all-btn" (click)="clearAllFilters()">
+          Clear All
+        </button>
+      }
+      @if (showMobileView()) {
+        <button mat-icon-button (click)="onClose()">
+          <mat-icon>close</mat-icon>
+        </button>
+      }
+    </div>
+  </div>
+
+  <div class="filter-content">
+    <!-- Syrian Cultural Filters (Prominent) -->
+    <mat-expansion-panel
+      [expanded]="syrianFiltersExpanded()"
+      (opened)="syrianFiltersExpanded.set(true)"
+      (closed)="syrianFiltersExpanded.set(false)"
+      class="filter-section syrian-filters"
+    >
+      <mat-expansion-panel-header>
+        <mat-panel-title>
+          <mat-icon class="section-icon">verified</mat-icon>
+          <span>Syrian Heritage</span>
+          @if (unescoOnly() || certifiedOnly()) {
+            <span class="active-indicator"></span>
+          }
+        </mat-panel-title>
+      </mat-expansion-panel-header>
+
+      <div class="filter-options">
+        <div class="syrian-filter-card" [class.active]="unescoOnly()" (click)="toggleUNESCO()">
+          <div class="filter-card-icon">🏛️</div>
+          <div class="filter-card-content">
+            <h4>UNESCO Heritage</h4>
+            <p>Officially recognized traditional crafts</p>
+          </div>
+          <mat-checkbox [checked]="unescoOnly()" (click)="$event.stopPropagation()"></mat-checkbox>
+        </div>
+
+        <div class="syrian-filter-card" [class.active]="certifiedOnly()" (click)="toggleCertified()">
+          <div class="filter-card-icon">✓</div>
+          <div class="filter-card-content">
+            <h4>Authenticity Certified</h4>
+            <p>Verified authentic Syrian products</p>
+          </div>
+          <mat-checkbox [checked]="certifiedOnly()" (click)="$event.stopPropagation()"></mat-checkbox>
+        </div>
+      </div>
+    </mat-expansion-panel>
+
+    <!-- Price Range Filter -->
+    <mat-expansion-panel
+      [expanded]="priceExpanded()"
+      (opened)="priceExpanded.set(true)"
+      (closed)="priceExpanded.set(false)"
+      class="filter-section"
+    >
+      <mat-expansion-panel-header>
+        <mat-panel-title>
+          <mat-icon class="section-icon">attach_money</mat-icon>
+          <span>Price Range</span>
+          @if (priceRange().min > minPrice() || priceRange().max < maxPrice()) {
+            <span class="active-indicator"></span>
+          }
+        </mat-panel-title>
+      </mat-expansion-panel-header>
+
+      <div class="filter-options">
+        <div class="price-range-display">
+          <span class="price-value">{{ formatPrice(priceRange().min) }}</span>
+          <span class="price-separator">-</span>
+          <span class="price-value">{{ formatPrice(priceRange().max) }}</span>
+        </div>
+
+        <div class="price-slider">
+          <mat-slider [min]="minPrice()" [max]="maxPrice()" [step]="10" discrete>
+            <input
+              matSliderStartThumb
+              [value]="priceRange().min"
+              (valueChange)="onPriceChange('min', $event)"
+            />
+            <input
+              matSliderEndThumb
+              [value]="priceRange().max"
+              (valueChange)="onPriceChange('max', $event)"
+            />
+          </mat-slider>
+        </div>
+
+        @if (priceRange().min > minPrice() || priceRange().max < maxPrice()) {
+          <button mat-stroked-button class="reset-btn" (click)="clearPriceRange()">
+            Reset Price
+          </button>
+        }
+      </div>
+    </mat-expansion-panel>
+
+    <!-- Categories Filter -->
+    <mat-expansion-panel
+      [expanded]="categoryExpanded()"
+      (opened)="categoryExpanded.set(true)"
+      (closed)="categoryExpanded.set(false)"
+      class="filter-section"
+    >
+      <mat-expansion-panel-header>
+        <mat-panel-title>
+          <mat-icon class="section-icon">category</mat-icon>
+          <span>Categories</span>
+          @if (selectedCategories().length > 0) {
+            <span class="count-badge">{{ selectedCategories().length }}</span>
+          }
+        </mat-panel-title>
+      </mat-expansion-panel-header>
+
+      <div class="filter-options">
+        @for (category of categories(); track category.slug) {
+          <div class="filter-checkbox">
+            <mat-checkbox
+              [checked]="isCategorySelected(category.slug)"
+              (change)="toggleCategory(category.slug)"
+            >
+              {{ category.name }}
+            </mat-checkbox>
+          </div>
+        }
+
+        @if (selectedCategories().length > 0) {
+          <button mat-stroked-button class="reset-btn" (click)="clearCategories()">
+            Clear Categories
+          </button>
+        }
+      </div>
+    </mat-expansion-panel>
+
+    <!-- Rating Filter -->
+    <mat-expansion-panel
+      [expanded]="ratingExpanded()"
+      (opened)="ratingExpanded.set(true)"
+      (closed)="ratingExpanded.set(false)"
+      class="filter-section"
+    >
+      <mat-expansion-panel-header>
+        <mat-panel-title>
+          <mat-icon class="section-icon">star</mat-icon>
+          <span>Customer Rating</span>
+          @if (selectedRating() !== null) {
+            <span class="active-indicator"></span>
+          }
+        </mat-panel-title>
+      </mat-expansion-panel-header>
+
+      <div class="filter-options">
+        @for (option of ratingOptions; track option.value) {
+          <div
+            class="rating-option"
+            [class.active]="selectedRating() === option.value"
+            (click)="selectRating(option.value)"
+          >
+            <div class="rating-stars">{{ option.icon }}</div>
+            <span class="rating-label">{{ option.label }}</span>
+          </div>
+        }
+
+        @if (selectedRating() !== null) {
+          <button mat-stroked-button class="reset-btn" (click)="clearRating()">
+            Clear Rating
+          </button>
+        }
+      </div>
+    </mat-expansion-panel>
+
+    <!-- Regional Filter -->
+    <mat-expansion-panel
+      [expanded]="regionExpanded()"
+      (opened)="regionExpanded.set(true)"
+      (closed)="regionExpanded.set(false)"
+      class="filter-section"
+    >
+      <mat-expansion-panel-header>
+        <mat-panel-title>
+          <mat-icon class="section-icon">location_on</mat-icon>
+          <span>Syrian Regions</span>
+          @if (selectedRegions().length > 0) {
+            <span class="count-badge">{{ selectedRegions().length }}</span>
+          }
+        </mat-panel-title>
+      </mat-expansion-panel-header>
+
+      <div class="filter-options">
+        @for (region of syrianRegions(); track region.code) {
+          <div class="filter-checkbox region-checkbox">
+            <mat-checkbox
+              [checked]="isRegionSelected(region.code)"
+              (change)="toggleRegion(region.code)"
+            >
+              <span class="region-name">{{ region.name }}</span>
+              <span class="region-name-ar">{{ region.nameAr }}</span>
+            </mat-checkbox>
+          </div>
+        }
+
+        @if (selectedRegions().length > 0) {
+          <button mat-stroked-button class="reset-btn" (click)="clearRegions()">
+            Clear Regions
+          </button>
+        }
+      </div>
+    </mat-expansion-panel>
+
+    <!-- Availability Filter -->
+    <mat-expansion-panel
+      [expanded]="availabilityExpanded()"
+      (opened)="availabilityExpanded.set(true)"
+      (closed)="availabilityExpanded.set(false)"
+      class="filter-section"
+    >
+      <mat-expansion-panel-header>
+        <mat-panel-title>
+          <mat-icon class="section-icon">inventory</mat-icon>
+          <span>Availability</span>
+          @if (inStockOnly()) {
+            <span class="active-indicator"></span>
+          }
+        </mat-panel-title>
+      </mat-expansion-panel-header>
+
+      <div class="filter-options">
+        <div class="filter-checkbox">
+          <mat-checkbox [checked]="inStockOnly()" (change)="toggleInStock()">
+            In Stock Only
+          </mat-checkbox>
+        </div>
+      </div>
+    </mat-expansion-panel>
+
+    <!-- Brand/Artisan Filter -->
+    @if (brands().length > 0) {
+      <mat-expansion-panel class="filter-section">
+        <mat-expansion-panel-header>
+          <mat-panel-title>
+            <mat-icon class="section-icon">store</mat-icon>
+            <span>Artisans & Brands</span>
+            @if (selectedBrands().length > 0) {
+              <span class="count-badge">{{ selectedBrands().length }}</span>
+            }
+          </mat-panel-title>
+        </mat-expansion-panel-header>
+
+        <div class="filter-options">
+          @for (brand of brands(); track brand) {
+            <div class="filter-checkbox">
+              <mat-checkbox
+                [checked]="isBrandSelected(brand)"
+                (change)="toggleBrand(brand)"
+              >
+                {{ brand }}
+              </mat-checkbox>
+            </div>
+          }
+
+          @if (selectedBrands().length > 0) {
+            <button mat-stroked-button class="reset-btn" (click)="clearBrands()">
+              Clear Brands
+            </button>
+          }
+        </div>
+      </mat-expansion-panel>
+    }
+  </div>
+
+  <!-- Mobile Footer Actions -->
+  @if (showMobileView()) {
+    <div class="filter-footer">
+      <button mat-stroked-button (click)="clearAllFilters()" [disabled]="!hasActiveFilters()">
+        Clear All
+      </button>
+      <button mat-raised-button color="primary" (click)="onClose()">
+        Apply Filters
+        @if (activeFiltersCount() > 0) {
+          <span class="filter-count">({{ activeFiltersCount() }})</span>
+        }
+      </button>
+    </div>
+  }
+</div>

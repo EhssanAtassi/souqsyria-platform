@@ -1,0 +1,19 @@
+<!-- Hero Split Layout Container -->
+<div class="hero-split-container">
+
+  <!-- LEFT SIDE: Image Slider (65%) -->
+  <div class="hero-slider-section">
+    <app-hero-image-slider [banners]="heroBanners()" />
+  </div>
+
+  <!-- RIGHT SIDE: Promotional Offer Cards (35%) -->
+  <div class="hero-sidebar">
+
+    <!-- TOP: Promotional Offer Card (50% height) -->
+    <app-promotional-offer-card [offer]="topOffer()" />
+
+    <!-- BOTTOM: Promotional Offer Card (50% height) -->
+    <app-promotional-offer-card [offer]="bottomOffer()" />
+
+  </div>
+</div>

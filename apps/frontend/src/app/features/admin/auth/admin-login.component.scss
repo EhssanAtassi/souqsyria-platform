@@ -1,0 +1,124 @@
+.admin-login {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  background: radial-gradient(circle at top, #fef9e7 0%, #ede6d5 60%, #dac9a6 100%);
+
+  &__card {
+    width: min(420px, 100%);
+    display: grid;
+    gap: 1.5rem;
+    padding: 2.5rem 2rem;
+    background: #ffffff;
+    border-radius: 1.75rem;
+    box-shadow: 0 45px 90px rgba(20, 30, 50, 0.12);
+  }
+
+  &__badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.25rem 0.75rem;
+    border-radius: 999px;
+    background: rgba(30, 58, 138, 0.12);
+    color: #1e3a8a;
+    font-size: 0.75rem;
+    letter-spacing: 0.08em;
+    font-weight: 600;
+  }
+
+  &__title {
+    margin: 0.5rem 0 0;
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: #1b1c1d;
+  }
+
+  &__subtitle {
+    margin: 0;
+    font-size: 0.95rem;
+    color: rgba(27, 28, 29, 0.7);
+  }
+
+  &__form {
+    display: grid;
+    gap: 1rem;
+  }
+
+  &__field {
+    display: grid;
+    gap: 0.4rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: rgba(27, 28, 29, 0.8);
+  }
+
+  &__field input {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border-radius: 0.85rem;
+    border: 1px solid rgba(27, 28, 29, 0.12);
+    font-size: 0.95rem;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+
+    &:focus {
+      border-color: #c41e3a;
+      box-shadow: 0 0 0 4px rgba(196, 30, 58, 0.15);
+      outline: none;
+    }
+
+    &.admin-login__input--invalid {
+      border-color: #c41e3a;
+    }
+  }
+
+  &__error {
+    margin: 0;
+    padding: 0.75rem 1rem;
+    border-radius: 0.85rem;
+    background: rgba(196, 30, 58, 0.1);
+    color: #8f142a;
+    font-size: 0.85rem;
+  }
+
+  &__submit {
+    margin-top: 0.5rem;
+    padding: 0.85rem 1rem;
+    border-radius: 0.95rem;
+    border: none;
+    background: linear-gradient(90deg, #1e3a8a 0%, #c41e3a 100%);
+    color: #ffffff;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+    &:hover:enabled {
+      transform: translateY(-1px);
+      box-shadow: 0 12px 25px rgba(30, 58, 138, 0.25);
+    }
+
+    &:disabled {
+      opacity: 0.65;
+      cursor: not-allowed;
+    }
+  }
+
+  &__footer {
+    text-align: center;
+    font-size: 0.8rem;
+    color: rgba(27, 28, 29, 0.6);
+  }
+}
+
+@media (max-width: 640px) {
+  .admin-login {
+    padding: 1.5rem;
+
+    &__card {
+      padding: 2rem 1.5rem;
+    }
+  }
+}

@@ -1,0 +1,446 @@
+/**
+ * RTL (Right-to-Left) Utility Classes
+ *
+ * Directional utility classes that adapt to Arabic (RTL) and English (LTR) layouts.
+ * Automatically adjusts margins, padding, text alignment, and positioning.
+ *
+ * @swagger
+ * components:
+ *   schemas:
+ *     RTLUtilities:
+ *       type: object
+ *       description: Utility classes for RTL/LTR language support
+ *       properties:
+ *         textAlign:
+ *           description: Text alignment utilities (start, end, center)
+ *         spacing:
+ *           description: Directional spacing utilities (margin, padding)
+ *         positioning:
+ *           description: Directional positioning utilities (left, right)
+ */
+
+@import 'variables';
+@import 'mixins';
+
+// ============================================================================
+// TEXT ALIGNMENT UTILITIES
+// ============================================================================
+
+/**
+ * Text align start (left in LTR, right in RTL)
+ */
+.text-start {
+  text-align: left;
+
+  @include rtl {
+    text-align: right;
+  }
+}
+
+/**
+ * Text align end (right in LTR, left in RTL)
+ */
+.text-end {
+  text-align: right;
+
+  @include rtl {
+    text-align: left;
+  }
+}
+
+/**
+ * Text align center (same in both directions)
+ */
+.text-center {
+  text-align: center;
+}
+
+// ============================================================================
+// MARGIN UTILITIES (DIRECTIONAL)
+// ============================================================================
+
+/**
+ * Margin start (left in LTR, right in RTL)
+ */
+.margin-start {
+  margin-left: $space-4;
+
+  @include rtl {
+    margin-left: 0;
+    margin-right: $space-4;
+  }
+}
+
+.margin-start-sm {
+  margin-left: $space-2;
+
+  @include rtl {
+    margin-left: 0;
+    margin-right: $space-2;
+  }
+}
+
+.margin-start-lg {
+  margin-left: $space-8;
+
+  @include rtl {
+    margin-left: 0;
+    margin-right: $space-8;
+  }
+}
+
+/**
+ * Margin end (right in LTR, left in RTL)
+ */
+.margin-end {
+  margin-right: $space-4;
+
+  @include rtl {
+    margin-right: 0;
+    margin-left: $space-4;
+  }
+}
+
+.margin-end-sm {
+  margin-right: $space-2;
+
+  @include rtl {
+    margin-right: 0;
+    margin-left: $space-2;
+  }
+}
+
+.margin-end-lg {
+  margin-right: $space-8;
+
+  @include rtl {
+    margin-right: 0;
+    margin-left: $space-8;
+  }
+}
+
+// ============================================================================
+// PADDING UTILITIES (DIRECTIONAL)
+// ============================================================================
+
+/**
+ * Padding start (left in LTR, right in RTL)
+ */
+.padding-start {
+  padding-left: $space-4;
+
+  @include rtl {
+    padding-left: 0;
+    padding-right: $space-4;
+  }
+}
+
+.padding-start-sm {
+  padding-left: $space-2;
+
+  @include rtl {
+    padding-left: 0;
+    padding-right: $space-2;
+  }
+}
+
+.padding-start-lg {
+  padding-left: $space-8;
+
+  @include rtl {
+    padding-left: 0;
+    padding-right: $space-8;
+  }
+}
+
+/**
+ * Padding end (right in LTR, left in RTL)
+ */
+.padding-end {
+  padding-right: $space-4;
+
+  @include rtl {
+    padding-right: 0;
+    padding-left: $space-4;
+  }
+}
+
+.padding-end-sm {
+  padding-right: $space-2;
+
+  @include rtl {
+    padding-right: 0;
+    padding-left: $space-2;
+  }
+}
+
+.padding-end-lg {
+  padding-right: $space-8;
+
+  @include rtl {
+    padding-right: 0;
+    padding-left: $space-8;
+  }
+}
+
+// ============================================================================
+// POSITIONING UTILITIES (DIRECTIONAL)
+// ============================================================================
+
+/**
+ * Position start (left in LTR, right in RTL)
+ */
+.position-start-0 {
+  left: 0;
+
+  @include rtl {
+    left: auto;
+    right: 0;
+  }
+}
+
+/**
+ * Position end (right in LTR, left in RTL)
+ */
+.position-end-0 {
+  right: 0;
+
+  @include rtl {
+    right: auto;
+    left: 0;
+  }
+}
+
+// ============================================================================
+// BORDER UTILITIES (DIRECTIONAL)
+// ============================================================================
+
+/**
+ * Border start (left in LTR, right in RTL)
+ */
+.border-start {
+  border-left: $border-width-thin solid $forest-medium;
+
+  @include rtl {
+    border-left: none;
+    border-right: $border-width-thin solid $forest-medium;
+  }
+}
+
+/**
+ * Border end (right in LTR, left in RTL)
+ */
+.border-end {
+  border-right: $border-width-thin solid $forest-medium;
+
+  @include rtl {
+    border-right: none;
+    border-left: $border-width-thin solid $forest-medium;
+  }
+}
+
+// ============================================================================
+// BORDER RADIUS UTILITIES (DIRECTIONAL)
+// ============================================================================
+
+/**
+ * Rounded start (left side in LTR, right side in RTL)
+ */
+.rounded-start {
+  border-top-left-radius: $border-radius-md;
+  border-bottom-left-radius: $border-radius-md;
+
+  @include rtl {
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+    border-top-right-radius: $border-radius-md;
+    border-bottom-right-radius: $border-radius-md;
+  }
+}
+
+/**
+ * Rounded end (right side in LTR, left side in RTL)
+ */
+.rounded-end {
+  border-top-right-radius: $border-radius-md;
+  border-bottom-right-radius: $border-radius-md;
+
+  @include rtl {
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+    border-top-left-radius: $border-radius-md;
+    border-bottom-left-radius: $border-radius-md;
+  }
+}
+
+// ============================================================================
+// FLEXBOX UTILITIES (DIRECTIONAL)
+// ============================================================================
+
+/**
+ * Flex direction row (left-to-right in LTR, right-to-left in RTL)
+ */
+.flex-row {
+  display: flex;
+  flex-direction: row;
+
+  @include rtl {
+    flex-direction: row-reverse;
+  }
+}
+
+/**
+ * Flex justify start (left in LTR, right in RTL)
+ */
+.justify-start {
+  justify-content: flex-start;
+
+  @include rtl {
+    justify-content: flex-end;
+  }
+}
+
+/**
+ * Flex justify end (right in LTR, left in RTL)
+ */
+.justify-end {
+  justify-content: flex-end;
+
+  @include rtl {
+    justify-content: flex-start;
+  }
+}
+
+// ============================================================================
+// TRANSFORM UTILITIES (DIRECTIONAL)
+// ============================================================================
+
+/**
+ * Transform scale X (flips in RTL)
+ */
+.scale-x-100 {
+  transform: scaleX(1);
+
+  @include rtl {
+    transform: scaleX(-1);
+  }
+}
+
+// ============================================================================
+// FLOAT UTILITIES (DIRECTIONAL)
+// ============================================================================
+
+/**
+ * Float start (left in LTR, right in RTL)
+ */
+.float-start {
+  float: left;
+
+  @include rtl {
+    float: right;
+  }
+}
+
+/**
+ * Float end (right in LTR, left in RTL)
+ */
+.float-end {
+  float: right;
+
+  @include rtl {
+    float: left;
+  }
+}
+
+/**
+ * Clear float
+ */
+.clear-both {
+  clear: both;
+}
+
+// ============================================================================
+// LIST UTILITIES (DIRECTIONAL)
+// ============================================================================
+
+/**
+ * List style position inside with RTL support
+ */
+.list-inside {
+  list-style-position: inside;
+  padding-left: 0;
+
+  @include rtl {
+    padding-right: 0;
+  }
+}
+
+/**
+ * Remove list styling
+ */
+.list-none {
+  list-style: none;
+  padding-left: 0;
+  margin-left: 0;
+
+  @include rtl {
+    padding-right: 0;
+    margin-right: 0;
+  }
+}
+
+// ============================================================================
+// ICON UTILITIES (DIRECTIONAL)
+// ============================================================================
+
+/**
+ * Icon with margin start (spacing before text in LTR, after text in RTL)
+ */
+.icon-start {
+  margin-right: $space-2;
+
+  @include rtl {
+    margin-right: 0;
+    margin-left: $space-2;
+  }
+}
+
+/**
+ * Icon with margin end (spacing after text in LTR, before text in RTL)
+ */
+.icon-end {
+  margin-left: $space-2;
+
+  @include rtl {
+    margin-left: 0;
+    margin-right: $space-2;
+  }
+}
+
+// ============================================================================
+// DIRECTIONAL HELPER CLASSES
+// ============================================================================
+
+/**
+ * Force LTR direction (useful for phone numbers, emails, etc.)
+ */
+.force-ltr {
+  direction: ltr !important;
+  text-align: left !important;
+}
+
+/**
+ * Force RTL direction
+ */
+.force-rtl {
+  direction: rtl !important;
+  text-align: right !important;
+}
+
+/**
+ * Reset directional properties (useful for globally positioned elements)
+ */
+.dir-neutral {
+  direction: inherit;
+  text-align: inherit;
+}

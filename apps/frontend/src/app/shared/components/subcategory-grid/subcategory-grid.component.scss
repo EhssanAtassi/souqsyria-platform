@@ -1,0 +1,62 @@
+/**
+ * SubcategoryGrid Component Styles - FIGMA DESIGN MATCH
+ * Syrian Marketplace - Variable layout with featured + regular cards
+ */
+
+$golden-wheat: #D4AF37;
+
+.subcategory-grid {
+  .featured-card,
+  .regular-card {
+    transition: all 0.2s ease;
+
+    &:hover {
+      transform: translateY(-2px);
+      border-color: $golden-wheat;
+    }
+
+    &:active {
+      transform: translateY(0);
+    }
+
+    h3 {
+      font-family: 'Inter', sans-serif;
+    }
+
+    img {
+      transition: transform 0.2s ease;
+    }
+
+    &:hover img {
+      transform: scale(1.05);
+    }
+  }
+
+  .featured-card {
+    // Larger featured cards (first 2)
+    h3 {
+      font-size: 0.875rem;
+      font-weight: 600;
+    }
+  }
+
+  .regular-card {
+    // Smaller regular cards
+    h3 {
+      font-size: 0.75rem;
+      font-weight: 500;
+    }
+  }
+}
+
+// Accessibility
+@media (prefers-reduced-motion: reduce) {
+  .featured-card,
+  .regular-card {
+    transition: none !important;
+
+    img {
+      transform: none !important;
+    }
+  }
+}

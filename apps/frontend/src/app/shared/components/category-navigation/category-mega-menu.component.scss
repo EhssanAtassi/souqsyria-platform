@@ -1,0 +1,627 @@
+/**
+ * SouqSyria Category Mega Menu Component Styles
+ * @description Simplified mega menu styling with Syrian golden wheat theme
+ * @author SouqSyria Development Team
+ * @version 2.0.0
+ */
+
+// Import Tailwind utilities
+@import 'tailwindcss/utilities';
+
+// Syrian Golden Wheat Color Palette
+:root {
+  --sq-wheat-50: #fefdf8;
+  --sq-wheat-100: #fef7e0;
+  --sq-wheat-200: #fdecc2;
+  --sq-wheat-300: #fcd89b;
+  --sq-wheat-400: #fac16b;
+  --sq-wheat-500: #f8a847;
+  --sq-wheat-600: #e9842c;
+  --sq-wheat-700: #d46924;
+  --sq-wheat-800: #b55526;
+  --sq-wheat-900: #9a4628;
+  --sq-wheat-950: #572312;
+}
+
+// Base mega menu host
+:host {
+  display: block;
+  position: relative;
+
+  &.sq-mega-menu--rtl {
+    direction: rtl;
+  }
+}
+
+// Main mega menu container with Syrian golden wheat theme - FORCE LIGHT BACKGROUND
+.sq-mega-menu-container {
+  // Background with VERY LIGHT golden wheat gradient - CRITICAL FIX with !important
+  background: linear-gradient(135deg,
+    #ffffff 0%,     // pure white - maximum lightness
+    #fefdf8 30%,    // wheat-50 - very light creamy
+    #fef7e0 70%,    // amber-50 - warm cream
+    #fef3c7 100%    // amber-100 - light golden (removed darker amber-200)
+  ) !important;
+
+  // Override any conflicting background styles
+  background-color: #ffffff !important;
+  background-image: linear-gradient(135deg, #ffffff 0%, #fefdf8 30%, #fef7e0 70%, #fef3c7 100%) !important;
+
+  // Enhanced amber border for Syrian heritage touch
+  border-top: 4px solid #d97706;  // amber-600 - deeper golden
+
+  // Premium shadows with warm golden tint
+  box-shadow:
+    0 25px 50px rgba(217, 119, 6, 0.12),   // warm amber shadow
+    0 10px 30px rgba(146, 64, 14, 0.08),   // amber-800 subtle shadow
+    0 0 0 1px rgba(251, 191, 36, 0.15);    // amber-400 border glow
+
+  // Backdrop filter for premium feel
+  backdrop-filter: blur(20px) saturate(1.3);
+
+  // Smooth entrance animation
+  animation: megaMenuGoldenEntrance 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  // Responsive max height
+  max-height: 85vh;
+  overflow-y: auto;
+
+  // Enhanced hover detection - create invisible bridge to prevent flickering
+  position: relative;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: -8px;
+    left: 0;
+    right: 0;
+    height: 8px;
+    background: transparent;
+    pointer-events: auto;
+    z-index: 1;
+  }
+
+  // Smooth visibility transitions
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 0.2s cubic-bezier(0.4, 0, 0.2, 1),
+              transform 0.2s cubic-bezier(0.4, 0, 0.2, 1),
+              visibility 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+
+  &[style*="display: none"] {
+    opacity: 0;
+    transform: translateY(-12px);
+    pointer-events: none;
+    visibility: hidden;
+  }
+
+  // Custom scrollbar with golden wheat theme
+  scrollbar-width: thin;
+  scrollbar-color: #d97706 #fef7e0;  // amber-600, amber-50
+
+  &::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: #fef7e0;  // amber-50
+    border-radius: 4px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: #d97706;  // amber-600
+    border-radius: 4px;
+    border: 1px solid #fbbf24;  // amber-400
+
+    &:hover {
+      background: #b45309;  // amber-700
+    }
+  }
+}
+
+// Mega menu state classes
+.sq-mega-menu {
+  &--visible {
+    animation: megaMenuSlideDown 0.3s ease-out;
+  }
+
+  &--hidden {
+    animation: megaMenuSlideUp 0.2s ease-in;
+  }
+
+  &--transitioning {
+    opacity: 0.7;
+    transform: scale(0.99);
+    transition: all 0.2s ease;
+  }
+}
+
+// Syrian category group styling
+.sq-mega-category-group {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+  &:hover {
+    transform: translateY(-2px);
+  }
+}
+
+// Category header with warm golden wheat accents
+.sq-mega-category-header {
+  position: relative;
+
+  button {
+    position: relative;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    color: #78350f;  // amber-900 for excellent contrast
+
+    // Warm golden hover effects
+    &:hover {
+      background: linear-gradient(135deg, #fef3c7, #fde68a);  // amber-100, amber-200
+      color: #451a03;  // amber-950 for maximum contrast
+      border-color: #d97706;  // amber-600
+
+      // Warm amber glow
+      box-shadow: 0 6px 16px rgba(217, 119, 6, 0.25);
+
+      .sq-category-icon {
+        transform: scale(1.08);
+        filter: drop-shadow(0 3px 6px rgba(217, 119, 6, 0.4));
+      }
+    }
+
+    // Active state with enhanced golden wheat theme
+    &.text-primary-600 {
+      background: linear-gradient(135deg, #fcd34d, #f59e0b);  // amber-300, amber-500
+      color: #451a03;  // amber-950 for maximum contrast
+      border-color: #b45309;  // amber-700
+
+      box-shadow:
+        0 8px 20px rgba(217, 119, 6, 0.3),
+        inset 0 1px 0 rgba(255, 255, 255, 0.6);
+    }
+
+    &:focus-visible {
+      outline: 3px solid #d97706;  // amber-600
+      outline-offset: 2px;
+    }
+  }
+}
+
+// Subcategory cards with warm golden styling
+.sq-mega-subcategory-card {
+  position: relative;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(10px);
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.95);
+    transform: translateY(-3px);
+    border-color: #f59e0b;  // amber-500
+
+    // Warm golden shadow
+    box-shadow: 0 12px 30px rgba(217, 119, 6, 0.18);
+
+    // RTL support
+    :host.sq-mega-menu--rtl & {
+      transform: translateY(-3px);
+    }
+  }
+
+  &:focus-visible {
+    outline: 3px solid #d97706;  // amber-600
+    outline-offset: 2px;
+  }
+}
+
+// Category-specific promotion card
+.sq-category-promotion-card {
+  position: relative;
+  overflow: hidden;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+
+  // Dynamic gradient background (set via ngClass in template)
+  // Gradients are now applied dynamically based on category
+
+  // Animated shimmer effect
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg,
+      transparent,
+      rgba(255, 255, 255, 0.3),
+      transparent
+    );
+    transition: left 0.6s ease;
+  }
+
+  &:hover {
+    transform: scale(1.03) translateY(-2px);
+    box-shadow:
+      0 20px 40px rgba(0, 0, 0, 0.15),
+      0 10px 25px rgba(0, 0, 0, 0.1);
+
+    &::before {
+      left: 100%;
+    }
+
+    button {
+      transform: translateY(-1px) scale(1.02);
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+    }
+  }
+
+  &:focus-visible {
+    outline: 3px solid rgba(255, 255, 255, 0.8);
+    outline-offset: 3px;
+  }
+}
+
+// Modern promotion CTA button
+.sq-category-promotion-card button {
+  background: rgba(255, 255, 255, 0.95) !important;
+  color: #1f2937 !important;  // gray-800
+  font-weight: 600;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+
+  &:hover {
+    background: #ffffff !important;
+    color: #111827 !important;  // gray-900
+    transform: translateY(-1px) scale(1.02);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+  }
+}
+
+// Featured product cards with golden wheat styling
+.sq-featured-product-card {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(10px);
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.95);
+    transform: translateY(-4px);
+    border-color: #f59e0b;  // amber-500
+
+    box-shadow:
+      0 16px 40px rgba(217, 119, 6, 0.22),
+      0 6px 18px rgba(146, 64, 14, 0.1);
+
+    .text-amber-600 {
+      color: #d97706 !important;  // amber-600
+      transform: scale(1.05);
+    }
+
+    .text-amber-900 {
+      color: #451a03 !important;  // amber-950
+    }
+  }
+}
+
+// Quick links section with golden wheat styling
+.border-t.border-amber-200 {
+  border-color: #fde68a !important;  // amber-200
+
+  button {
+    transition: all 0.3s ease;
+    color: #78350f;  // amber-900 for good contrast
+
+    &:hover {
+      background: linear-gradient(135deg, #fef3c7, #fde68a);  // amber-100, amber-200
+      border-color: #f59e0b;  // amber-500
+      color: #451a03;  // amber-950 for maximum contrast
+      transform: translateX(6px);
+      box-shadow: 0 4px 12px rgba(217, 119, 6, 0.15);
+
+      :host.sq-mega-menu--rtl & {
+        transform: translateX(-6px);
+      }
+
+      mat-icon {
+        color: #b45309;  // amber-700
+        transform: scale(1.15);
+      }
+    }
+  }
+}
+
+// Close button with golden wheat theme
+.absolute.top-4.right-4,
+.absolute.top-4.left-4 {
+  background: rgba(255, 255, 255, 0.95);
+  border: 1px solid #fde68a;  // amber-200
+  transition: all 0.3s ease;
+  color: #d97706;  // amber-600
+
+  &:hover {
+    background: #fef3c7;  // amber-100
+    color: #78350f;  // amber-900
+    border-color: #f59e0b;  // amber-500
+    transform: scale(1.15) rotate(90deg);
+    box-shadow: 0 6px 16px rgba(217, 119, 6, 0.2);
+  }
+
+  &:focus-visible {
+    outline: 3px solid #d97706;  // amber-600
+    outline-offset: 2px;
+  }
+}
+
+// Background overlay with warm golden tint
+.fixed.inset-0 {
+  background: linear-gradient(135deg,
+    rgba(217, 119, 6, 0.06),    // warm amber tint
+    rgba(146, 64, 14, 0.08),    // deeper amber
+    rgba(120, 53, 15, 0.12)     // amber-900 for depth
+  ) !important;
+  animation: overlayFadeIn 0.3s ease;
+}
+
+// Syrian marketplace icon styling with golden wheat theme
+.sq-category-icon {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  color: #d97706;  // amber-600 for good visibility
+
+  &:hover {
+    filter: drop-shadow(0 4px 10px rgba(217, 119, 6, 0.4));
+    color: #b45309;  // amber-700 on hover
+  }
+}
+
+// Golden wheat animations
+@keyframes megaMenuGoldenEntrance {
+  0% {
+    opacity: 0;
+    transform: translateY(-25px) scale(0.92);
+    filter: blur(8px) brightness(0.8);
+  }
+  30% {
+    opacity: 0.6;
+    transform: translateY(-8px) scale(0.96);
+    filter: blur(4px) brightness(0.9);
+  }
+  70% {
+    opacity: 0.9;
+    transform: translateY(-2px) scale(0.99);
+    filter: blur(1px) brightness(1.05);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    filter: blur(0) brightness(1);
+  }
+}
+
+@keyframes megaMenuSlideDown {
+  0% {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes megaMenuSlideUp {
+  0% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+}
+
+@keyframes overlayFadeIn {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+@keyframes goldenShimmer {
+  0% {
+    left: -100%;
+  }
+  100% {
+    left: 100%;
+  }
+}
+
+// Responsive design for Syrian marketplace
+@media (max-width: 1023px) {
+  :host {
+    display: none;
+  }
+}
+
+@media (min-width: 1024px) and (max-width: 1279px) {
+  .sq-mega-menu-container {
+    .grid-cols-3 {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .col-span-8 {
+      grid-column: span 7 / span 7;
+    }
+
+    .col-span-4 {
+      grid-column: span 5 / span 5;
+    }
+  }
+}
+
+// High contrast mode with enhanced golden wheat theme
+@media (prefers-contrast: high) {
+  .sq-mega-menu-container {
+    background: #ffffff;
+    border: 4px solid #451a03;  // amber-950 for maximum contrast
+  }
+
+  .sq-mega-category-header button {
+    color: #451a03;  // amber-950
+    border: 2px solid #78350f;  // amber-900
+
+    &:hover,
+    &:focus {
+      background: #451a03;  // amber-950
+      color: #ffffff;
+      border-color: #451a03;
+    }
+  }
+
+  .sq-mega-subcategory-card {
+    border: 2px solid #78350f;  // amber-900
+    color: #451a03;  // amber-950
+
+    &:hover,
+    &:focus {
+      background: #451a03;  // amber-950
+      color: #ffffff;
+      border-color: #451a03;
+    }
+  }
+
+  // Ensure all text has maximum contrast
+  .text-amber-700,
+  .text-amber-800,
+  .text-amber-900 {
+    color: #451a03 !important;  // amber-950
+  }
+
+  .text-amber-600 {
+    color: #78350f !important;  // amber-900
+  }
+}
+
+// Reduced motion support
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  .sq-mega-promotion-card::before {
+    display: none;
+  }
+
+  .sq-featured-product-card:hover,
+  .sq-mega-category-group:hover {
+    transform: none;
+  }
+}
+
+// Print styles
+@media print {
+  :host {
+    display: none;
+  }
+}
+
+// CRITICAL OVERRIDE: Force light background and dark text for all mega menu elements
+.sq-mega-menu-container {
+  // Additional specificity overrides to ensure light background
+  &,
+  &::before,
+  &::after {
+    background: linear-gradient(135deg, #ffffff 0%, #fefdf8 30%, #fef7e0 70%, #fef3c7 100%) !important;
+    background-color: #ffffff !important;
+  }
+
+  // Force all text to be dark and readable
+  * {
+    color: #78350f !important; // amber-900 for excellent readability
+  }
+
+  // Specific overrides for text elements
+  h1, h2, h3, h4, h5, h6,
+  .text-amber-900,
+  .text-amber-800,
+  .text-amber-700,
+  .text-amber-600 {
+    color: #78350f !important; // amber-900 - dark brown
+  }
+
+  // Ensure Material Icons are visible
+  .mat-icon,
+  mat-icon {
+    color: #d97706 !important; // amber-600 - golden brown for icons
+  }
+
+  // Ensure links and buttons have proper contrast
+  a, button {
+    color: #78350f !important; // amber-900
+
+    &:hover {
+      color: #451a03 !important; // amber-950 - darkest for hover
+    }
+  }
+
+  // Force white backgrounds for cards
+  .sq-mega-subcategory-card,
+  .sq-featured-product-card {
+    background: rgba(255, 255, 255, 0.95) !important;
+    color: #78350f !important;
+
+    &:hover {
+      background: rgba(255, 255, 255, 1) !important;
+      color: #451a03 !important;
+    }
+  }
+
+  // Ensure promotional cards are readable
+  .sq-category-promotion-card {
+    // Keep the colored backgrounds for promotions but ensure text contrast
+    .text-white {
+      color: #ffffff !important; // Keep white text on colored promotional backgrounds
+    }
+  }
+}
+
+// Dark mode DISABLED for mega menu - Force light mode always
+@media (prefers-color-scheme: dark) {
+  .sq-mega-menu-container {
+    // OVERRIDE: Always use light background even in dark mode
+    background: linear-gradient(135deg,
+      #ffffff 0%,     // pure white - maximum lightness
+      #fefdf8 30%,    // wheat-50 - very light creamy
+      #fef7e0 70%,    // amber-50 - warm cream
+      #fef3c7 100%    // amber-100 - light golden
+    ) !important;
+
+    background-color: #ffffff !important;
+    border-top-color: #d97706 !important;  // amber-600 for golden border
+    color: #78350f !important;  // amber-900 for dark text on light background
+  }
+
+  .sq-mega-category-header button {
+    color: #78350f !important;  // amber-900 dark text for light background
+
+    &:hover {
+      background: linear-gradient(135deg, #fef3c7, #fde68a) !important;  // light amber gradient
+      color: #451a03 !important;  // amber-950 for maximum contrast
+    }
+  }
+
+  .sq-mega-subcategory-card {
+    background: rgba(255, 255, 255, 0.9) !important;  // light white background
+    color: #78350f !important;  // amber-900 dark text
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.95) !important;  // slightly more opaque white
+      color: #451a03 !important;  // amber-950 for maximum contrast
+    }
+  }
+}

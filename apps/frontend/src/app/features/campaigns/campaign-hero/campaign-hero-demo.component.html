@@ -1,0 +1,35 @@
+    <div class="demo-container">
+      <h1 class="demo-title">Campaign Hero with Swiper Integration Demo</h1>
+      <p class="demo-description">
+        This demo showcases the upgraded CampaignHeroComponent using Swiper 12.0.1
+        for advanced carousel functionality with Syrian marketplace theming.
+      </p>
+
+      <!-- Campaign Hero Component -->
+      <app-campaign-hero
+        [campaigns]="demoItems()"
+        [autoPlay]="true"
+        [autoPlayInterval]="4000"
+        [showProgressBar]="true"
+        [enableSwipeGestures]="true"
+        [maxSlides]="3"
+        heroHeight="500px"
+        (campaignClick)="onCampaignClick($event)"
+        (campaignView)="onCampaignView($event)"
+        (navigationChange)="onNavigationChange($event)">
+      </app-campaign-hero>
+
+      <div class="demo-info">
+        <h3>Features Demonstrated:</h3>
+        <ul>
+          <li>✅ Swiper 12.0.1 integration with smooth animations</li>
+          <li>✅ Auto-play with progress bar indicator</li>
+          <li>✅ Touch/swipe gesture navigation</li>
+          <li>✅ Keyboard navigation support</li>
+          <li>✅ Accessibility improvements</li>
+          <li>✅ Syrian marketplace authentic styling</li>
+          <li>✅ Campaign analytics tracking</li>
+          <li>✅ Bilingual Arabic/English support</li>
+        </ul>
+      </div>
+    </div>

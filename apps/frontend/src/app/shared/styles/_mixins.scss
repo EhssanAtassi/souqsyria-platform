@@ -1,0 +1,408 @@
+/**
+ * Golden Wheat Design System Mixins
+ *
+ * Reusable SCSS mixins for Syrian marketplace styling.
+ * Includes RTL support, responsive grids, and brand-specific patterns.
+ *
+ * @swagger
+ * components:
+ *   schemas:
+ *     DesignSystemMixins:
+ *       type: object
+ *       description: SCSS mixins for consistent styling
+ *       properties:
+ *         rtl:
+ *           description: RTL language support mixin
+ *         golden-wheat-gradient:
+ *           description: Brand gradient mixin
+ *         card-hover:
+ *           description: Card hover effect mixin
+ *         responsive-grid:
+ *           description: Responsive grid layout mixin
+ */
+
+@import 'variables';
+
+// ============================================================================
+// RTL SUPPORT
+// ============================================================================
+
+/**
+ * RTL (Right-to-Left) language support
+ *
+ * Applies styles when parent has dir="rtl" attribute.
+ * Used for Arabic and other RTL languages.
+ *
+ * @example
+ * .element {
+ *   margin-left: 16px;
+ *
+ *   @include rtl {
+ *     margin-left: 0;
+ *     margin-right: 16px;
+ *   }
+ * }
+ */
+@mixin rtl {
+  [dir="rtl"] & {
+    @content;
+  }
+}
+
+/**
+ * LTR (Left-to-Right) language support
+ *
+ * Explicitly target LTR layouts (fallback for mixed content).
+ */
+@mixin ltr {
+  [dir="ltr"] & {
+    @content;
+  }
+}
+
+// ============================================================================
+// GOLDEN WHEAT BRAND GRADIENTS
+// ============================================================================
+
+/**
+ * Golden Wheat primary gradient
+ *
+ * Signature gradient from primary to medium golden wheat.
+ * Used for CTAs, headers, and brand elements.
+ */
+@mixin golden-wheat-gradient {
+  background: linear-gradient(135deg, $golden-wheat-primary 0%, $golden-wheat-medium 100%);
+}
+
+/**
+ * Golden Wheat subtle gradient
+ *
+ * Lighter gradient for backgrounds and subtle accents.
+ */
+@mixin golden-wheat-gradient-subtle {
+  background: linear-gradient(135deg, $golden-wheat-light 0%, rgba($golden-wheat-medium, 0.3) 100%);
+}
+
+/**
+ * Golden Wheat radial gradient
+ *
+ * Radial gradient for hero sections and large backgrounds.
+ */
+@mixin golden-wheat-gradient-radial {
+  background: radial-gradient(circle at top left, $golden-wheat-medium 0%, $golden-wheat-primary 100%);
+}
+
+// ============================================================================
+// CARD & HOVER EFFECTS
+// ============================================================================
+
+/**
+ * Card hover effect
+ *
+ * Smooth transform and shadow transition for interactive cards.
+ * Standard across product cards, category cards, etc.
+ */
+@mixin card-hover {
+  transition: all $transition-normal $ease-in-out;
+
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: $shadow-hover;
+  }
+}
+
+/**
+ * Card base styles
+ *
+ * Foundation for all card components.
+ */
+@mixin card-base {
+  background: $charcoal-light;
+  border-radius: $border-radius-lg;
+  box-shadow: $shadow-md;
+  overflow: hidden;
+}
+
+/**
+ * Glass card effect
+ *
+ * Semi-transparent card with backdrop blur (modern aesthetic).
+ */
+@mixin glass-card {
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: $shadow-lg;
+}
+
+// ============================================================================
+// RESPONSIVE GRID LAYOUTS
+// ============================================================================
+
+/**
+ * Responsive grid layout
+ *
+ * Creates responsive grid that adapts columns based on screen size.
+ *
+ * @param {number} $cols - Number of columns at largest breakpoint
+ * @param {number} $gap - Gap between grid items (default: $grid-gap)
+ *
+ * @example
+ * .product-grid {
+ *   @include responsive-grid(4);
+ * }
+ */
+@mixin responsive-grid($cols: 4, $gap: $grid-gap) {
+  display: grid;
+  gap: $gap;
+  grid-template-columns: repeat($cols, 1fr);
+
+  // Large screens (1280px+): full column count
+  @media (max-width: $breakpoint-xl) {
+    grid-template-columns: repeat(#{$cols}, 1fr);
+  }
+
+  // Medium-large screens (1024px - 1280px): -1 column
+  @media (max-width: $breakpoint-lg) {
+    grid-template-columns: repeat(#{max($cols - 1, 2)}, 1fr);
+  }
+
+  // Tablets (768px - 1024px): -2 columns (minimum 2)
+  @media (max-width: $breakpoint-md) {
+    grid-template-columns: repeat(#{max($cols - 2, 2)}, 1fr);
+  }
+
+  // Mobile (< 768px): 1 column
+  @media (max-width: $breakpoint-sm) {
+    grid-template-columns: 1fr;
+    gap: $grid-gap-small;
+  }
+}
+
+/**
+ * Fixed responsive grid
+ *
+ * Grid with explicit column counts per breakpoint.
+ *
+ * @param {number} $desktop - Columns on desktop
+ * @param {number} $tablet - Columns on tablet
+ * @param {number} $mobile - Columns on mobile
+ */
+@mixin responsive-grid-fixed($desktop: 4, $tablet: 2, $mobile: 1) {
+  display: grid;
+  gap: $grid-gap;
+  grid-template-columns: repeat($desktop, 1fr);
+
+  @media (max-width: $breakpoint-md) {
+    grid-template-columns: repeat($tablet, 1fr);
+  }
+
+  @media (max-width: $breakpoint-sm) {
+    grid-template-columns: repeat($mobile, 1fr);
+    gap: $grid-gap-small;
+  }
+}
+
+// ============================================================================
+// TYPOGRAPHY MIXINS
+// ============================================================================
+
+/**
+ * Heading styles with Golden Wheat accent
+ */
+@mixin heading-primary {
+  font-family: $font-family-heading;
+  font-weight: $font-weight-bold;
+  color: $forest-dark;
+  line-height: $line-height-tight;
+}
+
+/**
+ * Body text with optimal readability
+ */
+@mixin body-text {
+  font-family: $font-family-primary;
+  font-size: $font-size-base;
+  font-weight: $font-weight-normal;
+  line-height: $line-height-normal;
+  color: $charcoal-dark;
+}
+
+/**
+ * Truncate text with ellipsis
+ *
+ * @param {number} $lines - Number of lines before truncation (default: 1)
+ */
+@mixin text-truncate($lines: 1) {
+  @if $lines == 1 {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  } @else {
+    display: -webkit-box;
+    -webkit-line-clamp: $lines;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}
+
+// ============================================================================
+// BUTTON MIXINS
+// ============================================================================
+
+/**
+ * Primary button (Golden Wheat brand)
+ */
+@mixin button-primary {
+  @include golden-wheat-gradient;
+  color: $charcoal-light;
+  padding: $space-3 $space-6;
+  border-radius: $border-radius-md;
+  font-weight: $font-weight-semibold;
+  border: none;
+  cursor: pointer;
+  transition: all $transition-normal $ease-in-out;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: $shadow-lg;
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+  }
+}
+
+/**
+ * Secondary button (Outline style)
+ */
+@mixin button-secondary {
+  background: transparent;
+  color: $golden-wheat-primary;
+  border: 2px solid $golden-wheat-primary;
+  padding: $space-3 $space-6;
+  border-radius: $border-radius-md;
+  font-weight: $font-weight-semibold;
+  cursor: pointer;
+  transition: all $transition-normal $ease-in-out;
+
+  &:hover {
+    background: $golden-wheat-primary;
+    color: $charcoal-light;
+  }
+}
+
+// ============================================================================
+// LOADING & SKELETON MIXINS
+// ============================================================================
+
+/**
+ * Skeleton loading animation
+ */
+@mixin skeleton-loading {
+  background: linear-gradient(
+    90deg,
+    $golden-wheat-light 0%,
+    rgba($golden-wheat-medium, 0.2) 50%,
+    $golden-wheat-light 100%
+  );
+  background-size: 200% 100%;
+  animation: skeleton-shimmer 1.5s infinite;
+}
+
+@keyframes skeleton-shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+/**
+ * Pulse loading animation
+ */
+@mixin pulse-loading {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+// ============================================================================
+// ACCESSIBILITY MIXINS
+// ============================================================================
+
+/**
+ * Focus ring for keyboard navigation
+ */
+@mixin focus-ring {
+  outline: 2px solid $golden-wheat-primary;
+  outline-offset: 2px;
+}
+
+/**
+ * Visually hidden (screen reader only)
+ */
+@mixin visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+// ============================================================================
+// CONTAINER MIXINS
+// ============================================================================
+
+/**
+ * Centered container with max-width
+ */
+@mixin container($max-width: $container-max-width) {
+  max-width: $max-width;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: $space-4;
+  padding-right: $space-4;
+
+  @media (max-width: $breakpoint-sm) {
+    padding-left: $space-3;
+    padding-right: $space-3;
+  }
+}
+
+/**
+ * Section spacing (consistent vertical rhythm)
+ */
+@mixin section-spacing {
+  padding-top: $space-16;
+  padding-bottom: $space-16;
+
+  @media (max-width: $breakpoint-md) {
+    padding-top: $space-12;
+    padding-bottom: $space-12;
+  }
+
+  @media (max-width: $breakpoint-sm) {
+    padding-top: $space-8;
+    padding-bottom: $space-8;
+  }
+}

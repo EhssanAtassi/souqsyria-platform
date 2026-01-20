@@ -1,0 +1,211 @@
+<!-- Offer Details Page -->
+<div class="offer-page min-h-screen bg-gray-50">
+
+  <!-- Loading State -->
+  <div *ngIf="loading" class="flex justify-center items-center min-h-screen">
+    <div class="text-center">
+      <div class="animate-spin rounded-full h-16 w-16 border-b-2 border-syrian-red mx-auto mb-4"></div>
+      <p class="text-warm-gray">جاري التحميل... | Loading...</p>
+    </div>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="error && !loading" class="flex justify-center items-center min-h-screen">
+    <div class="text-center">
+      <mat-icon class="text-6xl text-red-500 mb-4">error_outline</mat-icon>
+      <h2 class="text-2xl font-bold text-syrian-navy mb-2">العرض غير موجود | Offer Not Found</h2>
+      <p class="text-warm-gray mb-6">لم نتمكن من العثور على هذا العرض | We couldn't find this offer</p>
+      <button (click)="goBack()" color="primary" mat-raised-button>
+        <mat-icon class="mr-2">arrow_back</mat-icon>
+        العودة للرئيسية | Back to Home
+      </button>
+    </div>
+  </div>
+
+  <!-- Offer Content -->
+  <div *ngIf="offer && !loading && !error">
+
+    <!-- Back Button -->
+    <div class="bg-white border-b">
+      <div class="container mx-auto px-4 py-4">
+        <button (click)="goBack()" class="flex items-center" mat-stroked-button>
+          <mat-icon class="mr-2">arrow_back</mat-icon>
+          العودة | Back
+        </button>
+      </div>
+    </div>
+
+    <!-- Offer Banner -->
+    <section class="offer-banner relative overflow-hidden bg-gradient-to-br from-syrian-navy to-syrian-red">
+      <div class="absolute inset-0 bg-black opacity-40"></div>
+      <div class="relative z-10 container mx-auto px-4 py-16 text-center text-white">
+        <h1 class="text-4xl lg:text-6xl font-bold mb-4">
+          {{ offer.title }}
+        </h1>
+        <h2 class="text-2xl lg:text-3xl font-semibold mb-6" dir="rtl">
+          {{ offer.titleAr }}
+        </h2>
+        <p class="text-lg lg:text-xl mb-4 max-w-3xl mx-auto">
+          {{ offer.description }}
+        </p>
+        <p class="text-base lg:text-lg opacity-90 max-w-3xl mx-auto" dir="rtl">
+          {{ offer.descriptionAr }}
+        </p>
+
+        <!-- Discount Badge -->
+        <div class="mt-8">
+          <span class="inline-block bg-red-500 text-white text-2xl font-bold px-8 py-4 rounded-full shadow-lg">
+            {{ offer.discount }}
+          </span>
+        </div>
+
+        <!-- Countdown Timer -->
+        <div *ngIf="getDaysRemaining() > 0" class="mt-6">
+          <p class="text-sm opacity-75 mb-2">العرض ينتهي خلال | Offer ends in</p>
+          <div class="inline-flex items-center bg-white bg-opacity-20 backdrop-blur-sm rounded-lg px-6 py-3">
+            <mat-icon class="mr-2">schedule</mat-icon>
+            <span class="font-bold">{{ getDaysRemaining() }} أيام | {{ getDaysRemaining() }} days</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Products Section -->
+    <section class="products-section py-12">
+      <div class="container mx-auto px-4">
+
+        <!-- Section Header -->
+        <div class="text-center mb-10">
+          <h3 class="text-3xl font-bold text-syrian-navy mb-4">
+            المنتجات المشمولة في العرض | Products Included in Offer
+          </h3>
+          <div class="w-24 h-1 bg-gradient-to-r from-syrian-red to-gold mx-auto"></div>
+        </div>
+
+        <!-- Products Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          <div (click)="onProductClick(product)"
+               *ngFor="let product of offer.products"
+               class="product-card bg-white rounded-lg shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden cursor-pointer transform hover:scale-105">
+
+            <!-- Product Image -->
+            <div class="relative">
+              <img [alt]="product.name"
+                   [src]="product.imageUrl"
+                   class="w-full h-48 object-cover"
+                   loading="lazy">
+
+              <!-- Discount Badge -->
+              <div *ngIf="product.discount"
+                   class="absolute top-3 right-3 bg-red-500 text-white text-sm font-bold px-3 py-1 rounded-full">
+                {{ product.discount }}
+              </div>
+
+              <!-- Stock Status -->
+              <div class="absolute top-3 left-3">
+                <mat-chip-set>
+                  <mat-chip *ngIf="product.inStock" class="bg-green-500 text-white text-xs">
+                    متوفر | In Stock
+                  </mat-chip>
+                  <mat-chip *ngIf="!product.inStock" class="bg-red-500 text-white text-xs">
+                    نفذ | Out of Stock
+                  </mat-chip>
+                </mat-chip-set>
+              </div>
+            </div>
+
+            <!-- Product Info -->
+            <div class="p-4">
+              <h4 class="font-semibold text-syrian-navy mb-1 line-clamp-2">
+                {{ product.name }}
+              </h4>
+              <p class="text-sm text-warm-gray mb-3" dir="rtl">
+                {{ product.nameAr }}
+              </p>
+
+              <!-- Rating -->
+              <div class="flex items-center mb-3">
+                <div class="flex text-yellow-400 mr-2">
+                  <mat-icon *ngFor="let star of [1,2,3,4,5]"
+                            [class.text-gray-300]="star > product.rating"
+                            class="text-sm">
+                    star
+                  </mat-icon>
+                </div>
+                <span class="text-sm text-warm-gray">({{ product.reviewCount }})</span>
+              </div>
+
+              <!-- Price -->
+              <div class="flex items-center justify-between mb-4">
+                <div class="flex items-center">
+                  <span class="text-lg font-bold text-syrian-red">${{ product.price }}</span>
+                  <span *ngIf="product.originalPrice"
+                        class="text-sm text-gray-500 line-through ml-2">
+                    ${{ product.originalPrice }}
+                  </span>
+                </div>
+              </div>
+
+              <!-- Add to Cart Button -->
+              <button (click)="onAddToCart(product); $event.stopPropagation()"
+                      [disabled]="!product.inStock"
+                      class="w-full"
+                      color="primary"
+                      mat-raised-button>
+                <mat-icon class="mr-2">shopping_cart</mat-icon>
+                <span *ngIf="product.inStock">أضف للسلة | Add to Cart</span>
+                <span *ngIf="!product.inStock">نفذ | Out of Stock</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- No Products Message -->
+        <div *ngIf="offer.products.length === 0" class="text-center py-12">
+          <mat-icon class="text-6xl text-gray-400 mb-4">inventory_2</mat-icon>
+          <p class="text-warm-gray text-lg">
+            لا توجد منتجات متاحة في هذا العرض | No products available in this offer
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Terms and Conditions -->
+    <section class="terms-section bg-gray-100 py-8">
+      <div class="container mx-auto px-4">
+        <div class="max-w-4xl mx-auto">
+          <h3 class="text-2xl font-bold text-syrian-navy mb-6 text-center">
+            الشروط والأحكام | Terms & Conditions
+          </h3>
+
+          <div class="grid md:grid-cols-2 gap-8">
+            <!-- English Terms -->
+            <div class="bg-white p-6 rounded-lg shadow-md">
+              <h4 class="font-semibold text-syrian-navy mb-4">Terms & Conditions</h4>
+              <ul class="space-y-2">
+                <li *ngFor="let term of offer.termsAndConditions"
+                    class="flex items-start">
+                  <mat-icon class="text-green-500 text-sm mt-0.5 mr-2">check_circle</mat-icon>
+                  <span class="text-sm text-warm-gray">{{ term }}</span>
+                </li>
+              </ul>
+            </div>
+
+            <!-- Arabic Terms -->
+            <div class="bg-white p-6 rounded-lg shadow-md" dir="rtl">
+              <h4 class="font-semibold text-syrian-navy mb-4">الشروط والأحكام</h4>
+              <ul class="space-y-2">
+                <li *ngFor="let term of offer.termsAndConditionsAr"
+                    class="flex items-start">
+                  <mat-icon class="text-green-500 text-sm mt-0.5 ml-2">check_circle</mat-icon>
+                  <span class="text-sm text-warm-gray">{{ term }}</span>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </div>
+</div>

@@ -1,0 +1,453 @@
+.comparison-container {
+  background: white;
+  min-height: 100vh;
+  padding: 24px;
+
+  &.printing {
+    padding: 0;
+  }
+}
+
+/* Header */
+.comparison-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 2px solid #e5e7eb;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+
+  h2 {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 0;
+    font-size: 24px;
+    font-weight: 700;
+    color: #111827;
+
+    mat-icon {
+      color: #d4a574;
+    }
+  }
+
+  .product-count {
+    padding: 4px 12px;
+    background: #fef3e2;
+    color: #d4a574;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 600;
+  }
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  button {
+    mat-icon {
+      margin-right: 8px;
+    }
+  }
+}
+
+/* Category Chips */
+.category-chips {
+  margin-bottom: 24px;
+
+  ::ng-deep {
+    .mat-mdc-chip-listbox {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .mat-mdc-chip {
+      background: #f3f4f6;
+      color: #374151;
+      font-weight: 500;
+
+      &.mat-mdc-chip-selected {
+        background: #d4a574;
+        color: white;
+      }
+
+      mat-icon {
+        margin-right: 6px;
+      }
+    }
+  }
+}
+
+.chip-count {
+  margin-left: 4px;
+  opacity: 0.8;
+  font-size: 12px;
+}
+
+/* Controls */
+.comparison-controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+  padding: 12px 16px;
+  background: #f9fafb;
+  border-radius: 8px;
+
+  ::ng-deep {
+    .mat-mdc-checkbox {
+      .mdc-checkbox--selected .mdc-checkbox__background {
+        background-color: #d4a574;
+        border-color: #d4a574;
+      }
+    }
+  }
+}
+
+/* Table Wrapper */
+.comparison-table-wrapper {
+  overflow-x: auto;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+
+  &::-webkit-scrollbar {
+    height: 8px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: #f3f4f6;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: #d1d5db;
+    border-radius: 4px;
+
+    &:hover {
+      background: #9ca3af;
+    }
+  }
+}
+
+/* Comparison Table */
+.comparison-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: white;
+
+  th,
+  td {
+    padding: 16px;
+    border: 1px solid #e5e7eb;
+    text-align: left;
+    vertical-align: top;
+  }
+}
+
+/* Sticky Header */
+.sticky-header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: white;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+
+  th {
+    background: #fafafa;
+    font-weight: 600;
+    color: #374151;
+  }
+}
+
+.field-column {
+  width: 200px;
+  min-width: 200px;
+  font-weight: 600;
+  background: #fafafa;
+  position: sticky;
+  left: 0;
+  z-index: 11;
+}
+
+.product-column {
+  min-width: 250px;
+}
+
+/* Product Header */
+.product-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  position: relative;
+}
+
+.remove-btn {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  width: 32px;
+  height: 32px;
+  background: white;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+
+  &:hover {
+    background: #fee2e2;
+    color: #dc2626;
+  }
+}
+
+.product-image {
+  width: 120px;
+  height: 120px;
+  object-fit: cover;
+  border-radius: 8px;
+  border: 2px solid #e5e7eb;
+}
+
+.product-name {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  text-align: center;
+
+  a {
+    color: #111827;
+    text-decoration: none;
+
+    &:hover {
+      color: #d4a574;
+      text-decoration: underline;
+    }
+  }
+}
+
+.product-price {
+  font-size: 20px;
+  font-weight: 700;
+  color: #d4a574;
+}
+
+.add-to-cart-btn {
+  width: 100%;
+  background: #d4a574;
+  color: white;
+
+  &:hover {
+    background: #c49463;
+  }
+}
+
+/* Table Rows */
+.field-label {
+  font-weight: 600;
+  color: #374151;
+  background: #fafafa;
+  position: sticky;
+  left: 0;
+  z-index: 1;
+}
+
+.label-text {
+  display: block;
+}
+
+.label-unit {
+  display: block;
+  font-size: 12px;
+  color: #6b7280;
+  font-weight: 400;
+  margin-top: 2px;
+}
+
+.difference-icon {
+  margin-left: 8px;
+  font-size: 16px;
+  width: 16px;
+  height: 16px;
+  color: #d4a574;
+  vertical-align: middle;
+}
+
+.value-cell {
+  background: white;
+
+  &.different {
+    background: #fef3e2;
+  }
+
+  &.best-value {
+    background: #dcfce7;
+    font-weight: 600;
+    color: #059669;
+  }
+}
+
+.value-content {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.best-icon {
+  color: #059669;
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+}
+
+.has-difference {
+  border-left: 3px solid #d4a574;
+}
+
+/* Empty States */
+.empty-state,
+.empty-comparison {
+  padding: 48px;
+  text-align: center;
+  color: #6b7280;
+
+  mat-icon {
+    font-size: 64px;
+    width: 64px;
+    height: 64px;
+    color: #d1d5db;
+    margin-bottom: 16px;
+  }
+
+  h3 {
+    margin: 0 0 8px 0;
+    font-size: 20px;
+    color: #374151;
+  }
+
+  p {
+    margin: 0 0 24px 0;
+    color: #6b7280;
+  }
+}
+
+/* Print Styles */
+@media print {
+  .no-print {
+    display: none !important;
+  }
+
+  .comparison-container {
+    padding: 0;
+  }
+
+  .comparison-table-wrapper {
+    box-shadow: none;
+  }
+
+  .sticky-header {
+    position: static;
+  }
+
+  .product-image {
+    border: 1px solid #000;
+  }
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+  .comparison-container {
+    padding: 16px;
+  }
+
+  .comparison-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+
+  .header-left {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+
+    h2 {
+      font-size: 20px;
+    }
+  }
+
+  .header-actions {
+    width: 100%;
+    justify-content: space-between;
+
+    button mat-icon {
+      margin-right: 0;
+    }
+
+    button:not(:last-child) span {
+      display: none;
+    }
+  }
+
+  .category-chips {
+    overflow-x: auto;
+
+    ::ng-deep .mat-mdc-chip-listbox {
+      flex-wrap: nowrap;
+    }
+  }
+
+  .comparison-controls {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .field-column {
+    width: 150px;
+    min-width: 150px;
+    font-size: 14px;
+  }
+
+  .product-column {
+    min-width: 200px;
+  }
+
+  .product-image {
+    width: 80px;
+    height: 80px;
+  }
+
+  .product-name {
+    font-size: 14px;
+  }
+
+  .product-price {
+    font-size: 16px;
+  }
+}
+
+/* RTL Support */
+[dir="rtl"] {
+  .comparison-table {
+    direction: rtl;
+  }
+
+  .field-column {
+    left: auto;
+    right: 0;
+  }
+
+  .difference-icon {
+    margin-left: 0;
+    margin-right: 8px;
+  }
+
+  .best-icon {
+    order: -1;
+  }
+}

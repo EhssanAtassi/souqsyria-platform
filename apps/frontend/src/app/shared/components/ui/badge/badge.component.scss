@@ -1,0 +1,186 @@
+@import '../../../styles/variables';
+
+/**
+ * Badge Component Styles
+ * Syrian marketplace product status badges
+ */
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: $space-1;
+  padding: $space-1 $space-3;
+  border-radius: $border-radius-full;
+  font-size: $font-size-xs;
+  font-weight: $font-weight-semibold;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+
+  /**
+   * UNESCO Heritage Badge (gold with star)
+   * Premium cultural significance indicator
+   */
+  &--unesco {
+    background: linear-gradient(135deg, #f4c430, #d4af37);
+    color: $charcoal-dark;
+    box-shadow: 0 2px 8px rgba(212, 175, 55, 0.3);
+    border: 1px solid rgba($charcoal-dark, 0.1);
+  }
+
+  /**
+   * Sale Badge (red with percentage)
+   * Discount and promotional indicator
+   */
+  &--sale {
+    background: linear-gradient(135deg, $color-error, darken($color-error, 10%));
+    color: $charcoal-light;
+    box-shadow: 0 2px 8px rgba($color-error, 0.3);
+  }
+
+  /**
+   * Artisan Badge (golden wheat)
+   * Handcrafted product indicator
+   */
+  &--artisan {
+    background: linear-gradient(135deg, $golden-wheat-medium, $golden-wheat-primary);
+    color: $charcoal-dark;
+    box-shadow: 0 2px 8px rgba($golden-wheat-primary, 0.3);
+  }
+
+  /**
+   * New Badge (green)
+   * Recently added product indicator
+   */
+  &--new {
+    background: linear-gradient(135deg, $color-success, darken($color-success, 10%));
+    color: $charcoal-light;
+    box-shadow: 0 2px 8px rgba($color-success, 0.3);
+  }
+
+  /**
+   * Out of Stock Badge (gray)
+   * Unavailable product indicator
+   */
+  &--out-of-stock {
+    background: linear-gradient(135deg, $charcoal-medium, $charcoal-dark);
+    color: $charcoal-light;
+    opacity: 0.9;
+  }
+
+  /**
+   * Limited Edition Badge (purple-gold)
+   * Exclusive product indicator
+   */
+  &--limited {
+    background: linear-gradient(135deg, #9b59b6, #8e44ad);
+    color: $charcoal-light;
+    box-shadow: 0 2px 8px rgba(155, 89, 182, 0.3);
+  }
+
+  /**
+   * Featured Badge (golden wheat with star)
+   * Highlighted product indicator
+   */
+  &--featured {
+    background: linear-gradient(135deg, $golden-wheat-primary, $golden-wheat-dark);
+    color: $charcoal-light;
+    box-shadow: 0 2px 8px rgba($golden-wheat-primary, 0.4);
+  }
+
+  /**
+   * Badge icon
+   */
+  &__icon {
+    width: 14px;
+    height: 14px;
+    flex-shrink: 0;
+  }
+
+  /**
+   * Badge text
+   */
+  &__text {
+    line-height: 1;
+  }
+}
+
+/**
+ * Badge positioning utilities
+ * Use these classes on parent container
+ */
+.badge-container {
+  position: relative;
+
+  .badge {
+    position: absolute;
+    top: $space-2;
+    left: $space-2;
+    z-index: 10;
+  }
+
+  &--top-right .badge {
+    left: auto;
+    right: $space-2;
+  }
+
+  &--bottom-left .badge {
+    top: auto;
+    bottom: $space-2;
+  }
+
+  &--bottom-right .badge {
+    top: auto;
+    bottom: $space-2;
+    left: auto;
+    right: $space-2;
+  }
+}
+
+/**
+ * RTL Support
+ */
+[dir="rtl"] {
+  .badge {
+    flex-direction: row-reverse;
+  }
+
+  .badge-container {
+    .badge {
+      left: auto;
+      right: $space-2;
+    }
+
+    &--top-right .badge {
+      right: auto;
+      left: $space-2;
+    }
+
+    &--bottom-left .badge {
+      left: auto;
+      right: $space-2;
+    }
+
+    &--bottom-right .badge {
+      right: auto;
+      left: $space-2;
+    }
+  }
+}
+
+/**
+ * Mobile Responsive
+ * Slightly smaller on mobile
+ */
+@media (max-width: $breakpoint-sm) {
+  .badge {
+    padding: 2px $space-2;
+    font-size: 10px;
+    gap: 2px;
+
+    &__icon {
+      width: 12px;
+      height: 12px;
+    }
+  }
+}

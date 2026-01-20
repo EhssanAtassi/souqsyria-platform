@@ -1,0 +1,253 @@
+// Golden Wheat Color Palette
+$golden-wheat-primary: #988561;
+$golden-wheat-medium: #b9a779;
+$golden-wheat-light: #edebe0;
+$forest-dark: #002623;
+$forest-medium: #054239;
+
+.price-range-filter {
+  padding: 0.5rem 0;
+
+  // Price Display (Current Range)
+  .price-display {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    padding: 1rem;
+    background: $golden-wheat-light;
+    border-radius: 8px;
+
+    .price-value {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 0.25rem;
+
+      .price-label {
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        color: $golden-wheat-primary;
+        font-weight: 600;
+        letter-spacing: 0.5px;
+      }
+
+      .price-amount {
+        font-size: 1.125rem;
+        font-weight: 700;
+        color: $forest-dark;
+      }
+
+      &.max-price {
+        align-items: flex-end;
+      }
+    }
+
+    .price-separator {
+      font-size: 1.25rem;
+      font-weight: 300;
+      color: $golden-wheat-medium;
+      margin-top: 1rem;
+    }
+  }
+
+  // Slider Container
+  .slider-container {
+    margin-bottom: 1.25rem;
+
+    .slider-label {
+      display: block;
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: $forest-dark;
+      margin-bottom: 0.5rem;
+    }
+
+    .price-slider {
+      width: 100%;
+
+      ::ng-deep {
+        // Slider track
+        .mdc-slider__track {
+          background-color: $golden-wheat-light;
+          height: 4px;
+        }
+
+        .mdc-slider__track--active {
+          background-color: $golden-wheat-primary;
+        }
+
+        // Slider thumb
+        .mdc-slider__thumb-knob {
+          background-color: $golden-wheat-primary;
+          border-color: $golden-wheat-primary;
+          width: 18px;
+          height: 18px;
+        }
+
+        .mdc-slider__thumb:hover .mdc-slider__thumb-knob {
+          background-color: $golden-wheat-medium;
+          border-color: $golden-wheat-medium;
+        }
+
+        // Value indicator
+        .mdc-slider__value-indicator-container {
+          .mdc-slider__value-indicator {
+            background-color: $golden-wheat-primary;
+            color: white;
+          }
+        }
+
+        // Focus state
+        .mdc-slider__thumb--focused .mdc-slider__thumb-knob {
+          background-color: $golden-wheat-medium;
+          border-color: $golden-wheat-medium;
+        }
+      }
+
+      &.min-slider {
+        ::ng-deep {
+          .mdc-slider__track--active {
+            background: linear-gradient(90deg, transparent 0%, $golden-wheat-primary 100%);
+          }
+        }
+      }
+
+      &.max-slider {
+        ::ng-deep {
+          .mdc-slider__track--active {
+            background: linear-gradient(90deg, $golden-wheat-primary 0%, transparent 100%);
+          }
+        }
+      }
+    }
+  }
+
+  // Price Input Fields
+  .price-inputs {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-top: 1rem;
+
+    .price-input-field {
+      flex: 1;
+      font-size: 0.875rem;
+
+      ::ng-deep {
+        .mat-mdc-form-field-flex {
+          height: 48px;
+        }
+
+        .mat-mdc-text-field-wrapper {
+          background-color: white;
+        }
+
+        .mat-mdc-form-field-focus-overlay {
+          background-color: transparent;
+        }
+
+        // Outline color
+        .mdc-notched-outline__leading,
+        .mdc-notched-outline__notch,
+        .mdc-notched-outline__trailing {
+          border-color: $golden-wheat-light !important;
+        }
+
+        // Focused outline
+        &.mat-focused {
+          .mdc-notched-outline__leading,
+          .mdc-notched-outline__notch,
+          .mdc-notched-outline__trailing {
+            border-color: $golden-wheat-primary !important;
+            border-width: 2px;
+          }
+        }
+
+        // Label color
+        .mat-mdc-floating-label {
+          color: $golden-wheat-medium;
+        }
+
+        &.mat-focused .mat-mdc-floating-label {
+          color: $golden-wheat-primary;
+        }
+
+        // Input text
+        input {
+          color: $forest-dark;
+          font-weight: 500;
+        }
+
+        // Prefix
+        .mat-mdc-form-field-text-prefix {
+          color: $golden-wheat-medium;
+          font-weight: 600;
+        }
+      }
+    }
+
+    .input-separator {
+      font-size: 1.25rem;
+      font-weight: 300;
+      color: $golden-wheat-medium;
+      margin: 0 0.25rem;
+    }
+  }
+}
+
+// RTL Support
+[dir="rtl"] {
+  .price-range-filter {
+    .price-display {
+      .price-value {
+        &.min-price {
+          align-items: flex-end;
+        }
+
+        &.max-price {
+          align-items: flex-start;
+        }
+      }
+    }
+
+    .price-inputs {
+      flex-direction: row-reverse;
+
+      ::ng-deep .mat-mdc-form-field-text-prefix {
+        padding-left: 0;
+        padding-right: 4px;
+      }
+    }
+  }
+}
+
+// Mobile Responsive
+@media (max-width: 480px) {
+  .price-range-filter {
+    .price-display {
+      padding: 0.75rem;
+
+      .price-value {
+        .price-amount {
+          font-size: 1rem;
+        }
+      }
+    }
+
+    .price-inputs {
+      .price-input-field {
+        ::ng-deep {
+          .mat-mdc-form-field-flex {
+            height: 44px;
+          }
+
+          .mdc-text-field__input {
+            font-size: 0.875rem;
+          }
+        }
+      }
+    }
+  }
+}

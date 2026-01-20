@@ -1,0 +1,82 @@
+<!-- Price Range Filter Container -->
+<div class="price-range-filter" [attr.dir]="language() === 'ar' ? 'rtl' : 'ltr'">
+
+  <!-- Price Display -->
+  <div class="price-display">
+    <div class="price-value min-price">
+      <span class="price-label">{{ getMinLabel() }}</span>
+      <span class="price-amount">{{ formatPrice(minPrice()) }}</span>
+    </div>
+
+    <span class="price-separator">-</span>
+
+    <div class="price-value max-price">
+      <span class="price-label">{{ getMaxLabel() }}</span>
+      <span class="price-amount">{{ formatPrice(maxPrice()) }}</span>
+    </div>
+  </div>
+
+  <!-- Min Price Slider -->
+  <div class="slider-container">
+    <label class="slider-label">{{ getMinLabel() }}</label>
+    <mat-slider
+      [min]="minLimit()"
+      [max]="maxLimit()"
+      [step]="step"
+      [discrete]="true"
+      class="price-slider min-slider">
+      <input
+        matSliderThumb
+        [value]="minPrice()"
+        (valueChange)="onMinChange($event)">
+    </mat-slider>
+  </div>
+
+  <!-- Max Price Slider -->
+  <div class="slider-container">
+    <label class="slider-label">{{ getMaxLabel() }}</label>
+    <mat-slider
+      [min]="minLimit()"
+      [max]="maxLimit()"
+      [step]="step"
+      [discrete]="true"
+      class="price-slider max-slider">
+      <input
+        matSliderThumb
+        [value]="maxPrice()"
+        (valueChange)="onMaxChange($event)">
+    </mat-slider>
+  </div>
+
+  <!-- Input Fields for Direct Entry -->
+  <div class="price-inputs">
+    <mat-form-field appearance="outline" class="price-input-field">
+      <mat-label>{{ getMinLabel() }}</mat-label>
+      <input
+        matInput
+        type="number"
+        [value]="minPrice()"
+        [min]="minLimit()"
+        [max]="maxPrice()"
+        (change)="onMinInputChange($event)"
+        placeholder="0">
+      <span matTextPrefix>{{ getCurrencySymbol() }}&nbsp;</span>
+    </mat-form-field>
+
+    <span class="input-separator">-</span>
+
+    <mat-form-field appearance="outline" class="price-input-field">
+      <mat-label>{{ getMaxLabel() }}</mat-label>
+      <input
+        matInput
+        type="number"
+        [value]="maxPrice()"
+        [min]="minPrice()"
+        [max]="maxLimit()"
+        (change)="onMaxInputChange($event)"
+        placeholder="1000">
+      <span matTextPrefix>{{ getCurrencySymbol() }}&nbsp;</span>
+    </mat-form-field>
+  </div>
+
+</div>

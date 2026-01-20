@@ -1,0 +1,38 @@
+{
+    "id": 53,
+    "content": {
+        "parallax_banner": {
+            "banners": [
+                {
+                    "title": "fashion trends",
+                    "status": true,
+                    "image_url": "/images/theme/parallax/parallax_3.png",
+                    "sub_title": "special offer",
+                    "main_title": "2025"
+                },
+                {
+                    "title": "the summer",
+                    "status": true,
+                    "image_url": "/images/theme/parallax/parallax_4.png",
+                    "sub_title": "special offer",
+                    "main_title": "2025"
+                },
+                {
+                    "title": "top trends",
+                    "status": true,
+                    "image_url": "/images/theme/parallax/parallax_1.png",
+                    "sub_title": "special offer",
+                    "main_title": "2025"
+                },
+                {
+                    "title": "new collection",
+                    "status": true,
+                    "image_url": "/images/theme/parallax/parallax_2.png",
+                    "sub_title": "special offer",
+                    "main_title": "2025"
+                }
+            ]
+        }
+    },
+    "slug": "parallax"
+}

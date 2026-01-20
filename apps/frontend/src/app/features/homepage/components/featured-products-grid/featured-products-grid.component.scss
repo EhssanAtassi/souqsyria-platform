@@ -1,0 +1,259 @@
+/**
+ * Featured Products Grid Component Styles
+ *
+ * Compact grid of 3 featured products
+ * Syrian Golden Wheat theme: #C8A860
+ */
+
+// Variables
+$golden-wheat: #C8A860;
+$dark-text: #1F2937;
+$gray-text: #6B7280;
+$white: #FFFFFF;
+$light-bg: #F9FAFB;
+$border: #E5E7EB;
+$shadow: rgba(0, 0, 0, 0.1);
+
+.featured-products-section {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  background: $white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px $shadow;
+
+  // Section Header
+  .section-header {
+    margin-bottom: 16px;
+    border-bottom: 2px solid $golden-wheat;
+    padding-bottom: 12px;
+
+    .section-title {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: $dark-text;
+      margin: 0 0 4px 0;
+      line-height: 1.2;
+    }
+
+    .section-title-ar {
+      font-size: 1rem;
+      font-weight: 600;
+      color: $gray-text;
+      direction: rtl;
+      display: block;
+    }
+  }
+
+  // Products Grid
+  .products-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    flex: 1;
+    overflow-y: auto;
+
+    // Product Card
+    .product-card {
+      display: flex;
+      gap: 12px;
+      padding: 12px;
+      background: $light-bg;
+      border-radius: 8px;
+      border: 1px solid $border;
+      text-decoration: none;
+      color: $dark-text;
+      transition: all 0.3s ease;
+
+      &:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(200, 168, 96, 0.2);
+        border-color: $golden-wheat;
+        background: $white;
+
+        .product-image-wrapper {
+          transform: scale(1.05);
+        }
+
+        .product-name {
+          color: $golden-wheat;
+        }
+      }
+
+      // Product Image Wrapper
+      .product-image-wrapper {
+        position: relative;
+        width: 80px;
+        height: 80px;
+        flex-shrink: 0;
+        border-radius: 6px;
+        overflow: hidden;
+        background: $white;
+        transition: transform 0.3s ease;
+
+        .product-image {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+        }
+
+        // Badge (Best Seller, UNESCO, New)
+        .product-badge {
+          position: absolute;
+          top: 4px;
+          right: 4px;
+          background: linear-gradient(135deg, $golden-wheat, #D4AF37);
+          color: $white;
+          font-size: 0.625rem;
+          font-weight: 700;
+          padding: 2px 6px;
+          border-radius: 4px;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+      }
+
+      // Product Info
+      .product-info {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        gap: 4px;
+        min-width: 0; // Prevent flex overflow
+
+        .product-name {
+          font-size: 0.875rem;
+          font-weight: 600;
+          color: $dark-text;
+          margin: 0;
+          line-height: 1.3;
+          transition: color 0.3s ease;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
+
+        .product-name-ar {
+          font-size: 0.75rem;
+          font-weight: 500;
+          color: $gray-text;
+          margin: 0;
+          direction: rtl;
+          line-height: 1.3;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
+
+        // Price
+        .product-price {
+          display: flex;
+          align-items: baseline;
+          gap: 4px;
+          margin-top: 4px;
+
+          .price-amount {
+            font-size: 1rem;
+            font-weight: 700;
+            color: $golden-wheat;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+          }
+
+          .price-currency {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: $gray-text;
+          }
+        }
+      }
+    }
+  }
+}
+
+// Responsive Design
+@media (max-width: 1024px) {
+  .featured-products-section {
+    padding: 16px;
+
+    .section-header {
+      margin-bottom: 12px;
+
+      .section-title {
+        font-size: 1.125rem;
+      }
+
+      .section-title-ar {
+        font-size: 0.875rem;
+      }
+    }
+
+    .products-grid .product-card {
+      padding: 10px;
+
+      .product-image-wrapper {
+        width: 70px;
+        height: 70px;
+      }
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .featured-products-section {
+    padding: 12px;
+
+    .section-header {
+      margin-bottom: 10px;
+      padding-bottom: 8px;
+
+      .section-title {
+        font-size: 1rem;
+      }
+
+      .section-title-ar {
+        font-size: 0.8125rem;
+      }
+    }
+
+    .products-grid {
+      gap: 10px;
+
+      .product-card {
+        padding: 8px;
+        gap: 10px;
+
+        .product-image-wrapper {
+          width: 60px;
+          height: 60px;
+        }
+
+        .product-info {
+          gap: 3px;
+
+          .product-name {
+            font-size: 0.8125rem;
+          }
+
+          .product-name-ar {
+            font-size: 0.6875rem;
+          }
+
+          .product-price {
+            margin-top: 2px;
+
+            .price-amount {
+              font-size: 0.875rem;
+            }
+
+            .price-currency {
+              font-size: 0.6875rem;
+            }
+          }
+        }
+      }
+    }
+  }
+}

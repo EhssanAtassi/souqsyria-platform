@@ -1,0 +1,402 @@
+/**
+ * Product Grid Component Styles
+ * Responsive layout with Syrian marketplace design elements
+ */
+
+.product-grid-container {
+  @apply w-full max-w-7xl mx-auto px-4;
+  
+  // Grid header styles
+  .grid-header {
+    @apply border-b border-gray-200 pb-6;
+    
+    // Search input customization
+    mat-form-field {
+      &.mat-mdc-form-field {
+        .mat-mdc-text-field-wrapper {
+          @apply bg-white shadow-sm;
+          
+          &:hover {
+            @apply shadow-md;
+          }
+        }
+      }
+    }
+    
+    // Mobile filter button
+    .filter-toggle-mobile {
+      @apply lg:hidden;
+      
+      .mat-badge {
+        .mat-badge-content {
+          @apply bg-blue-600 text-white;
+        }
+      }
+    }
+    
+    // Results count
+    .results-count {
+      @apply text-gray-600 text-sm font-medium;
+    }
+    
+    // Active filters section
+    .active-filters {
+      @apply bg-gray-50 rounded-lg p-4;
+      
+      mat-chip-option {
+        @apply m-1;
+        
+        &[color="primary"] {
+          @apply bg-blue-100 text-blue-800;
+        }
+        
+        &[color="accent"] {
+          @apply bg-green-100 text-green-800;
+        }
+        
+        &[color="warn"] {
+          @apply bg-yellow-100 text-yellow-800;
+        }
+      }
+    }
+  }
+  
+  // Main content grid
+  .grid-content {
+    @apply w-full;
+    
+    // Filters sidebar
+    .filters-sidebar {
+      @apply hidden lg:block;
+      
+      mat-card {
+        @apply shadow-md border border-gray-200;
+        
+        mat-card-header {
+          mat-card-title {
+            @apply text-lg font-semibold text-gray-900;
+          }
+        }
+        
+        mat-card-content {
+          @apply space-y-6;
+          
+          // Filter sections
+          .filter-section {
+            @apply pb-6 border-b border-gray-100 last:border-b-0;
+            
+            h4 {
+              @apply text-base font-semibold text-gray-900 mb-3;
+            }
+            
+            // Price range slider
+            mat-slider {
+              @apply w-full;
+              
+              .mdc-slider {
+                @apply h-6;
+                
+                .mdc-slider__track {
+                  @apply h-1 bg-gray-200;
+                  
+                  .mdc-slider__track--active_fill {
+                    @apply bg-blue-600;
+                  }
+                }
+                
+                .mdc-slider__thumb {
+                  @apply w-5 h-5;
+                  
+                  .mdc-slider__thumb-knob {
+                    @apply bg-blue-600 border-2 border-white shadow-md;
+                  }
+                }
+              }
+            }
+            
+            // Checkboxes
+            mat-checkbox {
+              @apply w-full;
+              
+              .mat-mdc-checkbox {
+                .mdc-checkbox {
+                  @apply mr-2;
+                  
+                  .mdc-checkbox__checkmark {
+                    @apply text-blue-600;
+                  }
+                }
+                
+                .mdc-form-field {
+                  @apply w-full;
+                  
+                  label {
+                    @apply w-full text-gray-700;
+                  }
+                }
+              }
+            }
+            
+            // Select dropdown
+            mat-select {
+              @apply w-full;
+              
+              .mat-mdc-select-trigger {
+                @apply bg-white border border-gray-300 rounded-md px-3 py-2;
+                
+                &:hover {
+                  @apply border-gray-400;
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+    
+    // Products main area
+    .products-main {
+      @apply w-full;
+      
+      // Loading state
+      .loading-state {
+        @apply flex items-center justify-center py-12;
+        
+        mat-spinner {
+          @apply mr-4;
+        }
+        
+        span {
+          @apply text-gray-600 text-lg;
+        }
+      }
+      
+      // Empty states
+      .empty-state,
+      .no-products-state {
+        @apply text-center py-16;
+        
+        mat-icon {
+          @apply text-gray-400 mb-4;
+          font-size: 4rem;
+          width: 4rem;
+          height: 4rem;
+        }
+        
+        h3 {
+          @apply text-xl font-semibold text-gray-700 mb-2;
+        }
+        
+        p {
+          @apply text-gray-600 mb-6;
+        }
+      }
+      
+      // Products grid
+      .products-grid {
+        // Grid container with responsive columns
+        .grid {
+          // Ensure equal height cards
+          .product-card-wrapper {
+            @apply h-full;
+            
+            // Ensure the product card fills the wrapper
+            app-product-card {
+              @apply block h-full;
+            }
+          }
+        }
+        
+        // Load more section
+        .load-more-section {
+          @apply pt-8 border-t border-gray-200;
+          
+          button {
+            @apply px-8 py-3;
+            
+            mat-icon {
+              @apply mr-2;
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+// Mobile-specific styles
+@media (max-width: 1023px) {
+  .product-grid-container {
+    .grid-content {
+      @apply block;
+      
+      .filters-sidebar {
+        @apply block mb-6;
+        
+        // Mobile filter drawer (future enhancement)
+        &.mobile-drawer {
+          @apply fixed inset-0 z-50 bg-white;
+        }
+      }
+    }
+  }
+}
+
+// Tablet adjustments
+@media (min-width: 768px) and (max-width: 1023px) {
+  .product-grid-container {
+    .grid-content {
+      .products-main {
+        .products-grid {
+          .grid {
+            // Optimize for tablet: 2 columns
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+          }
+        }
+      }
+    }
+  }
+}
+
+// Desktop optimizations
+@media (min-width: 1024px) {
+  .product-grid-container {
+    .grid-content {
+      .filters-sidebar {
+        // Sticky sidebar
+        mat-card {
+          @apply sticky;
+          top: 1rem;
+        }
+      }
+      
+      .products-main {
+        .products-grid {
+          .grid {
+            // Desktop: 3 columns when sidebar shown, 4 when not
+            &.with-sidebar {
+              grid-template-columns: repeat(3, minmax(0, 1fr));
+            }
+            
+            &.without-sidebar {
+              grid-template-columns: repeat(4, minmax(0, 1fr));
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+// Extra large screens
+@media (min-width: 1280px) {
+  .product-grid-container {
+    .grid-content {
+      .products-main {
+        .products-grid {
+          .grid {
+            // XL screens: 4 columns when sidebar shown, 5 when not
+            &.with-sidebar {
+              grid-template-columns: repeat(4, minmax(0, 1fr));
+            }
+            
+            &.without-sidebar {
+              grid-template-columns: repeat(5, minmax(0, 1fr));
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+// Print styles
+@media print {
+  .product-grid-container {
+    .grid-header,
+    .filters-sidebar {
+      @apply hidden;
+    }
+    
+    .products-main {
+      .products-grid {
+        .grid {
+          @apply grid-cols-3 gap-4;
+        }
+      }
+    }
+  }
+}
+
+// High contrast mode support
+@media (prefers-contrast: high) {
+  .product-grid-container {
+    .filters-sidebar {
+      mat-card {
+        @apply border-2 border-black;
+      }
+      
+      .filter-section {
+        @apply border-black;
+      }
+    }
+    
+    .active-filters {
+      @apply border-2 border-black;
+    }
+  }
+}
+
+// Reduced motion support
+@media (prefers-reduced-motion: reduce) {
+  .product-grid-container * {
+    @apply transition-none;
+  }
+}
+
+// Focus styles for accessibility
+.product-grid-container {
+  button:focus,
+  mat-checkbox:focus,
+  mat-select:focus,
+  input:focus {
+    @apply outline-2 outline-blue-500 outline-offset-2;
+  }
+  
+  // Skip to content link (hidden by default, visible on focus)
+  .skip-to-products {
+    @apply sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:bg-blue-600 focus:text-white focus:px-4 focus:py-2 focus:rounded focus:z-50;
+  }
+}
+
+// Theme customization for Syrian marketplace branding
+.syrian-theme {
+  .product-grid-container {
+    .grid-header {
+      @apply border-red-200;
+    }
+    
+    .filters-sidebar {
+      mat-card {
+        @apply border-red-200;
+        
+        mat-card-header {
+          @apply bg-gradient-to-r from-red-50 to-green-50;
+        }
+      }
+    }
+    
+    // Syrian flag colors accent
+    .active-filters {
+      mat-chip-option {
+        &[color="primary"] {
+          @apply bg-red-100 text-red-800;
+        }
+        
+        &[color="accent"] {
+          @apply bg-green-100 text-green-800;
+        }
+      }
+    }
+  }
+}

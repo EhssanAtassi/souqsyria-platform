@@ -1,0 +1,276 @@
+<!-- Product Card - Grid View -->
+<div
+  *ngIf="viewMode === 'grid'"
+  [ngClass]="getCardClasses()"
+  (click)="onCardClick($event)"
+  class="product-card-container"
+  dir="auto">
+  
+  <!-- Product Image Section -->
+  <div class="relative group">
+    <!-- Main Product Image -->
+    <div class="aspect-square overflow-hidden bg-gray-50 rounded-t-lg">
+      <img
+        [src]="getPrimaryImageUrl()"
+        [alt]="product.name"
+        class="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-300"
+        loading="lazy"
+        style="aspect-ratio: 1/1;">
+    </div>
+    
+    <!-- Discount Badge -->
+    <div 
+      *ngIf="hasDiscount()" 
+      class="absolute top-2 left-2 bg-red-500 text-white px-2 py-1 rounded-md text-xs font-semibold">
+      -{{getDiscountPercentage()}}%
+    </div>
+    
+    <!-- Wishlist Button -->
+    <button 
+      *ngIf="showWishlist"
+      mat-icon-button
+      [color]="isInWishlist ? 'warn' : ''"
+      class="absolute top-2 right-2 bg-white shadow-md"
+      (click)="onWishlistToggle($event)"
+      matTooltip="Add to Wishlist">
+      <mat-icon>{{isInWishlist ? 'favorite' : 'favorite_border'}}</mat-icon>
+    </button>
+    
+    <!-- Heritage Badges -->
+    <div class="absolute bottom-2 left-2 flex gap-1">
+      <mat-chip 
+        *ngFor="let badge of getHeritageBadges()" 
+        [color]="badge.color"
+        class="text-xs">
+        {{badge.text}}
+      </mat-chip>
+    </div>
+  </div>
+  
+  <!-- Product Information -->
+  <mat-card-content class="product-content flex-1"
+                    style="flex: 1 !important; display: flex !important; flex-direction: column !important; padding: 16px !important; overflow: hidden !important; box-sizing: border-box !important;">
+    <div class="product-info-container">
+      <!-- Product Name -->
+      <h3 class="product-title font-semibold text-gray-900 mb-1 line-clamp-2 hover:text-blue-600">
+        {{product.name}}
+      </h3>
+
+      <!-- Arabic Name -->
+      <p *ngIf="product.nameArabic" class="arabic-name text-sm text-gray-500 mb-2 text-right font-arabic">
+        {{product.nameArabic}}
+      </p>
+
+      <!-- Rating and Reviews -->
+      <div class="rating-container flex items-center gap-2 mb-2">
+        <div class="stars flex items-center">
+          <mat-icon
+            *ngFor="let star of getStarRating()"
+            [class]="star === 'full' ? 'text-yellow-400' : star === 'half' ? 'text-yellow-400' : 'text-gray-300'"
+            class="text-sm">
+            {{star === 'half' ? 'star_half' : 'star'}}
+          </mat-icon>
+        </div>
+        <span class="rating-text text-sm text-gray-600">
+          {{product.reviews.averageRating}} ({{product.reviews.totalReviews}})
+        </span>
+      </div>
+
+      <!-- Price Section -->
+      <div class="price-container mb-3">
+        <div class="flex items-baseline gap-2">
+          <span class="current-price text-lg font-bold text-gray-900">
+            {{formatPrice(getDisplayPrice().amount, getDisplayPrice().currency)}}
+          </span>
+          <span
+            *ngIf="getDisplayPrice().originalAmount"
+            class="original-price text-sm text-gray-500 line-through">
+            {{formatPrice(getDisplayPrice().originalAmount!, getDisplayPrice().currency)}}
+          </span>
+        </div>
+      </div>
+
+      <!-- Seller Info -->
+      <div class="seller-info flex items-center gap-1 mb-2">
+        <mat-icon *ngIf="product.seller.verified" class="verified-icon text-green-500 text-sm">verified</mat-icon>
+        <span class="text-sm text-gray-600 truncate">{{product.seller.name}}</span>
+        <span class="text-xs text-gray-400">• {{product.seller.location.city}}</span>
+      </div>
+
+      <!-- Inventory Status -->
+      <div class="inventory-status flex items-center gap-1 mb-2">
+        <mat-icon [class]="'text-' + getInventoryStatus().color + '-500'" class="text-sm">
+          {{getInventoryStatus().icon}}
+        </mat-icon>
+        <span [class]="'text-' + getInventoryStatus().color + '-600'" class="status-text text-sm">
+          {{getInventoryStatus().text}}
+        </span>
+      </div>
+
+      <!-- Shipping Info -->
+      <div class="shipping-info text-xs text-gray-500 mb-2">
+        <span [class]="getShippingInfo().isFree ? 'text-green-600 font-semibold' : 'text-gray-500'">
+          {{getShippingInfo().text}}
+        </span>
+      </div>
+    </div>
+  </mat-card-content>
+  
+  <!-- Action Buttons -->
+  <div class="card-actions-container">
+    <button
+      type="button"
+      class="add-to-cart-btn"
+      [disabled]="!isAvailableForPurchase() || isAddingToCart"
+      [class.loading]="isAddingToCart"
+      (click)="onAddToCartClick($event)">
+      <mat-icon *ngIf="isAddingToCart" class="btn-icon animate-spin">refresh</mat-icon>
+      <mat-icon *ngIf="!isAddingToCart" class="btn-icon">shopping_cart</mat-icon>
+      <span class="btn-text-en">Add</span>
+      <span class="btn-text-ar">أضف</span>
+    </button>
+  </div>
+</div>
+
+<!-- Product Card - List View -->
+<mat-card
+  *ngIf="viewMode === 'list'"
+  [ngClass]="getCardClasses()"
+  (click)="onCardClick($event)"
+  class="flex relative overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300 rounded-lg"
+  dir="auto">
+  
+  <!-- Product Image Section -->
+  <div class="relative group flex-shrink-0 w-48">
+    <!-- Main Product Image -->
+    <div class="aspect-square overflow-hidden bg-gray-50 rounded-t-lg">
+      <img
+        [src]="getPrimaryImageUrl()"
+        [alt]="product.name"
+        class="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-300"
+        loading="lazy"
+        style="aspect-ratio: 1/1;">
+    </div>
+    
+    <!-- Discount Badge -->
+    <div 
+      *ngIf="hasDiscount()" 
+      class="absolute top-2 left-2 bg-red-500 text-white px-2 py-1 rounded-md text-xs font-semibold">
+      -{{getDiscountPercentage()}}%
+    </div>
+    
+    <!-- Heritage Badges -->
+    <div class="absolute bottom-2 left-2 flex gap-1">
+      <mat-chip 
+        *ngIf="getHeritageBadges().length > 0"
+        [color]="getHeritageBadges()[0].color"
+        class="text-xs">
+        {{getHeritageBadges()[0].text}}
+      </mat-chip>
+    </div>
+  </div>
+  
+  <!-- Product Information -->
+  <mat-card-content class="flex-1 p-6 flex flex-col">
+    <div class="flex justify-between items-start mb-4">
+      <div class="flex-1">
+        <!-- Product Name -->
+        <h3 class="text-xl font-semibold text-gray-900 mb-2 hover:text-blue-600">
+          {{product.name}}
+        </h3>
+        
+        <!-- Arabic Name -->
+        <p *ngIf="product.nameArabic" class="text-sm text-gray-500 mb-3 font-arabic">
+          {{product.nameArabic}}
+        </p>
+        
+        <!-- Description -->
+        <p class="text-gray-700 mb-4 line-clamp-2">
+          {{product.description}}
+        </p>
+        
+        <!-- Rating and Reviews -->
+        <div class="flex items-center gap-2 mb-3">
+          <div class="flex items-center">
+            <mat-icon 
+              *ngFor="let star of getStarRating()" 
+              [class]="star === 'full' ? 'text-yellow-400' : star === 'half' ? 'text-yellow-400' : 'text-gray-300'"
+              class="text-lg">
+              {{star === 'half' ? 'star_half' : 'star'}}
+            </mat-icon>
+          </div>
+          <span class="text-sm text-gray-600">
+            {{product.reviews.averageRating}} ({{product.reviews.totalReviews}} reviews)
+          </span>
+        </div>
+        
+        <!-- Seller Info -->
+        <div class="flex items-center gap-1 mb-2">
+          <mat-icon *ngIf="product.seller.verified" class="text-green-500 text-sm">verified</mat-icon>
+          <span class="text-sm text-gray-600">Sold by {{product.seller.name}}</span>
+          <span class="text-xs text-gray-400">• {{product.seller.location.city}}, {{product.seller.location.governorate}}</span>
+        </div>
+        
+        <!-- Shipping Info -->
+        <div class="text-sm text-gray-500">
+          <span [class]="getShippingInfo().isFree ? 'text-green-600 font-semibold' : 'text-gray-500'">
+            {{getShippingInfo().text}}
+          </span>
+        </div>
+      </div>
+      
+      <!-- Price and Actions Section -->
+      <div class="flex flex-col items-end ml-6">
+        <!-- Wishlist Button -->
+        <button 
+          *ngIf="showWishlist"
+          mat-icon-button
+          [color]="isInWishlist ? 'warn' : ''"
+          class="mb-4"
+          (click)="onWishlistToggle($event)"
+          matTooltip="Add to Wishlist">
+          <mat-icon>{{isInWishlist ? 'favorite' : 'favorite_border'}}</mat-icon>
+        </button>
+        
+        <!-- Price Section -->
+        <div class="text-right mb-3">
+          <div class="flex flex-col items-end">
+            <span class="text-2xl font-bold text-gray-900">
+              {{formatPrice(getDisplayPrice().amount, getDisplayPrice().currency)}}
+            </span>
+            <span 
+              *ngIf="getDisplayPrice().originalAmount" 
+              class="text-sm text-gray-500 line-through">
+              {{formatPrice(getDisplayPrice().originalAmount!, getDisplayPrice().currency)}}
+            </span>
+          </div>
+        </div>
+        
+        <!-- Inventory Status -->
+        <div class="flex items-center gap-1 mb-4">
+          <mat-icon [class]="'text-' + getInventoryStatus().color + '-500'" class="text-sm">
+            {{getInventoryStatus().icon}}
+          </mat-icon>
+          <span [class]="'text-' + getInventoryStatus().color + '-600'" class="text-sm">
+            {{getInventoryStatus().text}}
+          </span>
+        </div>
+        
+        <!-- Action Button -->
+        <button
+          *ngIf="showQuickAdd"
+          mat-raised-button
+          color="primary"
+          [disabled]="!isAvailableForPurchase() || isAddingToCart"
+          (click)="onAddToCartClick($event)"
+          style="min-width: 140px; max-width: 100% !important; overflow: hidden !important; white-space: nowrap !important; text-overflow: ellipsis !important; box-sizing: border-box !important;">
+          <span style="display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 14px; font-weight: 600;">
+            <mat-icon *ngIf="isAddingToCart" class="animate-spin">refresh</mat-icon>
+            <mat-icon *ngIf="!isAddingToCart">add_shopping_cart</mat-icon>
+            <span>أضف | Add</span>
+          </span>
+        </button>
+      </div>
+    </div>
+  </mat-card-content>
+</mat-card>

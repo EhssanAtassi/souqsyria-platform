@@ -1,0 +1,68 @@
+<!-- Hero Image Slider Container -->
+<div class="hero-slider" (mouseenter)="pauseAutoplay()" (mouseleave)="resumeAutoplay()">
+
+  <!-- Slider Track with Slides -->
+  <div class="slider-track">
+    @for (banner of banners(); track banner.id; let i = $index) {
+      <div
+        class="slider-slide"
+        [class.active]="i === currentSlide()"
+        [routerLink]="banner.link">
+
+        <!-- Slide Image -->
+        <img
+          [src]="banner.image"
+          [alt]="banner.title"
+          class="slide-image"
+          loading="lazy">
+
+        <!-- Text Overlay -->
+        <div class="slide-content">
+          <h2 class="slide-title">{{ banner.title }}</h2>
+          <h3 class="slide-title-ar">{{ banner.titleAr }}</h3>
+          <p class="slide-subtitle">{{ banner.subtitle }}</p>
+        </div>
+      </div>
+    }
+  </div>
+
+  <!-- Navigation Arrows -->
+  <button
+    mat-icon-button
+    class="slider-arrow slider-arrow-left"
+    (click)="previousSlide(); $event.stopPropagation()"
+    aria-label="Previous slide"
+    type="button">
+    <mat-icon>chevron_left</mat-icon>
+  </button>
+
+  <button
+    mat-icon-button
+    class="slider-arrow slider-arrow-right"
+    (click)="nextSlide(); $event.stopPropagation()"
+    aria-label="Next slide"
+    type="button">
+    <mat-icon>chevron_right</mat-icon>
+  </button>
+
+  <!-- Dot Indicators -->
+  <div class="slider-dots">
+    @for (banner of banners(); track banner.id; let i = $index) {
+      <button
+        class="dot"
+        [class.active]="i === currentSlide()"
+        (click)="goToSlide(i); $event.stopPropagation()"
+        [attr.aria-label]="'Go to slide ' + (i + 1)"
+        type="button">
+      </button>
+    }
+  </div>
+
+  <!-- Progress Bar -->
+  <div class="slider-progress">
+    <div
+      class="progress-bar"
+      [style.width.%]="slideProgress()">
+    </div>
+  </div>
+</div>

@@ -1,0 +1,583 @@
+/* Global styles for SouqSyria Enterprise Storefront */
+
+/* Import Swiper styles */
+@import 'swiper/css';
+@import 'swiper/css/navigation';
+@import 'swiper/css/pagination';
+@import 'swiper/css/autoplay';
+@import 'swiper/css/effect-fade';
+
+/* Import Google Fonts for enhanced typography - Arabic and English support */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Arabic:wght@100;200;300;400;500;600;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@200;300;400;500;600;700;800;900&display=swap');
+
+/* Import Tailwind CSS base, components, and utilities */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Import SouqSyria Color System with Semantic Naming */
+@import './styles/colors';
+
+/* Bulletproof Product Grid Layout Utilities */
+.product-grid-bulletproof {
+  display: grid;
+  gap: 1rem;
+  width: 100%;
+
+  // Mobile first approach
+  grid-template-columns: 1fr;
+
+  // Tablet - 2 columns
+  @media (min-width: 480px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  // Small desktop - 3 columns
+  @media (min-width: 768px) {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  // Large desktop - 4 columns
+  @media (min-width: 1024px) {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1.5rem;
+  }
+
+  // Extra large - 5 columns
+  @media (min-width: 1280px) {
+    grid-template-columns: repeat(5, 1fr);
+  }
+}
+
+/* ===== SOUQSYRIA GOLDEN WHEAT DESIGN SYSTEM ===== */
+/* Official SouqSyria Color Palette - Override Angular Material */
+
+:root {
+  /* GOLDEN WHEAT PALETTE */
+  --golden-wheat-primary: #988561;
+  --golden-wheat-medium: #b9a779;
+  --golden-wheat-light: #edebe0;
+
+  /* FOREST PALETTE */
+  --forest-dark: #002623;
+  --forest-medium: #054239;
+  --forest-light: #428177;
+
+  /* CHARCOAL PALETTE */
+  --charcoal-dark: #161616;
+  --charcoal-medium: #3d3a3b;
+  --charcoal-light: #ffffff;
+
+  /* DEEP UMBER ACCENT */
+  --umber-dark: #260f14;
+  --umber-medium: #4a151e;
+  --umber-light: #6b1f2a;
+}
+
+/* Material Button Overrides - SouqSyria Golden Wheat Colors */
+.mat-mdc-raised-button.mat-primary,
+.mat-mdc-fab.mat-primary,
+.mat-mdc-mini-fab.mat-primary {
+  --mdc-protected-button-container-color: var(--golden-wheat-primary) !important;
+  --mdc-protected-button-label-text-color: var(--charcoal-light) !important;
+  background: linear-gradient(135deg, var(--golden-wheat-primary) 0%, var(--golden-wheat-medium) 100%) !important;
+
+  &:hover {
+    background: linear-gradient(135deg, var(--golden-wheat-medium) 0%, var(--golden-wheat-primary) 100%) !important;
+  }
+}
+
+.mat-mdc-raised-button.mat-accent,
+.mat-mdc-fab.mat-accent {
+  --mdc-protected-button-container-color: var(--umber-light) !important;
+  --mdc-protected-button-label-text-color: white !important;
+  background: linear-gradient(135deg, var(--umber-medium) 0%, var(--umber-light) 100%) !important;
+}
+
+.mat-mdc-button.mat-primary {
+  --mdc-text-button-label-text-color: var(--forest-dark) !important;
+}
+
+/* Material Icon Button - SouqSyria Colors */
+.mat-mdc-icon-button.mat-primary {
+  --mdc-icon-button-icon-color: var(--golden-wheat-primary) !important;
+
+  &:hover {
+    background-color: rgba(152, 133, 97, 0.1) !important;
+  }
+}
+
+.mat-mdc-icon-button.mat-accent {
+  --mdc-icon-button-icon-color: var(--umber-light) !important;
+
+  &:hover {
+    background-color: rgba(107, 31, 42, 0.1) !important;
+  }
+}
+
+/* Material Tabs - SouqSyria Colors */
+.mat-mdc-tab-group {
+  --mat-tab-header-active-label-text-color: var(--forest-dark) !important;
+  --mat-tab-header-active-focus-label-text-color: var(--forest-dark) !important;
+  --mat-tab-header-active-hover-label-text-color: var(--forest-dark) !important;
+  --mdc-tab-indicator-active-indicator-color: var(--golden-wheat-primary) !important;
+}
+
+.mat-mdc-tab {
+  &.mat-mdc-tab-disabled {
+    opacity: 0.5;
+  }
+
+  &:hover:not(.mat-mdc-tab-disabled) {
+    .mdc-tab__text-label {
+      color: var(--golden-wheat-primary) !important;
+    }
+  }
+}
+
+.mdc-tab-indicator__content--underline {
+  border-color: var(--golden-wheat-primary) !important;
+  border-top-width: 3px !important;
+}
+
+/* Material Spinner - SouqSyria Colors */
+.mat-mdc-progress-spinner {
+  --mdc-circular-progress-active-indicator-color: var(--golden-wheat-primary) !important;
+}
+
+/* Material Checkbox - SouqSyria Colors */
+.mat-mdc-checkbox.mat-accent {
+  --mdc-checkbox-selected-checkmark-color: white !important;
+  --mdc-checkbox-selected-focus-icon-color: var(--golden-wheat-primary) !important;
+  --mdc-checkbox-selected-hover-icon-color: var(--golden-wheat-primary) !important;
+  --mdc-checkbox-selected-icon-color: var(--golden-wheat-primary) !important;
+  --mdc-checkbox-selected-pressed-icon-color: var(--golden-wheat-primary) !important;
+}
+
+/* Material Chip - SouqSyria Colors */
+.mat-mdc-chip.mat-accent {
+  --mdc-chip-elevated-container-color: var(--golden-wheat-light) !important;
+  --mdc-chip-label-text-color: var(--forest-dark) !important;
+  border: 1px solid var(--golden-wheat-primary) !important;
+}
+
+/* Material Slider - SouqSyria Colors */
+.mat-mdc-slider {
+  --mdc-slider-handle-color: var(--golden-wheat-primary) !important;
+  --mdc-slider-focus-handle-color: var(--golden-wheat-primary) !important;
+  --mdc-slider-hover-handle-color: var(--golden-wheat-primary) !important;
+  --mdc-slider-active-track-color: var(--golden-wheat-primary) !important;
+  --mdc-slider-inactive-track-color: var(--golden-wheat-light) !important;
+}
+
+/* Material Form Field - SouqSyria Colors */
+.mat-mdc-form-field.mat-accent {
+  --mdc-filled-text-field-caret-color: var(--forest-dark) !important;
+  --mdc-filled-text-field-focus-active-indicator-color: var(--golden-wheat-primary) !important;
+  --mdc-filled-text-field-focus-label-text-color: var(--forest-dark) !important;
+}
+
+/* Material Paginator - SouqSyria Colors */
+.mat-mdc-paginator {
+  background: transparent !important;
+
+  .mat-mdc-icon-button.mat-mdc-button-base {
+    --mdc-icon-button-icon-color: var(--forest-dark) !important;
+
+    &:hover {
+      background-color: rgba(152, 133, 97, 0.1) !important;
+    }
+  }
+}
+
+/* SouqSyria Golden Wheat Design System Utility Classes */
+
+/* Background Colors */
+.bg-golden-wheat-primary { background-color: var(--golden-wheat-primary) !important; }
+.bg-golden-wheat-medium { background-color: var(--golden-wheat-medium) !important; }
+.bg-golden-wheat-light { background-color: var(--golden-wheat-light) !important; }
+
+.bg-forest-dark { background-color: var(--forest-dark) !important; }
+.bg-forest-medium { background-color: var(--forest-medium) !important; }
+.bg-forest-light { background-color: var(--forest-light) !important; }
+
+.bg-charcoal-dark { background-color: var(--charcoal-dark) !important; }
+.bg-charcoal-medium { background-color: var(--charcoal-medium) !important; }
+.bg-charcoal-light { background-color: var(--charcoal-light) !important; }
+
+.bg-umber-dark { background-color: var(--umber-dark) !important; }
+.bg-umber-medium { background-color: var(--umber-medium) !important; }
+.bg-umber-light { background-color: var(--umber-light) !important; }
+
+/* Text Colors */
+.text-golden-wheat-primary { color: var(--golden-wheat-primary) !important; }
+.text-golden-wheat-medium { color: var(--golden-wheat-medium) !important; }
+
+.text-forest-dark { color: var(--forest-dark) !important; }
+.text-forest-medium { color: var(--forest-medium) !important; }
+.text-forest-light { color: var(--forest-light) !important; }
+
+.text-charcoal-dark { color: var(--charcoal-dark) !important; }
+.text-charcoal-medium { color: var(--charcoal-medium) !important; }
+
+.text-umber-light { color: var(--umber-light) !important; }
+
+/* Border Colors */
+.border-golden-wheat { border-color: var(--golden-wheat-primary) !important; }
+.border-forest { border-color: var(--forest-medium) !important; }
+.border-umber { border-color: var(--umber-light) !important; }
+
+/* Gradient Backgrounds */
+.gradient-golden-wheat {
+  background: linear-gradient(135deg, var(--golden-wheat-primary) 0%, var(--golden-wheat-medium) 100%) !important;
+}
+
+.gradient-forest {
+  background: linear-gradient(135deg, var(--forest-dark) 0%, var(--forest-medium) 100%) !important;
+}
+
+.gradient-umber {
+  background: linear-gradient(135deg, var(--umber-medium) 0%, var(--umber-light) 100%) !important;
+}
+
+/* Ensure product cards fit perfectly in grid */
+.product-grid-bulletproof > * {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0; /* Critical for flex/grid sizing */
+}
+
+/* Import RTL/Arabic support styles */
+@import './app/styles/rtl-support.scss';
+
+/* Import animations and transitions */
+@import './app/styles/animations.scss';
+
+/* Import Syrian marketplace utility classes */
+@import './app/shared/styles/syrian-marketplace-utilities.scss';
+
+/* Global reset and base styles */
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  font-family: 'Inter', 'Cairo', 'Noto Sans Arabic', 'Roboto', 'Helvetica Neue', sans-serif;
+  font-size: 14px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Arabic text support */
+[lang="ar"], .arabic-text {
+  font-family: 'Cairo', 'Noto Sans Arabic', 'Inter', sans-serif;
+  direction: rtl;
+  text-align: right;
+}
+
+/* Bilingual text containers */
+.bilingual-text {
+  .english-text {
+    font-family: 'Inter', 'Poppins', sans-serif;
+  }
+  
+  .arabic-text {
+    font-family: 'Cairo', 'Noto Sans Arabic', sans-serif;
+    direction: rtl;
+  }
+}
+
+/* Remove default button and input styles for consistency with Tailwind */
+button, input, textarea, select {
+  font-family: inherit;
+}
+
+/* SouqSyria utility classes using custom color palette */
+@layer components {
+  /* Card component styles with Golden Wheat palette */
+  .sq-card {
+    @apply bg-charcoal-light rounded-lg shadow-sm border border-neutral-200 p-6 transition-shadow duration-200 hover:shadow-md;
+  }
+
+  .sq-card-header {
+    @apply border-b border-neutral-200 pb-4 mb-6;
+  }
+
+  .sq-card-title {
+    @apply text-xl font-semibold text-charcoal-dark font-display;
+  }
+
+  .sq-card-subtitle {
+    @apply text-sm text-neutral-600 mt-1;
+  }
+
+  /* Button component styles using SouqSyria palette */
+  .sq-btn {
+    @apply inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2;
+  }
+
+  .sq-btn-primary {
+    @apply sq-btn bg-golden-wheat-dark text-charcoal-light hover:bg-golden-wheat focus:ring-golden-wheat;
+  }
+
+  .sq-btn-secondary {
+    @apply sq-btn bg-forest text-charcoal-light hover:bg-forest-light focus:ring-forest;
+  }
+
+  .sq-btn-outline {
+    @apply sq-btn border-neutral-300 text-charcoal hover:bg-neutral-50 focus:ring-golden-wheat;
+  }
+
+  .sq-btn-accent {
+    @apply sq-btn bg-deep-umber text-charcoal-light hover:bg-deep-umber-light focus:ring-deep-umber;
+  }
+
+  /* Form component styles with SouqSyria colors */
+  .sq-form-field {
+    @apply mb-4;
+  }
+
+  .sq-form-label {
+    @apply block text-sm font-medium text-charcoal mb-2;
+  }
+
+  .sq-form-input {
+    @apply block w-full px-3 py-2 border border-neutral-300 rounded-md shadow-sm placeholder-neutral-400 focus:outline-none focus:ring-golden-wheat focus:border-golden-wheat;
+  }
+
+  .sq-form-error {
+    @apply mt-1 text-sm text-deep-umber;
+  }
+
+  /* Layout utility classes */
+  .sq-container {
+    @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+  }
+
+  .sq-section {
+    @apply py-12;
+  }
+
+  /* Loading and skeleton styles with custom colors */
+  .sq-skeleton {
+    @apply animate-pulse bg-neutral-200 rounded;
+  }
+
+  .sq-loading-spinner {
+    @apply animate-spin rounded-full border-2 border-neutral-300 border-t-golden-wheat-dark;
+  }
+
+  /* SouqSyria specific utility classes */
+  .sq-text-brand {
+    @apply text-golden-wheat-dark;
+  }
+
+  .sq-bg-brand {
+    @apply bg-golden-wheat;
+  }
+
+  .sq-border-brand {
+    @apply border-golden-wheat;
+  }
+
+  .sq-text-accent {
+    @apply text-forest-dark;
+  }
+
+  .sq-bg-accent {
+    @apply bg-forest-light;
+  }
+
+  /* Hero section styles */
+  .sq-hero {
+    @apply bg-gradient-to-br from-golden-wheat-light via-charcoal-light to-neutral-100;
+  }
+
+  /* Navigation styles */
+  .sq-nav {
+    @apply bg-charcoal-light border-b border-neutral-200 shadow-sm;
+  }
+
+  /* Footer styles */
+  .sq-footer {
+    @apply bg-charcoal text-charcoal-light;
+  }
+
+  /* RTL Layout Support */
+  .rtl {
+    direction: rtl;
+    
+    .flex {
+      flex-direction: row-reverse;
+    }
+    
+    .text-left {
+      text-align: right;
+    }
+    
+    .text-right {
+      text-align: left;
+    }
+    
+    .ml-auto {
+      margin-right: auto;
+      margin-left: initial;
+    }
+    
+    .mr-auto {
+      margin-left: auto;
+      margin-right: initial;
+    }
+  }
+
+  /* Authentic Syrian marketplace theme with flag colors and cultural patterns */
+  .syrian-theme {
+    .hero-gradient {
+      @apply bg-gradient-to-r from-syrian-red via-cream-200 to-syrian-navy;
+    }
+    
+    .market-accent {
+      @apply bg-syrian-red text-syrian-white;
+    }
+    
+    .syrian-gold {
+      @apply bg-gold-500 text-syrian-black;
+    }
+    
+    .damascus-blue {
+      @apply bg-syrian-navy text-syrian-white;
+    }
+    
+    .authentic-pattern {
+      background-image: 
+        radial-gradient(circle at 25% 25%, rgba(212, 175, 55, 0.1) 0%, transparent 50%),
+        radial-gradient(circle at 75% 75%, rgba(206, 17, 38, 0.1) 0%, transparent 50%);
+    }
+  }
+
+  /* Syrian flag gradient for hero sections */
+  .syrian-gradient {
+    background: linear-gradient(135deg, 
+      #CE1126 0%,    /* Syrian red */
+      #FFFFFF 25%,   /* Syrian white */
+      #000000 50%,   /* Syrian black */
+      #D4AF37 75%,   /* Traditional gold */
+      #CE1126 100%   /* Back to Syrian red */
+    );
+  }
+
+  /* Damascus steel pattern simulation */
+  .damascus-pattern {
+    background: 
+      repeating-linear-gradient(
+        45deg,
+        rgba(212, 175, 55, 0.1) 0px,
+        rgba(212, 175, 55, 0.1) 10px,
+        transparent 10px,
+        transparent 20px
+      ),
+      repeating-linear-gradient(
+        -45deg,
+        rgba(206, 17, 38, 0.05) 0px,
+        rgba(206, 17, 38, 0.05) 15px,
+        transparent 15px,
+        transparent 30px
+      );
+  }
+
+  /* Traditional Syrian marketplace elements */
+  .syrian-card {
+    @apply bg-cream-50 border border-gold-200 rounded-lg shadow-md;
+    box-shadow: 0 4px 6px rgba(212, 175, 55, 0.1), 0 1px 3px rgba(206, 17, 38, 0.1);
+  }
+
+  .syrian-button-primary {
+    @apply bg-syrian-red hover:bg-syrian-red-dark text-syrian-white font-medium px-6 py-2 rounded-lg transition-all duration-300;
+    box-shadow: 0 2px 4px rgba(206, 17, 38, 0.2);
+  }
+
+  .syrian-button-secondary {
+    @apply bg-gold-500 hover:bg-gold-600 text-syrian-black font-medium px-6 py-2 rounded-lg transition-all duration-300;
+    box-shadow: 0 2px 4px rgba(212, 175, 55, 0.2);
+  }
+
+  .syrian-text-primary {
+    @apply text-syrian-navy font-semibold;
+  }
+
+  .syrian-text-accent {
+    @apply text-syrian-red;
+  }
+
+  /* Heritage marketplace styling */
+  .heritage-border {
+    border: 2px solid #D4AF37;
+    border-image: linear-gradient(45deg, #D4AF37, #CE1126, #D4AF37) 1;
+  }
+
+  /* Arabic calligraphy inspired elements */
+  .calligraphy-divider {
+    position: relative;
+    text-align: center;
+    
+    &::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 50%;
+      width: 30%;
+      height: 2px;
+      background: linear-gradient(to right, transparent, #D4AF37, transparent);
+    }
+    
+    &::after {
+      content: '';
+      position: absolute;
+      right: 0;
+      top: 50%;
+      width: 30%;
+      height: 2px;
+      background: linear-gradient(to left, transparent, #D4AF37, transparent);
+    }
+  }
+
+  /* Bilingual content styling */
+  .bilingual-content {
+    .primary-lang {
+      @apply text-base font-medium;
+    }
+    
+    .secondary-lang {
+      @apply text-sm opacity-80 block mt-1;
+    }
+  }
+}
+
+/* Custom scrollbar for webkit browsers */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* Print styles */
+@media print {
+  .sq-no-print {
+    display: none !important;
+  }
+}

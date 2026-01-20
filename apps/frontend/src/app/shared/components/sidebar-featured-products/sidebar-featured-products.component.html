@@ -1,0 +1,78 @@
+<!--
+  Sidebar Featured Products Template
+
+  Compact product cards for sidebar display.
+  Shows image, title, and price with Golden Wheat styling.
+-->
+
+<div class="sidebar-featured"
+     [attr.dir]="language() === 'ar' ? 'rtl' : 'ltr'"
+     [class.rtl-mode]="language() === 'ar'">
+
+  <!-- Section Header -->
+  <div class="sidebar-featured__header">
+    <h3 class="sidebar-featured__title">
+      {{ getDisplayTitle() }}
+    </h3>
+  </div>
+
+  <!-- Featured Products List -->
+  <div class="sidebar-featured__list">
+    @for (product of getLimitedProducts(); track product.id) {
+      <a [routerLink]="['/product', product.slug]"
+         class="sidebar-featured__item"
+         (click)="onProductClick(product)">
+
+        <!-- Product Image -->
+        <div class="sidebar-featured__image">
+          <img [src]="getPrimaryImage(product)"
+               [alt]="getProductName(product)"
+               loading="lazy">
+
+          <!-- Discount Badge -->
+          @if (hasDiscount(product)) {
+            <span class="sidebar-featured__badge">
+              -{{ product.price.discount!.percentage }}%
+            </span>
+          }
+        </div>
+
+        <!-- Product Info -->
+        <div class="sidebar-featured__info">
+          <!-- Product Name -->
+          <h4 class="sidebar-featured__name">
+            {{ getProductName(product) }}
+          </h4>
+
+          <!-- Price -->
+          @if (showPrices()) {
+            <div class="sidebar-featured__price">
+              <!-- Current Price -->
+              <span class="sidebar-featured__price-current">
+                {{ formatPrice(product) }}
+              </span>
+
+              <!-- Original Price (if discounted) -->
+              @if (hasDiscount(product)) {
+                <span class="sidebar-featured__price-original">
+                  {{ getOriginalPrice(product) }}
+                </span>
+              }
+            </div>
+          }
+        </div>
+
+      </a>
+    }
+
+    <!-- Empty State -->
+    @if (getLimitedProducts().length === 0) {
+      <div class="sidebar-featured__empty">
+        <p>
+          {{ language() === 'ar' ? 'لا توجد منتجات متاحة' : 'No products available' }}
+        </p>
+      </div>
+    }
+  </div>
+
+</div>

@@ -1,0 +1,88 @@
+<!-- Featured Banner Component - FIGMA DESIGN MATCH -->
+<!-- Single integrated container with text left, image right -->
+
+<div
+  class="featured-banner relative bg-gray-50 rounded-lg overflow-hidden
+         border border-gray-200 hover:border-gray-300 transition-colors duration-200
+         cursor-pointer"
+  [routerLink]="banner.ctaLink"
+  (click)="onBannerClick()">
+
+  <!-- Single Row Layout: Text LEFT | Image RIGHT -->
+  <div class="flex items-center justify-between p-6 lg:p-8">
+
+    <!-- LEFT SIDE: Text Content -->
+    <div class="flex-1 pr-6">
+
+      <!-- Badge (if provided) -->
+      @if (banner.badge) {
+        <div class="inline-block mb-3">
+          <span
+            class="text-xs font-bold px-3 py-1 rounded-full text-white uppercase tracking-wide"
+            [style.background-color]="banner.badge.color || '#C41E3A'">
+            {{ banner.badge.text.en }}
+          </span>
+        </div>
+      }
+
+      <!-- Title -->
+      <h3 class="text-lg lg:text-xl font-bold text-gray-900 mb-2 line-clamp-2 leading-tight">
+        {{ banner.title.en }}
+      </h3>
+
+      <!-- Subtitle (if provided) -->
+      @if (banner.subtitle) {
+        <p class="text-sm text-gray-600 mb-4 line-clamp-1">
+          {{ banner.subtitle.en }}
+        </p>
+      }
+
+      <!-- Pricing -->
+      <div class="mb-4">
+        <!-- Original Price (strikethrough) -->
+        @if (showOriginalPrice && hasDiscount()) {
+          <span class="text-sm text-gray-400 line-through mr-2">
+            {{ formatPrice(banner.originalPrice, banner.currency) }}
+          </span>
+        }
+
+        <!-- Sale Price -->
+        <span class="text-2xl lg:text-3xl font-bold text-golden-wheat-dark">
+          {{ formatPrice(banner.discountedPrice, banner.currency) }}
+        </span>
+      </div>
+
+      <!-- CTA Button -->
+      <button
+        mat-raised-button
+        type="button"
+        (click)="onCtaClick($event)"
+        class="bg-golden-wheat-dark text-white px-6 py-2 rounded-md
+               font-semibold text-sm hover:bg-golden-wheat transition-colors">
+        {{ banner.ctaText.en }}
+      </button>
+
+      <!-- Arabic CTA Text (below button) -->
+      <div class="mt-2 text-xs text-gray-500 font-arabic" dir="rtl">
+        {{ banner.ctaText.ar }}
+      </div>
+    </div>
+
+    <!-- RIGHT SIDE: Product Image -->
+    <div class="flex-shrink-0 w-48 h-48 lg:w-56 lg:h-56 flex items-center justify-center">
+      <img
+        [src]="banner.imageUrl"
+        [alt]="banner.title.en"
+        class="w-full h-full object-contain"
+        loading="lazy" />
+    </div>
+
+  </div>
+
+  <!-- Discount Badge (Top Right Corner) -->
+  @if (showDiscount && hasDiscount()) {
+    <div class="absolute top-4 right-4 bg-red-600 text-white text-xs font-bold px-3 py-1 rounded-full">
+      -{{ discountPercentage() }}% OFF
+    </div>
+  }
+</div>

@@ -1,0 +1,354 @@
+@import '../../../styles/variables';
+
+/**
+ * Product Box List Component Styles
+ * Horizontal card layout for list view
+ */
+
+.product-box-list {
+  display: flex;
+  gap: $space-4;
+  background: $charcoal-light;
+  border: $border-width-thin solid $golden-wheat-light;
+  border-radius: $border-radius-lg;
+  overflow: hidden;
+  transition: all $transition-normal $ease-in-out;
+  padding: $space-4;
+
+  &:hover {
+    box-shadow: $shadow-hover;
+    border-color: $golden-wheat-medium;
+  }
+
+  /**
+   * Image Container (Fixed Width)
+   */
+  &__image-container {
+    position: relative;
+    width: 200px;
+    height: 200px;
+    flex-shrink: 0;
+    overflow: hidden;
+    border-radius: $border-radius-md;
+    background: $golden-wheat-light;
+  }
+
+  &__image-link {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+
+  &__image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform $transition-slow $ease-in-out;
+
+    &:hover {
+      transform: scale(1.05);
+    }
+  }
+
+  /**
+   * Badges Overlay
+   */
+  &__badges {
+    position: absolute;
+    top: $space-2;
+    left: $space-2;
+    z-index: 10;
+    display: flex;
+    flex-direction: column;
+    gap: $space-1;
+  }
+
+  /**
+   * Product Info Section (Flexible Width)
+   */
+  &__info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: $space-3;
+    min-width: 0; // Allow text truncation
+  }
+
+  /**
+   * Header (Title & Wishlist)
+   */
+  &__header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: $space-3;
+  }
+
+  &__title {
+    flex: 1;
+    margin: 0;
+    font-size: $font-size-lg;
+    font-weight: $font-weight-semibold;
+    color: $charcoal-dark;
+    line-height: $line-height-tight;
+
+    a {
+      color: inherit;
+      text-decoration: none;
+      transition: color $transition-fast $ease-in-out;
+
+      &:hover {
+        color: $golden-wheat-primary;
+      }
+    }
+  }
+
+  &__wishlist-btn {
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    border: $border-width-thin solid $golden-wheat-light;
+    border-radius: $border-radius-full;
+    color: $golden-wheat-primary;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: all $transition-fast $ease-in-out;
+
+    &:hover {
+      background: $golden-wheat-primary;
+      border-color: $golden-wheat-primary;
+      color: $charcoal-light;
+    }
+  }
+
+  /**
+   * Description
+   */
+  &__description {
+    margin: 0;
+    font-size: $font-size-sm;
+    color: $charcoal-medium;
+    line-height: $line-height-normal;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  /**
+   * Tags/Attributes
+   */
+  &__tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: $space-2;
+  }
+
+  &__tag {
+    display: inline-flex;
+    align-items: center;
+    gap: $space-1;
+    padding: $space-1 $space-2;
+    background: $golden-wheat-light;
+    border-radius: $border-radius-sm;
+    font-size: $font-size-xs;
+    color: $golden-wheat-dark;
+    font-weight: $font-weight-medium;
+
+    svg {
+      width: 14px;
+      height: 14px;
+      color: $golden-wheat-primary;
+    }
+  }
+
+  /**
+   * Footer (Price, Rating, Cart Button)
+   */
+  &__footer {
+    display: flex;
+    align-items: center;
+    gap: $space-4;
+    margin-top: auto;
+  }
+
+  /**
+   * Price Section
+   */
+  &__price {
+    display: flex;
+    align-items: center;
+    gap: $space-2;
+  }
+
+  &__price-current {
+    font-size: $font-size-xl;
+    font-weight: $font-weight-bold;
+    color: $golden-wheat-primary;
+  }
+
+  &__price-original {
+    font-size: $font-size-sm;
+    color: $charcoal-medium;
+    text-decoration: line-through;
+  }
+
+  /**
+   * Rating Section
+   */
+  &__rating {
+    display: flex;
+    align-items: center;
+    gap: $space-1;
+  }
+
+  &__stars {
+    position: relative;
+    display: inline-block;
+    font-size: $font-size-sm;
+    line-height: 1;
+  }
+
+  &__stars-filled {
+    position: absolute;
+    top: 0;
+    left: 0;
+    overflow: hidden;
+    color: $golden-wheat-primary;
+  }
+
+  &__stars-empty {
+    color: $golden-wheat-light;
+  }
+
+  &__rating-count {
+    font-size: $font-size-xs;
+    color: $charcoal-medium;
+  }
+
+  /**
+   * Add to Cart Button
+   */
+  &__cart-btn {
+    display: flex;
+    align-items: center;
+    gap: $space-2;
+    padding: $space-2 $space-4;
+    margin-left: auto;
+    background: $golden-wheat-primary;
+    border: none;
+    border-radius: $border-radius-md;
+    color: $charcoal-light;
+    font-size: $font-size-sm;
+    font-weight: $font-weight-semibold;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all $transition-fast $ease-in-out;
+
+    &:hover:not(:disabled) {
+      background: $golden-wheat-dark;
+      transform: translateY(-2px);
+      box-shadow: $shadow-md;
+    }
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+  }
+
+  &__cart-text {
+    display: inline-block;
+  }
+}
+
+/**
+ * RTL Support
+ */
+[dir="rtl"] {
+  .product-box-list {
+    &__badges {
+      left: auto;
+      right: $space-2;
+    }
+
+    &__header {
+      flex-direction: row-reverse;
+    }
+
+    &__cart-btn {
+      margin-left: 0;
+      margin-right: auto;
+    }
+  }
+}
+
+/**
+ * Mobile Responsive
+ */
+@media (max-width: $breakpoint-md) {
+  .product-box-list {
+    flex-direction: column;
+
+    &__image-container {
+      width: 100%;
+      height: 200px;
+    }
+
+    &__footer {
+      flex-wrap: wrap;
+    }
+
+    &__cart-btn {
+      width: 100%;
+      margin-left: 0;
+      justify-content: center;
+    }
+  }
+}
+
+@media (max-width: $breakpoint-sm) {
+  .product-box-list {
+    padding: $space-3;
+    gap: $space-3;
+
+    &__image-container {
+      height: 150px;
+    }
+
+    &__title {
+      font-size: $font-size-base;
+    }
+
+    &__description {
+      font-size: $font-size-xs;
+      -webkit-line-clamp: 1;
+    }
+
+    &__price-current {
+      font-size: $font-size-lg;
+    }
+
+    &__cart-text {
+      display: none;
+    }
+
+    &__cart-btn {
+      padding: $space-2;
+      width: auto;
+      margin-left: auto;
+    }
+  }
+
+  [dir="rtl"] {
+    .product-box-list {
+      &__cart-btn {
+        margin-left: 0;
+        margin-right: auto;
+      }
+    }
+  }
+}

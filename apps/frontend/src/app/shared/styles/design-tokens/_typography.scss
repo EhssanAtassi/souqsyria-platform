@@ -1,0 +1,425 @@
+/**
+ * Golden Wheat Design System - Typography Tokens
+ *
+ * Complete typography system for Syrian marketplace
+ * Supports multilingual content (English + Arabic)
+ *
+ * @description Typography system including:
+ * - Font families (Latin + Arabic support)
+ * - Font sizes (responsive scale)
+ * - Font weights
+ * - Line heights
+ * - Letter spacing
+ *
+ * @accessibility Meets WCAG 2.1 AA readability standards
+ * @usage Import this file via design-tokens/index.scss
+ */
+
+// ============================================================================
+// FONT FAMILIES
+// ============================================================================
+
+/**
+ * Primary Font Family (Latin scripts)
+ * Clean, modern sans-serif for body text and UI elements
+ * @font Inter - Excellent readability, supports multiple weights
+ */
+$font-family-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';
+
+/**
+ * Display Font Family (Headlines, Hero text)
+ * Elegant serif for impactful headlines
+ * @font Poppins - Modern, geometric sans-serif
+ */
+$font-family-display: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+
+/**
+ * Arabic Font Family
+ * High-quality Arabic fonts with proper RTL support
+ * @font Amiri - Traditional Arabic typography
+ * @font Noto Sans Arabic - Modern Arabic sans-serif
+ */
+$font-family-arabic: 'Amiri', 'Scheherazade New', 'Noto Sans Arabic', 'Noto Kufi Arabic', 'Arabic UI Display', -apple-system, BlinkMacSystemFont, sans-serif;
+
+/**
+ * Arabic Kufi Font Family (for decorative elements)
+ * Square Kufic style for logos and decorative headers
+ */
+$font-family-arabic-kufi: 'Noto Kufi Arabic', 'Amiri', 'Arabic UI Display', sans-serif;
+
+/**
+ * Monospace Font Family (for code, numbers)
+ * Used for product codes, order numbers, technical data
+ */
+$font-family-mono: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
+
+/**
+ * Heading Font Family (Serif alternative)
+ * Classic serif for traditional, elegant headers
+ */
+$font-family-serif: 'Playfair Display', Georgia, 'Times New Roman', Times, serif;
+
+// Primary font alias
+$font-family-primary: $font-family-sans;
+
+// ============================================================================
+// FONT SIZE SCALE
+// ============================================================================
+
+/**
+ * Font Size System (based on 16px root)
+ * Uses modular scale (1.125 - major second) for harmonious proportions
+ * All sizes are in rem units for accessibility
+ */
+
+// Extra small sizes
+$font-size-2xs: 0.625rem;            // 10px - Tiny labels, captions
+$font-size-xs: 0.75rem;              // 12px - Small labels, metadata
+
+// Base sizes
+$font-size-sm: 0.875rem;             // 14px - Secondary text, small UI
+$font-size-base: 1rem;               // 16px - Body text (DEFAULT)
+$font-size-lg: 1.125rem;             // 18px - Large body text, subheadings
+
+// Heading sizes
+$font-size-xl: 1.25rem;              // 20px - H5, small headings
+$font-size-2xl: 1.5rem;              // 24px - H4, card titles
+$font-size-3xl: 1.875rem;            // 30px - H3, section headers
+$font-size-4xl: 2.25rem;             // 36px - H2, page titles
+$font-size-5xl: 3rem;                // 48px - H1, hero headings
+$font-size-6xl: 3.75rem;             // 60px - Extra large hero
+$font-size-7xl: 4.5rem;              // 72px - Giant display text
+
+// ============================================================================
+// RESPONSIVE FONT SIZES
+// ============================================================================
+
+/**
+ * Responsive Font Size Tokens
+ * Automatically scale down on mobile devices
+ * Format: desktop size / mobile size
+ */
+
+// Hero text (largest)
+$font-size-hero-desktop: $font-size-5xl;      // 48px
+$font-size-hero-tablet: $font-size-4xl;       // 36px
+$font-size-hero-mobile: $font-size-3xl;       // 30px
+
+// Page title (H1)
+$font-size-h1-desktop: $font-size-4xl;        // 36px
+$font-size-h1-tablet: $font-size-3xl;         // 30px
+$font-size-h1-mobile: $font-size-2xl;         // 24px
+
+// Section header (H2)
+$font-size-h2-desktop: $font-size-3xl;        // 30px
+$font-size-h2-tablet: $font-size-2xl;         // 24px
+$font-size-h2-mobile: $font-size-xl;          // 20px
+
+// Subsection header (H3)
+$font-size-h3-desktop: $font-size-2xl;        // 24px
+$font-size-h3-tablet: $font-size-xl;          // 20px
+$font-size-h3-mobile: $font-size-lg;          // 18px
+
+// Card title (H4)
+$font-size-h4-desktop: $font-size-xl;         // 20px
+$font-size-h4-tablet: $font-size-lg;          // 18px
+$font-size-h4-mobile: $font-size-base;        // 16px
+
+// Small heading (H5)
+$font-size-h5-desktop: $font-size-lg;         // 18px
+$font-size-h5-tablet: $font-size-base;        // 16px
+$font-size-h5-mobile: $font-size-sm;          // 14px
+
+// ============================================================================
+// FONT WEIGHTS
+// ============================================================================
+
+/**
+ * Font Weight Scale
+ * Inter font supports weights 100-900
+ * Use semantic names for clarity
+ */
+
+$font-weight-thin: 100;              // Ultra light - decorative only
+$font-weight-extralight: 200;        // Extra light - decorative
+$font-weight-light: 300;             // Light - subtle emphasis
+$font-weight-normal: 400;            // Normal - body text (DEFAULT)
+$font-weight-medium: 500;            // Medium - UI elements, labels
+$font-weight-semibold: 600;          // Semibold - subheadings, emphasis
+$font-weight-bold: 700;              // Bold - headings, strong emphasis
+$font-weight-extrabold: 800;         // Extra bold - impact headings
+$font-weight-black: 900;             // Black - maximum impact
+
+// Semantic weight aliases
+$font-weight-body: $font-weight-normal;       // Body text
+$font-weight-heading: $font-weight-bold;      // Headings
+$font-weight-button: $font-weight-semibold;   // Buttons, CTAs
+$font-weight-label: $font-weight-medium;      // Form labels, UI labels
+
+// ============================================================================
+// LINE HEIGHTS
+// ============================================================================
+
+/**
+ * Line Height System
+ * Optimized for readability and vertical rhythm
+ * Unitless values (multiplier of font size)
+ */
+
+$line-height-none: 1;                // 100% - Tight spacing, headings
+$line-height-tight: 1.25;            // 125% - Compact text, UI elements
+$line-height-snug: 1.375;            // 137.5% - Comfortable headings
+$line-height-normal: 1.5;            // 150% - Body text (DEFAULT)
+$line-height-relaxed: 1.625;         // 162.5% - Comfortable reading
+$line-height-loose: 1.75;            // 175% - Very comfortable, long-form
+$line-height-extra-loose: 2;         // 200% - Maximum spacing
+
+// Semantic line height aliases
+$line-height-heading: $line-height-tight;     // Headings
+$line-height-body: $line-height-normal;       // Body text
+$line-height-caption: $line-height-snug;      // Captions, small text
+
+// Fixed line heights (for precise control)
+$line-height-3: 0.75rem;             // 12px
+$line-height-4: 1rem;                // 16px
+$line-height-5: 1.25rem;             // 20px
+$line-height-6: 1.5rem;              // 24px
+$line-height-7: 1.75rem;             // 28px
+$line-height-8: 2rem;                // 32px
+$line-height-9: 2.25rem;             // 36px
+$line-height-10: 2.5rem;             // 40px
+
+// ============================================================================
+// LETTER SPACING (TRACKING)
+// ============================================================================
+
+/**
+ * Letter Spacing System
+ * Subtle adjustments for optical balance
+ * Use sparingly - most text should use default (0)
+ */
+
+$letter-spacing-tighter: -0.05em;    // Very tight - large headings
+$letter-spacing-tight: -0.025em;     // Tight - headings
+$letter-spacing-normal: 0;           // Normal - body text (DEFAULT)
+$letter-spacing-wide: 0.025em;       // Wide - small caps, labels
+$letter-spacing-wider: 0.05em;       // Wider - emphasis
+$letter-spacing-widest: 0.1em;       // Widest - all caps headings
+
+// Semantic tracking aliases
+$letter-spacing-heading: $letter-spacing-tight;       // Headings
+$letter-spacing-body: $letter-spacing-normal;         // Body text
+$letter-spacing-button: $letter-spacing-wide;         // Buttons
+$letter-spacing-label: $letter-spacing-wide;          // Labels
+
+// ============================================================================
+// TEXT TRANSFORMS
+// ============================================================================
+
+/**
+ * Text Transform Utilities
+ * CSS values for text transformation
+ */
+
+$text-transform-uppercase: uppercase;
+$text-transform-lowercase: lowercase;
+$text-transform-capitalize: capitalize;
+$text-transform-none: none;
+
+// ============================================================================
+// TEXT DECORATION
+// ============================================================================
+
+/**
+ * Text Decoration Utilities
+ */
+
+$text-decoration-underline: underline;
+$text-decoration-line-through: line-through;
+$text-decoration-none: none;
+
+// ============================================================================
+// TYPOGRAPHY PRESETS (Complete typographic styles)
+// ============================================================================
+
+/**
+ * Typography Style Presets
+ * Complete styles for common text elements
+ * Apply these as mixins for consistent typography
+ */
+
+// Hero text (landing pages, main headlines)
+$typography-hero: (
+  font-family: $font-family-display,
+  font-size: $font-size-5xl,
+  font-weight: $font-weight-extrabold,
+  line-height: $line-height-tight,
+  letter-spacing: $letter-spacing-tighter
+);
+
+// H1 - Page titles
+$typography-h1: (
+  font-family: $font-family-display,
+  font-size: $font-size-4xl,
+  font-weight: $font-weight-bold,
+  line-height: $line-height-tight,
+  letter-spacing: $letter-spacing-tight
+);
+
+// H2 - Section headers
+$typography-h2: (
+  font-family: $font-family-display,
+  font-size: $font-size-3xl,
+  font-weight: $font-weight-bold,
+  line-height: $line-height-snug,
+  letter-spacing: $letter-spacing-tight
+);
+
+// H3 - Subsection headers
+$typography-h3: (
+  font-family: $font-family-display,
+  font-size: $font-size-2xl,
+  font-weight: $font-weight-semibold,
+  line-height: $line-height-snug,
+  letter-spacing: $letter-spacing-normal
+);
+
+// H4 - Card titles
+$typography-h4: (
+  font-family: $font-family-sans,
+  font-size: $font-size-xl,
+  font-weight: $font-weight-semibold,
+  line-height: $line-height-snug,
+  letter-spacing: $letter-spacing-normal
+);
+
+// H5 - Small headings
+$typography-h5: (
+  font-family: $font-family-sans,
+  font-size: $font-size-lg,
+  font-weight: $font-weight-medium,
+  line-height: $line-height-normal,
+  letter-spacing: $letter-spacing-normal
+);
+
+// H6 - Tiny headings
+$typography-h6: (
+  font-family: $font-family-sans,
+  font-size: $font-size-base,
+  font-weight: $font-weight-medium,
+  line-height: $line-height-normal,
+  letter-spacing: $letter-spacing-normal
+);
+
+// Body large
+$typography-body-lg: (
+  font-family: $font-family-sans,
+  font-size: $font-size-lg,
+  font-weight: $font-weight-normal,
+  line-height: $line-height-relaxed,
+  letter-spacing: $letter-spacing-normal
+);
+
+// Body default
+$typography-body: (
+  font-family: $font-family-sans,
+  font-size: $font-size-base,
+  font-weight: $font-weight-normal,
+  line-height: $line-height-normal,
+  letter-spacing: $letter-spacing-normal
+);
+
+// Body small
+$typography-body-sm: (
+  font-family: $font-family-sans,
+  font-size: $font-size-sm,
+  font-weight: $font-weight-normal,
+  line-height: $line-height-normal,
+  letter-spacing: $letter-spacing-normal
+);
+
+// Caption / metadata
+$typography-caption: (
+  font-family: $font-family-sans,
+  font-size: $font-size-xs,
+  font-weight: $font-weight-normal,
+  line-height: $line-height-snug,
+  letter-spacing: $letter-spacing-wide
+);
+
+// Button text
+$typography-button: (
+  font-family: $font-family-sans,
+  font-size: $font-size-base,
+  font-weight: $font-weight-semibold,
+  line-height: $line-height-none,
+  letter-spacing: $letter-spacing-button,
+  text-transform: $text-transform-none
+);
+
+// Label text
+$typography-label: (
+  font-family: $font-family-sans,
+  font-size: $font-size-sm,
+  font-weight: $font-weight-medium,
+  line-height: $line-height-tight,
+  letter-spacing: $letter-spacing-label
+);
+
+// Link text
+$typography-link: (
+  font-family: $font-family-sans,
+  font-size: $font-size-base,
+  font-weight: $font-weight-normal,
+  line-height: $line-height-normal,
+  letter-spacing: $letter-spacing-normal,
+  text-decoration: $text-decoration-underline
+);
+
+// ============================================================================
+// ARABIC TYPOGRAPHY OVERRIDES
+// ============================================================================
+
+/**
+ * Arabic-specific typography adjustments
+ * Arabic scripts require larger sizes for equivalent readability
+ */
+
+$font-size-arabic-multiplier: 1.1;   // 10% larger for Arabic text
+
+// Arabic font sizes (automatically scaled)
+$font-size-arabic-xs: calc(#{$font-size-xs} * #{$font-size-arabic-multiplier});
+$font-size-arabic-sm: calc(#{$font-size-sm} * #{$font-size-arabic-multiplier});
+$font-size-arabic-base: calc(#{$font-size-base} * #{$font-size-arabic-multiplier});
+$font-size-arabic-lg: calc(#{$font-size-lg} * #{$font-size-arabic-multiplier});
+$font-size-arabic-xl: calc(#{$font-size-xl} * #{$font-size-arabic-multiplier});
+
+// Arabic line heights (slightly more generous)
+$line-height-arabic-tight: 1.4;
+$line-height-arabic-normal: 1.7;
+$line-height-arabic-relaxed: 1.9;
+
+// ============================================================================
+// EXPORTED TYPOGRAPHY MAP
+// ============================================================================
+
+/**
+ * Typography map for programmatic access
+ * Can be used to generate utility classes
+ */
+$typography-map: (
+  'hero': $typography-hero,
+  'h1': $typography-h1,
+  'h2': $typography-h2,
+  'h3': $typography-h3,
+  'h4': $typography-h4,
+  'h5': $typography-h5,
+  'h6': $typography-h6,
+  'body-lg': $typography-body-lg,
+  'body': $typography-body,
+  'body-sm': $typography-body-sm,
+  'caption': $typography-caption,
+  'button': $typography-button,
+  'label': $typography-label,
+  'link': $typography-link
+);

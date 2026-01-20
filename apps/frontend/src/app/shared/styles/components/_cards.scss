@@ -1,0 +1,565 @@
+/**
+ * Golden Wheat Design System - Card Styles
+ *
+ * Complete card component styles for Syrian marketplace
+ * Product cards, info cards, feature cards with Golden Wheat theme
+ *
+ * @description Card system including:
+ * - Product cards with hover effects
+ * - Info/content cards
+ * - Feature cards
+ * - Heritage/UNESCO cards
+ * - Size and layout variants
+ *
+ * @usage Import design tokens first, then this file
+ */
+
+// ============================================================================
+// BASE CARD STYLES
+// ============================================================================
+
+/**
+ * Base card class
+ * Foundation for all card variants
+ */
+.card,
+%card-base {
+  // Layout
+  display: flex;
+  flex-direction: column;
+  position: relative;
+
+  // Visual
+  background-color: $bg-card;                    // White
+  border: $card-border;                          // 1px solid light gray
+  border-radius: $card-radius;                   // 12px
+  box-shadow: $shadow-card;                      // Subtle shadow
+  overflow: hidden;
+
+  // Transitions
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+  // Hover state
+  &:hover {
+    border-color: $border-color-primary;         // Golden wheat border
+    box-shadow: $shadow-card-hover;              // Enhanced shadow
+    transform: translateY(-2px);
+  }
+}
+
+// ============================================================================
+// PRODUCT CARD (Primary use case)
+// ============================================================================
+
+/**
+ * Product card
+ * Main card style for product listings
+ * Includes: Image, title, price, actions
+ */
+.product-card {
+  @extend %card-base;
+  min-height: 380px;
+  max-height: 480px;
+
+  // Image container
+  .product-card-image {
+    position: relative;
+    width: 100%;
+    height: 200px;
+    overflow: hidden;
+    border-radius: $card-radius $card-radius 0 0;
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.3s ease;
+    }
+
+    &:hover img {
+      transform: scale(1.05);                    // Subtle zoom
+    }
+  }
+
+  // Content area
+  .product-card-content {
+    padding: $card-padding;                      // 16px
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: $space-3;                               // 12px
+  }
+
+  // Title
+  .product-card-title {
+    font-size: $font-size-lg;                    // 18px
+    font-weight: $font-weight-semibold;          // 600
+    color: $text-primary;
+    line-height: $line-height-tight;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+
+    &:hover {
+      color: $primary-600;                       // Golden wheat on hover
+    }
+  }
+
+  // Price container
+  .product-card-price {
+    display: flex;
+    align-items: baseline;
+    gap: $space-2;                               // 8px
+
+    .current-price {
+      font-size: $font-size-xl;                  // 20px
+      font-weight: $font-weight-bold;            // 700
+      color: $text-primary;
+    }
+
+    .original-price {
+      font-size: $font-size-sm;                  // 14px
+      color: $text-tertiary;
+      text-decoration: line-through;
+    }
+  }
+
+  // Actions footer
+  .product-card-actions {
+    padding: $space-3;
+    border-top: 1px solid $border-color-light;
+    background-color: $bg-secondary;             // Light gray background
+  }
+
+  // Hover effect with Golden Wheat glow
+  &:hover {
+    box-shadow: 0 8px 24px rgba(185, 167, 121, 0.15); // Golden wheat shadow
+  }
+}
+
+// ============================================================================
+// INFO/CONTENT CARD
+// ============================================================================
+
+/**
+ * Info card
+ * General purpose card for content, features, etc.
+ */
+.info-card {
+  @extend %card-base;
+
+  .info-card-header {
+    padding: $card-padding;
+    border-bottom: 1px solid $border-color-light;
+
+    .info-card-title {
+      font-size: $font-size-xl;                  // 20px
+      font-weight: $font-weight-semibold;
+      color: $text-primary;
+      margin: 0;
+    }
+
+    .info-card-subtitle {
+      font-size: $font-size-sm;                  // 14px
+      color: $text-secondary;
+      margin-top: $space-1;
+    }
+  }
+
+  .info-card-body {
+    padding: $card-padding;
+    flex: 1;
+  }
+
+  .info-card-footer {
+    padding: $card-padding;
+    border-top: 1px solid $border-color-light;
+    background-color: $bg-secondary;
+  }
+}
+
+// ============================================================================
+// HERITAGE/CULTURAL CARD
+// ============================================================================
+
+/**
+ * Heritage card
+ * Special styling for UNESCO, traditional crafts
+ * Features: Gold accent, cultural elements
+ */
+.heritage-card {
+  @extend %card-base;
+  border: 2px solid $syrian-gold-500;           // Gold border
+  background: linear-gradient(
+    to bottom,
+    $syrian-gold-50 0%,
+    $neutral-50 100%
+  );                                             // Subtle gold gradient
+
+  .heritage-badge {
+    position: absolute;
+    top: $space-4;
+    right: $space-4;
+    background: $syrian-gold-500;
+    color: $neutral-900;
+    padding: $space-1 $space-3;
+    border-radius: $border-radius-full;
+    font-size: $font-size-xs;
+    font-weight: $font-weight-bold;
+    box-shadow: $shadow-glow-gold;
+    z-index: 2;
+  }
+
+  &:hover {
+    border-color: $syrian-gold-600;
+    box-shadow: $shadow-glow-gold;
+  }
+
+  // RTL support
+  [dir="rtl"] & {
+    .heritage-badge {
+      right: auto;
+      left: $space-4;
+    }
+  }
+}
+
+// ============================================================================
+// FEATURE CARD (with icon)
+// ============================================================================
+
+/**
+ * Feature card
+ * Icon + title + description
+ * Use for: Services, benefits, features
+ */
+.feature-card {
+  @extend %card-base;
+  padding: $card-padding-lg;                     // 24px
+  text-align: center;
+  align-items: center;
+
+  .feature-icon {
+    width: 3rem;                                 // 48px
+    height: 3rem;
+    background-color: $primary-100;              // Light golden wheat
+    color: $primary-600;
+    border-radius: $border-radius-full;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: $space-4;
+
+    svg,
+    i {
+      width: 1.5rem;
+      height: 1.5rem;
+      font-size: 1.5rem;
+    }
+  }
+
+  .feature-title {
+    font-size: $font-size-lg;
+    font-weight: $font-weight-semibold;
+    color: $text-primary;
+    margin-bottom: $space-2;
+  }
+
+  .feature-description {
+    font-size: $font-size-sm;
+    color: $text-secondary;
+    line-height: $line-height-relaxed;
+  }
+
+  &:hover .feature-icon {
+    background-color: $primary-400;              // Golden wheat
+    color: $neutral-50;                          // White icon
+  }
+}
+
+// ============================================================================
+// CARD VARIANTS
+// ============================================================================
+
+/**
+ * Compact card
+ * Smaller padding, minimal spacing
+ */
+.card-compact {
+  .product-card-content,
+  .info-card-header,
+  .info-card-body,
+  .info-card-footer {
+    padding: $card-padding-sm;                   // 12px
+  }
+}
+
+/**
+ * Spacious card
+ * Larger padding, generous spacing
+ */
+.card-spacious {
+  .product-card-content,
+  .info-card-header,
+  .info-card-body,
+  .info-card-footer {
+    padding: $card-padding-lg;                   // 24px
+  }
+}
+
+/**
+ * Bordered card (no shadow, prominent border)
+ */
+.card-bordered {
+  box-shadow: none;
+  border: 2px solid $border-color-light;
+
+  &:hover {
+    border-color: $primary-400;
+  }
+}
+
+/**
+ * Elevated card (prominent shadow, no border)
+ */
+.card-elevated {
+  border: none;
+  box-shadow: $shadow-lg;
+
+  &:hover {
+    box-shadow: $shadow-xl;
+  }
+}
+
+/**
+ * Flat card (no shadow or border)
+ */
+.card-flat {
+  border: none;
+  box-shadow: none;
+
+  &:hover {
+    background-color: $bg-secondary;
+    box-shadow: none;
+  }
+}
+
+// ============================================================================
+// CARD BADGES (Overlays)
+// ============================================================================
+
+/**
+ * Card badge container
+ * Position badges on cards (sale, new, etc.)
+ */
+.card-badge {
+  position: absolute;
+  top: $space-2;
+  left: $space-2;
+  z-index: 2;
+
+  // RTL support
+  [dir="rtl"] & {
+    left: auto;
+    right: $space-2;
+  }
+}
+
+/**
+ * Sale badge
+ */
+.card-badge-sale {
+  background-color: $syrian-red;
+  color: $neutral-50;
+  padding: $space-1 $space-3;
+  border-radius: $border-radius-sm;
+  font-size: $font-size-xs;
+  font-weight: $font-weight-bold;
+  box-shadow: $shadow-accent-md;
+}
+
+/**
+ * New badge
+ */
+.card-badge-new {
+  background-color: $secondary-500;              // Forest green
+  color: $neutral-50;
+  padding: $space-1 $space-3;
+  border-radius: $border-radius-sm;
+  font-size: $font-size-xs;
+  font-weight: $font-weight-bold;
+}
+
+/**
+ * Out of stock overlay
+ */
+.card-out-of-stock {
+  position: relative;
+
+  &::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(255, 255, 255, 0.7);
+    z-index: 1;
+  }
+
+  .out-of-stock-label {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: $error-500;
+    color: $neutral-50;
+    padding: $space-2 $space-4;
+    border-radius: $border-radius-md;
+    font-weight: $font-weight-bold;
+    z-index: 2;
+  }
+}
+
+// ============================================================================
+// CARD ACTIONS (Wishlist, Quick View)
+// ============================================================================
+
+/**
+ * Card action buttons (floating)
+ */
+.card-actions-floating {
+  position: absolute;
+  top: $space-2;
+  right: $space-2;
+  display: flex;
+  gap: $space-2;
+  opacity: 0;
+  transform: translateY(-4px);
+  transition: all 0.2s ease;
+  z-index: 2;
+
+  .card:hover & {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .action-btn {
+    width: 2rem;
+    height: 2rem;
+    background-color: $neutral-50;
+    border: none;
+    border-radius: $border-radius-full;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: $shadow-md;
+    transition: all 0.2s ease;
+
+    &:hover {
+      background-color: $primary-400;
+      color: $neutral-50;
+      transform: scale(1.1);
+    }
+
+    svg,
+    i {
+      width: 1rem;
+      height: 1rem;
+      font-size: 1rem;
+    }
+  }
+
+  // RTL support
+  [dir="rtl"] & {
+    right: auto;
+    left: $space-2;
+  }
+}
+
+// ============================================================================
+// RESPONSIVE CARD STYLES
+// ============================================================================
+
+/**
+ * Mobile optimizations
+ */
+@media (max-width: 640px) {
+  .product-card {
+    min-height: 350px;
+
+    .product-card-title {
+      font-size: $font-size-base;
+      -webkit-line-clamp: 2;
+    }
+
+    .product-card-price {
+      .current-price {
+        font-size: $font-size-lg;
+      }
+    }
+  }
+
+  .feature-card {
+    padding: $card-padding;                      // Reduce padding on mobile
+
+    .feature-icon {
+      width: 2.5rem;
+      height: 2.5rem;
+
+      svg,
+      i {
+        width: 1.25rem;
+        height: 1.25rem;
+      }
+    }
+  }
+}
+
+// ============================================================================
+// CARD GRID LAYOUTS
+// ============================================================================
+
+/**
+ * Card grid container
+ * Responsive grid for cards
+ */
+.card-grid {
+  display: grid;
+  gap: $grid-gap;                                // 24px
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+
+  &.card-grid-2 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  &.card-grid-3 {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  &.card-grid-4 {
+    grid-template-columns: repeat(4, 1fr);
+  }
+
+  // Responsive
+  @media (max-width: 1024px) {
+    &.card-grid-4 {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+
+  @media (max-width: 768px) {
+    &.card-grid-3,
+    &.card-grid-4 {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  @media (max-width: 640px) {
+    grid-template-columns: 1fr;
+    gap: $grid-gap-sm;                           // Smaller gap on mobile
+  }
+}

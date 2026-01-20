@@ -1,0 +1,770 @@
+/**
+ * Campaign Hero Component Styles for SouqSyria Syrian Marketplace
+ *
+ * Features:
+ * - Dynamic hero slider with Syrian marketplace branding
+ * - Smooth slide transitions and auto-play functionality
+ * - Navigation arrows and progress indicators
+ * - Syrian cultural styling with traditional patterns
+ * - Responsive design for mobile and desktop
+ * - Bilingual content support with proper typography
+ */
+
+// Import Syrian marketplace color palette
+:root {
+  --syrian-red: #C41E3A;
+  --syrian-navy: #1E3A8A;
+  --gold-400: #FBBF24;
+  --gold-500: #D4AF37;
+  --gold-600: #B8941F;
+  --cream-50: #FAF7F0;
+  --cream-100: #F5F5DC;
+  --cream-200: #E8E5D8;
+  --cream-300: #D1D0C7;
+  --warm-gray: #6B7280;
+}
+
+.campaign-hero-section {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  background: linear-gradient(135deg, var(--syrian-red) 0%, #8B0000 50%, var(--syrian-navy) 100%);
+  box-shadow: 0 4px 20px rgba(196, 30, 58, 0.3);
+
+  // Loading state
+  &.loading {
+    .campaigns-container {
+      opacity: 0.7;
+      pointer-events: none;
+    }
+  }
+
+  // Swiper container
+  .campaigns-swiper {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    transition: opacity 0.3s ease;
+
+    &.has-multiple {
+      cursor: grab;
+
+      &:active {
+        cursor: grabbing;
+      }
+    }
+
+    // Swiper wrapper
+    swiper-container {
+      width: 100%;
+      height: 100%;
+    }
+
+    // Swiper slide
+    swiper-slide {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+  }
+
+  // No campaigns placeholder state
+  .no-campaigns-state {
+    width: 100%;
+    height: 100%;
+    position: relative;
+
+    .placeholder-content {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+
+      .placeholder-overlay {
+        position: relative;
+        z-index: 2;
+        text-align: center;
+        max-width: 600px;
+        padding: 2rem;
+      }
+
+      .cta-button {
+        background: var(--gold-500);
+        color: var(--syrian-red);
+        font-weight: 700;
+        padding: 0.75rem 2rem;
+        border-radius: 0.5rem;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        transition: all 0.3s ease;
+
+        &:hover {
+          background: var(--gold-600);
+          transform: translateY(-2px);
+          box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+        }
+
+        mat-icon {
+          margin-right: 0.5rem;
+        }
+      }
+    }
+  }
+
+  // Campaign slides (now using Swiper)
+  .campaign-slide {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+
+    // Campaign background image
+    .campaign-background {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+    }
+
+    // Syrian brand overlay
+    .campaign-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 1;
+
+      &.syrian-brand-overlay {
+        background: linear-gradient(
+          135deg,
+          rgba(196, 30, 58, 0.85) 0%,
+          rgba(139, 0, 0, 0.7) 30%,
+          rgba(30, 58, 138, 0.8) 70%,
+          rgba(30, 58, 138, 0.9) 100%
+        );
+      }
+    }
+
+    // Traditional Syrian damascus pattern overlay
+    .damascus-pattern-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 1;
+      opacity: 0.1;
+      background-image:
+        radial-gradient(circle at 25% 25%, rgba(251, 191, 36, 0.3) 0%, transparent 50%),
+        radial-gradient(circle at 75% 75%, rgba(251, 191, 36, 0.3) 0%, transparent 50%),
+        repeating-linear-gradient(45deg,
+          rgba(255, 255, 255, 0.05) 0px,
+          rgba(255, 255, 255, 0.05) 2px,
+          transparent 2px,
+          transparent 20px);
+      background-size: 80px 80px, 120px 120px, 40px 40px;
+      animation: damascusPattern 20s linear infinite;
+    }
+
+    // Campaign content
+    .campaign-content {
+      position: relative;
+      z-index: 2;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    // Campaign message styling
+    .campaign-message {
+      .campaign-headline {
+        .headline-english {
+          text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
+          line-height: 1.2;
+        }
+
+        .headline-arabic {
+          font-family: 'Cairo', 'Noto Sans Arabic', sans-serif;
+          text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);
+          direction: rtl;
+          text-align: center;
+
+          @media (min-width: 1024px) {
+            text-align: left;
+          }
+        }
+      }
+
+      .campaign-subheadline {
+        text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+      }
+
+      .campaign-description {
+        text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+        line-height: 1.6;
+      }
+
+      // Cultural context styling
+      .cultural-context {
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(212, 175, 55, 0.3);
+        background: rgba(0, 0, 0, 0.2);
+
+        mat-icon {
+          font-size: 1.1rem;
+          width: 1.1rem;
+          height: 1.1rem;
+        }
+      }
+
+      // CTA button styling
+      .campaign-cta {
+        .cta-button {
+          font-weight: 700;
+          text-transform: none;
+          border-radius: 0.5rem;
+          padding: 0.75rem 2rem;
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+          border: 2px solid rgba(255, 255, 255, 0.1);
+          backdrop-filter: blur(10px);
+          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+          &.cta-syrian-red {
+            background: var(--syrian-red);
+            color: white;
+
+            &:hover {
+              background: #A41729;
+              border-color: rgba(255, 255, 255, 0.3);
+            }
+          }
+
+          &.cta-golden {
+            background: var(--gold-500);
+            color: var(--syrian-red);
+
+            &:hover {
+              background: var(--gold-600);
+              border-color: rgba(255, 255, 255, 0.3);
+            }
+          }
+
+          &.cta-navy {
+            background: var(--syrian-navy);
+            color: white;
+
+            &:hover {
+              background: #1E40AF;
+              border-color: rgba(255, 255, 255, 0.3);
+            }
+          }
+
+          &.cta-large {
+            padding: 1rem 2.5rem;
+            font-size: 1.1rem;
+          }
+
+          &.cta-small {
+            padding: 0.5rem 1.5rem;
+            font-size: 0.9rem;
+          }
+
+          &:hover {
+            transform: translateY(-2px) scale(1.02);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+          }
+
+          &:active {
+            transform: translateY(-1px) scale(1.01);
+          }
+
+          .cta-text {
+            .english {
+              font-weight: 700;
+            }
+
+            .arabic {
+              font-family: 'Cairo', 'Noto Sans Arabic', sans-serif;
+              font-weight: 600;
+              font-size: 0.95em;
+            }
+          }
+
+          mat-icon {
+            margin: 0 0.25rem;
+          }
+        }
+      }
+    }
+
+    // Campaign visuals (right side)
+    .campaign-visuals {
+      opacity: 1;
+      transform: translateX(0);
+
+      .stat-card {
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        transition: all 0.3s ease;
+
+        &:hover {
+          border-color: rgba(212, 175, 55, 0.5);
+          transform: translateY(-2px);
+        }
+
+        mat-icon {
+          font-size: 1.5rem;
+          width: 1.5rem;
+          height: 1.5rem;
+        }
+      }
+
+      .artisan-info {
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+
+        .artisan-avatar {
+          border: 2px solid var(--gold-400);
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+        }
+      }
+    }
+  }
+
+  // Navigation arrows
+  .campaign-navigation {
+    .nav-arrow {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      z-index: 10;
+      background: rgba(0, 0, 0, 0.5);
+      color: white;
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      backdrop-filter: blur(10px);
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      transition: all 0.3s ease;
+
+      &:hover:not(:disabled) {
+        background: rgba(0, 0, 0, 0.8);
+        border-color: var(--gold-400);
+        color: var(--gold-400);
+        transform: translateY(-50%) scale(1.1);
+      }
+
+      &:disabled {
+        opacity: 0.3;
+        cursor: not-allowed;
+      }
+
+      &.nav-arrow-left {
+        left: 1rem;
+      }
+
+      &.nav-arrow-right {
+        right: 1rem;
+      }
+
+      mat-icon {
+        font-size: 1.5rem;
+        width: 1.5rem;
+        height: 1.5rem;
+      }
+    }
+  }
+
+  // Slide indicators
+  .slide-indicators {
+    position: absolute;
+    bottom: 1.5rem;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 10;
+    display: flex;
+    gap: 0.5rem;
+
+    .slide-indicator {
+      width: 60px;
+      height: 4px;
+      background: rgba(255, 255, 255, 0.3);
+      border: none;
+      border-radius: 2px;
+      cursor: pointer;
+      overflow: hidden;
+      transition: all 0.3s ease;
+
+      &:hover {
+        background: rgba(255, 255, 255, 0.5);
+        transform: scale(1.1);
+      }
+
+      &.active {
+        background: rgba(255, 255, 255, 0.6);
+      }
+
+      .indicator-content {
+        height: 100%;
+        background: var(--gold-400);
+        border-radius: 2px;
+        transition: width 0.1s linear;
+      }
+
+      &.active .indicator-content {
+        background: var(--gold-500);
+      }
+    }
+  }
+
+  // Auto-play progress bar
+  .auto-play-progress {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    background: rgba(255, 255, 255, 0.2);
+    z-index: 10;
+
+    .progress-bar {
+      height: 100%;
+      background: linear-gradient(90deg, var(--gold-400), var(--gold-500));
+      transition: width 0.1s linear;
+    }
+  }
+
+  // Auto-play controls
+  .auto-play-controls {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    z-index: 10;
+
+    .auto-play-toggle {
+      background: rgba(0, 0, 0, 0.5);
+      color: white;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      backdrop-filter: blur(10px);
+      transition: all 0.3s ease;
+
+      &:hover {
+        background: rgba(0, 0, 0, 0.8);
+        border-color: var(--gold-400);
+        color: var(--gold-400);
+      }
+
+      mat-icon {
+        font-size: 1.2rem;
+        width: 1.2rem;
+        height: 1.2rem;
+      }
+    }
+  }
+}
+
+// Animation keyframes
+@keyframes damascusPattern {
+  0% {
+    background-position: 0 0, 0 0, 0 0;
+  }
+  100% {
+    background-position: 80px 80px, 120px 120px, 40px 40px;
+  }
+}
+
+@keyframes slideInFromRight {
+  from {
+    transform: translateX(50px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideInFromLeft {
+  from {
+    transform: translateX(-50px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    transform: translateY(30px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+// Syrian gradient background utility
+.syrian-gradient {
+  background: linear-gradient(135deg, var(--syrian-red) 0%, #8B0000 50%, var(--syrian-navy) 100%);
+}
+
+// Swiper specific styles
+:host ::ng-deep {
+  swiper-container {
+    width: 100%;
+    height: 100%;
+  }
+
+  swiper-slide {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+
+  // Swiper navigation (if needed)
+  .swiper-button-next,
+  .swiper-button-prev {
+    display: none; // We use custom navigation
+  }
+
+  // Swiper pagination (if needed)
+  .swiper-pagination {
+    display: none; // We use custom indicators
+  }
+}
+
+// Responsive design
+@media (max-width: 1024px) {
+  .campaign-hero-section {
+    .campaign-slide {
+      .campaign-content {
+        .campaign-message {
+          .campaign-headline {
+            font-size: 2rem;
+
+            .headline-arabic {
+              font-size: 1.25rem;
+            }
+          }
+
+          .campaign-subheadline {
+            font-size: 1rem;
+          }
+        }
+      }
+    }
+
+    .campaign-navigation {
+      .nav-arrow {
+        width: 40px;
+        height: 40px;
+
+        mat-icon {
+          font-size: 1.25rem;
+          width: 1.25rem;
+          height: 1.25rem;
+        }
+      }
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .campaign-hero-section {
+    .campaign-slide {
+      .campaign-content {
+        padding: 1rem 0;
+
+        .campaign-message {
+          .campaign-headline {
+            font-size: 1.75rem;
+            margin-bottom: 1rem;
+
+            .headline-arabic {
+              font-size: 1.1rem;
+              margin-top: 0.5rem;
+            }
+          }
+
+          .campaign-subheadline {
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+          }
+
+          .campaign-description {
+            font-size: 0.85rem;
+            margin-bottom: 1.5rem;
+          }
+
+          .cultural-context {
+            padding: 0.75rem;
+            margin-bottom: 1rem;
+            font-size: 0.8rem;
+          }
+
+          .campaign-cta {
+            .cta-button {
+              padding: 0.625rem 1.5rem;
+              font-size: 0.9rem;
+
+              .cta-text {
+                .arabic {
+                  font-size: 0.85em;
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+
+    .campaign-navigation {
+      .nav-arrow {
+        width: 36px;
+        height: 36px;
+
+        &.nav-arrow-left {
+          left: 0.5rem;
+        }
+
+        &.nav-arrow-right {
+          right: 0.5rem;
+        }
+
+        mat-icon {
+          font-size: 1.1rem;
+          width: 1.1rem;
+          height: 1.1rem;
+        }
+      }
+    }
+
+    .slide-indicators {
+      bottom: 1rem;
+
+      .slide-indicator {
+        width: 40px;
+        height: 3px;
+      }
+    }
+
+    .auto-play-controls {
+      top: 0.5rem;
+      right: 0.5rem;
+
+      .auto-play-toggle {
+        width: 36px;
+        height: 36px;
+
+        mat-icon {
+          font-size: 1.1rem;
+          width: 1.1rem;
+          height: 1.1rem;
+        }
+      }
+    }
+  }
+}
+
+@media (max-width: 640px) {
+  .campaign-hero-section {
+    .campaign-slide {
+      .campaign-content {
+        .campaign-message {
+          .campaign-headline {
+            font-size: 1.5rem;
+
+            .headline-arabic {
+              font-size: 1rem;
+            }
+          }
+
+          .campaign-subheadline {
+            font-size: 0.85rem;
+          }
+
+          .campaign-description {
+            font-size: 0.8rem;
+          }
+        }
+      }
+    }
+
+    .slide-indicators {
+      .slide-indicator {
+        width: 30px;
+      }
+    }
+  }
+}
+
+// Focus states for accessibility
+.campaign-hero-section {
+  .nav-arrow,
+  .slide-indicator,
+  .auto-play-toggle,
+  .cta-button {
+    &:focus-visible {
+      outline: 2px solid var(--gold-500);
+      outline-offset: 2px;
+    }
+  }
+}
+
+// High contrast mode support
+@media (prefers-contrast: high) {
+  .campaign-hero-section {
+    .campaign-overlay.syrian-brand-overlay {
+      background: rgba(0, 0, 0, 0.8);
+    }
+
+    .campaign-slide {
+      .campaign-content {
+        .campaign-message {
+          .campaign-headline,
+          .campaign-subheadline,
+          .campaign-description {
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.9);
+          }
+        }
+      }
+    }
+  }
+}
+
+// Reduced motion support
+@media (prefers-reduced-motion: reduce) {
+  .campaign-hero-section {
+    .damascus-pattern-overlay {
+      animation: none;
+    }
+  }
+
+  // Disable Swiper transitions for reduced motion
+  :host ::ng-deep {
+    swiper-container {
+      --swiper-transition-timing-function: linear;
+    }
+  }
+}

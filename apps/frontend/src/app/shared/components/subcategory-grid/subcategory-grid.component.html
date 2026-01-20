@@ -1,0 +1,105 @@
+<!-- Subcategory Grid Component - FIGMA DESIGN MATCH -->
+<!-- Variable layout: 2 large featured + remaining small cards -->
+
+<div class="subcategory-grid space-y-3">
+
+  <!-- Featured Cards Row (First 2 items - LARGE) -->
+  @if (subcategories.length >= 2) {
+    <div class="grid grid-cols-2 gap-3">
+      @for (subcategory of subcategories.slice(0, 2); track trackBySubcategoryId($index, subcategory); let i = $index) {
+        <button
+          type="button"
+          mat-ripple
+          [routerLink]="subcategory.route"
+          (click)="onSubcategoryClick(subcategory, i)"
+          class="featured-card group relative bg-white rounded-md p-4 border border-gray-200
+                 hover:border-golden-wheat hover:shadow-sm transition-all duration-200
+                 flex flex-col items-center justify-center text-center cursor-pointer
+                 focus:outline-none focus:ring-1 focus:ring-golden-wheat
+                 min-h-[160px]">
+
+          <!-- Large Image for Featured -->
+          <div class="w-24 h-24 mb-3 flex items-center justify-center">
+            @if (subcategory.imageUrl) {
+              <img
+                [src]="subcategory.imageUrl"
+                [alt]="subcategory.name.en"
+                class="w-full h-full object-contain"
+                loading="lazy" />
+            } @else if (subcategory.iconClass) {
+              <mat-icon class="text-4xl" [style.color]="subcategory.iconColor || '#6B7280'">
+                {{ subcategory.iconClass }}
+              </mat-icon>
+            }
+          </div>
+
+          <!-- Category Name -->
+          <h3 class="text-sm font-semibold text-gray-900 mb-1">
+            {{ subcategory.name.en }}
+          </h3>
+
+          <!-- Item Count -->
+          @if (showItemCount) {
+            <div class="text-xs text-gray-500">
+              {{ subcategory.itemCount }} Items
+            </div>
+          }
+        </button>
+      }
+    </div>
+  }
+
+  <!-- Regular Cards Row (Remaining items - SMALL) -->
+  @if (subcategories.length > 2) {
+    <div class="grid grid-cols-3 md:grid-cols-5 gap-3">
+      @for (subcategory of subcategories.slice(2); track trackBySubcategoryId($index + 2, subcategory); let i = $index) {
+        <button
+          type="button"
+          mat-ripple
+          [routerLink]="subcategory.route"
+          (click)="onSubcategoryClick(subcategory, i + 2)"
+          class="regular-card group relative bg-white rounded-md p-3 border border-gray-200
+                 hover:border-golden-wheat hover:shadow-sm transition-all duration-200
+                 flex flex-col items-center justify-center text-center cursor-pointer
+                 focus:outline-none focus:ring-1 focus:ring-golden-wheat
+                 min-h-[120px]">
+
+          <!-- Small Image/Icon for Regular -->
+          <div class="w-12 h-12 mb-2 flex items-center justify-center">
+            @if (subcategory.imageUrl) {
+              <img
+                [src]="subcategory.imageUrl"
+                [alt]="subcategory.name.en"
+                class="w-full h-full object-contain"
+                loading="lazy" />
+            } @else if (subcategory.iconClass) {
+              <mat-icon class="text-2xl" [style.color]="subcategory.iconColor || '#6B7280'">
+                {{ subcategory.iconClass }}
+              </mat-icon>
+            }
+          </div>
+
+          <!-- Category Name (smaller) -->
+          <h3 class="text-xs font-medium text-gray-900 mb-1 line-clamp-1">
+            {{ subcategory.name.en }}
+          </h3>
+
+          <!-- Item Count -->
+          @if (showItemCount) {
+            <div class="text-xs text-gray-500">
+              {{ subcategory.itemCount }} Items
+            </div>
+          }
+        </button>
+      }
+    </div>
+  }
+
+  <!-- Empty State -->
+  @if (subcategories.length === 0) {
+    <div class="text-center py-8">
+      <mat-icon class="text-4xl text-gray-300 mb-2">category</mat-icon>
+      <p class="text-sm text-gray-500">No subcategories available</p>
+    </div>
+  }
+</div>

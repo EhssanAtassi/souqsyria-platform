@@ -1,0 +1,48 @@
+<!--
+  Alert Dialog Template
+  Syrian Golden Wheat themed alert/notification dialog with bilingual support
+-->
+
+<div class="alert-dialog" [class.alert-dialog--rtl]="data.language === 'ar'">
+  <!-- Dialog Header -->
+  <div class="alert-dialog__header">
+    <!-- Type Icon -->
+    <div class="alert-dialog__icon" [ngClass]="getIconColor()">
+      <mat-icon>{{ getIcon() }}</mat-icon>
+    </div>
+
+    <!-- Title -->
+    <h2 mat-dialog-title class="alert-dialog__title">
+      {{ getDisplayText(data.title, data.titleAr) }}
+    </h2>
+
+    <!-- Close Button -->
+    <button
+      mat-icon-button
+      class="alert-dialog__close"
+      (click)="onOk()"
+      [attr.aria-label]="data.language === 'ar' ? 'إغلاق' : 'Close'">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+
+  <!-- Dialog Content -->
+  <mat-dialog-content class="alert-dialog__content">
+    <p class="alert-dialog__message">
+      {{ getDisplayText(data.message, data.messageAr) }}
+    </p>
+  </mat-dialog-content>
+
+  <!-- Dialog Actions -->
+  <mat-dialog-actions class="alert-dialog__actions">
+    <!-- OK Button -->
+    <button
+      mat-raised-button
+      color="primary"
+      class="alert-dialog__button"
+      (click)="onOk()"
+      cdkFocusInitial>
+      {{ getDisplayText(data.okText || 'OK', data.okTextAr || 'حسناً') }}
+    </button>
+  </mat-dialog-actions>
+</div>

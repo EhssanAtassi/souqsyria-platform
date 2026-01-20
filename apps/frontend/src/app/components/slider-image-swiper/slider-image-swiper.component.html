@@ -1,0 +1,191 @@
+<div class="slider-image-container"
+     [class.rtl]="currentDirection === 'rtl'"
+     [class.ltr]="currentDirection === 'ltr'"
+     [class.loading]="!isComponentReady"
+     [class.has-images]="images && images.length > 0"
+     [class.single-image]="images && images.length === 1"
+     [class.multiple-images]="images && images.length > 1">
+
+  <!-- Empty state when no images -->
+  <div class="empty-state" *ngIf="!images || images.length === 0">
+    <div class="empty-icon">🖼️</div>
+    <p class="empty-message" [innerHTML]="currentDirection === 'rtl' ? 'لا توجد صور للعرض' : 'No images to display'"></p>
+  </div>
+
+  <!-- Main Swiper Container -->
+  <swiper-container
+    #swiperContainer
+    *ngIf="images && images.length > 0"
+    slides-per-view="1"
+    space-between="0"
+    [attr.loop]="hasNavigation()"
+    [attr.autoplay]="autoplay && hasNavigation() ? 'true' : 'false'"
+    [attr.autoplay-delay]="intervalMs"
+    [attr.autoplay-disable-on-interaction]="false"
+    [attr.autoplay-pause-on-mouse-enter]="pauseOnHover"
+    [attr.navigation]="hasNavigation()"
+    [attr.pagination]="hasNavigation()"
+    pagination-type="fraction"
+    grab-cursor="true"
+    speed="600"
+    effect="slide"
+    preload-images="false"
+    lazy="true"
+    class="hero-swiper"
+    init="false"
+    [attr.aria-label]="'Image slider with ' + images.length + ' slides'"
+    role="region"
+  >
+    <swiper-slide
+      *ngFor="let image of images; let i = index; trackBy: trackByImage"
+      class="slide-item"
+      [class.clickable]="!!getNavigationUrl(image)"
+      (click)="onSlideClick(image, $event)"
+      [attr.aria-label]="'Slide ' + (i + 1) + ' of ' + images.length + (image.alt ? ': ' + image.alt : '')"
+      [attr.role]="getNavigationUrl(image) ? 'button' : 'img'"
+      [attr.tabindex]="getNavigationUrl(image) ? '0' : '-1'"
+      (keydown.enter)="onSlideClick(image)"
+      (keydown.space)="onSlideClick(image, $event); $event.preventDefault()"
+    >
+      <!-- Main slide image -->
+      <img
+        [src]="image.src"
+        [alt]="image.alt || 'Slider image ' + (i + 1)"
+        class="slide-image"
+        loading="lazy"
+        (load)="onImageLoad($event, i)"
+        (error)="onImageError($event, image, i)"
+        [attr.aria-describedby]="getNavigationUrl(image) ? 'slide-description-' + i : null"
+        decoding="async"
+      />
+
+      <!-- Image overlay with call-to-action -->
+      <div
+        class="slide-overlay"
+        *ngIf="getNavigationUrl(image)"
+        [id]="'slide-description-' + i"
+        [attr.aria-hidden]="true"
+      >
+        <div class="overlay-content">
+          <span class="click-hint">
+            {{ currentDirection === 'rtl' ? 'اضغط للمشاهدة' : 'Click to view' }}
+          </span>
+          <div class="click-icon" [innerHTML]="currentDirection === 'rtl' ? '←' : '→'"></div>
+        </div>
+      </div>
+
+      <!-- Loading indicator for individual slides -->
+      <div class="slide-loading-indicator" *ngIf="!isComponentReady">
+        <div class="loading-spinner">
+          <div class="spinner-ring"></div>
+        </div>
+        <span class="loading-text">
+          {{ currentDirection === 'rtl' ? 'جاري التحميل...' : 'Loading...' }}
+        </span>
+      </div>
+
+      <!-- Error state for failed images -->
+      <div class="slide-error-state"
+           *ngIf="image.hasError"
+           [attr.aria-label]="currentDirection === 'rtl' ? 'فشل في تحميل الصورة' : 'Failed to load image'">
+        <div class="error-icon">⚠️</div>
+        <p class="error-message">
+          {{ currentDirection === 'rtl' ? 'فشل في تحميل الصورة' : 'Image failed to load' }}
+        </p>
+      </div>
+    </swiper-slide>
+
+    <!-- Custom navigation controls -->
+    <div class="custom-navigation" *ngIf="hasNavigation()" role="group" [attr.aria-label]="'Slider navigation'">
+      <button
+        class="nav-button prev"
+        (click)="previousSlide()"
+        [attr.aria-label]="currentDirection === 'rtl' ? 'الصورة السابقة' : 'Previous image'"
+        [attr.title]="currentDirection === 'rtl' ? 'الصورة السابقة' : 'Previous image'"
+        type="button"
+        [disabled]="!hasNavigation()"
+      >
+        <span class="nav-icon"
+              [innerHTML]="currentDirection === 'rtl' ? '&#8250;' : '&#8249;'"
+              aria-hidden="true"></span>
+        <span class="sr-only">
+          {{ currentDirection === 'rtl' ? 'انتقل إلى الصورة السابقة' : 'Go to previous image' }}
+        </span>
+      </button>
+
+      <button
+        class="nav-button next"
+        (click)="nextSlide()"
+        [attr.aria-label]="currentDirection === 'rtl' ? 'الصورة التالية' : 'Next image'"
+        [attr.title]="currentDirection === 'rtl' ? 'الصورة التالية' : 'Next image'"
+        type="button"
+        [disabled]="!hasNavigation()"
+      >
+        <span class="nav-icon"
+              [innerHTML]="currentDirection === 'rtl' ? '&#8249;' : '&#8250;'"
+              aria-hidden="true"></span>
+        <span class="sr-only">
+          {{ currentDirection === 'rtl' ? 'انتقل إلى الصورة التالية' : 'Go to next image' }}
+        </span>
+      </button>
+    </div>
+
+    <!-- Progress bar for autoplay -->
+    <div class="autoplay-progress"
+         *ngIf="autoplay && hasNavigation() && !isAutoplayPaused"
+         [style.animation-duration.ms]="intervalMs"
+         aria-hidden="true">
+    </div>
+  </swiper-container>
+
+  <!-- Autoplay status and controls -->
+  <div class="autoplay-controls"
+       *ngIf="autoplay && hasNavigation()"
+       role="group"
+       [attr.aria-label]="'Autoplay controls'">
+
+    <!-- Status indicator -->
+    <div class="autoplay-status"
+         [class.paused]="isAutoplayPaused"
+         [attr.aria-live]="'polite'"
+         [attr.aria-label]="isAutoplayPaused ?
+           (currentDirection === 'rtl' ? 'العرض التلقائي متوقف' : 'Autoplay paused') :
+           (currentDirection === 'rtl' ? 'العرض التلقائي نشط' : 'Autoplay active')">
+      <span class="status-icon" aria-hidden="true">{{ isAutoplayPaused ? '⏸️' : '▶️' }}</span>
+    </div>
+
+    <!-- Manual autoplay toggle -->
+    <button class="autoplay-toggle"
+            (click)="isAutoplayPaused ? resumeAutoplay() : pauseAutoplay()"
+            [attr.aria-label]="isAutoplayPaused ?
+              (currentDirection === 'rtl' ? 'تشغيل العرض التلقائي' : 'Resume autoplay') :
+              (currentDirection === 'rtl' ? 'إيقاف العرض التلقائي' : 'Pause autoplay')"
+            [attr.title]="isAutoplayPaused ?
+              (currentDirection === 'rtl' ? 'تشغيل العرض التلقائي' : 'Resume autoplay') :
+              (currentDirection === 'rtl' ? 'إيقاف العرض التلقائي' : 'Pause autoplay')"
+            type="button">
+      <span aria-hidden="true">{{ isAutoplayPaused ? '▶️' : '⏸️' }}</span>
+    </button>
+  </div>
+
+  <!-- Keyboard navigation instructions -->
+  <div class="keyboard-instructions sr-only"
+       *ngIf="hasNavigation()"
+       [attr.aria-label]="'Keyboard navigation instructions'">
+    <p>{{ currentDirection === 'rtl' ?
+      'استخدم مفاتيح الأسهم أو مفتاح المسافة أو Enter للتنقل بين الصور' :
+      'Use arrow keys, space, or enter to navigate through images' }}</p>
+  </div>
+
+  <!-- Loading overlay for entire component -->
+  <div class="component-loading-overlay" *ngIf="!isComponentReady && images && images.length > 0">
+    <div class="loading-content">
+      <div class="loading-spinner">
+        <div class="spinner-ring"></div>
+      </div>
+      <p class="loading-message">
+        {{ currentDirection === 'rtl' ? 'جاري تحضير المعرض...' : 'Preparing gallery...' }}
+      </p>
+    </div>
+  </div>
+</div>

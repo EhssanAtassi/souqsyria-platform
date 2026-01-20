@@ -1,0 +1,167 @@
+<div class="comparison-container" [class.printing]="isPrinting()">
+  <!-- Header -->
+  <div class="comparison-header">
+    <div class="header-left">
+      <h2>
+        <mat-icon>compare_arrows</mat-icon>
+        Product Comparison
+      </h2>
+      <span class="product-count">{{ comparisonItems().length }} products</span>
+    </div>
+
+    <div class="header-actions">
+      <button mat-stroked-button (click)="printComparison()" class="no-print">
+        <mat-icon>print</mat-icon>
+        Print
+      </button>
+
+      <button mat-stroked-button (click)="exportComparison()" class="no-print">
+        <mat-icon>download</mat-icon>
+        Export
+      </button>
+
+      <button mat-stroked-button (click)="shareComparison()" class="no-print">
+        <mat-icon>share</mat-icon>
+        Share
+      </button>
+
+      <button mat-icon-button (click)="close()" class="no-print">
+        <mat-icon>close</mat-icon>
+      </button>
+    </div>
+  </div>
+
+  <!-- Category Filter Chips -->
+  <div class="category-chips no-print">
+    <mat-chip-listbox [value]="selectedCategory()" (change)="selectCategory($event.value)">
+      @for (category of categories; track category.value) {
+        <mat-chip-option [value]="category.value">
+          <mat-icon>{{ category.icon }}</mat-icon>
+          {{ category.label }}
+          <span class="chip-count">({{ getCategoryCount(category.value) }})</span>
+        </mat-chip-option>
+      }
+    </mat-chip-listbox>
+  </div>
+
+  <!-- Controls -->
+  <div class="comparison-controls no-print">
+    <mat-checkbox
+      [checked]="showDifferencesOnly()"
+      (change)="toggleDifferencesOnly()"
+    >
+      Show Differences Only
+    </mat-checkbox>
+
+    <button mat-button color="warn" (click)="clearAndClose()">
+      <mat-icon>delete_outline</mat-icon>
+      Clear All
+    </button>
+  </div>
+
+  <!-- Comparison Table -->
+  <div class="comparison-table-wrapper">
+    <table class="comparison-table">
+      <!-- Product Headers -->
+      <thead class="sticky-header">
+        <tr>
+          <th class="field-column">Product</th>
+          @for (item of comparisonItems(); track item.product.id) {
+            <th class="product-column">
+              <div class="product-header">
+                <button
+                  mat-icon-button
+                  class="remove-btn no-print"
+                  (click)="removeProduct(item.product.id)"
+                >
+                  <mat-icon>close</mat-icon>
+                </button>
+
+                <img
+                  [src]="item.product.images[0]?.url"
+                  [alt]="item.product.name"
+                  class="product-image"
+                />
+
+                <h4 class="product-name">
+                  <a [routerLink]="['/product', item.product.slug]">
+                    {{ item.product.name }}
+                  </a>
+                </h4>
+
+                <div class="product-price">
+                  {{ item.product.price.amount | currency }}
+                </div>
+
+                <button
+                  mat-raised-button
+                  color="primary"
+                  class="add-to-cart-btn no-print"
+                >
+                  Add to Cart
+                </button>
+              </div>
+            </th>
+          }
+        </tr>
+      </thead>
+
+      <!-- Comparison Rows -->
+      <tbody>
+        @if (filteredRows().length === 0) {
+          <tr>
+            <td [colSpan]="comparisonItems().length + 1" class="empty-state">
+              <mat-icon>info</mat-icon>
+              <p>No differences found in selected category</p>
+            </td>
+          </tr>
+        }
+
+        @for (row of filteredRows(); track row.key) {
+          <tr [class.has-difference]="row.hasDifference">
+            <td class="field-label">
+              <span class="label-text">{{ row.label }}</span>
+              @if (row.unit) {
+                <span class="label-unit">({{ row.unit }})</span>
+              }
+              @if (row.hasDifference) {
+                <mat-icon class="difference-icon" [matTooltip]="'Values differ'">
+                  info
+                </mat-icon>
+              }
+            </td>
+
+            @for (value of row.values; track $index) {
+              <td
+                class="value-cell"
+                [class.best-value]="isBestValue(row, $index)"
+                [class.different]="row.hasDifference"
+              >
+                <div class="value-content">
+                  {{ formatValue(value, row.type) }}
+                  @if (isBestValue(row, $index)) {
+                    <mat-icon class="best-icon" [matTooltip]="'Best value'">
+                      star
+                    </mat-icon>
+                  }
+                </div>
+              </td>
+            }
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Empty State -->
+  @if (comparisonItems().length === 0) {
+    <div class="empty-comparison">
+      <mat-icon>compare_arrows</mat-icon>
+      <h3>No Products to Compare</h3>
+      <p>Add products to comparison to see side-by-side details</p>
+      <button mat-raised-button color="primary" (click)="close()">
+        Browse Products
+      </button>
+    </div>
+  }
+</div>

@@ -1,0 +1,550 @@
+import { Injectable, signal } from '@angular/core';
+import { BehaviorSubject, Observable, of, throwError } from 'rxjs';
+import { delay, map, catchError } from 'rxjs/operators';
+import { AdminUser, AdminRole, AdminPermission } from '../interfaces/admin-simple.interface';
+
+/**
+ * Admin Authentication Service for Syrian Marketplace
+ *
+ * Handles admin authentication, role-based access control, and permission management
+ * Provides secure login, logout, and session management for admin panel
+ * Supports multiple admin roles with granular permissions
+ *
+ * @swagger
+ * components:
+ *   schemas:
+ *     AdminAuthService:
+ *       type: object
+ *       description: Admin authentication service for Syrian marketplace
+ *       properties:
+ *         currentAdmin:
+ *           $ref: '#/components/schemas/AdminUser'
+ *         isAuthenticated:
+ *           type: boolean
+ *         permissions:
+ *           type: array
+ *           items:
+ *             type: string
+ */
+@Injectable({
+  providedIn: 'root'
+})
+export class AdminAuthService {
+  // Reactive state management using signals
+  private readonly _currentAdmin = signal<AdminUser | null>(null);
+  private readonly _isAuthenticated = signal<boolean>(false);
+  private readonly _permissions = signal<AdminPermission[]>([]);
+
+  // Legacy BehaviorSubject for components that need observables
+  private readonly currentAdminSubject = new BehaviorSubject<AdminUser | null>(null);
+
+  // Public readonly signals
+  public readonly currentAdmin = this._currentAdmin.asReadonly();
+  public readonly isAuthenticated = this._isAuthenticated.asReadonly();
+  public readonly permissions = this._permissions.asReadonly();
+
+  // Observable for backward compatibility
+  public readonly currentAdmin$ = this.currentAdminSubject.asObservable();
+
+  // Role-based permission mapping
+  private readonly rolePermissions: Record<AdminRole, AdminPermission[]> = {
+    super_admin: [
+      'products.view', 'products.create', 'products.edit', 'products.delete',
+      'orders.view', 'orders.edit', 'orders.cancel', 'orders.refund',
+      'vendors.view', 'vendors.approve', 'vendors.edit', 'vendors.suspend',
+      'customers.view', 'customers.edit', 'customers.suspend',
+      'analytics.view', 'settings.edit', 'users.manage',
+      'content.edit', 'promotions.manage', 'reports.generate'
+    ],
+    admin: [
+      'products.view', 'products.create', 'products.edit',
+      'orders.view', 'orders.edit', 'orders.cancel',
+      'vendors.view', 'vendors.edit',
+      'customers.view', 'customers.edit',
+      'analytics.view', 'content.edit', 'promotions.manage', 'reports.generate'
+    ],
+    moderator: [
+      'products.view', 'products.edit',
+      'orders.view', 'orders.edit',
+      'vendors.view',
+      'customers.view',
+      'content.edit'
+    ],
+    customer_service: [
+      'orders.view', 'orders.edit',
+      'customers.view', 'customers.edit',
+      'vendors.view'
+    ],
+    vendor_manager: [
+      'vendors.view', 'vendors.approve', 'vendors.edit', 'vendors.suspend',
+      'products.view', 'products.edit',
+      'orders.view'
+    ]
+  };
+
+  constructor() {
+    this.initializeFromStorage();
+  }
+
+  /**
+   * Initialize admin session from local storage
+   * Restores admin session if valid token exists
+   */
+  private initializeFromStorage(): void {
+    const adminData = localStorage.getItem('admin_user');
+    const token = localStorage.getItem('admin_token');
+
+    if (adminData && token && this.isTokenValid(token)) {
+      try {
+        const admin: AdminUser = JSON.parse(adminData);
+        this.setCurrentAdmin(admin);
+      } catch (error) {
+        console.error('Error parsing stored admin data:', error);
+        this.clearSession();
+      }
+    }
+  }
+
+  /**
+   * Admin login authentication
+   * Validates credentials and establishes admin session
+   *
+   * @param email - Admin email address
+   * @param password - Admin password
+   * @returns Observable<AdminUser> Authenticated admin user
+   *
+   * @swagger
+   * /api/admin/auth/login:
+   *   post:
+   *     tags: [Admin Authentication]
+   *     summary: Admin login
+   *     description: Authenticate admin user and establish session
+   *     requestBody:
+   *       required: true
+   *       content:
+   *         application/json:
+   *           schema:
+   *             type: object
+   *             properties:
+   *               email:
+   *                 type: string
+   *                 format: email
+   *               password:
+   *                 type: string
+   *             required: [email, password]
+   *     responses:
+   *       200:
+   *         description: Login successful
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/AdminUser'
+   *       401:
+   *         description: Invalid credentials
+   *       403:
+   *         description: Account suspended or inactive
+   */
+  login(email: string, password: string): Observable<AdminUser> {
+    // Mock authentication - replace with real API call
+    return this.mockAdminLogin(email, password).pipe(
+      map(admin => {
+        this.setCurrentAdmin(admin);
+        this.storeSession(admin);
+        return admin;
+      }),
+      catchError(error => {
+        console.error('Admin login failed:', error);
+        return throwError(() => error);
+      }),
+      delay(800) // Simulate API delay
+    );
+  }
+
+  /**
+   * Admin logout
+   * Clears admin session and redirects to login
+   *
+   * @returns Observable<boolean> Logout success status
+   */
+  logout(): Observable<boolean> {
+    this.clearSession();
+    this._currentAdmin.set(null);
+    this._isAuthenticated.set(false);
+    this._permissions.set([]);
+    this.currentAdminSubject.next(null);
+
+    return of(true).pipe(delay(200));
+  }
+
+  /**
+   * Check if admin has specific permission
+   * Validates permission against admin's role and custom permissions
+   *
+   * @param permission - Permission to check
+   * @returns boolean Whether admin has permission
+   */
+  hasPermission(permission: AdminPermission): boolean {
+    const currentPermissions = this._permissions();
+    return currentPermissions.includes(permission);
+  }
+
+  /**
+   * Check if admin has any of the specified permissions
+   *
+   * @param permissions - Array of permissions to check
+   * @returns boolean Whether admin has at least one permission
+   */
+  hasAnyPermission(permissions: AdminPermission[]): boolean {
+    return permissions.some(permission => this.hasPermission(permission));
+  }
+
+  /**
+   * Check if admin has all specified permissions
+   *
+   * @param permissions - Array of permissions to check
+   * @returns boolean Whether admin has all permissions
+   */
+  hasAllPermissions(permissions: AdminPermission[]): boolean {
+    return permissions.every(permission => this.hasPermission(permission));
+  }
+
+  /**
+   * Check if admin has specific role
+   *
+   * @param role - Role to check
+   * @returns boolean Whether admin has role
+   */
+  hasRole(role: AdminRole): boolean {
+    const currentAdmin = this._currentAdmin();
+    return currentAdmin?.role === role;
+  }
+
+  /**
+   * Check if admin has any of the specified roles
+   *
+   * @param roles - Array of roles to check
+   * @returns boolean Whether admin has at least one role
+   */
+  hasAnyRole(roles: AdminRole[]): boolean {
+    const currentAdmin = this._currentAdmin();
+    return currentAdmin ? roles.includes(currentAdmin.role) : false;
+  }
+
+  /**
+   * Get current admin ID
+   *
+   * @returns string Current admin ID or empty string
+   */
+  getCurrentAdminId(): string {
+    return this._currentAdmin()?.id || '';
+  }
+
+  /**
+   * Get current admin role
+   *
+   * @returns AdminRole | null Current admin role
+   */
+  getCurrentRole(): AdminRole | null {
+    return this._currentAdmin()?.role || null;
+  }
+
+  /**
+   * Refresh admin session
+   * Validates and refreshes current admin session
+   *
+   * @returns Observable<AdminUser> Refreshed admin data
+   */
+  refreshSession(): Observable<AdminUser> {
+    const token = localStorage.getItem('admin_token');
+    if (!token || !this.isTokenValid(token)) {
+      return throwError(() => new Error('Invalid or expired session'));
+    }
+
+    const currentAdmin = this._currentAdmin();
+    if (!currentAdmin) {
+      return throwError(() => new Error('No current admin session'));
+    }
+
+    // Simulate token refresh - replace with real API call
+    return of(currentAdmin).pipe(delay(300));
+  }
+
+  /**
+   * Update admin profile
+   *
+   * @param profileData - Updated profile data
+   * @returns Observable<AdminUser> Updated admin user
+   */
+  updateProfile(profileData: Partial<AdminUser>): Observable<AdminUser> {
+    const currentAdmin = this._currentAdmin();
+    if (!currentAdmin) {
+      return throwError(() => new Error('No authenticated admin'));
+    }
+
+    const updatedAdmin = { ...currentAdmin, ...profileData, updatedAt: new Date() };
+    this.setCurrentAdmin(updatedAdmin);
+    this.storeSession(updatedAdmin);
+
+    return of(updatedAdmin).pipe(delay(400));
+  }
+
+  /**
+   * Change admin password
+   *
+   * @param currentPassword - Current password
+   * @param newPassword - New password
+   * @returns Observable<boolean> Password change success
+   */
+  changePassword(currentPassword: string, newPassword: string): Observable<boolean> {
+    // Mock password change - replace with real API call
+    if (currentPassword === 'wrongpassword') {
+      return throwError(() => new Error('Current password is incorrect'));
+    }
+
+    return of(true).pipe(delay(600));
+  }
+
+  /**
+   * Enable/disable two-factor authentication
+   *
+   * @param enabled - Whether to enable 2FA
+   * @returns Observable<boolean> 2FA update success
+   */
+  updateTwoFactor(enabled: boolean): Observable<boolean> {
+    const currentAdmin = this._currentAdmin();
+    if (!currentAdmin) {
+      return throwError(() => new Error('No authenticated admin'));
+    }
+
+    const updatedAdmin = { ...currentAdmin, twoFactorEnabled: enabled, updatedAt: new Date() };
+    this.setCurrentAdmin(updatedAdmin);
+    this.storeSession(updatedAdmin);
+
+    return of(true).pipe(delay(500));
+  }
+
+  // ==============================================
+  // PRIVATE HELPER METHODS
+  // ==============================================
+
+  /**
+   * Set current admin and update permissions
+   */
+  private setCurrentAdmin(admin: AdminUser): void {
+    this._currentAdmin.set(admin);
+    this._isAuthenticated.set(true);
+
+    // Set permissions based on role and custom permissions
+    const rolePermissions = this.rolePermissions[admin.role] || [];
+    const allPermissions = [...new Set([...rolePermissions, ...admin.permissions])];
+    this._permissions.set(allPermissions);
+
+    this.currentAdminSubject.next(admin);
+  }
+
+  /**
+   * Store admin session in local storage
+   */
+  private storeSession(admin: AdminUser): void {
+    const token = this.generateMockToken(admin);
+    localStorage.setItem('admin_user', JSON.stringify(admin));
+    localStorage.setItem('admin_token', token);
+    localStorage.setItem('admin_login_time', new Date().toISOString());
+  }
+
+  /**
+   * Clear admin session from local storage
+   */
+  private clearSession(): void {
+    localStorage.removeItem('admin_user');
+    localStorage.removeItem('admin_token');
+    localStorage.removeItem('admin_login_time');
+  }
+
+  /**
+   * Check if token is valid (mock implementation)
+   */
+  private isTokenValid(token: string): boolean {
+    try {
+      const loginTime = localStorage.getItem('admin_login_time');
+      if (!loginTime) return false;
+
+      const loginDate = new Date(loginTime);
+      const now = new Date();
+      const hoursDiff = (now.getTime() - loginDate.getTime()) / (1000 * 60 * 60);
+
+      // Token expires after 8 hours
+      return hoursDiff < 8;
+    } catch {
+      return false;
+    }
+  }
+
+  /**
+   * Generate mock JWT token
+   */
+  private generateMockToken(admin: AdminUser): string {
+    const header = btoa(JSON.stringify({ alg: 'HS256', typ: 'JWT' }));
+    const payload = btoa(JSON.stringify({
+      sub: admin.id,
+      email: admin.email,
+      role: admin.role,
+      iat: Math.floor(Date.now() / 1000),
+      exp: Math.floor(Date.now() / 1000) + (8 * 60 * 60) // 8 hours
+    }));
+    const signature = btoa('mock_signature');
+
+    return `${header}.${payload}.${signature}`;
+  }
+
+  /**
+   * Mock admin login - replace with real API call
+   */
+  private mockAdminLogin(email: string, password: string): Observable<AdminUser> {
+    // Mock admin users for development
+    const mockAdmins: AdminUser[] = [
+      {
+        id: 'admin_001',
+        email: 'admin@souqsyria.com',
+        firstName: 'محمد',
+        lastName: 'الأدمن',
+        firstNameAr: 'محمد',
+        lastNameAr: 'الأدمن',
+        role: 'super_admin',
+        permissions: [],
+        isActive: true,
+        profilePicture: 'https://i.pravatar.cc/150?u=admin001',
+        phoneNumber: '+963-11-555-0001',
+        department: 'System Administration',
+        lastLoginAt: new Date(),
+        createdAt: new Date('2023-01-01'),
+        updatedAt: new Date(),
+        twoFactorEnabled: false
+      },
+      {
+        id: 'admin_002',
+        email: 'manager@souqsyria.com',
+        firstName: 'فاطمة',
+        lastName: 'المدير',
+        firstNameAr: 'فاطمة',
+        lastNameAr: 'المدير',
+        role: 'admin',
+        permissions: [],
+        isActive: true,
+        profilePicture: 'https://i.pravatar.cc/150?u=admin002',
+        phoneNumber: '+963-11-555-0002',
+        department: 'Operations',
+        lastLoginAt: new Date(),
+        createdAt: new Date('2023-02-01'),
+        updatedAt: new Date(),
+        twoFactorEnabled: true
+      },
+      {
+        id: 'admin_003',
+        email: 'moderator@souqsyria.com',
+        firstName: 'أحمد',
+        lastName: 'المنسق',
+        firstNameAr: 'أحمد',
+        lastNameAr: 'المنسق',
+        role: 'moderator',
+        permissions: [],
+        isActive: true,
+        profilePicture: 'https://i.pravatar.cc/150?u=admin003',
+        phoneNumber: '+963-11-555-0003',
+        department: 'Content Management',
+        lastLoginAt: new Date(),
+        createdAt: new Date('2023-03-01'),
+        updatedAt: new Date(),
+        twoFactorEnabled: false
+      }
+    ];
+
+    // Mock authentication logic
+    const admin = mockAdmins.find(a => a.email === email);
+
+    if (!admin) {
+      return throwError(() => new Error('Admin not found'));
+    }
+
+    if (!admin.isActive) {
+      return throwError(() => new Error('Admin account is suspended'));
+    }
+
+    // Simple password check (in real app, this would be secure)
+    const validPasswords = ['admin123', 'manager123', 'moderator123'];
+    if (!validPasswords.includes(password)) {
+      return throwError(() => new Error('Invalid password'));
+    }
+
+    // Update last login
+    admin.lastLoginAt = new Date();
+
+    return of(admin);
+  }
+
+  /**
+   * Check session expiry and refresh if needed
+   */
+  public checkSessionExpiry(): Observable<boolean> {
+    const token = localStorage.getItem('admin_token');
+    const loginTime = localStorage.getItem('admin_login_time');
+
+    if (!token || !loginTime) {
+      return of(false);
+    }
+
+    const loginDate = new Date(loginTime);
+    const now = new Date();
+    const hoursDiff = (now.getTime() - loginDate.getTime()) / (1000 * 60 * 60);
+
+    // Session expires after 8 hours
+    if (hoursDiff >= 8) {
+      this.logout().subscribe();
+      return of(false);
+    }
+
+    // Refresh session if more than 6 hours old
+    if (hoursDiff >= 6) {
+      return this.refreshSession().pipe(
+        map(() => true),
+        catchError(() => of(false))
+      );
+    }
+
+    return of(true);
+  }
+
+  /**
+   * Get admin activity logs
+   *
+   * @param adminId - Admin ID to get logs for
+   * @param limit - Number of logs to retrieve
+   * @returns Observable<any[]> Admin activity logs
+   */
+  getAdminActivityLogs(adminId?: string, limit: number = 50): Observable<any[]> {
+    // Mock activity logs - replace with real API call
+    const mockLogs = [
+      {
+        id: 'log_001',
+        adminId: this.getCurrentAdminId(),
+        action: 'login',
+        resource: 'admin_panel',
+        timestamp: new Date(),
+        ipAddress: '192.168.1.100',
+        success: true
+      },
+      {
+        id: 'log_002',
+        adminId: this.getCurrentAdminId(),
+        action: 'update',
+        resource: 'product',
+        resourceId: 'prod_001',
+        timestamp: new Date(Date.now() - 30 * 60 * 1000),
+        ipAddress: '192.168.1.100',
+        success: true
+      }
+    ];
+
+    return of(mockLogs.slice(0, limit)).pipe(delay(300));
+  }
+}

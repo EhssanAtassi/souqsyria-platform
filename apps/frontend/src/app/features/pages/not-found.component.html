@@ -1,0 +1,144 @@
+<!--
+  404 Not Found Page
+  Syrian Golden Wheat themed error page with Damascus patterns
+-->
+
+<div class="not-found">
+  <!-- Damascus Pattern Background -->
+  <div class="not-found__pattern" aria-hidden="true">
+    <!-- SVG Damascus Rose Pattern -->
+    <svg class="not-found__pattern-svg" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <pattern id="damascus-pattern" x="0" y="0" width="100" height="100" patternUnits="userSpaceOnUse">
+          <!-- Damascus Rose Motif -->
+          <circle cx="50" cy="50" r="20" fill="none" stroke="currentColor" stroke-width="0.5" opacity="0.1"/>
+          <circle cx="50" cy="50" r="15" fill="none" stroke="currentColor" stroke-width="0.5" opacity="0.15"/>
+          <circle cx="50" cy="50" r="10" fill="none" stroke="currentColor" stroke-width="0.5" opacity="0.2"/>
+          <circle cx="50" cy="50" r="5" fill="currentColor" opacity="0.1"/>
+
+          <!-- Petals -->
+          <path d="M50,30 Q60,40 50,50 Q40,40 50,30" fill="currentColor" opacity="0.1"/>
+          <path d="M70,50 Q60,60 50,50 Q60,40 70,50" fill="currentColor" opacity="0.1"/>
+          <path d="M50,70 Q40,60 50,50 Q60,60 50,70" fill="currentColor" opacity="0.1"/>
+          <path d="M30,50 Q40,40 50,50 Q40,60 30,50" fill="currentColor" opacity="0.1"/>
+        </pattern>
+      </defs>
+      <rect width="100%" height="100%" fill="url(#damascus-pattern)"/>
+    </svg>
+  </div>
+
+  <!-- Main Content Container -->
+  <div class="not-found__container">
+    <!-- Error Illustration -->
+    <div class="not-found__illustration">
+      <!-- 404 Number with Damascus Style -->
+      <div class="not-found__number">
+        <span class="not-found__number-digit">4</span>
+        <span class="not-found__number-digit not-found__number-digit--middle">
+          <svg width="120" height="120" viewBox="0 0 120 120" fill="none">
+            <!-- Damascus Rose Icon for the "0" -->
+            <circle cx="60" cy="60" r="45" stroke="currentColor" stroke-width="8" opacity="0.3"/>
+            <circle cx="60" cy="60" r="30" stroke="currentColor" stroke-width="6" opacity="0.5"/>
+            <circle cx="60" cy="60" r="15" fill="currentColor" opacity="0.3"/>
+            <!-- Petals -->
+            <path d="M60,25 Q75,45 60,60 Q45,45 60,25" fill="currentColor" opacity="0.4"/>
+            <path d="M95,60 Q75,75 60,60 Q75,45 95,60" fill="currentColor" opacity="0.4"/>
+            <path d="M60,95 Q45,75 60,60 Q75,75 60,95" fill="currentColor" opacity="0.4"/>
+            <path d="M25,60 Q45,45 60,60 Q45,75 25,60" fill="currentColor" opacity="0.4"/>
+          </svg>
+        </span>
+        <span class="not-found__number-digit">4</span>
+      </div>
+    </div>
+
+    <!-- Error Message Content -->
+    <div class="not-found__content">
+      <!-- Title - English -->
+      <h1 class="not-found__title">
+        Lost in the Marketplace?
+      </h1>
+
+      <!-- Title - Arabic -->
+      <h2 class="not-found__title not-found__title--arabic">
+        ضللت الطريق في السوق؟
+      </h2>
+
+      <!-- Description - English -->
+      <p class="not-found__description">
+        The treasure you seek is not in this section of our Syrian bazaar.
+        <br>
+        Let us guide you back to the authentic Syrian crafts and delights.
+      </p>
+
+      <!-- Description - Arabic -->
+      <p class="not-found__description not-found__description--arabic">
+        الكنز الذي تبحث عنه ليس في هذا القسم من سوقنا السوري.
+        <br>
+        دعنا نرشدك إلى الحرف والكنوز السورية الأصيلة.
+      </p>
+
+      <!-- Primary Action Buttons -->
+      <div class="not-found__actions">
+        <button
+          mat-raised-button
+          color="primary"
+          routerLink="/"
+          class="not-found__button not-found__button--primary">
+          <mat-icon>home</mat-icon>
+          <span>Return to Souq</span>
+          <span class="not-found__button-arabic">العودة للسوق</span>
+        </button>
+
+        <button
+          mat-stroked-button
+          color="primary"
+          routerLink="/search"
+          class="not-found__button not-found__button--secondary">
+          <mat-icon>search</mat-icon>
+          <span>Search Products</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Popular Categories Section -->
+    <div class="not-found__categories">
+      <div class="not-found__categories-header">
+        <mat-icon class="not-found__categories-icon">local_mall</mat-icon>
+        <h3 class="not-found__categories-title">
+          Explore Our Syrian Treasures
+        </h3>
+        <p class="not-found__categories-subtitle">
+          استكشف كنوزنا السورية
+        </p>
+      </div>
+
+      <!-- Category Grid -->
+      <div class="not-found__categories-grid">
+        <a
+          *ngFor="let category of popularCategories"
+          [routerLink]="category.slug"
+          class="not-found__category-card">
+          <mat-icon class="not-found__category-icon">{{ category.icon }}</mat-icon>
+          <div class="not-found__category-content">
+            <span class="not-found__category-name">{{ category.nameEn }}</span>
+            <span class="not-found__category-name-ar">{{ category.nameAr }}</span>
+          </div>
+          <mat-icon class="not-found__category-arrow">arrow_forward</mat-icon>
+        </a>
+      </div>
+    </div>
+
+    <!-- Footer Message -->
+    <div class="not-found__footer">
+      <p class="not-found__footer-text">
+        <mat-icon class="not-found__footer-icon">info</mat-icon>
+        If you believe this is an error, please
+        <a routerLink="/contact" class="not-found__footer-link">contact our support team</a>
+      </p>
+      <p class="not-found__footer-text not-found__footer-text--arabic">
+        إذا كنت تعتقد أن هذا خطأ، يرجى
+        <a routerLink="/contact" class="not-found__footer-link">الاتصال بفريق الدعم</a>
+      </p>
+    </div>
+  </div>
+</div>

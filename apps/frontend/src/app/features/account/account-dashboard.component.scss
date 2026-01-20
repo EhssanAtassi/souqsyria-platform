@@ -1,0 +1,28 @@
+.rtl {
+  direction: rtl;
+  text-align: right;
+}
+
+.bg-damascus-gold {
+  background: linear-gradient(135deg, #D4AF37, #FFD700);
+}
+
+.bg-aleppo-green {
+  background: linear-gradient(135deg, #228B22, #32CD32);
+}
+
+.hover\:shadow-xl:hover {
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+mat-card {
+  border-radius: 12px;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.text-gradient {
+  background: linear-gradient(135deg, #D4AF37, #FFD700);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}

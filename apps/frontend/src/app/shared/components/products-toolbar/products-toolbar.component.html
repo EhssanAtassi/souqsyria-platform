@@ -1,0 +1,78 @@
+<!-- Products Toolbar Container -->
+<div class="products-toolbar"
+     [class.is-stuck]="isStuck()"
+     [attr.dir]="language() === 'ar' ? 'rtl' : 'ltr'">
+
+  <!-- Left Section: Product Count & Filter Toggle -->
+  <div class="toolbar-left">
+
+    <!-- Mobile Filter Toggle Button -->
+    @if (showFilterToggle()) {
+      <button
+        mat-button
+        class="filter-toggle-btn mobile-only"
+        (click)="onFilterToggle()">
+        <mat-icon>filter_list</mat-icon>
+        <span>{{ getFilterButtonLabel() }}</span>
+      </button>
+    }
+
+    <!-- Product Count -->
+    <div class="product-count">
+      <mat-icon class="count-icon">inventory_2</mat-icon>
+      <span class="count-text">{{ getProductCountText() }}</span>
+    </div>
+
+  </div>
+
+  <!-- Right Section: Sort & View Controls -->
+  <div class="toolbar-right">
+
+    <!-- Sort Dropdown -->
+    <div class="sort-control">
+      <mat-form-field appearance="outline" class="sort-select">
+        <mat-label>
+          <mat-icon class="select-icon">sort</mat-icon>
+          {{ language() === 'ar' ? 'ترتيب حسب' : 'Sort by' }}
+        </mat-label>
+        <mat-select
+          [value]="currentSort()"
+          (selectionChange)="onSortChange($event.value)">
+          @for (option of sortOptions; track option.value) {
+            <mat-option [value]="option.value">
+              @if (option.icon) {
+                <mat-icon class="option-icon">{{ option.icon }}</mat-icon>
+              }
+              {{ getSortLabel(option) }}
+            </mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+    </div>
+
+    <!-- View Mode Toggle -->
+    <mat-button-toggle-group
+      [value]="currentView()"
+      (change)="onViewModeChange($event.value)"
+      class="view-toggle"
+      aria-label="View mode">
+
+      <mat-button-toggle
+        value="grid"
+        [matTooltip]="getGridViewTooltip()"
+        matTooltipPosition="above">
+        <mat-icon>view_module</mat-icon>
+      </mat-button-toggle>
+
+      <mat-button-toggle
+        value="list"
+        [matTooltip]="getListViewTooltip()"
+        matTooltipPosition="above">
+        <mat-icon>view_list</mat-icon>
+      </mat-button-toggle>
+
+    </mat-button-toggle-group>
+
+  </div>
+
+</div>

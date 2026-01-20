@@ -1,0 +1,127 @@
+/**
+ * Marketplace Layout Styles
+ *
+ * Responsive 2-column grid layout with sidebar and main content.
+ * Supports RTL languages and sticky sidebar positioning.
+ */
+
+.marketplace-layout {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  gap: 24px;
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 32px 16px;
+
+  /**
+   * Sidebar column
+   * Sticky positioning keeps sidebar visible during scroll
+   */
+  &__sidebar {
+    position: relative;
+
+    // Sticky mode
+    .sticky-sidebar & {
+      position: sticky;
+      top: 80px;
+      max-height: calc(100vh - 100px);
+      overflow-y: auto;
+      overflow-x: hidden;
+
+      // Custom scrollbar for sidebar
+      &::-webkit-scrollbar {
+        width: 6px;
+      }
+
+      &::-webkit-scrollbar-track {
+        background: #f1f1f1;
+      }
+
+      &::-webkit-scrollbar-thumb {
+        background: #988561; // Golden Wheat primary
+        border-radius: 3px;
+
+        &:hover {
+          background: #b9a779; // Golden Wheat medium
+        }
+      }
+    }
+
+    // Right-aligned sidebar for RTL
+    &--right {
+      order: 2;
+    }
+  }
+
+  /**
+   * Main content column
+   * Contains product grids, banners, and other marketplace content
+   */
+  &__content {
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+    min-width: 0; // Prevent flex overflow
+  }
+
+  /**
+   * RTL mode adjustments
+   * Reverses grid columns for right-to-left languages
+   */
+  &.rtl-mode {
+    direction: rtl;
+    grid-template-columns: 1fr 280px;
+  }
+
+  /**
+   * Tablet layout (768px - 1023px)
+   * Reduce sidebar width, maintain 2-column layout
+   */
+  @media (max-width: 1279px) and (min-width: 1024px) {
+    grid-template-columns: 240px 1fr;
+    gap: 20px;
+
+    &.rtl-mode {
+      grid-template-columns: 1fr 240px;
+    }
+  }
+
+  /**
+   * Mobile layout (< 1024px)
+   * Stack sidebar above content, remove sticky positioning
+   */
+  @media (max-width: 1023px) {
+    grid-template-columns: 1fr;
+    gap: 24px;
+    padding: 16px;
+
+    &__sidebar {
+      position: static !important;
+      max-height: none !important;
+      overflow-y: visible !important;
+      order: 1;
+    }
+
+    &__content {
+      gap: 24px;
+      order: 2;
+    }
+
+    &.rtl-mode {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  /**
+   * Small mobile layout (< 640px)
+   * Reduce gaps and padding
+   */
+  @media (max-width: 639px) {
+    gap: 16px;
+    padding: 12px;
+
+    &__content {
+      gap: 16px;
+    }
+  }
+}

@@ -1,0 +1,123 @@
+<!-- SouqSyria Category Navigation Component -->
+<!-- Desktop category navigation with mega menu integration -->
+
+<nav 
+  class="sq-category-nav bg-primary-700 text-white hidden lg:block relative" 
+  role="navigation"
+  [attr.dir]="config.rtl ? 'rtl' : 'ltr'"
+  [class.rtl]="config.rtl"
+>
+  <div class="sq-container">
+    <div class="flex items-center space-x-8 rtl:space-x-reverse">
+      
+      <!-- All Categories Button - COMMENTED OUT FOR THIS VERSION -->
+      <!--
+      <button
+        mat-button
+        class="sq-categories-btn bg-primary-800 hover:bg-primary-900 text-white font-medium px-4 py-2 rounded-lg transition-all duration-200"
+        [matMenuTriggerFor]="categoriesMenu"
+        [attr.aria-label]="config.language === 'ar' ? 'جميع الفئات' : 'All Categories'"
+        [attr.aria-expanded]="isAllCategoriesOpen"
+        (menuOpened)="onAllCategoriesMenuOpened()"
+        (menuClosed)="onAllCategoriesMenuClosed()"
+      >
+        <mat-icon
+          class="mr-2 rtl:mr-0 rtl:ml-2"
+          aria-hidden="true"
+        >
+          apps
+        </mat-icon>
+        {{ config.language === 'ar' ? 'جميع الفئات' : 'All Categories' }}
+        <mat-icon
+          class="ml-1 rtl:ml-0 rtl:mr-1 text-sm transition-transform duration-200"
+          [class.rotate-180]="isAllCategoriesOpen"
+          aria-hidden="true"
+        >
+          expand_more
+        </mat-icon>
+      </button>
+      -->
+      
+      <!-- Featured Categories Navigation -->
+      <div 
+        class="flex items-center space-x-6 rtl:space-x-reverse"
+        role="menubar"
+        [attr.aria-label]="config.language === 'ar' ? 'الفئات المميزة' : 'Featured Categories'"
+      >
+        <app-category-item
+          *ngFor="let category of featuredCategories; trackBy: trackByCategory"
+          [category]="category"
+          [config]="config"
+          [isActive]="isMegaMenuActive(category.id)"
+          [displayMode]="'navigation'"
+          (categoryClick)="onCategoryClick($event)"
+          (mouseEnter)="onShowMegaMenu(category.id)"
+          (mouseLeave)="onHideMegaMenu()"
+          class="sq-nav-category-item"
+        ></app-category-item>
+      </div>
+      
+      <!-- Promotional Links Section -->
+      <div class="ml-auto rtl:ml-0 rtl:mr-auto flex items-center space-x-4 rtl:space-x-reverse">
+        
+        <!-- Special Offers Link -->
+        <a 
+          [routerLink]="promotionalLinks[0].url"
+          class="sq-promo-link text-primary-200 hover:text-white text-sm font-medium transition-colors duration-200 flex items-center"
+          (click)="onPromotionalLinkClick('special-offers')"
+          [attr.aria-label]="config.language === 'ar' ? 'عروض خاصة' : 'Special Offers'"
+        >
+          <mat-icon 
+            class="mr-1 rtl:mr-0 rtl:ml-1 text-sm" 
+            aria-hidden="true"
+          >
+            {{ promotionalLinks[0].icon }}
+          </mat-icon>
+          {{ getPromotionalText(promotionalLinks[0]) }}
+        </a>
+        
+        <!-- Flash Sale Link -->
+        <a 
+          [routerLink]="promotionalLinks[1].url"
+          class="sq-promo-link text-primary-200 hover:text-white text-sm font-medium transition-colors duration-200 flex items-center animate-pulse"
+          (click)="onPromotionalLinkClick('flash-sale')"
+          [attr.aria-label]="config.language === 'ar' ? 'تخفيضات' : 'Flash Sale'"
+        >
+          <mat-icon 
+            class="mr-1 rtl:mr-0 rtl:ml-1 text-sm text-yellow-400" 
+            aria-hidden="true"
+          >
+            {{ promotionalLinks[1].icon }}
+          </mat-icon>
+          {{ getPromotionalText(promotionalLinks[1]) }}
+        </a>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Mega Menu Integration -->
+  <app-category-mega-menu
+    *ngIf="activeMegaMenu"
+    [categories]="categories"
+    [config]="config"
+    [activeCategory]="activeMegaMenu"
+    [currentCategory]="currentHoveredCategory"
+    [isVisible]="!!activeMegaMenu"
+    (categoryClick)="onCategoryClick($event)"
+    (menuClose)="onHideMegaMenu()"
+    (menuMouseEnter)="onMegaMenuMouseEnter()"
+    (menuMouseLeave)="onMegaMenuMouseLeave()"
+    class="sq-mega-menu-container"
+  ></app-category-mega-menu>
+  
+  <!-- All Categories Dropdown Menu - REMOVED FOR THIS VERSION -->
+  
+</nav>
+
+<!-- Accessibility Skip Link -->
+<a 
+  href="#main-content" 
+  class="sr-only focus:not-sr-only focus:absolute focus:top-0 focus:left-0 bg-primary-600 text-white p-2 z-50"
+>
+  {{ config.language === 'ar' ? 'انتقل إلى المحتوى الرئيسي' : 'Skip to main content' }}
+</a>

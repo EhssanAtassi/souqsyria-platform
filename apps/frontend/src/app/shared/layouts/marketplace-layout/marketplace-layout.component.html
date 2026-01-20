@@ -1,0 +1,24 @@
+<!--
+  Marketplace Layout Template
+
+  Two-column responsive layout with sidebar and main content areas.
+  Supports RTL languages and content projection via ng-content.
+-->
+
+<div class="marketplace-layout"
+     [attr.dir]="language() === 'ar' ? 'rtl' : 'ltr'"
+     [class.rtl-mode]="language() === 'ar'"
+     [class.sticky-sidebar]="stickyHeader()">
+
+  <!-- Sidebar Slot -->
+  <aside class="marketplace-layout__sidebar"
+         [class.marketplace-layout__sidebar--right]="language() === 'ar'">
+    <ng-content select="[sidebar]"></ng-content>
+  </aside>
+
+  <!-- Main Content Slot -->
+  <main class="marketplace-layout__content">
+    <ng-content select="[content]"></ng-content>
+  </main>
+
+</div>

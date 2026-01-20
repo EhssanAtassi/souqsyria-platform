@@ -1,0 +1,585 @@
+/**
+ * Order Confirmation Component Styles
+ * Syrian Marketplace - Golden Wheat Design System
+ *
+ * Features:
+ * - Success celebration design
+ * - Golden wheat color accents
+ * - Mobile-first responsive layout
+ * - RTL support for Arabic
+ * - Print-friendly styles
+ * - Accessibility optimizations
+ */
+
+// =============================================
+// GOLDEN WHEAT DESIGN TOKENS
+// =============================================
+
+$golden-wheat: #D4AF37;
+$golden-wheat-light: #F5E6C8;
+$golden-wheat-dark: #B8941F;
+$success-green: #4CAF50;
+$text-primary: #1A1A1A;
+$text-secondary: #666666;
+$background-light: #FAFAFA;
+$border-color: #E0E0E0;
+
+// =============================================
+// LAYOUT
+// =============================================
+
+.order-confirmation-page {
+  min-height: 100vh;
+  background: linear-gradient(to bottom, $golden-wheat-light 0%, $background-light 300px);
+  padding-bottom: 3rem;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1rem;
+
+  @media (min-width: 768px) {
+    padding: 0 2rem;
+  }
+}
+
+// =============================================
+// HEADER SECTION
+// =============================================
+
+.confirmation-header {
+  text-align: center;
+  padding: 3rem 0 2rem;
+  background: linear-gradient(135deg, $golden-wheat-light 0%, rgba(255, 255, 255, 0.9) 100%);
+  border-bottom: 2px solid $golden-wheat;
+
+  @media (min-width: 768px) {
+    padding: 4rem 0 3rem;
+  }
+}
+
+.success-icon-wrapper {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 80px;
+  height: 80px;
+  background: linear-gradient(135deg, $success-green 0%, #66BB6A 100%);
+  border-radius: 50%;
+  margin-bottom: 1.5rem;
+  box-shadow: 0 8px 24px rgba($success-green, 0.3);
+  animation: successPulse 2s ease-in-out infinite;
+
+  @media (min-width: 768px) {
+    width: 100px;
+    height: 100px;
+  }
+}
+
+.success-icon {
+  font-size: 48px;
+  width: 48px;
+  height: 48px;
+  color: white;
+
+  @media (min-width: 768px) {
+    font-size: 60px;
+    width: 60px;
+    height: 60px;
+  }
+}
+
+@keyframes successPulse {
+  0%, 100% {
+    transform: scale(1);
+    box-shadow: 0 8px 24px rgba($success-green, 0.3);
+  }
+  50% {
+    transform: scale(1.05);
+    box-shadow: 0 12px 32px rgba($success-green, 0.4);
+  }
+}
+
+.confirmation-title {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: $text-primary;
+  margin: 0 0 0.5rem;
+
+  @media (min-width: 768px) {
+    font-size: 2.5rem;
+  }
+}
+
+.confirmation-subtitle {
+  font-size: 1rem;
+  color: $text-secondary;
+  margin: 0 0 1.5rem;
+
+  @media (min-width: 768px) {
+    font-size: 1.125rem;
+  }
+}
+
+.order-number-box {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  background: white;
+  padding: 0.75rem 1.5rem;
+  border-radius: 50px;
+  border: 2px solid $golden-wheat;
+  box-shadow: 0 4px 12px rgba($golden-wheat, 0.2);
+
+  @media (min-width: 768px) {
+    padding: 1rem 2rem;
+  }
+}
+
+.order-number-label {
+  font-size: 0.875rem;
+  color: $text-secondary;
+  font-weight: 500;
+
+  @media (min-width: 768px) {
+    font-size: 1rem;
+  }
+}
+
+.order-number-value {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: $golden-wheat-dark;
+  font-family: monospace;
+  letter-spacing: 0.5px;
+
+  @media (min-width: 768px) {
+    font-size: 1.25rem;
+  }
+}
+
+// =============================================
+// CONTENT GRID
+// =============================================
+
+.confirmation-content {
+  margin-top: 2rem;
+
+  @media (min-width: 768px) {
+    margin-top: 3rem;
+  }
+}
+
+.confirmation-grid {
+  display: grid;
+  gap: 2rem;
+  grid-template-columns: 1fr;
+
+  @media (min-width: 992px) {
+    grid-template-columns: 2fr 1fr;
+    gap: 2.5rem;
+  }
+}
+
+// =============================================
+// CARDS
+// =============================================
+
+mat-card {
+  margin-bottom: 1.5rem;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  transition: transform 0.2s, box-shadow 0.2s;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+  }
+}
+
+mat-card-header {
+  background: linear-gradient(135deg, $golden-wheat-light 0%, #FFFFFF 100%);
+  padding: 1rem 1.25rem;
+  border-radius: 12px 12px 0 0;
+  margin: -16px -16px 16px -16px;
+
+  mat-card-title {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: $text-primary;
+
+    mat-icon {
+      color: $golden-wheat-dark;
+      font-size: 1.25rem;
+      width: 1.25rem;
+      height: 1.25rem;
+    }
+  }
+}
+
+// =============================================
+// STATUS CARD
+// =============================================
+
+.status-card {
+  .status-info {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .status-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid $border-color;
+
+    &:last-child {
+      border-bottom: none;
+    }
+  }
+
+  .status-label {
+    font-weight: 500;
+    color: $text-secondary;
+    font-size: 0.9375rem;
+  }
+
+  .status-value {
+    font-weight: 600;
+    color: $text-primary;
+    font-size: 0.9375rem;
+  }
+
+  .tracking-number {
+    font-family: monospace;
+    color: $golden-wheat-dark;
+    background: $golden-wheat-light;
+    padding: 0.25rem 0.75rem;
+    border-radius: 4px;
+    font-size: 0.875rem;
+  }
+
+  mat-chip {
+    font-weight: 600;
+  }
+}
+
+// =============================================
+// PAYMENT INSTRUCTIONS CARD
+// =============================================
+
+.payment-instructions-card {
+  .payment-instructions-text {
+    font-size: 0.9375rem;
+    line-height: 1.6;
+    color: $text-primary;
+    background: $golden-wheat-light;
+    padding: 1rem;
+    border-radius: 8px;
+    border-left: 4px solid $golden-wheat;
+    margin: 0;
+  }
+}
+
+// =============================================
+// NEXT STEPS CARD
+// =============================================
+
+.next-steps-card {
+  .next-steps-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .next-step-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid $border-color;
+    font-size: 0.9375rem;
+    line-height: 1.5;
+
+    &:last-child {
+      border-bottom: none;
+    }
+
+    .step-icon {
+      color: $golden-wheat-dark;
+      font-size: 1.25rem;
+      width: 1.25rem;
+      height: 1.25rem;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    span {
+      flex: 1;
+      color: $text-primary;
+    }
+  }
+}
+
+// =============================================
+// ORDER ACTIONS
+// =============================================
+
+.order-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-top: 1.5rem;
+
+  @media (max-width: 767px) {
+    flex-direction: column;
+  }
+
+  .action-button {
+    flex: 1;
+    min-width: 140px;
+
+    @media (max-width: 767px) {
+      width: 100%;
+    }
+
+    mat-icon {
+      margin-right: 0.5rem;
+    }
+
+    mat-spinner {
+      margin-right: 0.5rem;
+    }
+  }
+}
+
+// =============================================
+// ORDER TOTAL CARD
+// =============================================
+
+.order-total-card {
+  position: sticky;
+  top: 20px;
+
+  .total-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 0;
+    margin-bottom: 1rem;
+
+    .total-label {
+      font-size: 1.125rem;
+      font-weight: 600;
+      color: $text-primary;
+    }
+
+    .total-value {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: $golden-wheat-dark;
+    }
+  }
+
+  .email-info {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 1rem;
+    background: $golden-wheat-light;
+    border-radius: 8px;
+    margin-top: 1rem;
+
+    mat-icon {
+      color: $golden-wheat-dark;
+      font-size: 2rem;
+      width: 2rem;
+      height: 2rem;
+      margin-bottom: 0.5rem;
+    }
+
+    p {
+      font-size: 0.875rem;
+      color: $text-secondary;
+      margin: 0 0 0.5rem;
+    }
+
+    .email-address {
+      font-weight: 600;
+      color: $text-primary;
+      word-break: break-all;
+    }
+  }
+
+  mat-card-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    padding: 1rem 0 0;
+
+    button {
+      width: 100%;
+    }
+  }
+}
+
+// =============================================
+// HELP CARD
+// =============================================
+
+.help-card {
+  .help-text {
+    font-size: 0.9375rem;
+    color: $text-secondary;
+    margin: 0 0 1rem;
+  }
+
+  .help-contact {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .help-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-size: 0.875rem;
+    color: $text-primary;
+
+    mat-icon {
+      color: $golden-wheat-dark;
+      font-size: 1.125rem;
+      width: 1.125rem;
+      height: 1.125rem;
+    }
+  }
+}
+
+// =============================================
+// LOADING STATE
+// =============================================
+
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+  gap: 1rem;
+
+  p {
+    color: $text-secondary;
+    font-size: 1rem;
+  }
+}
+
+// =============================================
+// RTL SUPPORT
+// =============================================
+
+:host-context([dir="rtl"]) {
+  .confirmation-header {
+    direction: rtl;
+  }
+
+  .order-number-box {
+    flex-direction: row-reverse;
+  }
+
+  mat-card-header mat-card-title {
+    flex-direction: row-reverse;
+  }
+
+  .next-step-item {
+    flex-direction: row-reverse;
+    text-align: right;
+  }
+
+  .status-row {
+    flex-direction: row-reverse;
+  }
+
+  .help-item {
+    flex-direction: row-reverse;
+  }
+
+  .action-button mat-icon {
+    margin-right: 0;
+    margin-left: 0.5rem;
+  }
+
+  .payment-instructions-card .payment-instructions-text {
+    border-left: none;
+    border-right: 4px solid $golden-wheat;
+    text-align: right;
+  }
+}
+
+// =============================================
+// PRINT STYLES
+// =============================================
+
+@media print {
+  .order-confirmation-page {
+    background: white;
+  }
+
+  .confirmation-header {
+    background: white;
+    border-bottom: 2px solid $text-primary;
+  }
+
+  .order-actions,
+  .help-card,
+  mat-card-actions {
+    display: none;
+  }
+
+  mat-card {
+    box-shadow: none;
+    border: 1px solid $border-color;
+    page-break-inside: avoid;
+  }
+}
+
+// =============================================
+// ACCESSIBILITY
+// =============================================
+
+// High contrast mode support
+@media (prefers-contrast: high) {
+  .success-icon-wrapper {
+    border: 2px solid currentColor;
+  }
+
+  .order-number-box {
+    border-width: 3px;
+  }
+
+  mat-card {
+    border: 1px solid $text-primary;
+  }
+}
+
+// Reduced motion support
+@media (prefers-reduced-motion: reduce) {
+  .success-icon-wrapper {
+    animation: none;
+  }
+
+  mat-card {
+    transition: none;
+
+    &:hover {
+      transform: none;
+    }
+  }
+}

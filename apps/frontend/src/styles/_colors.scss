@@ -1,0 +1,223 @@
+/**
+ * SouqSyria Color System
+ * Sophisticated color palette for international e-commerce
+ *
+ * Inspired by modern minimal e-commerce (Pixorus-style)
+ * Designed for worldwide audience appeal
+ *
+ * Color Palette:
+ * - Golden Wheat: Primary brand color (warmth, trust, heritage)
+ * - Forest Green: Secondary color (stability, nature, growth)
+ * - Charcoal: Text and UI elements (clarity, professionalism)
+ * - Deep Umber: Accent color (urgency, calls-to-action)
+ */
+
+// ============================================
+// GOLDEN WHEAT - Primary Brand Color
+// ============================================
+// Use for: Primary buttons, links, active states, brand elements
+
+$golden-wheat-100: #edebe0;  // Lightest - Backgrounds, hover states
+$golden-wheat-200: #b9a779;  // Light - Secondary buttons, borders
+$golden-wheat-300: #988561;  // Base - Primary buttons, links, icons
+
+$golden-wheat: $golden-wheat-300; // Default
+
+// ============================================
+// FOREST GREEN - Secondary Color
+// ============================================
+// Use for: Secondary CTAs, trust badges, success states
+
+$forest-100: #428177;  // Lightest - Backgrounds, subtle accents
+$forest-200: #054239;  // Medium - Secondary buttons, badges
+$forest-300: #002623;  // Darkest - Headers, dark sections
+
+$forest: $forest-300; // Default
+
+// ============================================
+// CHARCOAL - Text & UI Elements
+// ============================================
+// Use for: Text, borders, UI components, icons
+
+$charcoal-100: #ffffff;  // White - Light text on dark backgrounds
+$charcoal-200: #3d3a3b;  // Medium - Secondary text, muted elements
+$charcoal-300: #161616;  // Darkest - Primary text, headers
+
+$charcoal: $charcoal-300; // Default
+
+// ============================================
+// DEEP UMBER - Accent Color
+// ============================================
+// Use for: Sale badges, discount tags, urgent CTAs, errors
+
+$umber-100: #6b1f2a;  // Lighter - Sale tags, warnings
+$umber-200: #4a151e;  // Medium - Discount badges, urgent buttons
+$umber-300: #260f14;  // Darkest - Critical alerts, deep accents
+
+$umber: $umber-200; // Default
+
+// ============================================
+// SEMANTIC COLORS
+// ============================================
+
+$color-primary: $golden-wheat-300;
+$color-primary-light: $golden-wheat-200;
+$color-primary-lighter: $golden-wheat-100;
+
+$color-secondary: $forest-300;
+$color-secondary-light: $forest-200;
+$color-secondary-lighter: $forest-100;
+
+$color-text-primary: $charcoal-300;
+$color-text-secondary: $charcoal-200;
+$color-text-inverse: $charcoal-100;
+
+$color-accent: $umber-200;
+$color-accent-light: $umber-100;
+$color-accent-dark: $umber-300;
+
+// Success, Warning, Error states
+$color-success: $forest-200;
+$color-warning: #f59e0b; // Amber
+$color-error: $umber-200;
+$color-info: #3b82f6; // Blue
+
+// Background colors
+$color-bg-primary: $charcoal-100;
+$color-bg-secondary: $golden-wheat-100;
+$color-bg-dark: $charcoal-300;
+$color-bg-accent: $forest-300;
+
+// Border colors
+$color-border-light: rgba($charcoal-200, 0.2);
+$color-border-medium: rgba($charcoal-200, 0.4);
+$color-border-dark: $charcoal-200;
+
+// ============================================
+// CSS CUSTOM PROPERTIES (CSS Variables)
+// ============================================
+
+:root {
+  // Primary Colors
+  --color-primary: #{$golden-wheat-300};
+  --color-primary-light: #{$golden-wheat-200};
+  --color-primary-lighter: #{$golden-wheat-100};
+  --color-primary-rgb: 152, 133, 97; // For rgba() usage
+
+  // Secondary Colors
+  --color-secondary: #{$forest-300};
+  --color-secondary-light: #{$forest-200};
+  --color-secondary-lighter: #{$forest-100};
+  --color-secondary-rgb: 0, 38, 35;
+
+  // Text Colors
+  --color-text-primary: #{$charcoal-300};
+  --color-text-secondary: #{$charcoal-200};
+  --color-text-inverse: #{$charcoal-100};
+  --color-text-muted: #{rgba($charcoal-200, 0.6)};
+
+  // Accent Colors
+  --color-accent: #{$umber-200};
+  --color-accent-light: #{$umber-100};
+  --color-accent-dark: #{$umber-300};
+
+  // Semantic Colors
+  --color-success: #{$forest-200};
+  --color-warning: #f59e0b;
+  --color-error: #{$umber-200};
+  --color-info: #3b82f6;
+
+  // Background Colors
+  --color-bg-primary: #{$charcoal-100};
+  --color-bg-secondary: #{$golden-wheat-100};
+  --color-bg-dark: #{$charcoal-300};
+  --color-bg-accent: #{$forest-300};
+
+  // Border Colors
+  --color-border-light: #{rgba($charcoal-200, 0.2)};
+  --color-border-medium: #{rgba($charcoal-200, 0.4)};
+  --color-border-dark: #{$charcoal-200};
+
+  // Shadows
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+
+  // Border Radius
+  --radius-sm: 0.25rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+  --radius-xl: 1rem;
+  --radius-full: 9999px;
+
+  // Transitions
+  --transition-fast: 150ms ease-in-out;
+  --transition-base: 250ms ease-in-out;
+  --transition-slow: 350ms ease-in-out;
+}
+
+// ============================================
+// UTILITY CLASSES
+// ============================================
+
+.text-primary { color: var(--color-primary); }
+.text-secondary { color: var(--color-secondary); }
+.text-accent { color: var(--color-accent); }
+.text-muted { color: var(--color-text-muted); }
+
+.bg-primary { background-color: var(--color-primary); }
+.bg-secondary { background-color: var(--color-secondary); }
+.bg-accent { background-color: var(--color-accent); }
+.bg-light { background-color: var(--color-bg-secondary); }
+
+.border-primary { border-color: var(--color-primary); }
+.border-secondary { border-color: var(--color-secondary); }
+.border-light { border-color: var(--color-border-light); }
+.border-medium { border-color: var(--color-border-medium); }
+.border-dark { border-color: var(--color-border-dark); }
+
+// ============================================
+// BUTTON STYLES
+// ============================================
+
+.btn-primary {
+  background-color: var(--color-primary);
+  color: var(--color-text-inverse);
+  border: none;
+
+  &:hover {
+    background-color: var(--color-primary-light);
+  }
+}
+
+.btn-secondary {
+  background-color: var(--color-secondary);
+  color: var(--color-text-inverse);
+  border: none;
+
+  &:hover {
+    background-color: var(--color-secondary-light);
+  }
+}
+
+.btn-accent {
+  background-color: var(--color-accent);
+  color: var(--color-text-inverse);
+  border: none;
+
+  &:hover {
+    background-color: var(--color-accent-light);
+  }
+}
+
+.btn-outline-primary {
+  background-color: transparent;
+  color: var(--color-primary);
+  border: 2px solid var(--color-primary);
+
+  &:hover {
+    background-color: var(--color-primary);
+    color: var(--color-text-inverse);
+  }
+}

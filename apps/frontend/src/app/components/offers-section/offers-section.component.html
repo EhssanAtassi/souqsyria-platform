@@ -1,0 +1,109 @@
+<!-- Special Offers Section -->
+<section aria-label="Special Offers"
+         class="offers-section bg-gradient-to-b from-white to-gray-50 py-8 lg:py-12"
+         role="region">
+  <div class="container mx-auto px-4">
+
+    <!-- Section Header -->
+    <div class="text-center mb-8">
+      <h2 class="text-2xl lg:text-3xl font-bold text-syrian-navy mb-2">
+        {{ sectionTitleAr }} | {{ sectionTitle }}
+      </h2>
+      <p class="text-warm-gray text-base">
+        اكتشف أفضل العروض والخصومات | Discover the best deals and discounts
+      </p>
+    </div>
+
+    <!-- Offers Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
+      <div
+        (click)="onOfferClick(offer)"
+        (keydown.enter)="onOfferClick(offer)"
+        (keydown.space)="onOfferClick(offer)"
+        *ngFor="let offer of offers; trackBy: trackByOfferId"
+        [attr.aria-label]="offer.title + ' - ' + offer.description"
+        [class.cursor-not-allowed]="!offer.isActive"
+        [class.opacity-75]="!offer.isActive"
+        [matRippleDisabled]="!offer.isActive"
+        class="offer-card relative overflow-hidden rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 cursor-pointer group"
+        matRipple
+        role="button"
+        tabindex="0">
+
+        <!-- Background Gradient -->
+        <div [ngStyle]="{'background': offer.bgGradient}"
+             class="absolute inset-0 bg-gradient-to-br">
+        </div>
+
+        <!-- Offer Image -->
+        <div class="relative z-10 h-48 lg:h-56 overflow-hidden">
+          <img
+            [alt]="offer.title"
+            [src]="offer.imageUrl"
+            class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+            loading="lazy">
+
+          <!-- Discount Badge -->
+          <div *ngIf="offer.discount"
+               class="absolute top-4 right-4 bg-red-500 text-white text-sm font-bold px-3 py-1 rounded-full shadow-lg">
+            {{ offer.discount }}
+          </div>
+        </div>
+
+        <!-- Offer Content -->
+        <div [ngStyle]="{'color': offer.textColor}"
+             class="relative z-10 p-6">
+
+          <!-- Title -->
+          <h3 class="text-xl lg:text-2xl font-bold mb-2 leading-tight">
+            {{ offer.title }}
+          </h3>
+          <h4 class="text-lg font-semibold mb-3 opacity-90"
+              dir="rtl">
+            {{ offer.titleAr }}
+          </h4>
+
+          <!-- Description -->
+          <p class="text-sm lg:text-base mb-3 opacity-80 leading-relaxed">
+            {{ offer.description }}
+          </p>
+          <p class="text-sm opacity-75 leading-relaxed"
+             dir="rtl">
+            {{ offer.descriptionAr }}
+          </p>
+
+          <!-- Call to Action -->
+          <div class="mt-4">
+            <span
+              class="inline-flex items-center text-sm font-semibold bg-white bg-opacity-20 backdrop-blur-sm px-4 py-2 rounded-full hover:bg-opacity-30 transition-all duration-200">
+              <span class="mr-2">تسوق الآن | Shop Now</span>
+              <svg class="w-4 h-4 transform group-hover:translate-x-1 transition-transform duration-200"
+                   fill="none"
+                   stroke="currentColor"
+                   viewBox="0 0 24 24">
+                <path d="M9 5l7 7-7 7"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"></path>
+              </svg>
+            </span>
+          </div>
+        </div>
+
+        <!-- Overlay for hover effect -->
+        <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-10 transition-all duration-300 z-20">
+        </div>
+
+      </div>
+    </div>
+
+    <!-- No offers message -->
+    <div *ngIf="offers.length === 0"
+         class="text-center py-12">
+      <p class="text-warm-gray text-lg">
+        لا توجد عروض متاحة حالياً | No offers available at the moment
+      </p>
+    </div>
+
+  </div>
+</section>

@@ -1,0 +1,522 @@
+/**
+ * Skeleton Loader Component Styles
+ * Syrian Marketplace - Golden Wheat Theme
+ *
+ * Features:
+ * - Smooth shimmer animation with gradient overlay
+ * - Multiple skeleton types (card, banner, category, text, circle)
+ * - Responsive design (mobile-first approach)
+ * - Syrian marketplace color palette integration
+ * - RTL/Arabic support
+ * - Accessibility-friendly (reduced motion support)
+ */
+
+// ===== COLOR VARIABLES =====
+// Syrian Marketplace Golden Wheat Palette
+$skeleton-bg-light: #edebe0; // Golden wheat light
+$skeleton-bg-dark: #3d3a3b; // Charcoal medium
+$skeleton-shimmer-light: rgba(185, 167, 121, 0.3); // Golden wheat medium with transparency
+$skeleton-shimmer-dark: rgba(244, 164, 96, 0.3); // Sandy brown with transparency
+$skeleton-border: rgba(152, 133, 97, 0.2); // Golden wheat primary with transparency
+
+// ===== BASE SKELETON STYLES =====
+.skeleton-loader {
+  position: relative;
+  overflow: hidden;
+  background-color: $skeleton-bg-light;
+  border-radius: 0.5rem;
+
+  // Dark theme variant
+  &--dark {
+    background-color: $skeleton-bg-dark;
+  }
+}
+
+// ===== ANIMATION STYLES =====
+// Shimmer Animation (Default)
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+@keyframes shimmer-rtl {
+  0% {
+    transform: translateX(100%);
+  }
+  100% {
+    transform: translateX(-100%);
+  }
+}
+
+.skeleton-loader--shimmer {
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      $skeleton-shimmer-light 50%,
+      transparent 100%
+    );
+    animation: shimmer 1.5s infinite ease-in-out;
+    z-index: 1;
+  }
+
+  // RTL support
+  [dir='rtl'] &::before {
+    animation: shimmer-rtl 1.5s infinite ease-in-out;
+  }
+}
+
+// Pulse Animation
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.6;
+  }
+}
+
+.skeleton-loader--pulse {
+  animation: pulse 1.5s infinite ease-in-out;
+}
+
+// Wave Animation
+@keyframes wave {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.skeleton-loader--wave {
+  background: linear-gradient(
+    90deg,
+    $skeleton-bg-light 0%,
+    lighten($skeleton-bg-light, 5%) 20%,
+    $skeleton-bg-light 40%,
+    $skeleton-bg-light 100%
+  );
+  background-size: 200% 100%;
+  animation: wave 1.5s infinite ease-in-out;
+}
+
+// ===== SKELETON GRID LAYOUT =====
+.skeleton-grid {
+  display: grid;
+  gap: 1rem;
+  width: 100%;
+
+  // Mobile first - 1 column
+  grid-template-columns: 1fr;
+
+  // Tablet - 2 columns (480px+)
+  @media (min-width: 480px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  // Small desktop - 3 columns (768px+)
+  @media (min-width: 768px) {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  // Large desktop - 4 columns (1024px+)
+  @media (min-width: 1024px) {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1.5rem;
+  }
+
+  // Extra large - 5 columns (1280px+)
+  @media (min-width: 1280px) {
+    grid-template-columns: repeat(5, 1fr);
+  }
+}
+
+// ===== PRODUCT CARD SKELETON =====
+.skeleton-card {
+  display: flex;
+  flex-direction: column;
+  background: white;
+  border-radius: 0.75rem;
+  overflow: hidden;
+  border: 1px solid $skeleton-border;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+
+  &__image {
+    width: 100%;
+    height: 200px;
+    background-color: $skeleton-bg-light;
+    position: relative;
+
+    @media (min-width: 768px) {
+      height: 240px;
+    }
+  }
+
+  &__content {
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  &__badges {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
+
+  &__title {
+    height: 1.25rem;
+    background-color: $skeleton-bg-light;
+    border-radius: 0.25rem;
+    width: 80%;
+  }
+
+  &__subtitle {
+    height: 1rem;
+    background-color: $skeleton-bg-light;
+    border-radius: 0.25rem;
+    width: 60%;
+  }
+
+  &__rating {
+    display: flex;
+    gap: 0.25rem;
+    align-items: center;
+  }
+
+  &__price-row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+  }
+
+  &__price {
+    height: 1.5rem;
+    background-color: $skeleton-bg-light;
+    border-radius: 0.25rem;
+    width: 80px;
+  }
+
+  &__original-price {
+    height: 1rem;
+    background-color: $skeleton-bg-light;
+    border-radius: 0.25rem;
+    width: 60px;
+  }
+
+  &__actions {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+  }
+
+  &__shipping {
+    height: 0.875rem;
+    background-color: $skeleton-bg-light;
+    border-radius: 0.25rem;
+    width: 50%;
+    margin-top: 0.25rem;
+  }
+}
+
+.skeleton-badge {
+  height: 1.5rem;
+  width: 80px;
+  background-color: $skeleton-bg-light;
+  border-radius: 1rem;
+}
+
+.skeleton-star {
+  width: 1rem;
+  height: 1rem;
+  background-color: $skeleton-bg-light;
+  border-radius: 50%;
+}
+
+.skeleton-button {
+  height: 2.5rem;
+  background-color: $skeleton-bg-light;
+  border-radius: 0.5rem;
+
+  &--primary {
+    flex: 1;
+  }
+
+  &--icon {
+    width: 2.5rem;
+  }
+}
+
+// ===== HERO BANNER SKELETON =====
+.skeleton-banner {
+  position: relative;
+  width: 100%;
+  height: 300px;
+  background-color: $skeleton-bg-light;
+  border-radius: 0.75rem;
+  overflow: hidden;
+
+  @media (min-width: 768px) {
+    height: 400px;
+  }
+
+  @media (min-width: 1024px) {
+    height: 500px;
+  }
+
+  &__bg {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      135deg,
+      $skeleton-bg-light 0%,
+      lighten($skeleton-bg-light, 3%) 50%,
+      $skeleton-bg-light 100%
+    );
+  }
+
+  &__content {
+    position: absolute;
+    inset: 0;
+    padding: 2rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 1rem;
+
+    @media (min-width: 768px) {
+      padding: 3rem;
+      gap: 1.5rem;
+    }
+  }
+
+  &__badge {
+    height: 1.5rem;
+    width: 120px;
+    background-color: rgba(255, 255, 255, 0.8);
+    border-radius: 1rem;
+  }
+
+  &__heading {
+    height: 2.5rem;
+    width: 70%;
+    max-width: 600px;
+    background-color: rgba(255, 255, 255, 0.8);
+    border-radius: 0.5rem;
+
+    @media (min-width: 768px) {
+      height: 3rem;
+    }
+  }
+
+  &__subheading {
+    height: 1.75rem;
+    width: 50%;
+    max-width: 400px;
+    background-color: rgba(255, 255, 255, 0.8);
+    border-radius: 0.5rem;
+  }
+
+  &__description {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+  }
+
+  &__line {
+    height: 1rem;
+    width: 60%;
+    max-width: 500px;
+    background-color: rgba(255, 255, 255, 0.8);
+    border-radius: 0.25rem;
+
+    &--short {
+      width: 40%;
+      max-width: 300px;
+    }
+  }
+
+  &__cta {
+    height: 3rem;
+    width: 180px;
+    background-color: rgba(255, 255, 255, 0.9);
+    border-radius: 0.5rem;
+    margin-top: 1rem;
+  }
+}
+
+// ===== CATEGORY CARD SKELETON =====
+.skeleton-category {
+  display: flex;
+  flex-direction: column;
+  background: white;
+  border-radius: 0.75rem;
+  overflow: hidden;
+  border: 1px solid $skeleton-border;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+
+  &__image {
+    width: 100%;
+    height: 150px;
+    background-color: $skeleton-bg-light;
+
+    @media (min-width: 768px) {
+      height: 180px;
+    }
+  }
+
+  &__content {
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  &__title {
+    height: 1.25rem;
+    background-color: $skeleton-bg-light;
+    border-radius: 0.25rem;
+    width: 75%;
+  }
+
+  &__count {
+    height: 0.875rem;
+    background-color: $skeleton-bg-light;
+    border-radius: 0.25rem;
+    width: 50%;
+  }
+}
+
+// ===== TEXT LINE SKELETON =====
+.skeleton-text {
+  height: 1rem;
+  width: 100%;
+  background-color: $skeleton-bg-light;
+  border-radius: 0.25rem;
+  margin-bottom: 0.5rem;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+// ===== CIRCLE SKELETON =====
+.skeleton-circle {
+  width: 60px;
+  height: 60px;
+  background-color: $skeleton-bg-light;
+  border-radius: 50%;
+  margin: 0.5rem;
+
+  @media (min-width: 768px) {
+    width: 80px;
+    height: 80px;
+  }
+}
+
+// ===== ACCESSIBILITY =====
+// Screen reader only text
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+// Respect user's motion preferences
+@media (prefers-reduced-motion: reduce) {
+  .skeleton-loader--shimmer::before,
+  .skeleton-loader--pulse,
+  .skeleton-loader--wave {
+    animation: none !important;
+  }
+
+  // Fallback to subtle opacity change
+  .skeleton-loader {
+    opacity: 0.8;
+  }
+}
+
+// ===== RTL SUPPORT =====
+[dir='rtl'] {
+  .skeleton-card {
+    &__content {
+      align-items: flex-start;
+    }
+
+    &__badges {
+      flex-direction: row-reverse;
+    }
+
+    &__rating {
+      flex-direction: row-reverse;
+    }
+
+    &__price-row {
+      flex-direction: row-reverse;
+    }
+
+    &__actions {
+      flex-direction: row-reverse;
+    }
+  }
+
+  .skeleton-banner {
+    &__content {
+      align-items: flex-end;
+      text-align: right;
+    }
+  }
+
+  .skeleton-category {
+    &__content {
+      align-items: flex-start;
+    }
+  }
+}
+
+// ===== RESPONSIVE UTILITIES =====
+.skeleton-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  width: 100%;
+}
+
+// ===== HOVER EFFECTS (OPTIONAL) =====
+.skeleton-card,
+.skeleton-category {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
+}
+
+// ===== PRINT STYLES =====
+@media print {
+  .skeleton-loader {
+    display: none !important;
+  }
+}

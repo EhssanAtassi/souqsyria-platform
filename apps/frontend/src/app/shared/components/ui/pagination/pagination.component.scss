@@ -1,0 +1,192 @@
+@import '../../../styles/variables';
+
+/**
+ * Pagination Component Styles
+ * Golden Wheat themed page navigation with responsive design
+ */
+
+.pagination {
+  display: flex;
+  justify-content: center;
+  padding: $space-6 0;
+
+  /**
+   * Pagination list container
+   */
+  &__list {
+    display: flex;
+    align-items: center;
+    gap: $space-2;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  /**
+   * Individual pagination item wrapper
+   */
+  &__item {
+    display: flex;
+    align-items: center;
+  }
+
+  /**
+   * Pagination button base styles
+   */
+  &__button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 40px;
+    height: 40px;
+    padding: $space-2 $space-3;
+    border: $border-width-thin solid $golden-wheat-light;
+    background: $charcoal-light;
+    color: $charcoal-medium;
+    font-size: $font-size-sm;
+    font-weight: $font-weight-medium;
+    border-radius: $border-radius-md;
+    cursor: pointer;
+    transition: all $transition-fast $ease-in-out;
+
+    /**
+     * Hover state
+     */
+    &:hover:not(:disabled) {
+      border-color: $golden-wheat-primary;
+      background: $golden-wheat-light;
+      color: $golden-wheat-dark;
+    }
+
+    /**
+     * Focus state (keyboard navigation)
+     */
+    &:focus-visible {
+      outline: 2px solid $golden-wheat-primary;
+      outline-offset: 2px;
+    }
+
+    /**
+     * Disabled state
+     */
+    &:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+      border-color: $golden-wheat-light;
+    }
+
+    /**
+     * Active page button
+     */
+    &--active {
+      background: $golden-wheat-primary;
+      border-color: $golden-wheat-primary;
+      color: $charcoal-light;
+      font-weight: $font-weight-semibold;
+
+      &:hover {
+        background: $golden-wheat-dark;
+        border-color: $golden-wheat-dark;
+      }
+    }
+
+    /**
+     * Number button specific styles
+     */
+    &--number {
+      min-width: 40px;
+    }
+
+    /**
+     * Previous/Next button styles
+     */
+    &--prev,
+    &--next {
+      padding: $space-2;
+
+      svg {
+        width: 20px;
+        height: 20px;
+      }
+    }
+  }
+
+  /**
+   * Ellipsis (...)
+   */
+  &__ellipsis {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 40px;
+    height: 40px;
+    color: $charcoal-medium;
+    font-weight: $font-weight-bold;
+    user-select: none;
+  }
+}
+
+/**
+ * RTL Support
+ * Flip arrows for Arabic layout
+ */
+[dir="rtl"] {
+  .pagination {
+    &__button--prev svg {
+      transform: scaleX(-1);
+    }
+
+    &__button--next svg {
+      transform: scaleX(-1);
+    }
+  }
+}
+
+/**
+ * Mobile Responsive
+ * Reduce button size and spacing on small screens
+ */
+@media (max-width: $breakpoint-sm) {
+  .pagination {
+    &__button {
+      min-width: 36px;
+      height: 36px;
+      padding: $space-1 $space-2;
+      font-size: $font-size-xs;
+
+      &--number {
+        min-width: 36px;
+      }
+
+      &--prev,
+      &--next {
+        svg {
+          width: 16px;
+          height: 16px;
+        }
+      }
+    }
+
+    &__ellipsis {
+      min-width: 36px;
+      height: 36px;
+    }
+
+    &__list {
+      gap: $space-1;
+    }
+  }
+}
+
+/**
+ * Touch device optimization
+ * Increase touch target size
+ */
+@media (hover: none) and (pointer: coarse) {
+  .pagination {
+    &__button {
+      min-height: 44px; // iOS recommended touch target
+      min-width: 44px;
+    }
+  }
+}

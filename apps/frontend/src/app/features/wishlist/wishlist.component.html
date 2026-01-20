@@ -1,0 +1,217 @@
+<!-- Wishlist Page - Syrian Marketplace -->
+<div class="wishlist" [class.wishlist--rtl]="language() === 'ar'">
+  <!-- Page Header -->
+  <div class="wishlist__header">
+    <div class="wishlist__header-content">
+      <div class="wishlist__title-section">
+        <h1 class="wishlist__title">
+          <mat-icon class="wishlist__title-icon">favorite</mat-icon>
+          <span *ngIf="language() === 'ar'">قائمة الأمنيات</span>
+          <span *ngIf="language() === 'en'">My Wishlist</span>
+        </h1>
+        <p class="wishlist__subtitle" *ngIf="!isEmpty()">
+          <span *ngIf="language() === 'ar'">
+            {{ wishlistCount() }} منتج في قائمة الأمنيات الخاصة بك
+          </span>
+          <span *ngIf="language() === 'en'">
+            {{ wishlistCount() }} {{ wishlistCount() === 1 ? 'item' : 'items' }} in your wishlist
+          </span>
+        </p>
+      </div>
+
+      <!-- Action Buttons (shown when wishlist has items) -->
+      <div class="wishlist__header-actions" *ngIf="!isEmpty()">
+        <!-- View Mode Toggle -->
+        <button
+          mat-icon-button
+          class="wishlist__view-toggle"
+          [matTooltip]="viewMode() === 'grid' ? 'List View' : 'Grid View'"
+          (click)="toggleViewMode()">
+          <mat-icon>{{ viewMode() === 'grid' ? 'view_list' : 'view_module' }}</mat-icon>
+        </button>
+
+        <!-- Move All to Cart -->
+        <button
+          mat-raised-button
+          color="primary"
+          class="wishlist__move-all-btn"
+          (click)="moveAllToCart()">
+          <mat-icon>shopping_cart</mat-icon>
+          <span *ngIf="language() === 'ar'">نقل الكل إلى السلة</span>
+          <span *ngIf="language() === 'en'">Move All to Cart</span>
+        </button>
+
+        <!-- More Actions Menu -->
+        <button mat-icon-button [matMenuTriggerFor]="actionsMenu" class="wishlist__more-btn">
+          <mat-icon>more_vert</mat-icon>
+        </button>
+        <mat-menu #actionsMenu="matMenu">
+          <button mat-menu-item (click)="clearWishlist()">
+            <mat-icon>delete_outline</mat-icon>
+            <span *ngIf="language() === 'ar'">مسح قائمة الأمنيات</span>
+            <span *ngIf="language() === 'en'">Clear Wishlist</span>
+          </button>
+        </mat-menu>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div class="wishlist__loading" *ngIf="isLoading()">
+    <mat-spinner diameter="50"></mat-spinner>
+    <p class="wishlist__loading-text">
+      <span *ngIf="language() === 'ar'">جاري التحميل...</span>
+      <span *ngIf="language() === 'en'">Loading...</span>
+    </p>
+  </div>
+
+  <!-- Empty State -->
+  <div class="wishlist__empty" *ngIf="isEmpty() && !isLoading()">
+    <div class="wishlist__empty-content">
+      <!-- Damascus Rose Pattern SVG -->
+      <div class="wishlist__empty-icon">
+        <mat-icon class="wishlist__empty-icon-large">favorite_border</mat-icon>
+      </div>
+
+      <h2 class="wishlist__empty-title">
+        <span *ngIf="language() === 'ar'">قائمة الأمنيات فارغة</span>
+        <span *ngIf="language() === 'en'">Your Wishlist is Empty</span>
+      </h2>
+
+      <p class="wishlist__empty-description">
+        <span *ngIf="language() === 'ar'">
+          ابدأ بإضافة المنتجات التي تحبها إلى قائمة الأمنيات الخاصة بك
+        </span>
+        <span *ngIf="language() === 'en'">
+          Start adding products you love to your wishlist
+        </span>
+      </p>
+
+      <button
+        mat-raised-button
+        color="primary"
+        class="wishlist__empty-cta"
+        (click)="continueShopping()">
+        <mat-icon>shopping_bag</mat-icon>
+        <span *ngIf="language() === 'ar'">تصفح المنتجات</span>
+        <span *ngIf="language() === 'en'">Browse Products</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Wishlist Items (Grid or List View) -->
+  <div
+    class="wishlist__items"
+    *ngIf="!isEmpty() && !isLoading()"
+    [class.wishlist__items--grid]="viewMode() === 'grid'"
+    [class.wishlist__items--list]="viewMode() === 'list'">
+
+    <!-- Product Cards -->
+    <div
+      *ngFor="let product of wishlistItems(); trackBy: trackProduct"
+      class="wishlist__item">
+
+      <!-- Use ProductCardComponent for consistent UI -->
+      <app-product-card
+        [product]="product"
+        (productClick)="onProductClick(product)"
+        (addToCart)="onAddToCart(product)"
+        (toggleWishlist)="onToggleWishlist(product)">
+      </app-product-card>
+
+      <!-- Quick Actions Overlay -->
+      <div class="wishlist__item-actions">
+        <!-- Move to Cart -->
+        <button
+          mat-mini-fab
+          color="primary"
+          class="wishlist__item-action"
+          [matTooltip]="language() === 'ar' ? 'نقل إلى السلة' : 'Move to Cart'"
+          (click)="moveToCart(product, $event)">
+          <mat-icon>shopping_cart</mat-icon>
+        </button>
+
+        <!-- Share Product -->
+        <button
+          mat-mini-fab
+          class="wishlist__item-action wishlist__item-action--share"
+          [matTooltip]="language() === 'ar' ? 'مشاركة' : 'Share'"
+          (click)="shareProduct(product, $event)">
+          <mat-icon>share</mat-icon>
+        </button>
+
+        <!-- Remove from Wishlist -->
+        <button
+          mat-mini-fab
+          color="warn"
+          class="wishlist__item-action wishlist__item-action--remove"
+          [matTooltip]="language() === 'ar' ? 'إزالة' : 'Remove'"
+          (click)="removeFromWishlist(product, $event)">
+          <mat-icon>delete_outline</mat-icon>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Wishlist Statistics -->
+  <div class="wishlist__stats" *ngIf="!isEmpty() && !isLoading()">
+    <mat-card class="wishlist__stats-card">
+      <mat-card-content>
+        <h3 class="wishlist__stats-title">
+          <span *ngIf="language() === 'ar'">إحصائيات قائمة الأمنيات</span>
+          <span *ngIf="language() === 'en'">Wishlist Statistics</span>
+        </h3>
+
+        <div class="wishlist__stats-grid">
+          <!-- Total Items -->
+          <div class="wishlist__stat">
+            <mat-icon class="wishlist__stat-icon">inventory_2</mat-icon>
+            <div class="wishlist__stat-content">
+              <span class="wishlist__stat-value">{{ statistics().totalItems }}</span>
+              <span class="wishlist__stat-label">
+                <span *ngIf="language() === 'ar'">منتج</span>
+                <span *ngIf="language() === 'en'">{{ statistics().totalItems === 1 ? 'Product' : 'Products' }}</span>
+              </span>
+            </div>
+          </div>
+
+          <!-- Total Value -->
+          <div class="wishlist__stat">
+            <mat-icon class="wishlist__stat-icon">attach_money</mat-icon>
+            <div class="wishlist__stat-content">
+              <span class="wishlist__stat-value">{{ formatPrice(statistics().totalValue, 'USD') }}</span>
+              <span class="wishlist__stat-label">
+                <span *ngIf="language() === 'ar'">القيمة الإجمالية</span>
+                <span *ngIf="language() === 'en'">Total Value</span>
+              </span>
+            </div>
+          </div>
+
+          <!-- Average Price -->
+          <div class="wishlist__stat">
+            <mat-icon class="wishlist__stat-icon">trending_up</mat-icon>
+            <div class="wishlist__stat-content">
+              <span class="wishlist__stat-value">{{ formatPrice(statistics().averagePrice, 'USD') }}</span>
+              <span class="wishlist__stat-label">
+                <span *ngIf="language() === 'ar'">متوسط السعر</span>
+                <span *ngIf="language() === 'en'">Average Price</span>
+              </span>
+            </div>
+          </div>
+
+          <!-- Categories Count -->
+          <div class="wishlist__stat">
+            <mat-icon class="wishlist__stat-icon">category</mat-icon>
+            <div class="wishlist__stat-content">
+              <span class="wishlist__stat-value">{{ statistics().categoriesCount }}</span>
+              <span class="wishlist__stat-label">
+                <span *ngIf="language() === 'ar'">فئة</span>
+                <span *ngIf="language() === 'en'">{{ statistics().categoriesCount === 1 ? 'Category' : 'Categories' }}</span>
+              </span>
+            </div>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+</div>

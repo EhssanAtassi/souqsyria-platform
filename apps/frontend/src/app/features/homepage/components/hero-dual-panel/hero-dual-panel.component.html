@@ -1,0 +1,137 @@
+<!-- Syrian Marketplace Hero Dual Panel Section -->
+<section
+  aria-label="SouqSyria Hero Dual Panel"
+  class="hero-dual-panel-section"
+  role="banner">
+
+  <div class="container mx-auto px-4">
+    <div class="hero-dual-panel-container">
+
+      <!-- Left Panel: Offers Slider (70% width) -->
+      <div
+        class="offers-slider-panel"
+        role="region"
+        aria-label="Special offers and promotions">
+
+        <!-- Offers Slider Component -->
+        <div class="offers-slider-wrapper">
+          <app-slider-image-swiper
+            [images]="displayOfferBanners()"
+            [autoplay]="true"
+            [intervalMs]="autoRotateInterval"
+            [pauseOnHover]="pauseOnHover"
+            [offerBaseUrl]="'/offers'"
+            class="hero-offers-slider"
+            (click)="onOfferBannerClick($event)"
+            [attr.aria-label]="'Special offers carousel with ' + displayOfferBanners().length + ' promotional banners'">
+          </app-slider-image-swiper>
+
+          <!-- Overlay Content for Accessibility -->
+          <div class="sr-only" aria-live="polite" id="offers-description">
+            Current promotion: {{ displayOfferBanners()[0]?.titleEn || 'Syrian marketplace special offers' }}
+            العرض الحالي: {{ displayOfferBanners()[0]?.titleAr || 'عروض خاصة من السوق السوري' }}
+          </div>
+        </div>
+
+        <!-- Offers Navigation Hints - Hidden to avoid corner widget -->
+        <!-- <div class="offers-navigation-hints" *ngIf="displayOfferBanners().length > 1">
+          <span class="navigation-hint text-xs text-white/80">
+            <mat-icon class="inline-block w-4 h-4 mr-1">swipe</mat-icon>
+            انقر أو اسحب للتصفح | Click or swipe to browse
+          </span>
+        </div> -->
+
+      </div>
+
+      <!-- Right Panel: Featured Product Showcase (30% width) -->
+      <div
+        class="featured-product-panel"
+        role="region"
+        aria-label="Today's featured product">
+
+        <!-- Featured Product Showcase Component -->
+        <app-featured-product-showcase
+          [product]="displayFeaturedProduct()"
+          [showTodaysBadge]="true"
+          [damascusPatternOverlay]="true"
+          (productClick)="onFeaturedProductClick($event)"
+          (addToCart)="onFeaturedProductAddToCart($event)"
+          class="featured-product-showcase"
+          [attr.aria-label]="'Featured product: ' + (displayFeaturedProduct()?.name || 'Loading...')">
+        </app-featured-product-showcase>
+
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div
+    *ngIf="!hasValidData()"
+    class="hero-loading-state"
+    aria-label="Loading hero content"
+    role="status">
+
+    <div class="loading-container">
+      <div class="loading-spinner syrian-spinner"></div>
+      <span class="loading-text">
+        جاري تحضير العروض الخاصة...
+        <br>
+        Preparing special offers...
+      </span>
+    </div>
+
+  </div>
+
+  <!-- Empty State -->
+  <div
+    *ngIf="hasValidData() && displayOfferBanners().length === 0 && !displayFeaturedProduct()"
+    class="hero-empty-state"
+    role="status">
+
+    <div class="empty-state-container">
+      <mat-icon class="empty-state-icon">storefront</mat-icon>
+      <h3 class="empty-state-title">
+        لا توجد عروض متاحة | No offers available
+      </h3>
+      <p class="empty-state-description">
+        تحقق من العروض الجديدة قريباً | Check back soon for new offers
+      </p>
+    </div>
+
+  </div>
+
+</section>
+
+<!-- Structured Data for SEO -->
+<script type="application/ld+json" *ngIf="displayFeaturedProduct()">
+{
+  "@context": "https://schema.org",
+  "@type": "Product",
+  "name": "{{ displayFeaturedProduct()?.name }}",
+  "alternateName": "{{ displayFeaturedProduct()?.nameArabic }}",
+  "description": "{{ displayFeaturedProduct()?.description }}",
+  "image": "{{ displayFeaturedProduct()?.images?.[0]?.url }}",
+  "offers": {
+    "@type": "Offer",
+    "price": "{{ displayFeaturedProduct()?.price?.amount }}",
+    "priceCurrency": "{{ displayFeaturedProduct()?.price?.currency }}",
+    "availability": "https://schema.org/InStock",
+    "seller": {
+      "@type": "Organization",
+      "name": "SouqSyria Syrian Marketplace"
+    }
+  },
+  "aggregateRating": {
+    "@type": "AggregateRating",
+    "ratingValue": "{{ displayFeaturedProduct()?.reviews?.averageRating }}",
+    "reviewCount": "{{ displayFeaturedProduct()?.reviews?.totalReviews }}"
+  },
+  "brand": {
+    "@type": "Brand",
+    "name": "Syrian Heritage Crafts"
+  },
+  "category": "{{ displayFeaturedProduct()?.category?.name }}",
+  "countryOfOrigin": "Syria"
+}
+</script>

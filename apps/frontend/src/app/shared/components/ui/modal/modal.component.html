@@ -1,0 +1,45 @@
+<!-- Modal Overlay -->
+<div
+  *ngIf="isOpen"
+  class="modal-backdrop"
+  (click)="onBackdropClick($event)">
+
+  <!-- Modal Container -->
+  <div
+    class="modal"
+    [class]="'modal--' + size"
+    (click)="onModalContentClick($event)"
+    role="dialog"
+    aria-modal="true"
+    [attr.aria-labelledby]="title ? 'modal-title' : null">
+
+    <!-- Modal Header -->
+    <header class="modal__header">
+      <h2 id="modal-title" class="modal__title">
+        {{ displayTitle }}
+      </h2>
+
+      <!-- Close Button -->
+      <button
+        *ngIf="showCloseButton"
+        type="button"
+        class="modal__close"
+        (click)="closeModal()"
+        aria-label="Close modal">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+          <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+    </header>
+
+    <!-- Modal Body (Content Projection) -->
+    <div class="modal__body">
+      <ng-content></ng-content>
+    </div>
+
+    <!-- Modal Footer (Optional Content Projection) -->
+    <footer class="modal__footer">
+      <ng-content select="[modal-footer]"></ng-content>
+    </footer>
+  </div>
+</div>

@@ -1,0 +1,163 @@
+    <div class="syrian-location-selector" [class.rtl]="isRTL">
+      <!-- Governorate Selection -->
+      <mat-form-field class="full-width governorate-field" appearance="outline">
+        <mat-label>
+          {{ isRTL ? 'المحافظة' : 'Governorate' }}
+          <mat-icon
+            *ngIf="showShippingInfo"
+            class="info-icon"
+            [matTooltip]="isRTL ? 'معلومات الشحن متاحة' : 'Shipping info available'">
+            info
+          </mat-icon>
+        </mat-label>
+
+        <mat-select
+          [formControl]="governorateControl"
+          [disabled]="disabled || loading"
+          (selectionChange)="onGovernorateChange($event.value)">
+
+          <mat-option *ngIf="loading" disabled>
+            <mat-spinner diameter="20"></mat-spinner>
+            {{ isRTL ? 'جاري التحميل...' : 'Loading...' }}
+          </mat-option>
+
+          <mat-option *ngFor="let gov of filteredGovernorates$ | async" [value]="gov.id">
+            <div class="governorate-option">
+              <div class="governorate-main">
+                <span class="governorate-name">
+                  {{ isRTL ? gov.nameAr : gov.nameEn }}
+                </span>
+                <span *ngIf="gov.heritage" class="heritage-badge"
+                      [matTooltip]="isRTL ? 'موقع تراثي' : 'Heritage Site'">
+                  <mat-icon>account_balance</mat-icon>
+                </span>
+              </div>
+
+              <div *ngIf="showShippingInfo" class="shipping-info">
+                <span class="shipping-zone">
+                  {{ isRTL ? 'منطقة الشحن' : 'Zone' }} {{ gov.shippingZone }}
+                </span>
+                <span class="delivery-time">
+                  {{ isRTL ? 'التسليم:' : 'Delivery:' }} {{ gov.deliveryTime }}
+                </span>
+              </div>
+            </div>
+          </mat-option>
+        </mat-select>
+
+        <mat-icon matPrefix>location_on</mat-icon>
+      </mat-form-field>
+
+      <!-- Region Selection (conditional) -->
+      <mat-form-field
+        *ngIf="showRegions && selectedGovernorate"
+        class="full-width region-field"
+        appearance="outline">
+
+        <mat-label>
+          {{ isRTL ? 'المنطقة' : 'Region' }}
+        </mat-label>
+
+        <mat-select
+          [formControl]="regionControl"
+          [disabled]="disabled || loadingRegions"
+          (selectionChange)="onRegionChange($event.value)">
+
+          <mat-option *ngIf="loadingRegions" disabled>
+            <mat-spinner diameter="20"></mat-spinner>
+            {{ isRTL ? 'جاري تحميل المناطق...' : 'Loading regions...' }}
+          </mat-option>
+
+          <mat-option value="" *ngIf="!required">
+            {{ isRTL ? 'اختر المنطقة (اختياري)' : 'Select Region (Optional)' }}
+          </mat-option>
+
+          <mat-option *ngFor="let region of availableRegions" [value]="region.id">
+            <div class="region-option">
+              <span class="region-name">
+                {{ isRTL ? region.nameAr : region.nameEn }}
+              </span>
+              <span *ngIf="region.postalCode" class="postal-code">
+                {{ region.postalCode }}
+              </span>
+              <span *ngIf="region.isUrban" class="urban-badge"
+                    [matTooltip]="isRTL ? 'منطقة حضرية' : 'Urban Area'">
+                <mat-icon>location_city</mat-icon>
+              </span>
+              <span *ngIf="!region.deliveryAvailable" class="no-delivery-badge"
+                    [matTooltip]="isRTL ? 'التوصيل غير متاح' : 'Delivery Not Available'">
+                <mat-icon>local_shipping</mat-icon>
+              </span>
+            </div>
+          </mat-option>
+        </mat-select>
+
+        <mat-icon matPrefix>place</mat-icon>
+      </mat-form-field>
+
+      <!-- Search Field (when enabled) -->
+      <mat-form-field
+        *ngIf="enableSearch"
+        class="full-width search-field"
+        appearance="outline">
+
+        <mat-label>
+          {{ isRTL ? 'البحث في المحافظات والمناطق' : 'Search Governorates & Regions' }}
+        </mat-label>
+
+        <input
+          matInput
+          [formControl]="searchControl"
+          [placeholder]="isRTL ? 'ابحث باللغة العربية أو الإنجليزية' : 'Search in Arabic or English'"
+          (input)="onSearchInput($event)">
+
+        <mat-icon matPrefix>search</mat-icon>
+
+        <button
+          *ngIf="searchControl.value"
+          matSuffix
+          mat-icon-button
+          (click)="clearSearch()"
+          [attr.aria-label]="isRTL ? 'مسح البحث' : 'Clear search'">
+          <mat-icon>close</mat-icon>
+        </button>
+      </mat-form-field>
+
+      <!-- Selection Summary -->
+      <div *ngIf="showSummary && (selectedGovernorate || selectedRegion)" class="selection-summary">
+        <div class="summary-card">
+          <h4 class="summary-title">
+            {{ isRTL ? 'الموقع المحدد' : 'Selected Location' }}
+          </h4>
+
+          <div class="summary-content">
+            <div *ngIf="selectedGovernorateData" class="governorate-summary">
+              <span class="label">{{ isRTL ? 'المحافظة:' : 'Governorate:' }}</span>
+              <span class="value">{{ isRTL ? selectedGovernorateData.nameAr : selectedGovernorateData.nameEn }}</span>
+            </div>
+
+            <div *ngIf="selectedRegionData" class="region-summary">
+              <span class="label">{{ isRTL ? 'المنطقة:' : 'Region:' }}</span>
+              <span class="value">{{ isRTL ? selectedRegionData.nameAr : selectedRegionData.nameEn }}</span>
+            </div>
+
+            <div *ngIf="showShippingInfo && selectedGovernorateData" class="shipping-summary">
+              <div class="shipping-details">
+                <span class="label">{{ isRTL ? 'منطقة الشحن:' : 'Shipping Zone:' }}</span>
+                <span class="value">{{ selectedGovernorateData.shippingZone }}</span>
+              </div>
+              <div class="delivery-details">
+                <span class="label">{{ isRTL ? 'وقت التسليم:' : 'Delivery Time:' }}</span>
+                <span class="value">{{ selectedGovernorateData.deliveryTime }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Error Display -->
+      <div *ngIf="errorMessage" class="error-message">
+        <mat-icon>error</mat-icon>
+        <span>{{ errorMessage }}</span>
+      </div>
+    </div>

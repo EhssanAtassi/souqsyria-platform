@@ -1,0 +1,255 @@
+/**
+ * Sidebar Featured Products Styles
+ *
+ * Compact product cards optimized for sidebar placement.
+ * Uses Golden Wheat design system with RTL support.
+ */
+
+@import '../../styles/variables';
+@import '../../styles/mixins';
+
+.sidebar-featured {
+  background: $charcoal-light;
+  border-radius: $border-radius-lg;
+  box-shadow: $shadow-md;
+  overflow: hidden;
+
+  /**
+   * Section Header
+   */
+  &__header {
+    padding: $space-4;
+    background: linear-gradient(135deg, $golden-wheat-primary 0%, $golden-wheat-medium 100%);
+    border-bottom: 2px solid $golden-wheat-dark;
+  }
+
+  &__title {
+    margin: 0;
+    font-size: $font-size-lg;
+    font-weight: $font-weight-bold;
+    color: $charcoal-light;
+    text-align: center;
+  }
+
+  /**
+   * Products List Container
+   */
+  &__list {
+    padding: $space-2;
+    display: flex;
+    flex-direction: column;
+    gap: $space-2;
+  }
+
+  /**
+   * Individual Product Item
+   */
+  &__item {
+    display: flex;
+    gap: $space-3;
+    padding: $space-3;
+    background: $charcoal-light;
+    border-radius: $border-radius-md;
+    border: 1px solid rgba($golden-wheat-primary, 0.2);
+    transition: all $transition-normal $ease-in-out;
+    text-decoration: none;
+    color: inherit;
+
+    &:hover {
+      transform: translateX(-4px);
+      box-shadow: $shadow-md;
+      border-color: $golden-wheat-primary;
+
+      .sidebar-featured__image img {
+        transform: scale(1.05);
+      }
+    }
+
+    // RTL hover direction
+    .rtl-mode & {
+      &:hover {
+        transform: translateX(4px);
+      }
+    }
+
+    &:active {
+      transform: translateX(-2px);
+
+      .rtl-mode & {
+        transform: translateX(2px);
+      }
+    }
+  }
+
+  /**
+   * Product Image Container
+   * Fallback: Golden Wheat gradient for missing images
+   */
+  &__image {
+    position: relative;
+    flex-shrink: 0;
+    width: 80px;
+    height: 80px;
+    border-radius: $border-radius-md;
+    overflow: hidden;
+    // Fallback Golden Wheat gradient background
+    background: linear-gradient(135deg,
+      $golden-wheat-light 0%,
+      $golden-wheat-medium 100%
+    );
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform $transition-normal $ease-in-out;
+
+      // Hide broken or missing images to show gradient fallback
+      &[src=""],
+      &:not([src]),
+      &[src*="placeholder"] {
+        opacity: 0;
+        visibility: hidden;
+      }
+    }
+  }
+
+  /**
+   * Discount Badge
+   */
+  &__badge {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    background: $umber-light;
+    color: $charcoal-light;
+    font-size: $font-size-xs;
+    font-weight: $font-weight-bold;
+    padding: 2px 6px;
+    border-radius: $border-radius-sm;
+    box-shadow: $shadow-sm;
+
+    .rtl-mode & {
+      right: auto;
+      left: 4px;
+    }
+  }
+
+  /**
+   * Product Info Container
+   */
+  &__info {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: $space-1;
+    flex: 1;
+    min-width: 0; // Prevent flex overflow
+  }
+
+  /**
+   * Product Name
+   */
+  &__name {
+    margin: 0;
+    font-size: $font-size-sm;
+    font-weight: $font-weight-semibold;
+    color: $charcoal-dark;
+    line-height: $line-height-tight;
+    @include text-truncate(2); // Max 2 lines
+  }
+
+  /**
+   * Price Container
+   */
+  &__price {
+    display: flex;
+    align-items: center;
+    gap: $space-2;
+    flex-wrap: wrap;
+  }
+
+  /**
+   * Current Price
+   */
+  &__price-current {
+    font-size: $font-size-base;
+    font-weight: $font-weight-bold;
+    color: $golden-wheat-primary;
+  }
+
+  /**
+   * Original Price (strikethrough)
+   */
+  &__price-original {
+    font-size: $font-size-sm;
+    font-weight: $font-weight-normal;
+    color: $charcoal-medium;
+    text-decoration: line-through;
+  }
+
+  /**
+   * Empty State
+   */
+  &__empty {
+    padding: $space-8 $space-4;
+    text-align: center;
+
+    p {
+      margin: 0;
+      font-size: $font-size-sm;
+      color: $charcoal-medium;
+    }
+  }
+
+  /**
+   * Mobile Optimizations
+   */
+  @media (max-width: $breakpoint-sm) {
+    &__item {
+      gap: $space-2;
+      padding: $space-2;
+
+      &:hover {
+        transform: none; // Disable transform on mobile
+      }
+    }
+
+    &__image {
+      width: 60px;
+      height: 60px;
+    }
+
+    &__name {
+      font-size: $font-size-xs;
+    }
+
+    &__price-current {
+      font-size: $font-size-sm;
+    }
+
+    &__price-original {
+      font-size: $font-size-xs;
+    }
+  }
+
+  /**
+   * Accessibility - Focus States
+   */
+  &__item:focus-visible {
+    @include focus-ring;
+  }
+
+  /**
+   * Print Styles
+   */
+  @media print {
+    box-shadow: none;
+    border: 1px solid $charcoal-medium;
+
+    &__item:hover {
+      transform: none;
+      box-shadow: none;
+    }
+  }
+}

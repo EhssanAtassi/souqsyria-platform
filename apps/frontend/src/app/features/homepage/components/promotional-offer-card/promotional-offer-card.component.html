@@ -1,0 +1,27 @@
+<!-- Promotional Offer Card -->
+<a
+  [routerLink]="offer().targetUrl"
+  class="promo-card"
+  [ngStyle]="getBackgroundStyle()">
+
+  <!-- Discount Badge (Top-Right Circular) -->
+  <div class="discount-badge" [ngStyle]="getBadgeStyle()">
+    @for (line of getBadgeLines(); track $index) {
+      <span class="badge-line">{{ line }}</span>
+    }
+  </div>
+
+  <!-- Content Overlay (Bottom) -->
+  <div class="promo-content">
+    <!-- Title -->
+    <h3 class="promo-title">{{ offer().title }}</h3>
+    <p class="promo-title-ar">{{ offer().titleAr }}</p>
+
+    <!-- Description -->
+    <p class="promo-description">{{ offer().description }}</p>
+    <p class="promo-description-ar">{{ offer().descriptionAr }}</p>
+  </div>
+
+  <!-- Hover Overlay -->
+  <div class="hover-overlay"></div>
+</a>

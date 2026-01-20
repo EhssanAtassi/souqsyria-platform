@@ -1,0 +1,27 @@
+<section class="admin-profile" *ngIf="admin() as profile; else noProfile">
+  <header class="admin-profile__header">
+    <div class="admin-profile__avatar">{{ profile.firstName.charAt(0) }}{{ profile.lastName.charAt(0) }}</div>
+    <div>
+      <h2>{{ profile.firstName }} {{ profile.lastName }}</h2>
+      <p>{{ profile.email }}</p>
+      <p class="admin-profile__role">{{ profile.role | uppercase }}</p>
+    </div>
+  </header>
+
+  <section class="admin-profile__details">
+    <article>
+      <h3>Contact</h3>
+      <p>Phone: {{ profile.phoneNumber ?? '—' }}</p>
+      <p>Department: {{ profile.department ?? '—' }}</p>
+    </article>
+    <article>
+      <h3>Security</h3>
+      <p>Two-factor authentication: {{ profile.twoFactorEnabled ? 'Enabled' : 'Disabled' }}</p>
+      <p>Last login: {{ profile.lastLoginAt ? (profile.lastLoginAt | date:'medium') : '—' }}</p>
+    </article>
+  </section>
+</section>
+
+<ng-template #noProfile>
+  <p class="admin-profile__empty">Sign in to view profile details.</p>
+</ng-template>

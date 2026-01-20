@@ -1,0 +1,326 @@
+<div class="contact-page">
+  <!-- Hero Section -->
+  <section class="hero-section">
+    <div class="container mx-auto px-4 py-16 text-center">
+      <h1 class="hero-title">Contact Us</h1>
+      <h2 class="hero-subtitle-ar">اتصل بنا</h2>
+      <p class="hero-description">
+        We're here to help with your questions about Syrian authentic products
+      </p>
+      <div class="divider"></div>
+    </div>
+  </section>
+
+  <!-- Contact Information Section -->
+  <section class="contact-info-section">
+    <div class="container mx-auto px-4 py-12">
+      <div class="info-grid">
+        <!-- Damascus Office -->
+        <mat-card class="office-card">
+          <div class="office-icon damascus">
+            <mat-icon>location_city</mat-icon>
+          </div>
+          <mat-card-header>
+            <mat-card-title>Damascus Office</mat-card-title>
+            <mat-card-subtitle>مكتب دمشق</mat-card-subtitle>
+          </mat-card-header>
+          <mat-card-content>
+            <div class="info-item">
+              <mat-icon>location_on</mat-icon>
+              <div>
+                <strong>Address:</strong>
+                <p>Mazzeh Street, Al-Jalaa Building<br>Damascus, Syria</p>
+                <p class="arabic-text">شارع المزة، مبنى الجلاء<br>دمشق، سوريا</p>
+              </div>
+            </div>
+            <div class="info-item">
+              <mat-icon>phone</mat-icon>
+              <div>
+                <strong>Phone:</strong>
+                <p><a href="tel:+963112345678">+963 11 234 5678</a></p>
+              </div>
+            </div>
+            <div class="info-item">
+              <mat-icon>schedule</mat-icon>
+              <div>
+                <strong>Hours:</strong>
+                <p>Sun-Thu: 9:00 AM - 6:00 PM<br>Fri-Sat: Closed</p>
+              </div>
+            </div>
+          </mat-card-content>
+        </mat-card>
+
+        <!-- Aleppo Office -->
+        <mat-card class="office-card">
+          <div class="office-icon aleppo">
+            <mat-icon>store</mat-icon>
+          </div>
+          <mat-card-header>
+            <mat-card-title>Aleppo Office</mat-card-title>
+            <mat-card-subtitle>مكتب حلب</mat-card-subtitle>
+          </mat-card-header>
+          <mat-card-content>
+            <div class="info-item">
+              <mat-icon>location_on</mat-icon>
+              <div>
+                <strong>Address:</strong>
+                <p>Old City Souq, Artisan Quarter<br>Aleppo, Syria</p>
+                <p class="arabic-text">سوق المدينة القديمة، حي الحرفيين<br>حلب، سوريا</p>
+              </div>
+            </div>
+            <div class="info-item">
+              <mat-icon>phone</mat-icon>
+              <div>
+                <strong>Phone:</strong>
+                <p><a href="tel:+963212345678">+963 21 234 5678</a></p>
+              </div>
+            </div>
+            <div class="info-item">
+              <mat-icon>schedule</mat-icon>
+              <div>
+                <strong>Hours:</strong>
+                <p>Sun-Thu: 9:00 AM - 6:00 PM<br>Fri-Sat: Closed</p>
+              </div>
+            </div>
+          </mat-card-content>
+        </mat-card>
+
+        <!-- Customer Support -->
+        <mat-card class="office-card">
+          <div class="office-icon support">
+            <mat-icon>support_agent</mat-icon>
+          </div>
+          <mat-card-header>
+            <mat-card-title>Customer Support</mat-card-title>
+            <mat-card-subtitle>خدمة العملاء</mat-card-subtitle>
+          </mat-card-header>
+          <mat-card-content>
+            <div class="info-item">
+              <mat-icon>email</mat-icon>
+              <div>
+                <strong>General Inquiries:</strong>
+                <p><a href="mailto:info@souqsyria.com">info&#64;souqsyria.com</a></p>
+              </div>
+            </div>
+            <div class="info-item">
+              <mat-icon>shopping_cart</mat-icon>
+              <div>
+                <strong>Sales & Orders:</strong>
+                <p><a href="mailto:sales@souqsyria.com">sales&#64;souqsyria.com</a></p>
+              </div>
+            </div>
+            <div class="info-item">
+              <mat-icon>help</mat-icon>
+              <div>
+                <strong>Support:</strong>
+                <p><a href="mailto:support@souqsyria.com">support&#64;souqsyria.com</a></p>
+              </div>
+            </div>
+          </mat-card-content>
+        </mat-card>
+      </div>
+    </div>
+  </section>
+
+  <!-- Contact Form Section -->
+  <section class="contact-form-section">
+    <div class="container mx-auto px-4 py-12">
+      <div class="form-container">
+        <div class="form-header">
+          <h2 class="form-title">Send Us a Message</h2>
+          <p class="form-subtitle">أرسل لنا رسالة</p>
+          <p class="form-description">
+            Have questions about our products, shipping, or authenticity verification?
+            Fill out the form below and we'll get back to you within 24 hours.
+          </p>
+        </div>
+
+        <form [formGroup]="contactForm" (ngSubmit)="onSubmit()" class="contact-form">
+          <!-- Name Field -->
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Full Name</mat-label>
+            <input matInput formControlName="fullName" placeholder="Ahmad Hassan">
+            <mat-icon matPrefix>person</mat-icon>
+            @if (contactForm.get('fullName')?.hasError('required') && contactForm.get('fullName')?.touched) {
+              <mat-error>Full name is required</mat-error>
+            }
+            @if (contactForm.get('fullName')?.hasError('minlength')) {
+              <mat-error>Name must be at least 3 characters</mat-error>
+            }
+          </mat-form-field>
+
+          <!-- Email Field -->
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Email Address</mat-label>
+            <input matInput formControlName="email" type="email" placeholder="ahmad@example.com">
+            <mat-icon matPrefix>email</mat-icon>
+            @if (contactForm.get('email')?.hasError('required') && contactForm.get('email')?.touched) {
+              <mat-error>Email is required</mat-error>
+            }
+            @if (contactForm.get('email')?.hasError('email')) {
+              <mat-error>Please enter a valid email address</mat-error>
+            }
+          </mat-form-field>
+
+          <!-- Phone Field -->
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Phone Number</mat-label>
+            <input matInput formControlName="phone" placeholder="+963 991 234 567">
+            <mat-icon matPrefix>phone</mat-icon>
+            <mat-hint>Format: +963 XXX XXX XXX</mat-hint>
+            @if (contactForm.get('phone')?.hasError('required') && contactForm.get('phone')?.touched) {
+              <mat-error>Phone number is required</mat-error>
+            }
+            @if (contactForm.get('phone')?.hasError('pattern')) {
+              <mat-error>Please enter a valid Syrian phone number (+963)</mat-error>
+            }
+          </mat-form-field>
+
+          <!-- Governorate Field -->
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Governorate</mat-label>
+            <mat-select formControlName="governorate">
+              @for (gov of syrianGovernorates(); track gov.value) {
+                <mat-option [value]="gov.value">
+                  {{ gov.nameEn }} - {{ gov.nameAr }}
+                </mat-option>
+              }
+            </mat-select>
+            <mat-icon matPrefix>location_on</mat-icon>
+            @if (contactForm.get('governorate')?.hasError('required') && contactForm.get('governorate')?.touched) {
+              <mat-error>Please select your governorate</mat-error>
+            }
+          </mat-form-field>
+
+          <!-- Subject Field -->
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Subject</mat-label>
+            <mat-select formControlName="subject">
+              <mat-option value="general">General Inquiry</mat-option>
+              <mat-option value="product">Product Information</mat-option>
+              <mat-option value="order">Order Status</mat-option>
+              <mat-option value="shipping">Shipping & Delivery</mat-option>
+              <mat-option value="authenticity">Authenticity Verification</mat-option>
+              <mat-option value="partnership">Business Partnership</mat-option>
+              <mat-option value="technical">Technical Support</mat-option>
+              <mat-option value="feedback">Feedback & Suggestions</mat-option>
+            </mat-select>
+            <mat-icon matPrefix>subject</mat-icon>
+            @if (contactForm.get('subject')?.hasError('required') && contactForm.get('subject')?.touched) {
+              <mat-error>Please select a subject</mat-error>
+            }
+          </mat-form-field>
+
+          <!-- Message Field -->
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Message</mat-label>
+            <textarea
+              matInput
+              formControlName="message"
+              rows="6"
+              placeholder="Tell us how we can help you..."></textarea>
+            <mat-icon matPrefix>message</mat-icon>
+            <mat-hint align="end">{{ contactForm.get('message')?.value?.length || 0 }} / 500</mat-hint>
+            @if (contactForm.get('message')?.hasError('required') && contactForm.get('message')?.touched) {
+              <mat-error>Message is required</mat-error>
+            }
+            @if (contactForm.get('message')?.hasError('minlength')) {
+              <mat-error>Message must be at least 10 characters</mat-error>
+            }
+            @if (contactForm.get('message')?.hasError('maxlength')) {
+              <mat-error>Message cannot exceed 500 characters</mat-error>
+            }
+          </mat-form-field>
+
+          <!-- Submit Button -->
+          <div class="form-actions">
+            <button
+              mat-raised-button
+              color="primary"
+              type="submit"
+              [disabled]="contactForm.invalid || isSubmitting()"
+              class="submit-button">
+              @if (isSubmitting()) {
+                <ng-container>
+                  <mat-icon class="spinner">hourglass_empty</mat-icon>
+                  Sending...
+                </ng-container>
+              } @else {
+                <ng-container>
+                  <mat-icon>send</mat-icon>
+                  Send Message
+                </ng-container>
+              }
+            </button>
+
+            @if (submitSuccess()) {
+              <div class="success-message">
+                <mat-icon>check_circle</mat-icon>
+                <span>Message sent successfully! We'll respond within 24 hours.</span>
+              </div>
+            }
+
+            @if (submitError()) {
+              <div class="error-message">
+                <mat-icon>error</mat-icon>
+                <span>{{ submitError() }}</span>
+              </div>
+            }
+          </div>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <!-- Social Media Section -->
+  <section class="social-section">
+    <div class="container mx-auto px-4 py-12 text-center">
+      <h2 class="section-title">Connect With Us</h2>
+      <p class="section-description">تواصل معنا</p>
+      <div class="social-links">
+        <a href="https://facebook.com/souqsyria" target="_blank" rel="noopener" class="social-link facebook">
+          <mat-icon svgIcon="facebook"></mat-icon>
+          <span>Facebook</span>
+        </a>
+        <a href="https://instagram.com/souqsyria" target="_blank" rel="noopener" class="social-link instagram">
+          <mat-icon svgIcon="instagram"></mat-icon>
+          <span>Instagram</span>
+        </a>
+        <a href="https://wa.me/963991234567" target="_blank" rel="noopener" class="social-link whatsapp">
+          <mat-icon>whatsapp</mat-icon>
+          <span>WhatsApp</span>
+        </a>
+        <a href="https://twitter.com/souqsyria" target="_blank" rel="noopener" class="social-link twitter">
+          <mat-icon svgIcon="twitter"></mat-icon>
+          <span>Twitter</span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ Quick Links -->
+  <section class="faq-section">
+    <div class="container mx-auto px-4 py-12 text-center">
+      <h2 class="section-title">Frequently Asked Questions</h2>
+      <p class="section-description">Find quick answers to common questions</p>
+      <div class="faq-links">
+        <button mat-stroked-button routerLink="/help" class="faq-link">
+          <mat-icon>local_shipping</mat-icon>
+          Shipping Info
+        </button>
+        <button mat-stroked-button routerLink="/help" class="faq-link">
+          <mat-icon>verified</mat-icon>
+          Authenticity
+        </button>
+        <button mat-stroked-button routerLink="/help" class="faq-link">
+          <mat-icon>payment</mat-icon>
+          Payment Methods
+        </button>
+        <button mat-stroked-button routerLink="/help" class="faq-link">
+          <mat-icon>cached</mat-icon>
+          Returns & Refunds
+        </button>
+      </div>
+    </div>
+  </section>
+</div>

@@ -1,0 +1,390 @@
+/**
+ * SouqSyria Syrian Marketplace Homepage Styles
+ * 
+ * Authentic Syrian marketplace design with cultural colors and patterns
+ * Features promotional grid, navigation, and bilingual support
+ * Implements Syrian flag colors and traditional marketplace aesthetics
+ */
+
+// HOST ELEMENT STYLING - HOMEPAGE WRAPPER
+:host {
+  display: block;
+  margin: 0;
+  padding: 0;
+  width: 100%;
+}
+
+.homepage-wrapper {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+}
+
+// Syrian Marketplace Color Palette
+:root {
+  // Primary Syrian Colors
+  --syrian-red: #C41E3A;
+  --syrian-navy: #1E3A8A;
+  --gold-400: #FBBF24;
+  --gold-500: #D4AF37;
+  --gold-600: #B8941F;
+  
+  // Secondary Colors
+  --cream-50: #FAF7F0;
+  --cream-100: #F5F5DC;
+  --cream-200: #E8E5D8;
+  --warm-gray: #6B7280;
+  --warm-gray-100: #F3F4F6;
+  --warm-gray-200: #E5E7EB;
+  
+  // Accent Colors
+  --emerald-600: #059669;
+  --burnt-orange: #EA580C;
+}
+
+
+.homepage-container {
+  min-height: auto;
+  font-family: 'Inter', 'Cairo', sans-serif;
+  padding-top: 0;
+  margin-top: 0;
+  
+  // Syrian Gradient Background
+  .syrian-gradient {
+    background: linear-gradient(135deg, var(--syrian-red) 0%, #8B0000 50%, var(--syrian-navy) 100%);
+    position: relative;
+    
+    // Traditional Syrian Damascus Pattern
+    .damascus-pattern {
+      background-image: 
+        radial-gradient(circle at 25% 25%, rgba(251, 191, 36, 0.1) 0%, transparent 50%),
+        radial-gradient(circle at 75% 75%, rgba(251, 191, 36, 0.1) 0%, transparent 50%),
+        repeating-linear-gradient(45deg, 
+          rgba(255, 255, 255, 0.02) 0px, 
+          rgba(255, 255, 255, 0.02) 2px, 
+          transparent 2px, 
+          transparent 20px);
+      background-size: 80px 80px, 120px 120px, 40px 40px;
+      animation: damascusPattern 20s linear infinite;
+    }
+    
+    &::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(45deg, 
+        rgba(212, 175, 55, 0.1) 0%, 
+        transparent 25%, 
+        rgba(196, 30, 58, 0.1) 50%, 
+        transparent 75%, 
+        rgba(212, 175, 55, 0.1) 100%);
+      pointer-events: none;
+    }
+  }
+
+  // Color Utility Classes
+  .text-gold-400 { color: var(--gold-400); }
+  .text-gold-300 { color: #FCD34D; }
+  .text-cream-200 { color: var(--cream-200); }
+  .text-syrian-red { color: var(--syrian-red); }
+  .text-syrian-navy { color: var(--syrian-navy); }
+  .text-warm-gray { color: var(--warm-gray); }
+  
+  .bg-gold-500 { background-color: var(--gold-500); }
+  .bg-gold-600 { background-color: var(--gold-600); }
+  .bg-syrian-red { background-color: var(--syrian-red); }
+  .bg-cream-50 { background-color: var(--cream-50); }
+  .bg-cream-100 { background-color: var(--cream-100); }
+  .bg-gold-100 { background-color: #FEF3C7; }
+  .border-warm-gray-200 { border-color: var(--warm-gray-200); }
+  .border-warm-gray-100 { border-color: var(--warm-gray-100); }
+
+
+  // Promotional Categories Grid
+  .promotional-grid-section {
+    .category-card {
+      border: 1px solid var(--warm-gray-100);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      
+      &:hover {
+        border-color: var(--gold-500);
+        box-shadow: 0 8px 25px rgba(212, 175, 55, 0.15);
+        transform: translateY(-2px) scale(1.02);
+      }
+      
+      .category-icon {
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+        transition: transform 0.3s ease;
+        
+        &:hover {
+          transform: scale(1.1);
+        }
+      }
+    }
+  }
+
+  // Quick Navigation
+  .category-navigation {
+    backdrop-filter: blur(10px);
+    background: rgba(245, 245, 220, 0.95);
+    
+    .category-nav-btn {
+      border: 1px solid transparent;
+      transition: all 0.2s ease;
+      
+      &.active {
+        box-shadow: 0 2px 8px rgba(196, 30, 58, 0.3);
+        border-color: rgba(196, 30, 58, 0.2);
+      }
+      
+      &:not(.active) {
+        &:hover {
+          background: #FEF3C7;
+          border-color: var(--gold-400);
+          transform: translateY(-1px);
+        }
+      }
+      
+      mat-icon {
+        font-size: 14px;
+        width: 14px;
+        height: 14px;
+      }
+    }
+    
+    // Hide scrollbar for horizontal scroll
+    .scrollbar-hide {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+      
+      &::-webkit-scrollbar {
+        display: none;
+      }
+    }
+  }
+
+  // Product Grid Enhancements
+  .product-grid-section {
+    .product-card {
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      
+      &:hover {
+        border-color: var(--gold-500);
+        box-shadow: 0 12px 30px rgba(212, 175, 55, 0.15);
+        transform: translateY(-3px);
+      }
+      
+      .pricing {
+        .line-through {
+          position: relative;
+          
+          &::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: var(--syrian-red);
+            transform: translateY(-50%) rotate(-8deg);
+          }
+        }
+      }
+      
+      button {
+        transition: all 0.2s ease;
+        font-weight: 600;
+        
+        &:hover {
+          transform: translateY(-1px);
+          box-shadow: 0 4px 12px rgba(212, 175, 55, 0.3);
+        }
+        
+        &:active {
+          transform: translateY(0);
+        }
+      }
+    }
+  }
+}
+
+// Animation Keyframes
+@keyframes damascusPattern {
+  0% {
+    background-position: 0 0, 0 0, 0 0;
+  }
+  100% {
+    background-position: 80px 80px, 120px 120px, 40px 40px;
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideInFromRight {
+  from {
+    transform: translateX(50px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+// Responsive Design
+@media (max-width: 768px) {
+  .homepage-container {
+    
+    .promotional-grid-section {
+      padding: 1rem 0;
+      
+      .grid {
+        gap: 0.75rem;
+      }
+      
+      .category-card {
+        .p-3 {
+          padding: 0.75rem;
+        }
+        
+        h3 {
+          font-size: 0.75rem;
+        }
+      }
+    }
+    
+    .product-grid-section {
+      padding: 1rem 0;
+      
+      .grid {
+        gap: 0.75rem;
+      }
+      
+      .product-card {
+        .p-3 {
+          padding: 0.75rem;
+        }
+      }
+    }
+  }
+}
+
+@media (max-width: 640px) {
+  .homepage-container {
+    
+    .category-navigation {
+      .category-nav-btn {
+        padding: 0.375rem 0.75rem;
+        font-size: 0.75rem;
+        
+        mat-icon {
+          font-size: 12px;
+          width: 12px;
+          height: 12px;
+        }
+      }
+    }
+  }
+}
+
+// Focus States for Accessibility
+.homepage-container {
+  .cta-btn,
+  .category-card,
+  .category-nav-btn,
+  .product-card,
+  button {
+    &:focus-visible {
+      outline: 2px solid var(--gold-500);
+      outline-offset: 2px;
+    }
+  }
+  
+  .product-card:focus-visible {
+    outline: 3px solid var(--gold-500);
+    outline-offset: 4px;
+  }
+}
+
+// Arabic Text Support
+.text-arabic {
+  font-family: 'Cairo', 'Noto Sans Arabic', sans-serif;
+  direction: rtl;
+  text-align: right;
+  font-feature-settings: "liga" 1, "kern" 1;
+  text-rendering: optimizeLegibility;
+}
+
+.text-bilingual {
+  .english {
+    font-family: 'Inter', 'Poppins', sans-serif;
+    direction: ltr;
+  }
+  
+  .arabic {
+    font-family: 'Cairo', 'Noto Sans Arabic', sans-serif;
+    direction: rtl;
+    font-size: 0.9em;
+    opacity: 0.9;
+  }
+}
+
+// Loading State Animations
+.loading-state {
+  .category-card,
+  .product-card {
+    .skeleton {
+      background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+      background-size: 200% 100%;
+      animation: loading 1.5s infinite;
+    }
+  }
+}
+
+@keyframes loading {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+// Utility for line clamping
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+// Syrian Market Theme Classes
+.syrian-theme {
+  .damascus-gold {
+    background: linear-gradient(135deg, var(--gold-400) 0%, var(--gold-500) 100%);
+    color: var(--syrian-red);
+  }
+  
+  .aleppo-red {
+    background: linear-gradient(135deg, var(--syrian-red) 0%, #8B0000 100%);
+    color: white;
+  }
+  
+  .syrian-navy {
+    background: linear-gradient(135deg, var(--syrian-navy) 0%, #1E40AF 100%);
+    color: white;
+  }
+}

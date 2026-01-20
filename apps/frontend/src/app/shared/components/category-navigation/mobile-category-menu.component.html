@@ -1,0 +1,371 @@
+<!-- SouqSyria Mobile Category Menu Component -->
+<!-- Mobile-optimized side navigation with categories and user options -->
+
+<mat-sidenav-container class="sq-mobile-sidenav-container" *ngIf="isOpen">
+  
+  <!-- Mobile Navigation Sidebar -->
+  <mat-sidenav 
+    #mobileNav
+    [opened]="isOpen"
+    mode="over"
+    position="start"
+    class="sq-mobile-nav w-80 max-w-[85vw] bg-white"
+    [attr.dir]="config.rtl ? 'rtl' : 'ltr'"
+    (closedStart)="closeMenu()"
+    (openedStart)="onSidenavOpened()"
+    [fixedInViewport]="true"
+    [fixedTopGap]="0"
+    [fixedBottomGap]="0"
+    role="navigation"
+    [attr.aria-label]="config.language === 'ar' ? 'قائمة التنقل الرئيسية' : 'Main navigation menu'"
+  >
+    
+    <!-- Mobile Nav Header -->
+    <div class="sq-mobile-nav-header bg-primary-600 text-white p-4 relative">
+      <div class="flex items-center justify-between">
+        
+        <!-- Logo and Branding -->
+        <div class="flex items-center space-x-3 rtl:space-x-reverse">
+          <div class="w-10 h-10 bg-white rounded-lg flex items-center justify-center">
+            <mat-icon class="text-primary-600" aria-hidden="true">storefront</mat-icon>
+          </div>
+          <div>
+            <h2 class="font-display font-bold text-lg">SouqSyria</h2>
+            <p class="text-primary-200 text-sm">
+              {{ config.language === 'ar' ? 'سوق سوريا' : 'Syrian Marketplace' }}
+            </p>
+          </div>
+        </div>
+        
+        <!-- Close Button -->
+        <button 
+          mat-icon-button 
+          (click)="closeMenu()" 
+          class="text-white hover:bg-primary-700 rounded-full"
+          [attr.aria-label]="config.language === 'ar' ? 'إغلاق القائمة' : 'Close menu'"
+        >
+          <mat-icon>close</mat-icon>
+        </button>
+      </div>
+      
+      <!-- Background Pattern -->
+      <div class="absolute inset-0 opacity-10 pointer-events-none">
+        <div class="w-full h-full bg-gradient-to-br from-white/20 to-transparent"></div>
+      </div>
+    </div>
+    
+    <!-- Mobile Nav Content -->
+    <div class="sq-mobile-nav-content flex-1 overflow-y-auto">
+      
+      <!-- User Section -->
+      <div class="border-b border-gray-200 p-4">
+        
+        <!-- Not Logged In -->
+        <div *ngIf="!user.isLoggedIn" class="text-center">
+          <button 
+            mat-raised-button 
+            color="primary"
+            class="w-full mb-3 font-medium"
+            (click)="onLoginClick()"
+            [attr.aria-label]="config.language === 'ar' ? 'دخول أو تسجيل حساب جديد' : 'Sign in or create account'"
+          >
+            <mat-icon class="mr-2 rtl:mr-0 rtl:ml-2" aria-hidden="true">account_circle</mat-icon>
+            {{ config.language === 'ar' ? 'دخول / تسجيل' : 'Sign In / Register' }}
+          </button>
+          
+          <p class="text-sm text-neutral-600">
+            {{ config.language === 'ar' ? 'سجل دخولك للحصول على تجربة أفضل' : 'Sign in for a better experience' }}
+          </p>
+        </div>
+        
+        <!-- Logged In User -->
+        <div *ngIf="user.isLoggedIn" class="space-y-3">
+          
+          <!-- User Info -->
+          <div class="flex items-center space-x-3 rtl:space-x-reverse">
+            <div class="w-12 h-12 bg-primary-600 rounded-full flex items-center justify-center flex-shrink-0">
+              <mat-icon class="text-white" aria-hidden="true">person</mat-icon>
+            </div>
+            <div class="flex-1 min-w-0">
+              <p class="font-medium text-neutral-900 truncate">{{ user.name || 'User' }}</p>
+              <p class="text-sm text-neutral-500 truncate">{{ user.email }}</p>
+            </div>
+          </div>
+          
+          <!-- User Quick Actions -->
+          <div class="grid grid-cols-2 gap-2">
+            <button 
+              *ngFor="let option of userMenuOptions.slice(0, 4)"
+              mat-stroked-button 
+              class="text-xs p-2 h-auto"
+              [routerLink]="option.url"
+              (click)="closeMenu()"
+              [attr.aria-label]="getUserMenuText(option)"
+            >
+              <div class="flex flex-col items-center space-y-1">
+                <mat-icon class="text-sm" [attr.class]="option.id === 'orders' ? 'text-primary-600' : 'text-neutral-600'">
+                  {{ option.icon }}
+                </mat-icon>
+                <span class="leading-none">{{ getUserMenuText(option) }}</span>
+              </div>
+            </button>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Quick Links Section -->
+      <div class="p-4 border-b border-gray-200">
+        <h3 class="font-medium text-neutral-900 mb-3 text-sm uppercase tracking-wide">
+          {{ config.language === 'ar' ? 'روابط سريعة' : 'Quick Links' }}
+        </h3>
+        
+        <div class="space-y-2">
+          <button 
+            *ngFor="let link of quickLinks"
+            mat-button 
+            class="w-full justify-start text-left rtl:text-right p-3 rounded-lg hover:bg-gray-50 transition-colors"
+            [routerLink]="link.url"
+            (click)="onQuickLinkClick(link.id)"
+            [attr.aria-label]="getQuickLinkText(link)"
+          >
+            <mat-icon 
+              class="mr-3 rtl:mr-0 rtl:ml-3 text-xl" 
+              [attr.class]="link.color"
+              aria-hidden="true"
+            >
+              {{ link.icon }}
+            </mat-icon>
+            <span class="font-medium">{{ getQuickLinkText(link) }}</span>
+            
+            <!-- Special Badge for Flash Sale -->
+            <span 
+              *ngIf="link.id === 'flash-sale'" 
+              class="ml-auto bg-red-500 text-white text-xs px-2 py-1 rounded-full rtl:ml-0 rtl:mr-auto animate-pulse"
+            >
+              {{ config.language === 'ar' ? 'ساخن' : 'HOT' }}
+            </span>
+          </button>
+        </div>
+      </div>
+      
+      <!-- Categories Section -->
+      <div class="p-4">
+        <h3 class="font-medium text-neutral-900 mb-4 flex items-center">
+          <mat-icon class="mr-2 rtl:mr-0 rtl:ml-2 text-primary-600" aria-hidden="true">apps</mat-icon>
+          {{ config.language === 'ar' ? 'الفئات' : 'Categories' }}
+        </h3>
+        
+        <!-- Category List with Expansion Panels -->
+        <div class="space-y-1">
+          <div 
+            *ngFor="let category of categories; trackBy: trackByCategory"
+            class="sq-mobile-category-item"
+          >
+            
+            <!-- Main Category Button -->
+            <button 
+              mat-button
+              class="w-full justify-between text-left rtl:text-right p-3 hover:bg-primary-50 transition-all duration-200 rounded-lg"
+              [class.bg-primary-50]="isCategoryExpanded(category.id)"
+              [class.text-primary-700]="isCategoryExpanded(category.id)"
+              (click)="onCategoryClick(category)"
+              [attr.aria-expanded]="isCategoryExpanded(category.id)"
+              [attr.aria-controls]="'subcategories-' + category.id"
+              [attr.aria-label]="getCategoryText(category) + (category.subcategories?.length ? ' - ' + (config.language === 'ar' ? 'يحتوي على فئات فرعية' : 'contains subcategories') : '')"
+            >
+              
+              <div class="flex items-center space-x-3 rtl:space-x-reverse flex-1">
+                <!-- Category Icon -->
+                <app-category-icon
+                  [category]="category"
+                  [size]="'md'"
+                  [color]="isCategoryExpanded(category.id) ? 'primary-600' : 'neutral-600'"
+                  class="flex-shrink-0"
+                ></app-category-icon>
+                
+                <!-- Category Name -->
+                <span class="font-medium flex-1">{{ getCategoryText(category) }}</span>
+              </div>
+              
+              <!-- Expansion Icon or Item Count -->
+              <div class="flex items-center space-x-2 rtl:space-x-reverse">
+                <span 
+                  *ngIf="category.subcategories?.length" 
+                  class="text-xs bg-gray-200 text-gray-700 px-2 py-1 rounded-full"
+                >
+                  {{ category.subcategories?.length }}
+                </span>
+                
+                <mat-icon 
+                  *ngIf="category.subcategories?.length" 
+                  class="text-neutral-400 transform transition-transform duration-200"
+                  [class.rotate-180]="isCategoryExpanded(category.id)"
+                  aria-hidden="true"
+                >
+                  expand_more
+                </mat-icon>
+              </div>
+            </button>
+            
+            <!-- Subcategories (Expandable) -->
+            <div 
+              *ngIf="category.subcategories?.length && isCategoryExpanded(category.id)"
+              [id]="'subcategories-' + category.id"
+              class="sq-subcategories-container ml-4 rtl:ml-0 rtl:mr-4 mt-2 space-y-1 border-l-2 border-primary-200 pl-4 rtl:border-l-0 rtl:border-r-2 rtl:pl-0 rtl:pr-4"
+              [@slideInOut]
+              role="group"
+              [attr.aria-labelledby]="category.id + '-header'"
+            >
+              <a 
+                *ngFor="let subcategory of category.subcategories; trackBy: trackBySubcategory"
+                [routerLink]="subcategory.url"
+                class="block py-2 px-3 text-sm text-neutral-600 hover:text-primary-600 hover:bg-primary-50 rounded-md transition-colors"
+                (click)="onSubcategoryClick(subcategory)"
+                [attr.aria-label]="getSubcategoryText(subcategory)"
+              >
+                <div class="flex items-center space-x-2 rtl:space-x-reverse">
+                  <mat-icon 
+                    *ngIf="subcategory.icon" 
+                    class="text-sm text-neutral-400"
+                    aria-hidden="true"
+                  >
+                    {{ subcategory.icon }}
+                  </mat-icon>
+                  <span>{{ getSubcategoryText(subcategory) }}</span>
+                </div>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Settings Section -->
+      <div class="border-t border-gray-200 p-4 space-y-4">
+        
+        <!-- Location Selection -->
+        <div>
+          <label class="block text-sm font-medium text-neutral-900 mb-2">
+            <mat-icon class="mr-1 rtl:mr-0 rtl:ml-1 text-sm" aria-hidden="true">location_on</mat-icon>
+            {{ config.language === 'ar' ? 'موقع التوصيل' : 'Delivery Location' }}
+          </label>
+          
+          <mat-form-field appearance="outline" class="w-full">
+            <mat-select 
+              [value]="selectedLocation"
+              (selectionChange)="onLocationSelect($event.value)"
+              [placeholder]="getCurrentLocationText()"
+              [attr.aria-label]="config.language === 'ar' ? 'اختر موقع التوصيل' : 'Select delivery location'"
+            >
+              <mat-option 
+                *ngFor="let location of locations"
+                [value]="location"
+              >
+                <div class="flex items-center justify-between">
+                  <span>{{ config.language === 'ar' ? location.nameAr : location.name }}</span>
+                  <mat-icon 
+                    *ngIf="!location.deliveryAvailable" 
+                    class="text-red-500 text-sm ml-2 rtl:ml-0 rtl:mr-2"
+                    [attr.aria-label]="config.language === 'ar' ? 'التوصيل غير متاح' : 'Delivery not available'"
+                  >
+                    warning
+                  </mat-icon>
+                </div>
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+        
+        <!-- Language Toggle -->
+        <div *ngIf="config.showArabic">
+          <label class="block text-sm font-medium text-neutral-900 mb-2">
+            <mat-icon class="mr-1 rtl:mr-0 rtl:ml-1 text-sm" aria-hidden="true">language</mat-icon>
+            {{ config.language === 'ar' ? 'اللغة' : 'Language' }}
+          </label>
+          
+          <mat-button-toggle-group 
+            [value]="config.language" 
+            (change)="onLanguageChange($event.value)"
+            class="w-full"
+            [attr.aria-label]="config.language === 'ar' ? 'اختر اللغة' : 'Select language'"
+          >
+            <mat-button-toggle 
+              value="en" 
+              class="flex-1 text-sm"
+              [attr.aria-label]="config.language === 'ar' ? 'الانجليزية' : 'English'"
+            >
+              <div class="flex items-center justify-center">
+                <span class="mr-1 rtl:mr-0 rtl:ml-1">🇺🇸</span>
+                English
+              </div>
+            </mat-button-toggle>
+            <mat-button-toggle 
+              value="ar" 
+              class="flex-1 text-sm"
+              [attr.aria-label]="config.language === 'ar' ? 'العربية' : 'Arabic'"
+            >
+              <div class="flex items-center justify-center">
+                <span class="mr-1 rtl:mr-0 rtl:ml-1">🇸🇾</span>
+                العربية
+              </div>
+            </mat-button-toggle>
+          </mat-button-toggle-group>
+        </div>
+      </div>
+      
+      <!-- Additional User Options (if logged in) -->
+      <div *ngIf="user.isLoggedIn" class="border-t border-gray-200 p-4 space-y-2">
+        
+        <!-- Remaining User Menu Options -->
+        <button 
+          *ngFor="let option of userMenuOptions.slice(4)"
+          mat-button 
+          class="w-full justify-start text-left rtl:text-right p-3 text-neutral-700 hover:bg-gray-50 rounded-lg"
+          [routerLink]="option.url"
+          (click)="closeMenu()"
+          [attr.aria-label]="getUserMenuText(option)"
+        >
+          <mat-icon class="mr-3 rtl:mr-0 rtl:ml-3 text-neutral-500" aria-hidden="true">
+            {{ option.icon }}
+          </mat-icon>
+          {{ getUserMenuText(option) }}
+        </button>
+        
+        <!-- Logout Button -->
+        <mat-divider class="my-2"></mat-divider>
+        
+        <button 
+          mat-button 
+          (click)="onLogoutClick()"
+          class="w-full justify-start text-left rtl:text-right p-3 text-red-600 hover:bg-red-50 rounded-lg"
+          [attr.aria-label]="config.language === 'ar' ? 'تسجيل الخروج من الحساب' : 'Sign out of account'"
+        >
+          <mat-icon class="mr-3 rtl:mr-0 rtl:ml-3" aria-hidden="true">logout</mat-icon>
+          {{ config.language === 'ar' ? 'تسجيل الخروج' : 'Sign Out' }}
+        </button>
+      </div>
+    </div>
+    
+  </mat-sidenav>
+  
+  <!-- Main Content (Empty - handled by parent) -->
+  <mat-sidenav-content>
+    <!-- Backdrop overlay -->
+    <div 
+      *ngIf="isOpen"
+      class="fixed inset-0 bg-black/50 backdrop-blur-sm z-10"
+      (click)="closeMenu()"
+      [@fadeInOut]
+      aria-hidden="true"
+    ></div>
+  </mat-sidenav-content>
+  
+</mat-sidenav-container>
+
+<!-- Overlay (when menu is open) -->
+<div 
+  *ngIf="isOpen"
+  class="fixed inset-0 bg-black/30 backdrop-blur-sm z-40 lg:hidden"
+  (click)="closeMenu()"
+  [@fadeInOut]
+  aria-hidden="true"
+></div>

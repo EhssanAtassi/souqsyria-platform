@@ -1,0 +1,604 @@
+/**
+ * Product Recommendations Carousel Component Styles
+ * Syrian Marketplace - Golden Wheat Theme
+ *
+ * Color Palette:
+ * - Golden Wheat Primary: #988561
+ * - Golden Wheat Secondary: #b9a779
+ * - Golden Wheat Light: #edebe0
+ * - Forest Dark: #2c3e2e
+ */
+
+// ==================== VARIABLES ====================
+
+$golden-wheat-primary: #988561;
+$golden-wheat-secondary: #b9a779;
+$golden-wheat-light: #edebe0;
+$forest-dark: #2c3e2e;
+$success-green: #059669;
+$error-red: #dc2626;
+
+// ==================== CONTAINER ====================
+
+.recommendations-container {
+  width: 100%;
+  margin: 2rem 0;
+  padding: 1.5rem;
+  background: linear-gradient(135deg, rgba($golden-wheat-light, 0.3) 0%, rgba(white, 1) 100%);
+  border-radius: 12px;
+  border: 1px solid rgba($golden-wheat-primary, 0.2);
+
+  // RTL support
+  &[dir="rtl"] {
+    direction: rtl;
+    text-align: right;
+
+    .recommendations-header {
+      flex-direction: row-reverse;
+    }
+
+    .view-all-btn {
+      flex-direction: row-reverse;
+    }
+
+    .product-info {
+      text-align: right;
+    }
+  }
+}
+
+// ==================== HEADER ====================
+
+.recommendations-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid $golden-wheat-primary;
+
+  .header-content {
+    flex: 1;
+  }
+
+  .recommendations-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: $forest-dark;
+    margin: 0;
+    font-family: 'Inter', sans-serif;
+
+    &.recommendations-title-ar {
+      font-family: 'Amiri', 'Arial Unicode MS', sans-serif;
+      font-size: 1.75rem;
+    }
+  }
+
+  .view-all-btn {
+    color: $golden-wheat-primary;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+
+    mat-icon {
+      transition: transform 0.3s ease;
+    }
+
+    &:hover {
+      background: rgba($golden-wheat-primary, 0.1);
+      color: darken($golden-wheat-primary, 10%);
+
+      mat-icon {
+        transform: translateX(4px);
+      }
+    }
+  }
+}
+
+// ==================== LOADING STATE ====================
+
+.recommendations-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 1rem;
+  gap: 1rem;
+
+  .loading-spinner {
+    ::ng-deep .mat-mdc-progress-spinner circle {
+      stroke: $golden-wheat-primary;
+    }
+  }
+
+  .loading-text {
+    color: $golden-wheat-secondary;
+    font-size: 0.875rem;
+    margin: 0;
+  }
+}
+
+// ==================== ERROR STATE ====================
+
+.recommendations-error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 1rem;
+  gap: 0.75rem;
+  background: rgba($error-red, 0.05);
+  border-radius: 8px;
+  border: 1px solid rgba($error-red, 0.2);
+
+  .error-icon {
+    font-size: 3rem;
+    width: 3rem;
+    height: 3rem;
+    color: $error-red;
+  }
+
+  .error-text {
+    color: $error-red;
+    font-size: 0.875rem;
+    margin: 0;
+  }
+}
+
+// ==================== CAROUSEL ====================
+
+.recommendations-carousel {
+  position: relative;
+
+  .recommendations-swiper {
+    padding: 0.5rem 0;
+
+    // Responsive slides per view
+    @media (min-width: 640px) {
+      --swiper-slides-per-view: 3;
+    }
+
+    @media (min-width: 1024px) {
+      --swiper-slides-per-view: 4;
+    }
+
+    @media (min-width: 1280px) {
+      --swiper-slides-per-view: 5;
+    }
+
+    // Swiper navigation buttons - Golden Wheat theme
+    ::ng-deep {
+      --swiper-navigation-color: #{$golden-wheat-primary};
+      --swiper-navigation-size: 32px;
+      --swiper-pagination-color: #{$golden-wheat-primary};
+
+      .swiper-button-next,
+      .swiper-button-prev {
+        background: white;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+        transition: all 0.3s ease;
+
+        &:after {
+          font-size: 18px;
+          font-weight: bold;
+        }
+
+        &:hover {
+          background: $golden-wheat-light;
+          box-shadow: 0 4px 12px rgba($golden-wheat-primary, 0.3);
+          transform: scale(1.1);
+        }
+
+        &.swiper-button-disabled {
+          opacity: 0.3;
+          cursor: not-allowed;
+        }
+      }
+
+      // RTL adjustments
+      [dir="rtl"] {
+        .swiper-button-next {
+          left: 10px;
+          right: auto;
+        }
+
+        .swiper-button-prev {
+          right: 10px;
+          left: auto;
+        }
+      }
+    }
+  }
+}
+
+// ==================== PRODUCT SLIDE ====================
+
+.product-slide {
+  height: auto;
+  display: flex;
+}
+
+.product-card {
+  background: white;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid rgba($golden-wheat-primary, 0.15);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+  cursor: pointer;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+
+  &:hover {
+    border-color: $golden-wheat-primary;
+    box-shadow: 0 8px 24px rgba($golden-wheat-primary, 0.25);
+    transform: translateY(-4px);
+
+    .product-image {
+      transform: scale(1.05);
+    }
+
+    .quick-add-btn {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+}
+
+// ==================== PRODUCT IMAGE ====================
+
+.product-image-container {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1;
+  background: $golden-wheat-light;
+  overflow: hidden;
+
+  .product-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+  }
+
+  // Discount Badge
+  .discount-badge {
+    position: absolute;
+    top: 0.75rem;
+    left: 0.75rem;
+    background: $error-red;
+    color: white;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    z-index: 2;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  }
+
+  // Authenticity Badge
+  .authenticity-badge {
+    position: absolute;
+    bottom: 0.75rem;
+    left: 0.75rem;
+    background: rgba($success-green, 0.95);
+    color: white;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.65rem;
+    font-weight: 600;
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    backdrop-filter: blur(4px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+
+    .badge-icon {
+      font-size: 0.875rem;
+      width: 0.875rem;
+      height: 0.875rem;
+    }
+  }
+
+  // Quick Add Button
+  .quick-add-btn {
+    position: absolute;
+    top: 0.75rem;
+    right: 0.75rem;
+    z-index: 3;
+    opacity: 0;
+    transform: translateY(-10px);
+    transition: all 0.3s ease;
+    background: $golden-wheat-primary !important;
+    color: white !important;
+    box-shadow: 0 4px 8px rgba($golden-wheat-primary, 0.4);
+
+    &:hover {
+      background: darken($golden-wheat-primary, 10%) !important;
+      transform: translateY(0) scale(1.1);
+    }
+
+    mat-icon {
+      font-size: 1.25rem;
+      width: 1.25rem;
+      height: 1.25rem;
+    }
+  }
+}
+
+// ==================== PRODUCT INFO ====================
+
+.product-info {
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  flex: 1;
+
+  .product-name {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: $forest-dark;
+    margin: 0;
+    line-height: 1.4;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    min-height: 2.4em;
+    transition: color 0.3s ease;
+
+    .product-card:hover & {
+      color: $golden-wheat-primary;
+    }
+  }
+
+  // Rating
+  .product-rating {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+
+    .rating-stars {
+      display: flex;
+      gap: 0.125rem;
+
+      .star-icon {
+        font-size: 1rem;
+        width: 1rem;
+        height: 1rem;
+        color: #d1d5db;
+
+        &.filled {
+          color: #fbbf24;
+        }
+      }
+    }
+
+    .rating-count {
+      font-size: 0.75rem;
+      color: #6b7280;
+    }
+  }
+
+  // Price
+  .product-price {
+    display: flex;
+    align-items: baseline;
+    gap: 0.5rem;
+    margin-top: auto;
+
+    .current-price {
+      font-size: 1.125rem;
+      font-weight: 700;
+      color: $success-green;
+    }
+
+    .original-price {
+      font-size: 0.875rem;
+      color: #9ca3af;
+      text-decoration: line-through;
+    }
+  }
+
+  // Stock Status
+  .stock-status {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    font-size: 0.75rem;
+    color: $success-green;
+    font-weight: 600;
+
+    .stock-icon {
+      font-size: 1rem;
+      width: 1rem;
+      height: 1rem;
+    }
+
+    &.out-of-stock {
+      color: $error-red;
+    }
+  }
+}
+
+// ==================== EMPTY STATE ====================
+
+.recommendations-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 1rem;
+  gap: 1rem;
+  background: rgba($golden-wheat-light, 0.5);
+  border-radius: 8px;
+
+  .empty-icon {
+    font-size: 4rem;
+    width: 4rem;
+    height: 4rem;
+    color: rgba($golden-wheat-primary, 0.4);
+  }
+
+  .empty-text {
+    color: rgba($forest-dark, 0.6);
+    font-size: 0.875rem;
+    margin: 0;
+  }
+}
+
+// ==================== RESPONSIVE ====================
+
+// Mobile (< 640px)
+@media (max-width: 639px) {
+  .recommendations-container {
+    padding: 1rem;
+    margin: 1rem 0;
+  }
+
+  .recommendations-header {
+    .recommendations-title {
+      font-size: 1.25rem;
+
+      &.recommendations-title-ar {
+        font-size: 1.5rem;
+      }
+    }
+
+    .view-all-btn {
+      font-size: 0.875rem;
+
+      mat-icon {
+        font-size: 1.25rem;
+        width: 1.25rem;
+        height: 1.25rem;
+      }
+    }
+  }
+
+  .product-info {
+    padding: 0.75rem;
+
+    .product-name {
+      font-size: 0.8125rem;
+    }
+
+    .product-price {
+      .current-price {
+        font-size: 1rem;
+      }
+
+      .original-price {
+        font-size: 0.8125rem;
+      }
+    }
+  }
+
+  .product-image-container {
+    .quick-add-btn {
+      width: 36px;
+      height: 36px;
+      min-width: 36px;
+
+      mat-icon {
+        font-size: 1.125rem;
+        width: 1.125rem;
+        height: 1.125rem;
+      }
+    }
+  }
+}
+
+// Tablet (640px - 1023px)
+@media (min-width: 640px) and (max-width: 1023px) {
+  .recommendations-container {
+    padding: 1.25rem;
+  }
+
+  .recommendations-header {
+    .recommendations-title {
+      font-size: 1.375rem;
+    }
+  }
+}
+
+// Desktop (>= 1024px)
+@media (min-width: 1024px) {
+  .recommendations-carousel {
+    .recommendations-swiper {
+      padding: 1rem 0;
+    }
+  }
+}
+
+// ==================== ACCESSIBILITY ====================
+
+// Focus states
+.product-card:focus,
+.view-all-btn:focus,
+.quick-add-btn:focus {
+  outline: 2px solid $golden-wheat-primary;
+  outline-offset: 2px;
+}
+
+// Reduced motion
+@media (prefers-reduced-motion: reduce) {
+  .product-card,
+  .product-image,
+  .quick-add-btn,
+  .view-all-btn mat-icon {
+    transition: none;
+  }
+
+  .product-card:hover {
+    transform: none;
+  }
+
+  .product-card:hover .product-image {
+    transform: none;
+  }
+}
+
+// High contrast mode
+@media (prefers-contrast: high) {
+  .product-card {
+    border: 2px solid $forest-dark;
+
+    &:hover {
+      border-color: $golden-wheat-primary;
+    }
+  }
+
+  .discount-badge,
+  .authenticity-badge {
+    border: 1px solid white;
+  }
+}
+
+// ==================== PRINT STYLES ====================
+
+@media print {
+  .recommendations-header {
+    border-bottom: 1px solid black;
+  }
+
+  .view-all-btn,
+  .quick-add-btn,
+  .recommendations-swiper ::ng-deep .swiper-button-next,
+  .recommendations-swiper ::ng-deep .swiper-button-prev {
+    display: none;
+  }
+
+  .product-card {
+    border: 1px solid black;
+    page-break-inside: avoid;
+  }
+}

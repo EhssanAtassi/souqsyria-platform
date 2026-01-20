@@ -1,0 +1,547 @@
+/**
+ * Payment Method Selector Component Styles
+ * Syrian Marketplace - Golden Wheat Design System
+ *
+ * Features:
+ * - Interactive payment method cards
+ * - Golden wheat color scheme
+ * - Selection states and animations
+ * - Mobile-first responsive design
+ * - RTL support for Arabic
+ * - Trust indicators and badges
+ */
+
+// =============================================
+// GOLDEN WHEAT DESIGN TOKENS
+// =============================================
+
+$golden-wheat: #D4AF37;
+$golden-wheat-light: #F5E6C8;
+$golden-wheat-dark: #B8941F;
+$primary-color: #1976D2;
+$accent-color: #4CAF50;
+$text-primary: #1A1A1A;
+$text-secondary: #666666;
+$border-color: #E0E0E0;
+$background-hover: #FAFAFA;
+
+// =============================================
+// LAYOUT
+// =============================================
+
+.payment-method-selector {
+  width: 100%;
+
+  &.compact {
+    .selector-header {
+      display: none;
+    }
+
+    .payment-method-card {
+      padding: 0.75rem;
+    }
+
+    .method-description {
+      display: none;
+    }
+  }
+}
+
+// =============================================
+// HEADER
+// =============================================
+
+.selector-header {
+  margin-bottom: 1.5rem;
+
+  .selector-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: $text-primary;
+    margin: 0 0 0.5rem;
+
+    @media (min-width: 768px) {
+      font-size: 1.5rem;
+    }
+  }
+
+  .selector-subtitle {
+    font-size: 0.875rem;
+    color: $text-secondary;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+
+    @media (min-width: 768px) {
+      font-size: 0.9375rem;
+    }
+  }
+}
+
+// =============================================
+// PAYMENT METHODS LIST
+// =============================================
+
+.payment-methods-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+// =============================================
+// PAYMENT METHOD CARD
+// =============================================
+
+.payment-method-card {
+  border-radius: 12px;
+  border: 2px solid $border-color;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: visible;
+
+  &:hover {
+    border-color: $golden-wheat;
+    background-color: $background-hover;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba($golden-wheat, 0.2);
+  }
+
+  &.selected {
+    border-color: $golden-wheat;
+    background: linear-gradient(135deg, $golden-wheat-light 0%, #FFFFFF 100%);
+    box-shadow: 0 4px 16px rgba($golden-wheat, 0.3);
+
+    .method-icon-wrapper {
+      background: linear-gradient(135deg, $golden-wheat 0%, $golden-wheat-dark 100%);
+
+      .method-icon {
+        color: white;
+      }
+    }
+
+    .method-name {
+      color: $golden-wheat-dark;
+      font-weight: 700;
+    }
+  }
+
+  &.recommended {
+    &::before {
+      content: '';
+      position: absolute;
+      top: -2px;
+      left: -2px;
+      right: -2px;
+      bottom: -2px;
+      background: linear-gradient(135deg, $golden-wheat 0%, $golden-wheat-dark 100%);
+      border-radius: 12px;
+      z-index: -1;
+      opacity: 0.3;
+    }
+  }
+}
+
+// =============================================
+// CARD CONTENT
+// =============================================
+
+.method-card-content {
+  display: grid;
+  grid-template-columns: auto auto 1fr auto;
+  gap: 1rem;
+  align-items: flex-start;
+  padding: 0.25rem;
+
+  @media (max-width: 767px) {
+    grid-template-columns: auto 1fr;
+    gap: 0.75rem;
+
+    .method-icon-wrapper {
+      grid-row: 1 / 3;
+    }
+
+    .method-radio {
+      grid-column: 2;
+      justify-self: end;
+    }
+  }
+}
+
+// =============================================
+// METHOD ICON
+// =============================================
+
+.method-icon-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  background: linear-gradient(135deg, $golden-wheat-light 0%, #FFFFFF 100%);
+  border-radius: 12px;
+  border: 1px solid $border-color;
+  transition: all 0.3s ease;
+
+  @media (min-width: 768px) {
+    width: 56px;
+    height: 56px;
+  }
+}
+
+.method-icon {
+  font-size: 1.5rem;
+  width: 1.5rem;
+  height: 1.5rem;
+  color: $golden-wheat-dark;
+  transition: color 0.3s ease;
+
+  @media (min-width: 768px) {
+    font-size: 1.75rem;
+    width: 1.75rem;
+    height: 1.75rem;
+  }
+}
+
+// =============================================
+// METHOD INFO
+// =============================================
+
+.method-info {
+  flex: 1;
+  min-width: 0; // Allow text truncation
+
+  @media (max-width: 767px) {
+    grid-column: 1 / 3;
+  }
+}
+
+.method-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.5rem;
+}
+
+.method-name {
+  font-size: 1rem;
+  font-weight: 600;
+  color: $text-primary;
+  margin: 0;
+  transition: color 0.3s ease;
+
+  @media (min-width: 768px) {
+    font-size: 1.125rem;
+  }
+}
+
+.method-description {
+  font-size: 0.875rem;
+  color: $text-secondary;
+  line-height: 1.5;
+  margin: 0 0 0.75rem;
+
+  @media (min-width: 768px) {
+    font-size: 0.9375rem;
+  }
+}
+
+// =============================================
+// BADGES
+// =============================================
+
+.recommended-badge {
+  background: linear-gradient(135deg, $golden-wheat 0%, $golden-wheat-dark 100%) !important;
+  color: white !important;
+  font-size: 0.75rem;
+  font-weight: 600;
+  height: 24px;
+
+  mat-icon {
+    font-size: 0.875rem;
+    width: 0.875rem;
+    height: 0.875rem;
+    margin-right: 2px;
+  }
+}
+
+.trust-badge {
+  font-size: 0.75rem;
+  font-weight: 500;
+  height: 24px;
+}
+
+// =============================================
+// METHOD FEE
+// =============================================
+
+.method-fee {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  color: $text-secondary;
+  margin-top: 0.5rem;
+
+  .fee-icon {
+    font-size: 1rem;
+    width: 1rem;
+    height: 1rem;
+    color: $golden-wheat-dark;
+  }
+
+  .fee-label {
+    color: $text-secondary;
+  }
+
+  .fee-value {
+    font-weight: 600;
+    color: $accent-color;
+  }
+}
+
+// =============================================
+// METHOD DETAILS
+// =============================================
+
+.method-details {
+  margin-top: 1rem;
+  padding-top: 1rem;
+
+  .detail-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    padding: 0.5rem 0;
+
+    mat-icon {
+      color: $golden-wheat-dark;
+      font-size: 1.25rem;
+      width: 1.25rem;
+      height: 1.25rem;
+      flex-shrink: 0;
+    }
+
+    .detail-text {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+
+      .detail-label {
+        font-size: 0.75rem;
+        color: $text-secondary;
+        text-transform: uppercase;
+        font-weight: 500;
+      }
+
+      .detail-value {
+        font-size: 0.9375rem;
+        color: $text-primary;
+        font-weight: 600;
+        font-family: monospace;
+      }
+    }
+  }
+
+  .detail-info {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    background: $golden-wheat-light;
+    padding: 0.75rem;
+    border-radius: 8px;
+    margin-top: 0.5rem;
+
+    mat-icon {
+      color: $golden-wheat-dark;
+      font-size: 1.25rem;
+      width: 1.25rem;
+      height: 1.25rem;
+      flex-shrink: 0;
+    }
+
+    p {
+      margin: 0;
+      font-size: 0.875rem;
+      color: $text-primary;
+      line-height: 1.5;
+    }
+  }
+
+  .cod-info {
+    background: linear-gradient(135deg, $accent-color 0%, #66BB6A 100%);
+    color: white;
+
+    mat-icon {
+      color: white;
+    }
+
+    p {
+      color: white;
+    }
+  }
+}
+
+// =============================================
+// SELECTION INDICATOR
+// =============================================
+
+.selection-indicator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  @media (max-width: 767px) {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+  }
+
+  .check-icon {
+    font-size: 1.5rem;
+    width: 1.5rem;
+    height: 1.5rem;
+    color: $golden-wheat-dark;
+    animation: scaleIn 0.3s ease;
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    transform: scale(0);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+// =============================================
+// SECURITY NOTICE
+// =============================================
+
+.security-notice {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  padding: 1rem;
+  margin-top: 1.5rem;
+  background: linear-gradient(135deg, $golden-wheat-light 0%, #FFFFFF 100%);
+  border-radius: 8px;
+  border: 1px solid $golden-wheat;
+
+  mat-icon {
+    color: $golden-wheat-dark;
+    font-size: 1.5rem;
+    width: 1.5rem;
+    height: 1.5rem;
+  }
+
+  p {
+    margin: 0;
+    font-size: 0.875rem;
+    color: $text-primary;
+    font-weight: 500;
+  }
+}
+
+// =============================================
+// RADIO BUTTON
+// =============================================
+
+.method-radio {
+  margin: 0;
+
+  @media (max-width: 767px) {
+    ::ng-deep .mat-radio-container {
+      width: 18px;
+      height: 18px;
+    }
+
+    ::ng-deep .mat-radio-outer-circle {
+      width: 18px;
+      height: 18px;
+    }
+
+    ::ng-deep .mat-radio-inner-circle {
+      width: 18px;
+      height: 18px;
+    }
+  }
+}
+
+// =============================================
+// RTL SUPPORT
+// =============================================
+
+[dir="rtl"] {
+  .method-card-content {
+    direction: rtl;
+  }
+
+  .method-header {
+    flex-direction: row-reverse;
+  }
+
+  .method-fee {
+    flex-direction: row-reverse;
+  }
+
+  .detail-row {
+    flex-direction: row-reverse;
+  }
+
+  .detail-info {
+    flex-direction: row-reverse;
+  }
+
+  .security-notice {
+    flex-direction: row-reverse;
+  }
+
+  .recommended-badge mat-icon {
+    margin-right: 0;
+    margin-left: 2px;
+  }
+}
+
+// =============================================
+// ACCESSIBILITY
+// =============================================
+
+// High contrast mode
+@media (prefers-contrast: high) {
+  .payment-method-card {
+    border-width: 3px;
+
+    &.selected {
+      border-width: 4px;
+    }
+  }
+}
+
+// Reduced motion
+@media (prefers-reduced-motion: reduce) {
+  .payment-method-card {
+    transition: none;
+
+    &:hover {
+      transform: none;
+    }
+  }
+
+  .check-icon {
+    animation: none;
+  }
+}
+
+// Focus visible
+.payment-method-card:focus-within {
+  outline: 2px solid $primary-color;
+  outline-offset: 2px;
+}

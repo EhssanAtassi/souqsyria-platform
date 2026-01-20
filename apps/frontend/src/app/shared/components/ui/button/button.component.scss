@@ -1,0 +1,280 @@
+@import '../../../styles/variables';
+
+/**
+ * Button Component Styles
+ * Golden Wheat themed button with multiple variants
+ */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: $space-2;
+  font-family: $font-family-primary;
+  font-weight: $font-weight-semibold;
+  border: $border-width-medium solid transparent;
+  border-radius: $border-radius-md;
+  cursor: pointer;
+  transition: all $transition-fast $ease-in-out;
+  position: relative;
+  white-space: nowrap;
+  text-decoration: none;
+  user-select: none;
+
+  /**
+   * Focus state (keyboard navigation)
+   */
+  &:focus-visible {
+    outline: 2px solid $golden-wheat-primary;
+    outline-offset: 2px;
+  }
+
+  /**
+   * Disabled state
+   */
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    pointer-events: none;
+  }
+
+  /**
+   * Loading state
+   */
+  &--loading {
+    cursor: wait;
+  }
+
+  /**
+   * Size Variants
+   */
+  &--small {
+    padding: $space-2 $space-4;
+    font-size: $font-size-sm;
+    height: 32px;
+  }
+
+  &--medium {
+    padding: $space-3 $space-6;
+    font-size: $font-size-base;
+    height: 40px;
+  }
+
+  &--large {
+    padding: $space-4 $space-8;
+    font-size: $font-size-lg;
+    height: 48px;
+  }
+
+  /**
+   * Visual Variants
+   */
+
+  // Primary - Golden Wheat (main CTAs)
+  &--primary {
+    background: $golden-wheat-primary;
+    border-color: $golden-wheat-primary;
+    color: $charcoal-light;
+
+    &:hover:not(:disabled) {
+      background: $golden-wheat-dark;
+      border-color: $golden-wheat-dark;
+      box-shadow: $shadow-md;
+    }
+
+    &:active:not(:disabled) {
+      transform: translateY(1px);
+    }
+  }
+
+  // Secondary - Forest Green
+  &--secondary {
+    background: $forest-light;
+    border-color: $forest-light;
+    color: $charcoal-light;
+
+    &:hover:not(:disabled) {
+      background: darken($forest-light, 10%);
+      border-color: darken($forest-light, 10%);
+      box-shadow: $shadow-md;
+    }
+
+    &:active:not(:disabled) {
+      transform: translateY(1px);
+    }
+  }
+
+  // Outline - Bordered
+  &--outline {
+    background: transparent;
+    border-color: $golden-wheat-primary;
+    color: $golden-wheat-primary;
+
+    &:hover:not(:disabled) {
+      background: $golden-wheat-light;
+      color: $golden-wheat-dark;
+    }
+
+    &:active:not(:disabled) {
+      background: $golden-wheat-medium;
+    }
+  }
+
+  // Ghost - Text only
+  &--ghost {
+    background: transparent;
+    border-color: transparent;
+    color: $golden-wheat-primary;
+
+    &:hover:not(:disabled) {
+      background: $golden-wheat-light;
+      color: $golden-wheat-dark;
+    }
+
+    &:active:not(:disabled) {
+      background: $golden-wheat-medium;
+    }
+  }
+
+  // Danger - Red for destructive actions
+  &--danger {
+    background: $color-error;
+    border-color: $color-error;
+    color: $charcoal-light;
+
+    &:hover:not(:disabled) {
+      background: darken($color-error, 10%);
+      border-color: darken($color-error, 10%);
+      box-shadow: $shadow-md;
+    }
+
+    &:active:not(:disabled) {
+      transform: translateY(1px);
+    }
+  }
+
+  /**
+   * Full Width
+   */
+  &--full-width {
+    width: 100%;
+  }
+
+  /**
+   * Button Content
+   */
+  &__content {
+    display: flex;
+    align-items: center;
+    gap: $space-2;
+
+    &--hidden {
+      opacity: 0;
+    }
+  }
+
+  /**
+   * Loading Spinner
+   */
+  &__spinner {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: rotate 1s linear infinite;
+  }
+
+  &__spinner-circle {
+    stroke: currentColor;
+    stroke-linecap: round;
+    animation: dash 1.5s ease-in-out infinite;
+  }
+}
+
+/**
+ * Animations
+ */
+@keyframes rotate {
+  100% { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+@keyframes dash {
+  0% {
+    stroke-dasharray: 1, 150;
+    stroke-dashoffset: 0;
+  }
+  50% {
+    stroke-dasharray: 90, 150;
+    stroke-dashoffset: -35;
+  }
+  100% {
+    stroke-dasharray: 90, 150;
+    stroke-dashoffset: -124;
+  }
+}
+
+/**
+ * Button Group (when multiple buttons together)
+ */
+.btn-group {
+  display: flex;
+  gap: $space-3;
+
+  &--vertical {
+    flex-direction: column;
+
+    .btn {
+      width: 100%;
+    }
+  }
+
+  &--horizontal {
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+}
+
+/**
+ * RTL Support
+ */
+[dir="rtl"] {
+  .btn {
+    &__content {
+      flex-direction: row-reverse;
+    }
+  }
+}
+
+/**
+ * Mobile Responsive
+ */
+@media (max-width: $breakpoint-sm) {
+  .btn {
+    &--small {
+      padding: $space-1 $space-3;
+      font-size: $font-size-xs;
+    }
+
+    &--medium {
+      padding: $space-2 $space-4;
+      font-size: $font-size-sm;
+    }
+
+    &--large {
+      padding: $space-3 $space-6;
+      font-size: $font-size-base;
+    }
+  }
+}
+
+/**
+ * Touch device optimization
+ */
+@media (hover: none) and (pointer: coarse) {
+  .btn {
+    min-height: 44px; // iOS recommended touch target
+  }
+}

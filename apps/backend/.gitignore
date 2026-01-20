@@ -1,0 +1,36 @@
+# Node
+node_modules/
+dist/
+logs/
+coverage/
+
+# Environment
+.env
+.env.*
+
+# IDE
+.idea/
+.vscode/
+
+# Documentation
+*SUMMARY*.md
+*GUIDE*.md
+*DOCUMENTATION*.md
+AGENTS.md
+PHASE*.md
+TODAYS_*.md
+*.txt
+plane/
+docs/
+
+# Speckit
+.specify/
+
+# Database
+src/database/
+
+# Exclude all markdown files
+*.md
+
+# Exclude Claude Code settings
+.claude/

@@ -1,0 +1,193 @@
+/**
+ * Hero Dots Component Styles
+ * Presentational component for carousel pagination dots
+ *
+ * Features:
+ * - Responsive dot sizes
+ * - Golden Wheat theme
+ * - Smooth transitions
+ * - Accessibility (focus states)
+ */
+
+// ============================================
+// Dots Container
+// ============================================
+
+.hero-dots {
+  position: absolute;
+  bottom: 2rem;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 0.75rem;
+  z-index: 10;
+  align-items: center;
+
+  @media (max-width: 768px) {
+    bottom: 1rem;
+    gap: 0.5rem;
+  }
+}
+
+// ============================================
+// Individual Dot
+// ============================================
+
+.hero-dot {
+  padding: 0;
+  border: 2px solid white;
+  background: transparent;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  outline: none;
+
+  // Size variants
+  &--small {
+    width: 8px;
+    height: 8px;
+    border-width: 1.5px;
+  }
+
+  &--medium {
+    width: 12px;
+    height: 12px;
+    border-width: 2px;
+  }
+
+  &--large {
+    width: 16px;
+    height: 16px;
+    border-width: 2.5px;
+  }
+
+  // Hover state
+  &:hover:not(&--active) {
+    background: rgba(255, 255, 255, 0.5);
+    transform: scale(1.2);
+  }
+
+  // Active state
+  &--active {
+    background: var(--golden-wheat-dark, #988561);
+    border-color: var(--golden-wheat-dark, #988561);
+
+    // Expand to pill shape when active
+    &.hero-dot--small {
+      width: 20px;
+      border-radius: 4px;
+    }
+
+    &.hero-dot--medium {
+      width: 32px;
+      border-radius: 6px;
+    }
+
+    &.hero-dot--large {
+      width: 40px;
+      border-radius: 8px;
+    }
+  }
+
+  // Focus state (accessibility)
+  &:focus-visible {
+    outline: 2px solid var(--golden-wheat-dark, #988561);
+    outline-offset: 4px;
+  }
+}
+
+// ============================================
+// Style Variants
+// ============================================
+
+// Minimal variant
+.hero-dots--minimal {
+  .hero-dot {
+    border-color: rgba(255, 255, 255, 0.5);
+    box-shadow: none;
+
+    &:hover:not(.hero-dot--active) {
+      background: rgba(255, 255, 255, 0.3);
+      border-color: rgba(255, 255, 255, 0.7);
+    }
+
+    &--active {
+      background: rgba(255, 255, 255, 0.9);
+      border-color: rgba(255, 255, 255, 0.9);
+    }
+  }
+}
+
+// Bold variant
+.hero-dots--bold {
+  gap: 1rem;
+
+  @media (max-width: 768px) {
+    gap: 0.75rem;
+  }
+
+  .hero-dot {
+    border-width: 3px;
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.3);
+
+    &--active {
+      box-shadow: 0 4px 8px rgba(152, 133, 97, 0.4);
+    }
+  }
+}
+
+// ============================================
+// Accessibility
+// ============================================
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+// ============================================
+// High Contrast Mode
+// ============================================
+
+@media (prefers-contrast: high) {
+  .hero-dot {
+    border-width: 3px;
+
+    &--active {
+      border-color: var(--golden-wheat-dark, #988561);
+      background: var(--golden-wheat-dark, #988561);
+    }
+  }
+}
+
+// ============================================
+// Reduced Motion
+// ============================================
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-dot {
+    transition: none;
+
+    &:hover:not(&--active) {
+      transform: none;
+    }
+  }
+}
+
+// ============================================
+// Print Styles
+// ============================================
+
+@media print {
+  .hero-dots {
+    display: none;
+  }
+}

@@ -1,0 +1,338 @@
+<!-- Wishlist Management Component Template -->
+<div class="min-h-screen bg-gradient-to-br from-amber-50 via-white to-blue-50" [dir]="currentLanguage() === 'ar' ? 'rtl' : 'ltr'">
+  
+  <!-- Header Section -->
+  <div class="bg-white shadow-sm border-b border-amber-200">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+      <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        
+        <!-- Title and Breadcrumb -->
+        <div class="flex-1">
+          <nav class="flex mb-2" aria-label="Breadcrumb">
+            <ol class="inline-flex items-center space-x-1 md:space-x-3 rtl:space-x-reverse">
+              <li class="inline-flex items-center">
+                <a routerLink="/account" class="inline-flex items-center text-sm font-medium text-gray-700 hover:text-amber-600 transition-colors">
+                  <mat-icon class="w-4 h-4 me-2.5">dashboard</mat-icon>
+                  <span [innerText]="currentLanguage() === 'ar' ? 'لوحة التحكم' : 'Dashboard'"></span>
+                </a>
+              </li>
+              <li>
+                <div class="flex items-center">
+                  <mat-icon class="w-4 h-4 text-gray-400 mx-1">chevron_right</mat-icon>
+                  <span class="text-sm font-medium text-gray-500" [innerText]="currentLanguage() === 'ar' ? 'قائمة الرغبات' : 'My Wishlist'"></span>
+                </div>
+              </li>
+            </ol>
+          </nav>
+          
+          <div class="flex items-center gap-3">
+            <mat-icon class="text-pink-600 text-3xl">favorite</mat-icon>
+            <div>
+              <h1 class="text-2xl font-bold text-gray-900" [innerText]="currentLanguage() === 'ar' ? 'قائمة الرغبات' : 'My Wishlist'"></h1>
+              <p class="text-gray-600" [innerText]="currentLanguage() === 'ar' ? 'منتجاتك السورية المفضلة' : 'Your favorite Syrian products'"></p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="flex items-center gap-3">
+          <button mat-stroked-button (click)="toggleLanguage()" class="min-w-0">
+            <mat-icon>language</mat-icon>
+            <span class="ms-2" [innerText]="currentLanguage() === 'ar' ? 'English' : 'العربية'"></span>
+          </button>
+          
+          <button mat-button (click)="shareWishlist()" class="text-blue-600">
+            <mat-icon>share</mat-icon>
+            <span class="ms-2" [innerText]="currentLanguage() === 'ar' ? 'مشاركة' : 'Share'"></span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Quick Stats -->
+      @if (wishlistConfig(); as config) {
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6">
+          <div class="bg-gradient-to-r from-pink-50 to-rose-50 rounded-lg p-4 text-center">
+            <div class="text-2xl font-bold text-pink-600">{{ config.totalItems }}</div>
+            <div class="text-sm text-gray-600" [innerText]="currentLanguage() === 'ar' ? 'العناصر' : 'Items'"></div>
+          </div>
+          
+          <div class="bg-gradient-to-r from-amber-50 to-yellow-50 rounded-lg p-4 text-center">
+            <div class="text-2xl font-bold text-amber-600">{{ config.priceDropAlerts }}</div>
+            <div class="text-sm text-gray-600" [innerText]="currentLanguage() === 'ar' ? 'انخفاض الأسعار' : 'Price Drops'"></div>
+          </div>
+          
+          <div class="bg-gradient-to-r from-red-50 to-orange-50 rounded-lg p-4 text-center">
+            <div class="text-2xl font-bold text-red-600">{{ config.stockAlerts }}</div>
+            <div class="text-sm text-gray-600" [innerText]="currentLanguage() === 'ar' ? 'غير متوفر' : 'Out of Stock'"></div>
+          </div>
+          
+          <div class="bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg p-4 text-center">
+            <div class="text-2xl font-bold text-green-600">{{ config.categories.length }}</div>
+            <div class="text-sm text-gray-600" [innerText]="currentLanguage() === 'ar' ? 'الفئات' : 'Categories'"></div>
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  @if (isLoading()) {
+    <div class="flex justify-center items-center py-16">
+      <mat-progress-bar mode="indeterminate" class="w-64"></mat-progress-bar>
+    </div>
+  } @else {
+    
+    <!-- Filters and Search Section -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+      <mat-card class="mb-6 overflow-visible">
+        <mat-card-content class="p-6">
+          
+          <!-- Search Bar -->
+          <div class="mb-6">
+            <mat-form-field appearance="outline" class="w-full">
+              <mat-label [innerText]="currentLanguage() === 'ar' ? 'البحث في قائمة الرغبات...' : 'Search in wishlist...'"></mat-label>
+              <input matInput 
+                     [placeholder]="currentLanguage() === 'ar' ? 'اسم المنتج، الوصف، أو المنطقة...' : 'Product name, description, or region...'"
+                     [value]="filters().searchQuery || ''"
+                     (input)="updateSearchQuery($any($event.target).value || '')">
+              <mat-icon matSuffix>search</mat-icon>
+            </mat-form-field>
+          </div>
+
+          <!-- Filters -->
+          <div>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+              
+              <!-- Category Filter -->
+              <mat-form-field appearance="outline">
+                <mat-label [innerText]="currentLanguage() === 'ar' ? 'الفئة' : 'Category'"></mat-label>
+                <mat-select [value]="filters().category || 'all'"
+                           (selectionChange)="updateCategoryFilter($event.value)">
+                  <mat-option value="all" [innerText]="currentLanguage() === 'ar' ? 'كل الفئات' : 'All Categories'"></mat-option>
+                  @if (availableCategories(); as categories) {
+                    @for (category of categories; track category) {
+                      <mat-option [value]="category">{{ category }}</mat-option>
+                    }
+                  }
+                </mat-select>
+              </mat-form-field>
+
+              <!-- Availability Filter -->
+              <mat-form-field appearance="outline">
+                <mat-label [innerText]="currentLanguage() === 'ar' ? 'التوفر' : 'Availability'"></mat-label>
+                <mat-select [value]="filters().availability"
+                           (selectionChange)="updateAvailabilityFilter($event.value)">
+                  <mat-option value="all" [innerText]="currentLanguage() === 'ar' ? 'الكل' : 'All'"></mat-option>
+                  <mat-option value="available" [innerText]="currentLanguage() === 'ar' ? 'متوفر' : 'Available'"></mat-option>
+                  <mat-option value="out_of_stock" [innerText]="currentLanguage() === 'ar' ? 'غير متوفر' : 'Out of Stock'"></mat-option>
+                </mat-select>
+              </mat-form-field>
+
+              <!-- View Mode Toggle -->
+              <div class="flex items-center justify-center">
+                <button mat-icon-button 
+                        (click)="toggleViewMode()"
+                        [matTooltip]="viewMode() === 'grid' 
+                          ? (currentLanguage() === 'ar' ? 'عرض قائمة' : 'List View')
+                          : (currentLanguage() === 'ar' ? 'عرض شبكي' : 'Grid View')"
+                        class="view-toggle">
+                  <mat-icon>{{ viewMode() === 'grid' ? 'view_list' : 'view_module' }}</mat-icon>
+                </button>
+              </div>
+
+              <!-- Sort By -->
+              <mat-form-field appearance="outline">
+                <mat-label [innerText]="currentLanguage() === 'ar' ? 'ترتيب حسب' : 'Sort By'"></mat-label>
+                <mat-select [value]="filters().sortBy"
+                           (selectionChange)="updateSortBy($event.value)">
+                  <mat-option value="recent" [innerText]="currentLanguage() === 'ar' ? 'الأحدث' : 'Recently Added'"></mat-option>
+                  <mat-option value="name_ar" [innerText]="currentLanguage() === 'ar' ? 'الاسم (عربي)' : 'Name (Arabic)'"></mat-option>
+                  <mat-option value="name_en" [innerText]="currentLanguage() === 'ar' ? 'الاسم (إنجليزي)' : 'Name (English)'"></mat-option>
+                  <mat-option value="price_low" [innerText]="currentLanguage() === 'ar' ? 'السعر (الأقل أولاً)' : 'Price (Low to High)'"></mat-option>
+                  <mat-option value="price_high" [innerText]="currentLanguage() === 'ar' ? 'السعر (الأعلى أولاً)' : 'Price (High to Low)'"></mat-option>
+                  <mat-option value="price_drop" [innerText]="currentLanguage() === 'ar' ? 'انخفاض الأسعار' : 'Price Drops'"></mat-option>
+                </mat-select>
+              </mat-form-field>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <!-- Bulk Actions -->
+      @if (showBulkActions()) {
+        <mat-card class="mb-6 bg-blue-50 border border-blue-200">
+          <mat-card-content class="p-4">
+            <div class="flex justify-between items-center">
+              <div class="flex items-center gap-3">
+                <mat-icon class="text-blue-600">check_circle</mat-icon>
+                <span class="font-medium text-blue-900">
+                  {{ selectedItemsCount() }} {{ currentLanguage() === 'ar' ? 'عنصر محدد' : 'items selected' }}
+                </span>
+              </div>
+              
+              <div class="flex items-center gap-2">
+                <button mat-stroked-button (click)="addSelectedToCart()" class="text-green-600 border-green-300">
+                  <mat-icon>add_shopping_cart</mat-icon>
+                  <span class="ms-2" [innerText]="currentLanguage() === 'ar' ? 'إضافة للسلة' : 'Add to Cart'"></span>
+                </button>
+                
+                <button mat-stroked-button (click)="removeSelectedItems()" class="text-red-600 border-red-300">
+                  <mat-icon>delete</mat-icon>
+                  <span class="ms-2" [innerText]="currentLanguage() === 'ar' ? 'حذف المحدد' : 'Remove Selected'"></span>
+                </button>
+                
+                <button mat-button (click)="clearSelection()" class="text-gray-600">
+                  <span [innerText]="currentLanguage() === 'ar' ? 'إلغاء التحديد' : 'Clear Selection'"></span>
+                </button>
+              </div>
+            </div>
+          </mat-card-content>
+        </mat-card>
+      }
+
+      <!-- Select All Checkbox -->
+      @if (filteredWishlistItems().length > 0) {
+        <div class="flex items-center justify-between mb-4">
+          <mat-checkbox 
+            [checked]="selectedItemsCount() > 0 && selectedItemsCount() === filteredWishlistItems().length" 
+            [indeterminate]="selectedItemsCount() > 0 && selectedItemsCount() < filteredWishlistItems().length"
+            (change)="$event.checked ? selectAllItems() : clearSelection()">
+            <span [innerText]="currentLanguage() === 'ar' ? 'تحديد الكل' : 'Select All'"></span>
+            <span class="text-gray-500 ms-2">({{ filteredWishlistItems().length }})</span>
+          </mat-checkbox>
+          
+          <div class="text-sm text-gray-600">
+            <span [innerText]="currentLanguage() === 'ar' ? 'عرض' : 'Showing'"></span>
+            <span class="font-medium mx-1">{{ filteredWishlistItems().length }}</span>
+            <span [innerText]="currentLanguage() === 'ar' ? 'من' : 'of'"></span>
+            <span class="font-medium mx-1">{{ wishlistConfig()?.totalItems || 0 }}</span>
+            <span [innerText]="currentLanguage() === 'ar' ? 'عنصر' : 'items'"></span>
+          </div>
+        </div>
+      }
+
+      <!-- Wishlist Items Grid -->
+      @if (filteredWishlistItems().length > 0) {
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          @for (item of filteredWishlistItems(); track trackByItemId($index, item)) {
+            <mat-card class="group hover:shadow-lg transition-all duration-300 relative overflow-hidden">
+              
+              <!-- Selection Checkbox -->
+              <div class="absolute top-3 left-3 z-10">
+                <mat-checkbox 
+                  [checked]="selectedItems().has(item.id)"
+                  (change)="toggleItemSelection(item.id)"
+                  class="bg-white bg-opacity-80 rounded">
+                </mat-checkbox>
+              </div>
+
+              <!-- Price Drop Badge -->
+              @if (hasRecentPriceDrop(item)) {
+                <div class="absolute top-3 right-3 z-10">
+                  <mat-chip class="bg-red-100 text-red-800 text-xs">
+                    <mat-icon class="text-sm me-1">trending_down</mat-icon>
+                    <span>{{ getDiscountPercentage(item) }}%</span>
+                  </mat-chip>
+                </div>
+              }
+
+              <!-- Product Image -->
+              <div class="relative h-48 overflow-hidden cursor-pointer">
+                <a [routerLink]="['/product', item.productSlug]">
+                  <img [src]="item.image" [alt]="getItemName(item)" 
+                       class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
+                </a>
+                
+                <!-- Availability Overlay -->
+                @if (!item.isAvailable || item.stockQuantity === 0) {
+                  <div class="absolute inset-0 bg-gray-900 bg-opacity-60 flex items-center justify-center">
+                    <span class="text-white font-semibold" [innerText]="currentLanguage() === 'ar' ? 'غير متوفر' : 'Out of Stock'"></span>
+                  </div>
+                }
+              </div>
+
+              <mat-card-content class="p-4">
+                
+                <!-- Category Chip -->
+                <div class="mb-3">
+                  <mat-chip [class]="getCategoryChipClass(item.category)" class="text-xs">
+                    {{ item.category }}
+                  </mat-chip>
+                </div>
+
+                <!-- Product Name -->
+                <h3 class="font-semibold text-gray-900 mb-2 line-clamp-2">
+                  <a [routerLink]="['/product', item.productSlug]" 
+                     class="hover:text-amber-600 transition-colors">
+                    {{ getItemName(item) }}
+                  </a>
+                </h3>
+
+                <!-- Craft Origin -->
+                <div class="flex items-center text-sm text-gray-600 mb-2">
+                  <mat-icon class="text-sm me-1">place</mat-icon>
+                  <span>{{ item.craftOrigin }}</span>
+                </div>
+
+                <!-- Price Information -->
+                <div class="mb-3">
+                  <div class="flex items-baseline gap-2">
+                    <span class="text-lg font-bold text-gray-900">{{ formatCurrency(item.price) }}</span>
+                    @if (item.originalPrice && item.originalPrice > item.price) {
+                      <span class="text-sm text-gray-500 line-through">{{ formatCurrency(item.originalPrice) }}</span>
+                    }
+                  </div>
+                  <div class="text-sm text-gray-600">{{ formatUSD(item.priceUSD) }}</div>
+                </div>
+
+                <!-- Availability Status -->
+                <div class="flex items-center justify-between mb-3">
+                  <span [class]="getAvailabilityClass(item)" class="text-sm font-medium px-2 py-1 rounded">
+                    {{ getAvailabilityText(item) }}
+                  </span>
+                  
+                  <span class="text-xs text-gray-500">
+                    {{ currentLanguage() === 'ar' ? 'أضيف في' : 'Added' }} {{ formatDate(item.addedAt) }}
+                  </span>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="flex gap-2">
+                  <button mat-raised-button color="primary" 
+                          [disabled]="!item.isAvailable || item.stockQuantity === 0"
+                          (click)="addToCart(item)" 
+                          class="flex-1 text-sm">
+                    <mat-icon class="text-sm">add_shopping_cart</mat-icon>
+                    <span class="ms-1" [innerText]="currentLanguage() === 'ar' ? 'للسلة' : 'Add to Cart'"></span>
+                  </button>
+                  
+                  <button mat-icon-button 
+                          (click)="removeFromWishlist(item.id)"
+                          [matTooltip]="currentLanguage() === 'ar' ? 'حذف من المفضلة' : 'Remove from Wishlist'"
+                          class="text-red-600">
+                    <mat-icon>delete</mat-icon>
+                  </button>
+                </div>
+              </mat-card-content>
+            </mat-card>
+          }
+        </div>
+      } @else {
+        
+        <!-- Empty State -->
+        <div class="text-center py-16">
+          <mat-icon class="text-6xl text-gray-400 mb-4">favorite_border</mat-icon>
+          <h3 class="text-xl font-medium text-gray-900 mb-2" 
+              [innerText]="currentLanguage() === 'ar' ? 'قائمة الرغبات فارغة' : 'Your wishlist is empty'"></h3>
+          <p class="text-gray-600 mb-6" 
+             [innerText]="currentLanguage() === 'ar' ? 'ابدأ بإضافة منتجاتك السورية المفضلة' : 'Start adding your favorite Syrian products'"></p>
+          
+          <button mat-raised-button color="primary" routerLink="/">
+            <mat-icon>shopping_bag</mat-icon>
+            <span class="ms-2" [innerText]="currentLanguage() === 'ar' ? 'تصفح المنتجات' : 'Browse Products'"></span>
+          </button>
+        </div>
+      }
+    </div>
+  }
+</div>

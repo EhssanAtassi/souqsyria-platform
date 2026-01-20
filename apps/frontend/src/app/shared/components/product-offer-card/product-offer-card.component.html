@@ -1,0 +1,84 @@
+<!-- Product Offer Card -->
+<div
+  (click)="onCardClick()"
+  (keydown.enter)="onCardClick()"
+  [class.inactive]="!isActive()"
+  class="product-offer-card"
+  role="button"
+  tabindex="0"
+  [attr.aria-label]="offer().title + ' - ' + offer().ctaText">
+
+  <!-- Product Image -->
+  <div class="card-image-wrapper">
+    <img
+      [src]="offer().image"
+      [alt]="offer().title"
+      class="card-image"
+      loading="lazy">
+
+    <!-- Discount Badge (DISCOUNT type only) -->
+    @if (offer().priceDisplay.type === 'discount' && offer().priceDisplay.discountBadge) {
+      <div class="discount-badge" [ngStyle]="getBadgeStyle()">
+        @for (line of getDiscountBadgeLines(); track $index) {
+          <span class="badge-line">{{ line }}</span>
+        }
+      </div>
+    }
+  </div>
+
+  <!-- Card Content -->
+  <div class="card-content">
+
+    <!-- Product Title -->
+    <h3 class="card-title">{{ offer().title }}</h3>
+    <p class="card-title-ar">{{ offer().titleAr }}</p>
+
+    <!-- Optional Subtitle -->
+    @if (offer().subtitle) {
+      <p class="card-subtitle">{{ offer().subtitle }}</p>
+      <p class="card-subtitle-ar">{{ offer().subtitleAr }}</p>
+    }
+
+    <!-- Price Display: DISCOUNT TYPE -->
+    @if (offer().priceDisplay.type === 'discount') {
+      <div class="price-section discount-type">
+        <span class="price-label">Discount</span>
+        <div class="price-values">
+          <span class="discounted-price">
+            {{ formatPrice(offer().priceDisplay.discountedPrice, offer().priceDisplay.currency) }}
+          </span>
+          <span class="original-price">
+            {{ formatPrice(offer().priceDisplay.originalPrice, offer().priceDisplay.currency) }}
+          </span>
+        </div>
+      </div>
+    }
+
+    <!-- Price Display: SALE TYPE -->
+    @else if (offer().priceDisplay.type === 'sale') {
+      <div class="price-section sale-type">
+        <span class="price-label">{{ offer().priceDisplay.saleLabel || 'SALE UP TO' }}</span>
+        <span class="sale-percentage">{{ offer().priceDisplay.salePercentage }}</span>
+      </div>
+    }
+
+    <!-- Price Display: PRICE TYPE -->
+    @else if (offer().priceDisplay.type === 'price') {
+      <div class="price-section price-type">
+        <span class="price-label">{{ offer().priceDisplay.priceLabel || 'PRICE JUST' }}</span>
+        <span class="price-value">
+          {{ formatPrice(offer().priceDisplay.price, offer().priceDisplay.currency) }}
+        </span>
+      </div>
+    }
+
+    <!-- CTA Button -->
+    <button class="cta-button" type="button">
+      <span class="cta-text-en">{{ offer().ctaText }}</span>
+      <span class="cta-text-ar">{{ offer().ctaTextAr }}</span>
+    </button>
+  </div>
+
+  <!-- Hover Overlay -->
+  <div class="hover-overlay"></div>
+</div>

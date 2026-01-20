@@ -1,0 +1,233 @@
+<!-- Syrian Marketplace Shopping Cart - Akita Version -->
+<div class="cart-page">
+
+  <!-- Cart Content -->
+  <div class="container" *ngIf="(items$ | async) as items">
+
+    <!-- Page Header -->
+    <div class="cart-page__header">
+      <div>
+        <h1 class="cart-page__title">Shopping Cart</h1>
+        <p class="cart-page__subtitle" *ngIf="(itemCount$ | async) as count">
+          {{ count }} {{ count === 1 ? 'item' : 'items' }} in your cart
+        </p>
+      </div>
+    </div>
+
+    <!-- Empty Cart State -->
+    <div *ngIf="items.length === 0" class="cart-page__empty">
+      <mat-icon class="cart-page__empty-icon">shopping_cart</mat-icon>
+      <h2 class="cart-page__empty-title">Your cart is empty</h2>
+      <p class="cart-page__empty-text">
+        Discover authentic Syrian products and add them to your cart.
+      </p>
+      <div class="cart-page__empty-actions">
+        <button mat-raised-button color="primary" (click)="continueShopping()">
+          <mat-icon>shopping_bag</mat-icon>
+          Start Shopping
+        </button>
+      </div>
+    </div>
+
+    <!-- Cart with Items -->
+    <div *ngIf="items.length > 0" class="cart-page__content">
+
+      <!-- Cart Items Section -->
+      <div class="cart-page__items">
+
+        <!-- Cart Actions Bar -->
+        <div class="cart-page__actions-bar">
+          <span class="cart-page__item-count">
+            {{ (itemCount$ | async) }} items
+          </span>
+          <button mat-button color="warn" (click)="clearCart()">
+            <mat-icon>delete_outline</mat-icon>
+            Clear Cart
+          </button>
+        </div>
+
+        <!-- Cart Items List -->
+        <div class="cart-page__items-list">
+          <mat-card *ngFor="let item of items" class="cart-item">
+            <div class="cart-item__content">
+
+              <!-- Product Image -->
+              <div class="cart-item__image">
+                <img
+                  [src]="item.product.images[0].url || '/assets/images/placeholder.svg'"
+                  [alt]="item.product.name"
+                  loading="lazy">
+              </div>
+
+              <!-- Product Info -->
+              <div class="cart-item__info">
+                <h3 class="cart-item__name">
+                  <a [routerLink]="['/product', item.product.slug]">
+                    {{ item.product.name }}
+                  </a>
+                </h3>
+
+                <p class="cart-item__category">
+                  {{ item.product.category.name }}
+                </p>
+
+                <!-- Stock Status -->
+                <div class="cart-item__stock" [ngClass]="getStockStatus(item.product.id).color">
+                  <mat-icon>{{ getStockStatus(item.product.id).status === 'in_stock' ? 'check_circle' : 'warning' }}</mat-icon>
+                  <span>{{ getStockStatus(item.product.id).message }}</span>
+                </div>
+              </div>
+
+              <!-- Quantity & Price -->
+              <div class="cart-item__controls">
+                <!-- Quantity Selector -->
+                <div class="cart-item__quantity">
+                  <label>Quantity:</label>
+                  <div class="cart-item__quantity-controls">
+                    <button
+                      mat-icon-button
+                      (click)="updateQuantity(item.product.id, item.quantity - 1)"
+                      [disabled]="item.quantity <= 1">
+                      <mat-icon>remove</mat-icon>
+                    </button>
+                    <span class="cart-item__quantity-value">{{ item.quantity }}</span>
+                    <button
+                      mat-icon-button
+                      (click)="updateQuantity(item.product.id, item.quantity + 1)"
+                      [disabled]="item.quantity >= (item.product.inventory.quantity || 0)">
+                      <mat-icon>add</mat-icon>
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Price -->
+                <div class="cart-item__price">
+                  <span class="cart-item__price-label">Price:</span>
+                  <span class="cart-item__price-value">
+                    {{ formatPrice(item.product.price.amount * item.quantity, 'USD') }}
+                  </span>
+                </div>
+
+                <!-- Remove Button -->
+                <button
+                  mat-icon-button
+                  color="warn"
+                  class="cart-item__remove"
+                  (click)="removeItem(item.product.id)"
+                  [matTooltip]="'Remove from cart'">
+                  <mat-icon>delete</mat-icon>
+                </button>
+              </div>
+            </div>
+          </mat-card>
+        </div>
+      </div>
+
+      <!-- Cart Summary Sidebar -->
+      <div class="cart-page__summary">
+        <mat-card class="cart-summary">
+          <mat-card-header>
+            <mat-card-title>Order Summary</mat-card-title>
+          </mat-card-header>
+
+          <mat-card-content>
+            <!-- Subtotal -->
+            <div class="cart-summary__row">
+              <span>Subtotal:</span>
+              <span>{{ formatPrice((subtotal$ | async) || 0, 'USD') }}</span>
+            </div>
+
+            <mat-divider></mat-divider>
+
+            <!-- Coupon Section -->
+            <div class="cart-summary__coupon">
+              <h4>Have a coupon?</h4>
+              <div class="cart-summary__coupon-input">
+                <mat-form-field appearance="outline" class="flex-1">
+                  <mat-label>Coupon Code</mat-label>
+                  <input
+                    matInput
+                    [(ngModel)]="couponCode"
+                    placeholder="Enter code"
+                    [disabled]="isApplyingCoupon()">
+                </mat-form-field>
+                <button
+                  mat-raised-button
+                  color="accent"
+                  (click)="applyCoupon()"
+                  [disabled]="!couponCode() || isApplyingCoupon()">
+                  {{ isApplyingCoupon() ? 'Applying...' : 'Apply' }}
+                </button>
+              </div>
+              <p class="cart-summary__coupon-error" *ngIf="couponError()">
+                {{ couponError() }}
+              </p>
+              <p class="cart-summary__coupon-hint">
+                Try: SYRIA10 or WELCOME15
+              </p>
+            </div>
+
+            <mat-divider></mat-divider>
+
+            <!-- Total -->
+            <div class="cart-summary__row cart-summary__row--total">
+              <span>Total:</span>
+              <span>{{ formatPrice((total$ | async) || 0, 'USD') }}</span>
+            </div>
+          </mat-card-content>
+
+          <mat-card-actions>
+            <button
+              mat-raised-button
+              color="primary"
+              class="cart-summary__checkout-btn"
+              (click)="proceedToCheckout()">
+              <mat-icon>lock</mat-icon>
+              Proceed to Checkout
+            </button>
+            <button
+              mat-stroked-button
+              class="cart-summary__continue-btn"
+              (click)="continueShopping()">
+              <mat-icon>shopping_bag</mat-icon>
+              Continue Shopping
+            </button>
+          </mat-card-actions>
+        </mat-card>
+      </div>
+    </div>
+
+    <!-- Product Recommendations Section -->
+    <div *ngIf="items.length > 0 && recommendedProducts().length > 0" class="cart-page__recommendations">
+      <h2 class="cart-page__recommendations-title">
+        <mat-icon>recommend</mat-icon>
+        You might also like
+      </h2>
+
+      <div class="cart-page__recommendations-grid">
+        <app-product-box-grid
+          *ngFor="let product of recommendedProducts()"
+          [product]="product"
+          [language]="'en'"
+          (addToCart)="addRecommendedProductToCart($event)">
+        </app-product-box-grid>
+      </div>
+    </div>
+
+    <!-- Customers Also Bought Section -->
+    <div *ngIf="items.length > 0 && customersAlsoBought().length > 0" class="cart-page__also-bought">
+      <h2 class="cart-page__also-bought-title">
+        <mat-icon>people</mat-icon>
+        Customers also bought
+      </h2>
+
+      <app-product-recommendations-carousel
+        *ngIf="getFirstCartProductId()"
+        [productId]="getFirstCartProductId()"
+        [title]="'Customers Also Bought'"
+        (productClick)="onRecommendedProductClick($event)"
+        (addToCart)="onRecommendedProductAddToCart($event)">
+      </app-product-recommendations-carousel>
+    </div>
+  </div>
+</div>

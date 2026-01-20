@@ -1,0 +1,238 @@
+<div class="campaign-page" *ngIf="campaign() as camp">
+  <!-- Campaign Hero -->
+  <section class="campaign-hero" [style.background-image]="'url(' + camp.bannerImage + ')'">
+    <div class="hero-overlay"></div>
+    <div class="container mx-auto px-4 py-16">
+      <div class="hero-content">
+        <div class="campaign-badge" [class]="'badge-' + camp.status">
+          <mat-icon>{{getStatusIcon(camp.status)}}</mat-icon>
+          <span>{{ camp.status | titlecase }}</span>
+        </div>
+
+        <h1 class="campaign-title">{{ camp.name }}</h1>
+        <p class="campaign-subtitle">{{ camp.nameAr }}</p>
+
+        <div class="campaign-meta">
+          <div class="meta-item">
+            <mat-icon>local_offer</mat-icon>
+            <span>Up to {{ camp.discount }}% OFF</span>
+          </div>
+          <div class="meta-item">
+            <mat-icon>shopping_bag</mat-icon>
+            <span>{{ camp.productCount }} Products</span>
+          </div>
+          <div class="meta-item">
+            <mat-icon>calendar_today</mat-icon>
+            <span>{{ formatDate(camp.startDate) }} - {{ formatDate(camp.endDate) }}</span>
+          </div>
+        </div>
+
+        <!-- Countdown Timer -->
+        @if (camp.status === 'active' && countdown()) {
+          <div class="countdown-timer">
+            <div class="countdown-label">Ends in:</div>
+            <div class="countdown-blocks">
+              <div class="countdown-block">
+                <span class="number">{{ countdown()?.days }}</span>
+                <span class="label">Days</span>
+              </div>
+              <div class="separator">:</div>
+              <div class="countdown-block">
+                <span class="number">{{ countdown()?.hours }}</span>
+                <span class="label">Hours</span>
+              </div>
+              <div class="separator">:</div>
+              <div class="countdown-block">
+                <span class="number">{{ countdown()?.minutes }}</span>
+                <span class="label">Min</span>
+              </div>
+              <div class="separator">:</div>
+              <div class="countdown-block">
+                <span class="number">{{ countdown()?.seconds }}</span>
+                <span class="label">Sec</span>
+              </div>
+            </div>
+          </div>
+        }
+
+        <div class="campaign-actions">
+          <button mat-raised-button color="primary" (click)="scrollToProducts()">
+            <mat-icon>shopping_cart</mat-icon>
+            Shop Now
+          </button>
+          <button mat-stroked-button (click)="shareCampaign()">
+            <mat-icon>share</mat-icon>
+            Share
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Campaign Description -->
+  <section class="campaign-description">
+    <div class="container mx-auto px-4 py-12">
+      <div class="description-content">
+        <h2>About This Campaign</h2>
+        <p>{{ camp.description }}</p>
+
+        @if (camp.descriptionAr) {
+          <p class="arabic-text">{{ camp.descriptionAr }}</p>
+        }
+
+        @if (camp.terms && camp.terms.length > 0) {
+          <div class="campaign-terms">
+            <h3>Terms & Conditions</h3>
+            <ul>
+              @for (term of camp.terms; track $index) {
+                <li>{{ term }}</li>
+              }
+            </ul>
+          </div>
+        }
+      </div>
+    </div>
+  </section>
+
+  <!-- Campaign Products -->
+  <section class="campaign-products" #productsSection>
+    <div class="container mx-auto px-4 py-12">
+      <div class="section-header">
+        <h2 class="section-title">Featured Products</h2>
+        <p class="section-subtitle">Discover amazing deals on authentic Syrian products</p>
+      </div>
+
+      @if (isLoading()) {
+        <div class="loading-state">
+          <mat-spinner diameter="50"></mat-spinner>
+          <p>Loading products...</p>
+        </div>
+      } @else if (error()) {
+        <div class="error-state">
+          <mat-icon>error_outline</mat-icon>
+          <h3>Failed to load products</h3>
+          <p>{{ error() }}</p>
+          <button mat-raised-button color="primary" (click)="loadProducts()">
+            <mat-icon>refresh</mat-icon>
+            Retry
+          </button>
+        </div>
+      } @else if (products().length === 0) {
+        <div class="empty-state">
+          <mat-icon>shopping_bag</mat-icon>
+          <h3>No products available</h3>
+          <p>This campaign doesn't have any products yet. Check back soon!</p>
+          <button mat-raised-button color="primary" routerLink="/">
+            <mat-icon>arrow_back</mat-icon>
+            Browse All Products
+          </button>
+        </div>
+      } @else {
+        <div class="products-grid">
+          @for (product of products(); track product.id) {
+            <mat-card class="product-card">
+              <div class="product-image">
+                <img [src]="product.images[0]" [alt]="product.name">
+                @if (product.price.discount && product.price.discount.percentage > 0) {
+                  <div class="discount-badge">-{{ product.price.discount.percentage }}%</div>
+                }
+                @if (!product.inventory.inStock) {
+                  <div class="out-of-stock-overlay">Out of Stock</div>
+                }
+              </div>
+
+              <mat-card-content>
+                <div class="product-category">{{ product.category.name }}</div>
+                <h3 class="product-name">{{ product.name }}</h3>
+                <p class="product-description">{{ product.description }}</p>
+
+                <div class="product-price">
+                  @if (product.price.discount && product.price.discount.percentage > 0) {
+                    <span class="original-price">${{ product.price.amount }}</span>
+                    <span class="discounted-price">${{ calculateDiscountedPrice(product) }}</span>
+                  } @else {
+                    <span class="current-price">${{ product.price.amount }}</span>
+                  }
+                </div>
+
+                <div class="product-meta">
+                  @if (product.reviews.averageRating > 0) {
+                    <div class="rating">
+                      <mat-icon>star</mat-icon>
+                      <span>{{ product.reviews.averageRating.toFixed(1) }}</span>
+                      <span class="review-count">({{ product.reviews.totalReviews }})</span>
+                    </div>
+                  }
+
+                  @if (product.authenticity.isUNESCO) {
+                    <div class="unesco-badge" matTooltip="UNESCO Heritage Certified">
+                      <mat-icon>verified</mat-icon>
+                      <span>UNESCO</span>
+                    </div>
+                  }
+                </div>
+              </mat-card-content>
+
+              <mat-card-actions>
+                <button
+                  mat-raised-button
+                  color="primary"
+                  [routerLink]="['/product', product.slug]"
+                  class="view-details-btn">
+                  View Details
+                </button>
+                <button
+                  mat-icon-button
+                  matTooltip="Add to Wishlist"
+                  class="wishlist-btn">
+                  <mat-icon>favorite_border</mat-icon>
+                </button>
+              </mat-card-actions>
+            </mat-card>
+          }
+        </div>
+      }
+    </div>
+  </section>
+
+  <!-- Related Campaigns -->
+  @if (relatedCampaigns().length > 0) {
+    <section class="related-campaigns">
+      <div class="container mx-auto px-4 py-12">
+        <h2 class="section-title">Related Campaigns</h2>
+        <div class="campaigns-grid">
+          @for (related of relatedCampaigns(); track related.slug) {
+            <mat-card class="related-campaign-card" [routerLink]="['/campaign', related.slug]">
+              <div class="campaign-image" [style.background-image]="'url(' + related.bannerImage + ')'">
+                <div class="campaign-status" [class]="'status-' + related.status">
+                  {{ related.status }}
+                </div>
+              </div>
+              <mat-card-content>
+                <h3>{{ related.name }}</h3>
+                <p>{{ related.shortDescription }}</p>
+                <div class="campaign-info">
+                  <span class="discount">Up to {{ related.discount }}% OFF</span>
+                  <span class="products">{{ related.productCount }} items</span>
+                </div>
+              </mat-card-content>
+            </mat-card>
+          }
+        </div>
+      </div>
+    </section>
+  }
+</div>
+
+<!-- Campaign Not Found -->
+@if (!campaign() && !isLoading()) {
+  <div class="not-found-state">
+    <mat-icon>search_off</mat-icon>
+    <h2>Campaign Not Found</h2>
+    <p>The campaign you're looking for doesn't exist or has been removed.</p>
+    <button mat-raised-button color="primary" routerLink="/">
+      <mat-icon>home</mat-icon>
+      Back to Homepage
+    </button>
+  </div>
+}

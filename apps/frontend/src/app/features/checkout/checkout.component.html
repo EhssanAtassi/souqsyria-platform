@@ -1,0 +1,595 @@
+    <div class="min-h-screen bg-gradient-to-br from-amber-50 via-white to-green-50">
+      <div class="container mx-auto px-4 py-8 max-w-6xl">
+        
+        <!-- Header -->
+        <div class="mb-8">
+          <div class="flex items-center justify-between mb-4">
+            <h1 class="text-3xl font-bold text-gray-800"
+                [class.text-right]="currentLanguage() === 'ar'">
+              {{ currentLanguage() === 'ar' ? 'إتمام الطلب' : 'Checkout' }}
+            </h1>
+            <button mat-icon-button 
+                    [routerLink]="['/cart']"
+                    [matTooltip]="currentLanguage() === 'ar' ? 'العودة للسلة' : 'Back to Cart'">
+              <mat-icon>arrow_back</mat-icon>
+            </button>
+          </div>
+          
+          <!-- Progress Indicator -->
+          <div class="w-full bg-gray-200 rounded-full h-2">
+            <div class="bg-gradient-to-r from-amber-600 to-amber-500 h-2 rounded-full transition-all duration-300"
+                 [style.width.%]="getProgressPercentage()"></div>
+          </div>
+          <div class="flex justify-between mt-2 text-sm text-gray-600">
+            <span>{{ currentLanguage() === 'ar' ? 'الشحن' : 'Shipping' }}</span>
+            <span>{{ currentLanguage() === 'ar' ? 'الدفع' : 'Payment' }}</span>
+            <span>{{ currentLanguage() === 'ar' ? 'مراجعة' : 'Review' }}</span>
+            <span>{{ currentLanguage() === 'ar' ? 'تأكيد' : 'Confirm' }}</span>
+          </div>
+        </div>
+
+        <!-- Checkout Stepper -->
+        <mat-stepper [linear]="isLinear()" 
+                     [selectedIndex]="currentStep()"
+                     (selectionChange)="onStepChange($event)"
+                     class="bg-transparent">
+          
+          <!-- Step 1: Shipping Information -->
+          <mat-step [stepControl]="shippingForm()" label="Shipping Address">
+            <ng-template matStepLabel>
+              {{ currentLanguage() === 'ar' ? 'عنوان الشحن' : 'Shipping Address' }}
+            </ng-template>
+            
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mt-6">
+              
+              <!-- Shipping Form -->
+              <div class="lg:col-span-2">
+                <mat-card>
+                  <mat-card-header>
+                    <mat-card-title [class.text-right]="currentLanguage() === 'ar'">
+                      {{ currentLanguage() === 'ar' ? 'معلومات الشحن' : 'Shipping Information' }}
+                    </mat-card-title>
+                  </mat-card-header>
+                  <mat-card-content class="p-6">
+                    <form [formGroup]="shippingForm()" class="space-y-6">
+                      
+                      <!-- Personal Information -->
+                      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <mat-form-field appearance="outline" class="w-full">
+                          <mat-label>{{ currentLanguage() === 'ar' ? 'الاسم الأول' : 'First Name' }}</mat-label>
+                          <input matInput formControlName="firstName" 
+                                 [placeholder]="currentLanguage() === 'ar' ? 'أحمد' : 'Ahmad'">
+                          <mat-error *ngIf="shippingForm().get('firstName')?.hasError('required')">
+                            {{ currentLanguage() === 'ar' ? 'الاسم الأول مطلوب' : 'First name is required' }}
+                          </mat-error>
+                        </mat-form-field>
+
+                        <mat-form-field appearance="outline" class="w-full">
+                          <mat-label>{{ currentLanguage() === 'ar' ? 'اسم العائلة' : 'Last Name' }}</mat-label>
+                          <input matInput formControlName="lastName" 
+                                 [placeholder]="currentLanguage() === 'ar' ? 'محمد' : 'Mohammed'">
+                          <mat-error *ngIf="shippingForm().get('lastName')?.hasError('required')">
+                            {{ currentLanguage() === 'ar' ? 'اسم العائلة مطلوب' : 'Last name is required' }}
+                          </mat-error>
+                        </mat-form-field>
+                      </div>
+
+                      <!-- Contact Information -->
+                      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <mat-form-field appearance="outline" class="w-full">
+                          <mat-label>{{ currentLanguage() === 'ar' ? 'البريد الإلكتروني' : 'Email' }}</mat-label>
+                          <input matInput type="email" formControlName="email" 
+                                 placeholder="ahmad@example.com">
+                          <mat-error *ngIf="shippingForm().get('email')?.hasError('required')">
+                            {{ currentLanguage() === 'ar' ? 'البريد الإلكتروني مطلوب' : 'Email is required' }}
+                          </mat-error>
+                          <mat-error *ngIf="shippingForm().get('email')?.hasError('email')">
+                            {{ currentLanguage() === 'ar' ? 'صيغة البريد الإلكتروني غير صحيحة' : 'Invalid email format' }}
+                          </mat-error>
+                        </mat-form-field>
+
+                        <mat-form-field appearance="outline" class="w-full">
+                          <mat-label>{{ currentLanguage() === 'ar' ? 'رقم الهاتف' : 'Phone Number' }}</mat-label>
+                          <input matInput formControlName="phone" 
+                                 [placeholder]="currentLanguage() === 'ar' ? '+963 11 234 5678' : '+963 11 234 5678'">
+                          <mat-error *ngIf="shippingForm().get('phone')?.hasError('required')">
+                            {{ currentLanguage() === 'ar' ? 'رقم الهاتف مطلوب' : 'Phone number is required' }}
+                          </mat-error>
+                        </mat-form-field>
+                      </div>
+
+                      <!-- Address Information -->
+                      <mat-form-field appearance="outline" class="w-full">
+                        <mat-label>{{ currentLanguage() === 'ar' ? 'العنوان' : 'Street Address' }}</mat-label>
+                        <textarea matInput formControlName="address" rows="2"
+                                  [placeholder]="currentLanguage() === 'ar' ? 'شارع الثورة، بناء رقم 123' : 'Al-Thawra Street, Building 123'">
+                        </textarea>
+                        <mat-error *ngIf="shippingForm().get('address')?.hasError('required')">
+                          {{ currentLanguage() === 'ar' ? 'العنوان مطلوب' : 'Address is required' }}
+                        </mat-error>
+                      </mat-form-field>
+
+                      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <mat-form-field appearance="outline" class="w-full">
+                          <mat-label>{{ currentLanguage() === 'ar' ? 'المحافظة' : 'Governorate' }}</mat-label>
+                          <mat-select formControlName="governorate">
+                            <mat-option *ngFor="let gov of syrianGovernorates()" [value]="gov.value">
+                              {{ currentLanguage() === 'ar' ? gov.nameAr : gov.nameEn }}
+                            </mat-option>
+                          </mat-select>
+                          <mat-error *ngIf="shippingForm().get('governorate')?.hasError('required')">
+                            {{ currentLanguage() === 'ar' ? 'المحافظة مطلوبة' : 'Governorate is required' }}
+                          </mat-error>
+                        </mat-form-field>
+
+                        <mat-form-field appearance="outline" class="w-full">
+                          <mat-label>{{ currentLanguage() === 'ar' ? 'المدينة' : 'City' }}</mat-label>
+                          <input matInput formControlName="city" 
+                                 [placeholder]="currentLanguage() === 'ar' ? 'دمشق' : 'Damascus'">
+                          <mat-error *ngIf="shippingForm().get('city')?.hasError('required')">
+                            {{ currentLanguage() === 'ar' ? 'المدينة مطلوبة' : 'City is required' }}
+                          </mat-error>
+                        </mat-form-field>
+
+                        <mat-form-field appearance="outline" class="w-full">
+                          <mat-label>{{ currentLanguage() === 'ar' ? 'الرمز البريدي' : 'Postal Code' }}</mat-label>
+                          <input matInput formControlName="postalCode" 
+                                 placeholder="00000">
+                        </mat-form-field>
+                      </div>
+
+                      <!-- Special Instructions -->
+                      <mat-form-field appearance="outline" class="w-full">
+                        <mat-label>{{ currentLanguage() === 'ar' ? 'تعليمات خاصة (اختياري)' : 'Special Instructions (Optional)' }}</mat-label>
+                        <textarea matInput formControlName="specialInstructions" rows="3"
+                                  [placeholder]="currentLanguage() === 'ar' ? 'أي تعليمات خاصة للتسليم...' : 'Any special delivery instructions...'">
+                        </textarea>
+                      </mat-form-field>
+
+                    </form>
+                  </mat-card-content>
+                </mat-card>
+              </div>
+
+              <!-- Order Summary Sidebar -->
+              <div class="lg:col-span-1">
+                <mat-card class="sticky top-4">
+                  <mat-card-header>
+                    <mat-card-title [class.text-right]="currentLanguage() === 'ar'">
+                      {{ currentLanguage() === 'ar' ? 'ملخص الطلب' : 'Order Summary' }}
+                    </mat-card-title>
+                  </mat-card-header>
+                  <mat-card-content class="p-4">
+                    <div class="space-y-4">
+                      <!-- Cart Items -->
+                      <div *ngFor="let item of cartItems()" 
+                           class="flex items-center space-x-3"
+                           [class.space-x-reverse]="currentLanguage() === 'ar'">
+                        <img [src]="item.product.images[0].url || '/assets/images/placeholder-image.svg'" 
+                             [alt]="item.product.name"
+                             class="w-12 h-12 rounded-lg object-cover">
+                        <div class="flex-1">
+                          <p class="text-sm font-medium truncate">{{ item.product.name }}</p>
+                          <p class="text-xs text-gray-500">
+                            {{ currentLanguage() === 'ar' ? 'الكمية:' : 'Qty:' }} {{ item.quantity }}
+                          </p>
+                        </div>
+                        <span class="text-sm font-semibold">{{ formatCurrency(item.product.price.amount * item.quantity) }}</span>
+                      </div>
+
+                      <mat-divider></mat-divider>
+
+                      <!-- Totals -->
+                      <div class="space-y-2">
+                        <div class="flex justify-between text-sm">
+                          <span>{{ currentLanguage() === 'ar' ? 'المجموع الفرعي:' : 'Subtotal:' }}</span>
+                          <span>{{ formatCurrency(getSubtotal()) }}</span>
+                        </div>
+                        <div class="flex justify-between text-sm">
+                          <span>{{ currentLanguage() === 'ar' ? 'الشحن:' : 'Shipping:' }}</span>
+                          <span>{{ formatCurrency(getShippingCost()) }}</span>
+                        </div>
+                        <div class="flex justify-between text-sm">
+                          <span>{{ currentLanguage() === 'ar' ? 'الضريبة:' : 'Tax:' }}</span>
+                          <span>{{ formatCurrency(getTaxAmount()) }}</span>
+                        </div>
+                        <mat-divider></mat-divider>
+                        <div class="flex justify-between text-lg font-bold">
+                          <span>{{ currentLanguage() === 'ar' ? 'الإجمالي:' : 'Total:' }}</span>
+                          <span class="text-amber-600">{{ formatCurrency(getTotal()) }}</span>
+                        </div>
+                      </div>
+                    </div>
+                  </mat-card-content>
+                </mat-card>
+
+                <!-- Phase 5: Last Chance Recommendations -->
+                <div class="mt-4">
+                  <app-product-recommendations-carousel
+                    *ngIf="getFirstCartProductId()"
+                    [productId]="getFirstCartProductId()"
+                    [type]="'similar'"
+                    [title]="currentLanguage() === 'ar' ? 'فرصة أخيرة للإضافة' : 'Last Chance to Add'"
+                    [titleAr]="'فرصة أخيرة للإضافة'"
+                    [limit]="4"
+                    [showViewAll]="false"
+                    [language]="currentLanguage()"
+                    (productClick)="onLastChanceProductClick($event)"
+                    (addToCart)="onLastChanceAddToCart($event)">
+                  </app-product-recommendations-carousel>
+                </div>
+              </div>
+            </div>
+
+            <!-- Navigation Buttons -->
+            <div class="flex justify-between mt-8">
+              <button mat-stroked-button [routerLink]="['/cart']">
+                <mat-icon>arrow_back</mat-icon>
+                {{ currentLanguage() === 'ar' ? 'العودة للسلة' : 'Back to Cart' }}
+              </button>
+              <button mat-raised-button
+                      color="primary"
+                      [disabled]="shippingForm().invalid"
+                      (click)="nextStep()">
+                {{ currentLanguage() === 'ar' ? 'التالي' : 'Next' }}
+                <mat-icon>arrow_forward</mat-icon>
+              </button>
+            </div>
+          </mat-step>
+
+          <!-- Step 2: Payment Method -->
+          <mat-step [stepControl]="paymentForm()" label="Payment">
+            <ng-template matStepLabel>
+              {{ currentLanguage() === 'ar' ? 'طريقة الدفع' : 'Payment Method' }}
+            </ng-template>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mt-6">
+              
+              <!-- Payment Form -->
+              <div class="lg:col-span-2">
+                <mat-card>
+                  <mat-card-header>
+                    <mat-card-title [class.text-right]="currentLanguage() === 'ar'">
+                      {{ currentLanguage() === 'ar' ? 'اختر طريقة الدفع' : 'Choose Payment Method' }}
+                    </mat-card-title>
+                  </mat-card-header>
+                  <mat-card-content class="p-6">
+                    <form [formGroup]="paymentForm()">
+                      
+                      <!-- Payment Method Selection -->
+                      <mat-radio-group formControlName="paymentMethod" class="payment-methods">
+                        
+                        <!-- Cash on Delivery -->
+                        <div class="payment-option">
+                          <mat-radio-button value="cod" class="w-full">
+                            <div class="flex items-center justify-between w-full pl-4">
+                              <div class="flex items-center space-x-3">
+                                <mat-icon class="text-green-600">local_shipping</mat-icon>
+                                <div>
+                                  <p class="font-medium">
+                                    {{ currentLanguage() === 'ar' ? 'الدفع عند الاستلام' : 'Cash on Delivery' }}
+                                  </p>
+                                  <p class="text-sm text-gray-600">
+                                    {{ currentLanguage() === 'ar' ? 'ادفع نقداً عند وصول طلبك' : 'Pay cash when your order arrives' }}
+                                  </p>
+                                </div>
+                              </div>
+                              <span class="text-green-600 font-semibold">
+                                {{ currentLanguage() === 'ar' ? 'متوفر' : 'Available' }}
+                              </span>
+                            </div>
+                          </mat-radio-button>
+                        </div>
+
+                        <!-- Bank Transfer -->
+                        <div class="payment-option">
+                          <mat-radio-button value="bank_transfer" class="w-full">
+                            <div class="flex items-center justify-between w-full pl-4">
+                              <div class="flex items-center space-x-3">
+                                <mat-icon class="text-blue-600">account_balance</mat-icon>
+                                <div>
+                                  <p class="font-medium">
+                                    {{ currentLanguage() === 'ar' ? 'تحويل بنكي' : 'Bank Transfer' }}
+                                  </p>
+                                  <p class="text-sm text-gray-600">
+                                    {{ currentLanguage() === 'ar' ? 'حول المبلغ إلى حسابنا البنكي' : 'Transfer amount to our bank account' }}
+                                  </p>
+                                </div>
+                              </div>
+                              <span class="text-blue-600 font-semibold">
+                                {{ currentLanguage() === 'ar' ? 'آمن' : 'Secure' }}
+                              </span>
+                            </div>
+                          </mat-radio-button>
+                        </div>
+
+                        <!-- Mobile Payment -->
+                        <div class="payment-option">
+                          <mat-radio-button value="mobile_payment" class="w-full">
+                            <div class="flex items-center justify-between w-full pl-4">
+                              <div class="flex items-center space-x-3">
+                                <mat-icon class="text-purple-600">smartphone</mat-icon>
+                                <div>
+                                  <p class="font-medium">
+                                    {{ currentLanguage() === 'ar' ? 'دفع عبر الهاتف' : 'Mobile Payment' }}
+                                  </p>
+                                  <p class="text-sm text-gray-600">
+                                    {{ currentLanguage() === 'ar' ? 'ادفع عبر تطبيق البنك المحمول' : 'Pay via mobile banking app' }}
+                                  </p>
+                                </div>
+                              </div>
+                              <span class="text-purple-600 font-semibold">
+                                {{ currentLanguage() === 'ar' ? 'سريع' : 'Fast' }}
+                              </span>
+                            </div>
+                          </mat-radio-button>
+                        </div>
+
+                      </mat-radio-group>
+
+                      <!-- Payment Details (shown based on selection) -->
+                      <div *ngIf="paymentForm().get('paymentMethod')?.value === 'bank_transfer'" 
+                           class="mt-6 p-4 bg-blue-50 rounded-lg">
+                        <h4 class="font-semibold mb-3"
+                            [class.text-right]="currentLanguage() === 'ar'">
+                          {{ currentLanguage() === 'ar' ? 'تفاصيل التحويل البنكي' : 'Bank Transfer Details' }}
+                        </h4>
+                        <div class="space-y-2 text-sm">
+                          <p><strong>{{ currentLanguage() === 'ar' ? 'اسم البنك:' : 'Bank Name:' }}</strong> البنك التجاري السوري</p>
+                          <p><strong>{{ currentLanguage() === 'ar' ? 'رقم الحساب:' : 'Account Number:' }}</strong> 123456789</p>
+                          <p><strong>{{ currentLanguage() === 'ar' ? 'اسم المستفيد:' : 'Beneficiary:' }}</strong> Souq Syria Marketplace</p>
+                          <p><strong>{{ currentLanguage() === 'ar' ? 'المبلغ:' : 'Amount:' }}</strong> {{ formatCurrency(getTotal()) }}</p>
+                        </div>
+                      </div>
+
+                      <div *ngIf="paymentForm().get('paymentMethod')?.value === 'mobile_payment'" 
+                           class="mt-6 p-4 bg-purple-50 rounded-lg">
+                        <h4 class="font-semibold mb-3"
+                            [class.text-right]="currentLanguage() === 'ar'">
+                          {{ currentLanguage() === 'ar' ? 'الدفع عبر الهاتف' : 'Mobile Payment Instructions' }}
+                        </h4>
+                        <p class="text-sm text-gray-600">
+                          {{ currentLanguage() === 'ar' 
+                            ? 'سيتم إرسال رسالة نصية تحتوي على تعليمات الدفع إلى رقم هاتفك المسجل.'
+                            : 'Payment instructions will be sent via SMS to your registered phone number.' }}
+                        </p>
+                      </div>
+
+                    </form>
+                  </mat-card-content>
+                </mat-card>
+              </div>
+
+              <!-- Order Summary (repeated) -->
+              <div class="lg:col-span-1">
+                <mat-card class="sticky top-4">
+                  <mat-card-header>
+                    <mat-card-title [class.text-right]="currentLanguage() === 'ar'">
+                      {{ currentLanguage() === 'ar' ? 'ملخص الطلب' : 'Order Summary' }}
+                    </mat-card-title>
+                  </mat-card-header>
+                  <mat-card-content class="p-4">
+                    <div class="text-center p-4 bg-amber-50 rounded-lg">
+                      <mat-icon class="text-amber-600 text-4xl mb-2">payment</mat-icon>
+                      <p class="font-semibold text-amber-800">
+                        {{ currentLanguage() === 'ar' ? 'المبلغ المطلوب دفعه' : 'Amount to Pay' }}
+                      </p>
+                      <p class="text-2xl font-bold text-amber-600">{{ formatCurrency(getTotal()) }}</p>
+                    </div>
+                  </mat-card-content>
+                </mat-card>
+              </div>
+            </div>
+
+            <!-- Navigation Buttons -->
+            <div class="flex justify-between mt-8">
+              <button mat-stroked-button (click)="previousStep()">
+                <mat-icon>arrow_back</mat-icon>
+                {{ currentLanguage() === 'ar' ? 'السابق' : 'Previous' }}
+              </button>
+              <button mat-raised-button 
+                      color="primary" 
+                      [disabled]="paymentForm().invalid"
+                      (click)="nextStep()">
+                {{ currentLanguage() === 'ar' ? 'مراجعة الطلب' : 'Review Order' }}
+                <mat-icon>arrow_forward</mat-icon>
+              </button>
+            </div>
+          </mat-step>
+
+          <!-- Step 3: Order Review -->
+          <mat-step label="Review">
+            <ng-template matStepLabel>
+              {{ currentLanguage() === 'ar' ? 'مراجعة الطلب' : 'Review Order' }}
+            </ng-template>
+
+            <div class="mt-6 space-y-6">
+              
+              <!-- Order Review Cards -->
+              <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                
+                <!-- Shipping Information Review -->
+                <mat-card>
+                  <mat-card-header>
+                    <mat-card-title [class.text-right]="currentLanguage() === 'ar'">
+                      <mat-icon class="mr-2">local_shipping</mat-icon>
+                      {{ currentLanguage() === 'ar' ? 'معلومات الشحن' : 'Shipping Information' }}
+                    </mat-card-title>
+                    <button mat-icon-button (click)="goToStep(0)">
+                      <mat-icon>edit</mat-icon>
+                    </button>
+                  </mat-card-header>
+                  <mat-card-content>
+                    <div class="space-y-2 text-sm">
+                      <p><strong>{{ shippingForm().get('firstName')?.value }} {{ shippingForm().get('lastName')?.value }}</strong></p>
+                      <p>{{ shippingForm().get('email')?.value }}</p>
+                      <p>{{ shippingForm().get('phone')?.value }}</p>
+                      <p>{{ shippingForm().get('address')?.value }}</p>
+                      <p>{{ shippingForm().get('city')?.value }}, {{ getGovernorateLabel(shippingForm().get('governorate')?.value) }}</p>
+                      <p *ngIf="shippingForm().get('postalCode')?.value">
+                        {{ currentLanguage() === 'ar' ? 'الرمز البريدي:' : 'Postal Code:' }} {{ shippingForm().get('postalCode')?.value }}
+                      </p>
+                    </div>
+                  </mat-card-content>
+                </mat-card>
+
+                <!-- Payment Method Review -->
+                <mat-card>
+                  <mat-card-header>
+                    <mat-card-title [class.text-right]="currentLanguage() === 'ar'">
+                      <mat-icon class="mr-2">payment</mat-icon>
+                      {{ currentLanguage() === 'ar' ? 'طريقة الدفع' : 'Payment Method' }}
+                    </mat-card-title>
+                    <button mat-icon-button (click)="goToStep(1)">
+                      <mat-icon>edit</mat-icon>
+                    </button>
+                  </mat-card-header>
+                  <mat-card-content>
+                    <div class="text-sm">
+                      <p class="font-medium">{{ getPaymentMethodLabel() }}</p>
+                      <p class="text-gray-600 mt-1">{{ getPaymentMethodDescription() }}</p>
+                    </div>
+                  </mat-card-content>
+                </mat-card>
+              </div>
+
+              <!-- Order Items Review -->
+              <mat-card>
+                <mat-card-header>
+                  <mat-card-title [class.text-right]="currentLanguage() === 'ar'">
+                    <mat-icon class="mr-2">shopping_cart</mat-icon>
+                    {{ currentLanguage() === 'ar' ? 'العناصر المطلوبة' : 'Order Items' }}
+                  </mat-card-title>
+                </mat-card-header>
+                <mat-card-content>
+                  <div class="space-y-4">
+                    <div *ngFor="let item of cartItems()" 
+                         class="flex items-center space-x-4 p-4 border rounded-lg"
+                         [class.space-x-reverse]="currentLanguage() === 'ar'">
+                      <img [src]="item.product.images[0].url || '/assets/images/placeholder-image.svg'" 
+                           [alt]="item.product.name"
+                           class="w-16 h-16 rounded-lg object-cover">
+                      <div class="flex-1">
+                        <h4 class="font-medium">{{ item.product.name }}</h4>
+                        <p class="text-sm text-gray-600 mt-1">{{ item.product.description }}</p>
+                        <div class="flex items-center space-x-4 mt-2"
+                             [class.space-x-reverse]="currentLanguage() === 'ar'">
+                          <span class="text-sm">
+                            {{ currentLanguage() === 'ar' ? 'الكمية:' : 'Quantity:' }} {{ item.quantity }}
+                          </span>
+                          <span class="text-sm">
+                            {{ currentLanguage() === 'ar' ? 'السعر:' : 'Price:' }} {{ formatCurrency(item.product.price.amount) }}
+                          </span>
+                        </div>
+                      </div>
+                      <div class="text-right">
+                        <p class="font-semibold">{{ formatCurrency(item.product.price.amount * item.quantity) }}</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Final Total -->
+                  <mat-divider class="my-4"></mat-divider>
+                  <div class="bg-gradient-to-r from-amber-50 to-yellow-50 p-4 rounded-lg">
+                    <div class="space-y-2">
+                      <div class="flex justify-between">
+                        <span>{{ currentLanguage() === 'ar' ? 'المجموع الفرعي:' : 'Subtotal:' }}</span>
+                        <span>{{ formatCurrency(getSubtotal()) }}</span>
+                      </div>
+                      <div class="flex justify-between">
+                        <span>{{ currentLanguage() === 'ar' ? 'الشحن:' : 'Shipping:' }}</span>
+                        <span>{{ formatCurrency(getShippingCost()) }}</span>
+                      </div>
+                      <div class="flex justify-between">
+                        <span>{{ currentLanguage() === 'ar' ? 'الضريبة:' : 'Tax:' }}</span>
+                        <span>{{ formatCurrency(getTaxAmount()) }}</span>
+                      </div>
+                      <mat-divider></mat-divider>
+                      <div class="flex justify-between text-xl font-bold">
+                        <span>{{ currentLanguage() === 'ar' ? 'الإجمالي النهائي:' : 'Final Total:' }}</span>
+                        <span class="text-amber-600">{{ formatCurrency(getTotal()) }}</span>
+                      </div>
+                    </div>
+                  </div>
+                </mat-card-content>
+              </mat-card>
+            </div>
+
+            <!-- Navigation Buttons -->
+            <div class="flex justify-between mt-8">
+              <button mat-stroked-button (click)="previousStep()">
+                <mat-icon>arrow_back</mat-icon>
+                {{ currentLanguage() === 'ar' ? 'السابق' : 'Previous' }}
+              </button>
+              <button mat-raised-button 
+                      color="primary" 
+                      class="bg-green-600 hover:bg-green-700"
+                      (click)="confirmOrder()">
+                <mat-icon>check_circle</mat-icon>
+                {{ currentLanguage() === 'ar' ? 'تأكيد الطلب' : 'Confirm Order' }}
+              </button>
+            </div>
+          </mat-step>
+
+          <!-- Step 4: Order Confirmation -->
+          <mat-step label="Confirmation">
+            <ng-template matStepLabel>
+              {{ currentLanguage() === 'ar' ? 'تأكيد الطلب' : 'Order Confirmation' }}
+            </ng-template>
+
+            <div class="text-center py-12" *ngIf="!isProcessingOrder()">
+              <div class="mb-8">
+                <mat-icon class="text-green-500 text-8xl mb-4">check_circle</mat-icon>
+                <h2 class="text-3xl font-bold text-gray-800 mb-2">
+                  {{ currentLanguage() === 'ar' ? 'تم تأكيد طلبك!' : 'Order Confirmed!' }}
+                </h2>
+                <p class="text-gray-600 mb-4">
+                  {{ currentLanguage() === 'ar' 
+                    ? 'شكراً لك! تم استلام طلبك وسيتم معالجته قريباً.'
+                    : 'Thank you! Your order has been received and will be processed soon.' }}
+                </p>
+              </div>
+
+              <mat-card class="max-w-md mx-auto mb-8">
+                <mat-card-content class="p-6">
+                  <div class="text-center">
+                    <p class="text-sm text-gray-600 mb-2">
+                      {{ currentLanguage() === 'ar' ? 'رقم الطلب' : 'Order Number' }}
+                    </p>
+                    <p class="text-2xl font-bold text-amber-600">{{ orderNumber() }}</p>
+                    <p class="text-sm text-gray-600 mt-4">
+                      {{ currentLanguage() === 'ar' 
+                        ? 'سيتم إرسال تفاصيل الطلب إلى بريدك الإلكتروني'
+                        : 'Order details will be sent to your email' }}
+                    </p>
+                  </div>
+                </mat-card-content>
+              </mat-card>
+
+              <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                <button mat-raised-button color="primary" [routerLink]="['/']">
+                  <mat-icon>home</mat-icon>
+                  {{ currentLanguage() === 'ar' ? 'العودة للرئيسية' : 'Back to Home' }}
+                </button>
+                <button mat-stroked-button [routerLink]="['/account/orders']">
+                  <mat-icon>receipt_long</mat-icon>
+                  {{ currentLanguage() === 'ar' ? 'عرض طلباتي' : 'View My Orders' }}
+                </button>
+              </div>
+            </div>
+
+            <!-- Processing State -->
+            <div class="text-center py-12" *ngIf="isProcessingOrder()">
+              <mat-progress-spinner mode="indeterminate" diameter="80" class="mx-auto mb-4"></mat-progress-spinner>
+              <h3 class="text-xl font-semibold mb-2">
+                {{ currentLanguage() === 'ar' ? 'جاري معالجة طلبك...' : 'Processing your order...' }}
+              </h3>
+              <p class="text-gray-600">
+                {{ currentLanguage() === 'ar' ? 'يرجى الانتظار...' : 'Please wait...' }}
+              </p>
+            </div>
+          </mat-step>
+
+        </mat-stepper>
+      </div>
+    </div>

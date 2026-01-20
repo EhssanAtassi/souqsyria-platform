@@ -1,0 +1,52 @@
+    <div class="slider-demo-container">
+      <h2>Slider Image Swiper Demo</h2>
+
+      <!-- Demo with multiple images -->
+      <section class="demo-section">
+        <h3>Multiple Images with Autoplay</h3>
+        <div class="demo-wrapper">
+          <app-slider-image-swiper
+            [images]="heroImages"
+            [offerBaseUrl]="'/offers'"
+            [category]="'electronics'"
+            [autoplay]="true"
+            [intervalMs]="3000"
+            [pauseOnHover]="true">
+          </app-slider-image-swiper>
+        </div>
+      </section>
+
+      <!-- Demo with single image -->
+      <section class="demo-section">
+        <h3>Single Image (No Navigation)</h3>
+        <div class="demo-wrapper">
+          <app-slider-image-swiper
+            [images]="singleImage"
+            [offerBaseUrl]="'/offers'"
+            [autoplay]="false">
+          </app-slider-image-swiper>
+        </div>
+      </section>
+
+      <!-- Demo with empty state -->
+      <section class="demo-section">
+        <h3>Empty State</h3>
+        <div class="demo-wrapper">
+          <app-slider-image-swiper
+            [images]="[]">
+          </app-slider-image-swiper>
+        </div>
+      </section>
+
+      <!-- Demo with custom links -->
+      <section class="demo-section">
+        <h3>Custom Navigation Links</h3>
+        <div class="demo-wrapper">
+          <app-slider-image-swiper
+            [images]="customLinkImages"
+            [autoplay]="true"
+            [intervalMs]="4000">
+          </app-slider-image-swiper>
+        </div>
+      </section>
+    </div>

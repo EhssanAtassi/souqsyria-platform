@@ -1,0 +1,517 @@
+/* Syrian Governorate Dropdown Component Styles */
+
+.syrian-location-selector {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  position: relative;
+
+  // RTL Support
+  &.rtl {
+    direction: rtl;
+    text-align: right;
+
+    .mat-form-field {
+      direction: rtl;
+    }
+
+    .mat-select-panel {
+      direction: rtl;
+    }
+
+    .governorate-option,
+    .region-option {
+      text-align: right;
+    }
+
+    .selection-summary {
+      text-align: right;
+    }
+  }
+
+  // Form Fields
+  .mat-form-field {
+    width: 100%;
+
+    &.governorate-field {
+      .mat-form-field-label {
+        color: #988561;
+        font-weight: 500;
+      }
+
+      .mat-form-field-outline {
+        color: #988561;
+      }
+
+      &.mat-focused {
+        .mat-form-field-outline-thick {
+          color: #988561;
+        }
+
+        .mat-form-field-label {
+          color: #988561;
+        }
+      }
+    }
+
+    &.region-field {
+      .mat-form-field-label {
+        color: #054239;
+        font-weight: 500;
+      }
+
+      .mat-form-field-outline {
+        color: #054239;
+      }
+
+      &.mat-focused {
+        .mat-form-field-outline-thick {
+          color: #054239;
+        }
+
+        .mat-form-field-label {
+          color: #054239;
+        }
+      }
+    }
+
+    &.search-field {
+      .mat-form-field-label {
+        color: #666;
+        font-style: italic;
+      }
+
+      .mat-form-field-outline {
+        color: #ccc;
+      }
+
+      &.mat-focused {
+        .mat-form-field-outline-thick {
+          color: #999;
+        }
+
+        .mat-form-field-label {
+          color: #666;
+        }
+      }
+    }
+  }
+
+  // Info Icon
+  .info-icon {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+    margin-left: 4px;
+    color: #988561;
+    cursor: help;
+  }
+
+  // Option Styling
+  .governorate-option {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 4px 0;
+    width: 100%;
+
+    .governorate-main {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+
+      .governorate-name {
+        font-weight: 500;
+        color: #2c3e50;
+        flex: 1;
+      }
+
+      .heritage-badge {
+        color: #d4af37;
+        margin-left: 8px;
+
+        mat-icon {
+          font-size: 18px;
+          width: 18px;
+          height: 18px;
+        }
+      }
+    }
+
+    .shipping-info {
+      display: flex;
+      gap: 16px;
+      font-size: 12px;
+      color: #666;
+      margin-top: 2px;
+
+      .shipping-zone {
+        background: #e3f2fd;
+        color: #1565c0;
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-weight: 500;
+      }
+
+      .delivery-time {
+        background: #e8f5e8;
+        color: #2e7d32;
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-weight: 500;
+      }
+    }
+  }
+
+  .region-option {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 4px 0;
+    width: 100%;
+
+    .region-name {
+      font-weight: 500;
+      color: #2c3e50;
+      flex: 1;
+    }
+
+    .postal-code {
+      font-size: 11px;
+      color: #666;
+      background: #f5f5f5;
+      padding: 2px 4px;
+      border-radius: 3px;
+      font-family: monospace;
+    }
+
+    .urban-badge {
+      color: #1976d2;
+
+      mat-icon {
+        font-size: 16px;
+        width: 16px;
+        height: 16px;
+      }
+    }
+
+    .no-delivery-badge {
+      color: #d32f2f;
+
+      mat-icon {
+        font-size: 16px;
+        width: 16px;
+        height: 16px;
+      }
+    }
+  }
+
+  // Loading States
+  .mat-option {
+    &:disabled {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: #666;
+
+      mat-spinner {
+        margin-right: 8px;
+      }
+    }
+  }
+
+  // Selection Summary
+  .selection-summary {
+    margin-top: 8px;
+
+    .summary-card {
+      background: linear-gradient(135deg, #f8f6f1 0%, #f5f2eb 100%);
+      border: 1px solid #e6ddc4;
+      border-radius: 8px;
+      padding: 16px;
+      box-shadow: 0 2px 4px rgba(152, 133, 97, 0.1);
+
+      .summary-title {
+        margin: 0 0 12px 0;
+        font-size: 14px;
+        font-weight: 600;
+        color: #988561;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+
+        &::before {
+          content: '';
+          width: 4px;
+          height: 16px;
+          background: #988561;
+          border-radius: 2px;
+        }
+      }
+
+      .summary-content {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+
+        .governorate-summary,
+        .region-summary {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+
+          .label {
+            font-weight: 500;
+            color: #054239;
+            min-width: 80px;
+          }
+
+          .value {
+            color: #2c3e50;
+            font-weight: 600;
+          }
+        }
+
+        .shipping-summary {
+          margin-top: 8px;
+          padding-top: 8px;
+          border-top: 1px solid #e6ddc4;
+          display: flex;
+          gap: 16px;
+
+          .shipping-details,
+          .delivery-details {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+
+            .label {
+              font-size: 12px;
+              color: #666;
+              font-weight: 500;
+            }
+
+            .value {
+              font-size: 12px;
+              font-weight: 600;
+              padding: 2px 6px;
+              border-radius: 4px;
+            }
+          }
+
+          .shipping-details .value {
+            background: #e3f2fd;
+            color: #1565c0;
+          }
+
+          .delivery-details .value {
+            background: #e8f5e8;
+            color: #2e7d32;
+          }
+        }
+      }
+    }
+  }
+
+  // Error Message
+  .error-message {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 16px;
+    background: #ffebee;
+    border: 1px solid #ffcdd2;
+    border-radius: 6px;
+    color: #c62828;
+    font-size: 14px;
+    margin-top: 8px;
+
+    mat-icon {
+      font-size: 18px;
+      width: 18px;
+      height: 18px;
+      color: #d32f2f;
+    }
+  }
+
+  // Search Field Enhancements
+  .search-field {
+    .mat-form-field-wrapper {
+      background: #fafafa;
+      border-radius: 6px;
+    }
+
+    input {
+      font-size: 14px;
+
+      &::placeholder {
+        color: #999;
+        font-style: italic;
+      }
+    }
+  }
+
+  // Responsive Design
+  @media (max-width: 768px) {
+    gap: 12px;
+
+    .governorate-option {
+      .shipping-info {
+        flex-direction: column;
+        gap: 4px;
+        align-items: flex-start;
+      }
+    }
+
+    .selection-summary {
+      .summary-card {
+        padding: 12px;
+
+        .summary-content {
+          .shipping-summary {
+            flex-direction: column;
+            gap: 8px;
+          }
+        }
+      }
+    }
+  }
+
+  // Dark Theme Support
+  @media (prefers-color-scheme: dark) {
+    .selection-summary {
+      .summary-card {
+        background: linear-gradient(135deg, #2c2c2c 0%, #383838 100%);
+        border-color: #555;
+        color: #e0e0e0;
+
+        .summary-title {
+          color: #988561;
+
+          &::before {
+            background: #988561;
+          }
+        }
+
+        .summary-content {
+          .label {
+            color: #81c784;
+          }
+
+          .value {
+            color: #e0e0e0;
+          }
+
+          .shipping-summary {
+            border-top-color: #555;
+          }
+        }
+      }
+    }
+
+    .error-message {
+      background: #2c1810;
+      border-color: #d32f2f;
+      color: #ffcdd2;
+    }
+  }
+
+  // Animation & Transitions
+  .mat-form-field {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .selection-summary {
+    animation: slideIn 0.3s ease-out;
+  }
+
+  .error-message {
+    animation: shake 0.5s ease-in-out;
+  }
+
+  // Accessibility Enhancements
+  .mat-form-field:focus-within {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(152, 133, 97, 0.15);
+  }
+
+  // High Contrast Mode Support
+  @media (forced-colors: active) {
+    .heritage-badge {
+      forced-color-adjust: none;
+      color: Highlight;
+    }
+
+    .shipping-info {
+      .shipping-zone,
+      .delivery-time {
+        forced-color-adjust: none;
+        border: 1px solid ButtonText;
+      }
+    }
+  }
+}
+
+// Keyframes for animations
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  75% { transform: translateX(5px); }
+}
+
+// Golden Wheat Theme Integration
+.syrian-location-selector {
+  // Primary colors from Golden Wheat theme
+  --primary-golden: #988561;
+  --primary-dark-green: #054239;
+  --accent-warm-beige: #f8f6f1;
+  --accent-soft-cream: #faf9f5;
+
+  // Enhanced focus states
+  .mat-form-field {
+    &.mat-focused {
+      .mat-form-field-ripple {
+        background-color: var(--primary-golden);
+      }
+    }
+  }
+
+  // Custom select panel styling
+  ::ng-deep .mat-select-panel {
+    border-radius: 8px;
+    box-shadow: 0 8px 24px rgba(152, 133, 97, 0.15);
+
+    .mat-option {
+      &:hover {
+        background-color: var(--accent-warm-beige);
+      }
+
+      &.mat-selected {
+        background-color: var(--primary-golden);
+        color: white;
+
+        &:hover {
+          background-color: var(--primary-golden);
+        }
+      }
+    }
+  }
+}
+
+// Full width utility
+.full-width {
+  width: 100%;
+}

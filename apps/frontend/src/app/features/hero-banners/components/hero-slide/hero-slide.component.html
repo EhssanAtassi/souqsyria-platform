@@ -1,0 +1,107 @@
+<!-- Hero Slide Component Template -->
+<!-- Pure presentational component - displays single banner slide -->
+
+<div class="hero-slide-inner">
+  <!-- Background Image with Overlay and Lazy Loading -->
+  <div class="hero-slide__background" [class]="gradientDirectionClass">
+    <!-- Lazy Loaded Image -->
+    <img
+      [src]="backgroundImageUrl"
+      [alt]="banner.image.alt.english"
+      class="hero-slide__image"
+      loading="lazy"
+      decoding="async"
+      [attr.fetchpriority]="isActive ? 'high' : 'low'"
+      (load)="onImageLoad($event)"
+      (error)="onImageError($event)" />
+
+    <!-- Gradient Overlay -->
+    @if (showOverlay) {
+      <div
+        class="hero-slide__overlay"
+        [style.opacity]="effectiveOverlayOpacity">
+      </div>
+    }
+  </div>
+
+  <!-- Content Container -->
+  <div class="hero-slide__content">
+    <div class="hero-slide__text-container">
+      <!-- Main Headline (English) -->
+      <h2
+        class="hero-slide__headline"
+        [class.text-light]="effectiveTextColor === 'light'"
+        [class.text-dark]="effectiveTextColor === 'dark'">
+        {{ banner.headline.english }}
+      </h2>
+
+      <!-- Arabic Headline -->
+      <p
+        class="hero-slide__headline-ar"
+        [class.text-light]="effectiveTextColor === 'light'"
+        [class.text-dark]="effectiveTextColor === 'dark'">
+        {{ banner.headline.arabic }}
+      </p>
+
+      <!-- Subheadline (if exists) -->
+      @if (banner.subheadline) {
+        <p
+          class="hero-slide__subheadline"
+          [class.text-light]="effectiveTextColor === 'light'"
+          [class.text-dark]="effectiveTextColor === 'dark'">
+          {{ banner.subheadline.english }}
+        </p>
+      }
+
+      <!-- CTA Button -->
+      @if (shouldShowCTA) {
+        <button
+          (click)="onCTAButtonClick($event)"
+          class="hero-slide__cta"
+          [class.cta-primary]="banner.cta.variant === 'primary'"
+          [class.cta-secondary]="banner.cta.variant === 'secondary'"
+          [class.cta-outline]="banner.cta.variant === 'outline'"
+          [class.cta-ghost]="banner.cta.variant === 'ghost'"
+          [class.cta-size-small]="banner.cta.size === 'small'"
+          [class.cta-size-medium]="banner.cta.size === 'medium'"
+          [class.cta-size-large]="banner.cta.size === 'large'"
+          [class.cta-golden-wheat]="banner.cta.color === 'golden-wheat'"
+          [class.cta-forest]="banner.cta.color === 'forest'"
+          [class.cta-deep-umber]="banner.cta.color === 'deep-umber'"
+          [class.cta-syrian-gold]="banner.cta.color === 'syrian-gold'"
+          [attr.aria-label]="banner.cta.text.english"
+          type="button">
+
+          <!-- Icon Left -->
+          @if (banner.cta.icon && banner.cta.iconPosition === 'left') {
+            <span class="material-icons cta-icon cta-icon--left" aria-hidden="true">
+              {{ banner.cta.icon }}
+            </span>
+          }
+
+          <!-- CTA Text -->
+          <span class="cta-text">{{ banner.cta.text.english }}</span>
+
+          <!-- Icon Right -->
+          @if (banner.cta.icon && banner.cta.iconPosition !== 'left') {
+            <span class="material-icons cta-icon cta-icon--right" aria-hidden="true">
+              {{ banner.cta.icon }}
+            </span>
+          }
+        </button>
+      }
+    </div>
+  </div>
+
+  <!-- Click Overlay (for analytics and navigation) -->
+  @if (clickable) {
+    <div
+      class="hero-slide__click-overlay"
+      (click)="onSlideBackgroundClick()"
+      (keydown)="onKeyDown($event)"
+      role="button"
+      [attr.aria-label]="'View ' + banner.headline.english"
+      tabindex="0">
+    </div>
+  }
+</div>

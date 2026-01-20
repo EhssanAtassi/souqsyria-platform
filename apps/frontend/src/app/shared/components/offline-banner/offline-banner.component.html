@@ -1,0 +1,25 @@
+@if (bannerState$ | async; as state) {
+  @if (state.show) {
+    <div class="offline-banner" [ngClass]="'banner-' + state.type" role="alert">
+      <div class="banner-content">
+        <span class="material-icons banner-icon">{{ state.icon }}</span>
+
+        <div class="banner-messages">
+          <p class="message-en">{{ state.message }}</p>
+          <p class="message-ar">{{ state.messageAr }}</p>
+        </div>
+
+        @if (state.showRetry) {
+          <button
+            class="btn-retry"
+            (click)="retrySync()"
+            aria-label="Retry sync">
+            <span class="material-icons">refresh</span>
+            <span>Retry</span>
+            <span>إعادة المحاولة</span>
+          </button>
+        }
+      </div>
+    </div>
+  }
+}

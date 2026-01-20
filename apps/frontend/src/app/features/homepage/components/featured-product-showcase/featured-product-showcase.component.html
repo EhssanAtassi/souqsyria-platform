@@ -1,0 +1,261 @@
+<!-- Featured Product Showcase - Syrian Marketplace -->
+<div
+  [ngClass]="getBackgroundThemeClass()"
+  [attr.aria-label]="'Featured product: ' + (product?.name || 'Loading product')"
+  class="featured-product-showcase-container"
+  role="article">
+
+  <!-- Content Container with Damascus Pattern -->
+  <div class="showcase-content" *ngIf="product; else loadingState">
+
+    <!-- Today's Pick Badge -->
+    <div
+      *ngIf="showTodaysBadge"
+      class="todays-pick-badge"
+      role="banner"
+      [attr.aria-label]="'Today\'s featured product badge'">
+
+      <mat-icon class="badge-icon" aria-hidden="true">star</mat-icon>
+      <span class="badge-text">
+        <span class="badge-text-ar" lang="ar">منتج اليوم</span>
+        <span class="badge-text-en">Today's Pick</span>
+      </span>
+    </div>
+
+    <!-- Product Content -->
+    <div
+      class="product-content"
+      (click)="onProductClick()"
+      [attr.aria-label]="'Click to view ' + (product.name || 'product') + ' details'"
+      tabindex="0"
+      role="button"
+      matRipple>
+
+      <!-- Product Image -->
+      <div class="product-image-container">
+        <img
+          [src]="primaryImage().url"
+          [alt]="primaryImage().alt"
+          (error)="onImageError($event)"
+          class="product-image"
+          loading="lazy"
+          [attr.aria-describedby]="'product-name-' + product.id">
+
+        <!-- Image Overlay Actions -->
+        <div class="image-overlay-actions">
+
+          <!-- Wishlist Toggle -->
+          <button
+            (click)="onToggleWishlist($event)"
+            [attr.aria-label]="'Add ' + (product.name || 'product') + ' to wishlist'"
+            class="wishlist-btn"
+            mat-icon-button
+            type="button">
+            <mat-icon>favorite_border</mat-icon>
+          </button>
+
+          <!-- Quick View (Optional) -->
+          <button
+            [attr.aria-label]="'Quick view of ' + (product.name || 'product')"
+            class="quick-view-btn"
+            mat-icon-button
+            type="button">
+            <mat-icon>visibility</mat-icon>
+          </button>
+
+        </div>
+
+        <!-- Stock Status Indicator -->
+        <div
+          *ngIf="stockStatus().status !== 'in-stock'"
+          [ngClass]="'stock-indicator ' + stockStatus().className"
+          class="stock-indicator">
+          <span class="stock-text">{{ stockStatus().message }}</span>
+          <span class="stock-text-ar" lang="ar">{{ stockStatus().messageAr }}</span>
+        </div>
+      </div>
+
+      <!-- Product Information -->
+      <div class="product-info">
+
+        <!-- Product Names (Arabic First) -->
+        <div class="product-names">
+          <h3
+            [id]="'product-name-' + product.id"
+            class="product-name-arabic"
+            lang="ar"
+            [title]="product.nameArabic || product.name">
+            {{ product.nameArabic || product.name }}
+          </h3>
+          <p
+            class="product-name-english"
+            [title]="product.name">
+            {{ product.name }}
+          </p>
+        </div>
+
+        <!-- Category -->
+        <div class="product-category" *ngIf="product.category">
+          <span class="category-label">
+            {{ product.category.nameArabic || product.category.name }}
+            <span class="category-separator">|</span>
+            {{ product.category.name }}
+          </span>
+        </div>
+
+        <!-- Price Display -->
+        <div class="price-section" *ngIf="priceDisplay()">
+          <div class="price-container">
+
+            <!-- Current Price -->
+            <span class="price-current">
+              {{ priceDisplay()!.formattedCurrent }}
+            </span>
+
+            <!-- Original Price (if discounted) -->
+            <span
+              *ngIf="priceDisplay()!.hasDiscount"
+              class="price-original">
+              {{ priceDisplay()!.formattedOriginal }}
+            </span>
+
+            <!-- Discount Badge -->
+            <span
+              *ngIf="priceDisplay()!.hasDiscount"
+              class="price-discount-badge">
+              -{{ priceDisplay()!.discountPercentage }}%
+            </span>
+          </div>
+        </div>
+
+        <!-- Rating Display -->
+        <div class="rating-section" *ngIf="product.reviews?.averageRating">
+          <div class="rating-stars" [attr.aria-label]="'Rating: ' + product.reviews.averageRating + ' out of 5 stars'">
+            <mat-icon
+              *ngFor="let star of starRating(); trackBy: trackStarIndex"
+              [ngClass]="{
+                'star-filled': star.filled,
+                'star-half': star.half,
+                'star-empty': !star.filled && !star.half
+              }"
+              class="rating-star"
+              aria-hidden="true">
+              {{ star.filled ? 'star' : (star.half ? 'star_half' : 'star_border') }}
+            </mat-icon>
+          </div>
+
+          <span class="rating-text">
+            {{ product.reviews.averageRating.toFixed(1) }}
+            <span class="review-count">({{ product.reviews.totalReviews }})</span>
+          </span>
+        </div>
+
+        <!-- Authenticity Badges -->
+        <div class="authenticity-badges" *ngIf="product.authenticity?.badges">
+          <span
+            *ngFor="let badge of product.authenticity.badges.slice(0, 2); trackBy: trackBadge"
+            class="authenticity-badge"
+            [title]="badge">
+            {{ badge }}
+          </span>
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- Action Section -->
+    <div class="action-section">
+
+      <!-- Add to Cart Button -->
+      <button
+        (click)="onAddToCart($event)"
+        [disabled]="!isProductAvailable()"
+        [attr.aria-label]="'Add ' + (product.name || 'product') + ' to cart for ' + (priceDisplay()?.formattedCurrent || 'price not available')"
+        class="add-to-cart-btn"
+        mat-raised-button
+        color="primary"
+        type="button">
+
+        <mat-icon class="btn-icon">shopping_cart</mat-icon>
+
+        <span class="btn-text">
+          <span class="btn-text-ar" lang="ar">أضف للسلة</span>
+          <span class="btn-text-en">Add to Cart</span>
+        </span>
+      </button>
+
+      <!-- View Details Button -->
+      <button
+        [routerLink]="getProductRoute()"
+        [attr.aria-label]="'View full details of ' + (product.name || 'product')"
+        class="view-details-btn"
+        mat-stroked-button
+        type="button">
+
+        <span class="btn-text">
+          <span class="btn-text-ar" lang="ar">عرض التفاصيل</span>
+          <span class="btn-text-en">View Details</span>
+        </span>
+
+        <mat-icon class="btn-icon">arrow_forward</mat-icon>
+      </button>
+
+    </div>
+
+  </div>
+
+  <!-- Loading State -->
+  <ng-template #loadingState>
+    <div
+      class="loading-state"
+      aria-label="Loading featured product"
+      role="status">
+
+      <div class="loading-content">
+        <!-- Loading Animation -->
+        <div class="loading-spinner"></div>
+
+        <!-- Loading Text -->
+        <div class="loading-text">
+          <span class="loading-text-ar" lang="ar">جاري تحميل المنتج المميز...</span>
+          <span class="loading-text-en">Loading featured product...</span>
+        </div>
+
+        <!-- Loading Skeleton -->
+        <div class="loading-skeleton">
+          <div class="skeleton-image"></div>
+          <div class="skeleton-text-lines">
+            <div class="skeleton-line long"></div>
+            <div class="skeleton-line medium"></div>
+            <div class="skeleton-line short"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </ng-template>
+
+  <!-- Error State -->
+  <div
+    *ngIf="!product && !isProductAvailable()"
+    class="error-state"
+    role="alert">
+
+    <mat-icon class="error-icon">error_outline</mat-icon>
+
+    <div class="error-text">
+      <span class="error-text-ar" lang="ar">تعذر تحميل المنتج المميز</span>
+      <span class="error-text-en">Failed to load featured product</span>
+    </div>
+  </div>
+
+</div>
+
+<!-- Accessibility Enhancements -->
+<div class="sr-only" aria-live="polite" id="product-status-announcement">
+  <span *ngIf="product">
+    Featured product: {{ product.nameArabic || product.name }} - {{ product.name }}
+    priced at {{ priceDisplay()?.formattedCurrent || 'Price not available' }}
+    {{ stockStatus().message }}
+  </span>
+</div>

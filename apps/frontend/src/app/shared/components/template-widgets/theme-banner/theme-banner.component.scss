@@ -1,0 +1,179 @@
+/**
+ * Theme Banner Component Styles
+ * Golden Wheat Design System
+ * Colors: #D4AF37 (gold), #C41E3A (red), #1E3A8A (navy)
+ */
+
+.theme-banner {
+  width: 100%;
+  margin: 2rem 0;
+
+  &__grid {
+    display: grid;
+    gap: 1.5rem;
+
+    // 2 column layout
+    &--2col {
+      grid-template-columns: repeat(2, 1fr);
+
+      @media (max-width: 768px) {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    // 3 column layout
+    &--3col {
+      grid-template-columns: repeat(3, 1fr);
+
+      @media (max-width: 1024px) {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      @media (max-width: 640px) {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    // 4 column layout
+    &--4col {
+      grid-template-columns: repeat(4, 1fr);
+
+      @media (max-width: 1280px) {
+        grid-template-columns: repeat(3, 1fr);
+      }
+
+      @media (max-width: 1024px) {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      @media (max-width: 640px) {
+        grid-template-columns: 1fr;
+      }
+    }
+  }
+
+  &__item {
+    position: relative;
+    overflow: hidden;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+
+    &:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+    }
+  }
+
+  &__link,
+  &__static {
+    display: block;
+    position: relative;
+    text-decoration: none;
+    color: inherit;
+    height: 100%;
+    background: linear-gradient(135deg, #1E3A8A 0%, #2563EB 100%);
+    overflow: hidden;
+  }
+
+  &__link {
+    cursor: pointer;
+  }
+
+  &__image-wrapper {
+    position: relative;
+    width: 100%;
+    height: 300px;
+    overflow: hidden;
+
+    @media (max-width: 768px) {
+      height: 200px;
+    }
+  }
+
+  &__image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+
+    .theme-banner__link:hover & {
+      transform: scale(1.05);
+    }
+  }
+
+  &__content {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 1.5rem;
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.8) 0%, transparent 100%);
+    color: white;
+  }
+
+  &__title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin: 0 0 0.5rem 0;
+    line-height: 1.2;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+
+    @media (max-width: 768px) {
+      font-size: 1.25rem;
+    }
+  }
+
+  &__subtitle {
+    font-size: 1rem;
+    margin: 0 0 1rem 0;
+    opacity: 0.9;
+    line-height: 1.4;
+
+    @media (max-width: 768px) {
+      font-size: 0.875rem;
+    }
+  }
+
+  &__button {
+    display: inline-block;
+    padding: 0.5rem 1.5rem;
+    background: linear-gradient(135deg, #D4AF37 0%, #F4D03F 100%);
+    color: #1E3A8A;
+    font-weight: 600;
+    border-radius: 4px;
+    transition: background 0.3s ease;
+
+    .theme-banner__link:hover & {
+      background: linear-gradient(135deg, #F4D03F 0%, #D4AF37 100%);
+    }
+  }
+}
+
+// Background color variations
+.bg-gold {
+  background: linear-gradient(135deg, #D4AF37 0%, #F4D03F 100%);
+}
+
+.bg-red {
+  background: linear-gradient(135deg, #C41E3A 0%, #DC2626 100%);
+}
+
+.bg-navy {
+  background: linear-gradient(135deg, #1E3A8A 0%, #2563EB 100%);
+}
+
+.bg-green {
+  background: linear-gradient(135deg, #059669 0%, #10B981 100%);
+}
+
+// RTL support
+[dir="rtl"] {
+  .theme-banner {
+    &__content {
+      left: auto;
+      right: 0;
+      text-align: right;
+    }
+  }
+}

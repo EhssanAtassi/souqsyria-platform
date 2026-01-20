@@ -1,0 +1,87 @@
+// Offer Page Component Styles
+.offer-page {
+
+  .offer-banner {
+    min-height: 400px;
+    display: flex;
+    align-items: center;
+
+    h1, h2 {
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+    }
+  }
+
+  .product-card {
+    border: 1px solid rgba(0, 0, 0, 0.1);
+
+    &:hover {
+      border-color: #c41e3a;
+      box-shadow: 0 10px 25px rgba(196, 30, 58, 0.1);
+    }
+
+    img {
+      transition: transform 0.3s ease;
+    }
+
+    &:hover img {
+      transform: scale(1.05);
+    }
+
+    .line-clamp-2 {
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+  }
+
+  .terms-section {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+
+    .bg-white {
+      border: 1px solid rgba(0, 0, 0, 0.05);
+    }
+  }
+
+  // Loading animation
+  .animate-spin {
+    animation: spin 1s linear infinite;
+  }
+
+  @keyframes spin {
+    from {
+      transform: rotate(0deg);
+    }
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  // Responsive adjustments
+  @media (max-width: 768px) {
+    .offer-banner {
+      min-height: 300px;
+      padding: 2rem 0;
+
+      h1 {
+        font-size: 2.5rem;
+      }
+
+      h2 {
+        font-size: 1.5rem;
+      }
+    }
+
+    .product-card {
+      margin-bottom: 1rem;
+    }
+  }
+}
+
+// Utility classes
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}

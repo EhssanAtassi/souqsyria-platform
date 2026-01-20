@@ -1,0 +1,496 @@
+<div class="min-h-screen bg-gradient-to-br from-amber-50 via-white to-green-50">
+  <!-- Header Navigation -->
+  <div class="bg-white shadow-sm border-b border-amber-100">
+    <div class="container mx-auto px-4 py-4 max-w-7xl">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center space-x-4" 
+             [class.space-x-reverse]="currentLanguage() === 'ar'"
+             [class.rtl]="currentLanguage() === 'ar'">
+          <button mat-icon-button 
+                  routerLink="/account"
+                  [matTooltip]="currentLanguage() === 'ar' ? 'العودة للوحة التحكم' : 'Back to Dashboard'">
+            <mat-icon [class.rotate-180]="currentLanguage() === 'ar'">arrow_back</mat-icon>
+          </button>
+          <div>
+            <h1 class="text-2xl font-bold text-gray-800"
+                [class.text-right]="currentLanguage() === 'ar'">
+              {{ currentLanguage() === 'ar' ? 'إعدادات الملف الشخصي' : 'Profile Settings' }}
+            </h1>
+            <p class="text-gray-600 text-sm"
+               [class.text-right]="currentLanguage() === 'ar'">
+              {{ currentLanguage() === 'ar' ? 'إدارة معلوماتك الشخصية وتفضيلاتك' : 'Manage your personal information and preferences' }}
+            </p>
+          </div>
+        </div>
+        
+        <!-- Language Toggle -->
+        <button mat-mini-fab 
+                [matTooltip]="currentLanguage() === 'ar' ? 'Switch to English' : 'التبديل للعربية'"
+                (click)="toggleLanguage()"
+                class="bg-amber-100 hover:bg-amber-200 text-amber-700">
+          <mat-icon>language</mat-icon>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="isLoading()" class="container mx-auto px-4 py-8">
+    <div class="flex justify-center items-center h-64">
+      <mat-progress-bar mode="indeterminate" class="w-64"></mat-progress-bar>
+    </div>
+  </div>
+
+  <!-- Profile Settings Content -->
+  <div *ngIf="!isLoading()" class="container mx-auto px-4 py-8 max-w-4xl">
+    
+    <!-- Profile Summary Card -->
+    <mat-card class="mb-8 bg-gradient-to-r from-amber-600 to-amber-700 text-white shadow-xl">
+      <mat-card-content class="p-6">
+        <div class="flex items-center space-x-6" 
+             [class.space-x-reverse]="currentLanguage() === 'ar'"
+             [class.rtl]="currentLanguage() === 'ar'">
+          <!-- Profile Picture Section -->
+          <div class="relative">
+            <img [src]="(currentUser()?.profilePicture) || 'https://i.pravatar.cc/120?u=default'" 
+                 [alt]="getDisplayName()"
+                 class="w-24 h-24 rounded-full ring-4 ring-white/30 shadow-lg cursor-pointer"
+                 (click)="triggerFileUpload()">
+            <button mat-mini-fab 
+                    class="absolute -bottom-2 -right-2 bg-white text-amber-600 hover:bg-gray-50"
+                    (click)="triggerFileUpload()">
+              <mat-icon>edit</mat-icon>
+            </button>
+            <input #fileInput 
+                   type="file" 
+                   accept="image/*" 
+                   (change)="onFileSelected($event)"
+                   class="hidden">
+          </div>
+          
+          <!-- User Info -->
+          <div class="flex-1">
+            <h2 class="text-2xl font-bold mb-2">{{ getDisplayName() }}</h2>
+            <p *ngIf="currentUser()?.email" class="text-amber-100 mb-2">{{ currentUser()!.email }}</p>
+            <div class="flex items-center space-x-2 mb-2"
+                 [class.space-x-reverse]="currentLanguage() === 'ar'">
+              <mat-icon class="text-green-300" *ngIf="currentUser()?.isEmailVerified">verified_user</mat-icon>
+              <span class="text-sm text-amber-100">
+                {{ currentLanguage() === 'ar' ? 
+                   (currentUser()?.isEmailVerified ? 'البريد الإلكتروني مؤكد' : 'البريد الإلكتروني غير مؤكد') : 
+                   (currentUser()?.isEmailVerified ? 'Email Verified' : 'Email Not Verified') }}
+              </span>
+            </div>
+            <div *ngIf="currentUser()?.syrianOriginCity || currentUser()?.diasporaLocation" 
+                 class="text-sm text-amber-100">
+              <span *ngIf="currentUser()?.syrianOriginCity">
+                {{ currentLanguage() === 'ar' ? 'من' : 'From' }} {{ currentUser()!.syrianOriginCity }}
+              </span>
+              <span *ngIf="currentUser()?.syrianOriginCity && currentUser()?.diasporaLocation"> • </span>
+              <span *ngIf="currentUser()?.diasporaLocation">
+                {{ currentLanguage() === 'ar' ? 'يعيش في' : 'Living in' }} {{ currentUser()!.diasporaLocation }}
+              </span>
+            </div>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Settings Tabs -->
+    <mat-tab-group mat-stretch-tabs class="bg-white rounded-lg shadow-lg">
+      
+      <!-- Personal Information Tab -->
+      <mat-tab [label]="currentLanguage() === 'ar' ? 'المعلومات الشخصية' : 'Personal Information'">
+        <div class="p-6">
+          <form [formGroup]="personalInfoForm" (ngSubmit)="savePersonalInfo()">
+            
+            <!-- Bilingual Names Section -->
+            <div class="mb-6">
+              <h3 class="text-lg font-semibold mb-4 text-gray-800"
+                  [class.text-right]="currentLanguage() === 'ar'">
+                {{ currentLanguage() === 'ar' ? 'الأسماء باللغتين' : 'Bilingual Names' }}
+              </h3>
+              
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <mat-form-field appearance="outline">
+                  <mat-label>{{ currentLanguage() === 'ar' ? 'الاسم الأول (عربي)' : 'First Name (Arabic)' }}</mat-label>
+                  <input matInput formControlName="firstNameAr" 
+                         [placeholder]="currentLanguage() === 'ar' ? 'أدخل اسمك الأول بالعربية' : 'Enter your first name in Arabic'">
+                </mat-form-field>
+                
+                <mat-form-field appearance="outline">
+                  <mat-label>{{ currentLanguage() === 'ar' ? 'اسم العائلة (عربي)' : 'Last Name (Arabic)' }}</mat-label>
+                  <input matInput formControlName="lastNameAr"
+                         [placeholder]="currentLanguage() === 'ar' ? 'أدخل اسم عائلتك بالعربية' : 'Enter your last name in Arabic'">
+                </mat-form-field>
+                
+                <mat-form-field appearance="outline">
+                  <mat-label>{{ currentLanguage() === 'ar' ? 'الاسم الأول (انجليزي)' : 'First Name (English)' }}</mat-label>
+                  <input matInput formControlName="firstNameEn"
+                         [placeholder]="currentLanguage() === 'ar' ? 'أدخل اسمك الأول بالإنجليزية' : 'Enter your first name in English'">
+                </mat-form-field>
+                
+                <mat-form-field appearance="outline">
+                  <mat-label>{{ currentLanguage() === 'ar' ? 'اسم العائلة (انجليزي)' : 'Last Name (English)' }}</mat-label>
+                  <input matInput formControlName="lastNameEn"
+                         [placeholder]="currentLanguage() === 'ar' ? 'أدخل اسم عائلتك بالإنجليزية' : 'Enter your last name in English'">
+                </mat-form-field>
+              </div>
+            </div>
+
+            <mat-divider class="my-6"></mat-divider>
+
+            <!-- Contact Information -->
+            <div class="mb-6">
+              <h3 class="text-lg font-semibold mb-4 text-gray-800"
+                  [class.text-right]="currentLanguage() === 'ar'">
+                {{ currentLanguage() === 'ar' ? 'معلومات الاتصال' : 'Contact Information' }}
+              </h3>
+              
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <mat-form-field appearance="outline">
+                  <mat-label>{{ currentLanguage() === 'ar' ? 'البريد الإلكتروني' : 'Email Address' }}</mat-label>
+                  <input matInput formControlName="email" type="email">
+                  <mat-icon matSuffix color="primary" *ngIf="currentUser()?.isEmailVerified">verified</mat-icon>
+                </mat-form-field>
+                
+                <mat-form-field appearance="outline">
+                  <mat-label>{{ currentLanguage() === 'ar' ? 'رقم الهاتف' : 'Phone Number' }}</mat-label>
+                  <input matInput formControlName="phoneNumber"
+                         [placeholder]="'+963 xxx xxx xxx'">
+                  <mat-icon matSuffix color="primary" *ngIf="currentUser()?.isPhoneVerified">verified</mat-icon>
+                </mat-form-field>
+              </div>
+            </div>
+
+            <mat-divider class="my-6"></mat-divider>
+
+            <!-- Syrian Heritage Information -->
+            <div class="mb-6">
+              <h3 class="text-lg font-semibold mb-4 text-gray-800"
+                  [class.text-right]="currentLanguage() === 'ar'">
+                {{ currentLanguage() === 'ar' ? 'التراث السوري' : 'Syrian Heritage' }}
+              </h3>
+              
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <mat-form-field appearance="outline">
+                  <mat-label>{{ currentLanguage() === 'ar' ? 'المدينة الأصلية في سوريا' : 'Syrian Origin City' }}</mat-label>
+                  <mat-select formControlName="syrianOriginCity">
+                    <mat-option *ngFor="let city of syrianCities" [value]="city">
+                      {{ city }}
+                    </mat-option>
+                  </mat-select>
+                </mat-form-field>
+                
+                <mat-form-field appearance="outline">
+                  <mat-label>{{ currentLanguage() === 'ar' ? 'موقع الإقامة الحالي' : 'Current Location' }}</mat-label>
+                  <input matInput formControlName="diasporaLocation"
+                         [placeholder]="currentLanguage() === 'ar' ? 'مثال: دبي، الإمارات' : 'e.g., Dubai, UAE'">
+                </mat-form-field>
+              </div>
+            </div>
+
+            <!-- Save Button -->
+            <div class="flex justify-end pt-4">
+              <button mat-raised-button 
+                      color="primary" 
+                      type="submit"
+                      [disabled]="personalInfoForm.invalid || isSaving()"
+                      class="bg-amber-600 hover:bg-amber-700">
+                <mat-icon *ngIf="isSaving()">refresh</mat-icon>
+                {{ isSaving() ? 
+                   (currentLanguage() === 'ar' ? 'جاري الحفظ...' : 'Saving...') : 
+                   (currentLanguage() === 'ar' ? 'حفظ التغييرات' : 'Save Changes') }}
+              </button>
+            </div>
+          </form>
+        </div>
+      </mat-tab>
+
+      <!-- Preferences Tab -->
+      <mat-tab [label]="currentLanguage() === 'ar' ? 'التفضيلات' : 'Preferences'">
+        <div class="p-6">
+          <form [formGroup]="preferencesForm" (ngSubmit)="savePreferences()">
+            
+            <!-- Language & Currency -->
+            <div class="mb-6">
+              <h3 class="text-lg font-semibold mb-4 text-gray-800"
+                  [class.text-right]="currentLanguage() === 'ar'">
+                {{ currentLanguage() === 'ar' ? 'اللغة والعملة' : 'Language & Currency' }}
+              </h3>
+              
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <mat-form-field appearance="outline">
+                  <mat-label>{{ currentLanguage() === 'ar' ? 'اللغة المفضلة' : 'Preferred Language' }}</mat-label>
+                  <mat-select formControlName="preferredLanguage">
+                    <mat-option value="ar">العربية (Arabic)</mat-option>
+                    <mat-option value="en">English (إنجليزي)</mat-option>
+                  </mat-select>
+                </mat-form-field>
+                
+                <mat-form-field appearance="outline">
+                  <mat-label>{{ currentLanguage() === 'ar' ? 'العملة المفضلة' : 'Preferred Currency' }}</mat-label>
+                  <mat-select formControlName="preferredCurrency">
+                    <mat-option value="SYP">SYP - {{ currentLanguage() === 'ar' ? 'ليرة سورية' : 'Syrian Pound' }}</mat-option>
+                    <mat-option value="USD">USD - {{ currentLanguage() === 'ar' ? 'دولار أمريكي' : 'US Dollar' }}</mat-option>
+                    <mat-option value="EUR">EUR - {{ currentLanguage() === 'ar' ? 'يورو' : 'Euro' }}</mat-option>
+                  </mat-select>
+                </mat-form-field>
+              </div>
+            </div>
+
+            <mat-divider class="my-6"></mat-divider>
+
+            <!-- Theme Preferences -->
+            <div class="mb-6">
+              <h3 class="text-lg font-semibold mb-4 text-gray-800"
+                  [class.text-right]="currentLanguage() === 'ar'">
+                {{ currentLanguage() === 'ar' ? 'المظهر' : 'Theme' }}
+              </h3>
+              
+              <mat-form-field appearance="outline" class="w-full md:w-1/2">
+                <mat-label>{{ currentLanguage() === 'ar' ? 'نمط المظهر' : 'Theme Style' }}</mat-label>
+                <mat-select formControlName="theme">
+                  <mat-option value="light">{{ currentLanguage() === 'ar' ? 'فاتح' : 'Light' }}</mat-option>
+                  <mat-option value="dark">{{ currentLanguage() === 'ar' ? 'داكن' : 'Dark' }}</mat-option>
+                  <mat-option value="auto">{{ currentLanguage() === 'ar' ? 'تلقائي' : 'Auto' }}</mat-option>
+                </mat-select>
+              </mat-form-field>
+            </div>
+
+            <!-- Save Button -->
+            <div class="flex justify-end pt-4">
+              <button mat-raised-button 
+                      color="primary" 
+                      type="submit"
+                      [disabled]="preferencesForm.invalid || isSaving()"
+                      class="bg-amber-600 hover:bg-amber-700">
+                <mat-icon *ngIf="isSaving()">refresh</mat-icon>
+                {{ isSaving() ? 
+                   (currentLanguage() === 'ar' ? 'جاري الحفظ...' : 'Saving...') : 
+                   (currentLanguage() === 'ar' ? 'حفظ التفضيلات' : 'Save Preferences') }}
+              </button>
+            </div>
+          </form>
+        </div>
+      </mat-tab>
+
+      <!-- Notifications Tab -->
+      <mat-tab [label]="currentLanguage() === 'ar' ? 'الإشعارات' : 'Notifications'">
+        <div class="p-6">
+          <form [formGroup]="notificationsForm" (ngSubmit)="saveNotifications()">
+            
+            <h3 class="text-lg font-semibold mb-4 text-gray-800"
+                [class.text-right]="currentLanguage() === 'ar'">
+              {{ currentLanguage() === 'ar' ? 'تفضيلات الإشعارات' : 'Notification Preferences' }}
+            </h3>
+            
+            <div class="space-y-4">
+              <div class="flex items-center justify-between py-2">
+                <div [class.text-right]="currentLanguage() === 'ar'">
+                  <div class="font-medium text-gray-800">
+                    {{ currentLanguage() === 'ar' ? 'تحديثات الطلبات' : 'Order Updates' }}
+                  </div>
+                  <div class="text-sm text-gray-600">
+                    {{ currentLanguage() === 'ar' ? 'احصل على إشعارات حول حالة طلباتك' : 'Get notified about your order status changes' }}
+                  </div>
+                </div>
+                <mat-slide-toggle formControlName="orderUpdates" color="primary"></mat-slide-toggle>
+              </div>
+
+              <div class="flex items-center justify-between py-2">
+                <div [class.text-right]="currentLanguage() === 'ar'">
+                  <div class="font-medium text-gray-800">
+                    {{ currentLanguage() === 'ar' ? 'العروض الترويجية' : 'Promotional Offers' }}
+                  </div>
+                  <div class="text-sm text-gray-600">
+                    {{ currentLanguage() === 'ar' ? 'احصل على إشعارات حول العروض والتخفيضات' : 'Get notified about special offers and discounts' }}
+                  </div>
+                </div>
+                <mat-slide-toggle formControlName="promotions" color="primary"></mat-slide-toggle>
+              </div>
+
+              <div class="flex items-center justify-between py-2">
+                <div [class.text-right]="currentLanguage() === 'ar'">
+                  <div class="font-medium text-gray-800">
+                    {{ currentLanguage() === 'ar' ? 'النشرة الإخبارية' : 'Newsletter' }}
+                  </div>
+                  <div class="text-sm text-gray-600">
+                    {{ currentLanguage() === 'ar' ? 'احصل على أخبار السوق والمنتجات الجديدة' : 'Get marketplace news and new product updates' }}
+                  </div>
+                </div>
+                <mat-slide-toggle formControlName="newsletter" color="primary"></mat-slide-toggle>
+              </div>
+
+              <div class="flex items-center justify-between py-2">
+                <div [class.text-right]="currentLanguage() === 'ar'">
+                  <div class="font-medium text-gray-800">
+                    {{ currentLanguage() === 'ar' ? 'رسائل SMS' : 'SMS Notifications' }}
+                  </div>
+                  <div class="text-sm text-gray-600">
+                    {{ currentLanguage() === 'ar' ? 'احصل على رسائل نصية للتحديثات المهمة' : 'Get SMS alerts for important updates' }}
+                  </div>
+                </div>
+                <mat-slide-toggle formControlName="sms" color="primary"></mat-slide-toggle>
+              </div>
+
+              <div class="flex items-center justify-between py-2">
+                <div [class.text-right]="currentLanguage() === 'ar'">
+                  <div class="font-medium text-gray-800">
+                    {{ currentLanguage() === 'ar' ? 'إشعارات الدفع' : 'Push Notifications' }}
+                  </div>
+                  <div class="text-sm text-gray-600">
+                    {{ currentLanguage() === 'ar' ? 'احصل على إشعارات فورية في المتصفح' : 'Get instant browser notifications' }}
+                  </div>
+                </div>
+                <mat-slide-toggle formControlName="push" color="primary"></mat-slide-toggle>
+              </div>
+            </div>
+
+            <!-- Save Button -->
+            <div class="flex justify-end pt-6">
+              <button mat-raised-button 
+                      color="primary" 
+                      type="submit"
+                      [disabled]="isSaving()"
+                      class="bg-amber-600 hover:bg-amber-700">
+                <mat-icon *ngIf="isSaving()">refresh</mat-icon>
+                {{ isSaving() ? 
+                   (currentLanguage() === 'ar' ? 'جاري الحفظ...' : 'Saving...') : 
+                   (currentLanguage() === 'ar' ? 'حفظ الإعدادات' : 'Save Settings') }}
+              </button>
+            </div>
+          </form>
+        </div>
+      </mat-tab>
+
+      <!-- Security Tab -->
+      <mat-tab [label]="currentLanguage() === 'ar' ? 'الأمان' : 'Security'">
+        <div class="p-6">
+          
+          <!-- Change Password -->
+          <div class="mb-8">
+            <h3 class="text-lg font-semibold mb-4 text-gray-800"
+                [class.text-right]="currentLanguage() === 'ar'">
+              {{ currentLanguage() === 'ar' ? 'تغيير كلمة المرور' : 'Change Password' }}
+            </h3>
+            
+            <form [formGroup]="passwordForm" (ngSubmit)="changePassword()">
+              <div class="space-y-4 max-w-md">
+                <mat-form-field appearance="outline">
+                  <mat-label>{{ currentLanguage() === 'ar' ? 'كلمة المرور الحالية' : 'Current Password' }}</mat-label>
+                  <input matInput type="password" formControlName="currentPassword">
+                </mat-form-field>
+                
+                <mat-form-field appearance="outline">
+                  <mat-label>{{ currentLanguage() === 'ar' ? 'كلمة المرور الجديدة' : 'New Password' }}</mat-label>
+                  <input matInput type="password" formControlName="newPassword">
+                </mat-form-field>
+                
+                <mat-form-field appearance="outline">
+                  <mat-label>{{ currentLanguage() === 'ar' ? 'تأكيد كلمة المرور الجديدة' : 'Confirm New Password' }}</mat-label>
+                  <input matInput type="password" formControlName="confirmPassword">
+                </mat-form-field>
+              </div>
+              
+              <button mat-raised-button 
+                      color="primary" 
+                      type="submit"
+                      [disabled]="passwordForm.invalid || isSaving()"
+                      class="mt-4 bg-amber-600 hover:bg-amber-700">
+                <mat-icon *ngIf="isSaving()">refresh</mat-icon>
+                {{ isSaving() ? 
+                   (currentLanguage() === 'ar' ? 'جاري التحديث...' : 'Updating...') : 
+                   (currentLanguage() === 'ar' ? 'تحديث كلمة المرور' : 'Update Password') }}
+              </button>
+            </form>
+          </div>
+
+          <mat-divider class="my-6"></mat-divider>
+
+          <!-- Two-Factor Authentication -->
+          <div class="mb-8">
+            <div class="flex items-center justify-between mb-4">
+              <div [class.text-right]="currentLanguage() === 'ar'">
+                <h3 class="text-lg font-semibold text-gray-800">
+                  {{ currentLanguage() === 'ar' ? 'المصادقة الثنائية' : 'Two-Factor Authentication' }}
+                </h3>
+                <p class="text-sm text-gray-600">
+                  {{ currentLanguage() === 'ar' ? 'احمِ حسابك بطبقة حماية إضافية' : 'Protect your account with an extra layer of security' }}
+                </p>
+              </div>
+              <mat-slide-toggle 
+                [checked]="currentUser()?.preferences?.twoFactorAuth || false"
+                (change)="toggleTwoFactorAuth($event.checked)"
+                color="primary">
+              </mat-slide-toggle>
+            </div>
+          </div>
+
+          <mat-divider class="my-6"></mat-divider>
+
+          <!-- Privacy Settings -->
+          <div class="mb-6">
+            <h3 class="text-lg font-semibold mb-4 text-gray-800"
+                [class.text-right]="currentLanguage() === 'ar'">
+              {{ currentLanguage() === 'ar' ? 'إعدادات الخصوصية' : 'Privacy Settings' }}
+            </h3>
+            
+            <form [formGroup]="privacyForm" (ngSubmit)="savePrivacySettings()">
+              <div class="space-y-4">
+                <mat-form-field appearance="outline" class="w-full">
+                  <mat-label>{{ currentLanguage() === 'ar' ? 'مستوى ظهور الملف الشخصي' : 'Profile Visibility' }}</mat-label>
+                  <mat-select formControlName="profileVisibility">
+                    <mat-option value="public">{{ currentLanguage() === 'ar' ? 'عام' : 'Public' }}</mat-option>
+                    <mat-option value="private">{{ currentLanguage() === 'ar' ? 'خاص' : 'Private' }}</mat-option>
+                    <mat-option value="friends">{{ currentLanguage() === 'ar' ? 'الأصدقاء فقط' : 'Friends Only' }}</mat-option>
+                  </mat-select>
+                </mat-form-field>
+
+                <div class="space-y-2">
+                  <div class="flex items-center justify-between py-2">
+                    <div [class.text-right]="currentLanguage() === 'ar'">
+                      <div class="font-medium text-gray-800">
+                        {{ currentLanguage() === 'ar' ? 'إظهار التقييمات' : 'Show Reviews' }}
+                      </div>
+                      <div class="text-sm text-gray-600">
+                        {{ currentLanguage() === 'ar' ? 'السماح للآخرين برؤية تقييماتك' : 'Allow others to see your product reviews' }}
+                      </div>
+                    </div>
+                    <mat-slide-toggle formControlName="showReviews" color="primary"></mat-slide-toggle>
+                  </div>
+
+                  <div class="flex items-center justify-between py-2">
+                    <div [class.text-right]="currentLanguage() === 'ar'">
+                      <div class="font-medium text-gray-800">
+                        {{ currentLanguage() === 'ar' ? 'إظهار سجل المشتريات' : 'Show Purchase History' }}
+                      </div>
+                      <div class="text-sm text-gray-600">
+                        {{ currentLanguage() === 'ar' ? 'السماح للآخرين برؤية مشترياتك' : 'Allow others to see your purchase activity' }}
+                      </div>
+                    </div>
+                    <mat-slide-toggle formControlName="showPurchaseHistory" color="primary"></mat-slide-toggle>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Save Button -->
+              <div class="flex justify-end pt-6">
+                <button mat-raised-button 
+                        color="primary" 
+                        type="submit"
+                        [disabled]="isSaving()"
+                        class="bg-amber-600 hover:bg-amber-700">
+                  <mat-icon *ngIf="isSaving()">refresh</mat-icon>
+                  {{ isSaving() ? 
+                     (currentLanguage() === 'ar' ? 'جاري الحفظ...' : 'Saving...') : 
+                     (currentLanguage() === 'ar' ? 'حفظ إعدادات الخصوصية' : 'Save Privacy Settings') }}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </mat-tab>
+    </mat-tab-group>
+  </div>
+</div>

@@ -1,0 +1,138 @@
+/**
+ * Product Offers Row Component Styles
+ *
+ * Horizontal layout for 3 product offer cards
+ * Matches Figma design - minimalist, clean, e-commerce style
+ */
+
+// Variables
+$text-dark: #2D3748;
+$text-gray: #718096;
+$white: #FFFFFF;
+$bg-light: #F7FAFC;
+
+// Section Container
+.product-offers-row-section {
+  padding: 48px 0;
+  background: $white;
+
+  @media (max-width: 768px) {
+    padding: 32px 0;
+  }
+}
+
+// Container (max-width with padding)
+.container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 24px;
+
+  @media (max-width: 768px) {
+    padding: 0 16px;
+  }
+
+  @media (max-width: 480px) {
+    padding: 0 12px;
+  }
+}
+
+// Section Header
+.section-header {
+  text-align: center;
+  margin-bottom: 40px;
+
+  @media (max-width: 768px) {
+    margin-bottom: 32px;
+  }
+}
+
+.section-title {
+  font-size: 32px;
+  font-weight: 800;
+  line-height: 1.3;
+  color: $text-dark;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+
+  @media (max-width: 768px) {
+    font-size: 26px;
+    gap: 12px;
+  }
+
+  @media (max-width: 480px) {
+    font-size: 22px;
+    gap: 10px;
+    flex-direction: column;
+  }
+}
+
+.title-ar {
+  font-family: 'Cairo', 'Tajawal', 'Arial', sans-serif;
+  font-weight: 800;
+  direction: rtl;
+}
+
+.title-divider {
+  color: $text-gray;
+  font-weight: 300;
+
+  @media (max-width: 480px) {
+    display: none;
+  }
+}
+
+.title-en {
+  font-weight: 700;
+}
+
+// Offers Grid (3 columns)
+.offers-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+
+  @media (max-width: 1024px) {
+    gap: 20px;
+  }
+
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr; // Stack vertically on mobile
+    gap: 20px;
+  }
+
+  @media (max-width: 480px) {
+    gap: 16px;
+  }
+}
+
+// Empty State
+.empty-state {
+  text-align: center;
+  padding: 60px 20px;
+  background: $bg-light;
+  border-radius: 8px;
+
+  @media (max-width: 768px) {
+    padding: 40px 16px;
+  }
+}
+
+.empty-message-ar,
+.empty-message-en {
+  font-size: 18px;
+  font-weight: 500;
+  color: $text-gray;
+  margin: 8px 0;
+
+  @media (max-width: 768px) {
+    font-size: 16px;
+  }
+}
+
+.empty-message-ar {
+  font-family: 'Cairo', 'Tajawal', 'Arial', sans-serif;
+  direction: rtl;
+}

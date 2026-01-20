@@ -1,0 +1,129 @@
+<div class="recently-viewed-container" *ngIf="hasItems()">
+  <!-- Header -->
+  <div class="section-header">
+    <div class="header-left">
+      <mat-icon>history</mat-icon>
+      <h3>{{ title() }}</h3>
+      <span class="item-count">{{ displayItems().length }} items</span>
+    </div>
+
+    @if (showClearButton()) {
+      <button
+        mat-button
+        class="clear-button"
+        (click)="clearAll()"
+      >
+        <mat-icon>delete_outline</mat-icon>
+        Clear All
+      </button>
+    }
+  </div>
+
+  <!-- Products Carousel -->
+  <div class="products-carousel">
+    <div class="products-scroll">
+      @for (item of displayItems(); track item.product.id) {
+        <div class="product-card">
+          <a [routerLink]="['/product', item.product.slug]" class="product-link">
+            <!-- Remove Button -->
+            <button
+              mat-icon-button
+              class="remove-btn"
+              (click)="removeProduct(item.product.id, $event)"
+              [matTooltip]="'Remove from history'"
+            >
+              <mat-icon>close</mat-icon>
+            </button>
+
+            <!-- Product Image -->
+            <div class="product-image-wrapper">
+              <img
+                [src]="item.product.images[0]?.url"
+                [alt]="item.product.name"
+                class="product-image"
+              />
+
+              <!-- View Count Badge -->
+              @if (item.viewCount > 1) {
+                <div class="view-count-badge">
+                  <mat-icon>visibility</mat-icon>
+                  <span>{{ item.viewCount }}</span>
+                </div>
+              }
+            </div>
+
+            <!-- Product Info -->
+            <div class="product-info">
+              <h4 class="product-name">{{ item.product.name }}</h4>
+
+              <div class="product-price">
+                @if (item.product.price.discount) {
+                  <span class="original-price">
+                    ${{ item.product.price.originalPrice }}
+                  </span>
+                }
+                <span class="current-price">
+                  ${{ item.product.price.amount }}
+                </span>
+              </div>
+
+              <!-- Rating -->
+              <div class="product-rating">
+                <div class="stars">
+                  @for (star of [1,2,3,4,5]; track star) {
+                    <mat-icon [class.filled]="star <= item.product.reviews.averageRating">
+                      {{ star <= item.product.reviews.averageRating ? 'star' : 'star_border' }}
+                    </mat-icon>
+                  }
+                </div>
+                <span class="rating-text">
+                  {{ item.product.reviews.averageRating }}
+                </span>
+              </div>
+
+              <!-- View Time -->
+              <div class="view-time">
+                <mat-icon>schedule</mat-icon>
+                <span>{{ formatViewTime(item.viewedAt) }}</span>
+              </div>
+
+              <!-- Syrian Badge -->
+              @if (item.product.authenticity.unescoRecognition) {
+                <div class="unesco-badge">
+                  <mat-icon>verified</mat-icon>
+                  <span>UNESCO Heritage</span>
+                </div>
+              }
+            </div>
+          </a>
+
+          <!-- Quick Actions -->
+          <div class="product-actions">
+            <button mat-stroked-button class="action-btn" [routerLink]="['/product', item.product.slug]">
+              View Details
+            </button>
+          </div>
+        </div>
+      }
+    </div>
+
+    <!-- Scroll Indicators (if many items) -->
+    @if (displayItems().length > 4) {
+      <button mat-icon-button class="scroll-btn scroll-left">
+        <mat-icon>chevron_left</mat-icon>
+      </button>
+      <button mat-icon-button class="scroll-btn scroll-right">
+        <mat-icon>chevron_right</mat-icon>
+      </button>
+    }
+  </div>
+</div>
+
+<!-- Empty State -->
+@if (!hasItems()) {
+  <div class="empty-state">
+    <mat-icon>history</mat-icon>
+    <h3>No Recently Viewed Products</h3>
+    <p>Products you view will appear here</p>
+  </div>
+}

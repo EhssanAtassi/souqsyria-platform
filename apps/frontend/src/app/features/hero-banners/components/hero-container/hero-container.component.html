@@ -1,0 +1,150 @@
+<!-- Hero Container Component Template -->
+<!-- Smart component managing hero banner lifecycle and state -->
+
+<div
+  class="hero-container"
+  [class.hero-container--loading]="shouldShowLoading()"
+  [class.hero-container--error]="shouldShowError()"
+  [class.hero-container--has-multiple]="hasMultipleSlides()"
+  (mouseenter)="onMouseEnter()"
+  (mouseleave)="onMouseLeave()"
+  (touchstart)="onTouchStart($event)"
+  (touchmove)="onTouchMove($event)"
+  (touchend)="onTouchEnd($event)"
+  role="region"
+  aria-label="Hero banner carousel"
+  [attr.aria-live]="isAutoplayActive() ? 'polite' : 'off'"
+>
+  <!-- ============================================ -->
+  <!-- Loading State - Skeleton UI -->
+  <!-- ============================================ -->
+  @if (shouldShowLoading()) {
+    <div class="hero-skeleton" role="status" aria-label="Loading hero banners">
+      <!-- Skeleton Background -->
+      <div class="hero-skeleton__background skeleton-shimmer"></div>
+
+      <!-- Skeleton Content -->
+      <div class="hero-skeleton__content">
+        <div class="hero-skeleton__text-container">
+          <!-- Skeleton Headline -->
+          <div class="hero-skeleton__headline skeleton-shimmer"></div>
+
+          <!-- Skeleton Arabic Headline -->
+          <div class="hero-skeleton__headline-ar skeleton-shimmer"></div>
+
+          <!-- Skeleton Subheadline -->
+          <div class="hero-skeleton__subheadline skeleton-shimmer"></div>
+
+          <!-- Skeleton CTA Button -->
+          <div class="hero-skeleton__cta skeleton-shimmer"></div>
+        </div>
+      </div>
+
+      <!-- Skeleton Navigation Arrows -->
+      <div class="hero-skeleton__nav-left skeleton-shimmer"></div>
+      <div class="hero-skeleton__nav-right skeleton-shimmer"></div>
+
+      <!-- Skeleton Dots -->
+      <div class="hero-skeleton__dots">
+        <div class="hero-skeleton__dot skeleton-shimmer"></div>
+        <div class="hero-skeleton__dot skeleton-shimmer"></div>
+        <div class="hero-skeleton__dot skeleton-shimmer"></div>
+      </div>
+
+      <!-- Screen reader text -->
+      <span class="sr-only">Loading hero banners, please wait...</span>
+    </div>
+  }
+
+  <!-- ============================================ -->
+  <!-- Error State -->
+  <!-- ============================================ -->
+  @if (shouldShowError()) {
+    <div class="hero-error">
+      <div class="hero-error__content">
+        <svg class="hero-error__icon w-16 h-16 text-deep-umber mb-4" fill="currentColor" viewBox="0 0 20 20">
+          <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+        </svg>
+        <h3 class="hero-error__title text-xl font-semibold text-charcoal-dark mb-2">
+          Failed to Load Hero Banners
+        </h3>
+        <p class="hero-error__message text-neutral-600 mb-4">
+          {{ loadError()?.message || 'An unexpected error occurred' }}
+        </p>
+        <button
+          (click)="reloadBanners()"
+          class="px-6 py-3 bg-golden-wheat-dark text-white rounded-lg font-semibold hover:bg-golden-wheat transition-colors"
+          aria-label="Retry loading hero banners"
+        >
+          Retry
+        </button>
+      </div>
+    </div>
+  }
+
+  <!-- ============================================ -->
+  <!-- Hero Content (Slides + Navigation) -->
+  <!-- ============================================ -->
+  @if (shouldShowContent()) {
+    <div class="hero-content">
+      <!-- Hero Slides Container -->
+      <div class="hero-slides-container">
+        @for (banner of heroBanners(); track banner.id; let i = $index) {
+          <app-hero-slide
+            [banner]="banner"
+            [isActive]="i === currentSlideIndex()"
+            [textColor]="banner.theme.textColor"
+            [showOverlay]="true"
+            [overlayOpacity]="banner.theme.overlayOpacity"
+            [clickable]="true"
+            [showCTA]="banner.cta.visible !== false"
+            (bannerClick)="onBannerClick(banner)"
+            (ctaClick)="onCTAClick(banner, 'primary')"
+            [attr.id]="'slide-' + i"
+          ></app-hero-slide>
+        }
+      </div>
+
+      <!-- Navigation Controls (Arrows) -->
+      @if (hasMultipleSlides() && showNavigation) {
+        <app-hero-navigation
+          [showPrevious]="true"
+          [showNext]="true"
+          [disablePrevious]="!hasMultipleSlides()"
+          [disableNext]="!hasMultipleSlides()"
+          [currentIndex]="currentSlideIndex()"
+          [totalSlides]="totalSlides()"
+          [size]="'medium'"
+          [variant]="'default'"
+          (previous)="previous()"
+          (next)="next()"
+        ></app-hero-navigation>
+      }
+
+      <!-- Navigation Dots (Pagination) -->
+      @if (hasMultipleSlides() && showDots) {
+        <app-hero-dots
+          [totalSlides]="totalSlides()"
+          [currentIndex]="currentSlideIndex()"
+          [size]="'medium'"
+          [variant]="'default'"
+          (dotClick)="goToSlide($event, 'manual')"
+        ></app-hero-dots>
+      }
+
+      <!-- Progress Indicator -->
+      @if (showProgress && isAutoplayActive() && hasMultipleSlides()) {
+        <app-hero-progress
+          [progress]="slideProgress()"
+          [visible]="true"
+          [color]="'golden-wheat'"
+        ></app-hero-progress>
+      }
+
+      <!-- Slide Counter (for screen readers) -->
+      <div class="sr-only" aria-live="polite" aria-atomic="true">
+        Slide {{ currentSlideIndex() + 1 }} of {{ totalSlides() }}
+      </div>
+    </div>
+  }
+</div>

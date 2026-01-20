@@ -1,0 +1,68 @@
+/**
+ * FeaturedBanner Component Styles - FIGMA DESIGN MATCH
+ * Syrian Marketplace - Simple flat design with text left, image right
+ */
+
+$golden-wheat: #D4AF37;
+$golden-wheat-dark: #C49B2C;
+
+.featured-banner {
+  min-height: 200px;
+  transition: border-color 0.2s ease;
+
+  &:hover {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  }
+
+  h3 {
+    font-family: 'Inter', sans-serif;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+  }
+
+  button {
+    font-weight: 600;
+    box-shadow: none;
+
+    &:hover {
+      box-shadow: 0 2px 4px rgba($golden-wheat-dark, 0.2);
+    }
+  }
+
+  img {
+    transition: transform 0.3s ease;
+  }
+
+  &:hover img {
+    transform: scale(1.05);
+  }
+}
+
+// Responsive: Stack on mobile
+@media (max-width: 767px) {
+  .featured-banner {
+    .flex {
+      flex-direction: column;
+      text-align: center;
+    }
+
+    .flex-1 {
+      padding-right: 0 !important;
+      margin-bottom: 1.5rem;
+    }
+
+    .flex-shrink-0 {
+      width: 100% !important;
+      max-width: 200px;
+      height: 200px !important;
+      margin: 0 auto;
+    }
+  }
+}
+
+// Accessibility
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition: none !important;
+  }
+}

@@ -1,0 +1,124 @@
+.cart-item-price {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-family: 'Cairo', 'Roboto', sans-serif;
+}
+
+.price-main {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  font-size: 18px;
+  font-weight: 600;
+  color: #2c3e50;
+
+  .price-amount {
+    font-size: 20px;
+    color: #c69320; // Golden wheat color
+  }
+
+  .price-multiplier {
+    font-size: 14px;
+    color: #7f8c8d;
+    font-weight: 400;
+  }
+}
+
+.price-original {
+  .price-strikethrough {
+    text-decoration: line-through;
+    color: #95a5a6;
+    font-size: 15px;
+  }
+}
+
+.price-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+  width: fit-content;
+
+  .badge-icon {
+    font-size: 14px;
+  }
+
+  &.badge-locked {
+    background-color: #e3f2fd;
+    color: #1976d2;
+  }
+
+  &.badge-reduced {
+    background-color: #e8f5e9;
+    color: #388e3c;
+  }
+
+  &.badge-expired {
+    background-color: #fff3e0;
+    color: #f57c00;
+    border: 1px solid #ffb74d;
+  }
+}
+
+.price-total {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding-top: 4px;
+  border-top: 1px solid #ecf0f1;
+  font-size: 14px;
+
+  .price-total-label {
+    color: #7f8c8d;
+  }
+
+  .price-total-amount {
+    font-weight: 600;
+    color: #2c3e50;
+  }
+}
+
+// RTL specific adjustments
+[dir="rtl"] {
+  .price-main,
+  .price-badge,
+  .price-total {
+    direction: rtl;
+  }
+
+  .badge-icon {
+    transform: scaleX(-1); // Flip icons for RTL
+  }
+}
+
+// Mobile responsive
+@media (max-width: 768px) {
+  .price-main {
+    font-size: 16px;
+
+    .price-amount {
+      font-size: 18px;
+    }
+
+    .price-multiplier {
+      font-size: 13px;
+    }
+  }
+
+  .price-badge {
+    font-size: 11px;
+    padding: 3px 6px;
+
+    .badge-icon {
+      font-size: 13px;
+    }
+  }
+
+  .price-total {
+    font-size: 13px;
+  }
+}

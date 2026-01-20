@@ -1,0 +1,40 @@
+<!-- Breadcrumb Navigation -->
+<nav class="breadcrumb" aria-label="Breadcrumb navigation">
+  <ol class="breadcrumb__list">
+    <!-- Home Icon (always first) -->
+    <li class="breadcrumb__item breadcrumb__item--home">
+      <a [routerLink]="['/']" class="breadcrumb__link" aria-label="Home">
+        <svg class="breadcrumb__icon" width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+          <path d="M8 1L1 8h2v6h10V8h2L8 1z"/>
+        </svg>
+      </a>
+    </li>
+
+    <!-- Breadcrumb Items -->
+    <li
+      *ngFor="let item of items; let last = last; let i = index"
+      class="breadcrumb__item"
+      [class.breadcrumb__item--active]="last">
+
+      <!-- Separator (Chevron) -->
+      <svg class="breadcrumb__separator" width="8" height="12" viewBox="0 0 8 12">
+        <path d="M1 1L6 6L1 11" stroke="currentColor" fill="none" stroke-width="1.5"/>
+      </svg>
+
+      <!-- Clickable Link (not for last item) -->
+      <a
+        *ngIf="item.url && !last"
+        [routerLink]="item.url"
+        class="breadcrumb__link">
+        {{ language === 'ar' && item.labelArabic ? item.labelArabic : item.label }}
+      </a>
+
+      <!-- Current Page (non-clickable last item) -->
+      <span
+        *ngIf="!item.url || last"
+        class="breadcrumb__text">
+        {{ language === 'ar' && item.labelArabic ? item.labelArabic : item.label }}
+      </span>
+    </li>
+  </ol>
+</nav>

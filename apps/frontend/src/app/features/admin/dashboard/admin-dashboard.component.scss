@@ -1,0 +1,247 @@
+.dashboard {
+  display: grid;
+  gap: 2rem;
+
+  &__header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.5rem;
+  }
+
+  &__title {
+    margin: 0;
+    font-size: 2rem;
+    font-weight: 700;
+    color: #1e3a8a;
+  }
+
+  &__subtitle {
+    margin: 0.5rem 0 0;
+    color: rgba(30, 58, 138, 0.6);
+  }
+
+  &__badge {
+    padding: 0.75rem 1.25rem;
+    border-radius: 999px;
+    background: linear-gradient(90deg, #1e3a8a 0%, #c41e3a 100%);
+    color: #fff;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+  }
+
+  &__metrics {
+    display: grid;
+    gap: 1.25rem;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  }
+
+  &__grid {
+    display: grid;
+    gap: 1.5rem;
+    grid-template-columns: minmax(0, 2.1fr) minmax(0, 1fr);
+    align-items: start;
+  }
+
+  &__orders,
+  &__highlights,
+  &__activity {
+    padding: 1.75rem;
+    border-radius: 1.5rem;
+    background: #f9f7ef;
+  }
+
+  &__activity {
+    background: linear-gradient(180deg, #fdfbf4 0%, #f2e7cc 100%);
+  }
+}
+
+.metric-card {
+  display: grid;
+  gap: 0.75rem;
+  padding: 1.5rem;
+  border-radius: 1.25rem;
+  background: #ffffff;
+  box-shadow: 0 24px 60px rgba(20, 30, 50, 0.08);
+
+  &__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.5rem;
+
+    h3 {
+      margin: 0;
+      font-size: 1rem;
+      color: #1f2933;
+    }
+  }
+
+  &__trend {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #047857;
+
+    &--down {
+      color: #dc2626;
+    }
+  }
+
+  &__value {
+    margin: 0;
+    font-size: 2rem;
+    font-weight: 700;
+    color: #1e1b16;
+  }
+
+  &__hint {
+    margin: 0;
+    color: rgba(31, 41, 51, 0.6);
+    font-size: 0.9rem;
+  }
+}
+
+.section-header {
+  display: grid;
+  gap: 0.4rem;
+  margin-bottom: 1.5rem;
+
+  h3 {
+    margin: 0;
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #1f2933;
+  }
+
+  p {
+    margin: 0;
+    font-size: 0.9rem;
+    color: rgba(31, 41, 51, 0.6);
+  }
+}
+
+.order-grid {
+  display: grid;
+  gap: 0.75rem;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+}
+
+.order-card {
+  display: grid;
+  grid-template-columns: 16px 1fr;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem 1.25rem;
+  border-radius: 1rem;
+  background: #ffffff;
+  box-shadow: 0 16px 40px rgba(20, 30, 50, 0.08);
+
+  &__badge {
+    width: 8px;
+    height: 100%;
+    border-radius: 999px;
+  }
+
+  h4 {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #1f2933;
+  }
+
+  p {
+    margin: 0.25rem 0 0;
+    color: rgba(31, 41, 51, 0.6);
+    font-size: 0.9rem;
+  }
+}
+
+.highlight-card {
+  display: grid;
+  gap: 0.75rem;
+  padding: 1.25rem;
+  margin-bottom: 1rem;
+  border-radius: 1rem;
+  background: #ffffff;
+  box-shadow: 0 20px 45px rgba(20, 30, 50, 0.08);
+
+  h4 {
+    margin: 0;
+    font-size: 1.05rem;
+    color: #1f2933;
+  }
+
+  p {
+    margin: 0;
+    color: rgba(31, 41, 51, 0.65);
+  }
+
+  &__action {
+    width: fit-content;
+    padding: 0.5rem 0.85rem;
+    border-radius: 0.75rem;
+    background: rgba(30, 58, 138, 0.1);
+    color: #1e3a8a;
+    font-weight: 600;
+    text-decoration: none;
+    transition: transform 0.2s ease, background 0.2s ease;
+
+    &:hover {
+      transform: translateY(-2px);
+      background: rgba(30, 58, 138, 0.18);
+    }
+  }
+}
+
+.activity-list {
+  display: grid;
+  gap: 0.75rem;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+
+  &__item {
+    display: grid;
+    gap: 0.35rem;
+    padding: 1rem 1.25rem;
+    border-radius: 1rem;
+    background: rgba(255, 255, 255, 0.75);
+    border: 1px solid rgba(30, 58, 138, 0.08);
+  }
+
+  &__timestamp {
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    color: rgba(30, 58, 138, 0.6);
+    text-transform: uppercase;
+  }
+
+  p {
+    margin: 0;
+    color: #1f2933;
+    font-size: 0.95rem;
+  }
+}
+
+@media (max-width: 1024px) {
+  .dashboard {
+    &__grid {
+      grid-template-columns: 1fr;
+    }
+  }
+}
+
+@media (max-width: 640px) {
+  .dashboard {
+    &__metrics {
+      grid-template-columns: 1fr;
+    }
+
+    &__badge {
+      width: 100%;
+      text-align: center;
+    }
+  }
+}

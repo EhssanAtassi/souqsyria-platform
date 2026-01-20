@@ -1,0 +1,245 @@
+@import '../../../styles/variables';
+
+/**
+ * Modal Component Styles
+ * Golden Wheat themed overlay dialog with backdrop
+ */
+
+/**
+ * Full-screen backdrop overlay
+ */
+.modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba($charcoal-dark, 0.6);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  z-index: $z-index-modal-backdrop;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: $space-4;
+  animation: fadeIn $transition-fast $ease-out;
+}
+
+/**
+ * Modal container
+ */
+.modal {
+  background: $charcoal-light;
+  border-radius: $border-radius-lg;
+  box-shadow: $shadow-xl;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  z-index: $z-index-modal;
+  animation: slideUp $transition-normal $ease-out;
+
+  /**
+   * Size variants
+   */
+  &--small {
+    max-width: 400px;
+    width: 100%;
+  }
+
+  &--medium {
+    max-width: 600px;
+    width: 100%;
+  }
+
+  &--large {
+    max-width: 900px;
+    width: 100%;
+  }
+
+  &--full {
+    max-width: 95vw;
+    width: 100%;
+  }
+
+  /**
+   * Modal header with Golden Wheat styling
+   */
+  &__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: $space-6;
+    border-bottom: $border-width-thin solid $golden-wheat-light;
+    background: linear-gradient(to bottom, $golden-wheat-light, $charcoal-light);
+    border-radius: $border-radius-lg $border-radius-lg 0 0;
+  }
+
+  /**
+   * Modal title
+   */
+  &__title {
+    margin: 0;
+    font-size: $font-size-xl;
+    font-weight: $font-weight-semibold;
+    color: $charcoal-dark;
+    font-family: $font-family-heading;
+  }
+
+  /**
+   * Close button (X)
+   */
+  &__close {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    border: none;
+    background: transparent;
+    color: $charcoal-medium;
+    cursor: pointer;
+    border-radius: $border-radius-md;
+    transition: all $transition-fast $ease-in-out;
+
+    &:hover {
+      background: $golden-wheat-light;
+      color: $golden-wheat-dark;
+    }
+
+    &:focus-visible {
+      outline: 2px solid $golden-wheat-primary;
+      outline-offset: 2px;
+    }
+
+    svg {
+      width: 24px;
+      height: 24px;
+    }
+  }
+
+  /**
+   * Modal body (scrollable content)
+   */
+  &__body {
+    padding: $space-6;
+    overflow-y: auto;
+    flex: 1;
+
+    // Custom scrollbar
+    &::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    &::-webkit-scrollbar-track {
+      background: $golden-wheat-light;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background: $golden-wheat-medium;
+      border-radius: $border-radius-full;
+
+      &:hover {
+        background: $golden-wheat-primary;
+      }
+    }
+  }
+
+  /**
+   * Modal footer (optional)
+   */
+  &__footer {
+    padding: $space-6;
+    border-top: $border-width-thin solid $golden-wheat-light;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: $space-3;
+
+    // Hide if empty
+    &:empty {
+      display: none;
+    }
+  }
+}
+
+/**
+ * Animations
+ */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/**
+ * RTL Support
+ */
+[dir="rtl"] {
+  .modal {
+    &__header {
+      flex-direction: row-reverse;
+    }
+
+    &__footer {
+      justify-content: flex-start;
+    }
+  }
+}
+
+/**
+ * Mobile Responsive
+ */
+@media (max-width: $breakpoint-sm) {
+  .modal-backdrop {
+    padding: $space-2;
+  }
+
+  .modal {
+    max-height: 95vh;
+    border-radius: $border-radius-md;
+
+    &--small,
+    &--medium,
+    &--large,
+    &--full {
+      max-width: 100%;
+    }
+
+    &__header {
+      padding: $space-4;
+    }
+
+    &__title {
+      font-size: $font-size-lg;
+    }
+
+    &__body {
+      padding: $space-4;
+    }
+
+    &__footer {
+      padding: $space-4;
+      flex-direction: column;
+      align-items: stretch;
+
+      button {
+        width: 100%;
+      }
+    }
+  }
+}

@@ -1,0 +1,135 @@
+@import '../../../styles/variables';
+
+/**
+ * Breadcrumb Navigation Styles
+ * Golden Wheat themed hierarchical navigation with RTL support
+ */
+
+.breadcrumb {
+  padding: $space-3 0;
+
+  /**
+   * Horizontal list container
+   */
+  &__list {
+    display: flex;
+    align-items: center;
+    gap: $space-2;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    flex-wrap: wrap; // Wrap on mobile if too long
+  }
+
+  /**
+   * Individual breadcrumb item
+   */
+  &__item {
+    display: flex;
+    align-items: center;
+    gap: $space-2;
+    font-size: $font-size-sm;
+
+    /**
+     * Home icon styling
+     */
+    &--home {
+      .breadcrumb__link {
+        color: $golden-wheat-primary;
+        display: flex;
+        align-items: center;
+        transition: color $transition-fast $ease-in-out;
+
+        &:hover {
+          color: $golden-wheat-medium;
+        }
+      }
+    }
+
+    /**
+     * Active (current page) styling
+     */
+    &--active {
+      color: $charcoal-medium;
+      font-weight: $font-weight-medium;
+    }
+  }
+
+  /**
+   * Clickable breadcrumb link
+   */
+  &__link {
+    color: $forest-medium;
+    text-decoration: none;
+    transition: color $transition-fast $ease-in-out;
+
+    &:hover {
+      color: $golden-wheat-primary;
+      text-decoration: underline;
+    }
+
+    &:focus-visible {
+      outline: 2px solid $golden-wheat-primary;
+      outline-offset: 2px;
+      border-radius: $border-radius-sm;
+    }
+  }
+
+  /**
+   * Non-clickable text (current page)
+   */
+  &__text {
+    color: $charcoal-dark;
+  }
+
+  /**
+   * Home icon
+   */
+  &__icon {
+    fill: currentColor;
+    width: 16px;
+    height: 16px;
+  }
+
+  /**
+   * Chevron separator
+   */
+  &__separator {
+    color: $charcoal-medium;
+    opacity: 0.5;
+    flex-shrink: 0; // Prevent shrinking on mobile
+  }
+}
+
+/**
+ * RTL Support
+ * Reverse direction and flip chevron
+ */
+[dir="rtl"] {
+  .breadcrumb {
+    &__list {
+      direction: rtl;
+    }
+
+    &__separator {
+      transform: scaleX(-1); // Flip chevron for RTL
+    }
+  }
+}
+
+/**
+ * Mobile Responsive
+ * Reduce font size and spacing on small screens
+ */
+@media (max-width: $breakpoint-sm) {
+  .breadcrumb {
+    &__item {
+      font-size: $font-size-xs;
+      gap: $space-1;
+    }
+
+    &__list {
+      gap: $space-1;
+    }
+  }
+}

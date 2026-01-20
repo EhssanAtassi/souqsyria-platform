@@ -1,0 +1,138 @@
+/**
+ * Theme Title Component Styles
+ * Golden Wheat Design System
+ * Colors: #D4AF37 (gold), #C41E3A (red), #1E3A8A (navy)
+ */
+
+.theme-title {
+  margin-bottom: 2rem;
+
+  &__content {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  &__heading {
+    font-size: 1.875rem;
+    font-weight: 700;
+    color: #1E3A8A;
+    margin: 0;
+    line-height: 1.2;
+
+    @media (max-width: 768px) {
+      font-size: 1.5rem;
+    }
+  }
+
+  &__text {
+    position: relative;
+  }
+
+  &__subtitle {
+    font-size: 1rem;
+    color: #6B7280;
+    margin: 0;
+    line-height: 1.5;
+  }
+
+  &__icon {
+    margin-bottom: 1rem;
+  }
+
+  &__icon-text {
+    font-size: 3rem;
+    line-height: 1;
+  }
+
+  &__decoration {
+    display: inline-block;
+    width: 60px;
+    height: 3px;
+    background: linear-gradient(90deg, #D4AF37 0%, #C41E3A 100%);
+    margin-left: 1rem;
+    vertical-align: middle;
+  }
+
+  // Basic variant (left-aligned, simple)
+  &--basic {
+    .theme-title__content {
+      align-items: flex-start;
+      text-align: left;
+    }
+
+    .theme-title__heading::after {
+      content: '';
+      display: block;
+      width: 60px;
+      height: 3px;
+      background-color: #D4AF37;
+      margin-top: 0.75rem;
+    }
+  }
+
+  // Centered variant
+  &--centered {
+    .theme-title__content {
+      align-items: center;
+      text-align: center;
+    }
+
+    .theme-title__heading {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 1rem;
+    }
+
+    .theme-title__decoration {
+      margin-left: 0;
+    }
+  }
+
+  // With icon variant
+  &--with-icon {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+
+    .theme-title__content {
+      align-items: center;
+      text-align: center;
+    }
+
+    .theme-title__icon {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 80px;
+      height: 80px;
+      background: linear-gradient(135deg, #D4AF37 0%, #F4D03F 100%);
+      border-radius: 50%;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+  }
+}
+
+// RTL support for Arabic
+[dir="rtl"] {
+  .theme-title {
+    &--basic {
+      .theme-title__content {
+        align-items: flex-end;
+        text-align: right;
+      }
+
+      .theme-title__heading::after {
+        margin-right: 0;
+        margin-left: auto;
+      }
+    }
+
+    &__decoration {
+      margin-right: 1rem;
+      margin-left: 0;
+    }
+  }
+}

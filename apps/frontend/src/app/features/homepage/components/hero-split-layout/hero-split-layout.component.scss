@@ -1,0 +1,110 @@
+/**
+ * Hero Split Layout Component Styles (Container)
+ *
+ * E-commerce style hero section with 65/35 split layout
+ * - Left: Image slider (65%)
+ * - Right: Products (top 50%) + Categories (bottom 50%)
+ *
+ * Syrian Golden Wheat theme: #C8A860
+ */
+
+// Variables
+$golden-wheat: #C8A860;
+$white: #FFFFFF;
+$light-bg: #F9FAFB;
+
+.hero-split-container {
+  display: grid;
+  grid-template-columns: 65% 35%;
+  gap: 16px;
+  max-width: 1600px;
+  margin: 0 auto 32px auto;
+  padding: 0 24px;
+  height: 450px;
+
+  // LEFT SIDE: Image Slider Section (65%)
+  .hero-slider-section {
+    height: 100%;
+    overflow: hidden;
+  }
+
+  // RIGHT SIDE: Sidebar (35%)
+  .hero-sidebar {
+    display: grid;
+    grid-template-rows: 1fr 1fr; // Split into two equal halves
+    gap: 16px;
+    height: 100%;
+
+    // Each promotional offer card takes 50% height
+    app-promotional-offer-card {
+      display: block;
+      height: 100%;
+      overflow: hidden;
+    }
+  }
+}
+
+// Tablet Layout (768px - 1024px)
+@media (max-width: 1024px) {
+  .hero-split-container {
+    grid-template-columns: 60% 40%; // Slightly adjust split
+    gap: 12px;
+    padding: 0 16px;
+    height: 400px;
+    margin-bottom: 24px;
+
+    .hero-sidebar {
+      gap: 12px;
+    }
+  }
+}
+
+// Mobile Layout (< 768px) - Stack Vertically
+@media (max-width: 768px) {
+  .hero-split-container {
+    grid-template-columns: 1fr; // Single column
+    grid-template-rows: auto auto auto; // Stack vertically
+    gap: 16px;
+    padding: 0 12px;
+    height: auto; // Allow content to determine height
+    margin-bottom: 20px;
+
+    // Slider takes full width
+    .hero-slider-section {
+      height: 350px;
+    }
+
+    // Sidebar stacks below slider
+    .hero-sidebar {
+      grid-template-rows: auto auto; // Auto height for each section
+      gap: 16px;
+      height: auto;
+
+      app-promotional-offer-card {
+        height: auto;
+        min-height: 250px; // Minimum height for mobile
+      }
+    }
+  }
+}
+
+// Extra Small Mobile (< 480px)
+@media (max-width: 480px) {
+  .hero-split-container {
+    gap: 12px;
+    padding: 0 8px;
+    margin-bottom: 16px;
+
+    .hero-slider-section {
+      height: 280px;
+    }
+
+    .hero-sidebar {
+      gap: 12px;
+
+      app-promotional-offer-card {
+        min-height: 220px;
+      }
+    }
+  }
+}

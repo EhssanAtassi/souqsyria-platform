@@ -1,0 +1,45 @@
+<!-- Featured Products Section -->
+<div class="featured-products-section">
+
+  <!-- Section Header -->
+  <div class="section-header">
+    <h3 class="section-title">Featured Products</h3>
+    <span class="section-title-ar">منتجات مميزة</span>
+  </div>
+
+  <!-- Products Grid -->
+  <div class="products-grid">
+    @for (product of products(); track product.id) {
+      <a
+        [routerLink]="['/product', product.slug]"
+        class="product-card">
+
+        <!-- Product Image with Badge -->
+        <div class="product-image-wrapper">
+          <img
+            [src]="product.image"
+            [alt]="product.name"
+            class="product-image"
+            loading="lazy">
+
+          <!-- Badge (Best Seller, UNESCO, New, etc.) -->
+          @if (product.badge) {
+            <span class="product-badge">{{ product.badge }}</span>
+          }
+        </div>
+
+        <!-- Product Info -->
+        <div class="product-info">
+          <h4 class="product-name">{{ product.name }}</h4>
+          <p class="product-name-ar">{{ product.nameAr }}</p>
+
+          <!-- Price -->
+          <div class="product-price">
+            <span class="price-amount">{{ formatPrice(product.price) }}</span>
+            <span class="price-currency">SYP</span>
+          </div>
+        </div>
+      </a>
+    }
+  </div>
+</div>

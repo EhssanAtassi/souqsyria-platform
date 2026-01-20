@@ -1,0 +1,476 @@
+<div class="widget-test-page">
+  <!-- Page Header -->
+  <div class="widget-test-page__header">
+    <div class="widget-test-page__header-content">
+      <h1 class="widget-test-page__title">
+        SouqSyria Template Widgets - Phase 1, 2 & 3
+      </h1>
+      <p class="widget-test-page__subtitle">
+        Comprehensive test page for all template widgets with proper Angular architecture
+      </p>
+
+      <!-- Language toggle -->
+      <div class="widget-test-page__actions">
+        <button mat-raised-button color="primary" (click)="toggleLanguage()">
+          {{ language() === 'en' ? 'Switch to Arabic (التبديل إلى العربية)' : 'Switch to English' }}
+        </button>
+      </div>
+
+      <!-- Quick navigation -->
+      <div class="widget-test-page__nav">
+        <button mat-button (click)="scrollToWidget('widget-title')">1. Title</button>
+        <button mat-button (click)="scrollToWidget('widget-banner')">2. Banner</button>
+        <button mat-button (click)="scrollToWidget('widget-brand')">3. Brand</button>
+        <button mat-button (click)="scrollToWidget('widget-product')">4. Product</button>
+        <button mat-button (click)="scrollToWidget('widget-tab-section')">5. Tab Section</button>
+        <button mat-button (click)="scrollToWidget('widget-sidebar')">6. Category Sidebar</button>
+        <button mat-button (click)="scrollToWidget('widget-featured-products')">7. Sidebar Featured Products (NEW)</button>
+        <button mat-button (click)="scrollToWidget('widget-banners')">8. Promotional Banners (NEW)</button>
+        <button mat-button (click)="scrollToWidget('widget-marketplace')">9. Marketplace Section (NEW)</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="widget-test-page__content">
+    <!-- Widget #1: Theme Title -->
+    <section class="widget-test-page__section" id="widget-title">
+      <div class="widget-test-page__section-header">
+        <h2>1. Theme Title Component</h2>
+        <p>Section headers with multiple style variants</p>
+      </div>
+
+      <div class="widget-test-page__examples">
+        <!-- Basic variant -->
+        <div class="widget-test-page__example">
+          <h3 class="widget-test-page__example-title">Basic Variant</h3>
+          <app-theme-title
+            [title]="'Featured Syrian Products'"
+            [titleAr]="'المنتجات السورية المميزة'"
+            [subtitle]="'Handcrafted with tradition and care'"
+            [subtitleAr]="'صنعت يدويًا بالتقاليد والعناية'"
+            [variant]="'basic'"
+            [language]="language()">
+          </app-theme-title>
+        </div>
+
+        <!-- Centered variant -->
+        <div class="widget-test-page__example">
+          <h3 class="widget-test-page__example-title">Centered Variant</h3>
+          <app-theme-title
+            [title]="'Discover Syrian Heritage'"
+            [titleAr]="'اكتشف التراث السوري'"
+            [subtitle]="'Authentic crafts from ancient lands'"
+            [subtitleAr]="'حرف أصيلة من أراضٍ قديمة'"
+            [variant]="'centered'"
+            [language]="language()">
+          </app-theme-title>
+        </div>
+
+        <!-- With icon variant -->
+        <div class="widget-test-page__example">
+          <h3 class="widget-test-page__example-title">With Icon Variant</h3>
+          <app-theme-title
+            [title]="'Shop by Category'"
+            [titleAr]="'تسوق حسب الفئة'"
+            [subtitle]="'Browse our authentic collections'"
+            [subtitleAr]="'تصفح مجموعاتنا الأصيلة'"
+            [variant]="'with-icon'"
+            [icon]="'🏛️'"
+            [language]="language()">
+          </app-theme-title>
+        </div>
+      </div>
+
+      <mat-divider class="widget-test-page__divider"></mat-divider>
+    </section>
+
+    <!-- Widget #2: Theme Banner -->
+    <section class="widget-test-page__section" id="widget-banner">
+      <div class="widget-test-page__section-header">
+        <h2>2. Theme Banner Component</h2>
+        <p>Promotional banners with responsive grid layouts</p>
+      </div>
+
+      <div class="widget-test-page__examples">
+        <!-- 3 column layout -->
+        <div class="widget-test-page__example">
+          <h3 class="widget-test-page__example-title">3-Column Grid</h3>
+          <app-theme-banner
+            [banners]="testBanners"
+            [columns]="3"
+            [language]="language()">
+          </app-theme-banner>
+        </div>
+
+        <!-- 2 column layout -->
+        <div class="widget-test-page__example">
+          <h3 class="widget-test-page__example-title">2-Column Grid</h3>
+          <app-theme-banner
+            [banners]="testBanners.slice(0, 2)"
+            [columns]="2"
+            [language]="language()">
+          </app-theme-banner>
+        </div>
+      </div>
+
+      <mat-divider class="widget-test-page__divider"></mat-divider>
+    </section>
+
+    <!-- Widget #3: Theme Brand -->
+    <section class="widget-test-page__section" id="widget-brand">
+      <div class="widget-test-page__section-header">
+        <h2>3. Theme Brand Component</h2>
+        <p>Syrian artisan and brand showcase</p>
+      </div>
+
+      <div class="widget-test-page__examples">
+        <div class="widget-test-page__example">
+          <h3 class="widget-test-page__example-title">Featured Syrian Artisans</h3>
+          <app-theme-brand
+            [brands]="testBrands"
+            [language]="language()"
+            [showVerification]="true">
+          </app-theme-brand>
+        </div>
+      </div>
+
+      <mat-divider class="widget-test-page__divider"></mat-divider>
+    </section>
+
+    <!-- Widget #4: Theme Product -->
+    <section class="widget-test-page__section" id="widget-product">
+      <div class="widget-test-page__section-header">
+        <h2>4. Theme Product Component</h2>
+        <p>Product display with grid layouts</p>
+      </div>
+
+      <div class="widget-test-page__examples">
+        <!-- Specific products by ID -->
+        <div class="widget-test-page__example">
+          <h3 class="widget-test-page__example-title">Featured Products (4-column grid)</h3>
+          <app-theme-product
+            [productIds]="featuredProductIds"
+            [displayMode]="'grid'"
+            [columns]="4"
+            [language]="language()"
+            [showAddToCart]="true"
+            [showWishlist]="true">
+          </app-theme-product>
+        </div>
+
+        <!-- Products by category -->
+        <div class="widget-test-page__example">
+          <h3 class="widget-test-page__example-title">Damascus Steel Category (3-column grid, limit 3)</h3>
+          <app-theme-product
+            [categorySlug]="'damascus-steel'"
+            [displayMode]="'grid'"
+            [columns]="3"
+            [limit]="3"
+            [language]="language()"
+            [showAddToCart]="true"
+            [showWishlist]="true">
+          </app-theme-product>
+        </div>
+
+        <!-- Different column layout -->
+        <div class="widget-test-page__example">
+          <h3 class="widget-test-page__example-title">Beauty & Wellness (2-column grid)</h3>
+          <app-theme-product
+            [categorySlug]="'beauty-wellness'"
+            [displayMode]="'grid'"
+            [columns]="2"
+            [limit]="4"
+            [language]="language()"
+            [showAddToCart]="true"
+            [showWishlist]="false">
+          </app-theme-product>
+        </div>
+      </div>
+
+      <mat-divider class="widget-test-page__divider"></mat-divider>
+    </section>
+
+    <!-- Widget #5: Theme Product Tab Section -->
+    <section class="widget-test-page__section" id="widget-tab-section">
+      <div class="widget-test-page__section-header">
+        <h2>5. Theme Product Tab Section Component</h2>
+        <p>Category-based tabbed product display</p>
+      </div>
+
+      <div class="widget-test-page__examples">
+        <!-- Tab section with custom tabs -->
+        <div class="widget-test-page__example">
+          <h3 class="widget-test-page__example-title">Shop by Category (Custom Tabs)</h3>
+          <app-theme-product-tab-section
+            [title]="'Shop by Category'"
+            [titleAr]="'تسوق حسب الفئة'"
+            [subtitle]="'Explore authentic Syrian products'"
+            [subtitleAr]="'استكشف المنتجات السورية الأصيلة'"
+            [tabs]="categoryTabs"
+            [productsPerTab]="4"
+            [columns]="4"
+            [language]="language()"
+            [showAddToCart]="true"
+            [showWishlist]="true">
+          </app-theme-product-tab-section>
+        </div>
+
+        <!-- Tab section with auto-loaded categories -->
+        <div class="widget-test-page__example">
+          <h3 class="widget-test-page__example-title">All Categories (Auto-loaded)</h3>
+          <app-theme-product-tab-section
+            [title]="'Browse All Categories'"
+            [titleAr]="'تصفح جميع الفئات'"
+            [productsPerTab]="6"
+            [columns]="3"
+            [language]="language()"
+            [showAddToCart]="true"
+            [showWishlist]="true">
+          </app-theme-product-tab-section>
+        </div>
+      </div>
+    </section>
+
+    <!-- Widget #6: Category Sidebar (PHASE 2) -->
+    <section class="widget-test-page__section" id="widget-sidebar">
+      <div class="widget-test-page__section-header">
+        <h2>6. Category Sidebar Component (Phase 2 - NEW)</h2>
+        <p>Hierarchical category navigation with RTL support, featured products, and sticky positioning</p>
+      </div>
+
+      <div class="widget-test-page__examples">
+
+        <!-- LTR Mode Demo (English - Left Sidebar) -->
+        <div class="widget-test-page__example">
+          <h3 class="widget-test-page__example-title">LTR Mode - English (Left Sidebar)</h3>
+          <div class="sidebar-demo-container">
+            <app-category-sidebar
+              [showFeaturedProducts]="true"
+              [showPromotionalBanner]="true"
+              [featuredProductsCount]="3"
+              [maxCategories]="6"
+              [language]="'en'"
+              (categoryClick)="onCategoryClick($event)">
+            </app-category-sidebar>
+
+            <div class="demo-content">
+              <h4>Main Content Area</h4>
+              <p>This demonstrates how the sidebar appears on the left side for English (LTR) layout.</p>
+              <p>The sidebar features:</p>
+              <ul>
+                <li>Hierarchical category navigation with expand/collapse</li>
+                <li>Active category highlighting with Golden Wheat colors</li>
+                <li>Product count badges for each category</li>
+                <li>Featured products section with UNESCO badges</li>
+                <li>Promotional banner at the bottom</li>
+                <li>Sticky positioning on desktop (scroll to test)</li>
+              </ul>
+              <div style="height: 600px; background: #f5f5f5; padding: 20px; border-radius: 8px; margin-top: 20px;">
+                <p>Scroll down to test sticky sidebar positioning...</p>
+                <p style="margin-top: 500px;">The sidebar should stay visible while scrolling.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <mat-divider class="widget-test-page__divider"></mat-divider>
+
+        <!-- RTL Mode Demo (Arabic - Right Sidebar) -->
+        <div class="widget-test-page__example">
+          <h3 class="widget-test-page__example-title">RTL Mode - Arabic (Right Sidebar)</h3>
+          <div class="sidebar-demo-container rtl-demo">
+            <div class="demo-content">
+              <h4>منطقة المحتوى الرئيسية</h4>
+              <p>هذا يوضح كيف يظهر الشريط الجانبي على الجانب الأيمن للغة العربية (RTL).</p>
+              <p>ميزات الشريط الجانبي:</p>
+              <ul dir="rtl">
+                <li>تنقل هرمي للفئات مع إمكانية التوسيع/الطي</li>
+                <li>تمييز الفئة النشطة بألوان القمح الذهبي</li>
+                <li>شارات عدد المنتجات لكل فئة</li>
+                <li>قسم المنتجات المميزة مع شارات اليونسكو</li>
+                <li>لافتة ترويجية في الأسفل</li>
+                <li>موضع ثابت على سطح المكتب</li>
+              </ul>
+              <div style="height: 600px; background: #f5f5f5; padding: 20px; border-radius: 8px; margin-top: 20px;" dir="rtl">
+                <p>قم بالتمرير لأسفل لاختبار وضع الشريط الجانبي الثابت...</p>
+                <p style="margin-top: 500px;">يجب أن يبقى الشريط الجانبي مرئيًا أثناء التمرير.</p>
+              </div>
+            </div>
+
+            <app-category-sidebar
+              [showFeaturedProducts]="true"
+              [showPromotionalBanner]="true"
+              [featuredProductsCount]="3"
+              [maxCategories]="6"
+              [language]="'ar'"
+              (categoryClick)="onCategoryClick($event)">
+            </app-category-sidebar>
+          </div>
+        </div>
+
+        <mat-divider class="widget-test-page__divider"></mat-divider>
+
+        <!-- Minimal Configuration Demo -->
+        <div class="widget-test-page__example">
+          <h3 class="widget-test-page__example-title">Minimal Configuration (No Featured Products/Banner)</h3>
+          <div class="sidebar-demo-container">
+            <app-category-sidebar
+              [showFeaturedProducts]="false"
+              [showPromotionalBanner]="false"
+              [language]="language()">
+            </app-category-sidebar>
+
+            <div class="demo-content">
+              <h4>Minimal Sidebar Configuration</h4>
+              <p>This example shows the sidebar with minimal configuration - categories only, no featured products or promotional banner.</p>
+              <p>Perfect for:</p>
+              <ul>
+                <li>Simple category browsing pages</li>
+                <li>Mobile-optimized layouts</li>
+                <li>When you want maximum focus on categories</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <mat-divider class="widget-test-page__divider"></mat-divider>
+    </section>
+
+    <!-- Widget #7: Sidebar Featured Products (Phase 3 - NEW) -->
+    <section class="widget-test-page__section" id="widget-featured-products">
+      <div class="widget-test-page__section-header">
+        <h2>7. Sidebar Featured Products Component (Phase 3 - NEW)</h2>
+        <p>Mini product cards for sidebar placement</p>
+      </div>
+
+      <div class="widget-test-page__examples">
+        <!-- English example -->
+        <div class="widget-test-page__example">
+          <h3 class="widget-test-page__example-title">English with Prices</h3>
+          <app-sidebar-featured-products
+            [products]="mockFeaturedProducts"
+            [title]="'Featured Products'"
+            [titleAr]="'منتجات مميزة'"
+            [language]="'en'"
+            [showPrices]="true"
+            [maxProducts]="3">
+          </app-sidebar-featured-products>
+        </div>
+
+        <!-- Arabic RTL example -->
+        <div class="widget-test-page__example">
+          <h3 class="widget-test-page__example-title">Arabic RTL with Prices</h3>
+          <app-sidebar-featured-products
+            [products]="mockFeaturedProducts"
+            [title]="'Featured Products'"
+            [titleAr]="'منتجات مميزة'"
+            [language]="'ar'"
+            [showPrices]="true"
+            [maxProducts]="3">
+          </app-sidebar-featured-products>
+        </div>
+      </div>
+    </section>
+
+    <mat-divider></mat-divider>
+
+    <!-- Widget #8: Promotional Banners (Phase 3 - NEW) -->
+    <section class="widget-test-page__section" id="widget-banners">
+      <div class="widget-test-page__section-header">
+        <h2>8. Promotional Banners Component (Phase 3 - NEW)</h2>
+        <p>Responsive promotional banner grid</p>
+      </div>
+
+      <div class="widget-test-page__examples">
+        <!-- 2 columns example -->
+        <div class="widget-test-page__example">
+          <h3 class="widget-test-page__example-title">2 Columns (English)</h3>
+          <app-promotional-banners
+            [banners]="promotionalBanners"
+            [columns]="2"
+            [language]="'en'"
+            [showCTA]="true"
+            [aspectRatio]="'16/9'">
+          </app-promotional-banners>
+        </div>
+
+        <!-- Arabic RTL example -->
+        <div class="widget-test-page__example">
+          <h3 class="widget-test-page__example-title">2 Columns (Arabic RTL)</h3>
+          <app-promotional-banners
+            [banners]="promotionalBanners"
+            [columns]="2"
+            [language]="'ar'"
+            [showCTA]="true"
+            [aspectRatio]="'16/9'">
+          </app-promotional-banners>
+        </div>
+      </div>
+    </section>
+
+    <mat-divider></mat-divider>
+
+    <!-- Widget #9: Marketplace Section (Phase 3 - NEW) -->
+    <section class="widget-test-page__section" id="widget-marketplace">
+      <div class="widget-test-page__section-header">
+        <h2>9. Marketplace Section Component (Phase 3 - NEW)</h2>
+        <p>Complete marketplace layout with sidebar and content</p>
+      </div>
+
+      <div class="widget-test-page__examples">
+        <!-- Note about full marketplace -->
+        <div class="widget-test-page__example">
+          <p style="padding: 16px; background: #edebe0; border-radius: 8px; margin-bottom: 16px;">
+            <strong>Note:</strong> The marketplace section is a complete layout orchestrating multiple components.
+            It's best viewed on the homepage. This demo shows the structure with live product data.
+          </p>
+        </div>
+
+        <!-- English full marketplace -->
+        <div class="widget-test-page__example" style="margin-bottom: 32px;">
+          <h3 class="widget-test-page__example-title">Full Marketplace (English)</h3>
+          <app-marketplace-section
+            [language]="'en'"
+            [showSidebar]="true"
+            [featuredCategories]="['damascus-steel', 'beauty-wellness', 'textiles-fabrics']">
+          </app-marketplace-section>
+        </div>
+      </div>
+    </section>
+
+    <!-- Footer info -->
+    <section class="widget-test-page__footer">
+      <mat-divider></mat-divider>
+      <div class="widget-test-page__footer-content">
+        <h3>Phase 1, 2 & 3 Implementation Complete</h3>
+        <p>
+          All template widgets are now integrated with proper Angular architecture and ready for use in the SouqSyria marketplace.
+          Each widget supports bilingual display, responsive layouts, and the Golden Wheat design system.
+        </p>
+        <ul>
+          <li>✅ Phase 1: Theme Title Component</li>
+          <li>✅ Phase 1: Theme Banner Component</li>
+          <li>✅ Phase 1: Theme Brand Component</li>
+          <li>✅ Phase 1: Theme Product Component</li>
+          <li>✅ Phase 1: Theme Product Tab Section Component</li>
+          <li>✅ Phase 2: Category Sidebar Component</li>
+          <li>✅ Phase 3: Sidebar Featured Products Component (NEW)</li>
+          <li>✅ Phase 3: Promotional Banners Component (NEW)</li>
+          <li>✅ Phase 3: Marketplace Section Component (NEW)</li>
+          <li>✅ Phase 3: MarketplaceLayout (Reusable Layout) (NEW)</li>
+        </ul>
+        <h4 style="margin-top: 24px;">Phase 3 Architecture:</h4>
+        <ul>
+          <li>📐 shared/layouts/ - Reusable page layouts (MarketplaceLayout)</li>
+          <li>🎨 shared/styles/ - Design system SCSS (_variables, _mixins, _rtl-utilities)</li>
+          <li>🧩 shared/components/ - Reusable UI components (sidebar-featured-products, promotional-banners)</li>
+          <li>🏠 features/homepage/components/ - Homepage-specific components (marketplace-section)</li>
+          <li>🔄 Full RTL/LTR support with directional utilities</li>
+          <li>📱 Mobile-responsive with sticky sidebar</li>
+        </ul>
+      </div>
+    </section>
+  </div>
+</div>

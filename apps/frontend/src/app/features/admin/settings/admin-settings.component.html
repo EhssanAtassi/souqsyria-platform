@@ -1,0 +1,14 @@
+<section class="admin-settings">
+  <header class="admin-settings__header">
+    <h2>Enterprise settings</h2>
+    <p>Manage how SouqSyria operates across payment, logistics, and staff controls.</p>
+  </header>
+
+  <div class="admin-settings__items">
+    <article *ngFor="let section of sections">
+      <h3>{{ section.title }}</h3>
+      <p>{{ section.description }}</p>
+      <a [routerLink]="section.route">Configure</a>
+    </article>
+  </div>
+</section>

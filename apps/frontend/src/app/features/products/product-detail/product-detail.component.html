@@ -1,0 +1,337 @@
+<!-- Product Detail Page - Syrian Marketplace -->
+<div class="product-detail" [class.product-detail--rtl]="language() === 'ar'" *ngIf="product() as currentProduct">
+  <!-- Breadcrumb Navigation -->
+  <div class="product-detail__breadcrumb">
+    <app-breadcrumb
+      [items]="breadcrumbs()"
+      [language]="language()">
+    </app-breadcrumb>
+  </div>
+
+  <!-- Success Alert -->
+  <div class="product-detail__alert" *ngIf="showSuccessAlert()">
+    <app-alert
+      type="success"
+      [message]="language() === 'ar' ? 'تمت إضافة المنتج إلى السلة' : 'Product added to cart successfully'"
+      [dismissible]="true"
+      (dismissed)="showSuccessAlert.set(false)">
+    </app-alert>
+  </div>
+
+  <!-- Main Product Section -->
+  <div class="product-detail__main">
+    <!-- Image Gallery -->
+    <div class="product-detail__gallery">
+      <!-- Main Image -->
+      <div class="product-detail__main-image">
+        <img
+          [src]="selectedImage()"
+          [alt]="getProductName()"
+          class="product-detail__image">
+
+        <!-- Navigation Arrows -->
+        <button
+          mat-icon-button
+          class="product-detail__gallery-nav product-detail__gallery-nav--prev"
+          (click)="previousImage()"
+          *ngIf="currentProduct.images.length > 1">
+          <mat-icon>chevron_left</mat-icon>
+        </button>
+        <button
+          mat-icon-button
+          class="product-detail__gallery-nav product-detail__gallery-nav--next"
+          (click)="nextImage()"
+          *ngIf="currentProduct.images.length > 1">
+          <mat-icon>chevron_right</mat-icon>
+        </button>
+
+        <!-- Discount Badge -->
+        <div class="product-detail__discount-badge" *ngIf="discountPercentage()">
+          <app-badge
+            [text]="'-' + discountPercentage() + '%'"
+            variant="error"
+            size="large">
+          </app-badge>
+        </div>
+
+        <!-- Authenticity Badge -->
+        <div class="product-detail__authenticity-badge" *ngIf="currentProduct.authenticity.certified">
+          <app-badge
+            [text]="language() === 'ar' ? 'أصلي معتمد' : 'Certified Authentic'"
+            variant="success"
+            [icon]="'verified'">
+          </app-badge>
+        </div>
+      </div>
+
+      <!-- Thumbnail Gallery -->
+      <div class="product-detail__thumbnails" *ngIf="currentProduct.images.length > 1">
+        <button
+          *ngFor="let image of currentProduct.images; let i = index"
+          class="product-detail__thumbnail"
+          [class.product-detail__thumbnail--active]="selectedImageIndex() === i"
+          (click)="selectImage(i)">
+          <img [src]="image.url" [alt]="image.alt || getProductName()">
+        </button>
+      </div>
+    </div>
+
+    <!-- Product Info -->
+    <div class="product-detail__info">
+      <!-- Category & Region -->
+      <div class="product-detail__meta">
+        <span class="product-detail__category">
+          {{ language() === 'ar' && currentProduct.category.nameArabic
+            ? currentProduct.category.nameArabic
+            : currentProduct.category.name }}
+        </span>
+        <span class="product-detail__separator">•</span>
+        <span class="product-detail__region" *ngIf="currentProduct.authenticity.regionOfOrigin">
+          {{ currentProduct.authenticity.regionOfOrigin }}
+        </span>
+      </div>
+
+      <!-- Product Name -->
+      <h1 class="product-detail__title">
+        {{ getProductName() }}
+      </h1>
+
+      <!-- Rating & Reviews -->
+      <div class="product-detail__rating">
+        <div class="product-detail__stars">
+          <span
+            *ngFor="let filled of getStarArray(currentProduct.reviews.averageRating)"
+            class="product-detail__star"
+            [class.product-detail__star--filled]="filled">
+            ★
+          </span>
+        </div>
+        <span class="product-detail__rating-text">
+          {{ currentProduct.reviews.averageRating.toFixed(1) }}
+          ({{ currentProduct.reviews.totalReviews }}
+          {{ language() === 'ar' ? 'تقييم' : 'reviews' }})
+        </span>
+      </div>
+
+      <!-- Price -->
+      <div class="product-detail__price-section">
+        <div class="product-detail__price">
+          <span class="product-detail__price-current">
+            {{ formatPrice(currentProduct.price.amount) }}
+          </span>
+          <span class="product-detail__price-original" *ngIf="currentProduct.price.originalPrice">
+            {{ formatPrice(currentProduct.price.originalPrice) }}
+          </span>
+        </div>
+        <div class="product-detail__price-note" *ngIf="currentProduct.price.discount">
+          {{ language() === 'ar'
+            ? 'وفر ' + formatPrice(currentProduct.price.originalPrice! - currentProduct.price.amount)
+            : 'Save ' + formatPrice(currentProduct.price.originalPrice! - currentProduct.price.amount) }}
+        </div>
+      </div>
+
+      <!-- Short Description -->
+      <p class="product-detail__description">
+        {{ getProductDescription() }}
+      </p>
+
+      <mat-divider></mat-divider>
+
+      <!-- Seller Info -->
+      <div class="product-detail__seller">
+        <mat-icon class="product-detail__seller-icon">store</mat-icon>
+        <div class="product-detail__seller-info">
+          <span class="product-detail__seller-label">
+            {{ language() === 'ar' ? 'البائع:' : 'Sold by:' }}
+          </span>
+          <span class="product-detail__seller-name">
+            {{ language() === 'ar' && currentProduct.seller.nameArabic
+              ? currentProduct.seller.nameArabic
+              : currentProduct.seller.name }}
+          </span>
+          <mat-icon class="product-detail__seller-verified" *ngIf="currentProduct.seller.verified">
+            verified
+          </mat-icon>
+        </div>
+      </div>
+
+      <!-- Stock Status -->
+      <div class="product-detail__stock">
+        <div class="product-detail__stock-badge" [class.product-detail__stock-badge--low]="currentProduct.inventory.quantity <= currentProduct.inventory.lowStockThreshold">
+          <mat-icon>{{ isAvailable() ? 'check_circle' : 'cancel' }}</mat-icon>
+          <span *ngIf="isAvailable()">
+            {{ currentProduct.inventory.quantity <= currentProduct.inventory.lowStockThreshold
+              ? (language() === 'ar' ? 'كمية محدودة - ' + currentProduct.inventory.quantity + ' متبقي' : 'Limited stock - ' + currentProduct.inventory.quantity + ' left')
+              : (language() === 'ar' ? 'متوفر في المخزون' : 'In Stock') }}
+          </span>
+          <span *ngIf="!isAvailable()">
+            {{ language() === 'ar' ? 'نفذت الكمية' : 'Out of Stock' }}
+          </span>
+        </div>
+      </div>
+
+      <mat-divider></mat-divider>
+
+      <!-- Quantity Selector & Add to Cart -->
+      <div class="product-detail__actions">
+        <div class="product-detail__quantity">
+          <label class="product-detail__quantity-label">
+            {{ language() === 'ar' ? 'الكمية:' : 'Quantity:' }}
+          </label>
+          <div class="product-detail__quantity-controls">
+            <button
+              mat-icon-button
+              (click)="decreaseQuantity()"
+              [disabled]="quantity() <= 1">
+              <mat-icon>remove</mat-icon>
+            </button>
+            <input
+              type="number"
+              class="product-detail__quantity-input"
+              [value]="quantity()"
+              readonly>
+            <button
+              mat-icon-button
+              (click)="increaseQuantity()"
+              [disabled]="quantity() >= currentProduct.inventory.quantity">
+              <mat-icon>add</mat-icon>
+            </button>
+          </div>
+        </div>
+
+        <button
+          mat-raised-button
+          color="primary"
+          class="product-detail__add-to-cart"
+          [disabled]="!isAvailable() || isAddingToCart()"
+          (click)="addToCart()">
+          <mat-icon>shopping_cart</mat-icon>
+          <span *ngIf="!isAddingToCart()">
+            {{ language() === 'ar' ? 'أضف إلى السلة' : 'Add to Cart' }}
+          </span>
+          <span *ngIf="isAddingToCart()">
+            {{ language() === 'ar' ? 'جاري الإضافة...' : 'Adding...' }}
+          </span>
+        </button>
+      </div>
+
+      <!-- Secondary Actions -->
+      <div class="product-detail__secondary-actions">
+        <button
+          mat-stroked-button
+          class="product-detail__wishlist-btn"
+          (click)="addToWishlist()">
+          <mat-icon>favorite_border</mat-icon>
+          {{ language() === 'ar' ? 'أضف إلى المفضلة' : 'Add to Wishlist' }}
+        </button>
+        <button
+          mat-stroked-button
+          class="product-detail__share-btn"
+          (click)="shareProduct()">
+          <mat-icon>share</mat-icon>
+          {{ language() === 'ar' ? 'مشاركة' : 'Share' }}
+        </button>
+      </div>
+
+      <!-- Heritage Badges -->
+      <div class="product-detail__badges" *ngIf="currentProduct.authenticity.unescoRecognition || currentProduct.authenticity.heritage === 'traditional'">
+        <app-badge
+          *ngIf="currentProduct.authenticity.unescoRecognition"
+          text="UNESCO Heritage"
+          variant="warning"
+          icon="verified">
+        </app-badge>
+        <app-badge
+          *ngIf="currentProduct.authenticity.heritage === 'traditional'"
+          [text]="language() === 'ar' ? 'حرفة تقليدية' : 'Traditional Craft'"
+          variant="info">
+        </app-badge>
+      </div>
+    </div>
+  </div>
+
+  <!-- Product Details Tabs -->
+  <div class="product-detail__tabs">
+    <mat-tab-group>
+      <!-- Description Tab -->
+      <mat-tab [label]="language() === 'ar' ? 'الوصف' : 'Description'">
+        <div class="product-detail__tab-content">
+          <p class="product-detail__full-description">
+            {{ getProductDescription() }}
+          </p>
+        </div>
+      </mat-tab>
+
+      <!-- Specifications Tab -->
+      <mat-tab [label]="language() === 'ar' ? 'المواصفات' : 'Specifications'">
+        <div class="product-detail__tab-content">
+          <div class="product-detail__specifications">
+            <div class="product-detail__spec-item">
+              <span class="product-detail__spec-label">
+                {{ language() === 'ar' ? 'الفئة:' : 'Category:' }}
+              </span>
+              <span class="product-detail__spec-value">
+                {{ language() === 'ar' && currentProduct.category.nameArabic
+                  ? currentProduct.category.nameArabic
+                  : currentProduct.category.name }}
+              </span>
+            </div>
+            <div class="product-detail__spec-item" *ngIf="currentProduct.authenticity.regionOfOrigin">
+              <span class="product-detail__spec-label">
+                {{ language() === 'ar' ? 'منطقة المنشأ:' : 'Region of Origin:' }}
+              </span>
+              <span class="product-detail__spec-value">
+                {{ currentProduct.authenticity.regionOfOrigin }}
+              </span>
+            </div>
+            <div class="product-detail__spec-item">
+              <span class="product-detail__spec-label">
+                {{ language() === 'ar' ? 'الأصالة:' : 'Authenticity:' }}
+              </span>
+              <span class="product-detail__spec-value">
+                {{ currentProduct.authenticity.certified
+                  ? (language() === 'ar' ? 'معتمد' : 'Certified')
+                  : (language() === 'ar' ? 'غير معتمد' : 'Not Certified') }}
+              </span>
+            </div>
+          </div>
+        </div>
+      </mat-tab>
+
+      <!-- Shipping Tab -->
+      <mat-tab [label]="language() === 'ar' ? 'الشحن' : 'Shipping'">
+        <div class="product-detail__tab-content">
+          <div class="product-detail__shipping">
+            <p>
+              {{ language() === 'ar'
+                ? 'معلومات الشحن ستكون متاحة قريباً'
+                : 'Shipping information will be available soon' }}
+            </p>
+          </div>
+        </div>
+      </mat-tab>
+    </mat-tab-group>
+  </div>
+
+  <!-- Related Products -->
+  <div class="product-detail__related" *ngIf="relatedProducts().length > 0">
+    <h2 class="product-detail__related-title">
+      {{ language() === 'ar' ? 'منتجات ذات صلة' : 'Related Products' }}
+    </h2>
+    <div class="product-detail__related-grid">
+      <app-product-box-grid
+        *ngFor="let relatedProduct of relatedProducts()"
+        [product]="relatedProduct"
+        [language]="language()">
+      </app-product-box-grid>
+    </div>
+  </div>
+</div>
+
+<!-- Loading State -->
+<div class="product-detail__loading" *ngIf="!product()">
+  <app-loader
+    size="large"
+    [message]="language() === 'ar' ? 'جاري تحميل المنتج...' : 'Loading product...'">
+  </app-loader>
+</div>

@@ -1,0 +1,368 @@
+/**
+ * Promotional Banners Styles
+ *
+ * Responsive banner grid with configurable columns.
+ * Uses Golden Wheat design system with RTL support.
+ */
+
+@import '../../styles/variables';
+@import '../../styles/mixins';
+
+.promotional-banners {
+  display: grid;
+  gap: $grid-gap;
+  width: 100%;
+
+  /**
+   * Column Configurations
+   */
+  &--columns-2 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  &--columns-3 {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  &--columns-4 {
+    grid-template-columns: repeat(4, 1fr);
+  }
+
+  /**
+   * Responsive Grid Adjustments
+   */
+  @media (max-width: $breakpoint-lg) {
+    &--columns-4 {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+
+  @media (max-width: $breakpoint-md) {
+    &--columns-3,
+    &--columns-4 {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  @media (max-width: $breakpoint-sm) {
+    &--columns-2,
+    &--columns-3,
+    &--columns-4 {
+      grid-template-columns: 1fr;
+      gap: $grid-gap-small;
+    }
+  }
+
+  /**
+   * Empty State
+   */
+  &__empty {
+    grid-column: 1 / -1;
+    padding: $space-12 $space-4;
+    text-align: center;
+
+    p {
+      margin: 0;
+      font-size: $font-size-base;
+      color: $charcoal-medium;
+    }
+  }
+}
+
+/**
+ * Individual Banner Item
+ */
+.promotional-banner {
+  position: relative;
+  border-radius: $border-radius-lg;
+  overflow: hidden;
+  box-shadow: $shadow-md;
+  transition: all $transition-normal $ease-in-out;
+
+  &:hover {
+    @include card-hover;
+  }
+
+  /**
+   * Link Wrapper (clickable banners)
+   */
+  &__link {
+    display: block;
+    text-decoration: none;
+    color: inherit;
+    width: 100%;
+    height: 100%;
+  }
+
+  /**
+   * Banner Wrapper
+   */
+  &__wrapper {
+    position: relative;
+    width: 100%;
+    height: 100%;
+  }
+
+  /**
+   * Banner Image Container
+   * Fallback: Golden Wheat gradient when image fails to load or is missing
+   */
+  &__image {
+    position: relative;
+    width: 100%;
+    // Fallback Golden Wheat gradient background
+    background: linear-gradient(135deg,
+      $golden-wheat-primary 0%,
+      $golden-wheat-medium 50%,
+      $golden-wheat-light 100%
+    );
+    overflow: hidden;
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform $transition-normal $ease-in-out;
+
+      // Hide image if src is empty, missing, or contains 'placeholder'
+      &[src=""],
+      &:not([src]),
+      &[src*="placeholder"] {
+        opacity: 0;
+        visibility: hidden;
+      }
+
+      // On image load error, hide the broken image
+      &:is(img:not([src])),
+      &:is(img[src=""]) {
+        display: none;
+      }
+    }
+
+    .promotional-banner:hover & img {
+      transform: scale(1.05);
+    }
+  }
+
+  /**
+   * Banner Content Overlay
+   */
+  &__content {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: $space-6;
+    background: linear-gradient(
+      to right,
+      rgba(0, 0, 0, 0.6) 0%,
+      rgba(0, 0, 0, 0.3) 50%,
+      transparent 100%
+    );
+
+    .rtl-mode & {
+      background: linear-gradient(
+        to left,
+        rgba(0, 0, 0, 0.6) 0%,
+        rgba(0, 0, 0, 0.3) 50%,
+        transparent 100%
+      );
+    }
+  }
+
+  /**
+   * Content Position Variants
+   */
+  &--left &__content {
+    align-items: flex-start;
+    text-align: left;
+
+    .rtl-mode & {
+      align-items: flex-end;
+      text-align: right;
+    }
+  }
+
+  &--center &__content {
+    align-items: center;
+    text-align: center;
+    background: linear-gradient(
+      to bottom,
+      rgba(0, 0, 0, 0.4) 0%,
+      rgba(0, 0, 0, 0.2) 50%,
+      rgba(0, 0, 0, 0.4) 100%
+    );
+  }
+
+  &--right &__content {
+    align-items: flex-end;
+    text-align: right;
+
+    .rtl-mode & {
+      align-items: flex-start;
+      text-align: left;
+    }
+
+    background: linear-gradient(
+      to left,
+      rgba(0, 0, 0, 0.6) 0%,
+      rgba(0, 0, 0, 0.3) 50%,
+      transparent 100%
+    );
+
+    .rtl-mode & {
+      background: linear-gradient(
+        to right,
+        rgba(0, 0, 0, 0.6) 0%,
+        rgba(0, 0, 0, 0.3) 50%,
+        transparent 100%
+      );
+    }
+  }
+
+  /**
+   * Banner Title
+   */
+  &__title {
+    margin: 0 0 $space-2 0;
+    font-size: $font-size-2xl;
+    font-weight: $font-weight-bold;
+    line-height: $line-height-tight;
+    color: inherit;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+
+    @media (max-width: $breakpoint-md) {
+      font-size: $font-size-xl;
+    }
+
+    @media (max-width: $breakpoint-sm) {
+      font-size: $font-size-lg;
+    }
+  }
+
+  /**
+   * Banner Subtitle
+   */
+  &__subtitle {
+    margin: 0 0 $space-4 0;
+    font-size: $font-size-base;
+    font-weight: $font-weight-normal;
+    line-height: $line-height-normal;
+    color: inherit;
+    opacity: 0.9;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+    max-width: 500px;
+
+    @media (max-width: $breakpoint-sm) {
+      font-size: $font-size-sm;
+    }
+  }
+
+  /**
+   * CTA Button
+   * Golden Wheat branding with enhanced visibility
+   */
+  &__cta {
+    display: inline-flex;
+    align-items: center;
+    gap: $space-2;
+    padding: $space-3 $space-6;
+    // Enhanced Golden Wheat gradient for maximum visibility
+    background: linear-gradient(135deg, $golden-wheat-primary 0%, $golden-wheat-medium 100%) !important;
+    color: $charcoal-light !important;
+    border: none;
+    border-radius: $border-radius-md;
+    font-size: $font-size-base;
+    font-weight: $font-weight-semibold;
+    cursor: pointer;
+    transition: all $transition-normal $ease-in-out;
+    box-shadow: 0 4px 12px rgba($golden-wheat-dark, 0.3);
+
+    &:hover {
+      // Lighter Golden Wheat on hover
+      background: linear-gradient(135deg, $golden-wheat-medium 0%, $golden-wheat-light 100%) !important;
+      color: $forest-dark !important;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba($golden-wheat-dark, 0.4);
+    }
+
+    &:active {
+      transform: translateY(0);
+    }
+
+    @media (max-width: $breakpoint-sm) {
+      padding: $space-2 $space-4;
+      font-size: $font-size-sm;
+    }
+  }
+
+  /**
+   * CTA Icon
+   */
+  &__cta-icon {
+    transition: transform $transition-fast $ease-out;
+
+    .promotional-banner__cta:hover & {
+      transform: translateX(4px);
+
+      .rtl-mode & {
+        transform: translateX(-4px) scaleX(-1);
+      }
+    }
+
+    .rtl-mode & {
+      transform: scaleX(-1);
+    }
+  }
+
+  /**
+   * Mobile Optimizations
+   */
+  @media (max-width: $breakpoint-sm) {
+    &__content {
+      padding: $space-4;
+    }
+
+    &:hover {
+      transform: none; // Disable hover effect on mobile
+    }
+
+    &__image img {
+      .promotional-banner:hover & {
+        transform: none; // Disable zoom on mobile
+      }
+    }
+  }
+
+  /**
+   * Accessibility - Focus States
+   */
+  &__link:focus-visible {
+    @include focus-ring;
+  }
+
+  /**
+   * Print Styles
+   */
+  @media print {
+    box-shadow: none;
+    border: 1px solid $charcoal-medium;
+
+    &:hover {
+      transform: none;
+    }
+
+    &__content {
+      background: rgba(255, 255, 255, 0.9);
+      color: $charcoal-dark !important;
+    }
+
+    &__cta {
+      display: none;
+    }
+  }
+}

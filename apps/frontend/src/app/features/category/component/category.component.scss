@@ -1,0 +1,497 @@
+/**
+ * Category Component Styles
+ * Syrian marketplace category browsing page
+ * Responsive design with Material UI, Tailwind, and Golden Wheat colors
+ */
+
+// Golden Wheat Color Palette
+$golden-wheat-primary: #988561;
+$golden-wheat-medium: #b9a779;
+$golden-wheat-light: #edebe0;
+$forest-dark: #002623;
+$forest-medium: #054239;
+
+.category-page {
+  background-color: #f9fafb;
+  min-height: 100vh;
+}
+
+// Breadcrumb Navigation
+.breadcrumb-nav {
+  a {
+    color: $golden-wheat-medium;
+    transition: color 0.2s ease;
+
+    &:hover {
+      color: $golden-wheat-primary;
+    }
+
+    mat-icon {
+      color: $golden-wheat-primary;
+    }
+  }
+}
+
+// Category Header
+.category-header {
+  .text-forest-dark {
+    color: $forest-dark;
+  }
+
+  .border-golden-wheat-light {
+    border-color: $golden-wheat-light;
+  }
+
+  .text-golden-wheat-primary {
+    color: $golden-wheat-primary;
+  }
+}
+
+// Empty State
+.empty-state {
+  .text-golden-wheat-light {
+    color: $golden-wheat-light;
+  }
+
+  .text-forest-dark {
+    color: $forest-dark;
+  }
+
+  .border-golden-wheat-light {
+    border-color: $golden-wheat-light;
+  }
+}
+
+// Sidenav container
+.category-sidenav-container {
+  height: calc(100vh - 64px); // Account for mobile toolbar
+  
+  @media (min-width: 768px) {
+    height: 100vh;
+  }
+}
+
+// Filter sidebar styling
+.filter-sidebar {
+  .mat-mdc-form-field {
+    width: 100%;
+    margin-bottom: 1rem;
+  }
+  
+  .mat-expansion-panel {
+    box-shadow: none;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+    
+    &.mat-expanded {
+      border-color: #3b82f6;
+    }
+  }
+  
+  .mat-expansion-panel-header {
+    padding: 0 1rem;
+    height: 48px;
+    
+    .mat-expansion-panel-header-title {
+      font-weight: 600;
+      color: #1f2937;
+    }
+  }
+  
+  .mat-expansion-panel-content {
+    .mat-expansion-panel-body {
+      padding: 0 1rem 1rem 1rem;
+    }
+  }
+}
+
+// Desktop filter sidebar
+.desktop-filters {
+  .filter-section {
+    border-bottom: 1px solid #e5e7eb;
+    padding-bottom: 1.5rem;
+    margin-bottom: 1.5rem;
+    
+    &:last-child {
+      border-bottom: none;
+      margin-bottom: 0;
+    }
+    
+    h4 {
+      font-weight: 600;
+      color: #1f2937;
+      margin-bottom: 1rem;
+    }
+  }
+}
+
+// Main content area
+.main-content {
+  background-color: #ffffff;
+  
+  @media (min-width: 768px) {
+    background-color: transparent;
+  }
+}
+
+.products-area {
+  background-color: #ffffff;
+  
+  @media (min-width: 768px) {
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+  }
+}
+
+// Category header styling
+.category-header {
+  background-color: #ffffff;
+  border-bottom: 1px solid #e5e7eb;
+  padding: 1.5rem;
+  
+  .breadcrumb {
+    .breadcrumb-item {
+      color: #6b7280;
+      
+      &:hover {
+        color: #374151;
+      }
+      
+      &.active {
+        color: #1f2937;
+        font-weight: 600;
+      }
+    }
+    
+    .breadcrumb-separator {
+      color: #9ca3af;
+      margin: 0 0.5rem;
+    }
+  }
+  
+  .category-title {
+    h1 {
+      font-size: 2rem;
+      font-weight: 700;
+      color: #1f2937;
+      margin-bottom: 0.5rem;
+      
+      @media (max-width: 640px) {
+        font-size: 1.75rem;
+      }
+    }
+    
+    .arabic-title {
+      font-family: 'Noto Sans Arabic', sans-serif;
+      color: #6b7280;
+      font-size: 1.125rem;
+      direction: rtl;
+    }
+    
+    .category-description {
+      color: #6b7280;
+      line-height: 1.6;
+      margin-top: 0.5rem;
+    }
+  }
+}
+
+// Controls bar styling
+.controls-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid #e5e7eb;
+  background-color: #f9fafb;
+  
+  @media (max-width: 768px) {
+    flex-direction: column;
+    gap: 1rem;
+    align-items: stretch;
+  }
+  
+  .results-info {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    
+    @media (max-width: 768px) {
+      flex-wrap: wrap;
+    }
+    
+    .results-count {
+      color: #6b7280;
+      font-size: 0.875rem;
+    }
+    
+    .active-filters {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      
+      .filter-label {
+        color: #6b7280;
+        font-size: 0.875rem;
+      }
+      
+      .mat-mdc-chip-set {
+        .mat-mdc-chip {
+          font-size: 0.75rem;
+          height: 24px;
+        }
+      }
+    }
+  }
+  
+  .controls-actions {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    
+    @media (max-width: 768px) {
+      width: 100%;
+      justify-content: space-between;
+    }
+    
+    .sort-select {
+      min-width: 200px;
+      
+      @media (max-width: 640px) {
+        min-width: 150px;
+      }
+    }
+    
+    .view-toggle {
+      .mat-button-toggle {
+        border: 1px solid #d1d5db;
+        
+        &.mat-button-toggle-checked {
+          background-color: #3b82f6;
+          color: white;
+        }
+      }
+    }
+  }
+}
+
+// Products grid styling
+.products-grid {
+  .product-card {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+  }
+  
+  // Grid responsive breakpoints
+  @media (min-width: 640px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  @media (min-width: 1024px) {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  
+  @media (min-width: 1280px) {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+// Products list styling
+.products-list {
+  .product-card {
+    &:hover {
+      transform: none;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+  }
+}
+
+// Loading state
+.loading-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 4rem 0;
+  
+  .mat-mdc-progress-spinner {
+    --mdc-circular-progress-active-indicator-color: #3b82f6;
+  }
+}
+
+// Empty state
+.empty-state {
+  text-align: center;
+  padding: 4rem 2rem;
+  
+  .empty-icon {
+    font-size: 4rem;
+    color: #d1d5db;
+    margin-bottom: 1rem;
+  }
+  
+  h3 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #1f2937;
+    margin-bottom: 0.5rem;
+  }
+  
+  p {
+    color: #6b7280;
+    margin-bottom: 1.5rem;
+  }
+  
+  @media (max-width: 640px) {
+    padding: 3rem 1rem;
+    
+    .empty-icon {
+      font-size: 3rem;
+    }
+    
+    h3 {
+      font-size: 1.125rem;
+    }
+  }
+}
+
+// Pagination styling
+.pagination-container {
+  margin-top: 2rem;
+  display: flex;
+  justify-content: center;
+  
+  .mat-mdc-paginator {
+    background-color: transparent;
+    
+    .mat-mdc-paginator-page-size-select {
+      margin: 0 8px;
+    }
+  }
+}
+
+// Mobile specific styles
+@media (max-width: 768px) {
+  .mobile-toolbar {
+    background-color: #ffffff;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    
+    .toolbar-title {
+      font-weight: 600;
+      color: #1f2937;
+    }
+  }
+  
+  .mobile-controls {
+    background-color: #ffffff;
+    padding: 1rem;
+    border-bottom: 1px solid #e5e7eb;
+    
+    .mobile-results {
+      font-size: 0.875rem;
+      color: #6b7280;
+    }
+    
+    .mobile-sort {
+      .mat-mdc-select {
+        font-size: 0.875rem;
+      }
+    }
+  }
+  
+  .mobile-products {
+    padding: 1rem;
+    
+    .mobile-grid {
+      gap: 0.75rem;
+    }
+  }
+}
+
+// Filter interactions
+.filter-checkbox {
+  .mat-mdc-checkbox {
+    --mdc-checkbox-selected-checkmark-color: #ffffff;
+    --mdc-checkbox-selected-focus-icon-color: #3b82f6;
+    --mdc-checkbox-selected-hover-icon-color: #3b82f6;
+    --mdc-checkbox-selected-icon-color: #3b82f6;
+    --mdc-checkbox-selected-pressed-icon-color: #3b82f6;
+  }
+}
+
+.price-slider {
+  .mat-mdc-slider {
+    --mdc-slider-active-track-color: #3b82f6;
+    --mdc-slider-inactive-track-color: #e5e7eb;
+    --mdc-slider-handle-color: #3b82f6;
+  }
+}
+
+// Animation classes
+.fade-in {
+  animation: fadeIn 0.3s ease-in;
+}
+
+.slide-up {
+  animation: slideUp 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+// Focus and accessibility
+.focus-visible {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+}
+
+// High contrast mode support
+@media (prefers-contrast: high) {
+  .category-page {
+    background-color: #ffffff;
+  }
+  
+  .filter-sidebar {
+    border-right: 2px solid #000000;
+  }
+  
+  .controls-bar {
+    border-bottom: 2px solid #000000;
+  }
+}
+
+// Reduced motion support
+@media (prefers-reduced-motion: reduce) {
+  .product-card,
+  .fade-in,
+  .slide-up {
+    animation: none;
+    transition: none;
+  }
+  
+  .product-card:hover {
+    transform: none;
+  }
+}

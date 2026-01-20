@@ -1,0 +1,27 @@
+<!-- Button Element -->
+<button
+  [type]="type"
+  [disabled]="isDisabled"
+  class="btn"
+  [class]="'btn--' + variant + ' btn--' + size"
+  [class.btn--full-width]="fullWidth"
+  [class.btn--loading]="loading">
+
+  <!-- Loading Spinner -->
+  <span *ngIf="loading" class="btn__spinner">
+    <svg width="16" height="16" viewBox="0 0 50 50">
+      <circle
+        class="btn__spinner-circle"
+        cx="25"
+        cy="25"
+        r="20"
+        fill="none"
+        stroke-width="4"/>
+    </svg>
+  </span>
+
+  <!-- Button Content -->
+  <span class="btn__content" [class.btn__content--hidden]="loading">
+    <ng-content></ng-content>
+  </span>
+</button>

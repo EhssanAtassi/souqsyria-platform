@@ -1,0 +1,185 @@
+/**
+ * Theme Brand Component Styles
+ * Golden Wheat Design System
+ * Colors: #D4AF37 (gold), #C41E3A (red), #1E3A8A (navy)
+ */
+
+.theme-brand {
+  width: 100%;
+  margin: 2rem 0;
+  overflow: hidden;
+
+  &__container {
+    position: relative;
+  }
+
+  &__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 1.5rem;
+    padding: 1rem 0;
+
+    @media (max-width: 768px) {
+      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+      gap: 1rem;
+    }
+  }
+
+  &__item {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  &__link,
+  &__static {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    text-decoration: none;
+    color: inherit;
+    width: 100%;
+    padding: 1.5rem;
+    background: white;
+    border: 2px solid #E5E7EB;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+
+    @media (max-width: 768px) {
+      padding: 1rem;
+    }
+  }
+
+  &__link {
+    cursor: pointer;
+
+    &:hover {
+      border-color: #D4AF37;
+      box-shadow: 0 4px 12px rgba(212, 175, 55, 0.2);
+      transform: translateY(-4px);
+
+      .theme-brand__logo {
+        transform: scale(1.05);
+      }
+    }
+  }
+
+  &__logo-wrapper {
+    position: relative;
+    width: 100px;
+    height: 100px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1rem;
+    background: #F9FAFB;
+    border-radius: 8px;
+    overflow: hidden;
+
+    @media (max-width: 768px) {
+      width: 80px;
+      height: 80px;
+    }
+  }
+
+  &__logo {
+    max-width: 80%;
+    max-height: 80%;
+    object-fit: contain;
+    transition: transform 0.3s ease;
+  }
+
+  &__verified {
+    position: absolute;
+    top: -4px;
+    right: -4px;
+    width: 24px;
+    height: 24px;
+    background: linear-gradient(135deg, #D4AF37 0%, #F4D03F 100%);
+    color: #1E3A8A;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    font-weight: 700;
+    border: 2px solid white;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+
+  &__info {
+    width: 100%;
+  }
+
+  &__name {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #1E3A8A;
+    margin: 0 0 0.25rem 0;
+    line-height: 1.3;
+
+    @media (max-width: 768px) {
+      font-size: 0.8125rem;
+    }
+  }
+
+  &__location {
+    font-size: 0.75rem;
+    color: #6B7280;
+    margin: 0;
+    line-height: 1.3;
+  }
+}
+
+// Alternative horizontal scroll layout (can be activated via class)
+.theme-brand--scroll {
+  .theme-brand__grid {
+    display: flex;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scroll-snap-type: x mandatory;
+    gap: 1rem;
+    padding: 1rem;
+    -webkit-overflow-scrolling: touch;
+
+    &::-webkit-scrollbar {
+      height: 6px;
+    }
+
+    &::-webkit-scrollbar-track {
+      background: #F3F4F6;
+      border-radius: 3px;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background: #D4AF37;
+      border-radius: 3px;
+    }
+  }
+
+  .theme-brand__item {
+    flex: 0 0 180px;
+    scroll-snap-align: start;
+
+    @media (max-width: 768px) {
+      flex: 0 0 140px;
+    }
+  }
+}
+
+// RTL support
+[dir="rtl"] {
+  .theme-brand {
+    &__verified {
+      right: auto;
+      left: -4px;
+    }
+  }
+
+  .theme-brand--scroll {
+    .theme-brand__grid {
+      direction: rtl;
+    }
+  }
+}

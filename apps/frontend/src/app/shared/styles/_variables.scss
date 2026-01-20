@@ -1,0 +1,221 @@
+/**
+ * Golden Wheat Design System Variables
+ *
+ * Color palette, layout constants, and design tokens for SouqSyria marketplace.
+ * Based on Syrian cultural aesthetics with warm, earthy tones.
+ *
+ * @swagger
+ * components:
+ *   schemas:
+ *     GoldenWheatDesignSystem:
+ *       type: object
+ *       description: Design system variables for Syrian marketplace
+ *       properties:
+ *         colors:
+ *           type: object
+ *           description: Golden Wheat color palette
+ *         layout:
+ *           type: object
+ *           description: Layout dimensions and spacing
+ *         typography:
+ *           type: object
+ *           description: Font sizes and weights
+ */
+
+// ============================================================================
+// COLOR PALETTE - GOLDEN WHEAT DESIGN SYSTEM
+// ============================================================================
+
+/**
+ * Primary Golden Wheat Colors
+ * Warm, earthy tones inspired by Syrian wheat fields
+ */
+$golden-wheat-primary: #988561;   // Main brand color
+$golden-wheat-medium: #b9a779;    // Hover states, accents
+$golden-wheat-light: #edebe0;     // Backgrounds, subtle highlights
+$golden-wheat-dark: #6d5f45;      // Text on light backgrounds
+
+/**
+ * Forest Green Palette
+ * Rich, natural greens for secondary elements
+ */
+$forest-dark: #002623;            // Dark text, headers
+$forest-medium: #054239;          // Borders, dividers
+$forest-light: #428177;           // Hover states, links
+
+/**
+ * Neutral Charcoal Palette
+ * Professional grays for text and UI elements
+ */
+$charcoal-dark: #161616;          // Primary text
+$charcoal-medium: #3d3a3b;        // Secondary text
+$charcoal-light: #ffffff;         // Backgrounds, cards
+
+/**
+ * Umber Accent Palette
+ * Deep, warm accents for emphasis
+ */
+$umber-dark: #260f14;             // Error states, urgent CTAs
+$umber-medium: #4a151e;           // Warnings, badges
+$umber-light: #6b1f2a;            // Hover states
+
+/**
+ * Semantic Colors
+ * Status indicators and feedback
+ */
+$color-success: #428177;          // Success messages, stock available
+$color-warning: #b9a779;          // Warnings, low stock
+$color-error: #6b1f2a;            // Errors, out of stock
+$color-info: #988561;             // Informational messages
+
+// ============================================================================
+// LAYOUT DIMENSIONS
+// ============================================================================
+
+/**
+ * Container widths
+ */
+$container-max-width: 1440px;     // Maximum content width
+$container-wide: 1680px;          // Wide layouts (full-width sections)
+$container-narrow: 960px;         // Narrow layouts (blog posts, forms)
+
+/**
+ * Sidebar dimensions
+ */
+$sidebar-width: 280px;            // Standard sidebar width
+$sidebar-width-mobile: 240px;     // Sidebar width on tablets
+
+/**
+ * Grid spacing
+ */
+$grid-gap: 24px;                  // Default grid gap
+$grid-gap-small: 16px;            // Compact grid gap
+$grid-gap-large: 32px;            // Spacious grid gap
+
+/**
+ * Responsive breakpoints
+ */
+$breakpoint-xl: 1440px;           // Extra large screens
+$breakpoint-lg: 1280px;           // Large screens
+$breakpoint-md: 1024px;           // Medium screens (tablets)
+$breakpoint-sm: 768px;            // Small screens (mobile landscape)
+$breakpoint-xs: 640px;            // Extra small screens (mobile portrait)
+
+// ============================================================================
+// SPACING SYSTEM
+// ============================================================================
+
+/**
+ * Spacing scale (based on 8px grid)
+ */
+$space-1: 4px;                    // 0.25rem
+$space-2: 8px;                    // 0.5rem
+$space-3: 12px;                   // 0.75rem
+$space-4: 16px;                   // 1rem
+$space-5: 20px;                   // 1.25rem
+$space-6: 24px;                   // 1.5rem
+$space-8: 32px;                   // 2rem
+$space-10: 40px;                  // 2.5rem
+$space-12: 48px;                  // 3rem
+$space-16: 64px;                  // 4rem
+
+// ============================================================================
+// TYPOGRAPHY
+// ============================================================================
+
+/**
+ * Font families
+ */
+$font-family-primary: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+$font-family-arabic: 'Cairo', 'Tajawal', 'Noto Kufi Arabic', sans-serif;
+$font-family-heading: 'Playfair Display', Georgia, serif;
+
+/**
+ * Font sizes
+ */
+$font-size-xs: 0.75rem;           // 12px
+$font-size-sm: 0.875rem;          // 14px
+$font-size-base: 1rem;            // 16px
+$font-size-lg: 1.125rem;          // 18px
+$font-size-xl: 1.25rem;           // 20px
+$font-size-2xl: 1.5rem;           // 24px
+$font-size-3xl: 1.875rem;         // 30px
+$font-size-4xl: 2.25rem;          // 36px
+
+/**
+ * Font weights
+ */
+$font-weight-light: 300;
+$font-weight-normal: 400;
+$font-weight-medium: 500;
+$font-weight-semibold: 600;
+$font-weight-bold: 700;
+
+/**
+ * Line heights
+ */
+$line-height-tight: 1.25;
+$line-height-normal: 1.5;
+$line-height-relaxed: 1.75;
+
+// ============================================================================
+// BORDERS & SHADOWS
+// ============================================================================
+
+/**
+ * Border radius
+ */
+$border-radius-sm: 4px;
+$border-radius-md: 8px;
+$border-radius-lg: 12px;
+$border-radius-xl: 16px;
+$border-radius-full: 9999px;
+
+/**
+ * Border widths
+ */
+$border-width-thin: 1px;
+$border-width-medium: 2px;
+$border-width-thick: 3px;
+
+/**
+ * Box shadows
+ */
+$shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+$shadow-md: 0 4px 6px rgba(0, 0, 0, 0.07);
+$shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.1);
+$shadow-xl: 0 16px 32px rgba(0, 0, 0, 0.12);
+$shadow-hover: 0 8px 24px rgba(0, 0, 0, 0.12);
+
+// ============================================================================
+// TRANSITIONS & ANIMATIONS
+// ============================================================================
+
+/**
+ * Transition durations
+ */
+$transition-fast: 150ms;
+$transition-normal: 300ms;
+$transition-slow: 500ms;
+
+/**
+ * Transition timing functions
+ */
+$ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+$ease-out: cubic-bezier(0, 0, 0.2, 1);
+$ease-in: cubic-bezier(0.4, 0, 1, 1);
+
+// ============================================================================
+// Z-INDEX LAYERS
+// ============================================================================
+
+/**
+ * Z-index scale for consistent layering
+ */
+$z-index-dropdown: 1000;
+$z-index-sticky: 1020;
+$z-index-fixed: 1030;
+$z-index-modal-backdrop: 1040;
+$z-index-modal: 1050;
+$z-index-popover: 1060;
+$z-index-tooltip: 1070;

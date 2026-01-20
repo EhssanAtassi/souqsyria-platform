@@ -1,0 +1,38 @@
+<header class="admin-header">
+  <div class="admin-header__branding">
+    <span class="admin-header__badge">Enterprise</span>
+    <div>
+      <h1 class="admin-header__title">SouqSyria Admin</h1>
+      <p class="admin-header__subtitle">Golden Wheat operations console</p>
+    </div>
+  </div>
+
+  <div class="admin-header__right">
+    <nav class="admin-header__actions" aria-label="Quick actions">
+      <a
+        *ngFor="let action of quickActions"
+        class="admin-header__action"
+        [routerLink]="action.route"
+      >
+        <span class="admin-header__action-icon">•</span>
+        <span>{{ action.label }}</span>
+      </a>
+    </nav>
+
+    <div class="admin-header__session" *ngIf="currentAdmin(); else guestSession">
+      <div class="admin-header__avatar">{{ avatarInitials() }}</div>
+      <div class="admin-header__identity">
+        <p class="admin-header__name">{{ displayName() }}</p>
+        <a routerLink="/admin/profile" class="admin-header__profile-link">View profile</a>
+      </div>
+      <button type="button" class="admin-header__logout" (click)="logout()" [disabled]="logoutPending()">
+        <span *ngIf="!logoutPending(); else loggingOut">Sign out</span>
+      </button>
+      <ng-template #loggingOut>Signing out…</ng-template>
+    </div>
+
+    <ng-template #guestSession>
+      <a routerLink="/admin/login" class="admin-header__login">Sign in</a>
+    </ng-template>
+  </div>
+</header>

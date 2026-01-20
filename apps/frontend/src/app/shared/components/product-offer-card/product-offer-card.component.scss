@@ -1,0 +1,400 @@
+/**
+ * Product Offer Card Component Styles
+ *
+ * Minimalist e-commerce style matching Figma design
+ * - Clean white background
+ * - Large product images
+ * - Yellow CTA buttons (#FDB022)
+ * - Subtle hover effects
+ *
+ * Supports 3 price display formats:
+ * 1. Discount (original + discounted price + badge)
+ * 2. Sale (sale label + percentage)
+ * 3. Price (simple price display)
+ */
+
+// Variables (Figma Design System)
+$cta-yellow: #FDB022;
+$cta-yellow-hover: #FCA311;
+$text-dark: #2D3748;
+$text-gray: #718096;
+$text-light: #A0AEC0;
+$white: #FFFFFF;
+$border-light: #E2E8F0;
+$shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.08);
+$shadow-md: 0 4px 12px rgba(0, 0, 0, 0.12);
+$shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.15);
+
+// Card Container
+.product-offer-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  background: $white;
+  border: 1px solid $border-light;
+  border-radius: 8px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: $shadow-sm;
+
+  // Hover Effect
+  &:hover:not(.inactive) {
+    transform: translateY(-4px);
+    box-shadow: $shadow-lg;
+
+    .card-image {
+      transform: scale(1.05);
+    }
+
+    .hover-overlay {
+      opacity: 1;
+    }
+
+    .cta-button {
+      background: $cta-yellow-hover;
+      transform: translateY(-2px);
+    }
+  }
+
+  // Inactive State
+  &.inactive {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+  // Focus State (Accessibility)
+  &:focus-visible {
+    outline: 3px solid $cta-yellow;
+    outline-offset: 2px;
+  }
+}
+
+// Image Section
+.card-image-wrapper {
+  position: relative;
+  width: 100%;
+  height: 240px;
+  overflow: hidden;
+  background: #F7FAFC;
+}
+
+.card-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.5s ease;
+}
+
+// Discount Badge (Circular, Top-Right)
+.discount-badge {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: #FF6B35; // Default orange (override with ngStyle)
+  color: $white;
+  font-weight: 700;
+  text-align: center;
+  z-index: 2;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+
+  .badge-line {
+    display: block;
+    font-size: 16px;
+    line-height: 1.2;
+
+    &:first-child {
+      font-size: 20px; // Larger for percentage
+      font-weight: 800;
+    }
+  }
+}
+
+// Card Content
+.card-content {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  flex: 1;
+}
+
+// Title
+.card-title {
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 1.3;
+  color: $text-dark;
+  margin: 0;
+}
+
+.card-title-ar {
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 1.4;
+  color: $text-gray;
+  margin: 0;
+  font-family: 'Cairo', 'Tajawal', 'Arial', sans-serif;
+  direction: rtl;
+}
+
+// Subtitle (Optional)
+.card-subtitle {
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.4;
+  color: $text-gray;
+  margin: 0;
+}
+
+.card-subtitle-ar {
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 1.5;
+  color: $text-light;
+  margin: 0;
+  font-family: 'Cairo', 'Tajawal', 'Arial', sans-serif;
+  direction: rtl;
+}
+
+// Price Section (3 different formats)
+.price-section {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: auto; // Push to bottom
+}
+
+.price-label {
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: $text-gray;
+}
+
+// DISCOUNT TYPE
+.discount-type {
+  .price-values {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .discounted-price {
+    font-size: 24px;
+    font-weight: 800;
+    color: #10B981; // Green for discounted price
+  }
+
+  .original-price {
+    font-size: 16px;
+    font-weight: 500;
+    color: $text-light;
+    text-decoration: line-through;
+  }
+}
+
+// SALE TYPE
+.sale-type {
+  .sale-percentage {
+    font-size: 28px;
+    font-weight: 800;
+    color: #EF4444; // Red for sale
+    line-height: 1.2;
+  }
+}
+
+// PRICE TYPE
+.price-type {
+  .price-value {
+    font-size: 26px;
+    font-weight: 800;
+    color: $text-dark;
+    line-height: 1.2;
+  }
+}
+
+// CTA Button
+.cta-button {
+  width: 100%;
+  padding: 14px 24px;
+  background: $cta-yellow;
+  color: $text-dark;
+  font-size: 15px;
+  font-weight: 700;
+  text-align: center;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 6px rgba(253, 176, 34, 0.3);
+  margin-top: 12px;
+
+  &:hover {
+    background: $cta-yellow-hover;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(253, 176, 34, 0.4);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+
+  .cta-text-en,
+  .cta-text-ar {
+    display: inline-block;
+  }
+
+  .cta-text-ar {
+    margin-left: 8px;
+    font-family: 'Cairo', 'Tajawal', 'Arial', sans-serif;
+  }
+}
+
+// Hover Overlay
+.hover-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.05);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+  z-index: 1;
+}
+
+// Tablet Responsive
+@media (max-width: 1024px) {
+  .card-image-wrapper {
+    height: 200px;
+  }
+
+  .discount-badge {
+    width: 60px;
+    height: 60px;
+    top: 12px;
+    right: 12px;
+
+    .badge-line {
+      font-size: 14px;
+
+      &:first-child {
+        font-size: 18px;
+      }
+    }
+  }
+
+  .card-content {
+    padding: 16px;
+  }
+
+  .card-title {
+    font-size: 16px;
+  }
+
+  .discount-type .discounted-price {
+    font-size: 22px;
+  }
+
+  .sale-type .sale-percentage {
+    font-size: 24px;
+  }
+
+  .price-type .price-value {
+    font-size: 24px;
+  }
+}
+
+// Mobile Responsive
+@media (max-width: 768px) {
+  .product-offer-card {
+    border-radius: 6px;
+  }
+
+  .card-image-wrapper {
+    height: 180px;
+  }
+
+  .discount-badge {
+    width: 55px;
+    height: 55px;
+    top: 10px;
+    right: 10px;
+
+    .badge-line {
+      font-size: 13px;
+
+      &:first-child {
+        font-size: 16px;
+      }
+    }
+  }
+
+  .card-content {
+    padding: 14px;
+    gap: 10px;
+  }
+
+  .card-title {
+    font-size: 15px;
+  }
+
+  .card-title-ar {
+    font-size: 14px;
+  }
+
+  .cta-button {
+    padding: 12px 20px;
+    font-size: 14px;
+  }
+}
+
+// Extra Small Mobile
+@media (max-width: 480px) {
+  .card-image-wrapper {
+    height: 160px;
+  }
+
+  .discount-badge {
+    width: 50px;
+    height: 50px;
+
+    .badge-line {
+      font-size: 12px;
+
+      &:first-child {
+        font-size: 15px;
+      }
+    }
+  }
+
+  .card-content {
+    padding: 12px;
+  }
+
+  .card-title {
+    font-size: 14px;
+  }
+
+  .discount-type .discounted-price {
+    font-size: 20px;
+  }
+
+  .sale-type .sale-percentage {
+    font-size: 22px;
+  }
+
+  .price-type .price-value {
+    font-size: 22px;
+  }
+}

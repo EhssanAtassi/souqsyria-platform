@@ -1,0 +1,67 @@
+<!-- Category Showcase Section - Syrian Marketplace -->
+<!-- Displays featured banner (left) + subcategory grid (right) per Figma design -->
+
+<section
+  class="category-showcase-section py-12 bg-white"
+  [ngClass]="customClass"
+  [style.background-color]="section.backgroundColor || '#FFFFFF'">
+
+  <div class="container mx-auto px-4">
+
+    <!-- Section Header -->
+    @if (showHeader) {
+      <div class="section-header flex justify-between items-center mb-6">
+
+        <!-- Title (No Icon - Figma Match) -->
+        <div class="title-wrapper">
+          <h2 class="text-xl lg:text-2xl font-bold text-gray-900">
+            {{ section.title.en }}
+          </h2>
+        </div>
+
+        <!-- Navigation Links (New Arrivals, Best Seller) -->
+        @if (showNavigationLinks && section.navigationLinks) {
+          <div class="navigation-links flex gap-6">
+            <a
+              [routerLink]="section.navigationLinks.newArrivals"
+              (click)="onNavigationLinkClick('newArrivals')"
+              class="nav-link text-sm font-medium text-gray-700 hover:text-golden-wheat-dark
+                     transition-colors duration-200">
+              New Arrivals
+            </a>
+            <a
+              [routerLink]="section.navigationLinks.bestSeller"
+              (click)="onNavigationLinkClick('bestSeller')"
+              class="nav-link text-sm font-medium text-gray-700 hover:text-golden-wheat-dark
+                     transition-colors duration-200">
+              Best Seller
+            </a>
+          </div>
+        }
+      </div>
+    }
+
+    <!-- Main Content: Banner + Subcategories Grid (Backend API Layout: 65% | 35%) -->
+    <div class="showcase-content flex flex-col lg:flex-row gap-6">
+
+      <!-- Left Side: Featured Banner (65% on desktop - matches backend) -->
+      <div class="banner-column lg:w-[65%] flex-shrink-0">
+        <app-featured-banner
+          [banner]="section.featuredBanner"
+          [sectionId]="section.id"
+          (bannerClick)="onBannerClick($event)" />
+      </div>
+
+      <!-- Right Side: Subcategory Grid (35% on desktop - matches backend) -->
+      <div class="subcategories-column lg:w-[35%] flex-shrink-0">
+        <app-subcategory-grid
+          [subcategories]="section.subcategories"
+          [sectionId]="section.id"
+          (subcategoryClick)="onSubcategoryClick($event)" />
+      </div>
+
+    </div>
+
+
+  </div>
+</section>

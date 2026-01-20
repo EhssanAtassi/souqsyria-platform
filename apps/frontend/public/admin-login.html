@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SouqSyria Admin Login - سوق سوريا</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <style>
+        :root {
+            --golden-wheat: #988561;
+            --golden-wheat-light: #b9a779;
+            --golden-wheat-bg: #edebe0;
+            --forest-green: #002623;
+            --charcoal: #161616;
+        }
+
+        .bg-damascus-pattern {
+            background-image:
+                radial-gradient(circle at 30% 30%, rgba(152, 133, 97, 0.1) 1px, transparent 1px),
+                radial-gradient(circle at 70% 70%, rgba(152, 133, 97, 0.1) 1px, transparent 1px);
+            background-size: 60px 60px;
+        }
+
+        .btn-golden {
+            background: linear-gradient(135deg, var(--golden-wheat), var(--golden-wheat-light));
+            transition: all 0.3s ease;
+        }
+
+        .btn-golden:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(152, 133, 97, 0.3);
+        }
+    </style>
+</head>
+<body class="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 bg-damascus-pattern">
+    <div class="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+        <div class="max-w-md w-full space-y-8">
+            <!-- Header -->
+            <div class="text-center">
+                <h1 class="text-4xl font-bold" style="color: var(--golden-wheat);">سوق سوريا</h1>
+                <h2 class="text-2xl font-semibold text-gray-700 mt-2">SouqSyria</h2>
+                <p class="mt-4 text-lg font-medium text-gray-600">Admin & Vendor Portal</p>
+                <p class="text-sm text-gray-500">بوابة الإدارة والتجار</p>
+            </div>
+
+            <!-- Login Card -->
+            <div class="bg-white rounded-2xl shadow-xl p-8 border border-gray-100">
+                <form id="loginForm" class="space-y-6">
+                    <!-- Role Selection -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Login As / تسجيل الدخول كـ</label>
+                        <div class="grid grid-cols-2 gap-3">
+                            <button type="button" onclick="selectRole('admin')" id="adminBtn"
+                                class="role-btn flex items-center justify-center py-3 px-4 border-2 border-gray-200 rounded-xl hover:border-golden-wheat focus:outline-none">
+                                <span class="material-icons text-xl mr-2">admin_panel_settings</span>
+                                <span class="font-medium">Admin</span>
+                            </button>
+                            <button type="button" onclick="selectRole('vendor')" id="vendorBtn"
+                                class="role-btn flex items-center justify-center py-3 px-4 border-2 border-gray-200 rounded-xl hover:border-golden-wheat focus:outline-none">
+                                <span class="material-icons text-xl mr-2">store</span>
+                                <span class="font-medium">Vendor</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Email Input -->
+                    <div>
+                        <label for="email" class="block text-sm font-medium text-gray-700">Email Address / البريد الإلكتروني</label>
+                        <input type="email" id="email" name="email" required
+                            class="mt-1 block w-full px-3 py-3 border border-gray-300 rounded-xl shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-golden-wheat focus:border-golden-wheat">
+                    </div>
+
+                    <!-- Password Input -->
+                    <div>
+                        <label for="password" class="block text-sm font-medium text-gray-700">Password / كلمة المرور</label>
+                        <div class="relative mt-1">
+                            <input type="password" id="password" name="password" required
+                                class="block w-full px-3 py-3 pr-10 border border-gray-300 rounded-xl shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-golden-wheat focus:border-golden-wheat">
+                            <button type="button" onclick="togglePassword()"
+                                class="absolute inset-y-0 right-0 pr-3 flex items-center">
+                                <span class="material-icons text-gray-400 hover:text-gray-600" id="passwordIcon">visibility</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Remember Me -->
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center">
+                            <input type="checkbox" id="remember" name="remember"
+                                class="h-4 w-4 rounded border-gray-300 focus:ring-golden-wheat" style="color: var(--golden-wheat);">
+                            <label for="remember" class="ml-2 block text-sm text-gray-700">Remember me / تذكرني</label>
+                        </div>
+                        <a href="#" class="text-sm hover:underline" style="color: var(--golden-wheat);">Forgot password?</a>
+                    </div>
+
+                    <!-- Login Button -->
+                    <button type="submit"
+                        class="btn-golden w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-xl shadow-lg text-white font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-golden-wheat">
+                        <span class="material-icons mr-2">login</span>
+                        Sign In / تسجيل الدخول
+                    </button>
+                </form>
+
+                <!-- Demo Credentials -->
+                <div class="mt-6 p-4 bg-gray-50 rounded-xl">
+                    <h4 class="font-medium text-gray-700 mb-2">Demo Credentials:</h4>
+                    <div class="space-y-1 text-sm text-gray-600">
+                        <p><strong>Admin:</strong> admin@souqsyria.com / admin123</p>
+                        <p><strong>Vendor:</strong> vendor@souqsyria.com / admin123</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <div class="text-center text-sm text-gray-500">
+                <p>© 2024 SouqSyria - Syrian Marketplace</p>
+                <p>سوق سوريا - للتراث والحرف السورية الأصيلة</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let selectedRole = 'admin';
+
+        // Role selection
+        function selectRole(role) {
+            selectedRole = role;
+
+            // Update button styles
+            document.querySelectorAll('.role-btn').forEach(btn => {
+                btn.classList.remove('border-golden-wheat', 'bg-golden-wheat', 'text-white');
+                btn.classList.add('border-gray-200');
+            });
+
+            const selectedBtn = document.getElementById(role + 'Btn');
+            selectedBtn.classList.remove('border-gray-200');
+            selectedBtn.classList.add('border-golden-wheat', 'bg-golden-wheat', 'text-white');
+            selectedBtn.style.borderColor = 'var(--golden-wheat)';
+            selectedBtn.style.backgroundColor = 'var(--golden-wheat)';
+
+            // Update email placeholder
+            const emailInput = document.getElementById('email');
+            if (role === 'admin') {
+                emailInput.value = 'admin@souqsyria.com';
+            } else {
+                emailInput.value = 'vendor@souqsyria.com';
+            }
+        }
+
+        // Toggle password visibility
+        function togglePassword() {
+            const passwordInput = document.getElementById('password');
+            const passwordIcon = document.getElementById('passwordIcon');
+
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                passwordIcon.textContent = 'visibility_off';
+            } else {
+                passwordInput.type = 'password';
+                passwordIcon.textContent = 'visibility';
+            }
+        }
+
+        // Form submission
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const remember = document.getElementById('remember').checked;
+
+            // Demo authentication
+            if ((email === 'admin@souqsyria.com' || email === 'vendor@souqsyria.com') && password === 'admin123') {
+                // Store login info
+                localStorage.setItem('souqsyria_admin_user', JSON.stringify({
+                    email: email,
+                    role: selectedRole,
+                    loginTime: new Date().toISOString()
+                }));
+
+                // Redirect to dashboard
+                alert('Login successful! Redirecting to admin dashboard...\nنجح تسجيل الدخول! سيتم توجيهك إلى لوحة التحكم الإدارية...');
+
+                // Redirect to standalone admin dashboard
+                window.location.href = '/admin-dashboard.html';
+            } else {
+                alert('Invalid credentials. Please use demo credentials.\nبيانات غير صحيحة. يرجى استخدام البيانات التجريبية.');
+            }
+        });
+
+        // Initialize
+        selectRole('admin');
+    </script>
+</body>
+</html>

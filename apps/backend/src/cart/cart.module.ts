@@ -1,0 +1,79 @@
+/**
+ * @file cart.module.ts
+ * @description Enhanced Cart Module for SouqSyria E-commerce Platform
+ *
+ * FEATURES:
+ * - Shopping cart management with multi-currency support
+ * - Real-time stock validation and cart totals
+ * - Comprehensive audit logging for all cart operations
+ * - Cart analytics for business intelligence
+ * - Syrian market compliance and localization
+ *
+ * INTEGRATIONS:
+ * - Access control and permissions
+ * - Audit logging system
+ * - Product variants and stock management
+ * - Multi-currency support (SYP, USD, EUR, TRY)
+ *
+ * @author SouqSyria Development Team
+ * @since 2025-08-07
+ * @version 2.0.0
+ */
+
+import { Module } from '@nestjs/common';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { JwtModule } from '@nestjs/jwt';
+import { Cart } from './entities/cart.entity';
+import { CartItem } from './entities/cart-item.entity';
+import { GuestSession } from './entities/guest-session.entity';
+import { CartController } from './controller/cart.controller';
+import { CartGuestController } from './controller/cart-guest.controller';
+import { ProductVariant } from '../products/variants/entities/product-variant.entity';
+import { CartService } from './service/cart.service';
+import { CartMergeService } from './service/cart-merge.service';
+import { CartSyncService } from './service/cart-sync.service';
+import { CartValidationService } from './service/cart-validation.service';
+import { AccessControlModule } from '../access-control/access-control.module';
+import { AuditLogModule } from '../audit-log/audit-log.module';
+import { User } from '../users/entities/user.entity';
+import { Route } from '../access-control/entities/route.entity';
+import { ProductEntity } from '../products/entities/product.entity';
+
+// Seeding Services
+import { CartSeederService } from './seeds/cart.seeder.service';
+
+@Module({
+  imports: [
+    TypeOrmModule.forFeature([
+      Cart,
+      CartItem,
+      GuestSession,
+      ProductVariant,
+      User,
+      Route,
+      ProductEntity,
+    ]),
+    JwtModule.register({}), // ✅ For OptionalAuthGuard JWT verification
+    AccessControlModule, // ✅ For permissions and access control
+    AuditLogModule, // ✅ For comprehensive audit logging
+  ],
+  controllers: [
+    CartController,
+    CartGuestController, // ✅ Guest cart management
+  ],
+  providers: [
+    CartService,
+    CartMergeService, // ✅ Guest-to-user cart merging
+    CartSyncService, // ✅ Multi-device synchronization
+    CartValidationService, // ✅ Pre-checkout validation
+    // Seeding Services
+    CartSeederService,
+  ],
+  exports: [
+    CartService,
+    CartMergeService,
+    CartSyncService,
+    CartValidationService,
+  ],
+})
+export class CartModule {}

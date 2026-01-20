@@ -1,0 +1,599 @@
+<!-- Syrian Marketplace Product Detail Page -->
+<div class="min-h-screen bg-gray-50">
+  
+  <!-- Loading State -->
+  <div *ngIf="isLoading()" class="flex justify-center items-center h-96">
+    <mat-spinner></mat-spinner>
+    <span class="ml-4 text-lg">Loading authentic Syrian product...</span>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="error() && !isLoading()" class="container mx-auto px-4 py-16 text-center">
+    <mat-icon class="text-red-500 text-6xl mb-4">error_outline</mat-icon>
+    <h2 class="text-2xl font-bold text-gray-800 mb-4">{{ error() }}</h2>
+    <button mat-raised-button color="primary" routerLink="/">
+      <mat-icon>home</mat-icon>
+      Return to Homepage
+    </button>
+  </div>
+
+  <!-- Product Content -->
+  <div *ngIf="product() && !isLoading()" class="container mx-auto px-4 py-8">
+    
+    <!-- Breadcrumb Navigation -->
+    <nav class="mb-6">
+      <ol class="flex space-x-2 text-sm text-gray-600">
+        <li><a routerLink="/" class="hover:text-blue-600">Home</a></li>
+        <li><mat-icon class="text-xs mx-1">chevron_right</mat-icon></li>
+        <li *ngFor="let crumb of product()!.category.breadcrumb; let last = last">
+          <span [class.text-gray-800]="last" [class.font-medium]="last">{{ crumb }}</span>
+          <mat-icon *ngIf="!last" class="text-xs mx-1">chevron_right</mat-icon>
+        </li>
+      </ol>
+    </nav>
+
+    <!-- Main Product Layout -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
+      
+      <!-- Product Images Gallery -->
+      <div class="space-y-4">
+        <!-- Main Image -->
+        <div class="aspect-square rounded-lg overflow-hidden bg-white shadow-md">
+          <img 
+            [src]="selectedImage()?.url || '/assets/images/placeholder-image.svg'" 
+            [alt]="selectedImage()?.alt || product()!.name"
+            class="w-full h-full object-cover hover:scale-105 transition-transform duration-300">
+        </div>
+        
+        <!-- Thumbnail Images -->
+        <div class="grid grid-cols-4 gap-2">
+          <button 
+            *ngFor="let image of product()!.images" 
+            (click)="selectImage(image)"
+            class="aspect-square rounded-md overflow-hidden border-2 transition-all duration-200"
+            [class.border-blue-500]="selectedImage()?.id === image.id"
+            [class.border-gray-200]="selectedImage()?.id !== image.id">
+            <img 
+              [src]="image.url" 
+              [alt]="image.alt"
+              class="w-full h-full object-cover">
+          </button>
+        </div>
+      </div>
+
+      <!-- Product Information -->
+      <div class="space-y-6">
+        
+        <!-- Product Title and Authenticity -->
+        <div>
+          <div class="flex items-center gap-2 mb-2">
+            <mat-chip-set>
+              <mat-chip *ngFor="let badge of product()!.authenticity.badges" class="bg-green-100 text-green-800">
+                <mat-icon matChipAvatar>verified</mat-icon>
+                {{ badge }}
+              </mat-chip>
+            </mat-chip-set>
+          </div>
+          
+          <h1 class="text-3xl font-bold text-gray-900 mb-2">{{ product()!.name }}</h1>
+          <h2 *ngIf="product()!.nameArabic" class="text-xl text-gray-600 mb-4 font-arabic product-name-arabic">{{ product()!.nameArabic }}</h2>
+          
+          <!-- Rating and Reviews -->
+          <div class="flex items-center gap-4 mb-4">
+            <div class="flex items-center">
+              <div class="flex text-yellow-400">
+                <mat-icon *ngFor="let star of [1,2,3,4,5]" 
+                  [class.text-gray-300]="star > product()!.reviews.averageRating">star</mat-icon>
+              </div>
+              <span class="ml-2 text-sm text-gray-600">
+                {{ product()!.reviews.averageRating }} ({{ product()!.reviews.totalReviews }} reviews)
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Pricing -->
+        <div class="bg-white p-6 rounded-lg shadow-sm border">
+          <div class="flex items-baseline gap-3 mb-4">
+            <span class="text-3xl font-bold text-green-600">
+              {{ formatPrice(product()!.price.amount, product()!.price.currency) }}
+            </span>
+            <span *ngIf="product()!.price.originalPrice" 
+                  class="text-lg text-gray-500 line-through">
+              {{ formatPrice(product()!.price.originalPrice!, product()!.price.currency) }}
+            </span>
+            <mat-chip *ngIf="product()!.price.discount" class="bg-red-100 text-red-800">
+              {{ getDiscountPercentage(product()!.price.originalPrice!, product()!.price.amount) }}
+            </mat-chip>
+          </div>
+          
+          <!-- International Pricing -->
+          <div *ngIf="product()!.price.internationalPricing" class="text-sm text-gray-600">
+            <span>Also available in: </span>
+            <span *ngFor="let pricing of product()!.price.internationalPricing | keyvalue; let last = last">
+              {{ formatPrice(pricing.value, pricing.key) }}<span *ngIf="!last">, </span>
+            </span>
+          </div>
+        </div>
+
+        <!-- Stock Status -->
+        <div class="flex items-center gap-2">
+          <mat-icon [class]="getStockStatusColor()">inventory</mat-icon>
+          <span [class]="getStockStatusColor()" class="font-medium">{{ getStockStatusText() }}</span>
+        </div>
+
+        <!-- Quantity and Shipping Selection -->
+        <div class="bg-white p-6 rounded-lg shadow-sm border space-y-4">
+          
+          <!-- Quantity Selector -->
+          <div class="flex items-center gap-4">
+            <label class="font-medium text-gray-700">Quantity:</label>
+            <mat-form-field appearance="outline" class="w-24">
+              <mat-select [(ngModel)]="selectedQuantity" [value]="selectedQuantity()">
+                <mat-option *ngFor="let qty of quantityOptions()" [value]="qty">
+                  {{ qty }}
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+
+          <!-- Shipping Method -->
+          <div>
+            <label class="font-medium text-gray-700 block mb-2">Shipping Method:</label>
+            <mat-form-field appearance="outline" class="w-full">
+              <mat-select [(ngModel)]="selectedShippingMethod" [value]="selectedShippingMethod()">
+                <mat-option *ngFor="let method of product()!.shipping.methods" [value]="method.id">
+                  {{ method.name }} - {{ formatPrice(method.cost.amount, method.cost.currency) }}
+                  ({{ method.deliveryTime.min }}-{{ method.deliveryTime.max }} {{ method.deliveryTime.unit }})
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+
+          <!-- Total Price -->
+          <div class="border-t pt-4">
+            <div class="flex justify-between items-center text-lg font-bold">
+              <span>Total (incl. shipping):</span>
+              <span class="text-green-600">{{ formatPrice(totalPrice(), product()!.price.currency) }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="space-y-3">
+          <button 
+            mat-raised-button 
+            color="primary" 
+            class="w-full h-12 text-lg"
+            [disabled]="!product()!.inventory.inStock"
+            (click)="addToCart()">
+            <mat-icon>shopping_cart</mat-icon>
+            Add to Cart
+          </button>
+          
+          <button 
+            mat-raised-button 
+            color="accent" 
+            class="w-full h-12 text-lg"
+            [disabled]="!product()!.inventory.inStock"
+            (click)="buyNow()">
+            <mat-icon>flash_on</mat-icon>
+            Buy Now
+          </button>
+          
+          <div class="flex gap-2">
+            <button mat-stroked-button class="flex-1" (click)="addToWishlist()">
+              <mat-icon>favorite_border</mat-icon>
+              Wishlist
+            </button>
+            <button mat-stroked-button class="flex-1" (click)="shareProduct()">
+              <mat-icon>share</mat-icon>
+              Share
+            </button>
+          </div>
+        </div>
+
+        <!-- Seller Information -->
+        <mat-card class="mt-6">
+          <mat-card-header>
+            <mat-card-title class="flex items-center gap-2">
+              <mat-icon>store</mat-icon>
+              <div>
+                <span>Sold by {{ product()!.seller.name }}</span>
+                <div *ngIf="product()!.seller.nameArabic" class="text-sm font-arabic seller-name-arabic">{{ product()!.seller.nameArabic }}</div>
+              </div>
+              <mat-icon *ngIf="product()!.seller.verified" class="text-green-600">verified</mat-icon>
+            </mat-card-title>
+            <mat-card-subtitle>
+              {{ product()!.seller.location.city }}, {{ product()!.seller.location.governorate }}
+            </mat-card-subtitle>
+          </mat-card-header>
+          <mat-card-content>
+            <div class="flex items-center gap-4 text-sm">
+              <div class="flex items-center">
+                <mat-icon class="text-yellow-400 mr-1">star</mat-icon>
+                {{ product()!.seller.rating }} ({{ product()!.seller.reviewCount }} reviews)
+              </div>
+              <div *ngIf="product()!.seller.yearsInBusiness">
+                {{ product()!.seller.yearsInBusiness }} years in business
+              </div>
+            </div>
+            <div *ngIf="product()!.seller.specializations" class="mt-2">
+              <mat-chip-set>
+                <mat-chip *ngFor="let spec of product()!.seller.specializations">{{ spec }}</mat-chip>
+              </mat-chip-set>
+            </div>
+          </mat-card-content>
+        </mat-card>
+      </div>
+    </div>
+
+    <!-- Product Details Tabs -->
+    <mat-tab-group class="mb-8">
+      
+      <!-- Description Tab -->
+      <mat-tab label="Description">
+        <div class="py-6 prose max-w-none">
+          <p class="text-gray-700 leading-relaxed mb-4">{{ product()!.description }}</p>
+          <p *ngIf="product()!.descriptionArabic" class="text-gray-700 leading-relaxed font-arabic product-name-arabic">
+            {{ product()!.descriptionArabic }}
+          </p>
+          
+          <!-- Cultural Significance -->
+          <div *ngIf="product()!.authenticity.culturalSignificance" class="mt-6 p-4 bg-blue-50 rounded-lg">
+            <h4 class="font-bold text-blue-800 mb-2 flex items-center">
+              <mat-icon class="mr-2">heritage</mat-icon>
+              Cultural Heritage
+            </h4>
+            <p class="text-blue-700">{{ product()!.authenticity.culturalSignificance }}</p>
+          </div>
+        </div>
+      </mat-tab>
+
+      <!-- Specifications Tab -->
+      <mat-tab label="Specifications">
+        <div class="py-6">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            
+            <!-- Dimensions & Weight -->
+            <mat-card *ngIf="product()!.specifications.dimensions || product()!.specifications.weight">
+              <mat-card-header>
+                <mat-card-title>Dimensions & Weight</mat-card-title>
+              </mat-card-header>
+              <mat-card-content>
+                <div *ngIf="product()!.specifications.dimensions" class="mb-2">
+                  <strong>Dimensions:</strong> 
+                  {{ product()!.specifications.dimensions!.length }} x 
+                  {{ product()!.specifications.dimensions!.width }} x 
+                  {{ product()!.specifications.dimensions!.height }} 
+                  {{ product()!.specifications.dimensions!.unit }}
+                </div>
+                <div *ngIf="product()!.specifications.weight">
+                  <strong>Weight:</strong> 
+                  {{ product()!.specifications.weight!.value }} {{ product()!.specifications.weight!.unit }}
+                </div>
+              </mat-card-content>
+            </mat-card>
+
+            <!-- Materials -->
+            <mat-card *ngIf="product()!.specifications.materials">
+              <mat-card-header>
+                <mat-card-title>Materials</mat-card-title>
+              </mat-card-header>
+              <mat-card-content>
+                <mat-chip-set>
+                  <mat-chip *ngFor="let material of product()!.specifications.materials">{{ material }}</mat-chip>
+                </mat-chip-set>
+              </mat-card-content>
+            </mat-card>
+
+            <!-- Manufacturing -->
+            <mat-card *ngIf="product()!.specifications.manufacturing">
+              <mat-card-header>
+                <mat-card-title>Manufacturing</mat-card-title>
+              </mat-card-header>
+              <mat-card-content>
+                <div class="space-y-2">
+                  <div><strong>Method:</strong> {{ product()!.specifications.manufacturing!.method }}</div>
+                  <div><strong>Origin:</strong> {{ product()!.specifications.manufacturing!.origin }}</div>
+                  <div *ngIf="product()!.specifications.manufacturing!.craftsman">
+                    <strong>Craftsman:</strong> {{ product()!.specifications.manufacturing!.craftsman }}
+                  </div>
+                </div>
+              </mat-card-content>
+            </mat-card>
+
+            <!-- Custom Specifications -->
+            <mat-card *ngIf="product()!.specifications.custom">
+              <mat-card-header>
+                <mat-card-title>Additional Details</mat-card-title>
+              </mat-card-header>
+              <mat-card-content>
+                <div class="space-y-2">
+                  <div *ngFor="let spec of product()!.specifications.custom | keyvalue">
+                    <strong>{{ spec.key | titlecase }}:</strong> {{ spec.value }}
+                  </div>
+                </div>
+              </mat-card-content>
+            </mat-card>
+          </div>
+
+          <!-- Care Instructions -->
+          <mat-card *ngIf="product()!.specifications.careInstructions" class="mt-6">
+            <mat-card-header>
+              <mat-card-title class="flex items-center">
+                <mat-icon class="mr-2">health_and_safety</mat-icon>
+                Care Instructions
+              </mat-card-title>
+            </mat-card-header>
+            <mat-card-content>
+              <ul class="list-disc list-inside space-y-1">
+                <li *ngFor="let instruction of product()!.specifications.careInstructions">{{ instruction }}</li>
+              </ul>
+            </mat-card-content>
+          </mat-card>
+        </div>
+      </mat-tab>
+
+      <!-- Shipping Info Tab -->
+      <mat-tab label="Shipping & Delivery">
+        <div class="py-6 space-y-6">
+          
+          <!-- Shipping Methods -->
+          <mat-card>
+            <mat-card-header>
+              <mat-card-title>Available Shipping Methods</mat-card-title>
+            </mat-card-header>
+            <mat-card-content>
+              <div class="space-y-4">
+                <div *ngFor="let method of product()!.shipping.methods" 
+                     class="flex justify-between items-center p-4 border rounded-lg">
+                  <div>
+                    <div class="font-medium">{{ method.name }}</div>
+                    <div class="text-sm text-gray-600">
+                      {{ method.deliveryTime.min }}-{{ method.deliveryTime.max }} {{ method.deliveryTime.unit }}
+                      <span *ngIf="method.trackingAvailable" class="ml-2">• Tracking Available</span>
+                      <span *ngIf="method.insured" class="ml-2">• Insured</span>
+                    </div>
+                  </div>
+                  <div class="font-bold">{{ formatPrice(method.cost.amount, method.cost.currency) }}</div>
+                </div>
+              </div>
+            </mat-card-content>
+          </mat-card>
+
+          <!-- Delivery Times by Region -->
+          <mat-card>
+            <mat-card-header>
+              <mat-card-title>Estimated Delivery Times</mat-card-title>
+            </mat-card-header>
+            <mat-card-content>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div *ngFor="let region of product()!.shipping.deliveryTimes | keyvalue" 
+                     class="flex justify-between p-3 bg-gray-50 rounded">
+                  <span class="font-medium">{{ region.key }}</span>
+                  <span>{{ region.value.min }}-{{ region.value.max }} {{ region.value.unit }}</span>
+                </div>
+              </div>
+            </mat-card-content>
+          </mat-card>
+
+          <!-- Free Shipping Info -->
+          <div *ngIf="product()!.shipping.freeShippingThreshold" 
+               class="bg-green-50 border border-green-200 rounded-lg p-4">
+            <div class="flex items-center text-green-800">
+              <mat-icon class="mr-2">local_shipping</mat-icon>
+              <span class="font-medium">
+                Free shipping on orders over {{ formatPrice(product()!.shipping.freeShippingThreshold!.amount, product()!.shipping.freeShippingThreshold!.currency) }}
+              </span>
+            </div>
+          </div>
+
+          <!-- International Shipping Notes -->
+          <div *ngIf="product()!.shipping.internationalNotes" 
+               class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+            <div class="flex items-start text-blue-800">
+              <mat-icon class="mr-2 mt-0.5">info</mat-icon>
+              <span>{{ product()!.shipping.internationalNotes }}</span>
+            </div>
+          </div>
+        </div>
+      </mat-tab>
+
+      <!-- Reviews Tab -->
+      <mat-tab label="Reviews ({{ product()!.reviews.totalReviews }})">
+        <div class="py-6">
+          
+          <!-- Reviews Summary -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+            <div class="text-center">
+              <div class="text-4xl font-bold text-gray-900 mb-2">{{ product()!.reviews.averageRating }}</div>
+              <div class="flex justify-center text-yellow-400 mb-2">
+                <mat-icon *ngFor="let star of [1,2,3,4,5]" 
+                  [class.text-gray-300]="star > product()!.reviews.averageRating">star</mat-icon>
+              </div>
+              <div class="text-gray-600">Based on {{ product()!.reviews.totalReviews }} reviews</div>
+            </div>
+            
+            <div class="space-y-2">
+              <div *ngFor="let rating of [5,4,3,2,1]" class="flex items-center gap-3">
+                <span class="w-8">{{ rating }}★</span>
+                <div class="flex-1 bg-gray-200 rounded-full h-2">
+                  <div class="bg-yellow-400 h-2 rounded-full" 
+                       [style.width.%]="(getRatingCount(rating) / product()!.reviews.totalReviews) * 100"></div>
+                </div>
+                <span class="w-8 text-sm text-gray-600">{{ getRatingCount(rating) }}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Recent Reviews -->
+          <div *ngIf="product()!.reviews.recentReviews" class="space-y-6">
+            <h3 class="text-lg font-bold">Recent Reviews</h3>
+            <div *ngFor="let review of product()!.reviews.recentReviews" 
+                 class="border-b pb-6 last:border-b-0">
+              <div class="flex items-start justify-between mb-2">
+                <div>
+                  <div class="font-medium">{{ review.customerName }}</div>
+                  <div class="flex items-center gap-2 text-sm text-gray-600">
+                    <div class="flex text-yellow-400">
+                      <mat-icon *ngFor="let star of [1,2,3,4,5]; let i = index" 
+                        [class.text-gray-300]="i >= review.rating" class="text-sm">star</mat-icon>
+                    </div>
+                    <span>{{ review.date | date:'mediumDate' }}</span>
+                    <mat-chip *ngIf="review.verifiedPurchase" class="bg-green-100 text-green-800 text-xs">
+                      Verified Purchase
+                    </mat-chip>
+                  </div>
+                </div>
+              </div>
+              <h4 class="font-medium mb-2">{{ review.title }}</h4>
+              <p class="text-gray-700 mb-2">{{ review.content }}</p>
+              <div class="flex items-center text-sm text-gray-600">
+                <button mat-button class="text-xs">
+                  <mat-icon class="text-sm">thumb_up</mat-icon>
+                  Helpful ({{ review.helpfulVotes }})
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </mat-tab>
+    </mat-tab-group>
+
+    <!-- Traditional Techniques Section -->
+    <div *ngIf="product()!.authenticity.traditionalTechniques" class="mb-8">
+      <mat-card>
+        <mat-card-header>
+          <mat-card-title class="flex items-center">
+            <mat-icon class="mr-2">handyman</mat-icon>
+            Traditional Syrian Techniques
+          </mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <mat-chip-set>
+            <mat-chip *ngFor="let technique of product()!.authenticity.traditionalTechniques" 
+                      class="bg-amber-100 text-amber-800">
+              {{ technique }}
+            </mat-chip>
+          </mat-chip-set>
+        </mat-card-content>
+      </mat-card>
+    </div>
+
+    <!-- ==================== PHASE 5: PRODUCT RECOMMENDATIONS SYSTEM ==================== -->
+
+    <!-- 1. Frequently Bought Together - CRITICAL REVENUE FEATURE (4 products) -->
+    <app-product-recommendations-carousel
+      *ngIf="product()"
+      [productId]="product()!.id"
+      [type]="'frequently-bought'"
+      [title]="'Frequently Bought Together'"
+      [titleAr]="'يتم شراؤها معاً بشكل متكرر'"
+      [limit]="4"
+      [showViewAll]="false"
+      [language]="'en'"
+      (productClick)="onRecommendedProductClick($event)"
+      (addToCart)="onRecommendedProductAddToCart($event)"
+      class="mb-8">
+    </app-product-recommendations-carousel>
+
+    <!-- 2. Related Syrian Products - CULTURAL CROSS-SELL (8 products) -->
+    <app-product-recommendations-carousel
+      *ngIf="product()"
+      [productId]="product()!.id"
+      [type]="'related'"
+      [title]="'Related Syrian Products'"
+      [titleAr]="'منتجات سورية ذات صلة'"
+      [limit]="8"
+      [showViewAll]="true"
+      [language]="'en'"
+      (productClick)="onRecommendedProductClick($event)"
+      (addToCart)="onRecommendedProductAddToCart($event)"
+      (viewAll)="router.navigate(['/category', product()!.category.slug])"
+      class="mb-8">
+    </app-product-recommendations-carousel>
+
+    <!-- 3. You May Also Like - SIMILAR PRODUCTS UPSELL (8 products) -->
+    <app-product-recommendations-carousel
+      *ngIf="product()"
+      [productId]="product()!.id"
+      [type]="'similar'"
+      [title]="'You May Also Like'"
+      [titleAr]="'قد يعجبك أيضاً'"
+      [limit]="8"
+      [showViewAll]="true"
+      [language]="'en'"
+      (productClick)="onRecommendedProductClick($event)"
+      (addToCart)="onRecommendedProductAddToCart($event)"
+      (viewAll)="router.navigate(['/category', product()!.category.slug])"
+      class="mb-8">
+    </app-product-recommendations-carousel>
+
+    <!-- ==================== LEGACY SECTIONS (Keeping for comparison) ==================== -->
+
+    <!-- Related Products Section - OLD COMPONENT -->
+    <app-product-recommendations
+      *ngIf="relatedProducts().length > 0"
+      [products]="relatedProducts()"
+      title="Related Syrian Products (Legacy)"
+      subtitle="Discover more authentic Syrian crafts similar to this item"
+      theme="related"
+      displayStyle="grid"
+      [maxItems]="4"
+      [gridColumns]="{xs: 1, sm: 2, md: 3, lg: 4, xl: 4}"
+      [showQuickAdd]="true"
+      [showWishlist]="true"
+      [showPrice]="true"
+      [showRating]="true"
+      [showAuthenticity]="true"
+      (productClick)="onProductClick($event)"
+      (addToCart)="addProductToCart($event)"
+      (toggleWishlist)="onToggleWishlist($event)"
+      class="mb-8">
+    </app-product-recommendations>
+
+    <!-- More from this Artisan Section - REVENUE BOOSTER -->
+    <app-product-recommendations
+      *ngIf="artisanProducts().length > 0"
+      [products]="artisanProducts()"
+      [title]="'More from ' + (product()?.seller?.name || 'this Artisan')"
+      [subtitle]="'Discover other authentic creations by this master craftsman' + (product()?.seller?.nameArabic ? ' • ' + product()?.seller?.nameArabic : '')"
+      theme="artisan"
+      displayStyle="grid"
+      [maxItems]="3"
+      [gridColumns]="{xs: 1, sm: 2, md: 2, lg: 3, xl: 3}"
+      [showQuickAdd]="true"
+      [showWishlist]="true"
+      [showPrice]="true"
+      [showRating]="true"
+      [showAuthenticity]="true"
+      [showSeller]="false"
+      (productClick)="onProductClick($event)"
+      (addToCart)="addProductToCart($event)"
+      (toggleWishlist)="onToggleWishlist($event)"
+      class="mb-8">
+    </app-product-recommendations>
+
+    <!-- Recommended Products Section - CROSS-SELL BOOST -->
+    <app-product-recommendations
+      *ngIf="recommendedProducts().length > 0"
+      [products]="recommendedProducts()"
+      title="Trending Syrian Crafts"
+      subtitle="Popular authentic products loved by our customers"
+      theme="trending"
+      displayStyle="grid"
+      [maxItems]="6"
+      [gridColumns]="{xs: 1, sm: 2, md: 3, lg: 4, xl: 6}"
+      [showQuickAdd]="true"
+      [showWishlist]="true"
+      [showPrice]="true"
+      [showRating]="true"
+      [showAuthenticity]="true"
+      (productClick)="onProductClick($event)"
+      (addToCart)="addProductToCart($event)"
+      (toggleWishlist)="onToggleWishlist($event)"
+      class="mb-8">
+    </app-product-recommendations>
+  </div>
+</div>

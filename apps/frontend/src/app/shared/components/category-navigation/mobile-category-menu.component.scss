@@ -1,0 +1,572 @@
+/**
+ * SouqSyria Mobile Category Menu Component Styles
+ * @description Mobile-optimized navigation menu styling for Syrian e-commerce
+ * @author SouqSyria Development Team
+ * @version 1.0.0
+ */
+
+// Import Tailwind utilities
+@import 'tailwindcss/utilities';
+
+// Note: Component animations are defined in the TypeScript file
+
+// Base component styles
+:host {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1000;
+  pointer-events: none;
+  display: block;
+  
+  &.sq-mobile-menu--open {
+    pointer-events: auto;
+  }
+  
+  &.sq-mobile-menu--rtl {
+    direction: rtl;
+    
+    .sq-mobile-nav {
+      right: 0;
+      left: auto;
+    }
+  }
+  
+  // Hide on desktop
+  @media (min-width: 1024px) {
+    display: none !important;
+  }
+  
+  // Ensure visibility when open
+  &:not(.sq-mobile-menu--open) {
+    .sq-mobile-sidenav-container {
+      display: none;
+    }
+  }
+}
+
+// Sidenav container
+.sq-mobile-sidenav-container {
+  height: 100vh;
+  position: relative;
+  z-index: 1001;
+  pointer-events: none;
+  
+  .sq-mobile-menu--open & {
+    pointer-events: auto;
+  }
+}
+
+// Mobile navigation sidebar
+.sq-mobile-nav {
+  background: theme('colors.white');
+  box-shadow: 
+    2px 0 20px rgba(0, 0, 0, 0.15),
+    0 0 0 1px rgba(0, 0, 0, 0.05);
+  border-right: 1px solid theme('colors.gray.200');
+  position: relative;
+  
+  // RTL adjustments
+  :host.sq-mobile-menu--rtl & {
+    box-shadow: 
+      -2px 0 20px rgba(0, 0, 0, 0.15),
+      0 0 0 1px rgba(0, 0, 0, 0.05);
+    border-right: none;
+    border-left: 1px solid theme('colors.gray.200');
+  }
+  
+  // Custom scrollbar
+  ::ng-deep .mat-drawer-inner-container {
+    overflow-x: hidden;
+    scrollbar-width: thin;
+    scrollbar-color: theme('colors.primary.300') theme('colors.gray.100');
+    
+    &::-webkit-scrollbar {
+      width: 4px;
+    }
+    
+    &::-webkit-scrollbar-track {
+      background: theme('colors.gray.100');
+      border-radius: 2px;
+    }
+    
+    &::-webkit-scrollbar-thumb {
+      background: theme('colors.primary.300');
+      border-radius: 2px;
+      
+      &:hover {
+        background: theme('colors.primary.400');
+      }
+    }
+  }
+}
+
+// Mobile nav header
+.sq-mobile-nav-header {
+  background: linear-gradient(135deg, theme('colors.primary.600'), theme('colors.primary.800'));
+  position: relative;
+  overflow: hidden;
+  
+  // Logo and branding
+  h2 {
+    background: linear-gradient(135deg, theme('colors.white'), theme('colors.primary.100'));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  }
+  
+  // Close button
+  button {
+    transition: all 0.2s ease;
+    
+    &:hover {
+      background: rgba(255, 255, 255, 0.1);
+      transform: rotate(90deg);
+    }
+    
+    &:focus-visible {
+      outline: 2px solid theme('colors.white');
+      outline-offset: 2px;
+    }
+  }
+}
+
+// Mobile nav content
+.sq-mobile-nav-content {
+  background: theme('colors.white');
+  
+  // Section borders
+  .border-b {
+    border-color: theme('colors.gray.200');
+  }
+  
+  // Section headers
+  h3 {
+    color: theme('colors.neutral.800');
+    font-weight: 600;
+    letter-spacing: 0.025em;
+  }
+}
+
+// User section
+.sq-mobile-nav-content {
+  
+  // Login button
+  button[mat-raised-button] {
+    background: linear-gradient(135deg, theme('colors.primary.600'), theme('colors.primary.700'));
+    font-weight: 600;
+    transition: all 0.2s ease;
+    
+    &:hover {
+      background: linear-gradient(135deg, theme('colors.primary.700'), theme('colors.primary.800'));
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+    }
+    
+    &:focus-visible {
+      outline: 2px solid theme('colors.primary.300');
+      outline-offset: 2px;
+    }
+  }
+  
+  // User quick actions
+  .grid button {
+    min-height: 60px;
+    transition: all 0.2s ease;
+    border: 1px solid theme('colors.gray.300');
+    
+    &:hover {
+      background: theme('colors.primary.50');
+      border-color: theme('colors.primary.300');
+      transform: translateY(-1px);
+      
+      .mat-icon {
+        color: theme('colors.primary.600') !important;
+      }
+    }
+    
+    &:focus-visible {
+      outline: 2px solid theme('colors.primary.500');
+      outline-offset: 1px;
+    }
+  }
+}
+
+// Quick links section
+.sq-mobile-nav-content {
+  .space-y-2 button {
+    transition: all 0.2s ease;
+    position: relative;
+    overflow: hidden;
+    
+    &:hover {
+      background: theme('colors.gray.50');
+      transform: translateX(4px);
+      
+      :host.sq-mobile-menu--rtl & {
+        transform: translateX(-4px);
+      }
+      
+      .mat-icon {
+        transform: scale(1.1);
+      }
+    }
+    
+    &:focus-visible {
+      outline: 2px solid theme('colors.primary.500');
+      outline-offset: 1px;
+    }
+    
+    // Special effects for flash sale
+    &:has(.animate-pulse) {
+      &::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, 
+          transparent, 
+          rgba(239, 68, 68, 0.1), 
+          transparent
+        );
+        transition: left 0.5s ease;
+      }
+      
+      &:hover::before {
+        left: 100%;
+      }
+    }
+  }
+}
+
+// Category section
+.sq-mobile-category-item {
+  transition: all 0.2s ease;
+  
+  // Main category button
+  button {
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    
+    &:hover {
+      background: theme('colors.primary.50');
+      transform: translateX(2px);
+      
+      :host.sq-mobile-menu--rtl & {
+        transform: translateX(-2px);
+      }
+      
+      .sq-category-icon .sq-category-icon {
+        transform: scale(1.05);
+      }
+    }
+    
+    &:focus-visible {
+      outline: 2px solid theme('colors.primary.500');
+      outline-offset: 1px;
+    }
+    
+    // Active state
+    &.bg-primary-50 {
+      background: theme('colors.primary.50');
+      border-left: 3px solid theme('colors.primary.500');
+      
+      :host.sq-mobile-menu--rtl & {
+        border-left: none;
+        border-right: 3px solid theme('colors.primary.500');
+      }
+    }
+    
+    // Item count badge
+    .bg-gray-200 {
+      background: theme('colors.gray.200');
+      color: theme('colors.gray.700');
+      font-weight: 600;
+      transition: all 0.2s ease;
+    }
+    
+    &:hover .bg-gray-200 {
+      background: theme('colors.primary.200');
+      color: theme('colors.primary.800');
+    }
+  }
+}
+
+// Subcategories container
+.sq-subcategories-container {
+  background: theme('colors.gray.50');
+  border-radius: 8px;
+  padding: 0.5rem;
+  animation: slideInFromLeft 0.3s ease-out;
+  
+  :host.sq-mobile-menu--rtl & {
+    animation: slideInFromRight 0.3s ease-out;
+  }
+  
+  a {
+    transition: all 0.2s ease;
+    position: relative;
+    
+    &:hover {
+      background: theme('colors.primary.50');
+      color: theme('colors.primary.700');
+      transform: translateX(4px);
+      
+      :host.sq-mobile-menu--rtl & {
+        transform: translateX(-4px);
+      }
+      
+      &::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 3px;
+        height: 3px;
+        background: theme('colors.primary.600');
+        border-radius: 50%;
+        
+        :host.sq-mobile-menu--rtl & {
+          left: auto;
+          right: 0;
+        }
+      }
+    }
+    
+    &:focus-visible {
+      outline: 2px solid theme('colors.primary.500');
+      outline-offset: 1px;
+    }
+  }
+}
+
+// Settings section
+.sq-mobile-nav-content {
+  
+  // Form fields
+  ::ng-deep .mat-mdc-form-field {
+    .mat-mdc-text-field-wrapper {
+      background: theme('colors.gray.50');
+    }
+    
+    .mat-mdc-form-field-focus-overlay {
+      background: theme('colors.primary.50');
+    }
+  }
+  
+  // Language toggle
+  ::ng-deep .mat-button-toggle-group {
+    border: 1px solid theme('colors.gray.300');
+    border-radius: 8px;
+    overflow: hidden;
+    
+    .mat-button-toggle {
+      border: none;
+      transition: all 0.2s ease;
+      
+      &.mat-button-toggle-checked {
+        background: theme('colors.primary.600');
+        color: theme('colors.white');
+      }
+      
+      &:not(.mat-button-toggle-checked):hover {
+        background: theme('colors.primary.50');
+      }
+      
+      &:focus {
+        z-index: 1;
+      }
+    }
+  }
+}
+
+// Logout button
+.text-red-600 {
+  transition: all 0.2s ease;
+  
+  &:hover {
+    background: theme('colors.red.50') !important;
+    color: theme('colors.red.700') !important;
+    
+    .mat-icon {
+      color: theme('colors.red.700') !important;
+    }
+  }
+  
+  &:focus-visible {
+    outline: 2px solid theme('colors.red.500');
+    outline-offset: 1px;
+  }
+}
+
+// Animation keyframes
+@keyframes slideInFromLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideInFromRight {
+  from {
+    opacity: 0;
+    transform: translateX(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes fadeInScale {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+// Responsive design
+@media (max-width: 480px) {
+  .sq-mobile-nav {
+    width: 100vw !important;
+    max-width: none !important;
+  }
+}
+
+@media (max-width: 320px) {
+  .sq-mobile-nav-header {
+    padding: 1rem 0.75rem;
+    
+    h2 {
+      font-size: 1rem;
+    }
+    
+    p {
+      font-size: 0.75rem;
+    }
+  }
+  
+  .sq-mobile-nav-content {
+    .grid-cols-2 {
+      grid-template-columns: 1fr;
+    }
+  }
+}
+
+// High contrast mode support
+@media (prefers-contrast: high) {
+  .sq-mobile-nav {
+    border-right: 2px solid theme('colors.black');
+    
+    :host.sq-mobile-menu--rtl & {
+      border-left: 2px solid theme('colors.black');
+      border-right: none;
+    }
+  }
+  
+  .sq-mobile-nav-header {
+    background: theme('colors.black') !important;
+    color: theme('colors.white') !important;
+  }
+  
+  .sq-mobile-category-item button {
+    &:hover,
+    &:focus {
+      background: theme('colors.black') !important;
+      color: theme('colors.white') !important;
+    }
+  }
+  
+  .sq-subcategories-container a {
+    &:hover,
+    &:focus {
+      background: theme('colors.black') !important;
+      color: theme('colors.white') !important;
+    }
+  }
+}
+
+// Reduced motion support
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  
+  .sq-mobile-category-item button:hover,
+  .sq-subcategories-container a:hover {
+    transform: none !important;
+  }
+  
+  .sq-mobile-nav-header button:hover {
+    transform: none !important;
+  }
+}
+
+// Touch device optimizations
+@media (hover: none) and (pointer: coarse) {
+  .sq-mobile-category-item button,
+  .sq-subcategories-container a,
+  .space-y-2 button {
+    // Increase touch targets
+    min-height: 48px;
+    
+    // Remove hover effects on touch devices
+    &:hover {
+      background: transparent;
+      transform: none;
+    }
+  }
+  
+  // Focus styles for touch navigation
+  button:focus,
+  a:focus {
+    background: theme('colors.primary.50');
+    outline: 2px solid theme('colors.primary.500');
+  }
+}
+
+// Dark mode support (if implemented)
+@media (prefers-color-scheme: dark) {
+  .sq-mobile-nav {
+    background: theme('colors.gray.900');
+    border-right-color: theme('colors.gray.700');
+    color: theme('colors.gray.100');
+    
+    :host.sq-mobile-menu--rtl & {
+      border-left-color: theme('colors.gray.700');
+    }
+  }
+  
+  .sq-mobile-nav-content {
+    background: theme('colors.gray.900');
+    color: theme('colors.gray.100');
+    
+    h3 {
+      color: theme('colors.gray.200');
+    }
+    
+    .border-b {
+      border-color: theme('colors.gray.700');
+    }
+  }
+  
+  .sq-subcategories-container {
+    background: theme('colors.gray.800');
+  }
+}

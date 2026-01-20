@@ -1,0 +1,212 @@
+/**
+ * Confirmation Dialog Styles
+ * Syrian Golden Wheat themed confirmation dialog
+ */
+
+.confirmation-dialog {
+  display: flex;
+  flex-direction: column;
+  min-width: 320px;
+  max-width: 500px;
+
+  /**
+   * Dialog Header
+   */
+  &__header {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    padding: 1.5rem 1.5rem 1rem;
+    position: relative;
+  }
+
+  &__icon {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: rgba(212, 162, 74, 0.1); // Golden wheat primary with opacity
+
+    mat-icon {
+      font-size: 28px;
+      width: 28px;
+      height: 28px;
+      color: #d4a24a; // Golden wheat primary
+    }
+
+    // Icon color variants
+    &.text-warn {
+      background: rgba(244, 67, 54, 0.1);
+
+      mat-icon {
+        color: #f44336; // Material warn
+      }
+    }
+
+    &.text-accent {
+      background: rgba(92, 148, 70, 0.1);
+
+      mat-icon {
+        color: #5c9446; // Aleppo green
+      }
+    }
+  }
+
+  &__title {
+    flex: 1;
+    margin: 0 !important;
+    padding: 0 !important;
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #3e3e3e; // Charcoal dark
+    line-height: 1.3;
+  }
+
+  &__close {
+    position: absolute;
+    top: 0.75rem;
+    right: 0.75rem;
+    color: #8a8a8a; // Charcoal light
+
+    &:hover {
+      color: #3e3e3e;
+      background-color: rgba(0, 0, 0, 0.04);
+    }
+  }
+
+  /**
+   * Dialog Content
+   */
+  &__content {
+    padding: 0 1.5rem 1.5rem !important;
+    margin: 0 !important;
+  }
+
+  &__message {
+    font-size: 1rem;
+    line-height: 1.6;
+    color: #6b6b6b; // Charcoal medium
+    margin: 0;
+  }
+
+  /**
+   * Dialog Actions
+   */
+  &__actions {
+    display: flex;
+    gap: 0.75rem;
+    padding: 1rem 1.5rem 1.5rem !important;
+    margin: 0 !important;
+    justify-content: flex-end;
+  }
+
+  &__button {
+    min-width: 100px;
+    height: 40px;
+    font-weight: 500;
+
+    &--cancel {
+      color: #6b6b6b;
+      border-color: #d5d5d5;
+
+      &:hover {
+        background-color: rgba(0, 0, 0, 0.04);
+        border-color: #b5b5b5;
+      }
+    }
+
+    &--confirm {
+      // Default primary color is Golden Wheat (handled by Material theme)
+      // Warn color for destructive actions
+      &.mat-warn {
+        background-color: #f44336;
+
+        &:hover {
+          background-color: #d32f2f;
+        }
+      }
+    }
+  }
+
+  /**
+   * RTL Support
+   */
+  &--rtl {
+    direction: rtl;
+
+    .confirmation-dialog__close {
+      right: auto;
+      left: 0.75rem;
+    }
+
+    .confirmation-dialog__actions {
+      flex-direction: row-reverse;
+    }
+
+    .confirmation-dialog__title {
+      font-family: 'Cairo', 'Segoe UI', sans-serif;
+    }
+
+    .confirmation-dialog__message {
+      font-family: 'Cairo', 'Segoe UI', sans-serif;
+      text-align: right;
+    }
+  }
+}
+
+/**
+ * Mobile Responsive
+ */
+@media (max-width: 600px) {
+  .confirmation-dialog {
+    min-width: 280px;
+
+    &__header {
+      padding: 1.25rem 1.25rem 0.75rem;
+    }
+
+    &__title {
+      font-size: 1.25rem;
+    }
+
+    &__content {
+      padding: 0 1.25rem 1.25rem !important;
+    }
+
+    &__message {
+      font-size: 0.95rem;
+    }
+
+    &__actions {
+      flex-direction: column;
+      padding: 0.75rem 1.25rem 1.25rem !important;
+    }
+
+    &__button {
+      width: 100%;
+    }
+
+    // Reverse button order on mobile for better UX
+    &:not(.confirmation-dialog--rtl) {
+      .confirmation-dialog__actions {
+        flex-direction: column-reverse;
+      }
+    }
+  }
+}
+
+/**
+ * Custom Material Dialog Container Styling
+ * Applied to mat-dialog-container
+ */
+::ng-deep {
+  .confirmation-dialog-container {
+    .mat-mdc-dialog-container {
+      border-radius: 12px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+    }
+  }
+}

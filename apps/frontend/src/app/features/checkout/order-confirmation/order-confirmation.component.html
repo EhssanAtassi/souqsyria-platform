@@ -1,0 +1,234 @@
+<!-- Order Confirmation Page - Syrian Marketplace -->
+<div class="order-confirmation-page" *ngIf="orderConfirmation() as confirmation">
+
+  <!-- Success Header -->
+  <div class="confirmation-header">
+    <div class="container">
+      <div class="success-icon-wrapper">
+        <mat-icon class="success-icon">check_circle</mat-icon>
+      </div>
+
+      <h1 class="confirmation-title">
+        {{ currentLanguage() === 'ar' ? 'تم تأكيد طلبك بنجاح!' : 'Order Confirmed Successfully!' }}
+      </h1>
+
+      <p class="confirmation-subtitle">
+        {{ currentLanguage() === 'ar' ? 'شكراً لطلبك من سوق سوريا' : 'Thank you for your order from Syrian Marketplace' }}
+      </p>
+
+      <div class="order-number-box">
+        <span class="order-number-label">
+          {{ currentLanguage() === 'ar' ? 'رقم الطلب:' : 'Order Number:' }}
+        </span>
+        <span class="order-number-value">{{ confirmation.orderNumber }}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Order Details Section -->
+  <div class="container confirmation-content">
+
+    <!-- Main Content Grid -->
+    <div class="confirmation-grid">
+
+      <!-- Left Column: Order Summary -->
+      <div class="confirmation-main">
+
+        <!-- Order Status Card -->
+        <mat-card class="status-card">
+          <mat-card-header>
+            <mat-card-title>
+              <mat-icon>info</mat-icon>
+              {{ currentLanguage() === 'ar' ? 'حالة الطلب' : 'Order Status' }}
+            </mat-card-title>
+          </mat-card-header>
+
+          <mat-card-content>
+            <div class="status-info">
+              <div class="status-row">
+                <span class="status-label">{{ currentLanguage() === 'ar' ? 'الحالة:' : 'Status:' }}</span>
+                <mat-chip [color]="statusColor()">
+                  {{ statusText() }}
+                </mat-chip>
+              </div>
+
+              <div class="status-row">
+                <span class="status-label">{{ currentLanguage() === 'ar' ? 'تاريخ الطلب:' : 'Order Date:' }}</span>
+                <span class="status-value">{{ formattedOrderDate() }}</span>
+              </div>
+
+              <div class="status-row">
+                <span class="status-label">{{ currentLanguage() === 'ar' ? 'التوصيل المتوقع:' : 'Estimated Delivery:' }}</span>
+                <span class="status-value">{{ formattedDeliveryDate() }}</span>
+              </div>
+
+              <div class="status-row" *ngIf="confirmation.trackingNumber">
+                <span class="status-label">{{ currentLanguage() === 'ar' ? 'رقم التتبع:' : 'Tracking Number:' }}</span>
+                <span class="status-value tracking-number">{{ confirmation.trackingNumber }}</span>
+              </div>
+            </div>
+          </mat-card-content>
+        </mat-card>
+
+        <!-- Payment Instructions Card -->
+        <mat-card class="payment-instructions-card" *ngIf="confirmation.paymentInstructions">
+          <mat-card-header>
+            <mat-card-title>
+              <mat-icon>payment</mat-icon>
+              {{ currentLanguage() === 'ar' ? 'تعليمات الدفع' : 'Payment Instructions' }}
+            </mat-card-title>
+          </mat-card-header>
+
+          <mat-card-content>
+            <p class="payment-instructions-text">{{ confirmation.paymentInstructions }}</p>
+          </mat-card-content>
+        </mat-card>
+
+        <!-- Next Steps Card -->
+        <mat-card class="next-steps-card">
+          <mat-card-header>
+            <mat-card-title>
+              <mat-icon>playlist_add_check</mat-icon>
+              {{ currentLanguage() === 'ar' ? 'الخطوات التالية' : 'Next Steps' }}
+            </mat-card-title>
+          </mat-card-header>
+
+          <mat-card-content>
+            <ul class="next-steps-list">
+              <li *ngFor="let step of confirmation.nextSteps" class="next-step-item">
+                <mat-icon [class.step-icon]="true">{{ getStepIcon(step) }}</mat-icon>
+                <span>{{ step }}</span>
+              </li>
+            </ul>
+          </mat-card-content>
+        </mat-card>
+
+        <!-- Order Actions -->
+        <div class="order-actions">
+          <button
+            mat-raised-button
+            color="primary"
+            (click)="trackOrder()"
+            class="action-button">
+            <mat-icon>local_shipping</mat-icon>
+            {{ currentLanguage() === 'ar' ? 'تتبع الطلب' : 'Track Order' }}
+          </button>
+
+          <button
+            mat-raised-button
+            (click)="downloadInvoice()"
+            [disabled]="isDownloadingInvoice()"
+            class="action-button">
+            <mat-icon *ngIf="!isDownloadingInvoice()">download</mat-icon>
+            <mat-spinner *ngIf="isDownloadingInvoice()" diameter="20"></mat-spinner>
+            {{ currentLanguage() === 'ar' ? 'تحميل الفاتورة' : 'Download Invoice' }}
+          </button>
+
+          <button
+            mat-stroked-button
+            (click)="shareOrder()"
+            class="action-button">
+            <mat-icon>share</mat-icon>
+            {{ currentLanguage() === 'ar' ? 'مشاركة الطلب' : 'Share Order' }}
+          </button>
+        </div>
+      </div>
+
+      <!-- Right Column: Order Summary Sidebar -->
+      <div class="confirmation-sidebar">
+
+        <!-- Order Total Card -->
+        <mat-card class="order-total-card">
+          <mat-card-header>
+            <mat-card-title>
+              {{ currentLanguage() === 'ar' ? 'ملخص الطلب' : 'Order Summary' }}
+            </mat-card-title>
+          </mat-card-header>
+
+          <mat-card-content>
+            <div class="total-row">
+              <span class="total-label">{{ currentLanguage() === 'ar' ? 'المجموع:' : 'Total:' }}</span>
+              <span class="total-value">{{ formattedTotal() }}</span>
+            </div>
+
+            <mat-divider></mat-divider>
+
+            <div class="email-info">
+              <mat-icon>email</mat-icon>
+              <p>
+                {{ currentLanguage() === 'ar'
+                  ? 'تم إرسال تأكيد الطلب إلى:'
+                  : 'Order confirmation sent to:' }}
+              </p>
+              <span class="email-address">{{ confirmation.customerEmail }}</span>
+            </div>
+          </mat-card-content>
+
+          <mat-card-actions>
+            <button
+              mat-raised-button
+              color="primary"
+              (click)="continueShopping()"
+              class="continue-shopping-btn">
+              <mat-icon>shopping_bag</mat-icon>
+              {{ currentLanguage() === 'ar' ? 'متابعة التسوق' : 'Continue Shopping' }}
+            </button>
+
+            <button
+              mat-stroked-button
+              (click)="goToOrders()"
+              class="view-orders-btn">
+              <mat-icon>list_alt</mat-icon>
+              {{ currentLanguage() === 'ar' ? 'عرض طلباتي' : 'View My Orders' }}
+            </button>
+          </mat-card-actions>
+        </mat-card>
+
+        <!-- Help Card -->
+        <mat-card class="help-card">
+          <mat-card-header>
+            <mat-card-title>
+              <mat-icon>help_outline</mat-icon>
+              {{ currentLanguage() === 'ar' ? 'هل تحتاج مساعدة؟' : 'Need Help?' }}
+            </mat-card-title>
+          </mat-card-header>
+
+          <mat-card-content>
+            <p class="help-text">
+              {{ currentLanguage() === 'ar'
+                ? 'فريق الدعم جاهز لمساعدتك'
+                : 'Our support team is ready to help' }}
+            </p>
+
+            <div class="help-contact">
+              <div class="help-item">
+                <mat-icon>phone</mat-icon>
+                <span>+963 11 123 4567</span>
+              </div>
+
+              <div class="help-item">
+                <mat-icon>email</mat-icon>
+                <span>support&#64;souqsyria.com</span>
+              </div>
+
+              <div class="help-item">
+                <mat-icon>schedule</mat-icon>
+                <span>
+                  {{ currentLanguage() === 'ar'
+                    ? 'السبت - الخميس، 9 صباحاً - 6 مساءً'
+                    : 'Sat - Thu, 9 AM - 6 PM' }}
+                </span>
+              </div>
+            </div>
+          </mat-card-content>
+        </mat-card>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Loading State -->
+<div class="loading-container" *ngIf="!orderConfirmation()">
+  <mat-spinner diameter="50"></mat-spinner>
+  <p>{{ currentLanguage() === 'ar' ? 'جاري التحميل...' : 'Loading...' }}</p>
+</div>

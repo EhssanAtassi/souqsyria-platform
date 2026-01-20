@@ -1,0 +1,344 @@
+// Golden Wheat Color Palette
+$golden-wheat-primary: #988561;
+$golden-wheat-medium: #b9a779;
+$golden-wheat-light: #edebe0;
+$forest-dark: #002623;
+$forest-medium: #054239;
+$umber-light: #6b1f2a;
+
+// Chip type colors
+$price-color: #2196F3;
+$rating-color: #FFC107;
+$authenticity-color: #4CAF50;
+$availability-color: #FF9800;
+$region-color: #9C27B0;
+
+.active-filters-chips {
+  margin-bottom: 1.5rem;
+  padding: 1rem 1.25rem;
+  background: linear-gradient(135deg, $golden-wheat-light 0%, rgba($golden-wheat-light, 0.3) 100%);
+  border: 1px solid $golden-wheat-medium;
+  border-radius: 10px;
+
+  // Header Section
+  .chips-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid rgba($golden-wheat-medium, 0.3);
+
+    .header-content {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+
+      .header-icon {
+        color: $golden-wheat-primary;
+        font-size: 1.25rem;
+        width: 1.25rem;
+        height: 1.25rem;
+      }
+
+      .header-text {
+        font-size: 0.9375rem;
+        font-weight: 600;
+        color: $forest-dark;
+      }
+    }
+
+    .clear-all-btn {
+      color: $umber-light;
+      font-size: 0.875rem;
+      font-weight: 600;
+      padding: 0.375rem 0.875rem;
+      height: auto;
+
+      mat-icon {
+        font-size: 1.125rem;
+        width: 1.125rem;
+        height: 1.125rem;
+        margin-right: 0.375rem;
+      }
+
+      &:hover {
+        background: rgba($umber-light, 0.1);
+        color: darken($umber-light, 10%);
+      }
+    }
+  }
+
+  // Chips Set
+  .filter-chips-set {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.625rem;
+
+    ::ng-deep .mat-mdc-chip-set {
+      gap: 0.625rem;
+    }
+
+    .filter-chip {
+      background: white;
+      border: 2px solid $golden-wheat-light;
+      border-radius: 20px;
+      padding: 0.5rem 0.875rem;
+      height: auto;
+      min-height: 36px;
+      transition: all 0.3s ease;
+
+      ::ng-deep {
+        .mat-mdc-chip-action-label {
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+          padding: 0;
+        }
+
+        .mdc-evolution-chip__cell--primary {
+          overflow: visible;
+        }
+
+        .mdc-evolution-chip__graphic {
+          padding: 0;
+          margin: 0;
+        }
+
+        .mdc-evolution-chip__text-label {
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+        }
+      }
+
+      // Chip Icon
+      .chip-icon {
+        font-size: 1.125rem;
+        width: 1.125rem;
+        height: 1.125rem;
+        color: $golden-wheat-primary;
+      }
+
+      // Chip Label
+      .chip-label {
+        font-size: 0.875rem;
+        font-weight: 500;
+        color: $forest-dark;
+      }
+
+      // Remove Button
+      ::ng-deep button[matChipRemove] {
+        width: 20px;
+        height: 20px;
+        opacity: 0.7;
+        transition: opacity 0.2s ease;
+
+        mat-icon {
+          font-size: 18px;
+          width: 18px;
+          height: 18px;
+          color: $umber-light;
+        }
+
+        &:hover {
+          opacity: 1;
+
+          mat-icon {
+            color: darken($umber-light, 10%);
+          }
+        }
+      }
+
+      // Hover Effect
+      &:hover {
+        border-color: $golden-wheat-medium;
+        box-shadow: 0 4px 12px rgba($golden-wheat-primary, 0.15);
+        transform: translateY(-2px);
+      }
+
+      // Type-specific styling
+      &.price-chip {
+        border-color: rgba($price-color, 0.3);
+
+        .chip-icon {
+          color: $price-color;
+        }
+
+        &:hover {
+          border-color: $price-color;
+          box-shadow: 0 4px 12px rgba($price-color, 0.2);
+        }
+      }
+
+      &.rating-chip {
+        border-color: rgba($rating-color, 0.3);
+
+        .chip-icon {
+          color: $rating-color;
+        }
+
+        &:hover {
+          border-color: $rating-color;
+          box-shadow: 0 4px 12px rgba($rating-color, 0.2);
+        }
+      }
+
+      &.authenticity-chip {
+        border-color: rgba($authenticity-color, 0.3);
+
+        .chip-icon {
+          color: $authenticity-color;
+        }
+
+        &:hover {
+          border-color: $authenticity-color;
+          box-shadow: 0 4px 12px rgba($authenticity-color, 0.2);
+        }
+      }
+
+      &.availability-chip {
+        border-color: rgba($availability-color, 0.3);
+
+        .chip-icon {
+          color: $availability-color;
+        }
+
+        &:hover {
+          border-color: $availability-color;
+          box-shadow: 0 4px 12px rgba($availability-color, 0.2);
+        }
+      }
+
+      &.region-chip {
+        border-color: rgba($region-color, 0.3);
+
+        .chip-icon {
+          color: $region-color;
+        }
+
+        &:hover {
+          border-color: $region-color;
+          box-shadow: 0 4px 12px rgba($region-color, 0.2);
+        }
+      }
+    }
+  }
+}
+
+// RTL Support
+[dir="rtl"] {
+  .active-filters-chips {
+    .chips-header {
+      .header-content {
+        flex-direction: row-reverse;
+      }
+
+      .clear-all-btn {
+        mat-icon {
+          margin-right: 0;
+          margin-left: 0.375rem;
+        }
+      }
+    }
+
+    .filter-chips-set {
+      .filter-chip {
+        ::ng-deep .mat-mdc-chip-action-label {
+          flex-direction: row-reverse;
+        }
+
+        ::ng-deep .mdc-evolution-chip__text-label {
+          flex-direction: row-reverse;
+        }
+      }
+    }
+  }
+}
+
+// Mobile Responsive
+@media (max-width: 768px) {
+  .active-filters-chips {
+    padding: 0.875rem 1rem;
+
+    .chips-header {
+      flex-wrap: wrap;
+      gap: 0.5rem;
+
+      .header-content {
+        flex: 1 1 100%;
+
+        .header-text {
+          font-size: 0.875rem;
+        }
+      }
+
+      .clear-all-btn {
+        flex: 1 1 100%;
+        justify-content: center;
+      }
+    }
+
+    .filter-chips-set {
+      gap: 0.5rem;
+
+      .filter-chip {
+        padding: 0.375rem 0.75rem;
+        min-height: 32px;
+
+        .chip-icon {
+          font-size: 1rem;
+          width: 1rem;
+          height: 1rem;
+        }
+
+        .chip-label {
+          font-size: 0.8125rem;
+        }
+
+        ::ng-deep button[matChipRemove] {
+          width: 18px;
+          height: 18px;
+
+          mat-icon {
+            font-size: 16px;
+            width: 16px;
+            height: 16px;
+          }
+        }
+      }
+    }
+  }
+}
+
+// Animation for chip removal
+@keyframes chip-remove {
+  0% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+}
+
+.filter-chip.mat-mdc-chip-removing {
+  animation: chip-remove 0.2s ease-out;
+}
+
+// Animation for chip appearance
+@keyframes chip-appear {
+  0% {
+    opacity: 0;
+    transform: scale(0.8) translateY(-10px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.filter-chip {
+  animation: chip-appear 0.3s ease-out;
+}

@@ -1,0 +1,339 @@
+/**
+ * Golden Wheat Design System - Shadow Tokens
+ *
+ * Elevation system for Syrian marketplace
+ * Creates depth and visual hierarchy
+ *
+ * @description Shadow system including:
+ * - Elevation levels (xs, sm, md, lg, xl, 2xl)
+ * - Colored shadows (primary, secondary, accent)
+ * - Inner shadows
+ * - Focus states
+ *
+ * @usage Import this file via design-tokens/index.scss
+ */
+
+// ============================================================================
+// BASE SHADOW SYSTEM (Elevation levels)
+// ============================================================================
+
+/**
+ * Shadow Elevation Scale
+ * From subtle to dramatic depth
+ * Use higher elevations sparingly for modals, dropdowns
+ */
+
+// No shadow (flat elements)
+$shadow-none: none;
+
+// Extra small shadow (subtle depth)
+// Use for: Slight elevation, hover states on flat elements
+$shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.05);
+
+// Small shadow (minimal elevation)
+// Use for: Cards at rest, subtle separation
+$shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1),
+            0 1px 2px rgba(0, 0, 0, 0.06);
+
+// Medium shadow (standard elevation) - DEFAULT
+// Use for: Standard cards, buttons, most elevated elements
+$shadow-md: 0 4px 6px rgba(0, 0, 0, 0.07),
+            0 2px 4px rgba(0, 0, 0, 0.05);
+
+// Large shadow (significant elevation)
+// Use for: Hover states, sticky elements, important cards
+$shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.1),
+            0 4px 6px rgba(0, 0, 0, 0.05);
+
+// Extra large shadow (high elevation)
+// Use for: Dropdowns, popovers, floating elements
+$shadow-xl: 0 16px 32px rgba(0, 0, 0, 0.12),
+            0 8px 12px rgba(0, 0, 0, 0.08);
+
+// 2X large shadow (maximum elevation)
+// Use for: Modals, dialogs, overlays
+$shadow-2xl: 0 24px 48px rgba(0, 0, 0, 0.15),
+             0 12px 24px rgba(0, 0, 0, 0.1);
+
+// ============================================================================
+// SEMANTIC SHADOWS (Component-specific)
+// ============================================================================
+
+/**
+ * Hover shadows
+ * Enhanced shadows for interactive elements on hover
+ */
+$shadow-hover: 0 8px 24px rgba(0, 0, 0, 0.12),
+               0 4px 8px rgba(0, 0, 0, 0.08);
+
+$shadow-hover-lg: 0 16px 40px rgba(0, 0, 0, 0.15),
+                  0 8px 16px rgba(0, 0, 0, 0.1);
+
+/**
+ * Card shadows
+ */
+$shadow-card: $shadow-sm;                     // Resting card
+$shadow-card-hover: $shadow-lg;               // Card on hover
+$shadow-card-active: $shadow-md;              // Card when clicked
+
+/**
+ * Button shadows
+ */
+$shadow-button: 0 2px 4px rgba(0, 0, 0, 0.1);
+$shadow-button-hover: 0 4px 8px rgba(0, 0, 0, 0.12);
+$shadow-button-active: 0 1px 2px rgba(0, 0, 0, 0.08);
+
+/**
+ * Dropdown shadows
+ */
+$shadow-dropdown: 0 8px 24px rgba(0, 0, 0, 0.12),
+                  0 4px 12px rgba(0, 0, 0, 0.08);
+
+/**
+ * Modal shadows
+ */
+$shadow-modal: 0 32px 64px rgba(0, 0, 0, 0.2),
+               0 16px 32px rgba(0, 0, 0, 0.15);
+
+/**
+ * Popover shadows
+ */
+$shadow-popover: 0 12px 32px rgba(0, 0, 0, 0.12),
+                 0 6px 16px rgba(0, 0, 0, 0.08);
+
+/**
+ * Tooltip shadows
+ */
+$shadow-tooltip: 0 4px 12px rgba(0, 0, 0, 0.15);
+
+// ============================================================================
+// COLORED SHADOWS (Brand-specific)
+// ============================================================================
+
+/**
+ * Golden Wheat Primary Shadows
+ * Warm, branded shadows for primary elements
+ * Use for: Primary CTAs, featured cards, brand elements
+ */
+
+// Import color values (assuming colors are defined)
+// Note: In production, import from _colors.scss
+// For now, defining inline for independence
+
+$primary-color: #b9a779;              // Golden wheat main
+$secondary-color: #428177;            // Forest green
+$accent-color: #CE1126;               // Syrian red
+
+// Primary colored shadows (golden wheat)
+$shadow-primary-sm: 0 2px 8px rgba(185, 167, 121, 0.15);
+$shadow-primary-md: 0 4px 12px rgba(185, 167, 121, 0.2),
+                    0 2px 6px rgba(185, 167, 121, 0.15);
+$shadow-primary-lg: 0 8px 24px rgba(185, 167, 121, 0.25),
+                    0 4px 12px rgba(185, 167, 121, 0.15);
+$shadow-primary-xl: 0 16px 40px rgba(185, 167, 121, 0.3),
+                    0 8px 20px rgba(185, 167, 121, 0.2);
+
+// Secondary colored shadows (forest green)
+$shadow-secondary-sm: 0 2px 8px rgba(66, 129, 119, 0.15);
+$shadow-secondary-md: 0 4px 12px rgba(66, 129, 119, 0.2),
+                      0 2px 6px rgba(66, 129, 119, 0.15);
+$shadow-secondary-lg: 0 8px 24px rgba(66, 129, 119, 0.25),
+                      0 4px 12px rgba(66, 129, 119, 0.15);
+
+// Accent colored shadows (Syrian red - for sale badges)
+$shadow-accent-sm: 0 2px 8px rgba(206, 17, 38, 0.15);
+$shadow-accent-md: 0 4px 12px rgba(206, 17, 38, 0.2),
+                   0 2px 6px rgba(206, 17, 38, 0.15);
+$shadow-accent-lg: 0 8px 24px rgba(206, 17, 38, 0.25),
+                   0 4px 12px rgba(206, 17, 38, 0.15);
+
+// Success shadow (green)
+$shadow-success: 0 4px 12px rgba(66, 129, 119, 0.2);
+
+// Warning shadow (golden)
+$shadow-warning: 0 4px 12px rgba(185, 167, 121, 0.2);
+
+// Error shadow (red)
+$shadow-error: 0 4px 12px rgba(206, 17, 38, 0.2);
+
+// ============================================================================
+// INNER SHADOWS (Inset effects)
+// ============================================================================
+
+/**
+ * Inner shadows
+ * Use for: Pressed states, input fields, wells
+ */
+
+$shadow-inner-sm: inset 0 1px 2px rgba(0, 0, 0, 0.05);
+$shadow-inner: inset 0 2px 4px rgba(0, 0, 0, 0.06);
+$shadow-inner-lg: inset 0 4px 8px rgba(0, 0, 0, 0.08);
+
+// ============================================================================
+// FOCUS SHADOWS (Accessibility)
+// ============================================================================
+
+/**
+ * Focus ring shadows
+ * Use for: Keyboard navigation, accessibility
+ * @accessibility WCAG 2.1 compliant focus indicators
+ */
+
+// Default focus ring (neutral)
+$shadow-focus: 0 0 0 3px rgba(66, 153, 225, 0.5);
+
+// Primary focus ring (golden wheat)
+$shadow-focus-primary: 0 0 0 3px rgba(185, 167, 121, 0.5);
+
+// Secondary focus ring (forest green)
+$shadow-focus-secondary: 0 0 0 3px rgba(66, 129, 119, 0.5);
+
+// Error focus ring (red)
+$shadow-focus-error: 0 0 0 3px rgba(206, 17, 38, 0.5);
+
+// Success focus ring (green)
+$shadow-focus-success: 0 0 0 3px rgba(66, 129, 119, 0.5);
+
+// Visible focus ring (high contrast for accessibility)
+$shadow-focus-visible: 0 0 0 3px rgba(0, 0, 0, 0.5);
+
+// ============================================================================
+// OUTLINE SHADOWS (Alternative to borders)
+// ============================================================================
+
+/**
+ * Outline shadows
+ * Use as alternative to borders for cleaner look
+ */
+
+$shadow-outline-sm: 0 0 0 1px rgba(0, 0, 0, 0.05);
+$shadow-outline: 0 0 0 1px rgba(0, 0, 0, 0.1);
+$shadow-outline-lg: 0 0 0 2px rgba(0, 0, 0, 0.1);
+
+// Primary outline
+$shadow-outline-primary: 0 0 0 1px rgba(185, 167, 121, 0.5);
+$shadow-outline-primary-lg: 0 0 0 2px rgba(185, 167, 121, 0.5);
+
+// Secondary outline
+$shadow-outline-secondary: 0 0 0 1px rgba(66, 129, 119, 0.5);
+
+// Error outline
+$shadow-outline-error: 0 0 0 1px rgba(206, 17, 38, 0.5);
+
+// ============================================================================
+// GLOW EFFECTS (Special effects)
+// ============================================================================
+
+/**
+ * Glow shadows
+ * Use for: Featured elements, premium badges, special effects
+ */
+
+// Primary glow (golden wheat)
+$shadow-glow-primary: 0 0 20px rgba(185, 167, 121, 0.4),
+                      0 0 40px rgba(185, 167, 121, 0.2);
+
+// Gold glow (UNESCO badges, premium)
+$shadow-glow-gold: 0 0 20px rgba(212, 175, 55, 0.4),
+                   0 0 40px rgba(212, 175, 55, 0.2);
+
+// Red glow (sale, urgent)
+$shadow-glow-accent: 0 0 20px rgba(206, 17, 38, 0.4),
+                     0 0 40px rgba(206, 17, 38, 0.2);
+
+// ============================================================================
+// TEXT SHADOWS
+// ============================================================================
+
+/**
+ * Text shadows
+ * Use sparingly for headers, hero text
+ */
+
+$text-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.1);
+$text-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+$text-shadow-lg: 0 4px 8px rgba(0, 0, 0, 0.2);
+
+// ============================================================================
+// RESPONSIVE SHADOWS
+// ============================================================================
+
+/**
+ * Mobile-optimized shadows
+ * Lighter shadows for mobile to improve performance
+ */
+
+$shadow-mobile-sm: 0 1px 2px rgba(0, 0, 0, 0.08);
+$shadow-mobile-md: 0 2px 4px rgba(0, 0, 0, 0.1);
+$shadow-mobile-lg: 0 4px 8px rgba(0, 0, 0, 0.12);
+
+// ============================================================================
+// SHADOW UTILITIES
+// ============================================================================
+
+/**
+ * Shadow transition for smooth animations
+ */
+$shadow-transition: box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+$shadow-transition-fast: box-shadow 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+$shadow-transition-slow: box-shadow 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+
+// ============================================================================
+// COMPONENT-SPECIFIC SHADOW PRESETS
+// ============================================================================
+
+/**
+ * Product Card Shadows
+ * Complete shadow states for product cards
+ */
+$product-card-shadow-rest: $shadow-sm;
+$product-card-shadow-hover: 0 8px 24px rgba(185, 167, 121, 0.15);
+$product-card-shadow-active: $shadow-md;
+
+/**
+ * Navigation Shadows
+ */
+$header-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+$header-shadow-scroll: 0 4px 16px rgba(0, 0, 0, 0.1);
+
+/**
+ * Footer Shadow
+ */
+$footer-shadow: 0 -2px 8px rgba(0, 0, 0, 0.05);
+
+/**
+ * Sidebar Shadow
+ */
+$sidebar-shadow: 2px 0 8px rgba(0, 0, 0, 0.05);
+$sidebar-shadow-rtl: -2px 0 8px rgba(0, 0, 0, 0.05);
+
+/**
+ * Badge Shadows
+ */
+$badge-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+$badge-shadow-unesco: 0 2px 8px rgba(212, 175, 55, 0.3);
+$badge-shadow-sale: 0 2px 8px rgba(206, 17, 38, 0.3);
+
+// ============================================================================
+// EXPORTED SHADOW MAP
+// ============================================================================
+
+/**
+ * Shadow map for programmatic access
+ * Can be used to generate utility classes
+ */
+$shadow-map: (
+  'none': $shadow-none,
+  'xs': $shadow-xs,
+  'sm': $shadow-sm,
+  'md': $shadow-md,
+  'lg': $shadow-lg,
+  'xl': $shadow-xl,
+  '2xl': $shadow-2xl,
+  'hover': $shadow-hover,
+  'focus': $shadow-focus,
+  'inner': $shadow-inner,
+  'primary': $shadow-primary-md,
+  'secondary': $shadow-secondary-md,
+  'accent': $shadow-accent-md
+);

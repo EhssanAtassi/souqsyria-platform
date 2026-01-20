@@ -1,0 +1,565 @@
+/**
+ * Golden Wheat Design System - Button Styles
+ *
+ * Complete button component styles for Syrian marketplace
+ * Includes primary, secondary, tertiary, and specialty buttons
+ *
+ * @description Button system including:
+ * - Primary buttons (golden wheat theme)
+ * - Secondary buttons (forest green)
+ * - Tertiary/Ghost buttons
+ * - Icon buttons
+ * - Size variants
+ * - State variants (disabled, loading, active)
+ *
+ * @usage Import design tokens first, then this file
+ * @import '~/shared/styles/design-tokens';
+ * @import '~/shared/styles/components/buttons';
+ */
+
+// Import design tokens (ensure this path matches your setup)
+// @import '../design-tokens';
+
+// ============================================================================
+// BASE BUTTON STYLES
+// ============================================================================
+
+/**
+ * Base button class
+ * Foundation for all button variants
+ * Apply with .btn or use @extend %btn-base
+ */
+.btn,
+%btn-base {
+  // Layout
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: $space-2;                                // 8px gap between icon and text
+
+  // Typography
+  font-family: $font-family-sans;
+  font-size: $font-size-base;                   // 16px
+  font-weight: $font-weight-semibold;           // 600
+  line-height: $line-height-none;               // 1
+  letter-spacing: $letter-spacing-button;       // 0.025em
+  text-decoration: none;
+  text-align: center;
+  white-space: nowrap;
+
+  // Sizing
+  padding: $button-padding-y $button-padding-x; // 8px 16px
+
+  // Visual
+  background-color: $primary-400;               // Golden wheat
+  color: $neutral-50;                           // White text
+  border: $border-width-thin solid transparent;
+  border-radius: $button-radius;                // 8px
+  box-shadow: $shadow-button;
+
+  // Behavior
+  cursor: pointer;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+
+  // Transitions
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+
+  // States
+  &:hover:not(:disabled) {
+    background-color: $primary-600;             // Darker golden wheat
+    box-shadow: $shadow-button-hover;
+    transform: translateY(-1px);
+  }
+
+  &:active:not(:disabled) {
+    background-color: $primary-700;
+    box-shadow: $shadow-button-active;
+    transform: translateY(0);
+  }
+
+  &:focus-visible {
+    outline: none;
+    box-shadow: $shadow-focus-primary;
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    background-color: $neutral-400;
+    box-shadow: none;
+  }
+
+  // Icons within buttons
+  .btn-icon {
+    width: 1.25rem;                             // 20px
+    height: 1.25rem;
+    flex-shrink: 0;
+  }
+}
+
+// ============================================================================
+// PRIMARY BUTTON (Golden Wheat)
+// ============================================================================
+
+/**
+ * Primary button - Main CTAs
+ * Golden wheat background, white text
+ * Use for: Primary actions, add to cart, checkout
+ */
+.btn-primary {
+  @extend %btn-base;
+  background-color: $primary-400;               // Golden wheat
+  color: $neutral-50;                           // White
+
+  &:hover:not(:disabled) {
+    background-color: $primary-600;             // Darker wheat
+  }
+
+  &:active:not(:disabled) {
+    background-color: $primary-700;
+  }
+
+  &:focus-visible {
+    box-shadow: $shadow-focus-primary;
+  }
+}
+
+// ============================================================================
+// SECONDARY BUTTON (Forest Green)
+// ============================================================================
+
+/**
+ * Secondary button
+ * Forest green background, white text
+ * Use for: Secondary actions, wishlist, save
+ */
+.btn-secondary {
+  @extend %btn-base;
+  background-color: $secondary-500;             // Forest green
+  color: $neutral-50;                           // White
+
+  &:hover:not(:disabled) {
+    background-color: $secondary-600;
+  }
+
+  &:active:not(:disabled) {
+    background-color: $secondary-700;
+  }
+
+  &:focus-visible {
+    box-shadow: $shadow-focus-secondary;
+  }
+}
+
+// ============================================================================
+// OUTLINE BUTTONS
+// ============================================================================
+
+/**
+ * Outline primary button
+ * Transparent background, golden wheat border and text
+ * Use for: Alternative actions, filters
+ */
+.btn-outline-primary {
+  @extend %btn-base;
+  background-color: transparent;
+  color: $primary-600;
+  border: $border-width-md solid $primary-400;
+  box-shadow: none;
+
+  &:hover:not(:disabled) {
+    background-color: $primary-50;              // Light golden tint
+    border-color: $primary-600;
+    color: $primary-700;
+  }
+
+  &:active:not(:disabled) {
+    background-color: $primary-100;
+    border-color: $primary-700;
+  }
+
+  &:focus-visible {
+    box-shadow: $shadow-focus-primary;
+  }
+}
+
+/**
+ * Outline secondary button
+ * Transparent background, forest green border and text
+ */
+.btn-outline-secondary {
+  @extend %btn-base;
+  background-color: transparent;
+  color: $secondary-600;
+  border: $border-width-md solid $secondary-500;
+  box-shadow: none;
+
+  &:hover:not(:disabled) {
+    background-color: $secondary-50;
+    border-color: $secondary-600;
+    color: $secondary-700;
+  }
+
+  &:active:not(:disabled) {
+    background-color: $secondary-100;
+    border-color: $secondary-700;
+  }
+
+  &:focus-visible {
+    box-shadow: $shadow-focus-secondary;
+  }
+}
+
+// ============================================================================
+// GHOST/TEXT BUTTONS
+// ============================================================================
+
+/**
+ * Ghost button
+ * Transparent background, no border, colored text
+ * Use for: Tertiary actions, cancel, back
+ */
+.btn-ghost {
+  @extend %btn-base;
+  background-color: transparent;
+  color: $primary-600;
+  border: none;
+  box-shadow: none;
+
+  &:hover:not(:disabled) {
+    background-color: $primary-50;
+    color: $primary-700;
+  }
+
+  &:active:not(:disabled) {
+    background-color: $primary-100;
+  }
+
+  &:focus-visible {
+    box-shadow: $shadow-focus-primary;
+  }
+}
+
+/**
+ * Text button
+ * Minimal styling, just colored text with underline on hover
+ * Use for: Links styled as buttons, subtle actions
+ */
+.btn-text {
+  @extend %btn-base;
+  background-color: transparent;
+  color: $text-link;
+  border: none;
+  box-shadow: none;
+  padding: $space-1 $space-2;                   // Minimal padding
+
+  &:hover:not(:disabled) {
+    color: $text-link-hover;
+    text-decoration: underline;
+    transform: none;
+  }
+
+  &:focus-visible {
+    box-shadow: $shadow-focus;
+  }
+}
+
+// ============================================================================
+// SPECIALTY BUTTONS
+// ============================================================================
+
+/**
+ * Danger button (Syrian Red)
+ * Use for: Delete, remove, critical actions
+ */
+.btn-danger {
+  @extend %btn-base;
+  background-color: $syrian-red;
+  color: $neutral-50;
+
+  &:hover:not(:disabled) {
+    background-color: $syrian-red-dark;
+  }
+
+  &:focus-visible {
+    box-shadow: $shadow-focus-error;
+  }
+}
+
+/**
+ * Success button
+ * Use for: Confirm, approve, success actions
+ */
+.btn-success {
+  @extend %btn-base;
+  background-color: $success-500;
+  color: $neutral-50;
+
+  &:hover:not(:disabled) {
+    background-color: $success-600;
+  }
+
+  &:focus-visible {
+    box-shadow: $shadow-focus-success;
+  }
+}
+
+/**
+ * Premium button (Gold)
+ * Use for: Premium features, UNESCO products
+ */
+.btn-premium {
+  @extend %btn-base;
+  background: linear-gradient(135deg, $syrian-gold-500 0%, $syrian-gold-600 100%);
+  color: $neutral-900;
+  box-shadow: $shadow-glow-gold;
+
+  &:hover:not(:disabled) {
+    background: linear-gradient(135deg, $syrian-gold-600 0%, $syrian-gold-700 100%);
+    box-shadow: $shadow-primary-lg;
+  }
+}
+
+// ============================================================================
+// BUTTON SIZES
+// ============================================================================
+
+/**
+ * Small button
+ * Compact size for tight spaces
+ */
+.btn-sm {
+  padding: $button-padding-y-sm $button-padding-x-sm; // 6px 12px
+  font-size: $font-size-sm;                           // 14px
+  border-radius: $button-radius-sm;                   // 4px
+
+  .btn-icon {
+    width: 1rem;                                      // 16px
+    height: 1rem;
+  }
+}
+
+/**
+ * Large button
+ * Prominent size for primary CTAs
+ */
+.btn-lg {
+  padding: $button-padding-y-lg $button-padding-x-lg; // 12px 24px
+  font-size: $font-size-lg;                           // 18px
+  border-radius: $button-radius-lg;                   // 12px
+
+  .btn-icon {
+    width: 1.5rem;                                    // 24px
+    height: 1.5rem;
+  }
+}
+
+/**
+ * Full width button
+ * Spans entire container width
+ */
+.btn-block {
+  display: flex;
+  width: 100%;
+}
+
+/**
+ * Pill button
+ * Fully rounded edges
+ */
+.btn-pill {
+  border-radius: $button-radius-pill;                 // 9999px
+}
+
+// ============================================================================
+// ICON BUTTONS
+// ============================================================================
+
+/**
+ * Icon-only button
+ * Square button with icon, no text
+ */
+.btn-icon-only {
+  @extend %btn-base;
+  padding: $space-2;                                  // 8px (square)
+  width: 2.5rem;                                      // 40px
+  height: 2.5rem;
+  border-radius: $border-radius-md;
+
+  .btn-icon {
+    margin: 0;
+  }
+
+  &.btn-sm {
+    width: 2rem;                                      // 32px
+    height: 2rem;
+    padding: $space-1-5;                              // 6px
+  }
+
+  &.btn-lg {
+    width: 3rem;                                      // 48px
+    height: 3rem;
+    padding: $space-3;                                // 12px
+  }
+
+  &.btn-icon-circle {
+    border-radius: $border-radius-full;               // Circular
+  }
+}
+
+// ============================================================================
+// BUTTON STATES
+// ============================================================================
+
+/**
+ * Loading state
+ * Shows spinner, disables interaction
+ */
+.btn-loading {
+  position: relative;
+  pointer-events: none;
+
+  // Hide text while loading
+  & > *:not(.btn-spinner) {
+    opacity: 0;
+  }
+
+  // Spinner
+  .btn-spinner {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 1.25rem;
+    height: 1.25rem;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-top-color: $neutral-50;
+    border-radius: $border-radius-full;
+    animation: btn-spin 0.6s linear infinite;
+  }
+}
+
+@keyframes btn-spin {
+  to {
+    transform: translate(-50%, -50%) rotate(360deg);
+  }
+}
+
+/**
+ * Active state
+ * For toggle buttons or selected state
+ */
+.btn-active {
+  &.btn-outline-primary {
+    background-color: $primary-400;
+    color: $neutral-50;
+  }
+
+  &.btn-outline-secondary {
+    background-color: $secondary-500;
+    color: $neutral-50;
+  }
+}
+
+// ============================================================================
+// BUTTON GROUPS
+// ============================================================================
+
+/**
+ * Button group
+ * Multiple buttons side by side
+ */
+.btn-group {
+  display: inline-flex;
+  gap: $space-2;                                      // 8px between buttons
+
+  &.btn-group-attached {
+    gap: 0;
+
+    .btn {
+      border-radius: 0;
+
+      &:first-child {
+        border-top-left-radius: $button-radius;
+        border-bottom-left-radius: $button-radius;
+      }
+
+      &:last-child {
+        border-top-right-radius: $button-radius;
+        border-bottom-right-radius: $button-radius;
+      }
+
+      &:not(:last-child) {
+        border-right-width: 0;
+      }
+    }
+  }
+}
+
+// ============================================================================
+// RTL SUPPORT
+// ============================================================================
+
+/**
+ * RTL button adjustments
+ */
+[dir="rtl"] {
+  .btn {
+    .btn-icon {
+      &:first-child {
+        margin-right: 0;
+        margin-left: $space-2;
+      }
+
+      &:last-child {
+        margin-left: 0;
+        margin-right: $space-2;
+      }
+    }
+  }
+
+  .btn-group-attached {
+    .btn {
+      &:first-child {
+        border-radius: 0;
+        border-top-right-radius: $button-radius;
+        border-bottom-right-radius: $button-radius;
+      }
+
+      &:last-child {
+        border-radius: 0;
+        border-top-left-radius: $button-radius;
+        border-bottom-left-radius: $button-radius;
+      }
+
+      &:not(:last-child) {
+        border-right-width: $border-width-thin;
+        border-left-width: 0;
+      }
+    }
+  }
+}
+
+// ============================================================================
+// RESPONSIVE ADJUSTMENTS
+// ============================================================================
+
+/**
+ * Mobile optimizations
+ */
+@media (max-width: 640px) {
+  .btn {
+    // Slightly smaller on mobile
+    padding: calc(#{$button-padding-y} * 0.875) calc(#{$button-padding-x} * 0.875);
+    font-size: $font-size-sm;
+
+    // Ensure minimum touch target (44px)
+    min-height: 44px;
+  }
+
+  .btn-block-mobile {
+    display: flex;
+    width: 100%;
+  }
+}

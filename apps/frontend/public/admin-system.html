@@ -1,0 +1,1405 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr" id="htmlRoot">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>System Administration - SouqSyria Admin Portal</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'golden-wheat': '#988561',
+                        'golden-wheat-light': '#b9a779',
+                        'golden-wheat-bg': '#edebe0',
+                        'forest-green': '#002623',
+                        'charcoal': '#161616'
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        :root {
+            --golden-wheat: #988561;
+            --golden-wheat-light: #b9a779;
+            --golden-wheat-bg: #edebe0;
+            --forest-green: #002623;
+            --charcoal: #161616;
+        }
+
+        .bg-damascus-pattern {
+            background-image:
+                radial-gradient(circle at 30% 30%, rgba(152, 133, 97, 0.05) 1px, transparent 1px),
+                radial-gradient(circle at 70% 70%, rgba(152, 133, 97, 0.05) 1px, transparent 1px);
+            background-size: 60px 60px;
+        }
+
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--golden-wheat);
+            border-radius: 3px;
+        }
+
+        .sidebar-transition {
+            transition: all 0.3s ease-in-out;
+        }
+
+        .stats-card {
+            transition: all 0.3s ease;
+        }
+
+        .stats-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 24px rgba(152, 133, 97, 0.15);
+        }
+
+        .btn-golden {
+            background: linear-gradient(135deg, var(--golden-wheat), var(--golden-wheat-light));
+            transition: all 0.3s ease;
+        }
+
+        .btn-golden:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(152, 133, 97, 0.3);
+        }
+
+        .arabic-text {
+            font-family: 'Segoe UI', 'Arial Unicode MS', sans-serif;
+        }
+
+        .nav-active {
+            background: linear-gradient(135deg, var(--golden-wheat), var(--golden-wheat-light));
+            color: white;
+            box-shadow: 0 4px 12px rgba(152, 133, 97, 0.3);
+        }
+
+        .system-status-healthy { color: #059669; background: #ecfdf5; }
+        .system-status-warning { color: #d97706; background: #fffbeb; }
+        .system-status-critical { color: #dc2626; background: #fef2f2; }
+
+        .health-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 0.5rem;
+        }
+
+        .health-green { background: #059669; }
+        .health-yellow { background: #d97706; }
+        .health-red { background: #dc2626; }
+
+        .metric-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            border: 1px solid #e5e7eb;
+        }
+
+        .api-status-active { background: #d1fae5; color: #065f46; }
+        .api-status-maintenance { background: #fef3c7; color: #92400e; }
+        .api-status-error { background: #fee2e2; color: #991b1b; }
+
+        .backup-status-success { background: #ecfdf5; color: #065f46; }
+        .backup-status-running { background: #dbeafe; color: #1e40af; }
+        .backup-status-failed { background: #fef2f2; color: #991b1b; }
+
+        .log-level-info { color: #3b82f6; }
+        .log-level-warning { color: #f59e0b; }
+        .log-level-error { color: #ef4444; }
+        .log-level-debug { color: #6b7280; }
+
+        .security-alert-high { border-left: 4px solid #ef4444; background: #fef2f2; }
+        .security-alert-medium { border-left: 4px solid #f59e0b; background: #fffbeb; }
+        .security-alert-low { border-left: 4px solid #3b82f6; background: #eff6ff; }
+
+        .performance-excellent { color: #059669; }
+        .performance-good { color: #0891b2; }
+        .performance-fair { color: #f59e0b; }
+        .performance-poor { color: #ef4444; }
+
+        .config-section {
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+        }
+
+        .config-header {
+            background: #f9fafb;
+            padding: 1rem;
+            border-bottom: 1px solid #e5e7eb;
+            font-weight: 600;
+            color: #374151;
+        }
+
+        .config-content {
+            padding: 1rem;
+        }
+
+        @media (max-width: 768px) {
+            .sidebar-mobile {
+                transform: translateX(-100%);
+            }
+
+            .sidebar-mobile.show {
+                transform: translateX(0);
+            }
+
+            .main-content-mobile {
+                margin-left: 0 !important;
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 bg-damascus-pattern min-h-screen">
+    <!-- Mobile Menu Overlay -->
+    <div id="mobileOverlay" class="fixed inset-0 bg-black bg-opacity-50 z-40 hidden md:hidden"></div>
+
+    <!-- Sidebar -->
+    <aside id="sidebar" class="sidebar fixed left-0 top-0 w-64 h-full bg-white shadow-xl z-50 sidebar-transition sidebar-mobile">
+        <!-- Logo Section -->
+        <div class="p-6 border-b border-gray-100">
+            <div class="text-center">
+                <h1 class="text-2xl font-bold arabic-text" style="color: var(--golden-wheat);">سوق سوريا</h1>
+                <h2 class="text-lg font-semibold text-gray-700">SouqSyria</h2>
+                <p class="text-sm text-gray-500 mt-1">Admin Portal</p>
+            </div>
+        </div>
+
+        <!-- User Info -->
+        <div class="p-4 border-b border-gray-100">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 rounded-full bg-gradient-to-br from-golden-wheat to-golden-wheat-light flex items-center justify-center">
+                    <i class="fas fa-user text-white text-sm"></i>
+                </div>
+                <div>
+                    <p class="font-semibold text-gray-800" id="adminName">Admin User</p>
+                    <p class="text-xs text-gray-500" id="adminRole">System Administrator</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Navigation Menu -->
+        <nav class="p-4 space-y-2">
+            <a href="/admin-dashboard.html" class="nav-item flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-gray-100 transition-all duration-200">
+                <i class="material-icons text-lg">dashboard</i>
+                <span class="font-medium">Dashboard</span>
+                <span class="text-sm arabic-text mr-auto">لوحة التحكم</span>
+            </a>
+
+            <a href="/admin-users.html" class="nav-item flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-gray-100 transition-all duration-200">
+                <i class="material-icons text-lg">people</i>
+                <span class="font-medium">Users</span>
+                <span class="text-sm arabic-text mr-auto">المستخدمين</span>
+            </a>
+
+            <a href="/admin-categories.html" class="nav-item flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-gray-100 transition-all duration-200">
+                <i class="material-icons text-lg">category</i>
+                <span class="font-medium">Categories</span>
+                <span class="text-sm arabic-text mr-auto">التصنيفات</span>
+            </a>
+
+            <a href="/admin-vendors.html" class="nav-item flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-gray-100 transition-all duration-200">
+                <i class="material-icons text-lg">store</i>
+                <span class="font-medium">Vendors</span>
+                <span class="text-sm arabic-text mr-auto">التجار</span>
+            </a>
+
+            <a href="/admin-analytics.html" class="nav-item flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-gray-100 transition-all duration-200">
+                <i class="material-icons text-lg">analytics</i>
+                <span class="font-medium">Analytics</span>
+                <span class="text-sm arabic-text mr-auto">التحليلات</span>
+            </a>
+
+            <a href="/admin-financial.html" class="nav-item flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-gray-100 transition-all duration-200">
+                <i class="material-icons text-lg">account_balance</i>
+                <span class="font-medium">Financial</span>
+                <span class="text-sm arabic-text mr-auto">المالية</span>
+            </a>
+
+            <a href="/admin-system.html" class="nav-item nav-active flex items-center space-x-3 px-4 py-3 rounded-lg transition-all duration-200">
+                <i class="material-icons text-lg">settings</i>
+                <span class="font-medium">System</span>
+                <span class="text-sm arabic-text mr-auto">النظام</span>
+            </a>
+
+            <a href="#" onclick="logout()" class="nav-item flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-red-50 hover:text-red-600 transition-all duration-200 text-gray-600">
+                <i class="material-icons text-lg">logout</i>
+                <span class="font-medium">Logout</span>
+                <span class="text-sm arabic-text mr-auto">تسجيل الخروج</span>
+            </a>
+        </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main id="mainContent" class="main-content ml-64 main-content-mobile transition-all duration-300">
+        <!-- Top Header -->
+        <header class="bg-white shadow-sm border-b border-gray-100 sticky top-0 z-30">
+            <div class="px-6 py-4">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center space-x-4">
+                        <button id="mobileMenuBtn" class="md:hidden p-2 rounded-lg hover:bg-gray-100">
+                            <i class="material-icons">menu</i>
+                        </button>
+                        <div>
+                            <h1 class="text-2xl font-bold text-gray-800">System Administration</h1>
+                            <p class="text-sm text-gray-500 arabic-text">إدارة النظام والخوادم</p>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center space-x-4">
+                        <button onclick="toggleLanguage()" class="p-2 rounded-lg hover:bg-gray-100 transition-colors">
+                            <i class="material-icons">language</i>
+                            <span class="text-sm ml-1" id="currentLang">EN</span>
+                        </button>
+
+                        <div class="flex items-center space-x-2 bg-green-100 px-3 py-2 rounded-lg">
+                            <span class="health-indicator health-green"></span>
+                            <span class="text-sm font-medium text-green-800">System Healthy</span>
+                        </div>
+
+                        <button onclick="triggerSystemMaintenance()" class="bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded-lg font-medium text-sm">
+                            Maintenance Mode
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- System Administration Content -->
+        <div class="p-6 space-y-6">
+            <!-- System Health Overview -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div class="metric-card">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-gray-500 text-sm font-medium">System Uptime</p>
+                            <p class="text-2xl font-bold text-gray-800 mt-1">99.98%</p>
+                            <p class="text-sm text-gray-400">247 days</p>
+                        </div>
+                        <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                            <i class="material-icons text-green-600">check_circle</i>
+                        </div>
+                    </div>
+                    <div class="mt-4">
+                        <span class="system-status-healthy px-3 py-1 rounded-full text-xs font-medium">Excellent</span>
+                    </div>
+                </div>
+
+                <div class="metric-card">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-gray-500 text-sm font-medium">Active Users</p>
+                            <p class="text-2xl font-bold text-gray-800 mt-1">1,247</p>
+                            <p class="text-sm text-gray-400">Currently online</p>
+                        </div>
+                        <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                            <i class="material-icons text-blue-600">people</i>
+                        </div>
+                    </div>
+                    <div class="mt-4">
+                        <span class="system-status-healthy px-3 py-1 rounded-full text-xs font-medium">Normal Load</span>
+                    </div>
+                </div>
+
+                <div class="metric-card">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-gray-500 text-sm font-medium">Server Load</p>
+                            <p class="text-2xl font-bold text-gray-800 mt-1">23%</p>
+                            <p class="text-sm text-gray-400">CPU Usage</p>
+                        </div>
+                        <div class="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center">
+                            <i class="material-icons text-yellow-600">memory</i>
+                        </div>
+                    </div>
+                    <div class="mt-4">
+                        <span class="system-status-healthy px-3 py-1 rounded-full text-xs font-medium">Optimal</span>
+                    </div>
+                </div>
+
+                <div class="metric-card">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-gray-500 text-sm font-medium">Security Status</p>
+                            <p class="text-2xl font-bold text-gray-800 mt-1">A+</p>
+                            <p class="text-sm text-gray-400">SSL Rating</p>
+                        </div>
+                        <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+                            <i class="material-icons text-purple-600">security</i>
+                        </div>
+                    </div>
+                    <div class="mt-4">
+                        <span class="system-status-healthy px-3 py-1 rounded-full text-xs font-medium">Secure</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- System Administration Tabs -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100">
+                <div class="border-b border-gray-100">
+                    <nav class="flex space-x-8 px-6">
+                        <button onclick="switchSystemTab('monitoring')" class="system-tab-btn active py-4 px-2 border-b-2 border-golden-wheat font-medium text-golden-wheat text-sm">
+                            System Monitoring
+                        </button>
+                        <button onclick="switchSystemTab('security')" class="system-tab-btn py-4 px-2 border-b-2 border-transparent font-medium text-gray-500 text-sm hover:text-gray-700">
+                            Security Center
+                        </button>
+                        <button onclick="switchSystemTab('backups')" class="system-tab-btn py-4 px-2 border-b-2 border-transparent font-medium text-gray-500 text-sm hover:text-gray-700">
+                            Backup Management
+                        </button>
+                        <button onclick="switchSystemTab('logs')" class="system-tab-btn py-4 px-2 border-b-2 border-transparent font-medium text-gray-500 text-sm hover:text-gray-700">
+                            System Logs
+                        </button>
+                        <button onclick="switchSystemTab('configuration')" class="system-tab-btn py-4 px-2 border-b-2 border-transparent font-medium text-gray-500 text-sm hover:text-gray-700">
+                            Configuration
+                        </button>
+                    </nav>
+                </div>
+
+                <!-- System Monitoring Tab -->
+                <div id="monitoringTab" class="system-tab-content">
+                    <div class="p-6">
+                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                            <!-- Server Performance -->
+                            <div class="bg-gray-50 rounded-lg p-6">
+                                <h3 class="text-lg font-semibold text-gray-800 mb-4">Server Performance</h3>
+                                <div class="space-y-4">
+                                    <div class="performance-metric">
+                                        <div class="flex justify-between items-center mb-2">
+                                            <span class="text-sm text-gray-600">CPU Usage</span>
+                                            <span class="text-sm font-semibold performance-excellent">23%</span>
+                                        </div>
+                                        <div class="w-full bg-gray-200 rounded-full h-3">
+                                            <div class="bg-green-500 h-3 rounded-full" style="width: 23%"></div>
+                                        </div>
+                                    </div>
+
+                                    <div class="performance-metric">
+                                        <div class="flex justify-between items-center mb-2">
+                                            <span class="text-sm text-gray-600">Memory Usage</span>
+                                            <span class="text-sm font-semibold performance-good">67%</span>
+                                        </div>
+                                        <div class="w-full bg-gray-200 rounded-full h-3">
+                                            <div class="bg-blue-500 h-3 rounded-full" style="width: 67%"></div>
+                                        </div>
+                                    </div>
+
+                                    <div class="performance-metric">
+                                        <div class="flex justify-between items-center mb-2">
+                                            <span class="text-sm text-gray-600">Disk Usage</span>
+                                            <span class="text-sm font-semibold performance-fair">82%</span>
+                                        </div>
+                                        <div class="w-full bg-gray-200 rounded-full h-3">
+                                            <div class="bg-yellow-500 h-3 rounded-full" style="width: 82%"></div>
+                                        </div>
+                                    </div>
+
+                                    <div class="performance-metric">
+                                        <div class="flex justify-between items-center mb-2">
+                                            <span class="text-sm text-gray-600">Network I/O</span>
+                                            <span class="text-sm font-semibold performance-excellent">15%</span>
+                                        </div>
+                                        <div class="w-full bg-gray-200 rounded-full h-3">
+                                            <div class="bg-green-500 h-3 rounded-full" style="width: 15%"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- API Status -->
+                            <div class="bg-gray-50 rounded-lg p-6">
+                                <h3 class="text-lg font-semibold text-gray-800 mb-4">API Endpoints Status</h3>
+                                <div class="space-y-3">
+                                    <div class="flex items-center justify-between p-3 bg-white rounded-lg">
+                                        <div class="flex items-center space-x-3">
+                                            <span class="health-indicator health-green"></span>
+                                            <span class="text-sm font-medium">User Authentication API</span>
+                                        </div>
+                                        <span class="api-status-active px-3 py-1 text-xs font-medium rounded-full">Active</span>
+                                    </div>
+
+                                    <div class="flex items-center justify-between p-3 bg-white rounded-lg">
+                                        <div class="flex items-center space-x-3">
+                                            <span class="health-indicator health-green"></span>
+                                            <span class="text-sm font-medium">Product Catalog API</span>
+                                        </div>
+                                        <span class="api-status-active px-3 py-1 text-xs font-medium rounded-full">Active</span>
+                                    </div>
+
+                                    <div class="flex items-center justify-between p-3 bg-white rounded-lg">
+                                        <div class="flex items-center space-x-3">
+                                            <span class="health-indicator health-green"></span>
+                                            <span class="text-sm font-medium">Payment Processing API</span>
+                                        </div>
+                                        <span class="api-status-active px-3 py-1 text-xs font-medium rounded-full">Active</span>
+                                    </div>
+
+                                    <div class="flex items-center justify-between p-3 bg-white rounded-lg">
+                                        <div class="flex items-center space-x-3">
+                                            <span class="health-indicator health-yellow"></span>
+                                            <span class="text-sm font-medium">Email Service API</span>
+                                        </div>
+                                        <span class="api-status-maintenance px-3 py-1 text-xs font-medium rounded-full">Maintenance</span>
+                                    </div>
+
+                                    <div class="flex items-center justify-between p-3 bg-white rounded-lg">
+                                        <div class="flex items-center space-x-3">
+                                            <span class="health-indicator health-green"></span>
+                                            <span class="text-sm font-medium">Analytics API</span>
+                                        </div>
+                                        <span class="api-status-active px-3 py-1 text-xs font-medium rounded-full">Active</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Performance Chart -->
+                        <div class="mt-6 bg-gray-50 rounded-lg p-6">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-4">System Performance Trends</h3>
+                            <div class="relative h-64">
+                                <canvas id="performanceChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Security Center Tab -->
+                <div id="securityTab" class="system-tab-content hidden">
+                    <div class="p-6">
+                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                            <div class="space-y-6">
+                                <div class="bg-gray-50 rounded-lg p-6">
+                                    <h3 class="text-lg font-semibold text-gray-800 mb-4">Security Alerts</h3>
+                                    <div class="space-y-3">
+                                        <div class="security-alert-low p-3 rounded-lg">
+                                            <div class="flex items-start space-x-3">
+                                                <i class="material-icons text-blue-600 text-lg">info</i>
+                                                <div>
+                                                    <p class="text-sm font-medium text-blue-900">SSL Certificate Renewal</p>
+                                                    <p class="text-xs text-blue-700 mt-1">Certificate expires in 45 days. Auto-renewal scheduled.</p>
+                                                    <p class="text-xs text-blue-600 mt-1">2 hours ago</p>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="security-alert-medium p-3 rounded-lg">
+                                            <div class="flex items-start space-x-3">
+                                                <i class="material-icons text-yellow-600 text-lg">warning</i>
+                                                <div>
+                                                    <p class="text-sm font-medium text-yellow-900">Unusual Login Pattern</p>
+                                                    <p class="text-xs text-yellow-700 mt-1">Multiple login attempts from IP: 192.168.1.1</p>
+                                                    <p class="text-xs text-yellow-600 mt-1">1 day ago</p>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="security-alert-high p-3 rounded-lg">
+                                            <div class="flex items-start space-x-3">
+                                                <i class="material-icons text-red-600 text-lg">security</i>
+                                                <div>
+                                                    <p class="text-sm font-medium text-red-900">Failed Admin Access</p>
+                                                    <p class="text-xs text-red-700 mt-1">Blocked unauthorized admin panel access attempt</p>
+                                                    <p class="text-xs text-red-600 mt-1">3 days ago</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="bg-gray-50 rounded-lg p-6">
+                                    <h3 class="text-lg font-semibold text-gray-800 mb-4">Access Control</h3>
+                                    <div class="space-y-4">
+                                        <div class="flex items-center justify-between">
+                                            <span class="text-sm text-gray-600">Two-Factor Authentication</span>
+                                            <div class="flex items-center">
+                                                <span class="text-sm font-semibold text-green-600 mr-2">Enabled</span>
+                                                <button onclick="toggleTwoFactor()" class="bg-green-500 w-12 h-6 rounded-full relative transition-colors">
+                                                    <div class="w-5 h-5 bg-white rounded-full absolute right-0.5 top-0.5 transition-transform"></div>
+                                                </button>
+                                            </div>
+                                        </div>
+
+                                        <div class="flex items-center justify-between">
+                                            <span class="text-sm text-gray-600">IP Whitelist</span>
+                                            <div class="flex items-center">
+                                                <span class="text-sm font-semibold text-green-600 mr-2">Active</span>
+                                                <button onclick="manageIPWhitelist()" class="text-blue-600 hover:text-blue-800 text-sm">Manage</button>
+                                            </div>
+                                        </div>
+
+                                        <div class="flex items-center justify-between">
+                                            <span class="text-sm text-gray-600">Session Timeout</span>
+                                            <span class="text-sm font-semibold text-gray-800">30 minutes</span>
+                                        </div>
+
+                                        <div class="flex items-center justify-between">
+                                            <span class="text-sm text-gray-600">Password Policy</span>
+                                            <span class="text-sm font-semibold text-green-600">Strong</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="space-y-6">
+                                <div class="bg-gray-50 rounded-lg p-6">
+                                    <h3 class="text-lg font-semibold text-gray-800 mb-4">Firewall Status</h3>
+                                    <div class="space-y-3">
+                                        <div class="flex items-center justify-between p-3 bg-white rounded-lg">
+                                            <span class="text-sm font-medium">Web Application Firewall</span>
+                                            <span class="system-status-healthy px-3 py-1 text-xs font-medium rounded-full">Active</span>
+                                        </div>
+                                        <div class="flex items-center justify-between p-3 bg-white rounded-lg">
+                                            <span class="text-sm font-medium">DDoS Protection</span>
+                                            <span class="system-status-healthy px-3 py-1 text-xs font-medium rounded-full">Active</span>
+                                        </div>
+                                        <div class="flex items-center justify-between p-3 bg-white rounded-lg">
+                                            <span class="text-sm font-medium">Malware Scanner</span>
+                                            <span class="system-status-healthy px-3 py-1 text-xs font-medium rounded-full">Running</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="bg-gray-50 rounded-lg p-6">
+                                    <h3 class="text-lg font-semibold text-gray-800 mb-4">Security Scan Results</h3>
+                                    <div class="space-y-3">
+                                        <div class="flex items-center justify-between">
+                                            <span class="text-sm text-gray-600">Vulnerabilities Found</span>
+                                            <span class="text-sm font-semibold text-green-600">0 Critical</span>
+                                        </div>
+                                        <div class="flex items-center justify-between">
+                                            <span class="text-sm text-gray-600">Last Scan</span>
+                                            <span class="text-sm font-semibold text-gray-800">2 hours ago</span>
+                                        </div>
+                                        <div class="flex items-center justify-between">
+                                            <span class="text-sm text-gray-600">Security Score</span>
+                                            <span class="text-sm font-semibold text-green-600">A+ (98/100)</span>
+                                        </div>
+                                        <button onclick="runSecurityScan()" class="w-full btn-golden text-white py-2 px-4 rounded-lg font-medium text-sm mt-4">
+                                            Run Security Scan
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Backup Management Tab -->
+                <div id="backupsTab" class="system-tab-content hidden">
+                    <div class="p-6">
+                        <div class="flex items-center justify-between mb-6">
+                            <div>
+                                <h3 class="text-lg font-semibold text-gray-800">Backup Management</h3>
+                                <p class="text-sm text-gray-500 arabic-text">إدارة النسخ الاحتياطية</p>
+                            </div>
+                            <button onclick="triggerManualBackup()" class="btn-golden text-white px-4 py-2 rounded-lg font-medium">
+                                Create Backup Now
+                            </button>
+                        </div>
+
+                        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                            <div class="bg-gray-50 rounded-lg p-6">
+                                <h4 class="font-semibold text-gray-800 mb-4">Backup Schedule</h4>
+                                <div class="space-y-3">
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-sm text-gray-600">Full Backup</span>
+                                        <span class="text-sm font-semibold text-gray-800">Daily 2:00 AM</span>
+                                    </div>
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-sm text-gray-600">Database Backup</span>
+                                        <span class="text-sm font-semibold text-gray-800">Every 4 hours</span>
+                                    </div>
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-sm text-gray-600">File System Backup</span>
+                                        <span class="text-sm font-semibold text-gray-800">Daily 3:00 AM</span>
+                                    </div>
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-sm text-gray-600">Configuration Backup</span>
+                                        <span class="text-sm font-semibold text-gray-800">Weekly</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="lg:col-span-2">
+                                <div class="bg-gray-50 rounded-lg p-6">
+                                    <h4 class="font-semibold text-gray-800 mb-4">Recent Backups</h4>
+                                    <div class="overflow-x-auto">
+                                        <table class="w-full text-sm">
+                                            <thead class="bg-white">
+                                                <tr>
+                                                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Type</th>
+                                                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
+                                                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Size</th>
+                                                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+                                                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="backupTableBody" class="divide-y divide-gray-100">
+                                                <!-- Backup rows will be populated by JavaScript -->
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mt-6 grid grid-cols-1 lg:grid-cols-2 gap-6">
+                            <div class="bg-gray-50 rounded-lg p-6">
+                                <h4 class="font-semibold text-gray-800 mb-4">Storage Usage</h4>
+                                <div class="space-y-3">
+                                    <div>
+                                        <div class="flex justify-between text-sm mb-1">
+                                            <span class="text-gray-600">Backup Storage Used</span>
+                                            <span class="font-semibold">1.2 TB / 2 TB</span>
+                                        </div>
+                                        <div class="w-full bg-gray-200 rounded-full h-3">
+                                            <div class="bg-blue-500 h-3 rounded-full" style="width: 60%"></div>
+                                        </div>
+                                    </div>
+                                    <div class="text-xs text-gray-500 mt-2">
+                                        <p>• Database backups: 450 GB</p>
+                                        <p>• File system backups: 680 GB</p>
+                                        <p>• Configuration backups: 70 GB</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="bg-gray-50 rounded-lg p-6">
+                                <h4 class="font-semibold text-gray-800 mb-4">Disaster Recovery</h4>
+                                <div class="space-y-3">
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-sm text-gray-600">Recovery Point Objective (RPO)</span>
+                                        <span class="text-sm font-semibold text-green-600">4 hours</span>
+                                    </div>
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-sm text-gray-600">Recovery Time Objective (RTO)</span>
+                                        <span class="text-sm font-semibold text-green-600">2 hours</span>
+                                    </div>
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-sm text-gray-600">Last Restore Test</span>
+                                        <span class="text-sm font-semibold text-gray-800">15 days ago</span>
+                                    </div>
+                                    <button onclick="testDisasterRecovery()" class="w-full bg-orange-500 hover:bg-orange-600 text-white py-2 px-4 rounded-lg font-medium text-sm mt-4">
+                                        Test Disaster Recovery
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- System Logs Tab -->
+                <div id="logsTab" class="system-tab-content hidden">
+                    <div class="p-6">
+                        <div class="flex items-center justify-between mb-6">
+                            <div>
+                                <h3 class="text-lg font-semibold text-gray-800">System Logs</h3>
+                                <p class="text-sm text-gray-500 arabic-text">سجلات النظام</p>
+                            </div>
+                            <div class="flex space-x-3">
+                                <select id="logLevelFilter" class="px-3 py-2 border border-gray-300 rounded-lg text-sm">
+                                    <option value="">All Levels</option>
+                                    <option value="error">Error</option>
+                                    <option value="warning">Warning</option>
+                                    <option value="info">Info</option>
+                                    <option value="debug">Debug</option>
+                                </select>
+                                <button onclick="refreshLogs()" class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg font-medium text-sm">
+                                    Refresh
+                                </button>
+                                <button onclick="exportLogs()" class="btn-golden text-white px-4 py-2 rounded-lg font-medium text-sm">
+                                    Export
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="bg-gray-900 rounded-lg p-4 font-mono text-sm max-h-96 overflow-y-auto">
+                            <div id="systemLogs" class="space-y-1">
+                                <!-- Log entries will be populated by JavaScript -->
+                            </div>
+                        </div>
+
+                        <div class="mt-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
+                            <div class="bg-gray-50 rounded-lg p-6">
+                                <h4 class="font-semibold text-gray-800 mb-4">Log Statistics (24h)</h4>
+                                <div class="space-y-3">
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-sm log-level-error">Error</span>
+                                        <span class="text-sm font-semibold">3</span>
+                                    </div>
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-sm log-level-warning">Warning</span>
+                                        <span class="text-sm font-semibold">27</span>
+                                    </div>
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-sm log-level-info">Info</span>
+                                        <span class="text-sm font-semibold">1,247</span>
+                                    </div>
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-sm log-level-debug">Debug</span>
+                                        <span class="text-sm font-semibold">8,392</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="bg-gray-50 rounded-lg p-6">
+                                <h4 class="font-semibold text-gray-800 mb-4">Log Retention</h4>
+                                <div class="space-y-3">
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-sm text-gray-600">Error Logs</span>
+                                        <span class="text-sm font-semibold text-gray-800">90 days</span>
+                                    </div>
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-sm text-gray-600">Access Logs</span>
+                                        <span class="text-sm font-semibold text-gray-800">30 days</span>
+                                    </div>
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-sm text-gray-600">Debug Logs</span>
+                                        <span class="text-sm font-semibold text-gray-800">7 days</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="bg-gray-50 rounded-lg p-6">
+                                <h4 class="font-semibold text-gray-800 mb-4">Log Analysis</h4>
+                                <div class="space-y-3">
+                                    <div class="text-sm text-gray-600">
+                                        <p>• No critical errors in last 24h</p>
+                                        <p>• Peak activity: 14:00-16:00</p>
+                                        <p>• Most active endpoint: /api/products</p>
+                                        <p>• Average response time: 245ms</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Configuration Tab -->
+                <div id="configurationTab" class="system-tab-content hidden">
+                    <div class="p-6 space-y-6">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <h3 class="text-lg font-semibold text-gray-800">System Configuration</h3>
+                                <p class="text-sm text-gray-500 arabic-text">إعدادات النظام</p>
+                            </div>
+                            <button onclick="saveConfiguration()" class="btn-golden text-white px-4 py-2 rounded-lg font-medium">
+                                Save Configuration
+                            </button>
+                        </div>
+
+                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                            <div class="space-y-6">
+                                <div class="config-section">
+                                    <div class="config-header">Application Settings</div>
+                                    <div class="config-content space-y-4">
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-700 mb-2">Application Name</label>
+                                            <input type="text" value="SouqSyria" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-golden-wheat focus:border-golden-wheat">
+                                        </div>
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-700 mb-2">Environment</label>
+                                            <select class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-golden-wheat focus:border-golden-wheat">
+                                                <option value="production" selected>Production</option>
+                                                <option value="staging">Staging</option>
+                                                <option value="development">Development</option>
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-700 mb-2">Debug Mode</label>
+                                            <div class="flex items-center">
+                                                <input type="checkbox" class="rounded border-gray-300 text-golden-wheat focus:ring-golden-wheat">
+                                                <span class="ml-2 text-sm text-gray-600">Enable debug logging</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="config-section">
+                                    <div class="config-header">Database Configuration</div>
+                                    <div class="config-content space-y-4">
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-700 mb-2">Connection Pool Size</label>
+                                            <input type="number" value="20" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-golden-wheat focus:border-golden-wheat">
+                                        </div>
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-700 mb-2">Query Timeout (seconds)</label>
+                                            <input type="number" value="30" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-golden-wheat focus:border-golden-wheat">
+                                        </div>
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-700 mb-2">Backup Frequency</label>
+                                            <select class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-golden-wheat focus:border-golden-wheat">
+                                                <option value="daily" selected>Daily</option>
+                                                <option value="hourly">Every Hour</option>
+                                                <option value="weekly">Weekly</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="space-y-6">
+                                <div class="config-section">
+                                    <div class="config-header">Cache Settings</div>
+                                    <div class="config-content space-y-4">
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-700 mb-2">Redis Cache TTL (minutes)</label>
+                                            <input type="number" value="60" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-golden-wheat focus:border-golden-wheat">
+                                        </div>
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-700 mb-2">CDN Cache TTL (hours)</label>
+                                            <input type="number" value="24" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-golden-wheat focus:border-golden-wheat">
+                                        </div>
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-700 mb-2">Browser Cache TTL (hours)</label>
+                                            <input type="number" value="12" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-golden-wheat focus:border-golden-wheat">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="config-section">
+                                    <div class="config-header">Security Settings</div>
+                                    <div class="config-content space-y-4">
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-700 mb-2">Session Timeout (minutes)</label>
+                                            <input type="number" value="30" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-golden-wheat focus:border-golden-wheat">
+                                        </div>
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-700 mb-2">Max Login Attempts</label>
+                                            <input type="number" value="5" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-golden-wheat focus:border-golden-wheat">
+                                        </div>
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-700 mb-2">Lockout Duration (minutes)</label>
+                                            <input type="number" value="15" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-golden-wheat focus:border-golden-wheat">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="config-section">
+                                    <div class="config-header">Email Configuration</div>
+                                    <div class="config-content space-y-4">
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-700 mb-2">SMTP Server</label>
+                                            <input type="text" value="smtp.souqsyria.com" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-golden-wheat focus:border-golden-wheat">
+                                        </div>
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-700 mb-2">SMTP Port</label>
+                                            <input type="number" value="587" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-golden-wheat focus:border-golden-wheat">
+                                        </div>
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-700 mb-2">From Email</label>
+                                            <input type="email" value="noreply@souqsyria.com" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-golden-wheat focus:border-golden-wheat">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        /**
+         * SouqSyria System Administration
+         * Comprehensive system management and monitoring
+         */
+
+        // Global state
+        let currentUser = null;
+        let currentLanguage = 'en';
+        let currentSystemTab = 'monitoring';
+        let charts = {};
+
+        // Sample system data
+        const systemData = {
+            backups: [
+                { id: 1, type: 'Full System', date: '2024-01-15 02:00', size: '2.3 GB', status: 'success' },
+                { id: 2, type: 'Database', date: '2024-01-15 06:00', size: '450 MB', status: 'success' },
+                { id: 3, type: 'File System', date: '2024-01-15 03:00', size: '1.8 GB', status: 'success' },
+                { id: 4, type: 'Configuration', date: '2024-01-14 02:00', size: '12 MB', status: 'success' },
+                { id: 5, type: 'Database', date: '2024-01-14 22:00', size: '448 MB', status: 'failed' }
+            ],
+            logs: [
+                { timestamp: '2024-01-15 14:23:15', level: 'info', message: 'User authentication successful for admin@souqsyria.com' },
+                { timestamp: '2024-01-15 14:22:41', level: 'warning', message: 'High memory usage detected: 78%' },
+                { timestamp: '2024-01-15 14:21:33', level: 'info', message: 'Product catalog API request processed successfully' },
+                { timestamp: '2024-01-15 14:20:15', level: 'error', message: 'Email service connection timeout - retrying...' },
+                { timestamp: '2024-01-15 14:19:47', level: 'info', message: 'Daily backup initiated successfully' },
+                { timestamp: '2024-01-15 14:18:12', level: 'debug', message: 'Cache invalidated for product category: damascus-steel' },
+                { timestamp: '2024-01-15 14:17:23', level: 'info', message: 'New vendor registration: Damascus Artisans Co.' },
+                { timestamp: '2024-01-15 14:16:45', level: 'warning', message: 'SSL certificate expiring in 45 days' }
+            ],
+            performance: {
+                labels: ['00:00', '04:00', '08:00', '12:00', '16:00', '20:00'],
+                cpu: [15, 18, 25, 42, 38, 28],
+                memory: [55, 58, 62, 71, 68, 63],
+                disk: [82, 82, 83, 84, 84, 83]
+            }
+        };
+
+        /**
+         * Initialize the application
+         */
+        document.addEventListener('DOMContentLoaded', function() {
+            checkAuthentication();
+            initializeMobileMenu();
+            setupEventListeners();
+            initializeCharts();
+            renderBackupsTable();
+            renderSystemLogs();
+        });
+
+        /**
+         * Check authentication and load user data
+         */
+        function checkAuthentication() {
+            const userData = localStorage.getItem('souqsyria_admin_user');
+            if (!userData) {
+                alert('Session expired. Please login again.');
+                window.location.href = '/admin-login.html';
+                return;
+            }
+
+            try {
+                currentUser = JSON.parse(userData);
+                displayUserInfo();
+            } catch (error) {
+                console.error('Error parsing user data:', error);
+                localStorage.removeItem('souqsyria_admin_user');
+                window.location.href = '/admin-login.html';
+            }
+        }
+
+        /**
+         * Display user information
+         */
+        function displayUserInfo() {
+            if (!currentUser) return;
+            document.getElementById('adminName').textContent = currentUser.name || 'Admin User';
+
+            const roleElement = document.getElementById('adminRole');
+            if (currentUser.role === 'admin') {
+                roleElement.textContent = 'System Administrator';
+                roleElement.style.color = 'var(--golden-wheat)';
+            }
+        }
+
+        /**
+         * Setup event listeners
+         */
+        function setupEventListeners() {
+            document.getElementById('logLevelFilter').addEventListener('change', filterLogs);
+        }
+
+        /**
+         * Switch between system tabs
+         */
+        function switchSystemTab(tabName) {
+            currentSystemTab = tabName;
+
+            // Update tab buttons
+            document.querySelectorAll('.system-tab-btn').forEach(btn => {
+                btn.classList.remove('active', 'border-golden-wheat', 'text-golden-wheat');
+                btn.classList.add('border-transparent', 'text-gray-500');
+            });
+
+            document.querySelector(`button[onclick="switchSystemTab('${tabName}')"]`).classList.add('active', 'border-golden-wheat', 'text-golden-wheat');
+            document.querySelector(`button[onclick="switchSystemTab('${tabName}')"]`).classList.remove('border-transparent', 'text-gray-500');
+
+            // Show/hide tab content
+            document.querySelectorAll('.system-tab-content').forEach(content => {
+                content.classList.add('hidden');
+            });
+
+            document.getElementById(tabName + 'Tab').classList.remove('hidden');
+
+            // Initialize tab-specific functionality
+            if (tabName === 'monitoring' && !charts.performance) {
+                setTimeout(() => initializePerformanceChart(), 100);
+            }
+        }
+
+        /**
+         * Initialize charts
+         */
+        function initializeCharts() {
+            // Charts will be initialized when tabs are switched
+        }
+
+        /**
+         * Initialize performance monitoring chart
+         */
+        function initializePerformanceChart() {
+            const ctx = document.getElementById('performanceChart').getContext('2d');
+
+            charts.performance = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: systemData.performance.labels,
+                    datasets: [
+                        {
+                            label: 'CPU Usage %',
+                            data: systemData.performance.cpu,
+                            borderColor: '#ef4444',
+                            backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                            borderWidth: 2,
+                            fill: false
+                        },
+                        {
+                            label: 'Memory Usage %',
+                            data: systemData.performance.memory,
+                            borderColor: '#3b82f6',
+                            backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                            borderWidth: 2,
+                            fill: false
+                        },
+                        {
+                            label: 'Disk Usage %',
+                            data: systemData.performance.disk,
+                            borderColor: '#f59e0b',
+                            backgroundColor: 'rgba(245, 158, 11, 0.1)',
+                            borderWidth: 2,
+                            fill: false
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: true
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 100,
+                            ticks: {
+                                callback: function(value) {
+                                    return value + '%';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        /**
+         * Render backups table
+         */
+        function renderBackupsTable() {
+            const tbody = document.getElementById('backupTableBody');
+
+            tbody.innerHTML = systemData.backups.map(backup => `
+                <tr>
+                    <td class="px-4 py-2 text-sm font-medium text-gray-800">${backup.type}</td>
+                    <td class="px-4 py-2 text-sm text-gray-600">${formatDateTime(backup.date)}</td>
+                    <td class="px-4 py-2 text-sm text-gray-600">${backup.size}</td>
+                    <td class="px-4 py-2">
+                        <span class="backup-status-${backup.status} px-3 py-1 text-xs font-medium rounded-full">
+                            ${backup.status === 'success' ? 'Success' : backup.status === 'failed' ? 'Failed' : 'Running'}
+                        </span>
+                    </td>
+                    <td class="px-4 py-2">
+                        <div class="flex space-x-2">
+                            <button onclick="downloadBackup(${backup.id})" class="text-blue-600 hover:text-blue-800 text-xs" title="Download">
+                                <i class="material-icons text-sm">file_download</i>
+                            </button>
+                            <button onclick="restoreBackup(${backup.id})" class="text-green-600 hover:text-green-800 text-xs" title="Restore">
+                                <i class="material-icons text-sm">restore</i>
+                            </button>
+                            <button onclick="deleteBackup(${backup.id})" class="text-red-600 hover:text-red-800 text-xs" title="Delete">
+                                <i class="material-icons text-sm">delete</i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        /**
+         * Render system logs
+         */
+        function renderSystemLogs() {
+            const logsContainer = document.getElementById('systemLogs');
+
+            logsContainer.innerHTML = systemData.logs.map(log => `
+                <div class="log-entry text-sm">
+                    <span class="text-gray-400">[${log.timestamp}]</span>
+                    <span class="log-level-${log.level} font-semibold">[${log.level.toUpperCase()}]</span>
+                    <span class="text-gray-300">${log.message}</span>
+                </div>
+            `).join('');
+        }
+
+        /**
+         * Filter logs by level
+         */
+        function filterLogs() {
+            const level = document.getElementById('logLevelFilter').value;
+            const filteredLogs = level ? systemData.logs.filter(log => log.level === level) : systemData.logs;
+
+            const logsContainer = document.getElementById('systemLogs');
+            logsContainer.innerHTML = filteredLogs.map(log => `
+                <div class="log-entry text-sm">
+                    <span class="text-gray-400">[${log.timestamp}]</span>
+                    <span class="log-level-${log.level} font-semibold">[${log.level.toUpperCase()}]</span>
+                    <span class="text-gray-300">${log.message}</span>
+                </div>
+            `).join('');
+        }
+
+        /**
+         * System operation functions
+         */
+        function triggerSystemMaintenance() {
+            const confirmed = confirm('Enable maintenance mode? This will temporarily disable user access to the system.\n\nتفعيل وضع الصيانة؟ سيؤدي هذا إلى تعطيل وصول المستخدمين مؤقتاً.');
+
+            if (confirmed) {
+                showNotification('Maintenance mode enabled. System is now offline for users.', 'info');
+            }
+        }
+
+        function runSecurityScan() {
+            showNotification('Starting comprehensive security scan...', 'info');
+
+            // Simulate security scan
+            setTimeout(() => {
+                showNotification('Security scan completed. No critical vulnerabilities found.', 'success');
+            }, 5000);
+        }
+
+        function triggerManualBackup() {
+            const confirmed = confirm('Create full system backup now? This may take several minutes.\n\nإنشاء نسخة احتياطية كاملة الآن؟ قد يستغرق هذا عدة دقائق.');
+
+            if (confirmed) {
+                const newBackup = {
+                    id: systemData.backups.length + 1,
+                    type: 'Manual Full',
+                    date: new Date().toISOString().slice(0, 16).replace('T', ' '),
+                    size: 'In Progress...',
+                    status: 'running'
+                };
+
+                systemData.backups.unshift(newBackup);
+                renderBackupsTable();
+                showNotification('Manual backup initiated...', 'info');
+
+                // Simulate backup completion
+                setTimeout(() => {
+                    newBackup.size = '2.4 GB';
+                    newBackup.status = 'success';
+                    renderBackupsTable();
+                    showNotification('Manual backup completed successfully', 'success');
+                }, 10000);
+            }
+        }
+
+        function downloadBackup(backupId) {
+            const backup = systemData.backups.find(b => b.id === backupId);
+            if (!backup) return;
+
+            if (backup.status === 'failed') {
+                alert('Cannot download failed backup.');
+                return;
+            }
+
+            showNotification(`Downloading backup: ${backup.type} (${backup.size})`, 'info');
+            // In a real application, this would trigger the actual download
+        }
+
+        function restoreBackup(backupId) {
+            const backup = systemData.backups.find(b => b.id === backupId);
+            if (!backup) return;
+
+            const confirmed = confirm(`Restore from backup: ${backup.type} (${backup.date})?\n\nWARNING: This will overwrite current data.\n\nاستعادة من النسخة الاحتياطية؟\n\nتحذير: سيؤدي هذا إلى الكتابة فوق البيانات الحالية.`);
+
+            if (confirmed) {
+                showNotification('Restore operation initiated. System will be unavailable during restore.', 'warning');
+                // Simulate restore process
+                setTimeout(() => {
+                    showNotification('System restored successfully from backup.', 'success');
+                }, 15000);
+            }
+        }
+
+        function deleteBackup(backupId) {
+            const backup = systemData.backups.find(b => b.id === backupId);
+            if (!backup) return;
+
+            const confirmed = confirm(`Delete backup: ${backup.type} (${backup.date})?\n\nThis action cannot be undone.\n\nحذف النسخة الاحتياطية؟\n\nهذا الإجراء لا يمكن التراجع عنه.`);
+
+            if (confirmed) {
+                systemData.backups = systemData.backups.filter(b => b.id !== backupId);
+                renderBackupsTable();
+                showNotification('Backup deleted successfully', 'success');
+            }
+        }
+
+        function testDisasterRecovery() {
+            const confirmed = confirm('Run disaster recovery test? This will validate backup integrity and recovery procedures.\n\nتشغيل اختبار الاستعداد للكوارث؟ سيؤدي هذا إلى التحقق من سلامة النسخ الاحتياطية وإجراءات الاستعادة.');
+
+            if (confirmed) {
+                showNotification('Disaster recovery test initiated...', 'info');
+
+                // Simulate test process
+                setTimeout(() => {
+                    showNotification('Disaster recovery test completed successfully. All systems verified.', 'success');
+                }, 8000);
+            }
+        }
+
+        function refreshLogs() {
+            showNotification('Refreshing system logs...', 'info');
+
+            // Simulate log refresh
+            setTimeout(() => {
+                // Add a new log entry
+                systemData.logs.unshift({
+                    timestamp: new Date().toISOString().slice(0, 19).replace('T', ' '),
+                    level: 'info',
+                    message: 'System logs refreshed by admin user'
+                });
+                renderSystemLogs();
+                showNotification('System logs refreshed successfully', 'success');
+            }, 1000);
+        }
+
+        function exportLogs() {
+            const logData = systemData.logs.map(log => `${log.timestamp} [${log.level.toUpperCase()}] ${log.message}`).join('\n');
+
+            const blob = new Blob([logData], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `souqsyria_system_logs_${new Date().toISOString().split('T')[0]}.txt`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+
+            showNotification('System logs exported successfully', 'success');
+        }
+
+        function saveConfiguration() {
+            const confirmed = confirm('Save system configuration changes?\n\nحفظ تغييرات إعدادات النظام؟');
+
+            if (confirmed) {
+                showNotification('Configuration saved successfully. Changes will take effect after system restart.', 'success');
+            }
+        }
+
+        function toggleTwoFactor() {
+            showNotification('Two-factor authentication setting updated', 'success');
+        }
+
+        function manageIPWhitelist() {
+            alert('IP Whitelist Management:\n\nCurrent whitelisted IPs:\n• 192.168.1.0/24 (Office Network)\n• 10.0.0.0/8 (VPN Network)\n• 203.0.113.0/24 (Backup Access)\n\nUse this interface to add or remove IP addresses from the whitelist.');
+        }
+
+        /**
+         * Utility functions
+         */
+        function formatDateTime(dateString) {
+            return new Date(dateString).toLocaleString('en-US', {
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+
+        function showNotification(message, type = 'info') {
+            console.log(`${type}: ${message}`);
+
+            // Simple toast notification
+            const toast = document.createElement('div');
+            toast.className = `fixed top-4 right-4 px-6 py-3 rounded-lg shadow-lg z-50 text-white ${
+                type === 'success' ? 'bg-green-500' :
+                type === 'error' ? 'bg-red-500' :
+                type === 'warning' ? 'bg-yellow-500' :
+                'bg-blue-500'
+            }`;
+            toast.textContent = message;
+
+            document.body.appendChild(toast);
+
+            setTimeout(() => {
+                toast.remove();
+            }, 5000);
+        }
+
+        /**
+         * Mobile menu functionality
+         */
+        function initializeMobileMenu() {
+            const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('mobileOverlay');
+
+            mobileMenuBtn.addEventListener('click', function() {
+                sidebar.classList.toggle('show');
+                overlay.classList.toggle('hidden');
+            });
+
+            overlay.addEventListener('click', function() {
+                sidebar.classList.remove('show');
+                overlay.classList.add('hidden');
+            });
+        }
+
+        /**
+         * Toggle language
+         */
+        function toggleLanguage() {
+            const htmlRoot = document.getElementById('htmlRoot');
+            const currentLangElement = document.getElementById('currentLang');
+
+            if (currentLanguage === 'en') {
+                currentLanguage = 'ar';
+                htmlRoot.setAttribute('dir', 'rtl');
+                htmlRoot.setAttribute('lang', 'ar');
+                currentLangElement.textContent = 'العربية';
+            } else {
+                currentLanguage = 'en';
+                htmlRoot.setAttribute('dir', 'ltr');
+                htmlRoot.setAttribute('lang', 'en');
+                currentLangElement.textContent = 'EN';
+            }
+        }
+
+        /**
+         * Logout functionality
+         */
+        function logout() {
+            const confirmed = confirm('Are you sure you want to logout?\nهل أنت متأكد من تسجيل الخروج؟');
+
+            if (confirmed) {
+                localStorage.removeItem('souqsyria_admin_user');
+                window.location.href = '/admin-login.html';
+            }
+        }
+    </script>
+</body>
+</html>

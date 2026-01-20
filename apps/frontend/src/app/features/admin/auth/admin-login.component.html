@@ -1,0 +1,42 @@
+<section class="admin-login" aria-labelledby="admin-login-title">
+  <div class="admin-login__card">
+    <header class="admin-login__header">
+      <p class="admin-login__badge">SouqSyria Admin</p>
+      <h1 id="admin-login-title" class="admin-login__title">Golden Wheat Control Room</h1>
+      <p class="admin-login__subtitle">Sign in with your enterprise credentials.</p>
+    </header>
+
+    <form class="admin-login__form" [formGroup]="form" (ngSubmit)="submit()">
+      <label class="admin-login__field">
+        <span>Email</span>
+        <input
+          type="email"
+          formControlName="email"
+          autocomplete="username"
+          [class.admin-login__input--invalid]="form.controls.email.invalid && form.controls.email.touched"
+        />
+      </label>
+
+      <label class="admin-login__field">
+        <span>Password</span>
+        <input
+          type="password"
+          formControlName="password"
+          autocomplete="current-password"
+          [class.admin-login__input--invalid]="form.controls.password.invalid && form.controls.password.touched"
+        />
+      </label>
+
+      <p class="admin-login__error" *ngIf="errorMessage()">{{ errorMessage() }}</p>
+
+      <button type="submit" class="admin-login__submit" [disabled]="!canSubmit()">
+        <span *ngIf="isSubmitting(); else submitLabel">Signing in…</span>
+        <ng-template #submitLabel>Sign in</ng-template>
+      </button>
+    </form>
+
+    <footer class="admin-login__footer">
+      <p>Demo access:<br />admin&#64;souqsyria.com / admin123</p>
+    </footer>
+  </div>
+</section>

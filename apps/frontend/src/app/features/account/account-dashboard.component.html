@@ -1,0 +1,215 @@
+<div class="min-h-screen bg-gradient-to-br from-amber-50 via-white to-green-50">
+  <!-- Loading State -->
+  <div *ngIf="isLoading()" class="container mx-auto px-4 py-8">
+    <div class="flex justify-center items-center h-64">
+      <mat-progress-bar mode="indeterminate" class="w-64"></mat-progress-bar>
+    </div>
+  </div>
+
+  <!-- Dashboard Content -->
+  <div *ngIf="!isLoading() && dashboardConfig()" class="container mx-auto px-4 py-8 max-w-7xl">
+    <!-- User Header Section -->
+    <div class="mb-8">
+      <mat-card class="bg-gradient-to-r from-amber-600 to-amber-700 text-white shadow-xl">
+        <mat-card-content class="p-6">
+          <div class="flex items-center justify-between">
+            <!-- User Info -->
+            <div class="flex items-center space-x-4" 
+                 [class.space-x-reverse]="currentLanguage() === 'ar'"
+                 [class.rtl]="currentLanguage() === 'ar'">
+              <!-- Profile Picture -->
+              <div class="relative">
+                <img 
+                  [src]="(dashboardConfig()?.user?.profilePicture) || 'https://i.pravatar.cc/80?u=default'" 
+                  [alt]="getDisplayName()"
+                  class="w-16 h-16 rounded-full ring-4 ring-white/30 shadow-lg">
+                <div class="absolute -bottom-1 -right-1 bg-green-500 w-5 h-5 rounded-full border-2 border-white"></div>
+              </div>
+              
+              <!-- User Details -->
+              <div>
+                <h1 class="text-2xl font-bold mb-1">
+                  {{ getGreeting() }} {{ getDisplayName() }}
+                </h1>
+                <p *ngIf="dashboardConfig()?.user" class="text-amber-100 mb-2">{{ dashboardConfig()!.user!.email }}</p>
+                <div class="flex items-center space-x-2"
+                     [class.space-x-reverse]="currentLanguage() === 'ar'">
+                  <mat-chip-set *ngIf="dashboardConfig()?.user">
+                    <mat-chip class="bg-amber-800/30 text-amber-100">
+                      <mat-icon matChipAvatar>stars</mat-icon>
+                      {{ getMembershipLabel() }}
+                    </mat-chip>
+                    <mat-chip class="bg-amber-800/30 text-amber-100">
+                      <mat-icon matChipAvatar>loyalty</mat-icon>
+                      {{ dashboardConfig()!.user!.loyaltyPoints | number }} 
+                      {{ currentLanguage() === 'ar' ? 'نقطة' : 'Points' }}
+                    </mat-chip>
+                  </mat-chip-set>
+                </div>
+              </div>
+            </div>
+
+            <!-- Language Toggle -->
+            <div class="flex items-center space-x-2">
+              <button mat-mini-fab 
+                      [matTooltip]="currentLanguage() === 'ar' ? 'Switch to English' : 'التبديل للعربية'"
+                      (click)="toggleLanguage()"
+                      class="bg-white/20 hover:bg-white/30">
+                <mat-icon>language</mat-icon>
+              </button>
+              <button mat-mini-fab 
+                      [matTooltip]="currentLanguage() === 'ar' ? 'Settings' : 'الإعدادات'"
+                      [matMenuTriggerFor]="userMenu"
+                      class="bg-white/20 hover:bg-white/30">
+                <mat-icon>more_vert</mat-icon>
+              </button>
+            </div>
+          </div>
+
+          <!-- Quick Stats -->
+          <div *ngIf="dashboardConfig()?.userStats" class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6 pt-6 border-t border-white/20">
+            <div class="text-center">
+              <div class="text-2xl font-bold">{{ dashboardConfig()!.userStats!.totalOrders }}</div>
+              <div class="text-sm text-amber-100">{{ currentLanguage() === 'ar' ? 'الطلبات' : 'Orders' }}</div>
+            </div>
+            <div class="text-center">
+              <div class="text-2xl font-bold">{{ formatCurrency(dashboardConfig()!.userStats!.totalSpent || 0) }}</div>
+              <div class="text-sm text-amber-100">{{ currentLanguage() === 'ar' ? 'إجمالي الإنفاق' : 'Total Spent' }}</div>
+            </div>
+            <div class="text-center">
+              <div class="text-2xl font-bold">{{ dashboardConfig()!.userStats!.wishlistCount }}</div>
+              <div class="text-sm text-amber-100">{{ currentLanguage() === 'ar' ? 'المفضلة' : 'Wishlist' }}</div>
+            </div>
+            <div class="text-center">
+              <div class="text-2xl font-bold">{{ dashboardConfig()!.userStats!.rewardPoints }}</div>
+              <div class="text-sm text-amber-100">{{ currentLanguage() === 'ar' ? 'النقاط' : 'Points' }}</div>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+
+    <!-- Navigation Tiles Grid -->
+    <div class="mb-8">
+      <h2 class="text-2xl font-bold mb-6 text-gray-800"
+          [class.text-right]="currentLanguage() === 'ar'">
+        {{ currentLanguage() === 'ar' ? 'إدارة حسابك' : 'Manage Your Account' }}
+      </h2>
+      
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <mat-card *ngFor="let item of dashboardConfig()?.navigationItems" 
+                  class="hover:shadow-xl transition-all duration-300 cursor-pointer transform hover:-translate-y-1"
+                  [class.opacity-50]="!item.isAvailable"
+                  [routerLink]="item.isAvailable ? item.route : null">
+          <mat-card-content class="p-6">
+            <div class="flex items-start justify-between mb-4">
+              <div class="flex items-center space-x-3"
+                   [class.space-x-reverse]="currentLanguage() === 'ar'">
+                <div [ngClass]="getTileColorClass(item.color)" 
+                     class="p-3 rounded-full">
+                  <mat-icon class="text-white">{{ item.icon }}</mat-icon>
+                </div>
+                <div>
+                  <h3 class="font-semibold text-lg text-gray-800"
+                      [class.text-right]="currentLanguage() === 'ar'">
+                    {{ currentLanguage() === 'ar' ? item.titleAr : item.titleEn }}
+                  </h3>
+                </div>
+              </div>
+              <span *ngIf="item.badge && item.badge > 0" 
+                    [matBadge]="item.badge" 
+                    matBadgeColor="warn"
+                    matBadgeSize="small">
+              </span>
+            </div>
+            
+            <p class="text-gray-600 text-sm mb-4"
+               [class.text-right]="currentLanguage() === 'ar'">
+              {{ currentLanguage() === 'ar' ? item.descriptionAr : item.descriptionEn }}
+            </p>
+            
+            <div class="flex justify-end">
+              <mat-icon class="text-gray-400" 
+                       [class.rotate-180]="currentLanguage() === 'ar'">
+                arrow_forward
+              </mat-icon>
+            </div>
+          </mat-card-content>
+        </mat-card>
+      </div>
+    </div>
+
+    <!-- Recent Activity & Announcements -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <!-- Recent Activity -->
+      <mat-card>
+        <mat-card-header>
+          <mat-card-title [class.text-right]="currentLanguage() === 'ar'">
+            {{ currentLanguage() === 'ar' ? 'النشاط الأخير' : 'Recent Activity' }}
+          </mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div *ngFor="let activity of dashboardConfig()?.recentActivity; trackBy: trackByActivityId" 
+               class="flex items-center space-x-3 py-3 border-b last:border-b-0"
+               [class.space-x-reverse]="currentLanguage() === 'ar'">
+            <mat-icon [ngClass]="getActivityIconClass(activity.type)">
+              {{ getActivityIcon(activity.type) }}
+            </mat-icon>
+            <div class="flex-1">
+              <p class="text-sm text-gray-800"
+                 [class.text-right]="currentLanguage() === 'ar'">
+                {{ currentLanguage() === 'ar' ? activity.titleAr : activity.titleEn }}
+              </p>
+              <p class="text-xs text-gray-500"
+                 [class.text-right]="currentLanguage() === 'ar'">
+                {{ formatDate(activity.timestamp) }}
+              </p>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <!-- Announcements -->
+      <mat-card>
+        <mat-card-header>
+          <mat-card-title [class.text-right]="currentLanguage() === 'ar'">
+            {{ currentLanguage() === 'ar' ? 'الإعلانات' : 'Announcements' }}
+          </mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div *ngFor="let announcement of dashboardConfig()?.announcements; trackBy: trackByAnnouncementId" 
+               class="mb-4 last:mb-0">
+            <div [ngClass]="getAnnouncementClass(announcement.type)" 
+                 class="p-4 rounded-lg">
+              <h4 class="font-semibold text-sm mb-2"
+                  [class.text-right]="currentLanguage() === 'ar'">
+                {{ currentLanguage() === 'ar' ? announcement.titleAr : announcement.titleEn }}
+              </h4>
+              <p class="text-sm"
+                 [class.text-right]="currentLanguage() === 'ar'">
+                {{ currentLanguage() === 'ar' ? announcement.messageAr : announcement.messageEn }}
+              </p>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+  </div>
+
+  <!-- User Menu -->
+  <mat-menu #userMenu="matMenu">
+    <button mat-menu-item (click)="editProfile()">
+      <mat-icon>edit</mat-icon>
+      <span>{{ currentLanguage() === 'ar' ? 'تعديل الملف الشخصي' : 'Edit Profile' }}</span>
+    </button>
+    <button mat-menu-item (click)="viewSettings()">
+      <mat-icon>settings</mat-icon>
+      <span>{{ currentLanguage() === 'ar' ? 'الإعدادات' : 'Settings' }}</span>
+    </button>
+    <mat-divider></mat-divider>
+    <button mat-menu-item (click)="logout()">
+      <mat-icon>logout</mat-icon>
+      <span>{{ currentLanguage() === 'ar' ? 'تسجيل الخروج' : 'Logout' }}</span>
+    </button>
+  </mat-menu>
+</div>

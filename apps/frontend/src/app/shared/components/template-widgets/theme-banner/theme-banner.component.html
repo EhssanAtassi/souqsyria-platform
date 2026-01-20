@@ -1,0 +1,53 @@
+<div class="theme-banner">
+  <div class="theme-banner__grid" [ngClass]="gridClass">
+    <div class="theme-banner__item" *ngFor="let banner of banners">
+      <!-- Banner with link -->
+      <a
+        *ngIf="banner.link"
+        [routerLink]="banner.link"
+        class="theme-banner__link"
+        [ngClass]="banner.backgroundClass">
+        <div class="theme-banner__image-wrapper">
+          <img
+            [src]="banner.imageUrl"
+            [alt]="language === 'ar' && banner.titleAr ? banner.titleAr : banner.title"
+            class="theme-banner__image"
+            loading="lazy">
+        </div>
+        <div class="theme-banner__content">
+          <h3 class="theme-banner__title">
+            {{ language === 'ar' && banner.titleAr ? banner.titleAr : banner.title }}
+          </h3>
+          <p class="theme-banner__subtitle" *ngIf="banner.subtitle || banner.subtitleAr">
+            {{ language === 'ar' && banner.subtitleAr ? banner.subtitleAr : banner.subtitle }}
+          </p>
+          <span class="theme-banner__button" *ngIf="banner.buttonText || banner.buttonTextAr">
+            {{ language === 'ar' && banner.buttonTextAr ? banner.buttonTextAr : banner.buttonText }}
+          </span>
+        </div>
+      </a>
+
+      <!-- Banner without link -->
+      <div
+        *ngIf="!banner.link"
+        class="theme-banner__static"
+        [ngClass]="banner.backgroundClass">
+        <div class="theme-banner__image-wrapper">
+          <img
+            [src]="banner.imageUrl"
+            [alt]="language === 'ar' && banner.titleAr ? banner.titleAr : banner.title"
+            class="theme-banner__image"
+            loading="lazy">
+        </div>
+        <div class="theme-banner__content">
+          <h3 class="theme-banner__title">
+            {{ language === 'ar' && banner.titleAr ? banner.titleAr : banner.title }}
+          </h3>
+          <p class="theme-banner__subtitle" *ngIf="banner.subtitle || banner.subtitleAr">
+            {{ language === 'ar' && banner.subtitleAr ? banner.subtitleAr : banner.subtitle }}
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

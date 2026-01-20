@@ -1,0 +1,509 @@
+/**
+ * About Page Component Styles
+ * Golden Wheat Design System
+ * Syrian Marketplace Theme
+ */
+
+// Design System Colors
+$golden-wheat-primary: #988561;
+$golden-wheat-medium: #b9a779;
+$golden-wheat-light: #edebe0;
+$damascus-gold: #D4AF37;
+$aleppo-green: #059669;
+$text-dark: #161616;
+$text-light: #6b7280;
+
+.about-page {
+  min-height: 100vh;
+  background-color: #fafaf9;
+
+  // ========================================
+  // Hero Section
+  // ========================================
+  .hero-section {
+    background: linear-gradient(135deg, $damascus-gold 0%, $golden-wheat-medium 100%);
+    color: white;
+    position: relative;
+    overflow: hidden;
+
+    &::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 120"><path d="M0,0V46.29c47.79,22.2,103.59,32.17,158,28,70.36-5.37,136.33-33.31,206.8-37.5C438.64,32.43,512.34,53.67,583,72.05c69.27,18,138.3,24.88,209.4,13.08,36.15-6,69.85-17.84,104.45-29.34C989.49,25,1113-14.29,1200,52.47V0Z" opacity=".1" fill="%23FFFFFF"/></svg>') no-repeat bottom;
+      background-size: cover;
+      opacity: 0.3;
+    }
+
+    .hero-title {
+      font-size: 3.5rem;
+      font-weight: 700;
+      margin-bottom: 1rem;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+      letter-spacing: -0.02em;
+
+      @media (max-width: 768px) {
+        font-size: 2.5rem;
+      }
+    }
+
+    .hero-subtitle-ar {
+      font-size: 2rem;
+      font-weight: 600;
+      margin-bottom: 1.5rem;
+      opacity: 0.95;
+      font-family: 'Cairo', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+
+      @media (max-width: 768px) {
+        font-size: 1.5rem;
+      }
+    }
+
+    .hero-description {
+      font-size: 1.25rem;
+      font-weight: 300;
+      max-width: 700px;
+      margin: 0 auto 2rem;
+      opacity: 0.9;
+      line-height: 1.6;
+
+      @media (max-width: 768px) {
+        font-size: 1.1rem;
+      }
+    }
+
+    .divider {
+      width: 120px;
+      height: 4px;
+      background: white;
+      margin: 0 auto;
+      border-radius: 2px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    }
+  }
+
+  // ========================================
+  // Mission Section
+  // ========================================
+  .mission-section {
+    background: white;
+
+    .content-wrapper {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    .mission-card {
+      box-shadow: 0 4px 20px rgba(152, 133, 97, 0.15);
+      border-radius: 16px;
+      overflow: hidden;
+      border: 1px solid rgba(152, 133, 97, 0.2);
+
+      mat-card-header {
+        background: linear-gradient(135deg, $golden-wheat-light, white);
+        padding: 2rem;
+        border-bottom: 2px solid $golden-wheat-medium;
+
+        .card-icon {
+          mat-icon {
+            font-size: 3rem;
+            width: 3rem;
+            height: 3rem;
+            color: $damascus-gold;
+          }
+        }
+
+        mat-card-title {
+          font-size: 2rem;
+          font-weight: 700;
+          color: $text-dark;
+          margin-top: 1rem;
+        }
+      }
+
+      mat-card-content {
+        padding: 2rem;
+
+        .mission-text {
+          font-size: 1.125rem;
+          line-height: 1.8;
+          color: $text-light;
+          margin-bottom: 1.5rem;
+
+          &:last-child {
+            margin-bottom: 0;
+          }
+        }
+
+        .mission-text-ar {
+          font-family: 'Cairo', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+          direction: rtl;
+          text-align: right;
+          font-size: 1.125rem;
+          line-height: 2;
+          color: $text-light;
+          padding: 1.5rem;
+          background: linear-gradient(135deg, rgba(212, 175, 55, 0.05), rgba(185, 167, 121, 0.05));
+          border-radius: 12px;
+          border-right: 4px solid $damascus-gold;
+        }
+      }
+    }
+  }
+
+  // ========================================
+  // Story Section
+  // ========================================
+  .story-section {
+    background: $golden-wheat-light;
+
+    .section-title {
+      font-size: 2.5rem;
+      font-weight: 700;
+      text-align: center;
+      color: $text-dark;
+      margin-bottom: 3rem;
+      position: relative;
+
+      &::after {
+        content: '';
+        display: block;
+        width: 80px;
+        height: 4px;
+        background: $damascus-gold;
+        margin: 1rem auto 0;
+        border-radius: 2px;
+      }
+    }
+
+    .story-content {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 2rem;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .story-block {
+      background: white;
+      padding: 2rem;
+      border-radius: 16px;
+      box-shadow: 0 4px 16px rgba(152, 133, 97, 0.1);
+      transition: all 0.3s ease;
+      border: 1px solid rgba(152, 133, 97, 0.15);
+
+      &:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 8px 32px rgba(152, 133, 97, 0.2);
+        border-color: $damascus-gold;
+      }
+
+      .story-icon {
+        width: 64px;
+        height: 64px;
+        background: linear-gradient(135deg, $damascus-gold, $golden-wheat-medium);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 1.5rem;
+        box-shadow: 0 4px 16px rgba(212, 175, 55, 0.3);
+
+        mat-icon {
+          font-size: 32px;
+          width: 32px;
+          height: 32px;
+          color: white;
+        }
+      }
+
+      .story-heading {
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: $text-dark;
+        margin-bottom: 1rem;
+      }
+
+      .story-text {
+        font-size: 1rem;
+        line-height: 1.7;
+        color: $text-light;
+      }
+    }
+  }
+
+  // ========================================
+  // Values Section
+  // ========================================
+  .values-section {
+    background: white;
+
+    .values-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 2rem;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .value-card {
+      text-align: center;
+      padding: 2rem 1.5rem;
+      border-radius: 16px;
+      box-shadow: 0 4px 16px rgba(152, 133, 97, 0.1);
+      transition: all 0.3s ease;
+      border: 2px solid transparent;
+
+      &:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 8px 32px rgba(152, 133, 97, 0.2);
+        border-color: $damascus-gold;
+      }
+
+      .value-icon {
+        width: 80px;
+        height: 80px;
+        margin: 0 auto 1.5rem;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+
+        mat-icon {
+          font-size: 40px;
+          width: 40px;
+          height: 40px;
+          color: white;
+        }
+
+        &.quality {
+          background: linear-gradient(135deg, #d97706, #f59e0b);
+        }
+
+        &.authenticity {
+          background: linear-gradient(135deg, $aleppo-green, #10b981);
+        }
+
+        &.heritage {
+          background: linear-gradient(135deg, #7c3aed, #a855f7);
+        }
+
+        &.community {
+          background: linear-gradient(135deg, #2563eb, #3b82f6);
+        }
+      }
+
+      mat-card-title {
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: $text-dark;
+        margin-bottom: 0.75rem;
+      }
+
+      mat-card-content {
+        p {
+          font-size: 0.95rem;
+          line-height: 1.6;
+          color: $text-light;
+        }
+      }
+    }
+  }
+
+  // ========================================
+  // Coverage Section
+  // ========================================
+  .coverage-section {
+    background: linear-gradient(135deg, rgba(212, 175, 55, 0.05), rgba(185, 167, 121, 0.1));
+
+    .section-description {
+      text-align: center;
+      font-size: 1.125rem;
+      color: $text-light;
+      max-width: 700px;
+      margin: 0 auto 2.5rem;
+    }
+
+    .governorates-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1.5rem;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .governorate-item {
+      background: white;
+      padding: 1.25rem;
+      border-radius: 12px;
+      box-shadow: 0 2px 12px rgba(152, 133, 97, 0.1);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.5rem;
+      transition: all 0.3s ease;
+      border: 1px solid rgba(152, 133, 97, 0.15);
+
+      &:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 6px 24px rgba(152, 133, 97, 0.2);
+        border-color: $damascus-gold;
+
+        mat-icon {
+          color: $damascus-gold;
+          transform: scale(1.1);
+        }
+      }
+
+      mat-icon {
+        font-size: 28px;
+        width: 28px;
+        height: 28px;
+        color: $golden-wheat-primary;
+        transition: all 0.3s ease;
+      }
+
+      span {
+        font-size: 1rem;
+        font-weight: 600;
+        color: $text-dark;
+        text-align: center;
+        font-family: 'Cairo', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      }
+
+      small {
+        font-size: 0.85rem;
+        color: $text-light;
+        text-align: center;
+      }
+    }
+  }
+
+  // ========================================
+  // CTA Section
+  // ========================================
+  .cta-section {
+    background: linear-gradient(135deg, $golden-wheat-primary 0%, $damascus-gold 100%);
+    color: white;
+    position: relative;
+    overflow: hidden;
+
+    &::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 120"><path d="M321.39,56.44c58-10.79,114.16-30.13,172-41.86,82.39-16.72,168.19-17.73,250.45-.39C823.78,31,906.67,72,985.66,92.83c70.05,18.48,146.53,26.09,214.34,3V0H0V27.35A600.21,600.21,0,0,0,321.39,56.44Z" fill="%23FFFFFF" opacity=".1"/></svg>') no-repeat top;
+      background-size: cover;
+      opacity: 0.2;
+    }
+
+    .cta-title {
+      font-size: 2.5rem;
+      font-weight: 700;
+      margin-bottom: 1rem;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+
+      @media (max-width: 768px) {
+        font-size: 2rem;
+      }
+    }
+
+    .cta-description {
+      font-size: 1.125rem;
+      max-width: 600px;
+      margin: 0 auto 2.5rem;
+      opacity: 0.95;
+      line-height: 1.6;
+    }
+
+    .cta-buttons {
+      display: flex;
+      gap: 1.5rem;
+      justify-content: center;
+      flex-wrap: wrap;
+
+      button {
+        min-width: 180px;
+        height: 48px;
+        font-size: 1rem;
+        font-weight: 600;
+        border-radius: 24px;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+        transition: all 0.3s ease;
+
+        mat-icon {
+          margin-right: 0.5rem;
+        }
+
+        &.primary-cta {
+          background: white;
+          color: $damascus-gold;
+
+          &:hover {
+            background: $golden-wheat-light;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 24px rgba(0, 0, 0, 0.3);
+          }
+        }
+
+        &.secondary-cta {
+          background: transparent;
+          color: white;
+          border: 2px solid white;
+
+          &:hover {
+            background: rgba(255, 255, 255, 0.15);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 24px rgba(0, 0, 0, 0.3);
+          }
+        }
+      }
+    }
+  }
+
+  // ========================================
+  // Common Section Styles
+  // ========================================
+  .section-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    text-align: center;
+    color: $text-dark;
+    margin-bottom: 3rem;
+    position: relative;
+
+    &::after {
+      content: '';
+      display: block;
+      width: 80px;
+      height: 4px;
+      background: $damascus-gold;
+      margin: 1rem auto 0;
+      border-radius: 2px;
+    }
+  }
+
+  // ========================================
+  // Responsive Adjustments
+  // ========================================
+  @media (max-width: 768px) {
+    .story-content {
+      grid-template-columns: 1fr;
+    }
+
+    .values-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .governorates-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+}

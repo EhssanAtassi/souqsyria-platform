@@ -1,0 +1,815 @@
+/**
+ * Admin Panel Interfaces for Syrian Marketplace
+ *
+ * Defines TypeScript interfaces for admin panel functionality including
+ * authentication, dashboard metrics, product management, order processing,
+ * vendor management, and system settings.
+ *
+ * @swagger
+ * components:
+ *   schemas:
+ *     AdminUser:
+ *       type: object
+ *       description: Admin user data with role-based permissions
+ *       properties:
+ *         id:
+ *           type: string
+ *           description: Unique admin user identifier
+ *         email:
+ *           type: string
+ *           format: email
+ *         firstName:
+ *           type: string
+ *         lastName:
+ *           type: string
+ *         role:
+ *           type: string
+ *           enum: [super_admin, admin, moderator, customer_service]
+ *         permissions:
+ *           type: array
+ *           items:
+ *             type: string
+ *         isActive:
+ *           type: boolean
+ *         lastLoginAt:
+ *           type: string
+ *           format: date-time
+ */
+
+export interface AdminUser {
+  id: string;
+  email: string;
+  firstName: string;
+  lastName: string;
+  firstNameAr?: string;
+  lastNameAr?: string;
+  role: AdminRole;
+  permissions: AdminPermission[];
+  isActive: boolean;
+  profilePicture?: string;
+  phoneNumber?: string;
+  department?: string;
+  lastLoginAt?: Date;
+  createdAt: Date;
+  updatedAt: Date;
+  twoFactorEnabled?: boolean;
+}
+
+export type AdminRole = 'super_admin' | 'admin' | 'moderator' | 'customer_service' | 'vendor_manager';
+
+export type AdminPermission =
+  | 'products.view' | 'products.create' | 'products.edit' | 'products.delete'
+  | 'orders.view' | 'orders.edit' | 'orders.cancel' | 'orders.refund'
+  | 'vendors.view' | 'vendors.approve' | 'vendors.edit' | 'vendors.suspend'
+  | 'customers.view' | 'customers.edit' | 'customers.suspend'
+  | 'analytics.view' | 'settings.edit' | 'users.manage'
+  | 'content.edit' | 'promotions.manage' | 'reports.generate';
+
+/**
+ * Admin Dashboard Metrics
+ *
+ * @swagger
+ * components:
+ *   schemas:
+ *     AdminDashboardMetrics:
+ *       type: object
+ *       description: Key performance metrics for admin dashboard
+ */
+export interface AdminDashboardMetrics {
+  // Sales Metrics
+  todaySales: {
+    amount: number;
+    amountUSD: number;
+    orderCount: number;
+    percentChange: number;
+  };
+  monthlySales: {
+    amount: number;
+    amountUSD: number;
+    orderCount: number;
+    percentChange: number;
+  };
+
+  // Product Metrics
+  totalProducts: number;
+  activeProducts: number;
+  outOfStockProducts: number;
+  lowStockProducts: number;
+  pendingProducts: number;
+
+  // Order Metrics
+  totalOrders: number;
+  pendingOrders: number;
+  processingOrders: number;
+  shippedOrders: number;
+  deliveredOrders: number;
+  cancelledOrders: number;
+
+  // Customer Metrics
+  totalCustomers: number;
+  activeCustomers: number;
+  newCustomersToday: number;
+  newCustomersMonth: number;
+
+  // Vendor Metrics
+  totalVendors: number;
+  activeVendors: number;
+  pendingVendorApplications: number;
+  suspendedVendors: number;
+
+  // Revenue Metrics
+  totalRevenue: number;
+  totalRevenueUSD: number;
+  monthlyRevenue: number;
+  monthlyRevenueUSD: number;
+  averageOrderValue: number;
+  averageOrderValueUSD: number;
+
+  // Performance Metrics
+  conversionRate: number;
+  cartAbandonmentRate: number;
+  returnRate: number;
+  customerSatisfactionScore: number;
+
+  // Syrian Market Specific
+  syrianProductsPercentage: number;
+  diasporaCustomersPercentage: number;
+  topSellingCities: Array<{
+    city: string;
+    orderCount: number;
+    revenue: number;
+  }>;
+}
+
+/**
+ * Admin Product Management
+ *
+ * @swagger
+ * components:
+ *   schemas:
+ *     AdminProduct:
+ *       type: object
+ *       description: Product data for admin management
+ */
+export interface AdminProduct {
+  id: string;
+  nameEn: string;
+  nameAr: string;
+  descriptionEn: string;
+  descriptionAr: string;
+  slug: string;
+  sku: string;
+  price: number;
+  priceUSD: number;
+  originalPrice?: number;
+  originalPriceUSD?: number;
+  costPrice: number;
+  costPriceUSD: number;
+  stock: number;
+  minStock: number;
+  maxStock: number;
+  status: ProductStatus;
+  isActive: boolean;
+  isFeatured: boolean;
+  weight?: number;
+  dimensions?: ProductDimensions;
+  images: ProductImage[];
+  categoryId: string;
+  categoryName: string;
+  categoryNameAr: string;
+  vendorId: string;
+  vendorName: string;
+  brandId?: string;
+  brandName?: string;
+  tags: string[];
+  tagsAr: string[];
+  seoTitle: string;
+  seoTitleAr: string;
+  seoDescription: string;
+  seoDescriptionAr: string;
+  averageRating: number;
+  reviewCount: number;
+  salesCount: number;
+  viewCount: number;
+  craftOrigin: string;
+  artisanInfo: string;
+  culturalSignificance?: string;
+  materialDetails: string;
+  materialDetailsAr: string;
+  careInstructions?: string;
+  careInstructionsAr?: string;
+  createdAt: Date;
+  updatedAt: Date;
+  createdBy: string;
+  updatedBy: string;
+  approvedAt?: Date;
+  approvedBy?: string;
+}
+
+export type ProductStatus = 'draft' | 'pending_review' | 'active' | 'inactive' | 'out_of_stock' | 'discontinued';
+
+export interface ProductDimensions {
+  length: number;
+  width: number;
+  height: number;
+  unit: 'cm' | 'inch';
+}
+
+// ProductImage interface is imported from product.interface.ts to avoid duplication
+
+/**
+ * Admin Order Management
+ *
+ * @swagger
+ * components:
+ *   schemas:
+ *     AdminOrder:
+ *       type: object
+ *       description: Order data for admin management
+ */
+export interface AdminOrder {
+  id: string;
+  orderNumber: string;
+  customerId: string;
+  customerName: string;
+  customerEmail: string;
+  customerPhone: string;
+  status: AdminOrderStatus;
+  paymentStatus: PaymentStatus;
+  paymentMethod: string;
+  items: AdminOrderItem[];
+  subtotal: number;
+  subtotalUSD: number;
+  shippingCost: number;
+  shippingCostUSD: number;
+  tax: number;
+  taxUSD: number;
+  discount: number;
+  discountUSD: number;
+  total: number;
+  totalUSD: number;
+  currency: string;
+  shippingAddress: AdminShippingAddress;
+  billingAddress?: AdminShippingAddress;
+  notes?: string;
+  adminNotes?: string;
+  trackingNumber?: string;
+  shippingCarrier?: string;
+  estimatedDelivery?: Date;
+  actualDelivery?: Date;
+  isGift: boolean;
+  giftMessage?: string;
+  refundAmount?: number;
+  refundAmountUSD?: number;
+  refundReason?: string;
+  placedAt: Date;
+  updatedAt: Date;
+  processedAt?: Date;
+  shippedAt?: Date;
+  deliveredAt?: Date;
+  cancelledAt?: Date;
+  processedBy?: string;
+  cancelledBy?: string;
+  priority: OrderPriority;
+  source: OrderSource;
+  tags: string[];
+}
+
+export type AdminOrderStatus =
+  | 'pending' | 'confirmed' | 'processing' | 'preparing'
+  | 'ready_to_ship' | 'shipped' | 'in_transit' | 'out_for_delivery'
+  | 'delivered' | 'cancelled' | 'returned' | 'refunded' | 'disputed';
+
+export type PaymentStatus = 'pending' | 'processing' | 'completed' | 'failed' | 'refunded' | 'disputed';
+
+export type OrderPriority = 'low' | 'normal' | 'high' | 'urgent';
+
+export type OrderSource = 'website' | 'mobile_app' | 'phone' | 'social_media' | 'marketplace' | 'pos';
+
+export interface AdminOrderItem {
+  id: string;
+  productId: string;
+  productName: string;
+  productNameAr: string;
+  productSku: string;
+  productImage: string;
+  quantity: number;
+  unitPrice: number;
+  unitPriceUSD: number;
+  totalPrice: number;
+  totalPriceUSD: number;
+  vendorId: string;
+  vendorName: string;
+  status: OrderItemStatus;
+  notes?: string;
+}
+
+export type OrderItemStatus = 'pending' | 'confirmed' | 'preparing' | 'ready' | 'shipped' | 'delivered' | 'cancelled' | 'returned';
+
+export interface AdminShippingAddress {
+  recipientName: string;
+  recipientPhone: string;
+  addressLine1: string;
+  addressLine2?: string;
+  city: string;
+  governorate: string;
+  postalCode?: string;
+  country: string;
+  countryCode: string;
+  coordinates?: {
+    latitude: number;
+    longitude: number;
+  };
+}
+
+/**
+ * Admin Vendor Management
+ *
+ * @swagger
+ * components:
+ *   schemas:
+ *     AdminVendor:
+ *       type: object
+ *       description: Vendor data for admin management
+ */
+export interface AdminVendor {
+  id: string;
+  businessName: string;
+  businessNameAr: string;
+  ownerName: string;
+  ownerNameAr: string;
+  email: string;
+  phoneNumber: string;
+  alternatePhone?: string;
+  businessType: VendorBusinessType;
+  status: VendorStatus;
+  verificationLevel: VendorVerificationLevel;
+
+  // Business Details
+  businessDescription: string;
+  businessDescriptionAr: string;
+  businessAddress: AdminShippingAddress;
+  taxNumber?: string;
+  commercialRegister?: string;
+  establishedYear?: number;
+  employeeCount?: number;
+
+  // Product Information
+  specialties: string[];
+  specialtiesAr: string[];
+  craftOrigin: string;
+  productCategories: string[];
+  averageProductionTime: number;
+  productionCapacity: number;
+
+  // Performance Metrics
+  totalProducts: number;
+  activeProducts: number;
+  totalSales: number;
+  totalSalesUSD: number;
+  averageRating: number;
+  reviewCount: number;
+  orderFulfillmentRate: number;
+  responseTime: number; // hours
+
+  // Financial Information
+  commissionRate: number; // percentage
+  paymentTerms: string;
+  bankDetails?: VendorBankDetails;
+  taxSettings: VendorTaxSettings;
+
+  // Documents
+  documents: VendorDocument[];
+
+  // Application & Review
+  applicationDate: Date;
+  approvedDate?: Date;
+  approvedBy?: string;
+  rejectedDate?: Date;
+  rejectedBy?: string;
+  rejectionReason?: string;
+  lastReviewDate?: Date;
+  reviewedBy?: string;
+  reviewNotes?: string;
+
+  // Account Management
+  createdAt: Date;
+  updatedAt: Date;
+  isActive: boolean;
+  suspendedAt?: Date;
+  suspendedBy?: string;
+  suspensionReason?: string;
+
+  // Contact Information
+  contactPerson: string;
+  contactEmail: string;
+  contactPhone: string;
+  websiteUrl?: string;
+  socialMediaLinks?: VendorSocialMedia;
+
+  // Shipping & Fulfillment
+  shippingMethods: VendorShippingMethod[];
+  processingTime: number; // days
+  returnPolicy: string;
+  returnPolicyAr: string;
+}
+
+export type VendorBusinessType =
+  | 'individual_artisan' | 'family_business' | 'small_enterprise'
+  | 'cooperative' | 'manufacturer' | 'distributor' | 'retailer';
+
+export type VendorStatus =
+  | 'pending_application' | 'under_review' | 'additional_info_required'
+  | 'approved' | 'active' | 'inactive' | 'suspended' | 'rejected' | 'terminated';
+
+export type VendorVerificationLevel =
+  | 'unverified' | 'email_verified' | 'phone_verified' | 'business_verified' | 'fully_verified';
+
+export interface VendorBankDetails {
+  bankName: string;
+  accountNumber: string;
+  iban?: string;
+  swiftCode?: string;
+  accountHolderName: string;
+}
+
+export interface VendorTaxSettings {
+  isTaxExempt: boolean;
+  taxId?: string;
+  taxRate?: number;
+  taxCategory?: string;
+}
+
+export interface VendorDocument {
+  id: string;
+  type: VendorDocumentType;
+  name: string;
+  url: string;
+  uploadedAt: Date;
+  status: DocumentStatus;
+  reviewedAt?: Date;
+  reviewedBy?: string;
+  reviewNotes?: string;
+}
+
+export type VendorDocumentType =
+  | 'business_license' | 'tax_certificate' | 'identity_document'
+  | 'artisan_certificate' | 'product_catalog' | 'bank_statement'
+  | 'insurance_document' | 'quality_certificate';
+
+export type DocumentStatus = 'pending' | 'approved' | 'rejected' | 'expired' | 'requires_update';
+
+export interface VendorSocialMedia {
+  facebook?: string;
+  instagram?: string;
+  twitter?: string;
+  youtube?: string;
+  tiktok?: string;
+}
+
+export interface VendorShippingMethod {
+  id: string;
+  name: string;
+  nameAr: string;
+  cost: number;
+  costUSD: number;
+  estimatedDays: number;
+  isActive: boolean;
+}
+
+/**
+ * Admin Settings and Configuration
+ *
+ * @swagger
+ * components:
+ *   schemas:
+ *     AdminSettings:
+ *       type: object
+ *       description: System settings and configuration
+ */
+export interface AdminSettings {
+  general: GeneralSettings;
+  payment: PaymentSettings;
+  shipping: ShippingSettings;
+  taxes: TaxSettings;
+  notifications: NotificationSettings;
+  security: SecuritySettings;
+  features: FeatureSettings;
+  localization: LocalizationSettings;
+}
+
+export interface GeneralSettings {
+  siteName: string;
+  siteNameAr: string;
+  siteDescription: string;
+  siteDescriptionAr: string;
+  contactEmail: string;
+  supportEmail: string;
+  phoneNumber: string;
+  address: string;
+  addressAr: string;
+  workingHours: string;
+  workingHoursAr: string;
+  timezone: string;
+  defaultCurrency: string;
+  supportedCurrencies: string[];
+  maintenanceMode: boolean;
+  maintenanceMessage: string;
+  maintenanceMessageAr: string;
+}
+
+export interface PaymentSettings {
+  enabledGateways: PaymentGateway[];
+  defaultGateway: string;
+  acceptedCards: string[];
+  minimumOrderAmount: number;
+  maximumOrderAmount: number;
+  refundPolicy: string;
+  refundPolicyAr: string;
+}
+
+export interface PaymentGateway {
+  id: string;
+  name: string;
+  isActive: boolean;
+  testMode: boolean;
+  configuration: { [key: string]: any };
+}
+
+export interface ShippingSettings {
+  enabledMethods: ShippingMethod[];
+  defaultMethod: string;
+  freeShippingThreshold: number;
+  freeShippingThresholdUSD: number;
+  domesticShippingZones: ShippingZone[];
+  internationalShippingZones: ShippingZone[];
+  packagingOptions: PackagingOption[];
+}
+
+// ShippingMethod interface is imported from product.interface.ts to avoid duplication
+
+export interface ShippingZone {
+  id: string;
+  name: string;
+  nameAr: string;
+  countries: string[];
+  governorates?: string[];
+  shippingMethods: string[];
+}
+
+export interface PackagingOption {
+  id: string;
+  name: string;
+  nameAr: string;
+  cost: number;
+  costUSD: number;
+  dimensions: ProductDimensions;
+  weightLimit: number;
+}
+
+export interface ShippingRestriction {
+  type: 'weight' | 'dimensions' | 'value' | 'category' | 'region';
+  value: any;
+  message: string;
+  messageAr: string;
+}
+
+export interface TaxSettings {
+  enableTax: boolean;
+  defaultTaxRate: number;
+  taxInclusivePricing: boolean;
+  taxByRegion: RegionTaxSettings[];
+  exemptCategories: string[];
+  taxDisplaySettings: {
+    showOnProductPages: boolean;
+    showOnCart: boolean;
+    showOnCheckout: boolean;
+  };
+}
+
+export interface RegionTaxSettings {
+  governorate: string;
+  taxRate: number;
+  isActive: boolean;
+}
+
+export interface NotificationSettings {
+  emailNotifications: EmailNotificationSettings;
+  smsNotifications: SmsNotificationSettings;
+  pushNotifications: PushNotificationSettings;
+  adminNotifications: AdminNotificationSettings;
+}
+
+export interface EmailNotificationSettings {
+  enabled: boolean;
+  smtpSettings: SmtpSettings;
+  templates: NotificationTemplate[];
+}
+
+export interface SmsNotificationSettings {
+  enabled: boolean;
+  provider: string;
+  configuration: { [key: string]: any };
+  templates: NotificationTemplate[];
+}
+
+export interface PushNotificationSettings {
+  enabled: boolean;
+  firebaseConfig: { [key: string]: any };
+  templates: NotificationTemplate[];
+}
+
+export interface AdminNotificationSettings {
+  newOrderAlert: boolean;
+  lowStockAlert: boolean;
+  vendorApplicationAlert: boolean;
+  customerServiceAlert: boolean;
+  systemErrorAlert: boolean;
+  dailyReport: boolean;
+  weeklyReport: boolean;
+  monthlyReport: boolean;
+}
+
+export interface SmtpSettings {
+  host: string;
+  port: number;
+  username: string;
+  password: string;
+  encryption: 'tls' | 'ssl' | 'none';
+  fromEmail: string;
+  fromName: string;
+}
+
+export interface NotificationTemplate {
+  id: string;
+  type: string;
+  name: string;
+  nameAr: string;
+  subject: string;
+  subjectAr: string;
+  content: string;
+  contentAr: string;
+  isActive: boolean;
+}
+
+export interface SecuritySettings {
+  twoFactorAuthentication: boolean;
+  passwordPolicy: PasswordPolicy;
+  sessionTimeout: number; // minutes
+  maxLoginAttempts: number;
+  lockoutDuration: number; // minutes
+  ipWhitelist: string[];
+  trustedDomains: string[];
+  sslRequired: boolean;
+  contentSecurityPolicy: string;
+}
+
+export interface PasswordPolicy {
+  minLength: number;
+  requireUppercase: boolean;
+  requireLowercase: boolean;
+  requireNumbers: boolean;
+  requireSpecialChars: boolean;
+  preventReuse: number; // number of previous passwords to check
+  maxAge: number; // days before password expires
+}
+
+export interface FeatureSettings {
+  enableWishlist: boolean;
+  enableReviews: boolean;
+  enableComparisons: boolean;
+  enableRecommendations: boolean;
+  enableCoupons: boolean;
+  enableGiftCards: boolean;
+  enableLoyaltyProgram: boolean;
+  enableMultivendor: boolean;
+  enableBulkOrders: boolean;
+  enableQuoteRequests: boolean;
+  enableBackorders: boolean;
+  enablePreorders: boolean;
+}
+
+export interface LocalizationSettings {
+  defaultLanguage: 'en' | 'ar';
+  enabledLanguages: Array<'en' | 'ar'>;
+  rtlSupport: boolean;
+  dateFormat: string;
+  timeFormat: string;
+  numberFormat: {
+    decimalSeparator: string;
+    thousandsSeparator: string;
+    decimalPlaces: number;
+  };
+  currencyFormat: {
+    symbol: string;
+    position: 'before' | 'after';
+    showDecimals: boolean;
+  };
+}
+
+/**
+ * Admin Analytics and Reports
+ *
+ * @swagger
+ * components:
+ *   schemas:
+ *     AdminReport:
+ *       type: object
+ *       description: Analytics report for admin dashboard
+ */
+export interface AdminReport {
+  id: string;
+  type: ReportType;
+  name: string;
+  nameAr: string;
+  description: string;
+  descriptionAr: string;
+  parameters: ReportParameter[];
+  generatedAt: Date;
+  generatedBy: string;
+  data: any;
+  format: ReportFormat;
+  downloadUrl?: string;
+}
+
+export type ReportType =
+  | 'sales_summary' | 'product_performance' | 'customer_analytics'
+  | 'vendor_performance' | 'inventory_report' | 'financial_report'
+  | 'shipping_report' | 'tax_report' | 'custom_report';
+
+export interface ReportParameter {
+  key: string;
+  value: any;
+  label: string;
+  labelAr: string;
+}
+
+export type ReportFormat = 'pdf' | 'excel' | 'csv' | 'json';
+
+/**
+ * Admin Activity Log
+ *
+ * @swagger
+ * components:
+ *   schemas:
+ *     AdminActivityLog:
+ *       type: object
+ *       description: Admin activity tracking for audit purposes
+ */
+export interface AdminActivityLog {
+  id: string;
+  adminId: string;
+  adminName: string;
+  action: AdminAction;
+  resource: string;
+  resourceId: string;
+  details: { [key: string]: any };
+  ipAddress: string;
+  userAgent: string;
+  timestamp: Date;
+  success: boolean;
+  errorMessage?: string;
+}
+
+export type AdminAction =
+  | 'login' | 'logout' | 'create' | 'update' | 'delete' | 'approve' | 'reject'
+  | 'suspend' | 'activate' | 'export' | 'import' | 'backup' | 'restore' | 'configure';
+
+/**
+ * System Health and Monitoring
+ *
+ * @swagger
+ * components:
+ *   schemas:
+ *     SystemHealth:
+ *       type: object
+ *       description: System health metrics for monitoring
+ */
+export interface SystemHealth {
+  database: ServiceHealth;
+  cache: ServiceHealth;
+  storage: ServiceHealth;
+  email: ServiceHealth;
+  payment: ServiceHealth;
+  shipping: ServiceHealth;
+  overall: OverallHealth;
+  lastChecked: Date;
+}
+
+export interface ServiceHealth {
+  status: HealthStatus;
+  responseTime: number; // milliseconds
+  uptime: number; // percentage
+  lastError?: string;
+  lastErrorTime?: Date;
+}
+
+export type HealthStatus = 'healthy' | 'degraded' | 'down' | 'maintenance';
+
+export interface OverallHealth {
+  status: HealthStatus;
+  score: number; // 0-100
+  criticalIssues: number;
+  warnings: number;
+  recommendations: string[];
+}

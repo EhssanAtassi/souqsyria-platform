@@ -1,0 +1,302 @@
+@import '../../../styles/variables';
+
+/**
+ * Back to Top Button Styles
+ * Syrian Golden Wheat themed floating action button with Damascus-inspired details
+ */
+
+.back-to-top {
+  // Positioning
+  position: fixed;
+  bottom: $space-6;
+  right: $space-6;
+  z-index: 999;
+
+  // Layout
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  width: 48px;
+  height: 48px;
+
+  // Appearance
+  background: linear-gradient(135deg, $golden-wheat-primary 0%, $golden-wheat-medium 100%);
+  border: 2px solid $golden-wheat-light;
+  border-radius: 50%;
+  color: white;
+  cursor: pointer;
+  box-shadow:
+    0 4px 12px rgba($golden-wheat-dark, 0.3),
+    0 2px 4px rgba($charcoal-dark, 0.1),
+    inset 0 1px 2px rgba(white, 0.2);
+
+  // Transitions
+  transition:
+    transform $transition-base $ease-out,
+    box-shadow $transition-base $ease-out,
+    opacity $transition-fast $ease-in-out;
+
+  // Hover State
+  &:hover {
+    transform: translateY(-4px) scale(1.05);
+    box-shadow:
+      0 8px 20px rgba($golden-wheat-dark, 0.4),
+      0 4px 8px rgba($charcoal-dark, 0.15),
+      inset 0 1px 3px rgba(white, 0.3);
+
+    .back-to-top__label {
+      opacity: 1;
+      transform: translateX(-100%) translateY(-50%);
+    }
+
+    .back-to-top__icon {
+      animation: bounceUp 0.6s ease-in-out;
+    }
+  }
+
+  // Active/Click State
+  &:active {
+    transform: translateY(-2px) scale(1.02);
+    box-shadow:
+      0 2px 8px rgba($golden-wheat-dark, 0.3),
+      0 1px 4px rgba($charcoal-dark, 0.1);
+  }
+
+  // Focus State (keyboard accessibility)
+  &:focus-visible {
+    outline: 3px solid $golden-wheat-light;
+    outline-offset: 4px;
+  }
+
+  /**
+   * Progress Circle Background
+   */
+  &__progress {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 48px;
+    height: 48px;
+    transform: rotate(-90deg);
+    pointer-events: none;
+
+    &-bg {
+      stroke: rgba(white, 0.2);
+    }
+
+    &-fill {
+      stroke: white;
+      stroke-linecap: round;
+      transition: stroke-dashoffset $transition-slow $ease-out;
+    }
+  }
+
+  /**
+   * Up Arrow Icon
+   */
+  &__icon {
+    position: relative;
+    z-index: 2;
+    color: white;
+    filter: drop-shadow(0 1px 2px rgba($charcoal-dark, 0.2));
+  }
+
+  &__arrow {
+    transition: transform $transition-fast $ease-out;
+  }
+
+  /**
+   * Text Label (Arabic: "إلى الأعلى" = To the Top)
+   * Hidden by default, shows on hover
+   */
+  &__label {
+    position: absolute;
+    right: calc(100% + $space-3);
+    top: 50%;
+    transform: translateX(-50%) translateY(-50%);
+    white-space: nowrap;
+    background: $charcoal-dark;
+    color: white;
+    padding: $space-2 $space-3;
+    border-radius: $border-radius-md;
+    font-size: $font-size-sm;
+    font-weight: $font-weight-medium;
+    opacity: 0;
+    pointer-events: none;
+    transition:
+      opacity $transition-fast $ease-in-out,
+      transform $transition-base $ease-out;
+    box-shadow: 0 2px 8px rgba($charcoal-dark, 0.3);
+
+    // Arrow pointing to button
+    &::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 100%;
+      transform: translateY(-50%);
+      border: 6px solid transparent;
+      border-left-color: $charcoal-dark;
+    }
+  }
+}
+
+/**
+ * Bounce Up Animation
+ * Applied to arrow icon on hover
+ */
+@keyframes bounceUp {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-4px);
+  }
+}
+
+/**
+ * Fade In/Out Animation
+ * Applied when button appears/disappears
+ */
+@keyframes fadeInOut {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/**
+ * RTL Support
+ * Mirror positioning for Arabic layout
+ */
+[dir="rtl"] {
+  .back-to-top {
+    right: auto;
+    left: $space-6;
+
+    &__label {
+      right: auto;
+      left: calc(100% + $space-3);
+      transform: translateX(50%) translateY(-50%);
+
+      &::after {
+        left: auto;
+        right: 100%;
+        border-left-color: transparent;
+        border-right-color: $charcoal-dark;
+      }
+    }
+
+    &:hover {
+      .back-to-top__label {
+        transform: translateX(100%) translateY(-50%);
+      }
+    }
+  }
+}
+
+/**
+ * Mobile Responsive
+ * Adjust positioning and size for small screens
+ */
+@media (max-width: $breakpoint-md) {
+  .back-to-top {
+    bottom: $space-4;
+    right: $space-4;
+    width: 44px;
+    height: 44px;
+
+    &__progress {
+      width: 44px;
+      height: 44px;
+    }
+
+    &__icon {
+      width: 20px;
+      height: 20px;
+    }
+
+    // Hide label on mobile (saves space)
+    &__label {
+      display: none;
+    }
+  }
+
+  [dir="rtl"] {
+    .back-to-top {
+      right: auto;
+      left: $space-4;
+    }
+  }
+}
+
+/**
+ * Small Mobile (< 375px)
+ * Further size reduction for very small screens
+ */
+@media (max-width: $breakpoint-sm) {
+  .back-to-top {
+    bottom: $space-3;
+    right: $space-3;
+    width: 40px;
+    height: 40px;
+
+    &__progress {
+      width: 40px;
+      height: 40px;
+
+      &-bg, &-fill {
+        r: 17;
+      }
+    }
+
+    &__icon {
+      width: 18px;
+      height: 18px;
+    }
+  }
+
+  [dir="rtl"] {
+    .back-to-top {
+      right: auto;
+      left: $space-3;
+    }
+  }
+}
+
+/**
+ * Reduced Motion Preference
+ * Respect user's motion preferences
+ */
+@media (prefers-reduced-motion: reduce) {
+  .back-to-top {
+    transition: opacity $transition-fast $ease-in-out;
+
+    &:hover {
+      transform: none;
+    }
+
+    &__icon {
+      animation: none;
+    }
+
+    &__progress-fill {
+      transition: none;
+    }
+  }
+}
+
+/**
+ * Print Styles
+ * Hide back-to-top button when printing
+ */
+@media print {
+  .back-to-top {
+    display: none !important;
+  }
+}

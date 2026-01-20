@@ -1,0 +1,24 @@
+<div class="theme-title" [ngClass]="'theme-title--' + variant">
+  <!-- Icon display (if variant is 'with-icon' and icon is provided) -->
+  <div class="theme-title__icon" *ngIf="variant === 'with-icon' && icon">
+    <span class="theme-title__icon-text">{{ icon }}</span>
+  </div>
+
+  <!-- Title content wrapper -->
+  <div class="theme-title__content">
+    <!-- Main title -->
+    <h2 class="theme-title__heading">
+      <span class="theme-title__text">
+        {{ language === 'ar' && titleAr ? titleAr : title }}
+      </span>
+
+      <!-- Decorative line for centered variant -->
+      <span class="theme-title__decoration" *ngIf="variant === 'centered'"></span>
+    </h2>
+
+    <!-- Optional subtitle -->
+    <p class="theme-title__subtitle" *ngIf="subtitle || subtitleAr">
+      {{ language === 'ar' && subtitleAr ? subtitleAr : subtitle }}
+    </p>
+  </div>
+</div>

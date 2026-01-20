@@ -1,0 +1,117 @@
+<div class="help-page">
+  <!-- Hero Section -->
+  <section class="hero-section">
+    <div class="container mx-auto px-4 py-16 text-center">
+      <h1 class="hero-title">Help & Support</h1>
+      <h2 class="hero-subtitle-ar">المساعدة والدعم</h2>
+      <p class="hero-description">
+        Find answers to frequently asked questions about SouqSyria
+      </p>
+
+      <!-- Search Bar -->
+      <div class="search-container">
+        <mat-form-field appearance="outline" class="search-field">
+          <mat-label>Search for help</mat-label>
+          <input
+            matInput
+            [(ngModel)]="searchQuery"
+            (ngModelChange)="onSearchChange()"
+            placeholder="e.g., shipping, payment, authenticity">
+          <mat-icon matPrefix>search</mat-icon>
+          @if (searchQuery()) {
+            <button matSuffix mat-icon-button (click)="clearSearch()">
+              <mat-icon>close</mat-icon>
+            </button>
+          }
+        </mat-form-field>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ Categories -->
+  <section class="faq-section">
+    <div class="container mx-auto px-4 py-12">
+      <!-- Quick Links -->
+      <div class="quick-links">
+        <button
+          mat-stroked-button
+          *ngFor="let cat of categories"
+          [class.active]="selectedCategory() === cat.id"
+          (click)="filterByCategory(cat.id)">
+          <mat-icon>{{ cat.icon }}</mat-icon>
+          {{ cat.name }}
+        </button>
+      </div>
+
+      <!-- FAQ Accordion -->
+      <div class="faq-accordion">
+        @if (filteredFaqs().length === 0) {
+          <div class="no-results">
+            <mat-icon>search_off</mat-icon>
+            <h3>No results found</h3>
+            <p>Try different keywords or browse all categories</p>
+            <button mat-raised-button color="primary" (click)="clearSearch()">
+              Show All FAQs
+            </button>
+          </div>
+        } @else {
+          <mat-accordion multi>
+            @for (faq of filteredFaqs(); track faq.id) {
+              <mat-expansion-panel>
+                <mat-expansion-panel-header>
+                  <mat-panel-title>
+                    <mat-icon class="category-icon">{{ getCategoryIcon(faq.category) }}</mat-icon>
+                    <span>{{ faq.question }}</span>
+                  </mat-panel-title>
+                </mat-expansion-panel-header>
+
+                <div class="faq-answer" [innerHTML]="faq.answer"></div>
+
+                @if (faq.relatedLinks && faq.relatedLinks.length > 0) {
+                  <div class="related-links">
+                    <strong>Related:</strong>
+                    @for (link of faq.relatedLinks; track link.text) {
+                      <a [routerLink]="link.url">{{ link.text }}</a>
+                    }
+                  </div>
+                }
+              </mat-expansion-panel>
+            }
+          </mat-accordion>
+        }
+      </div>
+    </div>
+  </section>
+
+  <!-- Contact Support Section -->
+  <section class="support-section">
+    <div class="container mx-auto px-4 py-12 text-center">
+      <mat-icon class="support-icon">support_agent</mat-icon>
+      <h2 class="support-title">Still need help?</h2>
+      <p class="support-description">
+        Our customer support team is available to assist you
+      </p>
+      <div class="support-actions">
+        <button mat-raised-button color="primary" routerLink="/contact">
+          <mat-icon>email</mat-icon>
+          Contact Support
+        </button>
+        <a href="https://wa.me/963991234567" target="_blank" rel="noopener">
+          <button mat-stroked-button>
+            <mat-icon>whatsapp</mat-icon>
+            WhatsApp Chat
+          </button>
+        </a>
+      </div>
+
+      <div class="support-hours">
+        <mat-icon>schedule</mat-icon>
+        <div>
+          <strong>Customer Service Hours</strong>
+          <p>Sunday - Thursday: 9:00 AM - 6:00 PM (Damascus Time)</p>
+          <p>Response time: Within 24 hours</p>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>

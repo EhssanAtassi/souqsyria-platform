@@ -1,0 +1,56 @@
+<!--
+  Confirmation Dialog Template
+  Syrian Golden Wheat themed confirmation dialog with bilingual support
+-->
+
+<div class="confirmation-dialog" [class.confirmation-dialog--rtl]="data.language === 'ar'">
+  <!-- Dialog Header -->
+  <div class="confirmation-dialog__header">
+    <!-- Optional Icon -->
+    <div *ngIf="data.icon" class="confirmation-dialog__icon" [ngClass]="data.iconColor">
+      <mat-icon>{{ data.icon }}</mat-icon>
+    </div>
+
+    <!-- Title -->
+    <h2 mat-dialog-title class="confirmation-dialog__title">
+      {{ getDisplayText(data.title, data.titleAr) }}
+    </h2>
+
+    <!-- Close Button -->
+    <button
+      mat-icon-button
+      class="confirmation-dialog__close"
+      (click)="onCancel()"
+      [attr.aria-label]="data.language === 'ar' ? 'إغلاق' : 'Close'">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+
+  <!-- Dialog Content -->
+  <mat-dialog-content class="confirmation-dialog__content">
+    <p class="confirmation-dialog__message">
+      {{ getDisplayText(data.message, data.messageAr) }}
+    </p>
+  </mat-dialog-content>
+
+  <!-- Dialog Actions -->
+  <mat-dialog-actions class="confirmation-dialog__actions">
+    <!-- Cancel Button (left/right depending on language) -->
+    <button
+      mat-stroked-button
+      class="confirmation-dialog__button confirmation-dialog__button--cancel"
+      (click)="onCancel()"
+      cdkFocusInitial>
+      {{ getDisplayText(data.cancelText || 'Cancel', data.cancelTextAr || 'إلغاء') }}
+    </button>
+
+    <!-- Confirm Button -->
+    <button
+      mat-raised-button
+      [color]="data.confirmColor"
+      class="confirmation-dialog__button confirmation-dialog__button--confirm"
+      (click)="onConfirm()">
+      {{ getDisplayText(data.confirmText || 'Confirm', data.confirmTextAr || 'تأكيد') }}
+    </button>
+  </mat-dialog-actions>
+</div>

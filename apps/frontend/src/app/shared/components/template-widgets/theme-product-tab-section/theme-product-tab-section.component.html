@@ -1,0 +1,60 @@
+<div class="theme-product-tab-section">
+  <!-- Section title -->
+  <div class="theme-product-tab-section__header" *ngIf="title">
+    <app-theme-title
+      [title]="title"
+      [titleAr]="titleAr"
+      [subtitle]="subtitle"
+      [subtitleAr]="subtitleAr"
+      [variant]="'basic'"
+      [language]="language">
+    </app-theme-title>
+  </div>
+
+  <!-- Loading state -->
+  <div class="theme-product-tab-section__loading" *ngIf="isLoading()">
+    <p>Loading categories...</p>
+  </div>
+
+  <!-- Tabbed content -->
+  <mat-tab-group
+    class="theme-product-tab-section__tabs"
+    *ngIf="!isLoading() && categoryTabs().length > 0"
+    [selectedIndex]="selectedTabIndex()"
+    (selectedIndexChange)="onTabChange($event)"
+    mat-stretch-tabs="false"
+    mat-align-tabs="start">
+
+    <mat-tab *ngFor="let tab of categoryTabs()" [label]="getTabLabel(tab)">
+      <!-- Tab icon (if provided) -->
+      <ng-template mat-tab-label>
+        <span class="theme-product-tab-section__tab-label">
+          <span class="theme-product-tab-section__tab-icon" *ngIf="tab.icon">
+            {{ tab.icon }}
+          </span>
+          {{ getTabLabel(tab) }}
+        </span>
+      </ng-template>
+
+      <!-- Products for this tab -->
+      <div class="theme-product-tab-section__content">
+        <app-theme-product
+          [categorySlug]="tab.categorySlug"
+          [limit]="productsPerTab"
+          [columns]="columns"
+          [language]="language"
+          [displayMode]="'grid'"
+          [showAddToCart]="showAddToCart"
+          [showWishlist]="showWishlist">
+        </app-theme-product>
+      </div>
+    </mat-tab>
+  </mat-tab-group>
+
+  <!-- Empty state -->
+  <div
+    class="theme-product-tab-section__empty"
+    *ngIf="!isLoading() && categoryTabs().length === 0">
+    <p>{{ language === 'ar' ? 'لا توجد فئات لعرضها' : 'No categories available' }}</p>
+  </div>
+</div>

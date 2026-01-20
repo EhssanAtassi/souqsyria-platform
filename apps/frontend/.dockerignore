@@ -1,0 +1,59 @@
+# Dependencies
+node_modules
+npm-debug.log
+yarn-error.log
+
+# Build output
+dist
+.angular
+.cache
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# IDE
+.idea
+.vscode
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Git
+.git
+.gitignore
+.gitattributes
+
+# Testing
+coverage
+.nyc_output
+*.spec.ts
+karma.conf.js
+test
+
+# Documentation
+*.md
+README.md
+docs
+
+# Docker
+Dockerfile
+.dockerignore
+docker-compose*.yml
+
+# Logs
+logs
+*.log
+
+# Temporary files
+tmp
+temp
+
+# Angular specific
+.editorconfig
+.browserslistrc

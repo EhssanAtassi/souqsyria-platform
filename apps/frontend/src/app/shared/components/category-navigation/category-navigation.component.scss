@@ -1,0 +1,497 @@
+/**
+ * SouqSyria Category Navigation Component Styles
+ * @description Styles for desktop category navigation with Syrian e-commerce theme
+ * @author SouqSyria Development Team
+ * @version 1.0.0
+ */
+
+// Import Tailwind utilities and design tokens
+@import 'tailwindcss/utilities';
+
+// Component-scoped styles
+.sq-category-nav {
+  position: relative;
+  background: linear-gradient(135deg, theme('colors.primary.700'), theme('colors.primary.800'));
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  z-index: 900;
+  
+  // RTL Layout Support
+  &.rtl {
+    direction: rtl;
+    
+    .sq-categories-btn {
+      .mat-icon:first-child {
+        margin-left: 0.5rem;
+        margin-right: 0;
+      }
+      
+      .mat-icon:last-child {
+        margin-right: 0.25rem;
+        margin-left: 0;
+      }
+    }
+    
+    .sq-promo-link {
+      .mat-icon {
+        margin-left: 0.25rem;
+        margin-right: 0;
+      }
+    }
+  }
+}
+
+// Container utility with responsive padding
+.sq-container {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 1rem;
+  
+  @media (min-width: 768px) {
+    padding: 0 1.5rem;
+  }
+  
+  @media (min-width: 1024px) {
+    padding: 0 2rem;
+  }
+  
+  @media (min-width: 1280px) {
+    padding: 0 2.5rem;
+  }
+}
+
+// All Categories Button Styles
+.sq-categories-btn {
+  background: rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  backdrop-filter: blur(10px);
+  position: relative;
+  overflow: hidden;
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, 
+      transparent, 
+      rgba(255, 255, 255, 0.1), 
+      transparent
+    );
+    transition: left 0.5s ease;
+  }
+  
+  &:hover {
+    background: rgba(255, 255, 255, 0.15);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    
+    &::before {
+      left: 100%;
+    }
+  }
+  
+  &:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+  }
+  
+  // Icon animations
+  .mat-icon {
+    transition: transform 0.2s ease;
+  }
+  
+  &:hover .mat-icon:last-child {
+    transform: rotate(180deg);
+  }
+}
+
+// Category Navigation Items with enhanced hover
+.sq-nav-category-item {
+  position: relative;
+  transition: all 0.2s ease;
+
+  // Extend hover area slightly downward to bridge gap
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: transparent;
+    pointer-events: auto;
+  }
+
+  &:hover {
+    transform: translateY(-1px);
+  }
+
+  // Active state styling
+  &.active {
+    &::before {
+      content: '';
+      position: absolute;
+      bottom: -2px;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: theme('colors.primary.200');
+    }
+  }
+
+  // Ensure smooth hover state management
+  .sq-category-item {
+    position: relative;
+    z-index: 10;
+    padding: 0.75rem 1rem;
+    margin: 0 0.25rem;
+    border-radius: 6px;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+  }
+}
+
+// Promotional Links Styling
+.sq-promo-link {
+  position: relative;
+  padding: 0.5rem 0;
+  text-decoration: none;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border-radius: 4px;
+  
+  &:hover {
+    color: theme('colors.white');
+    text-shadow: 0 0 8px rgba(255, 255, 255, 0.3);
+    
+    .mat-icon {
+      transform: scale(1.1);
+      filter: drop-shadow(0 0 4px rgba(255, 255, 255, 0.3));
+    }
+  }
+  
+  &:focus-visible {
+    outline: 2px solid theme('colors.primary.200');
+    outline-offset: 2px;
+  }
+  
+  // Flash sale special effects
+  &:last-child {
+    .mat-icon {
+      color: theme('colors.yellow.400');
+      filter: drop-shadow(0 0 2px rgba(255, 193, 7, 0.5));
+    }
+    
+    &:hover .mat-icon {
+      color: theme('colors.yellow.300');
+      animation: pulse 1s infinite;
+    }
+  }
+}
+
+// Mega Menu Container with gap bridging
+.sq-mega-menu-container {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  z-index: 950;
+  animation: slideDownFadeIn 0.2s ease-out;
+
+  // Create invisible bridge to prevent flickering
+  &::before {
+    content: '';
+    position: absolute;
+    top: -4px; // Bridge the gap between nav and menu
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: transparent;
+    pointer-events: auto;
+  }
+
+  // Smooth transitions
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 0.2s ease, transform 0.2s ease;
+
+  &[style*="display: none"] {
+    opacity: 0;
+    transform: translateY(-8px);
+    pointer-events: none;
+  }
+}
+
+// Categories Dropdown Menu - Professional 4-Column Layout
+::ng-deep .sq-categories-dropdown {
+  .mat-mdc-menu-content {
+    padding: 0 !important;
+    border-radius: 8px;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+    border: 1px solid theme('colors.gray.200');
+    overflow: hidden;
+    background: white;
+    min-width: 1000px !important;
+    max-width: 1100px !important;
+    max-height: 300px !important;
+
+    // Override Material's default button styles within the menu
+    .mat-mdc-menu-item {
+      padding: 0 !important;
+      height: auto !important;
+      min-height: auto !important;
+      line-height: inherit !important;
+
+      &:hover {
+        background: transparent !important;
+      }
+    }
+
+    .sq-categories-mega-dropdown {
+      // Professional category cards styling
+      .sq-compact-category-card {
+        text-align: left;
+        justify-content: center;
+        min-height: 80px !important;
+        height: auto !important;
+        position: relative;
+        overflow: hidden;
+        padding: 16px !important;
+
+        // Hover effects
+        &:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 6px 20px rgba(245, 158, 11, 0.2);
+          border-color: theme('colors.amber.300') !important;
+          background: theme('colors.amber.50') !important;
+        }
+
+        &:active {
+          transform: translateY(-1px);
+        }
+      }
+
+      // Grid layout ensuring 4 columns
+      .grid {
+        gap: 0.75rem;
+        grid-template-columns: repeat(4, 1fr);
+        min-height: 160px; // Ensure space for 2 rows
+      }
+
+      // Force responsive behavior only when absolutely necessary
+      @media (max-width: 1000px) {
+        .grid {
+          grid-template-columns: repeat(3, 1fr);
+        }
+      }
+
+      @media (max-width: 750px) {
+        .grid {
+          grid-template-columns: repeat(2, 1fr);
+        }
+      }
+    }
+
+    // Custom scrollbar for overflow content
+    * {
+      &::-webkit-scrollbar {
+        width: 6px;
+      }
+
+      &::-webkit-scrollbar-track {
+        background: theme('colors.gray.100');
+        border-radius: 3px;
+      }
+
+      &::-webkit-scrollbar-thumb {
+        background: linear-gradient(180deg, theme('colors.amber.400'), theme('colors.orange.500'));
+        border-radius: 3px;
+
+        &:hover {
+          background: linear-gradient(180deg, theme('colors.amber.500'), theme('colors.orange.600'));
+        }
+      }
+    }
+  }
+}
+
+// Professional dropdown animation
+.sq-categories-mega-dropdown {
+  animation: dropdownSlideIn 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+@keyframes dropdownSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-15px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+// Enhanced category card hover states
+.sq-compact-category-card {
+  // Ripple effect on click
+  &:active {
+    position: relative;
+
+    &::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 0;
+      height: 0;
+      border-radius: 50%;
+      background: rgba(245, 158, 11, 0.3);
+      transform: translate(-50%, -50%);
+      animation: ripple 0.6s ease-out;
+    }
+  }
+}
+
+@keyframes ripple {
+  to {
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+  }
+}
+
+// Dropdown Category Items
+.sq-dropdown-category-item {
+  transition: all 0.2s ease;
+  
+  &:hover {
+    background: theme('colors.primary.50');
+    transform: translateX(4px);
+  }
+}
+
+// Animation Keyframes
+@keyframes slideDownFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+    filter: drop-shadow(0 0 2px rgba(255, 193, 7, 0.5));
+  }
+  50% {
+    transform: scale(1.05);
+    filter: drop-shadow(0 0 8px rgba(255, 193, 7, 0.8));
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    left: -100%;
+  }
+  100% {
+    left: 100%;
+  }
+}
+
+// Responsive Design
+@media (max-width: 1023px) {
+  .sq-category-nav {
+    display: none !important;
+  }
+}
+
+@media (min-width: 1024px) and (max-width: 1279px) {
+  .sq-container {
+    .flex {
+      space-x: 1.5rem;
+      
+      &.rtl {
+        space-x-reverse: 1.5rem;
+      }
+    }
+  }
+  
+  .sq-categories-btn {
+    font-size: 0.875rem;
+    padding: 0.5rem 0.75rem;
+  }
+  
+  .sq-promo-link {
+    font-size: 0.813rem;
+  }
+}
+
+// High Contrast Mode Support
+@media (prefers-contrast: high) {
+  .sq-category-nav {
+    background: theme('colors.black');
+    border-bottom: 2px solid theme('colors.white');
+  }
+  
+  .sq-categories-btn {
+    background: theme('colors.gray.800');
+    border: 2px solid theme('colors.white');
+    
+    &:hover {
+      background: theme('colors.gray.700');
+    }
+  }
+  
+  .sq-promo-link {
+    &:hover {
+      background: theme('colors.white');
+      color: theme('colors.black');
+    }
+  }
+}
+
+// Reduced Motion Support
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  
+  .sq-categories-btn::before {
+    display: none;
+  }
+}
+
+// Print Styles
+@media print {
+  .sq-category-nav {
+    display: none;
+  }
+}
+
+// Focus Management
+.sq-category-nav {
+  button,
+  a {
+    &:focus-visible {
+      outline: 2px solid theme('colors.primary.200');
+      outline-offset: 2px;
+      border-radius: 4px;
+      position: relative;
+      z-index: 10;
+    }
+  }
+}

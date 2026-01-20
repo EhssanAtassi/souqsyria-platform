@@ -1,0 +1,8 @@
+<svg width="320" height="180" xmlns="http://www.w3.org/2000/svg">
+  <rect width="320" height="180" fill="#f8f9fa"/>
+  <rect x="10" y="10" width="300" height="160" fill="#e9ecef" stroke="#dee2e6" stroke-width="2" stroke-dasharray="5,5"/>
+  <text x="160" y="85" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" fill="#6c757d">🖼️</text>
+  <text x="160" y="105" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" fill="#6c757d">Image not available</text>
+  <text x="160" y="120" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#adb5bd">الصورة غير متاحة</text>
+</svg>
+

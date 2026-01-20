@@ -1,0 +1,41 @@
+.rtl {
+  direction: rtl;
+  text-align: right;
+}
+
+.bg-damascus-gold {
+  background: linear-gradient(135deg, #D4AF37, #FFD700);
+}
+
+.bg-aleppo-green {
+  background: linear-gradient(135deg, #228B22, #32CD32);
+}
+
+mat-card {
+  border-radius: 12px;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.mat-mdc-tab-group .mat-mdc-tab-header {
+  border-bottom: 2px solid #f3f4f6;
+}
+
+.mat-mdc-tab .mdc-tab__text-label {
+  font-weight: 500;
+}
+
+mat-form-field {
+  width: 100%;
+}
+
+.hidden {
+  display: none;
+}
+
+mat-slide-toggle.mat-checked .mat-slide-toggle-bar {
+  background-color: rgba(212, 175, 55, 0.5);
+}
+
+mat-slide-toggle.mat-checked .mat-slide-toggle-thumb {
+  background-color: #D4AF37;
+}

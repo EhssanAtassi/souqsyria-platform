@@ -1,0 +1,602 @@
+// Promotional Offers Component Styles - Syrian Marketplace
+// Damascus gold theme with bilingual RTL support
+
+.promotional-offers-container {
+  @apply min-h-screen bg-gradient-to-br from-gray-50 to-white;
+  font-family: 'Inter', 'Cairo', sans-serif;
+
+  // RTL Layout Support
+  &.rtl {
+    direction: rtl;
+    
+    .offers-header {
+      .header-content {
+        .title-section {
+          text-align: right;
+        }
+      }
+    }
+
+    .offer-card {
+      .offer-details {
+        text-align: right;
+      }
+    }
+
+    .coupon-card {
+      .coupon-header {
+        flex-direction: row-reverse;
+      }
+    }
+  }
+}
+
+// Header Section
+.offers-header {
+  @apply bg-white shadow-sm mb-8;
+  background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 50%, #60a5fa 100%);
+  color: white;
+  padding: 2rem 1.5rem;
+
+  .header-content {
+    @apply max-w-7xl mx-auto flex justify-between items-start mb-6;
+
+    .title-section {
+      .main-title {
+        @apply text-3xl font-bold mb-2;
+        background: linear-gradient(45deg, #D4AF37, #FFD700);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
+
+      .subtitle {
+        @apply text-blue-100 text-lg;
+      }
+    }
+
+    .language-toggle {
+      .language-buttons {
+        @apply flex gap-1 bg-white bg-opacity-10 rounded-lg p-1;
+
+        button {
+          @apply px-4 py-2 rounded-lg text-white transition-all;
+
+          &.active {
+            @apply bg-yellow-500 text-blue-900 font-semibold;
+            background: #D4AF37;
+          }
+
+          &:hover:not(.active) {
+            @apply bg-white bg-opacity-20;
+          }
+        }
+      }
+    }
+  }
+
+  // Loyalty Status Card
+  .loyalty-status-card {
+    @apply max-w-7xl mx-auto;
+    background: linear-gradient(135deg, #D4AF37 0%, #FFD700 50%, #F4D03F 100%);
+    border-radius: 16px;
+    color: #1a1a1a;
+
+    &.damascus-gradient {
+      box-shadow: 0 10px 30px rgba(212, 175, 55, 0.3);
+    }
+
+    .loyalty-header {
+      @apply flex justify-between items-center mb-4;
+
+      .loyalty-info {
+        @apply flex items-center gap-4;
+
+        .loyalty-icon {
+          @apply text-4xl text-amber-800;
+        }
+
+        .loyalty-text {
+          h3 {
+            @apply text-xl font-semibold text-amber-900;
+          }
+
+          .points-display {
+            @apply text-3xl font-bold text-amber-800;
+          }
+        }
+      }
+
+      .membership-tier {
+        .bronze-tier {
+          @apply bg-amber-600 text-white;
+        }
+
+        .silver-tier {
+          @apply bg-gray-400 text-white;
+        }
+
+        .gold-tier {
+          @apply bg-yellow-500 text-white;
+        }
+
+        .platinum-tier {
+          @apply bg-purple-600 text-white;
+        }
+      }
+    }
+
+    .progress-section {
+      @apply mb-4;
+
+      .progress-label {
+        @apply text-amber-900 mb-2 font-medium;
+      }
+
+      .loyalty-progress {
+        height: 8px;
+        border-radius: 4px;
+        background: rgba(0, 0, 0, 0.1);
+
+        ::ng-deep .mat-progress-bar-fill::after {
+          background: linear-gradient(90deg, #B8860B, #DAA520);
+        }
+      }
+
+      .progress-text {
+        @apply text-sm text-amber-800 mt-1;
+      }
+    }
+
+    .total-savings {
+      @apply flex items-center gap-2 p-3 bg-white bg-opacity-20 rounded-lg;
+
+      mat-icon {
+        @apply text-green-700;
+      }
+
+      span {
+        @apply text-amber-900 font-medium;
+
+        strong {
+          @apply text-green-700 text-lg;
+        }
+      }
+    }
+  }
+}
+
+// Tabs Section
+.offers-tabs {
+  @apply max-w-7xl mx-auto px-4;
+
+  ::ng-deep .mat-tab-header {
+    border-bottom: 2px solid #D4AF37;
+
+    .mat-tab-label {
+      @apply flex items-center gap-2 font-medium;
+      min-width: auto;
+
+      .offers-count {
+        @apply bg-blue-500 text-white text-xs;
+        border-radius: 12px;
+        padding: 2px 8px;
+
+        &.urgent {
+          @apply bg-red-500 animate-pulse;
+        }
+      }
+
+      &.mat-tab-label-active {
+        color: #D4AF37;
+        font-weight: 600;
+      }
+    }
+  }
+
+  .tab-content {
+    @apply py-6;
+
+    // Offers Grid Layout
+    .offers-grid {
+      @apply grid gap-6;
+      grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    }
+
+    // Empty State
+    .empty-state {
+      @apply text-center py-12;
+
+      mat-icon {
+        @apply text-6xl text-gray-400 mb-4;
+      }
+
+      h3 {
+        @apply text-xl font-medium text-gray-600 mb-2;
+      }
+
+      p {
+        @apply text-gray-500;
+      }
+    }
+  }
+}
+
+// Offer Cards
+.offer-card {
+  @apply relative overflow-hidden transition-all duration-300;
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+  }
+
+  &.expired {
+    @apply opacity-60 grayscale;
+
+    .offer-image img {
+      filter: grayscale(100%);
+    }
+  }
+
+  // Personal Offers
+  &.personal-offer {
+    border-top: 4px solid #D4AF37;
+
+    .offer-image {
+      position: relative;
+      height: 200px;
+      overflow: hidden;
+
+      img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.3s ease;
+      }
+
+      &:hover img {
+        transform: scale(1.05);
+      }
+
+      .discount-badge {
+        @apply absolute top-3 right-3 bg-red-500 text-white px-3 py-1 rounded-full font-bold;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+      }
+    }
+
+    ::ng-deep .mat-card-header-text {
+      .mat-card-title {
+        @apply text-lg font-semibold text-gray-800;
+      }
+
+      .mat-card-subtitle {
+        @apply text-gray-600;
+      }
+    }
+
+    .offer-details {
+      .validity-info {
+        @apply flex items-center gap-2 mb-3;
+
+        mat-icon {
+          @apply text-orange-500 text-sm;
+        }
+
+        .expired-text {
+          @apply text-red-500 font-medium;
+        }
+      }
+
+      .offer-code {
+        @apply mb-2;
+
+        mat-chip {
+          @apply bg-blue-100 text-blue-800;
+        }
+      }
+
+      .min-purchase {
+        @apply text-sm text-gray-500;
+      }
+    }
+  }
+
+  // Seasonal Offers
+  &.seasonal-offer {
+    border-top: 4px solid #10B981;
+
+    .cultural-badge {
+      @apply absolute top-3 left-3 bg-green-500 text-white px-3 py-1 rounded-full text-sm font-medium;
+    }
+
+    .discount-highlight {
+      @apply bg-green-50 p-4 rounded-lg mb-4 text-center;
+
+      .discount-text {
+        @apply text-3xl font-bold text-green-600;
+      }
+
+      .discount-label {
+        @apply text-green-600 font-medium ml-2;
+      }
+    }
+  }
+
+  // Flash Sales
+  &.flash-sale {
+    border-top: 4px solid #EF4444;
+    background: linear-gradient(135deg, #FEF7F7 0%, #FFFFFF 100%);
+
+    .flash-header {
+      @apply flex justify-between items-center p-4 bg-red-50;
+
+      .flash-badge {
+        @apply bg-red-500 text-white;
+      }
+
+      .countdown {
+        @apply bg-red-500 text-white px-3 py-1 rounded-full text-sm font-bold animate-pulse;
+      }
+    }
+
+    .discount-badge.flash {
+      @apply bg-red-600 text-white text-lg;
+      animation: pulse 2s infinite;
+    }
+
+    .stock-info {
+      @apply bg-orange-50 p-3 rounded-lg;
+
+      .stock-progress {
+        @apply mb-2;
+        height: 6px;
+
+        ::ng-deep .mat-progress-bar-fill::after {
+          background: linear-gradient(90deg, #F59E0B, #EAB308);
+        }
+      }
+
+      .stock-text {
+        @apply text-orange-700 font-medium text-center;
+      }
+    }
+  }
+
+  // Category Offers
+  &.category-offer {
+    border-top: 4px solid #8B5CF6;
+
+    .category-badge {
+      @apply mb-4;
+
+      mat-chip {
+        @apply bg-purple-100 text-purple-800;
+      }
+    }
+  }
+}
+
+// Referral Card
+.referral-card {
+  @apply mb-8;
+  background: linear-gradient(135deg, #3B82F6 0%, #1E40AF 100%);
+  color: white;
+  border-radius: 16px;
+
+  ::ng-deep .mat-card-header-text {
+    .mat-card-title {
+      @apply text-white flex items-center gap-3;
+
+      mat-icon {
+        @apply text-2xl;
+      }
+    }
+  }
+
+  .referral-code {
+    @apply my-4;
+
+    mat-form-field {
+      @apply w-full;
+
+      ::ng-deep {
+        .mat-form-field-outline {
+          color: rgba(255, 255, 255, 0.3);
+        }
+
+        .mat-form-field-label {
+          color: rgba(255, 255, 255, 0.8);
+        }
+
+        input {
+          color: white;
+          font-weight: 600;
+        }
+
+        .mat-icon {
+          color: white;
+          cursor: pointer;
+
+          &:hover {
+            color: #D4AF37;
+          }
+        }
+      }
+    }
+  }
+}
+
+// Coupons Section
+.coupons-section {
+  h3 {
+    @apply text-xl font-semibold text-gray-800 mb-6;
+  }
+
+  .coupons-list {
+    @apply grid gap-4;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  }
+}
+
+.coupon-card {
+  @apply border-l-4 border-blue-500;
+  transition: all 0.3s ease;
+
+  &:hover {
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+  }
+
+  &.used {
+    @apply opacity-60 bg-gray-50;
+    border-left-color: #9CA3AF;
+  }
+
+  &.insufficient-points {
+    @apply opacity-50;
+    border-left-color: #F87171;
+  }
+
+  .coupon-header {
+    @apply flex justify-between items-start mb-4;
+
+    .coupon-info {
+      h4 {
+        @apply font-semibold text-gray-800 mb-1;
+      }
+
+      .coupon-code {
+        @apply bg-gray-100 px-3 py-1 rounded text-sm font-mono font-bold text-gray-700;
+      }
+    }
+
+    .coupon-discount {
+      @apply text-center;
+
+      .discount-value {
+        @apply text-2xl font-bold text-blue-600;
+      }
+
+      small {
+        @apply text-gray-500 block;
+      }
+    }
+  }
+
+  .coupon-details {
+    @apply space-y-2;
+
+    .coupon-source {
+      .referral-source {
+        @apply bg-green-100 text-green-800;
+      }
+
+      .loyalty-source {
+        @apply bg-purple-100 text-purple-800;
+      }
+
+      .birthday-source {
+        @apply bg-pink-100 text-pink-800;
+      }
+
+      .seasonal-source {
+        @apply bg-orange-100 text-orange-800;
+      }
+    }
+
+    .coupon-cost {
+      @apply flex items-center gap-2 text-purple-600;
+
+      mat-icon {
+        @apply text-sm;
+      }
+    }
+
+    .coupon-validity {
+      @apply flex items-center gap-2 text-gray-500 text-sm;
+
+      mat-icon {
+        @apply text-sm;
+      }
+    }
+  }
+}
+
+// Loading State
+.loading-container {
+  @apply flex flex-col items-center justify-center py-12;
+
+  mat-spinner {
+    @apply mb-4;
+  }
+
+  p {
+    @apply text-gray-600;
+  }
+}
+
+// Responsive Design
+@media (max-width: 768px) {
+  .promotional-offers-container {
+    .offers-header {
+      padding: 1rem;
+
+      .header-content {
+        @apply flex-col gap-4;
+
+        .title-section .main-title {
+          @apply text-2xl;
+        }
+      }
+
+      .loyalty-status-card {
+        .loyalty-header {
+          @apply flex-col gap-4 text-center;
+        }
+      }
+    }
+
+    .offers-tabs {
+      @apply px-2;
+
+      .tab-content .offers-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .coupons-section .coupons-list {
+      grid-template-columns: 1fr;
+    }
+  }
+}
+
+// Dark Mode Support (optional)
+@media (prefers-color-scheme: dark) {
+  .promotional-offers-container {
+    @apply bg-gray-900;
+
+    .offer-card {
+      @apply bg-gray-800 text-white;
+      
+      &.personal-offer {
+        border-top-color: #D4AF37;
+      }
+    }
+
+    .coupons-section h3 {
+      @apply text-white;
+    }
+  }
+}
+
+// Animation Keyframes
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.8;
+  }
+}

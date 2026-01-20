@@ -1,0 +1,276 @@
+<!-- SouqSyria Syrian Marketplace Homepage - Pixorus-Inspired Modern Design -->
+
+<!-- ============================================ -->
+<!-- Hero Split Layout Section (E-commerce Style) -->
+<!-- ============================================ -->
+<section class="relative">
+  @if ((isLoadingHeroBanners$ | async)) {
+    <!-- Loading State -->
+    <div class="h-[450px] bg-neutral-100 animate-pulse flex items-center justify-center">
+      <div class="text-center">
+        <div class="inline-block w-12 h-12 border-4 border-golden-wheat-lighter border-t-golden-wheat-dark rounded-full animate-spin"></div>
+        <p class="text-neutral-600 mt-4">Loading hero banners...</p>
+      </div>
+    </div>
+  } @else if ((heroBannersError$ | async)) {
+    <!-- Error State -->
+    <div class="h-[450px] bg-red-50 border border-red-200 flex items-center justify-center">
+      <div class="text-center p-6">
+        <p class="text-red-800 mb-4">{{ heroBannersError$ | async }}</p>
+        <button
+          (click)="heroBannersService.loadActiveBanners(5)"
+          class="px-6 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors">
+          Retry Loading Banners
+        </button>
+      </div>
+    </div>
+  } @else {
+    <!-- Hero Split Layout with Live Data from Akita Store -->
+    <app-hero-split-layout [heroBannersFromApi]="(heroBanners$ | async) || []" />
+  }
+</section>
+
+<!-- Product Offers Row - Hot Deals (Figma Design) -->
+<app-product-offers-row
+  [offers]="featuredOffers()"
+  [sectionTitle]="'Hot Deals This Week'"
+  [sectionTitleAr]="'أفضل العروض هذا الأسبوع'"
+  (offerClick)="onProductOfferClick($event)" />
+
+<!-- Category Showcase Sections (Figma Design) -->
+@for (section of categoryShowcaseSections(); track section.id) {
+  <app-category-showcase-section
+    [section]="section"
+    (bannerClick)="onShowcaseBannerClick($event)"
+    (subcategoryClick)="onShowcaseSubcategoryClick($event)" />
+}
+
+<!-- Featured Categories Section -->
+<section class="py-16 bg-white">
+  <div class="container mx-auto px-4">
+    <!-- Section Header -->
+    <div class="text-center mb-12">
+      <h2 class="text-3xl md:text-4xl font-bold text-charcoal-dark mb-2 font-display">
+        Shop by Category
+      </h2>
+      <p class="text-lg text-neutral-600">
+        Explore our curated collection of Syrian heritage products
+      </p>
+    </div>
+
+    <!-- Categories Grid -->
+    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
+      @for (category of featuredCategories; track category.name) {
+        <button
+          (click)="onFeaturedCategoryClick(category)"
+          class="group relative bg-white rounded-xl p-6 border border-neutral-200 hover:border-golden-wheat hover:shadow-lg transition-all duration-300 text-center">
+          <!-- Icon -->
+          <div class="w-16 h-16 mx-auto mb-4 rounded-full flex items-center justify-center text-white text-2xl"
+               [style.background-color]="category.color">
+            <span class="material-icons">{{ category.icon }}</span>
+          </div>
+
+          <!-- Category Name -->
+          <h3 class="text-sm font-semibold text-charcoal-dark mb-1 group-hover:text-golden-wheat-dark transition-colors">
+            {{ category.name }}
+          </h3>
+          <p class="text-xs text-neutral-600 font-arabic">
+            {{ category.nameAr }}
+          </p>
+
+          <!-- Discount Badge -->
+          @if (category.discount) {
+            <div class="absolute top-2 right-2 bg-deep-umber text-white text-xs font-bold px-2 py-1 rounded-full">
+              {{ category.discount }}
+            </div>
+          }
+        </button>
+      }
+    </div>
+  </div>
+</section>
+
+<!-- Featured Products Section -->
+<section class="py-16 bg-neutral-50">
+  <div class="container mx-auto px-4">
+    <!-- Section Header -->
+    <div class="flex justify-between items-center mb-12">
+      <div>
+        <h2 class="text-3xl md:text-4xl font-bold text-charcoal-dark mb-2 font-display">
+          Featured Products
+        </h2>
+        <p class="text-lg text-neutral-600">
+          Handpicked treasures from Syrian artisans
+        </p>
+      </div>
+      <button
+        (click)="onViewAllProducts()"
+        class="hidden md:block text-golden-wheat-dark font-semibold hover:text-golden-wheat transition-colors">
+        View All →
+      </button>
+    </div>
+
+    <!-- Products Grid -->
+    @if (isLoadingProducts()) {
+      <div class="text-center py-12">
+        <div class="inline-block w-12 h-12 border-4 border-golden-wheat-lighter border-t-golden-wheat-dark rounded-full animate-spin"></div>
+        <p class="text-neutral-600 mt-4">Loading products...</p>
+      </div>
+    } @else if (productsError()) {
+      <div class="bg-red-50 border border-red-200 rounded-lg p-6 text-center">
+        <p class="text-red-800 mb-4">{{ productsError() }}</p>
+        <button
+          (click)="onRetryLoadProducts()"
+          class="px-6 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors">
+          Retry
+        </button>
+      </div>
+    } @else if (featuredProducts().length > 0) {
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        @for (product of featuredProducts(); track product.id) {
+          <div
+            (click)="onProductGridClick(product)"
+            class="group bg-white rounded-xl overflow-hidden border border-neutral-200 hover:border-golden-wheat hover:shadow-xl transition-all duration-300 cursor-pointer">
+            <!-- Product Image -->
+            <div class="relative aspect-square bg-neutral-100 overflow-hidden">
+              <img
+                [src]="product.images[0].url"
+                [alt]="product.name"
+                class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
+
+              <!-- Badges -->
+              <div class="absolute top-3 left-3 flex flex-col gap-2">
+                @if (product.price.discount?.percentage) {
+                  <span class="bg-deep-umber text-white text-xs font-bold px-3 py-1 rounded-full">
+                    -{{ product.price.discount?.percentage }}%
+                  </span>
+                }
+                @if (product.authenticity && product.authenticity.unescoRecognition) {
+                  <span class="bg-golden-wheat text-white text-xs font-bold px-3 py-1 rounded-full">
+                    UNESCO
+                  </span>
+                }
+              </div>
+            </div>
+
+            <!-- Product Info -->
+            <div class="p-4">
+              <!-- Category -->
+              <p class="text-xs text-neutral-500 uppercase tracking-wide mb-2">
+                {{ product.category.name }}
+              </p>
+
+              <!-- Product Name -->
+              <h3 class="text-base font-semibold text-charcoal-dark mb-1 line-clamp-2 group-hover:text-golden-wheat-dark transition-colors">
+                {{ product.name }}
+              </h3>
+              <p class="text-sm text-neutral-600 font-arabic mb-3">
+                {{ product.nameArabic }}
+              </p>
+
+              <!-- Rating -->
+              <div class="flex items-center gap-2 mb-3">
+                <div class="flex items-center">
+                  @for (star of [1,2,3,4,5]; track star) {
+                    <svg class="w-4 h-4" [class.text-golden-wheat-dark]="star <= product.reviews.averageRating" [class.text-neutral-300]="star > product.reviews.averageRating" fill="currentColor" viewBox="0 0 20 20">
+                      <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                    </svg>
+                  }
+                </div>
+                <span class="text-xs text-neutral-600">
+                  ({{ product.reviews.totalReviews }})
+                </span>
+              </div>
+
+              <!-- Price & CTA -->
+              <div class="flex items-center justify-between">
+                <div>
+                  @if (product.price.originalPrice) {
+                    <p class="text-xs text-neutral-400 line-through">
+                      ${{ product.price.originalPrice }}
+                    </p>
+                  }
+                  <p class="text-lg font-bold text-charcoal-dark">
+                    ${{ product.price.amount }}
+                  </p>
+                </div>
+                <button
+                  (click)="onProductGridAddToCart(product); $event.stopPropagation()"
+                  class="px-4 py-2 bg-golden-wheat-dark text-white rounded-lg text-sm font-semibold hover:bg-golden-wheat transition-colors">
+                  Add
+                </button>
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+
+      <!-- View All Button (Mobile) -->
+      <div class="mt-8 text-center md:hidden">
+        <button
+          (click)="onViewAllProducts()"
+          class="px-8 py-3 border-2 border-golden-wheat text-golden-wheat-dark rounded-lg font-semibold hover:bg-golden-wheat-lighter transition-all">
+          View All Products
+        </button>
+      </div>
+    } @else {
+      <div class="text-center py-12">
+        <p class="text-neutral-600 text-lg">No products available at the moment</p>
+      </div>
+    }
+  </div>
+</section>
+
+<!-- Trust & Social Proof Section -->
+<section class="py-16 bg-white border-y border-neutral-200">
+  <div class="container mx-auto px-4">
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-8">
+      <div class="text-center">
+        <div class="text-4xl font-bold text-golden-wheat-dark mb-2">2000+</div>
+        <p class="text-neutral-600">Authentic Products</p>
+      </div>
+      <div class="text-center">
+        <div class="text-4xl font-bold text-golden-wheat-dark mb-2">500+</div>
+        <p class="text-neutral-600">Syrian Artisans</p>
+      </div>
+      <div class="text-center">
+        <div class="text-4xl font-bold text-golden-wheat-dark mb-2">50+</div>
+        <p class="text-neutral-600">Countries Served</p>
+      </div>
+      <div class="text-center">
+        <div class="text-4xl font-bold text-golden-wheat-dark mb-2">4.8★</div>
+        <p class="text-neutral-600">Customer Rating</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Newsletter Section -->
+<section class="py-16 bg-gradient-to-br from-golden-wheat-lighter to-neutral-50">
+  <div class="container mx-auto px-4">
+    <div class="max-w-2xl mx-auto text-center">
+      <h2 class="text-3xl md:text-4xl font-bold text-charcoal-dark mb-4 font-display">
+        Stay Connected
+      </h2>
+      <p class="text-lg text-neutral-600 mb-8">
+        Subscribe to receive updates on new arrivals, special offers, and Syrian heritage stories
+      </p>
+
+      <form class="flex flex-col sm:flex-row gap-4 max-w-md mx-auto">
+        <input
+          type="email"
+          placeholder="Enter your email"
+          class="flex-1 px-6 py-4 border border-neutral-300 rounded-lg focus:outline-none focus:border-golden-wheat focus:ring-2 focus:ring-golden-wheat-lighter">
+        <button
+          type="submit"
+          class="px-8 py-4 bg-golden-wheat-dark text-white rounded-lg font-semibold hover:bg-golden-wheat transition-colors whitespace-nowrap">
+          Subscribe
+        </button>
+      </form>
+
+      <p class="text-sm text-neutral-500 mt-4">
+        By subscribing, you agree to our Privacy Policy and Terms of Service
+      </p>
+    </div>
+  </div>
+</section>

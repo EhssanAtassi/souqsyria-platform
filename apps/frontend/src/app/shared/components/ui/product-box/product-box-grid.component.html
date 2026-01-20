@@ -1,0 +1,114 @@
+<!-- Product Card (Vertical Grid Layout) -->
+<div class="product-box">
+  <!-- Product Image Container -->
+  <div class="product-box__image-container">
+    <a [routerLink]="['/product', product.slug]" class="product-box__image-link">
+      <img
+        [src]="productImage"
+        [alt]="productName"
+        class="product-box__image"
+        loading="lazy">
+    </a>
+
+    <!-- Badges Overlay -->
+    <div class="product-box__badges">
+      <!-- UNESCO Badge -->
+      <app-badge
+        *ngIf="product.authenticity?.isUNESCO"
+        type="unesco"
+        [language]="language">
+      </app-badge>
+
+      <!-- Sale Badge -->
+      <app-badge
+        *ngIf="isOnSale && discountPercentage"
+        type="sale"
+        [value]="'-' + discountPercentage + '%'"
+        [language]="language">
+      </app-badge>
+
+      <!-- Artisan Badge -->
+      <app-badge
+        *ngIf="product.authenticity?.certified"
+        type="artisan"
+        [language]="language">
+      </app-badge>
+
+      <!-- Out of Stock Badge -->
+      <app-badge
+        *ngIf="product.inventory.quantity === 0"
+        type="out-of-stock"
+        [language]="language">
+      </app-badge>
+    </div>
+
+    <!-- Action Icons (Hover) -->
+    <div class="product-box__actions">
+      <button
+        type="button"
+        class="product-box__action-btn"
+        (click)="onAddToWishlist($event)"
+        [attr.aria-label]="language === 'ar' ? 'إضافة إلى المفضلة' : 'Add to Wishlist'">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+          <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" stroke="currentColor" stroke-width="2"/>
+        </svg>
+      </button>
+
+      <button
+        type="button"
+        class="product-box__action-btn"
+        (click)="onQuickView($event)"
+        [attr.aria-label]="language === 'ar' ? 'عرض سريع' : 'Quick View'">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+          <path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" stroke="currentColor" stroke-width="2"/>
+          <path d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" stroke="currentColor" stroke-width="2"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- Product Info -->
+  <div class="product-box__info">
+    <!-- Product Name -->
+    <h3 class="product-box__title">
+      <a [routerLink]="['/product', product.slug]">
+        {{ productName }}
+      </a>
+    </h3>
+
+    <!-- Price -->
+    <div class="product-box__price">
+      <span class="product-box__price-current">
+        {{ displayPrice | currency:'USD':'symbol':'1.2-2' }}
+      </span>
+      <span
+        *ngIf="isOnSale"
+        class="product-box__price-original">
+        {{ product.price.originalPrice | currency:'USD':'symbol':'1.2-2' }}
+      </span>
+    </div>
+
+    <!-- Rating (if available) -->
+    <div class="product-box__rating" *ngIf="product.reviews?.averageRating">
+      <div class="product-box__stars">
+        <span class="product-box__stars-filled" [style.width.%]="(product.reviews.averageRating / 5) * 100">
+          ★★★★★
+        </span>
+        <span class="product-box__stars-empty">★★★★★</span>
+      </div>
+      <span class="product-box__rating-count">({{ product.reviews.totalReviews || 0 }})</span>
+    </div>
+
+    <!-- Add to Cart Button -->
+    <button
+      type="button"
+      class="product-box__cart-btn"
+      [disabled]="product.inventory.quantity === 0"
+      (click)="onAddToCart($event)">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+        <path d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" stroke="currentColor" stroke-width="2"/>
+      </svg>
+      <span>{{ language === 'ar' ? 'أضف للسلة' : 'Add to Cart' }}</span>
+    </button>
+  </div>
+</div>

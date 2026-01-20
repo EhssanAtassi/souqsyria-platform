@@ -1,0 +1,468 @@
+<!-- Promotional Offers Hub - Syrian Marketplace -->
+<div class="promotional-offers-container" [class.rtl]="currentLanguage() === 'ar'">
+  <!-- Header Section with Loyalty Status -->
+  <div class="offers-header">
+    <div class="header-content">
+      <div class="title-section">
+        <h1 class="main-title">
+          {{ currentLanguage() === 'ar' ? 'العروض الترويجية' : 'Promotional Offers' }}
+        </h1>
+        <p class="subtitle">
+          {{ currentLanguage() === 'ar' 
+            ? 'اكتشف العروض الحصرية والخصومات المخصصة لك'
+            : 'Discover exclusive deals and personalized discounts' }}
+        </p>
+      </div>
+      
+      <div class="language-toggle">
+        <div class="language-buttons">
+          <button 
+            mat-button
+            [class.active]="currentLanguage() === 'en'"
+            (click)="switchLanguage('en')">
+            EN
+          </button>
+          <button 
+            mat-button
+            [class.active]="currentLanguage() === 'ar'"
+            (click)="switchLanguage('ar')">
+            العربية
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Loyalty Status Card -->
+    <mat-card class="loyalty-status-card damascus-gradient">
+      <mat-card-content>
+        <div class="loyalty-header">
+          <div class="loyalty-info">
+            <mat-icon class="loyalty-icon">stars</mat-icon>
+            <div class="loyalty-text">
+              <h3>{{ currentLanguage() === 'ar' ? 'نقاط الولاء' : 'Loyalty Points' }}</h3>
+              <p class="points-display">{{ loyaltyPoints().toLocaleString() }}</p>
+            </div>
+          </div>
+          <div class="membership-tier">
+            <mat-chip-set>
+              <mat-chip [class]="membershipTier().toLowerCase() + '-tier'">
+                <mat-icon matChipAvatar>
+                  {{ membershipTier() === 'Bronze' ? 'military_tech' : 
+                     membershipTier() === 'Silver' ? 'emoji_events' : 
+                     membershipTier() === 'Gold' ? 'workspace_premium' : 'diamond' }}
+                </mat-icon>
+                {{ membershipTier() }} {{ currentLanguage() === 'ar' ? 'عضوية' : 'Member' }}
+              </mat-chip>
+            </mat-chip-set>
+          </div>
+        </div>
+        
+        <div class="progress-section">
+          <p class="progress-label">
+            {{ currentLanguage() === 'ar' 
+              ? 'التقدم إلى المستوى التالي'
+              : 'Progress to next tier' }}
+          </p>
+          <mat-progress-bar 
+            mode="determinate" 
+            [value]="membershipProgress()"
+            class="loyalty-progress">
+          </mat-progress-bar>
+          <p class="progress-text">
+            {{ membershipProgress().toFixed(0) }}% 
+            {{ currentLanguage() === 'ar' ? 'مكتمل' : 'Complete' }}
+          </p>
+        </div>
+
+        <div class="total-savings">
+          <mat-icon>savings</mat-icon>
+          <span>
+            {{ currentLanguage() === 'ar' ? 'إجمالي التوفيرات:' : 'Total Savings:' }}
+            <strong>${{ totalSavings().toFixed(2) }}</strong>
+          </span>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+
+  <!-- Offers Tabs -->
+  <mat-tab-group [(selectedIndex)]="activeTab" class="offers-tabs">
+    
+    <!-- Personal Offers Tab -->
+    <mat-tab>
+      <ng-template mat-tab-label>
+        <mat-icon>person</mat-icon>
+        {{ currentLanguage() === 'ar' ? 'العروض الشخصية' : 'Personal Offers' }}
+        <mat-chip class="offers-count" *ngIf="personalOffers().length > 0">
+          {{ personalOffers().length }}
+        </mat-chip>
+      </ng-template>
+      
+      <div class="tab-content">
+        <div class="offers-grid">
+          <mat-card 
+            *ngFor="let offer of personalOffers()" 
+            class="offer-card personal-offer"
+            [class.expired]="isOfferExpired(offer.validUntil)">
+            
+            <div class="offer-image" *ngIf="offer.image">
+              <img [src]="offer.image" [alt]="offer.title[currentLanguage()]" loading="lazy">
+              <div class="discount-badge">
+                {{ getDiscountText(offer) }}
+              </div>
+            </div>
+
+            <mat-card-header>
+              <mat-card-title>{{ offer.title[currentLanguage()] }}</mat-card-title>
+              <mat-card-subtitle>{{ offer.description[currentLanguage()] }}</mat-card-subtitle>
+            </mat-card-header>
+
+            <mat-card-content>
+              <div class="offer-details">
+                <div class="validity-info">
+                  <mat-icon>schedule</mat-icon>
+                  <span [class.expired-text]="isOfferExpired(offer.validUntil)">
+                    {{ isOfferExpired(offer.validUntil) 
+                      ? (currentLanguage() === 'ar' ? 'منتهي الصلاحية' : 'Expired')
+                      : (currentLanguage() === 'ar' 
+                          ? getDaysRemaining(offer.validUntil) + ' أيام متبقية'
+                          : getDaysRemaining(offer.validUntil) + ' days left') }}
+                  </span>
+                </div>
+
+                <div class="offer-code" *ngIf="offer.code">
+                  <mat-chip-set>
+                    <mat-chip>
+                      <mat-icon matChipAvatar>confirmation_number</mat-icon>
+                      {{ offer.code }}
+                    </mat-chip>
+                  </mat-chip-set>
+                </div>
+
+                <div class="min-purchase" *ngIf="offer.minPurchase">
+                  <small>
+                    {{ currentLanguage() === 'ar' 
+                      ? 'حد أدنى للشراء: $' + offer.minPurchase
+                      : 'Min. purchase: $' + offer.minPurchase }}
+                  </small>
+                </div>
+              </div>
+            </mat-card-content>
+
+            <mat-card-actions>
+              <button 
+                mat-raised-button 
+                color="primary"
+                [disabled]="isOfferExpired(offer.validUntil) || redeemedOffers().includes(offer.id)"
+                (click)="redeemOffer(offer)">
+                {{ redeemedOffers().includes(offer.id) 
+                  ? (currentLanguage() === 'ar' ? 'مُستخدم' : 'Redeemed')
+                  : (currentLanguage() === 'ar' ? 'استخدم العرض' : 'Use Offer') }}
+              </button>
+            </mat-card-actions>
+          </mat-card>
+        </div>
+
+        <div *ngIf="personalOffers().length === 0" class="empty-state">
+          <mat-icon>card_giftcard</mat-icon>
+          <h3>{{ currentLanguage() === 'ar' ? 'لا توجد عروض شخصية' : 'No Personal Offers' }}</h3>
+          <p>{{ currentLanguage() === 'ar' 
+            ? 'سنرسل لك عروض مخصصة قريباً!'
+            : 'We\'ll send you personalized offers soon!' }}</p>
+        </div>
+      </div>
+    </mat-tab>
+
+    <!-- Seasonal Offers Tab -->
+    <mat-tab>
+      <ng-template mat-tab-label>
+        <mat-icon>celebration</mat-icon>
+        {{ currentLanguage() === 'ar' ? 'العروض الموسمية' : 'Seasonal Offers' }}
+        <mat-chip class="offers-count" *ngIf="seasonalOffers().length > 0">
+          {{ seasonalOffers().length }}
+        </mat-chip>
+      </ng-template>
+
+      <div class="tab-content">
+        <div class="offers-grid">
+          <mat-card 
+            *ngFor="let offer of seasonalOffers()" 
+            class="offer-card seasonal-offer"
+            [class.expired]="isOfferExpired(offer.validUntil)">
+            
+            <div class="offer-image" *ngIf="offer.image">
+              <img [src]="offer.image" [alt]="offer.title[currentLanguage()]" loading="lazy">
+              <div class="cultural-badge" *ngIf="offer.culturalEvent">
+                {{ offer.culturalEvent }}
+              </div>
+            </div>
+
+            <mat-card-header>
+              <mat-card-title>{{ offer.title[currentLanguage()] }}</mat-card-title>
+              <mat-card-subtitle>{{ offer.description[currentLanguage()] }}</mat-card-subtitle>
+            </mat-card-header>
+
+            <mat-card-content>
+              <div class="offer-details">
+                <div class="discount-highlight">
+                  <span class="discount-text">{{ getDiscountText(offer) }}</span>
+                  <span class="discount-label">
+                    {{ currentLanguage() === 'ar' ? 'خصم' : 'OFF' }}
+                  </span>
+                </div>
+
+                <div class="validity-info">
+                  <mat-icon>schedule</mat-icon>
+                  <span>
+                    {{ currentLanguage() === 'ar' 
+                      ? 'صالح حتى ' + offer.validUntil.toLocaleDateString('ar-SA')
+                      : 'Valid until ' + offer.validUntil.toLocaleDateString('en-US') }}
+                  </span>
+                </div>
+              </div>
+            </mat-card-content>
+
+            <mat-card-actions>
+              <button 
+                mat-raised-button 
+                color="accent"
+                [disabled]="isOfferExpired(offer.validUntil)"
+                (click)="redeemOffer(offer)">
+                {{ currentLanguage() === 'ar' ? 'تسوق الآن' : 'Shop Now' }}
+              </button>
+            </mat-card-actions>
+          </mat-card>
+        </div>
+      </div>
+    </mat-tab>
+
+    <!-- Flash Sales Tab -->
+    <mat-tab>
+      <ng-template mat-tab-label>
+        <mat-icon>flash_on</mat-icon>
+        {{ currentLanguage() === 'ar' ? 'تخفيضات البرق' : 'Flash Sales' }}
+        <mat-chip class="offers-count urgent" *ngIf="flashSales().length > 0">
+          {{ flashSales().length }}
+        </mat-chip>
+      </ng-template>
+
+      <div class="tab-content">
+        <div class="offers-grid">
+          <mat-card 
+            *ngFor="let offer of flashSales()" 
+            class="offer-card flash-sale"
+            [class.expired]="isOfferExpired(offer.validUntil)">
+            
+            <div class="flash-header">
+              <mat-chip class="flash-badge">
+                <mat-icon matChipAvatar>flash_on</mat-icon>
+                {{ currentLanguage() === 'ar' ? 'برق' : 'FLASH' }}
+              </mat-chip>
+              <div class="countdown" *ngIf="!isOfferExpired(offer.validUntil)">
+                {{ getDaysRemaining(offer.validUntil) }}{{ currentLanguage() === 'ar' ? 'يوم' : 'd' }}
+                {{ currentLanguage() === 'ar' ? 'متبقي' : 'left' }}
+              </div>
+            </div>
+
+            <div class="offer-image" *ngIf="offer.image">
+              <img [src]="offer.image" [alt]="offer.title[currentLanguage()]" loading="lazy">
+              <div class="discount-badge flash">
+                {{ getDiscountText(offer) }}
+              </div>
+            </div>
+
+            <mat-card-header>
+              <mat-card-title>{{ offer.title[currentLanguage()] }}</mat-card-title>
+              <mat-card-subtitle>{{ offer.description[currentLanguage()] }}</mat-card-subtitle>
+            </mat-card-header>
+
+            <mat-card-content>
+              <div class="stock-info" *ngIf="offer.remainingStock">
+                <mat-progress-bar 
+                  mode="determinate" 
+                  [value]="(offer.remainingStock / 100) * 100"
+                  class="stock-progress">
+                </mat-progress-bar>
+                <p class="stock-text">
+                  {{ currentLanguage() === 'ar' 
+                    ? offer.remainingStock + ' قطعة متبقية فقط!'
+                    : 'Only ' + offer.remainingStock + ' left!' }}
+                </p>
+              </div>
+            </mat-card-content>
+
+            <mat-card-actions>
+              <button 
+                mat-raised-button 
+                color="warn"
+                [disabled]="isOfferExpired(offer.validUntil)"
+                (click)="redeemOffer(offer)">
+                {{ currentLanguage() === 'ar' ? 'اشتر الآن' : 'Buy Now' }}
+              </button>
+            </mat-card-actions>
+          </mat-card>
+        </div>
+      </div>
+    </mat-tab>
+
+    <!-- Category Offers Tab -->
+    <mat-tab>
+      <ng-template mat-tab-label>
+        <mat-icon>category</mat-icon>
+        {{ currentLanguage() === 'ar' ? 'عروض الفئات' : 'Category Offers' }}
+      </ng-template>
+
+      <div class="tab-content">
+        <div class="offers-grid">
+          <mat-card 
+            *ngFor="let offer of categoryOffers()" 
+            class="offer-card category-offer">
+            
+            <div class="offer-image" *ngIf="offer.image">
+              <img [src]="offer.image" [alt]="offer.title[currentLanguage()]" loading="lazy">
+            </div>
+
+            <mat-card-header>
+              <mat-card-title>{{ offer.title[currentLanguage()] }}</mat-card-title>
+              <mat-card-subtitle>{{ offer.description[currentLanguage()] }}</mat-card-subtitle>
+            </mat-card-header>
+
+            <mat-card-content>
+              <div class="category-badge">
+                <mat-chip>
+                  {{ currentLanguage() === 'ar' ? 'فئة: ' : 'Category: ' }}{{ offer.category }}
+                </mat-chip>
+              </div>
+            </mat-card-content>
+
+            <mat-card-actions>
+              <button 
+                mat-stroked-button 
+                color="primary"
+                (click)="redeemOffer(offer)">
+                {{ currentLanguage() === 'ar' ? 'تصفح الفئة' : 'Browse Category' }}
+              </button>
+            </mat-card-actions>
+          </mat-card>
+        </div>
+      </div>
+    </mat-tab>
+
+    <!-- Coupons & Rewards Tab -->
+    <mat-tab>
+      <ng-template mat-tab-label>
+        <mat-icon>local_offer</mat-icon>
+        {{ currentLanguage() === 'ar' ? 'الكوبونات والمكافآت' : 'Coupons & Rewards' }}
+      </ng-template>
+
+      <div class="tab-content">
+        <!-- Referral Program Section -->
+        <mat-card class="referral-card">
+          <mat-card-header>
+            <mat-card-title>
+              <mat-icon>group_add</mat-icon>
+              {{ currentLanguage() === 'ar' ? 'برنامج إحالة الأصدقاء' : 'Referral Program' }}
+            </mat-card-title>
+          </mat-card-header>
+          <mat-card-content>
+            <p>{{ currentLanguage() === 'ar' 
+              ? 'ادع أصدقاءك واحصل على خصم 20% لك ولهم!'
+              : 'Invite friends and both get 20% off your next purchase!' }}</p>
+            <div class="referral-code">
+              <mat-form-field appearance="outline">
+                <mat-label>{{ currentLanguage() === 'ar' ? 'كود الإحالة' : 'Referral Code' }}</mat-label>
+                <input matInput value="FRIEND20" readonly>
+                <mat-icon matSuffix>content_copy</mat-icon>
+              </mat-form-field>
+            </div>
+          </mat-card-content>
+          <mat-card-actions>
+            <button mat-raised-button color="primary" (click)="shareReferralCode()">
+              <mat-icon>share</mat-icon>
+              {{ currentLanguage() === 'ar' ? 'مشاركة' : 'Share' }}
+            </button>
+          </mat-card-actions>
+        </mat-card>
+
+        <!-- Available Coupons -->
+        <div class="coupons-section">
+          <h3>{{ currentLanguage() === 'ar' ? 'الكوبونات المتاحة' : 'Available Coupons' }}</h3>
+          
+          <div class="coupons-list">
+            <mat-card 
+              *ngFor="let coupon of availableCoupons()" 
+              class="coupon-card"
+              [class.used]="coupon.isUsed"
+              [class.insufficient-points]="coupon.pointsCost && loyaltyPoints() < coupon.pointsCost">
+              
+              <mat-card-content>
+                <div class="coupon-header">
+                  <div class="coupon-info">
+                    <h4>{{ coupon.title[currentLanguage()] }}</h4>
+                    <div class="coupon-code">{{ coupon.code }}</div>
+                  </div>
+                  <div class="coupon-discount">
+                    <span class="discount-value">
+                      {{ coupon.discountType === 'percentage' ? coupon.discount + '%' : '$' + coupon.discount }}
+                    </span>
+                    <small>{{ currentLanguage() === 'ar' ? 'خصم' : 'OFF' }}</small>
+                  </div>
+                </div>
+
+                <div class="coupon-details">
+                  <div class="coupon-source">
+                    <mat-chip [class]="coupon.source + '-source'">
+                      <mat-icon matChipAvatar>
+                        {{ coupon.source === 'referral' ? 'group' : 
+                           coupon.source === 'loyalty' ? 'stars' : 
+                           coupon.source === 'birthday' ? 'cake' : 'celebration' }}
+                      </mat-icon>
+                      {{ coupon.source }}
+                    </mat-chip>
+                  </div>
+
+                  <div class="coupon-cost" *ngIf="coupon.pointsCost">
+                    <mat-icon>stars</mat-icon>
+                    <span>{{ coupon.pointsCost.toLocaleString() }} 
+                      {{ currentLanguage() === 'ar' ? 'نقطة' : 'points' }}
+                    </span>
+                  </div>
+
+                  <div class="coupon-validity">
+                    <mat-icon>schedule</mat-icon>
+                    <span>
+                      {{ currentLanguage() === 'ar' 
+                        ? 'صالح حتى ' + coupon.validUntil.toLocaleDateString('ar-SA')
+                        : 'Valid until ' + coupon.validUntil.toLocaleDateString('en-US') }}
+                    </span>
+                  </div>
+                </div>
+              </mat-card-content>
+
+              <mat-card-actions>
+                <button 
+                  mat-raised-button 
+                  [color]="coupon.pointsCost ? 'accent' : 'primary'"
+                  [disabled]="coupon.isUsed || isOfferExpired(coupon.validUntil) || 
+                             (coupon.pointsCost && loyaltyPoints() < coupon.pointsCost)"
+                  (click)="redeemCoupon(coupon)">
+                  {{ coupon.isUsed 
+                    ? (currentLanguage() === 'ar' ? 'مُستخدم' : 'Used')
+                    : coupon.pointsCost 
+                      ? (currentLanguage() === 'ar' ? 'استبدل بالنقاط' : 'Redeem with Points')
+                      : (currentLanguage() === 'ar' ? 'استخدم' : 'Use') }}
+                </button>
+              </mat-card-actions>
+            </mat-card>
+          </div>
+        </div>
+      </div>
+    </mat-tab>
+  </mat-tab-group>
+
+  <!-- Loading State -->
+  <div class="loading-container" *ngIf="loading()">
+    <mat-spinner></mat-spinner>
+    <p>{{ currentLanguage() === 'ar' ? 'جاري تحميل العروض...' : 'Loading offers...' }}</p>
+  </div>
+</div>

@@ -1,0 +1,166 @@
+.admin-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+  padding: 1rem 1.5rem;
+  background: linear-gradient(90deg, #d4af37 0%, #f6e9c4 100%);
+  border-radius: 1rem;
+  color: #1e1b16;
+
+  &__branding {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  &__badge {
+    padding: 0.35rem 0.75rem;
+    border-radius: 9999px;
+    background: rgba(30, 58, 138, 0.12);
+    color: #1e3a8a;
+    font-weight: 600;
+    font-size: 0.75rem;
+    letter-spacing: 0.08em;
+  }
+
+  &__title {
+    margin: 0;
+    font-size: 1.35rem;
+    font-weight: 700;
+    line-height: 1.2;
+  }
+
+  &__subtitle {
+    margin: 0;
+    font-size: 0.85rem;
+    color: rgba(30, 27, 22, 0.7);
+  }
+
+  &__right {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+  }
+
+  &__actions {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  &__action {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.5rem 0.75rem;
+    border-radius: 0.75rem;
+    background: rgba(255, 255, 255, 0.6);
+    color: inherit;
+    font-weight: 600;
+    text-decoration: none;
+    transition: transform 0.2s ease, background 0.2s ease;
+
+    &:hover {
+      transform: translateY(-2px);
+      background: rgba(255, 255, 255, 0.85);
+    }
+  }
+
+  &__action-icon {
+    font-size: 1.25rem;
+    line-height: 1;
+    color: #c41e3a;
+  }
+
+  &__session {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.85rem;
+    padding: 0.5rem 0.75rem;
+    border-radius: 0.85rem;
+    background: rgba(255, 255, 255, 0.7);
+  }
+
+  &__avatar {
+    width: 2.25rem;
+    height: 2.25rem;
+    display: grid;
+    place-items: center;
+    border-radius: 999px;
+    background: linear-gradient(135deg, #1e3a8a 0%, #c41e3a 100%);
+    color: #fff;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+  }
+
+  &__identity {
+    display: grid;
+    gap: 0.2rem;
+  }
+
+  &__name {
+    margin: 0;
+    font-size: 0.95rem;
+    font-weight: 600;
+  }
+
+  &__profile-link {
+    font-size: 0.75rem;
+    color: #1e3a8a;
+    text-decoration: none;
+    font-weight: 600;
+  }
+
+  &__logout {
+    border: none;
+    background: rgba(30, 27, 22, 0.08);
+    color: #1e1b16;
+    font-weight: 600;
+    padding: 0.45rem 0.75rem;
+    border-radius: 0.75rem;
+    cursor: pointer;
+    transition: background 0.2s ease, transform 0.2s ease;
+
+    &:hover:enabled {
+      background: rgba(30, 27, 22, 0.14);
+      transform: translateY(-1px);
+    }
+
+    &:disabled {
+      opacity: 0.6;
+      cursor: progress;
+    }
+  }
+
+  &__login {
+    padding: 0.45rem 0.75rem;
+    border-radius: 0.75rem;
+    background: rgba(255, 255, 255, 0.7);
+    color: #1e3a8a;
+    font-weight: 600;
+    text-decoration: none;
+  }
+}
+
+@media (max-width: 960px) {
+  .admin-header {
+    flex-direction: column;
+    align-items: flex-start;
+
+    &__actions {
+      flex-wrap: wrap;
+      width: 100%;
+    }
+
+    &__right {
+      width: 100%;
+      flex-direction: column;
+      align-items: stretch;
+    }
+
+    &__session {
+      justify-content: space-between;
+    }
+  }
+}

@@ -1,0 +1,116 @@
+<!--
+  Promotional Banners Template
+
+  Responsive banner grid with configurable columns.
+  Shows image, title, subtitle, and CTA button.
+-->
+
+<div class="promotional-banners"
+     [attr.dir]="language() === 'ar' ? 'rtl' : 'ltr'"
+     [class.rtl-mode]="language() === 'ar'"
+     [ngClass]="getGridClass()">
+
+  <!-- Banner Items -->
+  @for (banner of getActiveBanners(); track banner.id) {
+    <div class="promotional-banner"
+         [ngClass]="getPositionClass(banner)"
+         [style.background-color]="getBackgroundColor(banner)">
+
+      <!-- Banner Link Wrapper (if linkUrl exists) -->
+      @if (banner.linkUrl) {
+        <a [routerLink]="banner.linkUrl"
+           class="promotional-banner__link"
+           (click)="onBannerClick(banner, $event)">
+
+          <!-- Banner Content -->
+          <div class="promotional-banner__wrapper">
+            <!-- Banner Image -->
+            <div class="promotional-banner__image"
+                 [style.aspect-ratio]="aspectRatio()">
+              <img [src]="banner.imageUrl"
+                   [alt]="getBannerTitle(banner)"
+                   loading="lazy"
+                   (error)="onImageError($event)">
+            </div>
+
+            <!-- Banner Overlay Content -->
+            <div class="promotional-banner__content"
+                 [style.color]="getTextColor(banner)">
+              <!-- Title -->
+              <h3 class="promotional-banner__title">
+                {{ getBannerTitle(banner) }}
+              </h3>
+
+              <!-- Subtitle -->
+              @if (hasSubtitle(banner)) {
+                <p class="promotional-banner__subtitle">
+                  {{ getBannerSubtitle(banner) }}
+                </p>
+              }
+
+              <!-- CTA Button -->
+              @if (showCTA() && hasCTA(banner)) {
+                <button class="promotional-banner__cta"
+                        type="button">
+                  {{ getCTAText(banner) }}
+                  <svg class="promotional-banner__cta-icon"
+                       width="16"
+                       height="16"
+                       viewBox="0 0 24 24"
+                       fill="none"
+                       stroke="currentColor"
+                       stroke-width="2"
+                       stroke-linecap="round"
+                       stroke-linejoin="round">
+                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                    <polyline points="12 5 19 12 12 19"></polyline>
+                  </svg>
+                </button>
+              }
+            </div>
+          </div>
+
+        </a>
+      } @else {
+        <!-- Non-clickable Banner -->
+        <div class="promotional-banner__wrapper">
+          <!-- Banner Image -->
+          <div class="promotional-banner__image"
+               [style.aspect-ratio]="aspectRatio()">
+            <img [src]="banner.imageUrl"
+                 [alt]="getBannerTitle(banner)"
+                 loading="lazy"
+                 (error)="onImageError($event)">
+          </div>
+
+          <!-- Banner Overlay Content -->
+          <div class="promotional-banner__content"
+               [style.color]="getTextColor(banner)">
+            <!-- Title -->
+            <h3 class="promotional-banner__title">
+              {{ getBannerTitle(banner) }}
+            </h3>
+
+            <!-- Subtitle -->
+            @if (hasSubtitle(banner)) {
+              <p class="promotional-banner__subtitle">
+                {{ getBannerSubtitle(banner) }}
+              </p>
+            }
+          </div>
+        </div>
+      }
+
+    </div>
+  }
+
+  <!-- Empty State -->
+  @if (getActiveBanners().length === 0) {
+    <div class="promotional-banners__empty">
+      <p>
+        {{ language() === 'ar' ? 'لا توجد عروض ترويجية متاحة' : 'No promotional banners available' }}
+      </p>
+    </div>
+  }
+
+</div>

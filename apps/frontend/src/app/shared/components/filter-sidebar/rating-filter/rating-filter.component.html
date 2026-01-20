@@ -1,0 +1,48 @@
+<!-- Rating Filter Container -->
+<div class="rating-filter" [attr.dir]="language() === 'ar' ? 'rtl' : 'ltr'">
+
+  <!-- Rating Options -->
+  <div class="rating-options">
+    @for (option of ratingOptions; track option.value) {
+      <div class="rating-option">
+        <mat-checkbox
+          [checked]="isRatingSelected(option.value)"
+          (change)="onRatingChange(option.value, $event.checked)"
+          class="rating-checkbox">
+
+          <!-- Star Icons -->
+          <div class="rating-content">
+            <div class="stars">
+              @for (star of getStarArray(option.value); track star) {
+                <mat-icon
+                  [class.filled]="isStarFilled(star, option.value)"
+                  [class.empty]="!isStarFilled(star, option.value)"
+                  class="star-icon">
+                  {{ isStarFilled(star, option.value) ? 'star' : 'star_border' }}
+                </mat-icon>
+              }
+            </div>
+
+            <!-- Label and Count -->
+            <div class="rating-info">
+              <span class="rating-label">{{ getLabel(option) }}</span>
+              @if (showCounts() && getRatingCount(option.value) !== undefined) {
+                <span class="rating-count">{{ formatCount(getRatingCount(option.value)) }}</span>
+              }
+            </div>
+          </div>
+
+        </mat-checkbox>
+      </div>
+    }
+  </div>
+
+  <!-- No Ratings Message (if no options available) -->
+  @if (ratingOptions.length === 0) {
+    <div class="no-ratings">
+      <mat-icon>star_border</mat-icon>
+      <p>{{ language() === 'ar' ? 'لا توجد تقييمات متاحة' : 'No ratings available' }}</p>
+    </div>
+  }
+
+</div>

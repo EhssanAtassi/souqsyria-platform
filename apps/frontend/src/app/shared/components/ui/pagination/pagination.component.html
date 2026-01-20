@@ -1,0 +1,57 @@
+<!-- Pagination Navigation -->
+<nav class="pagination" aria-label="Page navigation">
+  <ul class="pagination__list">
+    <!-- Previous Button -->
+    <li class="pagination__item">
+      <button
+        type="button"
+        class="pagination__button pagination__button--prev"
+        [disabled]="isPrevDisabled"
+        (click)="previousPage()"
+        aria-label="Previous page">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+          <path d="M12.5 15L7.5 10L12.5 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+    </li>
+
+    <!-- Page Numbers -->
+    <li
+      *ngFor="let page of visiblePages()"
+      class="pagination__item">
+
+      <!-- Ellipsis (non-clickable) -->
+      <span
+        *ngIf="isEllipsis(page)"
+        class="pagination__ellipsis">
+        ...
+      </span>
+
+      <!-- Page Number Button -->
+      <button
+        *ngIf="!isEllipsis(page)"
+        type="button"
+        class="pagination__button pagination__button--number"
+        [class.pagination__button--active]="isActive(page)"
+        (click)="goToPage(page)"
+        [attr.aria-label]="'Page ' + page"
+        [attr.aria-current]="isActive(page) ? 'page' : null">
+        {{ page }}
+      </button>
+    </li>
+
+    <!-- Next Button -->
+    <li class="pagination__item">
+      <button
+        type="button"
+        class="pagination__button pagination__button--next"
+        [disabled]="isNextDisabled"
+        (click)="nextPage()"
+        aria-label="Next page">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+          <path d="M7.5 5L12.5 10L7.5 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+    </li>
+  </ul>
+</nav>
