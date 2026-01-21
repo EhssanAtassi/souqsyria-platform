@@ -1,9 +1,25 @@
 /**
- * 🛒 CartItem Entity (Enhanced)
+ * 🛒 CartItem Entity (Enhanced with Inventory Reservation - Week 4)
  *
- * Represents a product variant added to a user's cart.
- * Stores quantity, original price, optional discount, selected attributes,
- * and metadata like expiration and campaign source.
+ * Represents a product variant added to a user's cart with enterprise-grade
+ * inventory reservation system to prevent overselling during high traffic.
+ *
+ * FEATURES:
+ * - 💰 Price Lock: 7-day price guarantee (customer protection)
+ * - 🏭 Inventory Reservation: 15-minute timeout (prevents overselling)
+ * - 📊 Campaign Tracking: Source attribution for marketing analytics
+ * - 🎯 Attribute Selection: Product variant configurations (size, color, etc.)
+ * - ⏰ Expiration Handling: Flash sales and limited-time offers support
+ *
+ * DUAL-LOCKING MECHANISM:
+ * 1. Price Lock (7 days): Protects customer from price increases during checkout
+ * 2. Inventory Reservation (15 min): Reserves stock to prevent race conditions
+ *
+ * These locks operate independently with different timeouts optimized for
+ * their respective business needs (customer satisfaction vs inventory efficiency).
+ *
+ * @version 4.0.0 - Week 4 Enterprise Features
+ * @author SouqSyria Development Team
  */
 
 import {
@@ -15,6 +31,7 @@ import {
 } from 'typeorm';
 import { Cart } from './cart.entity';
 import { ProductVariant } from '../../products/variants/entities/product-variant.entity';
+import { ReservationStatus } from '../services/inventory-reservation.service';
 
 @Entity('cart_items')
 export class CartItem {
@@ -63,6 +80,24 @@ export class CartItem {
   // 📊 Optional campaign/tracking reference
   @Column({ type: 'varchar', length: 100, nullable: true })
   added_from_campaign?: string;
+
+  // ══════════════════════════════════════════════════════════════════════════
+  // 🏭 INVENTORY RESERVATION (Week 4 Enterprise Feature)
+  // ══════════════════════════════════════════════════════════════════════════
+  // Prevents overselling during high traffic by reserving inventory when item
+  // is added to cart. Reservation automatically expires after timeout (default: 15 min).
+
+  // 🎫 Unique reservation identifier linking cart item to inventory reservation
+  @Column({ type: 'varchar', length: 100, nullable: true })
+  reservationId?: string;
+
+  // ⏰ Reservation expiration timestamp (auto-release after timeout)
+  @Column({ type: 'datetime', nullable: true })
+  reservedUntil?: Date;
+
+  // 📊 Current reservation status (active, expired, released, converted)
+  @Column({ type: 'enum', enum: ReservationStatus, nullable: true })
+  reservationStatus?: ReservationStatus;
 
   /**
    * Check if price lock has expired (7 days from added_at)
@@ -127,5 +162,95 @@ export class CartItem {
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
     return diffDays;
+  }
+
+  // ══════════════════════════════════════════════════════════════════════════
+  // 🏭 INVENTORY RESERVATION METHODS (Week 4 Enterprise Feature)
+  // ══════════════════════════════════════════════════════════════════════════
+
+  /**
+   * Check if inventory reservation has expired
+   * Reservation timeout prevents indefinite inventory holds
+   *
+   * @returns boolean - True if reservation expired or not reserved
+   */
+  isReservationExpired(): boolean {
+    if (!this.reservedUntil || !this.reservationId) return true;
+    return new Date() > this.reservedUntil;
+  }
+
+  /**
+   * Check if inventory is actively reserved for this cart item
+   * Active reservation means inventory is held and checkout can proceed
+   *
+   * @returns boolean - True if reservation is active and not expired
+   */
+  hasActiveReservation(): boolean {
+    return (
+      !!this.reservationId &&
+      !!this.reservedUntil &&
+      !this.isReservationExpired() &&
+      (this.reservationStatus === ReservationStatus.ACTIVE ||
+        this.reservationStatus === ReservationStatus.EXTENDED)
+    );
+  }
+
+  /**
+   * Get minutes remaining until reservation expires
+   * Used to display reservation countdown to users
+   *
+   * @returns number - Minutes remaining (0 if expired or no reservation)
+   */
+  minutesUntilReservationExpires(): number {
+    if (!this.reservedUntil || this.isReservationExpired()) return 0;
+
+    const now = new Date();
+    const expiryDate = new Date(this.reservedUntil);
+
+    const diffTime = expiryDate.getTime() - now.getTime();
+    const diffMinutes = Math.ceil(diffTime / (1000 * 60));
+
+    return Math.max(0, diffMinutes);
+  }
+
+  /**
+   * Check if reservation needs extension
+   * Returns true if reservation is about to expire (< 5 minutes remaining)
+   *
+   * @returns boolean - True if reservation needs extension
+   */
+  needsReservationExtension(): boolean {
+    if (!this.hasActiveReservation()) return false;
+
+    const minutesRemaining = this.minutesUntilReservationExpires();
+    return minutesRemaining > 0 && minutesRemaining < 5;
+  }
+
+  /**
+   * Get human-readable reservation status message
+   * Used for displaying reservation info to customers
+   *
+   * @returns string - User-friendly status message
+   */
+  getReservationStatusMessage(): string {
+    if (!this.reservationId) {
+      return 'Not reserved';
+    }
+
+    if (this.isReservationExpired()) {
+      return 'Reservation expired';
+    }
+
+    const minutes = this.minutesUntilReservationExpires();
+
+    if (minutes === 0) {
+      return 'Reservation expiring';
+    }
+
+    if (minutes < 5) {
+      return `Reserved for ${minutes} more minute${minutes !== 1 ? 's' : ''} (expiring soon)`;
+    }
+
+    return `Reserved for ${minutes} more minute${minutes !== 1 ? 's' : ''}`;
   }
 }
