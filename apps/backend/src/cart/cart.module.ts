@@ -28,16 +28,19 @@ import { CartItem } from './entities/cart-item.entity';
 import { GuestSession } from './entities/guest-session.entity';
 import { CartController } from './controller/cart.controller';
 import { CartGuestController } from './controller/cart-guest.controller';
+import { CartMonitoringController } from './controller/cart-monitoring.controller';
 import { ProductVariant } from '../products/variants/entities/product-variant.entity';
 import { CartService } from './service/cart.service';
 import { CartMergeService } from './service/cart-merge.service';
 import { CartSyncService } from './service/cart-sync.service';
 import { CartValidationService } from './service/cart-validation.service';
+import { CartMonitoringService } from './services/cart-monitoring.service';
 import { AccessControlModule } from '../access-control/access-control.module';
 import { AuditLogModule } from '../audit-log/audit-log.module';
 import { User } from '../users/entities/user.entity';
 import { Route } from '../access-control/entities/route.entity';
 import { ProductEntity } from '../products/entities/product.entity';
+import { AuditLog } from '../audit/entities/audit-log.entity';
 
 // Seeding Services
 import { CartSeederService } from './seeds/cart.seeder.service';
@@ -52,6 +55,7 @@ import { CartSeederService } from './seeds/cart.seeder.service';
       User,
       Route,
       ProductEntity,
+      AuditLog, // ✅ For monitoring dashboard analytics
     ]),
     JwtModule.register({}), // ✅ For OptionalAuthGuard JWT verification
     AccessControlModule, // ✅ For permissions and access control
@@ -60,12 +64,14 @@ import { CartSeederService } from './seeds/cart.seeder.service';
   controllers: [
     CartController,
     CartGuestController, // ✅ Guest cart management
+    CartMonitoringController, // ✅ Admin monitoring dashboard
   ],
   providers: [
     CartService,
     CartMergeService, // ✅ Guest-to-user cart merging
     CartSyncService, // ✅ Multi-device synchronization
     CartValidationService, // ✅ Pre-checkout validation
+    CartMonitoringService, // ✅ Real-time monitoring and analytics
     // Seeding Services
     CartSeederService,
   ],

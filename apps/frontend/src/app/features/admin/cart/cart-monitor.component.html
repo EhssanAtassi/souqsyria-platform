@@ -1,0 +1,381 @@
+<!-- Cart Monitoring Dashboard -->
+<div class="cart-monitor-container p-6">
+
+  <!-- Header -->
+  <div class="flex justify-between items-center mb-6">
+    <div>
+      <h1 class="text-3xl font-bold text-gray-900">🛒 Cart Monitoring Dashboard</h1>
+      <p class="text-gray-600 mt-1">Real-time cart operations and security monitoring</p>
+    </div>
+
+    <div class="flex items-center gap-4">
+      <!-- Last Update Time -->
+      <div class="text-sm text-gray-600">
+        Last updated: {{ formatTime(lastUpdateTime()) }}
+      </div>
+
+      <!-- System Health Indicator -->
+      <mat-chip
+        [color]="systemHealthStatus().color"
+        class="font-semibold">
+        <mat-icon>{{ systemHealthStatus().icon }}</mat-icon>
+        <span class="ml-2">{{ systemHealthStatus().status | titlecase }}</span>
+      </mat-chip>
+
+      <!-- Refresh Button -->
+      <button
+        mat-raised-button
+        color="primary"
+        (click)="refreshData()"
+        [disabled]="isLoading()">
+        <mat-icon>refresh</mat-icon>
+        Refresh
+      </button>
+
+      <!-- Export Button -->
+      <button
+        mat-raised-button
+        (click)="exportData()">
+        <mat-icon>download</mat-icon>
+        Export
+      </button>
+    </div>
+  </div>
+
+  <!-- Loading Spinner -->
+  <div *ngIf="isLoading()" class="flex justify-center items-center py-12">
+    <mat-spinner diameter="50"></mat-spinner>
+  </div>
+
+  <!-- Main Dashboard Content -->
+  <div *ngIf="!isLoading()">
+
+    <!-- Key Metrics Cards Row -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+
+      <!-- Active Carts Card -->
+      <mat-card class="metric-card">
+        <mat-card-content>
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-sm text-gray-600 mb-1">Active Carts</p>
+              <h3 class="text-3xl font-bold text-green-600">{{ activeCartsCount() }}</h3>
+            </div>
+            <mat-icon class="text-green-600 text-5xl">shopping_cart</mat-icon>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <!-- Abandoned Carts Card -->
+      <mat-card class="metric-card">
+        <mat-card-content>
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-sm text-gray-600 mb-1">Abandoned Carts</p>
+              <h3 class="text-3xl font-bold text-orange-600">{{ abandonedCartsCount() }}</h3>
+              <p class="text-xs text-gray-500 mt-1">{{ abandonmentRate() }}% abandonment rate</p>
+            </div>
+            <mat-icon class="text-orange-600 text-5xl">remove_shopping_cart</mat-icon>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <!-- Average Cart Value Card -->
+      <mat-card class="metric-card">
+        <mat-card-content>
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-sm text-gray-600 mb-1">Avg Cart Value</p>
+              <h3 class="text-2xl font-bold text-blue-600">{{ formatCurrency(avgCartValue()) }}</h3>
+              <p class="text-xs text-gray-500 mt-1">Total: {{ formatCurrency(totalCartValue()) }}</p>
+            </div>
+            <mat-icon class="text-blue-600 text-5xl">attach_money</mat-icon>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <!-- Security Alerts Card -->
+      <mat-card class="metric-card">
+        <mat-card-content>
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-sm text-gray-600 mb-1">Security Alerts</p>
+              <h3 class="text-3xl font-bold text-red-600">{{ securityAlertsCount() }}</h3>
+              <p class="text-xs text-gray-500 mt-1">{{ fraudAlertsCount() }} fraud alerts</p>
+            </div>
+            <mat-icon class="text-red-600 text-5xl" [matBadge]="securityAlertsCount()" matBadgeColor="warn">
+              security
+            </mat-icon>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+
+    <!-- Performance Metrics Row -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+
+      <!-- Conversion Rate Card -->
+      <mat-card>
+        <mat-card-content>
+          <p class="text-sm text-gray-600 mb-2">Conversion Rate</p>
+          <div class="flex items-baseline gap-2">
+            <h3 class="text-4xl font-bold text-purple-600">{{ formatPercentage(conversionRate()) }}</h3>
+            <span class="text-sm text-gray-500">of carts converted</span>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <!-- Response Time Card -->
+      <mat-card>
+        <mat-card-content>
+          <p class="text-sm text-gray-600 mb-2">Avg Response Time</p>
+          <div class="flex items-baseline gap-2">
+            <h3 class="text-4xl font-bold" [ngClass]="{
+              'text-green-600': avgResponseTime() < 200,
+              'text-yellow-600': avgResponseTime() >= 200 && avgResponseTime() < 500,
+              'text-red-600': avgResponseTime() >= 500
+            }">{{ avgResponseTime() }}</h3>
+            <span class="text-sm text-gray-500">ms</span>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <!-- Error Rate Card -->
+      <mat-card>
+        <mat-card-content>
+          <p class="text-sm text-gray-600 mb-2">Error Rate</p>
+          <div class="flex items-baseline gap-2">
+            <h3 class="text-4xl font-bold" [ngClass]="{
+              'text-green-600': errorRate() < 2,
+              'text-yellow-600': errorRate() >= 2 && errorRate() < 5,
+              'text-red-600': errorRate() >= 5
+            }">{{ formatPercentage(errorRate()) }}</h3>
+            <span class="text-sm text-gray-500">of requests</span>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+
+    <!-- Tabbed Content Area -->
+    <mat-tab-group class="monitoring-tabs">
+
+      <!-- Recent Operations Tab -->
+      <mat-tab>
+        <ng-template mat-tab-label>
+          <mat-icon class="mr-2">history</mat-icon>
+          Recent Operations
+        </ng-template>
+
+        <mat-card class="mt-4">
+          <mat-card-header>
+            <mat-card-title>Last 10 Cart Operations</mat-card-title>
+            <mat-card-subtitle>Real-time cart operation tracking</mat-card-subtitle>
+          </mat-card-header>
+
+          <mat-card-content>
+            <table mat-table [dataSource]="recentOperations()" class="w-full">
+
+              <!-- Timestamp Column -->
+              <ng-container matColumnDef="timestamp">
+                <th mat-header-cell *matHeaderCellDef>Time</th>
+                <td mat-cell *matCellDef="let op">{{ formatTime(op.timestamp) }}</td>
+              </ng-container>
+
+              <!-- User ID Column -->
+              <ng-container matColumnDef="userId">
+                <th mat-header-cell *matHeaderCellDef>User</th>
+                <td mat-cell *matCellDef="let op">
+                  <span *ngIf="op.userId">{{ op.userId }}</span>
+                  <mat-chip *ngIf="!op.userId" class="text-xs">Guest</mat-chip>
+                </td>
+              </ng-container>
+
+              <!-- Operation Column -->
+              <ng-container matColumnDef="operation">
+                <th mat-header-cell *matHeaderCellDef>Operation</th>
+                <td mat-cell *matCellDef="let op">{{ op.operation }}</td>
+              </ng-container>
+
+              <!-- Status Column -->
+              <ng-container matColumnDef="status">
+                <th mat-header-cell *matHeaderCellDef>Status</th>
+                <td mat-cell *matCellDef="let op">
+                  <div class="flex items-center gap-2">
+                    <mat-icon [ngClass]="getOperationStatusColor(op.status)">
+                      {{ getOperationIcon(op.status) }}
+                    </mat-icon>
+                    <span [ngClass]="getOperationStatusColor(op.status)">
+                      {{ op.status | titlecase }}
+                    </span>
+                  </div>
+                </td>
+              </ng-container>
+
+              <!-- Response Time Column -->
+              <ng-container matColumnDef="responseTime">
+                <th mat-header-cell *matHeaderCellDef>Response</th>
+                <td mat-cell *matCellDef="let op">
+                  <span [ngClass]="{
+                    'text-green-600': op.responseTime < 200,
+                    'text-yellow-600': op.responseTime >= 200 && op.responseTime < 500,
+                    'text-red-600': op.responseTime >= 500
+                  }">{{ op.responseTime }}ms</span>
+                </td>
+              </ng-container>
+
+              <tr mat-header-row *matHeaderRowDef="operationColumns"></tr>
+              <tr mat-row *matRowDef="let row; columns: operationColumns;"></tr>
+            </table>
+
+            <div *ngIf="recentOperations().length === 0" class="text-center py-8 text-gray-500">
+              No recent operations
+            </div>
+          </mat-card-content>
+        </mat-card>
+      </mat-tab>
+
+      <!-- Abandoned Carts Tab -->
+      <mat-tab>
+        <ng-template mat-tab-label>
+          <mat-icon class="mr-2" [matBadge]="abandonedCartsCount()" matBadgeColor="warn">
+            shopping_basket
+          </mat-icon>
+          Abandoned Carts
+        </ng-template>
+
+        <mat-card class="mt-4">
+          <mat-card-header>
+            <mat-card-title>Top Abandoned Items</mat-card-title>
+            <mat-card-subtitle>Products most frequently left in carts</mat-card-subtitle>
+          </mat-card-header>
+
+          <mat-card-content>
+            <table mat-table [dataSource]="topAbandonedItems()" class="w-full">
+
+              <!-- Product Column -->
+              <ng-container matColumnDef="product">
+                <th mat-header-cell *matHeaderCellDef>Product</th>
+                <td mat-cell *matCellDef="let item">{{ item.productName }}</td>
+              </ng-container>
+
+              <!-- Count Column -->
+              <ng-container matColumnDef="count">
+                <th mat-header-cell *matHeaderCellDef>Abandoned Count</th>
+                <td mat-cell *matCellDef="let item">
+                  <mat-chip color="accent">{{ item.count }}</mat-chip>
+                </td>
+              </ng-container>
+
+              <!-- Total Value Column -->
+              <ng-container matColumnDef="totalValue">
+                <th mat-header-cell *matHeaderCellDef>Total Value</th>
+                <td mat-cell *matCellDef="let item">
+                  <span class="font-semibold text-orange-600">
+                    {{ formatCurrency(item.totalValue) }}
+                  </span>
+                </td>
+              </ng-container>
+
+              <!-- Avg Time in Cart Column -->
+              <ng-container matColumnDef="avgTimeInCart">
+                <th mat-header-cell *matHeaderCellDef>Avg Time in Cart</th>
+                <td mat-cell *matCellDef="let item">{{ item.avgTimeInCart }} min</td>
+              </ng-container>
+
+              <tr mat-header-row *matHeaderRowDef="abandonedItemColumns"></tr>
+              <tr mat-row *matRowDef="let row; columns: abandonedItemColumns;"></tr>
+            </table>
+
+            <div *ngIf="topAbandonedItems().length === 0" class="text-center py-8 text-gray-500">
+              No abandoned cart data available
+            </div>
+          </mat-card-content>
+        </mat-card>
+      </mat-tab>
+
+      <!-- Security Alerts Tab -->
+      <mat-tab>
+        <ng-template mat-tab-label>
+          <mat-icon class="mr-2" [matBadge]="securityAlertsCount()" matBadgeColor="warn">
+            shield
+          </mat-icon>
+          Security Alerts
+        </ng-template>
+
+        <mat-card class="mt-4">
+          <mat-card-header>
+            <mat-card-title>Security Monitoring</mat-card-title>
+            <mat-card-subtitle>Fraud detection and rate limiting alerts</mat-card-subtitle>
+          </mat-card-header>
+
+          <mat-card-content>
+            <!-- Security Summary -->
+            <div class="grid grid-cols-2 gap-4 mb-6">
+              <div class="bg-yellow-50 p-4 rounded">
+                <p class="text-sm text-gray-600">Rate Limit Activations (1h)</p>
+                <p class="text-2xl font-bold text-yellow-700">{{ rateLimitActivations() }}</p>
+              </div>
+              <div class="bg-red-50 p-4 rounded">
+                <p class="text-sm text-gray-600">Fraud Alerts (24h)</p>
+                <p class="text-2xl font-bold text-red-700">{{ fraudAlertsCount() }}</p>
+              </div>
+            </div>
+
+            <!-- Security Alerts Table -->
+            <table mat-table [dataSource]="securityAlerts()" class="w-full">
+
+              <!-- Timestamp Column -->
+              <ng-container matColumnDef="timestamp">
+                <th mat-header-cell *matHeaderCellDef>Time</th>
+                <td mat-cell *matCellDef="let alert">{{ formatTime(alert.timestamp) }}</td>
+              </ng-container>
+
+              <!-- Type Column -->
+              <ng-container matColumnDef="type">
+                <th mat-header-cell *matHeaderCellDef>Type</th>
+                <td mat-cell *matCellDef="let alert">{{ alert.type }}</td>
+              </ng-container>
+
+              <!-- Severity Column -->
+              <ng-container matColumnDef="severity">
+                <th mat-header-cell *matHeaderCellDef>Severity</th>
+                <td mat-cell *matCellDef="let alert">
+                  <mat-chip [color]="getSeverityColor(alert.severity)">
+                    {{ alert.severity | titlecase }}
+                  </mat-chip>
+                </td>
+              </ng-container>
+
+              <!-- User ID Column -->
+              <ng-container matColumnDef="userId">
+                <th mat-header-cell *matHeaderCellDef>User</th>
+                <td mat-cell *matCellDef="let alert">
+                  <span *ngIf="alert.userId">{{ alert.userId }}</span>
+                  <span *ngIf="!alert.userId" class="text-gray-500">Guest</span>
+                </td>
+              </ng-container>
+
+              <!-- Action Column -->
+              <ng-container matColumnDef="action">
+                <th mat-header-cell *matHeaderCellDef>Actions</th>
+                <td mat-cell *matCellDef="let alert">
+                  <button mat-icon-button (click)="viewAlertDetails(alert)" matTooltip="View details">
+                    <mat-icon>visibility</mat-icon>
+                  </button>
+                </td>
+              </ng-container>
+
+              <tr mat-header-row *matHeaderRowDef="securityAlertColumns"></tr>
+              <tr mat-row *matRowDef="let row; columns: securityAlertColumns;"></tr>
+            </table>
+
+            <div *ngIf="securityAlerts().length === 0" class="text-center py-8 text-gray-500">
+              <mat-icon class="text-6xl text-green-500">check_circle</mat-icon>
+              <p class="mt-2">No security alerts - all systems normal</p>
+            </div>
+          </mat-card-content>
+        </mat-card>
+      </mat-tab>
+    </mat-tab-group>
+  </div>
+</div>

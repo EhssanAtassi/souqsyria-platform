@@ -1,0 +1,210 @@
+/**
+ * Cart Monitoring Dashboard Styles
+ * Syrian marketplace admin monitoring interface
+ */
+
+.cart-monitor-container {
+  min-height: 100vh;
+  background-color: #f5f5f5;
+
+  // Metric cards styling
+  .metric-card {
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+
+    &:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+    }
+
+    mat-card-content {
+      padding: 20px;
+    }
+
+    mat-icon {
+      opacity: 0.7;
+    }
+  }
+
+  // Table styling
+  table {
+    background-color: white;
+
+    th {
+      font-weight: 600;
+      color: #666;
+      padding: 12px 16px;
+    }
+
+    td {
+      padding: 12px 16px;
+    }
+
+    tr {
+      &:hover {
+        background-color: #f9fafb;
+      }
+    }
+  }
+
+  // Tab styling
+  .monitoring-tabs {
+    ::ng-deep {
+      .mat-mdc-tab-label {
+        min-width: 160px;
+        padding: 12px 24px;
+      }
+
+      .mat-mdc-tab-body-content {
+        overflow: visible;
+      }
+    }
+  }
+
+  // Performance indicators
+  .performance-indicator {
+    &.good {
+      color: #10b981;
+    }
+
+    &.warning {
+      color: #f59e0b;
+    }
+
+    &.critical {
+      color: #ef4444;
+    }
+  }
+
+  // Security alert severity colors
+  mat-chip {
+    &.severity-critical {
+      background-color: #fee2e2;
+      color: #991b1b;
+    }
+
+    &.severity-high {
+      background-color: #fef3c7;
+      color: #92400e;
+    }
+
+    &.severity-medium {
+      background-color: #dbeafe;
+      color: #1e40af;
+    }
+
+    &.severity-low {
+      background-color: #f3f4f6;
+      color: #4b5563;
+    }
+  }
+
+  // System health badge
+  .health-badge {
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+
+    &.healthy {
+      background-color: #d1fae5;
+      color: #065f46;
+    }
+
+    &.warning {
+      background-color: #fef3c7;
+      color: #92400e;
+    }
+
+    &.critical {
+      background-color: #fee2e2;
+      color: #991b1b;
+    }
+  }
+
+  // Empty state styling
+  .empty-state {
+    text-align: center;
+    padding: 48px 24px;
+    color: #9ca3af;
+
+    mat-icon {
+      font-size: 64px;
+      width: 64px;
+      height: 64px;
+      opacity: 0.5;
+    }
+
+    p {
+      margin-top: 16px;
+      font-size: 14px;
+    }
+  }
+
+  // Responsive design
+  @media (max-width: 768px) {
+    padding: 16px;
+
+    h1 {
+      font-size: 24px;
+    }
+
+    .grid {
+      grid-template-columns: 1fr;
+    }
+
+    .metric-card {
+      mat-icon {
+        font-size: 40px;
+        width: 40px;
+        height: 40px;
+      }
+    }
+
+    table {
+      font-size: 12px;
+
+      th,
+      td {
+        padding: 8px;
+      }
+    }
+  }
+}
+
+// Loading spinner centering
+.loading-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 400px;
+}
+
+// Syrian marketplace golden wheat accent
+.accent-color {
+  color: #d4af37;
+}
+
+.accent-bg {
+  background-color: #d4af37;
+  color: white;
+}
+
+// Material table enhancements
+::ng-deep {
+  .mat-mdc-table {
+    box-shadow: none;
+  }
+
+  .mat-mdc-header-cell {
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .mat-mdc-cell {
+    font-size: 14px;
+  }
+}
