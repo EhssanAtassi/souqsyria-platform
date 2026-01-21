@@ -31,7 +31,14 @@
     "seed:simple:roles": "ts-node src/testing/scripts/simple-seed.ts roles",
     "seed:simple:users": "ts-node src/testing/scripts/simple-seed.ts users",
     "seed:simple:clean": "ts-node src/testing/scripts/simple-seed.ts clean",
-    "seed:simple:stats": "ts-node src/testing/scripts/simple-seed.ts stats"
+    "seed:simple:stats": "ts-node src/testing/scripts/simple-seed.ts stats",
+    "test:cart-performance": "ts-node scripts/test-cart-performance.ts",
+    "test:cart-performance:light": "ts-node scripts/test-cart-performance.ts --concurrent 100 --duration 30",
+    "test:cart-performance:heavy": "ts-node scripts/test-cart-performance.ts --concurrent 500 --duration 60",
+    "test:cart-security": "jest --config ./test/jest-integration.json cart-security.integration.spec.ts",
+    "test:cart-guards": "jest --testPathPattern=guards.*spec.ts",
+    "validate:cart-security-simple": "ts-node scripts/validate-cart-security-simple.ts",
+    "validate:cart-security": "ts-node scripts/validate-cart-security.ts"
   },
   "dependencies": {
     "@nestjs/cache-manager": "^3.0.1",

@@ -443,45 +443,57 @@ export class CartService {
    * UPDATE CART TOTALS
    *
    * Recalculates and updates the cart's total items count and total amount.
-   * This method ensures cart summary data is always accurate.
+   * PERFORMANCE OPTIMIZED: Uses existing cart items when available to avoid
+   * unnecessary database queries. Only reloads from DB when items not present.
    *
-   * @param cart - Cart entity to update totals for
+   * @param cart - Cart entity to update totals for (with or without items loaded)
    * @returns Promise<void>
    */
   private async updateCartTotals(cart: Cart): Promise<void> {
     try {
-      // Reload cart with fresh items data
-      const freshCart = await this.cartRepo.findOne({
-        where: { id: cart.id },
-        relations: ['items', 'items.variant'],
-      });
+      let itemsToProcess = cart.items;
 
-      if (!freshCart) {
-        this.logger.warn(`⚠️ Cart ${cart.id} not found during totals update`);
-        return;
+      // Only reload from database if items are not already loaded
+      if (!itemsToProcess || itemsToProcess.length === 0) {
+        const freshCart = await this.cartRepo.findOne({
+          where: { id: cart.id },
+          relations: ['items', 'items.variant'],
+        });
+
+        if (!freshCart) {
+          this.logger.warn(`⚠️ Cart ${cart.id} not found during totals update`);
+          return;
+        }
+
+        itemsToProcess = freshCart.items;
       }
 
-      // Calculate totals
+      // Calculate totals from loaded items
       let totalItems = 0;
       let totalAmount = 0;
 
-      for (const item of freshCart.items) {
-        if (item.valid) {
+      for (const item of itemsToProcess) {
+        if (item.valid !== false) { // Count items that are not explicitly invalid
           totalItems += item.quantity;
           const itemPrice = item.price_discounted || item.price_at_add;
           totalAmount += itemPrice * item.quantity;
         }
       }
 
-      // Update cart totals
+      // Update cart totals in single atomic operation
       await this.cartRepo.update(cart.id, {
         totalItems,
         totalAmount,
         lastActivityAt: new Date(),
       });
 
+      // Update the cart object in memory for consistency
+      cart.totalItems = totalItems;
+      cart.totalAmount = totalAmount;
+      cart.lastActivityAt = new Date();
+
       this.logger.debug(
-        `📊 Updated cart totals: ${totalItems} items, ${totalAmount} SYP`,
+        `📊 Updated cart ${cart.id} totals: ${totalItems} items, ${totalAmount} ${cart.currency || 'SYP'}`,
       );
     } catch (error) {
       this.logger.error(

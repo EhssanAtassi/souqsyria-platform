@@ -48,6 +48,7 @@ import {
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import { UserFromToken } from '../../common/interfaces/user-from-token.interface';
 import { PermissionsGuard } from '../../access-control/guards/permissions.guard';
+import { CartRateLimitGuard, RateLimit } from '../guards/cart-rate-limit.guard';
 import { CartService } from '../service/cart.service';
 import { CartSyncService } from '../service/cart-sync.service';
 import { CartMergeService } from '../service/cart-merge.service';
@@ -60,7 +61,8 @@ import { OptionalAuthGuard } from '../../common/guards/optional-auth.guard';
 
 @ApiTags('🛒 Shopping Cart')
 @ApiBearerAuth()
-@UseGuards(PermissionsGuard)
+@UseGuards(CartRateLimitGuard, PermissionsGuard)
+@RateLimit({ maxRequests: 100, windowSizeInSeconds: 3600, message: 'Too many cart requests. Please wait before trying again.' })
 @Controller('cart')
 export class CartController {
   private readonly logger = new Logger(CartController.name);
@@ -126,6 +128,12 @@ export class CartController {
    * and comprehensive business rule checks.
    */
   @Post('add')
+  @RateLimit({
+    maxRequests: 20,
+    windowSizeInSeconds: 300,
+    penaltyDelayMs: 1000,
+    message: 'Too many add-to-cart requests. Please wait 5 minutes before adding more items.'
+  })
   @ApiOperation({
     summary: 'Add product item to cart',
     description:
@@ -201,6 +209,11 @@ export class CartController {
    * Example: PUT with quantity=5 three times → final quantity is 5 (not 15)
    */
   @Put('item/:itemId')
+  @RateLimit({
+    maxRequests: 30,
+    windowSizeInSeconds: 300,
+    message: 'Too many update requests. Please wait before updating cart items again.'
+  })
   @ApiOperation({
     summary: 'Update cart item quantity (idempotent)',
     description:
@@ -308,6 +321,11 @@ export class CartController {
    * and updates cart totals accordingly.
    */
   @Delete('item/:variantId')
+  @RateLimit({
+    maxRequests: 25,
+    windowSizeInSeconds: 300,
+    message: 'Too many remove requests. Please wait before removing more items.'
+  })
   @ApiOperation({
     summary: 'Remove specific item from cart',
     description: 'Removes cart item by variant ID and updates cart totals',
@@ -350,6 +368,11 @@ export class CartController {
    * This action is irreversible and will be logged for audit purposes.
    */
   @Delete('clear')
+  @RateLimit({
+    maxRequests: 5,
+    windowSizeInSeconds: 600,
+    message: 'Too many clear cart requests. Please wait 10 minutes before clearing your cart again.'
+  })
   @ApiOperation({
     summary: 'Clear entire shopping cart',
     description:

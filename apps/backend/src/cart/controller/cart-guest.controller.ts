@@ -34,6 +34,7 @@ import {
   Logger,
   NotFoundException,
   BadRequestException,
+  UseGuards,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -42,6 +43,7 @@ import {
   ApiParam,
   ApiBody,
 } from '@nestjs/swagger';
+import { CartRateLimitGuard, RateLimit } from '../guards/cart-rate-limit.guard';
 import { CartService } from '../service/cart.service';
 import { CartSyncService } from '../service/cart-sync.service';
 import { SyncCartRequest } from '../dto/SyncCartRequest.dto';
@@ -55,6 +57,12 @@ import { Cart } from '../entities/cart.entity';
  */
 @Controller('cart/guest')
 @ApiTags('🛒 Cart - Guest Sessions')
+@UseGuards(CartRateLimitGuard)
+@RateLimit({
+  maxRequests: 50,
+  windowSizeInSeconds: 3600,
+  message: 'Too many cart requests. Please wait before trying again.'
+})
 export class CartGuestController {
   private readonly logger = new Logger(CartGuestController.name);
 
