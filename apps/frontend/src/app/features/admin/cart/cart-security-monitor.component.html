@@ -1,0 +1,468 @@
+<!-- Cart Security Analytics Dashboard Template -->
+<div class="security-dashboard-container">
+  <!-- Header Section -->
+  <div class="dashboard-header">
+    <div class="header-content">
+      <h1 class="dashboard-title">
+        <mat-icon>security</mat-icon>
+        Cart Security Analytics
+      </h1>
+      <p class="dashboard-subtitle">Real-time fraud detection, device validation, and threat response monitoring</p>
+    </div>
+
+    <div class="header-actions">
+      <!-- System Health Indicator -->
+      <div class="health-indicator" [class]="'health-' + systemHealth().status">
+        <mat-icon [color]="systemHealth().color">{{ systemHealth().icon }}</mat-icon>
+        <span>{{ systemHealth().text }}</span>
+      </div>
+
+      <!-- Refresh Button -->
+      <button mat-icon-button (click)="refreshData()" [disabled]="isLoading()" matTooltip="Refresh analytics">
+        <mat-icon>refresh</mat-icon>
+      </button>
+
+      <!-- Export Button -->
+      <button mat-icon-button (click)="exportSecurityData()" [disabled]="isLoading()" matTooltip="Export as CSV">
+        <mat-icon>download</mat-icon>
+      </button>
+
+      <!-- Last Update Time -->
+      <span class="last-update">
+        Last updated: {{ formatTimestamp(lastRefreshTime().toISOString()) }}
+      </span>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="isLoading()" class="loading-container">
+    <mat-spinner diameter="48"></mat-spinner>
+    <p>Loading security analytics...</p>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="error()" class="error-container">
+    <mat-icon color="warn">error</mat-icon>
+    <p>{{ error() }}</p>
+    <button mat-raised-button color="primary" (click)="loadSecurityAnalytics()">
+      Retry
+    </button>
+  </div>
+
+  <!-- Main Dashboard Content -->
+  <div *ngIf="!isLoading() && !error() && securityData()" class="dashboard-content">
+
+    <!-- Key Metrics Cards -->
+    <div class="metrics-grid">
+      <!-- Average Risk Score -->
+      <mat-card class="metric-card">
+        <mat-card-header>
+          <mat-icon mat-card-avatar>analytics</mat-icon>
+          <mat-card-title>Average Risk Score</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="metric-value" [class.high-risk]="totalRiskScore() >= 60">
+            {{ totalRiskScore().toFixed(1) }}/100
+          </div>
+          <div class="metric-subtitle">ML-based fraud assessment</div>
+        </mat-card-content>
+      </mat-card>
+
+      <!-- Critical Threats -->
+      <mat-card class="metric-card">
+        <mat-card-header>
+          <mat-icon mat-card-avatar color="warn">priority_high</mat-icon>
+          <mat-card-title>Critical Threats</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="metric-value critical">{{ criticalThreats() }}</div>
+          <div class="metric-subtitle">Risk score ≥ 90</div>
+        </mat-card-content>
+      </mat-card>
+
+      <!-- Blocked Requests -->
+      <mat-card class="metric-card">
+        <mat-card-header>
+          <mat-icon mat-card-avatar>block</mat-icon>
+          <mat-card-title>Blocked Requests</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="metric-value">{{ blockedRequests() }}</div>
+          <div class="metric-subtitle">Automated threat response</div>
+        </mat-card-content>
+      </mat-card>
+
+      <!-- Virtual Devices -->
+      <mat-card class="metric-card">
+        <mat-card-header>
+          <mat-icon mat-card-avatar color="accent">devices</mat-icon>
+          <mat-card-title>Virtual Devices</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="metric-value">{{ virtualDevices() }}</div>
+          <div class="metric-subtitle">VM/emulator detected</div>
+        </mat-card-content>
+      </mat-card>
+
+      <!-- Impossible Travel -->
+      <mat-card class="metric-card">
+        <mat-card-header>
+          <mat-icon mat-card-avatar>flight</mat-icon>
+          <mat-card-title>Impossible Travel</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="metric-value">{{ impossibleTravel() }}</div>
+          <div class="metric-subtitle">Geolocation anomalies</div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+
+    <!-- Tabbed Content -->
+    <mat-tab-group [(selectedIndex)]="selectedTabIndex" class="security-tabs">
+
+      <!-- Tab 1: Fraud Detection -->
+      <mat-tab label="Fraud Detection">
+        <div class="tab-content">
+          <div class="fraud-metrics">
+            <!-- Risk Distribution -->
+            <mat-card class="chart-card">
+              <mat-card-header>
+                <mat-card-title>Risk Score Distribution</mat-card-title>
+              </mat-card-header>
+              <mat-card-content>
+                <div class="risk-distribution">
+                  <div class="risk-item low">
+                    <div class="risk-bar" [style.width.%]="(securityData().fraudMetrics.riskDistribution.low / securityData().fraudMetrics.totalAssessments * 100)"></div>
+                    <span class="risk-label">Low (0-30): {{ securityData().fraudMetrics.riskDistribution.low }}</span>
+                  </div>
+                  <div class="risk-item medium">
+                    <div class="risk-bar" [style.width.%]="(securityData().fraudMetrics.riskDistribution.medium / securityData().fraudMetrics.totalAssessments * 100)"></div>
+                    <span class="risk-label">Medium (31-70): {{ securityData().fraudMetrics.riskDistribution.medium }}</span>
+                  </div>
+                  <div class="risk-item high">
+                    <div class="risk-bar" [style.width.%]="(securityData().fraudMetrics.riskDistribution.high / securityData().fraudMetrics.totalAssessments * 100)"></div>
+                    <span class="risk-label">High (71-90): {{ securityData().fraudMetrics.riskDistribution.high }}</span>
+                  </div>
+                  <div class="risk-item critical">
+                    <div class="risk-bar" [style.width.%]="(securityData().fraudMetrics.riskDistribution.critical / securityData().fraudMetrics.totalAssessments * 100)"></div>
+                    <span class="risk-label">Critical (91-100): {{ securityData().fraudMetrics.riskDistribution.critical }}</span>
+                  </div>
+                </div>
+              </mat-card-content>
+            </mat-card>
+
+            <!-- Top Triggered Rules -->
+            <mat-card class="rules-card">
+              <mat-card-header>
+                <mat-card-title>Top Triggered Fraud Rules</mat-card-title>
+              </mat-card-header>
+              <mat-card-content>
+                <mat-list>
+                  <mat-list-item *ngFor="let rule of securityData().fraudMetrics.topTriggeredRules">
+                    <mat-icon matListItemIcon>rule</mat-icon>
+                    <div matListItemTitle>{{ rule.rule }}</div>
+                    <div matListItemLine>Count: {{ rule.count }} | Avg Risk: {{ rule.avgRiskScore.toFixed(1) }}</div>
+                  </mat-list-item>
+                </mat-list>
+              </mat-card-content>
+            </mat-card>
+          </div>
+        </div>
+      </mat-tab>
+
+      <!-- Tab 2: Device Security -->
+      <mat-tab label="Device Security">
+        <div class="tab-content">
+          <div class="device-metrics">
+            <!-- Device Statistics -->
+            <mat-card class="stats-card">
+              <mat-card-header>
+                <mat-card-title>Device Fingerprint Statistics</mat-card-title>
+              </mat-card-header>
+              <mat-card-content>
+                <div class="stats-grid">
+                  <div class="stat-item">
+                    <mat-icon>fingerprint</mat-icon>
+                    <div class="stat-value">{{ securityData().deviceMetrics.totalFingerprints }}</div>
+                    <div class="stat-label">Total Fingerprints</div>
+                  </div>
+                  <div class="stat-item">
+                    <mat-icon>devices</mat-icon>
+                    <div class="stat-value">{{ securityData().deviceMetrics.uniqueDevices }}</div>
+                    <div class="stat-label">Unique Devices</div>
+                  </div>
+                  <div class="stat-item">
+                    <mat-icon color="warn">computer</mat-icon>
+                    <div class="stat-value">{{ securityData().deviceMetrics.virtualDeviceDetections }}</div>
+                    <div class="stat-label">Virtual Devices</div>
+                  </div>
+                  <div class="stat-item">
+                    <mat-icon color="warn">smart_toy</mat-icon>
+                    <div class="stat-value">{{ securityData().deviceMetrics.botDetections }}</div>
+                    <div class="stat-label">Bot Detections</div>
+                  </div>
+                  <div class="stat-item">
+                    <mat-icon color="accent">warning</mat-icon>
+                    <div class="stat-value">{{ securityData().deviceMetrics.anomalyCount }}</div>
+                    <div class="stat-label">Anomalies</div>
+                  </div>
+                  <div class="stat-item">
+                    <mat-icon>verified</mat-icon>
+                    <div class="stat-value">{{ securityData().deviceMetrics.averageTrustScore.toFixed(1) }}</div>
+                    <div class="stat-label">Avg Trust Score</div>
+                  </div>
+                </div>
+              </mat-card-content>
+            </mat-card>
+
+            <!-- Device Type Distribution -->
+            <mat-card class="distribution-card">
+              <mat-card-header>
+                <mat-card-title>Device Type Distribution</mat-card-title>
+              </mat-card-header>
+              <mat-card-content>
+                <div class="device-distribution">
+                  <div class="device-type">
+                    <mat-icon>smartphone</mat-icon>
+                    <div class="device-bar" [style.width.%]="(securityData().deviceMetrics.deviceTypeDistribution.mobile / securityData().deviceMetrics.totalFingerprints * 100)"></div>
+                    <span>Mobile: {{ securityData().deviceMetrics.deviceTypeDistribution.mobile }}</span>
+                  </div>
+                  <div class="device-type">
+                    <mat-icon>desktop_windows</mat-icon>
+                    <div class="device-bar" [style.width.%]="(securityData().deviceMetrics.deviceTypeDistribution.desktop / securityData().deviceMetrics.totalFingerprints * 100)"></div>
+                    <span>Desktop: {{ securityData().deviceMetrics.deviceTypeDistribution.desktop }}</span>
+                  </div>
+                  <div class="device-type">
+                    <mat-icon>tablet</mat-icon>
+                    <div class="device-bar" [style.width.%]="(securityData().deviceMetrics.deviceTypeDistribution.tablet / securityData().deviceMetrics.totalFingerprints * 100)"></div>
+                    <span>Tablet: {{ securityData().deviceMetrics.deviceTypeDistribution.tablet }}</span>
+                  </div>
+                </div>
+              </mat-card-content>
+            </mat-card>
+          </div>
+        </div>
+      </mat-tab>
+
+      <!-- Tab 3: Threat Response -->
+      <mat-tab label="Threat Response">
+        <div class="tab-content">
+          <div class="threat-metrics">
+            <!-- Response Statistics -->
+            <mat-card class="response-stats-card">
+              <mat-card-header>
+                <mat-card-title>Automated Threat Responses</mat-card-title>
+              </mat-card-header>
+              <mat-card-content>
+                <div class="response-stats">
+                  <div class="response-item allow">
+                    <mat-icon>check_circle</mat-icon>
+                    <span>Allow: {{ securityData().threatMetrics.actionDistribution.allow }}</span>
+                  </div>
+                  <div class="response-item log">
+                    <mat-icon>description</mat-icon>
+                    <span>Enhanced Log: {{ securityData().threatMetrics.actionDistribution.log }}</span>
+                  </div>
+                  <div class="response-item challenge">
+                    <mat-icon color="accent">security</mat-icon>
+                    <span>Challenge: {{ securityData().threatMetrics.actionDistribution.challenge }}</span>
+                  </div>
+                  <div class="response-item rate-limit">
+                    <mat-icon color="accent">speed</mat-icon>
+                    <span>Rate Limit: {{ securityData().threatMetrics.actionDistribution.rate_limit }}</span>
+                  </div>
+                  <div class="response-item block">
+                    <mat-icon color="warn">block</mat-icon>
+                    <span>Block: {{ securityData().threatMetrics.actionDistribution.block }}</span>
+                  </div>
+                  <div class="response-item escalate">
+                    <mat-icon color="warn">priority_high</mat-icon>
+                    <span>Escalate: {{ securityData().threatMetrics.actionDistribution.escalate }}</span>
+                  </div>
+                </div>
+              </mat-card-content>
+            </mat-card>
+
+            <!-- Performance Metrics -->
+            <mat-card class="performance-card">
+              <mat-card-header>
+                <mat-card-title>Response Performance</mat-card-title>
+              </mat-card-header>
+              <mat-card-content>
+                <div class="performance-metrics">
+                  <div class="metric">
+                    <mat-icon>speed</mat-icon>
+                    <div class="metric-content">
+                      <span class="metric-value">{{ securityData().threatMetrics.averageResponseTime.toFixed(0) }}ms</span>
+                      <span class="metric-label">Avg Response Time</span>
+                    </div>
+                  </div>
+                  <div class="metric">
+                    <mat-icon>block</mat-icon>
+                    <div class="metric-content">
+                      <span class="metric-value">{{ securityData().threatMetrics.blockedRequests }}</span>
+                      <span class="metric-label">Blocked Requests</span>
+                    </div>
+                  </div>
+                  <div class="metric">
+                    <mat-icon>priority_high</mat-icon>
+                    <div class="metric-content">
+                      <span class="metric-value">{{ securityData().threatMetrics.escalatedThreats }}</span>
+                      <span class="metric-label">Escalated Threats</span>
+                    </div>
+                  </div>
+                </div>
+              </mat-card-content>
+            </mat-card>
+          </div>
+        </div>
+      </mat-tab>
+
+      <!-- Tab 4: Geographic Security -->
+      <mat-tab label="Geographic Security">
+        <div class="tab-content">
+          <div class="geo-metrics">
+            <!-- Geographic Threats -->
+            <mat-card class="geo-threats-card">
+              <mat-card-header>
+                <mat-card-title>Geographic Security Intelligence</mat-card-title>
+              </mat-card-header>
+              <mat-card-content>
+                <div class="geo-stats">
+                  <div class="geo-stat">
+                    <mat-icon color="warn">flight</mat-icon>
+                    <div>
+                      <span class="stat-value">{{ securityData().geoMetrics.impossibleTravelDetections }}</span>
+                      <span class="stat-label">Impossible Travel (>800 km/h)</span>
+                    </div>
+                  </div>
+                  <div class="geo-stat">
+                    <mat-icon color="accent">sync_alt</mat-icon>
+                    <div>
+                      <span class="stat-value">{{ securityData().geoMetrics.rapidIpChanges }}</span>
+                      <span class="stat-label">Rapid IP Changes</span>
+                    </div>
+                  </div>
+                  <div class="geo-stat">
+                    <mat-icon color="accent">vpn_key</mat-icon>
+                    <div>
+                      <span class="stat-value">{{ securityData().geoMetrics.proxyVpnDetections }}</span>
+                      <span class="stat-label">Proxy/VPN Detected</span>
+                    </div>
+                  </div>
+                </div>
+              </mat-card-content>
+            </mat-card>
+
+            <!-- Suspicious Countries -->
+            <mat-card class="suspicious-countries-card">
+              <mat-card-header>
+                <mat-card-title>Suspicious Country Activity</mat-card-title>
+              </mat-card-header>
+              <mat-card-content>
+                <mat-list *ngIf="securityData().geoMetrics.suspiciousCountries.length > 0">
+                  <mat-list-item *ngFor="let country of securityData().geoMetrics.suspiciousCountries">
+                    <mat-icon matListItemIcon>place</mat-icon>
+                    <div matListItemTitle>{{ country.country }}</div>
+                    <div matListItemLine>Requests: {{ country.count }} | Avg Risk: {{ country.avgRiskScore.toFixed(1) }}</div>
+                  </mat-list-item>
+                </mat-list>
+                <div *ngIf="securityData().geoMetrics.suspiciousCountries.length === 0" class="no-data">
+                  <mat-icon>check_circle</mat-icon>
+                  <p>No suspicious country activity detected</p>
+                </div>
+              </mat-card-content>
+            </mat-card>
+          </div>
+        </div>
+      </mat-tab>
+
+      <!-- Tab 5: Security Events -->
+      <mat-tab label="Security Events">
+        <div class="tab-content">
+          <!-- Event Filters -->
+          <div class="event-filters">
+            <mat-chip-listbox aria-label="Event filters">
+              <mat-chip-option (click)="setEventFilter('all')" [selected]="eventFilter() === 'all'">
+                All Events
+              </mat-chip-option>
+              <mat-chip-option (click)="setEventFilter('high_risk')" [selected]="eventFilter() === 'high_risk'">
+                High Risk
+              </mat-chip-option>
+              <mat-chip-option (click)="setEventFilter('blocked')" [selected]="eventFilter() === 'blocked'">
+                Blocked
+              </mat-chip-option>
+              <mat-chip-option (click)="setEventFilter('escalated')" [selected]="eventFilter() === 'escalated'">
+                Escalated
+              </mat-chip-option>
+            </mat-chip-listbox>
+          </div>
+
+          <!-- Events List -->
+          <mat-card class="events-card">
+            <mat-card-header>
+              <mat-card-title>Recent Security Events</mat-card-title>
+              <mat-card-subtitle>{{ filteredEvents().length }} events in last 24 hours</mat-card-subtitle>
+            </mat-card-header>
+            <mat-card-content>
+              <table mat-table [dataSource]="filteredEvents()" class="events-table">
+                <!-- Timestamp Column -->
+                <ng-container matColumnDef="timestamp">
+                  <th mat-header-cell *matHeaderCellDef>Time</th>
+                  <td mat-cell *matCellDef="let event">{{ formatTimestamp(event.timestamp) }}</td>
+                </ng-container>
+
+                <!-- Risk Score Column -->
+                <ng-container matColumnDef="riskScore">
+                  <th mat-header-cell *matHeaderCellDef>Risk</th>
+                  <td mat-cell *matCellDef="let event">
+                    <mat-chip [color]="getRiskLevelColor(event.riskLevel)">
+                      {{ event.riskScore.toFixed(0) }}
+                    </mat-chip>
+                  </td>
+                </ng-container>
+
+                <!-- Response Column -->
+                <ng-container matColumnDef="response">
+                  <th mat-header-cell *matHeaderCellDef>Response</th>
+                  <td mat-cell *matCellDef="let event">
+                    <mat-icon [matTooltip]="event.threatResponse">
+                      {{ getThreatResponseIcon(event.threatResponse) }}
+                    </mat-icon>
+                    {{ event.threatResponse }}
+                  </td>
+                </ng-container>
+
+                <!-- Client IP Column -->
+                <ng-container matColumnDef="clientIP">
+                  <th mat-header-cell *matHeaderCellDef>Client IP</th>
+                  <td mat-cell *matCellDef="let event">{{ event.clientIP }}</td>
+                </ng-container>
+
+                <!-- Triggered Rules Column -->
+                <ng-container matColumnDef="rules">
+                  <th mat-header-cell *matHeaderCellDef>Triggered Rules</th>
+                  <td mat-cell *matCellDef="let event">
+                    <mat-chip-set>
+                      <mat-chip *ngFor="let rule of event.triggeredRules.slice(0, 3)">
+                        {{ rule }}
+                      </mat-chip>
+                    </mat-chip-set>
+                  </td>
+                </ng-container>
+
+                <tr mat-header-row *matHeaderRowDef="['timestamp', 'riskScore', 'response', 'clientIP', 'rules']"></tr>
+                <tr mat-row *matRowDef="let row; columns: ['timestamp', 'riskScore', 'response', 'clientIP', 'rules']"></tr>
+              </table>
+
+              <div *ngIf="filteredEvents().length === 0" class="no-events">
+                <mat-icon>check_circle</mat-icon>
+                <p>No security events match the selected filter</p>
+              </div>
+            </mat-card-content>
+          </mat-card>
+        </div>
+      </mat-tab>
+    </mat-tab-group>
+  </div>
+</div>

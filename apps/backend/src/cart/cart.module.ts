@@ -8,16 +8,21 @@
  * - Comprehensive audit logging for all cart operations
  * - Cart analytics for business intelligence
  * - Syrian market compliance and localization
+ * - Advanced fraud detection with ML-based scoring (Week 3)
+ * - Device fingerprinting and validation (Week 3)
+ * - Automated threat response system (Week 3)
  *
  * INTEGRATIONS:
  * - Access control and permissions
  * - Audit logging system
  * - Product variants and stock management
  * - Multi-currency support (SYP, USD, EUR, TRY)
+ * - Fraud detection and security monitoring
+ * - Geolocation intelligence and device tracking
  *
  * @author SouqSyria Development Team
  * @since 2025-08-07
- * @version 2.0.0
+ * @version 3.0.0
  */
 
 import { Module } from '@nestjs/common';
@@ -35,6 +40,9 @@ import { CartMergeService } from './service/cart-merge.service';
 import { CartSyncService } from './service/cart-sync.service';
 import { CartValidationService } from './service/cart-validation.service';
 import { CartMonitoringService } from './services/cart-monitoring.service';
+import { CartFraudDetectionService } from './services/cart-fraud-detection.service';
+import { DeviceFingerprintService } from './services/device-fingerprint.service';
+import { ThreatResponseService } from './services/threat-response.service';
 import { AccessControlModule } from '../access-control/access-control.module';
 import { AuditLogModule } from '../audit-log/audit-log.module';
 import { User } from '../users/entities/user.entity';
@@ -72,6 +80,10 @@ import { CartSeederService } from './seeds/cart.seeder.service';
     CartSyncService, // ✅ Multi-device synchronization
     CartValidationService, // ✅ Pre-checkout validation
     CartMonitoringService, // ✅ Real-time monitoring and analytics
+    // Week 3: Advanced Security Services
+    CartFraudDetectionService, // ✅ ML-based fraud detection with geolocation
+    DeviceFingerprintService, // ✅ Device fingerprinting and validation
+    ThreatResponseService, // ✅ Automated threat response system
     // Seeding Services
     CartSeederService,
   ],
@@ -80,6 +92,10 @@ import { CartSeederService } from './seeds/cart.seeder.service';
     CartMergeService,
     CartSyncService,
     CartValidationService,
+    CartMonitoringService,
+    CartFraudDetectionService,
+    DeviceFingerprintService,
+    ThreatResponseService,
   ],
 })
 export class CartModule {}
