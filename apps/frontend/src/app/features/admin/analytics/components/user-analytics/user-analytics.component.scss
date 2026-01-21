@@ -1,0 +1,1052 @@
+/**
+ * @file user-analytics.component.scss
+ * @description Styles for the User Analytics component
+ *              Includes KPI cards, acquisition charts, retention tables, demographics
+ */
+
+// ============================================================================
+// VARIABLES
+// ============================================================================
+$primary-color: #3b82f6;
+$success-color: #22c55e;
+$warning-color: #f59e0b;
+$danger-color: #ef4444;
+$purple-color: #8b5cf6;
+$cyan-color: #06b6d4;
+
+$card-shadow: 0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06);
+$card-shadow-hover: 0 4px 6px rgba(0, 0, 0, 0.1), 0 2px 4px rgba(0, 0, 0, 0.06);
+$border-radius: 8px;
+$transition-base: all 0.2s ease;
+
+// ============================================================================
+// MAIN CONTAINER
+// ============================================================================
+.user-analytics {
+  padding: 1.5rem;
+  max-width: 1600px;
+  margin: 0 auto;
+  min-height: calc(100vh - 64px);
+  background: #f8fafc;
+}
+
+// ============================================================================
+// HEADER
+// ============================================================================
+.user-analytics__header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.user-analytics__title {
+  h1 {
+    margin: 0 0 0.25rem;
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: #1e293b;
+  }
+}
+
+.user-analytics__subtitle {
+  color: #64748b;
+  font-size: 0.875rem;
+}
+
+.user-analytics__header-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+// ============================================================================
+// DATE SELECTOR
+// ============================================================================
+.date-selector {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+
+  &__select {
+    padding: 0.5rem 1rem;
+    border: 1px solid #e2e8f0;
+    border-radius: $border-radius;
+    background: white;
+    color: #374151;
+    font-size: 0.875rem;
+    cursor: pointer;
+    min-width: 140px;
+    transition: $transition-base;
+
+    &:hover {
+      border-color: $primary-color;
+    }
+
+    &:focus {
+      outline: none;
+      border-color: $primary-color;
+      box-shadow: 0 0 0 3px rgba($primary-color, 0.1);
+    }
+  }
+
+  &__custom {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem;
+    background: #f1f5f9;
+    border-radius: $border-radius;
+
+    input[type="date"] {
+      padding: 0.375rem 0.5rem;
+      border: 1px solid #e2e8f0;
+      border-radius: 4px;
+      font-size: 0.8125rem;
+      color: #374151;
+
+      &:focus {
+        outline: none;
+        border-color: $primary-color;
+      }
+    }
+
+    span {
+      color: #64748b;
+      font-size: 0.8125rem;
+    }
+  }
+}
+
+// ============================================================================
+// BUTTONS
+// ============================================================================
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: $border-radius;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: $transition-base;
+
+  .material-icons {
+    font-size: 1.125rem;
+  }
+
+  &--primary {
+    background: $primary-color;
+    color: white;
+
+    &:hover {
+      background: darken($primary-color, 8%);
+    }
+  }
+
+  &--secondary {
+    background: white;
+    color: #475569;
+    border: 1px solid #e2e8f0;
+
+    &:hover {
+      background: #f8fafc;
+      border-color: #cbd5e1;
+    }
+  }
+
+  &--small {
+    padding: 0.375rem 0.75rem;
+    font-size: 0.8125rem;
+  }
+}
+
+// ============================================================================
+// ERROR BANNER
+// ============================================================================
+.error-banner {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: $border-radius;
+  margin-bottom: 1rem;
+  color: #991b1b;
+  font-size: 0.875rem;
+
+  .material-icons:first-child {
+    font-size: 1.25rem;
+    color: $danger-color;
+  }
+
+  button {
+    margin-left: auto;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0.25rem;
+    color: #991b1b;
+    opacity: 0.7;
+
+    &:hover {
+      opacity: 1;
+    }
+
+    .material-icons {
+      font-size: 1rem;
+    }
+  }
+}
+
+// ============================================================================
+// LOADING STATE
+// ============================================================================
+.loading-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem;
+  gap: 1rem;
+
+  p {
+    color: #64748b;
+    font-size: 0.9375rem;
+  }
+}
+
+.loading-spinner {
+  width: 48px;
+  height: 48px;
+  border: 3px solid #e2e8f0;
+  border-top-color: $primary-color;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+// ============================================================================
+// KPI CARDS
+// ============================================================================
+.user-analytics__kpis {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.kpi-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.875rem;
+  padding: 1.25rem;
+  background: white;
+  border-radius: $border-radius;
+  box-shadow: $card-shadow;
+  transition: $transition-base;
+
+  &:hover {
+    box-shadow: $card-shadow-hover;
+    transform: translateY(-2px);
+  }
+
+  &__icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    border-radius: 10px;
+    flex-shrink: 0;
+
+    .material-icons {
+      font-size: 1.375rem;
+      color: white;
+    }
+  }
+
+  &[data-color="blue"] .kpi-card__icon {
+    background: linear-gradient(135deg, $primary-color, #60a5fa);
+  }
+
+  &[data-color="green"] .kpi-card__icon {
+    background: linear-gradient(135deg, $success-color, #4ade80);
+  }
+
+  &[data-color="purple"] .kpi-card__icon {
+    background: linear-gradient(135deg, $purple-color, #a78bfa);
+  }
+
+  &[data-color="orange"] .kpi-card__icon {
+    background: linear-gradient(135deg, $warning-color, #fbbf24);
+  }
+
+  &[data-color="red"] .kpi-card__icon {
+    background: linear-gradient(135deg, $danger-color, #f87171);
+  }
+
+  &[data-color="cyan"] .kpi-card__icon {
+    background: linear-gradient(135deg, $cyan-color, #22d3ee);
+  }
+
+  &__content {
+    display: flex;
+    flex-direction: column;
+    gap: 0.125rem;
+    flex: 1;
+    min-width: 0;
+  }
+
+  &__value {
+    font-size: 1.375rem;
+    font-weight: 700;
+    color: #1e293b;
+    line-height: 1.2;
+  }
+
+  &__label {
+    font-size: 0.75rem;
+    color: #64748b;
+  }
+
+  &__change {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.125rem;
+    font-size: 0.6875rem;
+    font-weight: 500;
+    padding: 0.125rem 0.375rem;
+    border-radius: 4px;
+    margin-top: 0.25rem;
+    width: fit-content;
+
+    .material-icons {
+      font-size: 0.75rem;
+    }
+
+    &--positive {
+      background: rgba($success-color, 0.1);
+      color: $success-color;
+    }
+
+    &--negative {
+      background: rgba($danger-color, 0.1);
+      color: $danger-color;
+    }
+  }
+}
+
+// ============================================================================
+// CHART CARDS
+// ============================================================================
+.user-analytics__chart,
+.user-analytics__row {
+  margin-bottom: 1.5rem;
+}
+
+.user-analytics__row {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+
+  @media (max-width: 1024px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.chart-card {
+  background: white;
+  border-radius: $border-radius;
+  box-shadow: $card-shadow;
+  overflow: hidden;
+
+  &--half {
+    height: 100%;
+  }
+
+  &__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid #f1f5f9;
+
+    h3 {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin: 0;
+      font-size: 0.9375rem;
+      font-weight: 600;
+      color: #1e293b;
+
+      .material-icons {
+        font-size: 1.125rem;
+        color: #64748b;
+      }
+    }
+  }
+
+  &__body {
+    padding: 1.25rem;
+  }
+}
+
+// Chart legend
+.chart-legend {
+  display: flex;
+  gap: 1rem;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  font-size: 0.75rem;
+  color: #64748b;
+
+  .legend-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+  }
+
+  &--new .legend-dot {
+    background: $primary-color;
+  }
+
+  &--active .legend-dot {
+    background: $success-color;
+  }
+}
+
+// Period selector
+.period-selector {
+  display: flex;
+  background: #f1f5f9;
+  border-radius: 6px;
+  padding: 2px;
+}
+
+.period-btn {
+  padding: 0.375rem 0.75rem;
+  border: none;
+  background: transparent;
+  color: #64748b;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: $transition-base;
+
+  &:hover {
+    color: #374151;
+  }
+
+  &--active {
+    background: white;
+    color: $primary-color;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  }
+}
+
+// ============================================================================
+// LINE CHART (ACQUISITION)
+// ============================================================================
+.line-chart {
+  display: flex;
+  gap: 0.5rem;
+  min-height: 240px;
+
+  &__y-axis {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 0.5rem 0;
+    text-align: right;
+    width: 48px;
+    flex-shrink: 0;
+
+    span {
+      font-size: 0.6875rem;
+      color: #94a3b8;
+    }
+  }
+
+  &__area {
+    flex: 1;
+    display: flex;
+    align-items: flex-end;
+    gap: 8px;
+    padding-bottom: 24px;
+    border-bottom: 1px solid #e2e8f0;
+    position: relative;
+  }
+
+  &__point-group {
+    flex: 1;
+    min-width: 32px;
+    max-width: 56px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.25rem;
+    position: relative;
+    cursor: pointer;
+  }
+
+  &__bar {
+    width: 50%;
+    border-radius: 3px 3px 0 0;
+    transition: $transition-base;
+    min-height: 2px;
+
+    &--active {
+      background: rgba($success-color, 0.3);
+      position: absolute;
+      bottom: 24px;
+    }
+
+    &--new {
+      background: $primary-color;
+      position: relative;
+      z-index: 1;
+    }
+  }
+
+  &__label {
+    font-size: 0.625rem;
+    color: #94a3b8;
+    white-space: nowrap;
+    text-align: center;
+    max-width: 100%;
+    overflow: hidden;
+  }
+}
+
+// ============================================================================
+// BAR CHART (ENGAGEMENT)
+// ============================================================================
+.bar-chart {
+  display: flex;
+  flex-direction: column;
+  min-height: 200px;
+
+  &--engagement {
+    .bar-chart__bars {
+      flex: 1;
+      display: flex;
+      align-items: flex-end;
+      gap: 6px;
+      padding-bottom: 24px;
+      border-bottom: 1px solid #e2e8f0;
+    }
+
+    .bar-chart__bar-wrapper {
+      flex: 1;
+      min-width: 24px;
+      max-width: 48px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.25rem;
+      cursor: pointer;
+
+      &:hover .bar-chart__bar {
+        background: $purple-color;
+      }
+    }
+
+    .bar-chart__bar {
+      width: 100%;
+      background: lighten($purple-color, 15%);
+      border-radius: 3px 3px 0 0;
+      transition: $transition-base;
+      min-height: 2px;
+    }
+
+    .bar-chart__label {
+      font-size: 0.625rem;
+      color: #94a3b8;
+      white-space: nowrap;
+    }
+  }
+}
+
+// ============================================================================
+// RETENTION
+// ============================================================================
+.retention-summary {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+}
+
+.retention-metric {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 1rem;
+  background: #f8fafc;
+  border-radius: $border-radius;
+  text-align: center;
+
+  &__value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #1e293b;
+  }
+
+  &__label {
+    font-size: 0.75rem;
+    color: #64748b;
+    margin-top: 0.25rem;
+  }
+}
+
+.cohort-preview {
+  h4 {
+    margin: 0 0 0.75rem;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: #475569;
+  }
+}
+
+.cohort-table {
+  font-size: 0.75rem;
+  border-radius: 6px;
+  overflow: hidden;
+  border: 1px solid #e2e8f0;
+}
+
+.cohort-row {
+  display: grid;
+  grid-template-columns: 80px 60px repeat(4, 1fr);
+  background: white;
+
+  &--header {
+    background: #f8fafc;
+    font-weight: 600;
+    color: #64748b;
+  }
+
+  &:not(:last-child) {
+    border-bottom: 1px solid #f1f5f9;
+  }
+}
+
+.cohort-cell {
+  padding: 0.5rem;
+  text-align: center;
+
+  &--date {
+    text-align: left;
+    color: #475569;
+  }
+
+  &--value {
+    font-weight: 500;
+  }
+
+  &--empty {
+    color: #cbd5e1;
+  }
+}
+
+// Retention color classes
+.retention-high {
+  background: rgba($success-color, 0.2);
+  color: darken($success-color, 10%);
+}
+
+.retention-medium {
+  background: rgba($warning-color, 0.2);
+  color: darken($warning-color, 10%);
+}
+
+.retention-low {
+  background: rgba($danger-color, 0.15);
+  color: darken($danger-color, 5%);
+}
+
+.retention-very-low {
+  background: rgba($danger-color, 0.1);
+  color: lighten($danger-color, 10%);
+}
+
+// ============================================================================
+// DEMOGRAPHICS
+// ============================================================================
+.user-analytics__demographics {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+
+  @media (max-width: 1200px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.breakdown-card {
+  background: white;
+  border-radius: $border-radius;
+  box-shadow: $card-shadow;
+  overflow: hidden;
+
+  &__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid #f1f5f9;
+
+    h3 {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin: 0;
+      font-size: 0.9375rem;
+      font-weight: 600;
+      color: #1e293b;
+
+      .material-icons {
+        font-size: 1.125rem;
+        color: #64748b;
+      }
+    }
+  }
+
+  &__body {
+    padding: 1rem 1.25rem;
+    max-height: 280px;
+    overflow-y: auto;
+  }
+}
+
+.breakdown-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.875rem;
+}
+
+.breakdown-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+
+  &__info {
+    display: flex;
+    flex-direction: column;
+  }
+
+  &__name {
+    font-size: 0.8125rem;
+    font-weight: 500;
+    color: #1e293b;
+  }
+
+  &__stats {
+    display: flex;
+    align-items: baseline;
+    gap: 0.5rem;
+  }
+
+  &__value {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #1e293b;
+  }
+
+  &__percent {
+    font-size: 0.6875rem;
+    color: #64748b;
+    background: #f1f5f9;
+    padding: 0.125rem 0.375rem;
+    border-radius: 4px;
+  }
+
+  &__bar {
+    height: 5px;
+    background: #e2e8f0;
+    border-radius: 3px;
+    overflow: hidden;
+  }
+
+  &__bar-fill {
+    height: 100%;
+    border-radius: 3px;
+    transition: width 0.5s ease;
+
+    &--source {
+      background: $primary-color;
+    }
+
+    &--location {
+      background: $success-color;
+    }
+  }
+}
+
+// Engagement metrics
+.engagement-metrics {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.engagement-metric-card {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem;
+  background: #f8fafc;
+  border-radius: $border-radius;
+
+  .material-icons {
+    font-size: 1.5rem;
+    color: $purple-color;
+  }
+
+  &__content {
+    display: flex;
+    flex-direction: column;
+  }
+
+  &__value {
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: #1e293b;
+  }
+
+  &__label {
+    font-size: 0.75rem;
+    color: #64748b;
+  }
+}
+
+// Empty state
+.empty-state-small {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  text-align: center;
+
+  .material-icons {
+    font-size: 2.5rem;
+    color: #cbd5e1;
+    margin-bottom: 0.5rem;
+  }
+
+  p {
+    margin: 0;
+    color: #94a3b8;
+    font-size: 0.875rem;
+  }
+}
+
+// ============================================================================
+// QUICK LINKS
+// ============================================================================
+.user-analytics__quick-links {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 1rem;
+}
+
+.quick-link {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem 1.25rem;
+  background: white;
+  border-radius: $border-radius;
+  box-shadow: $card-shadow;
+  text-decoration: none;
+  color: #475569;
+  transition: $transition-base;
+
+  &:hover {
+    box-shadow: $card-shadow-hover;
+    transform: translateY(-2px);
+    color: $primary-color;
+
+    .material-icons {
+      color: $primary-color;
+    }
+  }
+
+  .material-icons {
+    font-size: 1.5rem;
+    color: #64748b;
+    transition: $transition-base;
+  }
+
+  span:last-child {
+    font-size: 0.875rem;
+    font-weight: 500;
+  }
+}
+
+// ============================================================================
+// MATERIAL MENU OVERRIDES
+// ============================================================================
+::ng-deep {
+  .mat-mdc-menu-panel {
+    border-radius: $border-radius !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+  }
+
+  .mat-mdc-menu-item {
+    font-size: 0.875rem !important;
+
+    .material-icons {
+      margin-right: 0.75rem;
+      font-size: 1.125rem;
+      color: #64748b;
+    }
+  }
+}
+
+// ============================================================================
+// RESPONSIVE
+// ============================================================================
+@media (max-width: 768px) {
+  .user-analytics {
+    padding: 1rem;
+  }
+
+  .user-analytics__header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .user-analytics__header-actions {
+    flex-wrap: wrap;
+  }
+
+  .date-selector {
+    flex-direction: column;
+    width: 100%;
+
+    &__select {
+      width: 100%;
+    }
+
+    &__custom {
+      width: 100%;
+      flex-wrap: wrap;
+    }
+  }
+
+  .user-analytics__kpis {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .kpi-card {
+    padding: 1rem;
+
+    &__value {
+      font-size: 1.125rem;
+    }
+  }
+
+  .retention-summary {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .cohort-table {
+    font-size: 0.6875rem;
+  }
+
+  .cohort-row {
+    grid-template-columns: 60px 40px repeat(4, 1fr);
+  }
+
+  .user-analytics__quick-links {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 480px) {
+  .user-analytics__kpis {
+    grid-template-columns: 1fr;
+  }
+
+  .retention-summary {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .user-analytics__quick-links {
+    grid-template-columns: 1fr;
+  }
+}
+
+// ============================================================================
+// RTL SUPPORT
+// ============================================================================
+[dir="rtl"] {
+  .user-analytics__header-actions {
+    flex-direction: row-reverse;
+  }
+
+  .kpi-card {
+    flex-direction: row-reverse;
+  }
+
+  .breakdown-card__header h3,
+  .chart-card__header h3 {
+    flex-direction: row-reverse;
+  }
+
+  .breakdown-item__stats {
+    flex-direction: row-reverse;
+  }
+
+  .quick-link {
+    flex-direction: row-reverse;
+  }
+
+  .engagement-metric-card {
+    flex-direction: row-reverse;
+  }
+
+  .legend-item {
+    flex-direction: row-reverse;
+  }
+
+  .cohort-cell--date {
+    text-align: right;
+  }
+
+  .line-chart__y-axis {
+    text-align: left;
+  }
+
+  ::ng-deep .mat-mdc-menu-item .material-icons {
+    margin-right: 0;
+    margin-left: 0.75rem;
+  }
+}

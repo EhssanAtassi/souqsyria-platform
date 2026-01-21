@@ -1,0 +1,261 @@
+/**
+ * Admin Filter Panel Styles
+ * @description Styling for the filter panel component
+ */
+
+// Main container
+.filter-panel {
+  @apply bg-white rounded-lg border border-gray-200;
+  @apply transition-all duration-200;
+
+  &--collapsed {
+    .filter-panel__content {
+      @apply hidden;
+    }
+  }
+
+  &--loading {
+    @apply opacity-70 pointer-events-none;
+  }
+}
+
+// Header
+.filter-panel__header {
+  @apply flex items-center justify-between;
+  @apply px-4 py-3;
+  @apply cursor-pointer select-none;
+  @apply hover:bg-gray-50 transition-colors;
+  @apply rounded-t-lg;
+}
+
+.filter-panel__title-group {
+  @apply flex items-center gap-2;
+}
+
+.filter-panel__icon {
+  @apply text-gray-400 text-xl;
+}
+
+.filter-panel__title {
+  @apply text-sm font-semibold text-gray-700;
+}
+
+.filter-panel__badge {
+  @apply inline-flex items-center justify-center;
+  @apply min-w-[20px] h-5 px-1.5;
+  @apply bg-blue-100 text-blue-700 text-xs font-medium;
+  @apply rounded-full;
+}
+
+.filter-panel__toggle {
+  @apply p-1 rounded-md text-gray-400;
+  @apply hover:bg-gray-100 hover:text-gray-600;
+  @apply transition-colors;
+
+  .material-icons {
+    @apply text-xl;
+  }
+}
+
+// Content area
+.filter-panel__content {
+  @apply px-4 pb-4;
+  @apply border-t border-gray-100;
+
+  &--hidden {
+    @apply hidden;
+  }
+}
+
+// Filter fields grid
+.filter-panel__fields {
+  @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4;
+  @apply pt-4;
+}
+
+// Individual filter field
+.filter-field {
+  @apply flex flex-col gap-1.5;
+
+  // Column spans
+  &--col-1 {
+    @apply col-span-1;
+  }
+
+  &--col-2 {
+    @apply col-span-1 sm:col-span-2;
+  }
+
+  &--col-3 {
+    @apply col-span-1 sm:col-span-2 lg:col-span-3;
+  }
+
+  &--col-4 {
+    @apply col-span-1 sm:col-span-2 lg:col-span-4;
+  }
+}
+
+.filter-field__label {
+  @apply text-xs font-medium text-gray-600;
+}
+
+.filter-field__required {
+  @apply text-red-500 ml-0.5;
+}
+
+// Text/number/date input
+.filter-field__input {
+  @apply w-full px-3 py-2;
+  @apply bg-white border border-gray-300 rounded-md;
+  @apply text-sm text-gray-900;
+  @apply placeholder:text-gray-400;
+  @apply focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400;
+  @apply transition-colors;
+
+  &--half {
+    @apply flex-1;
+  }
+}
+
+// Select dropdown
+.filter-field__select {
+  @apply w-full px-3 py-2 pr-8;
+  @apply bg-white border border-gray-300 rounded-md;
+  @apply text-sm text-gray-900;
+  @apply focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400;
+  @apply cursor-pointer appearance-none;
+
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+  background-position: right 0.5rem center;
+  background-repeat: no-repeat;
+  background-size: 1.25em 1.25em;
+}
+
+// Multiselect checkboxes
+.filter-field__multiselect {
+  @apply flex flex-wrap gap-2;
+  @apply max-h-32 overflow-y-auto;
+  @apply p-2 bg-gray-50 rounded-md border border-gray-200;
+}
+
+.filter-field__checkbox-label {
+  @apply inline-flex items-center gap-1.5 cursor-pointer;
+  @apply text-sm text-gray-700;
+}
+
+.filter-field__checkbox {
+  @apply w-4 h-4 rounded border-gray-300;
+  @apply text-blue-600 focus:ring-blue-400;
+}
+
+.filter-field__checkbox-text {
+  @apply text-sm;
+}
+
+.filter-field__option-count {
+  @apply text-gray-400;
+}
+
+// Radio buttons
+.filter-field__radio-group {
+  @apply flex flex-wrap gap-3;
+}
+
+.filter-field__radio-label {
+  @apply inline-flex items-center gap-1.5 cursor-pointer;
+}
+
+.filter-field__radio {
+  @apply w-4 h-4 border-gray-300;
+  @apply text-blue-600 focus:ring-blue-400;
+}
+
+.filter-field__radio-text {
+  @apply text-sm text-gray-700;
+}
+
+// Single checkbox
+.filter-field__checkbox-single {
+  @apply inline-flex items-center gap-2 cursor-pointer;
+  @apply py-2;
+}
+
+// Range inputs
+.filter-field__date-range,
+.filter-field__number-range {
+  @apply flex items-center gap-2;
+}
+
+.filter-field__range-separator {
+  @apply text-sm text-gray-400 flex-shrink-0;
+}
+
+// Actions
+.filter-panel__actions {
+  @apply flex items-center justify-end gap-2;
+  @apply pt-4 mt-4 border-t border-gray-100;
+}
+
+.filter-panel__btn {
+  @apply inline-flex items-center gap-1.5;
+  @apply px-3 py-1.5 rounded-md;
+  @apply text-sm font-medium;
+  @apply transition-colors;
+
+  .material-icons {
+    @apply text-base;
+  }
+
+  &--reset {
+    @apply text-gray-600 hover:text-gray-800;
+    @apply hover:bg-gray-100;
+
+    &:disabled {
+      @apply opacity-50 cursor-not-allowed hover:bg-transparent;
+    }
+  }
+
+  &--apply {
+    @apply bg-blue-600 text-white;
+    @apply hover:bg-blue-700;
+  }
+}
+
+// RTL support
+[dir='rtl'] {
+  .filter-panel__header {
+    @apply flex-row-reverse;
+  }
+
+  .filter-panel__title-group {
+    @apply flex-row-reverse;
+  }
+
+  .filter-field__select {
+    @apply pr-3 pl-8;
+    background-position: left 0.5rem center;
+  }
+
+  .filter-panel__actions {
+    @apply flex-row-reverse;
+  }
+
+  .filter-panel__btn {
+    @apply flex-row-reverse;
+  }
+}
+
+// Responsive
+@media (max-width: 640px) {
+  .filter-panel__fields {
+    @apply grid-cols-1;
+  }
+
+  .filter-field {
+    &--col-2,
+    &--col-3,
+    &--col-4 {
+      @apply col-span-1;
+    }
+  }
+}

@@ -1,0 +1,91 @@
+<!-- Admin Confirmation Dialog Template -->
+<!-- Modal dialog for confirming user actions with optional text verification -->
+
+<div
+  #dialogContainer
+  class="confirmation-dialog"
+  [ngClass]="'confirmation-dialog--' + type"
+  role="alertdialog"
+  aria-modal="true"
+  [attr.aria-labelledby]="'dialog-title'"
+  [attr.aria-describedby]="'dialog-message'"
+  cdkTrapFocus
+  [cdkTrapFocusAutoCapture]="true"
+>
+  <!-- Screen reader keyboard hint -->
+  <p class="sr-only" role="note">Press Escape to cancel and close this dialog.</p>
+
+  <!-- Header with icon -->
+  <header class="confirmation-dialog__header">
+    <div class="confirmation-dialog__icon-wrapper">
+      <span class="confirmation-dialog__icon material-icons">{{ iconName }}</span>
+    </div>
+    <h2 id="dialog-title" class="confirmation-dialog__title">
+      {{ title }}
+    </h2>
+  </header>
+
+  <!-- Content -->
+  <div class="confirmation-dialog__content">
+    <!-- Main message -->
+    <p id="dialog-message" class="confirmation-dialog__message">
+      {{ message }}
+    </p>
+
+    <!-- Additional details -->
+    <div *ngIf="details" class="confirmation-dialog__details">
+      <p>{{ details }}</p>
+    </div>
+
+    <!-- Text confirmation input -->
+    <div *ngIf="requireTextConfirmation" class="confirmation-dialog__confirmation">
+      <label for="confirmation-input" class="confirmation-dialog__confirmation-label">
+        Type <strong>{{ confirmationText }}</strong> to confirm:
+      </label>
+      <input
+        id="confirmation-input"
+        type="text"
+        class="confirmation-dialog__confirmation-input"
+        [placeholder]="confirmationPlaceholder"
+        [ngModel]="confirmationInput()"
+        (ngModelChange)="updateConfirmationInput($event)"
+        (keydown.enter)="onConfirm()"
+        autocomplete="off"
+        spellcheck="false"
+        aria-required="true"
+        [attr.aria-invalid]="confirmationInput() && confirmationInput() !== confirmationText"
+        [attr.aria-describedby]="'confirmation-hint'"
+      />
+      <span id="confirmation-hint" class="sr-only">
+        Press Enter to confirm after typing the required text.
+      </span>
+    </div>
+  </div>
+
+  <!-- Actions -->
+  <footer class="confirmation-dialog__actions">
+    <button
+      #cancelButton
+      type="button"
+      class="confirmation-dialog__btn confirmation-dialog__btn--cancel"
+      (click)="onCancel()"
+      [disabled]="isProcessing()"
+      aria-label="Cancel and close dialog"
+    >
+      {{ cancelText }}
+    </button>
+
+    <button
+      type="button"
+      class="confirmation-dialog__btn confirmation-dialog__btn--confirm"
+      [ngClass]="'confirmation-dialog__btn--' + type"
+      (click)="onConfirm()"
+      [disabled]="isConfirmDisabled"
+      [attr.aria-label]="confirmText + ' action'"
+      [attr.aria-disabled]="isConfirmDisabled"
+    >
+      <span *ngIf="isProcessing()" class="confirmation-dialog__spinner" aria-hidden="true"></span>
+      {{ confirmText }}
+    </button>
+  </footer>
+</div>

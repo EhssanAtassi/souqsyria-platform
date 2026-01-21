@@ -1,0 +1,413 @@
+<!-- Product Detail Template -->
+<!-- Comprehensive product view with tabs for different sections -->
+
+<section class="product-detail" aria-label="Product details">
+  <!-- Breadcrumb Navigation -->
+  <nav class="product-detail__breadcrumb">
+    <a routerLink="/admin/products" class="product-detail__breadcrumb-link">
+      <span class="material-icons">arrow_back</span>
+      Back to Products
+    </a>
+  </nav>
+
+  <!-- Loading State -->
+  <div *ngIf="isLoading()" class="product-detail__loading">
+    <div class="product-detail__loading-content">
+      <span class="material-icons animate-spin">sync</span>
+      <p>Loading product details...</p>
+    </div>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="errorMessage()" class="product-detail__error">
+    <span class="material-icons">error_outline</span>
+    <p>{{ errorMessage() }}</p>
+    <button type="button" class="product-detail__error-btn" (click)="refresh()">
+      Try Again
+    </button>
+  </div>
+
+  <!-- Main Content -->
+  <ng-container *ngIf="!isLoading() && product()">
+    <!-- Product Header -->
+    <header class="product-detail__header">
+      <div class="product-detail__header-main">
+        <!-- Image Gallery -->
+        <div class="product-detail__gallery">
+          <div class="product-detail__main-image" (click)="openImageModal(selectedImageIndex())">
+            <img
+              *ngIf="sortedImages()[selectedImageIndex()]"
+              [src]="sortedImages()[selectedImageIndex()]?.url"
+              [alt]="product()?.nameEn"
+              class="product-detail__image"
+            />
+            <div *ngIf="!sortedImages().length" class="product-detail__no-image">
+              <span class="material-icons">image</span>
+              <p>No images</p>
+            </div>
+            <button
+              *ngIf="sortedImages().length > 1"
+              type="button"
+              class="product-detail__gallery-nav product-detail__gallery-nav--prev"
+              (click)="previousImage(); $event.stopPropagation()"
+            >
+              <span class="material-icons">chevron_left</span>
+            </button>
+            <button
+              *ngIf="sortedImages().length > 1"
+              type="button"
+              class="product-detail__gallery-nav product-detail__gallery-nav--next"
+              (click)="nextImage(); $event.stopPropagation()"
+            >
+              <span class="material-icons">chevron_right</span>
+            </button>
+          </div>
+
+          <!-- Thumbnails -->
+          <div class="product-detail__thumbnails" *ngIf="sortedImages().length > 1">
+            <button
+              *ngFor="let image of sortedImages(); let i = index"
+              type="button"
+              class="product-detail__thumbnail"
+              [class.product-detail__thumbnail--active]="selectedImageIndex() === i"
+              (click)="selectImage(i)"
+            >
+              <img [src]="image.url" [alt]="'Image ' + (i + 1)" />
+            </button>
+          </div>
+        </div>
+
+        <!-- Product Info -->
+        <div class="product-detail__info">
+          <div class="product-detail__badges">
+            <app-admin-status-badge
+              [status]="product()?.approvalStatus || 'pending'"
+              [variant]="getApprovalVariant(product()?.approvalStatus!)"
+            />
+            <app-admin-status-badge
+              [status]="product()?.status || 'draft'"
+              [variant]="getStatusVariant(product()?.status!)"
+            />
+          </div>
+
+          <h1 class="product-detail__name">{{ product()?.nameEn }}</h1>
+          <p class="product-detail__name-ar" *ngIf="product()?.nameAr">{{ product()?.nameAr }}</p>
+
+          <div class="product-detail__sku">
+            <span class="product-detail__sku-label">SKU:</span>
+            <code class="product-detail__sku-value">{{ product()?.sku }}</code>
+          </div>
+
+          <div class="product-detail__pricing">
+            <div class="product-detail__price-main">
+              <span
+                class="product-detail__price"
+                [class.product-detail__price--discounted]="hasDiscount()"
+              >
+                {{ product()?.price | currencyFormat }}
+              </span>
+              <span *ngIf="hasDiscount()" class="product-detail__sale-price">
+                {{ product()?.salePrice | currencyFormat }}
+              </span>
+            </div>
+            <span *ngIf="hasDiscount()" class="product-detail__discount-badge">
+              -{{ discountPercent() }}%
+            </span>
+          </div>
+
+          <div class="product-detail__stock">
+            <span class="product-detail__stock-icon material-icons">inventory</span>
+            <span
+              class="product-detail__stock-value"
+              [attr.data-status]="stockClass()"
+            >
+              {{ product()?.stock }} units
+            </span>
+            <span class="product-detail__stock-status">{{ stockStatus() }}</span>
+          </div>
+
+          <div class="product-detail__category">
+            <span class="material-icons">category</span>
+            <span>{{ product()?.category?.nameEn }}</span>
+          </div>
+
+          <div class="product-detail__vendor">
+            <span class="material-icons">storefront</span>
+            <span>{{ product()?.vendor?.shopName }}</span>
+            <span
+              *ngIf="product()?.vendor?.isVerified"
+              class="product-detail__vendor-verified"
+              matTooltip="Verified Vendor"
+            >
+              <span class="material-icons">verified</span>
+            </span>
+          </div>
+
+          <div class="product-detail__rating" *ngIf="product()?.averageRating">
+            <span class="material-icons">star</span>
+            <span class="product-detail__rating-value">
+              {{ product()?.averageRating | number:'1.1-1' }}
+            </span>
+            <span class="product-detail__rating-count">
+              ({{ product()?.reviewCount }} reviews)
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <div class="product-detail__actions">
+        <button
+          type="button"
+          class="product-detail__action-btn"
+          (click)="refresh()"
+          matTooltip="Refresh"
+        >
+          <span class="material-icons">refresh</span>
+        </button>
+
+        <button
+          *ngIf="product()?.approvalStatus === 'pending'"
+          type="button"
+          class="product-detail__action-btn product-detail__action-btn--success"
+          (click)="approveProduct()"
+          matTooltip="Approve product"
+        >
+          <span class="material-icons">check_circle</span>
+          <span>Approve</span>
+        </button>
+
+        <button
+          type="button"
+          class="product-detail__action-btn"
+          (click)="openStatusDialog()"
+          matTooltip="Change status"
+        >
+          <span class="material-icons">toggle_on</span>
+          <span>Change Status</span>
+        </button>
+
+        <button
+          type="button"
+          class="product-detail__action-btn"
+          (click)="toggleFeatured()"
+          matTooltip="Toggle featured"
+        >
+          <span class="material-icons">star</span>
+          <span>Feature</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- Tabbed Content -->
+    <mat-tab-group
+      class="product-detail__tabs"
+      [selectedIndex]="activeTab()"
+      (selectedIndexChange)="onTabChange($event)"
+    >
+      <!-- Overview Tab -->
+      <mat-tab label="Overview">
+        <div class="product-detail__tab-content">
+          <div class="product-detail__grid">
+            <!-- Description Section -->
+            <section class="product-detail__section product-detail__section--full">
+              <h3 class="product-detail__section-title">Description</h3>
+              <div class="product-detail__description">
+                <div class="product-detail__description-block">
+                  <h4>English</h4>
+                  <p>{{ product()?.descriptionEn || 'No description provided' }}</p>
+                </div>
+                <div class="product-detail__description-block" *ngIf="product()?.descriptionAr">
+                  <h4>Arabic</h4>
+                  <p dir="rtl">{{ product()?.descriptionAr }}</p>
+                </div>
+              </div>
+            </section>
+
+            <!-- Sales Metrics -->
+            <section class="product-detail__section">
+              <h3 class="product-detail__section-title">Sales Performance</h3>
+              <div class="product-detail__metrics">
+                <div class="product-detail__metric">
+                  <span class="product-detail__metric-value">
+                    {{ product()?.totalSold | number }}
+                  </span>
+                  <span class="product-detail__metric-label">Units Sold</span>
+                </div>
+                <div class="product-detail__metric">
+                  <span class="product-detail__metric-value">
+                    {{ product()?.salesMetrics?.totalOrders | number }}
+                  </span>
+                  <span class="product-detail__metric-label">Total Orders</span>
+                </div>
+                <div class="product-detail__metric">
+                  <span class="product-detail__metric-value">
+                    {{ product()?.salesMetrics?.totalRevenue | currencyFormat }}
+                  </span>
+                  <span class="product-detail__metric-label">Total Revenue</span>
+                </div>
+                <div class="product-detail__metric">
+                  <span class="product-detail__metric-value">
+                    {{ product()?.salesMetrics?.averageOrderValue | currencyFormat }}
+                  </span>
+                  <span class="product-detail__metric-label">Avg. Order Value</span>
+                </div>
+              </div>
+            </section>
+
+            <!-- Product Details -->
+            <section class="product-detail__section">
+              <h3 class="product-detail__section-title">Product Details</h3>
+              <dl class="product-detail__details-list">
+                <div class="product-detail__detail-item">
+                  <dt>Created</dt>
+                  <dd>{{ formatDate(product()?.createdAt!) }}</dd>
+                </div>
+                <div class="product-detail__detail-item" *ngIf="product()?.approvedAt">
+                  <dt>Approved</dt>
+                  <dd>{{ formatDate(product()?.approvedAt!) }}</dd>
+                </div>
+                <div class="product-detail__detail-item">
+                  <dt>Category</dt>
+                  <dd>{{ product()?.category?.nameEn }}</dd>
+                </div>
+                <div class="product-detail__detail-item">
+                  <dt>Slug</dt>
+                  <dd><code>{{ product()?.slug }}</code></dd>
+                </div>
+              </dl>
+            </section>
+          </div>
+        </div>
+      </mat-tab>
+
+      <!-- Variants Tab -->
+      <mat-tab label="Variants" *ngIf="product()?.variants?.length">
+        <div class="product-detail__tab-content">
+          <section class="product-detail__section">
+            <h3 class="product-detail__section-title">
+              Product Variants ({{ product()?.variants?.length }})
+            </h3>
+            <div class="product-detail__variants-table-wrapper">
+              <table class="product-detail__variants-table">
+                <thead>
+                  <tr>
+                    <th>Name</th>
+                    <th>SKU</th>
+                    <th>Price</th>
+                    <th>Stock</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let variant of product()?.variants">
+                    <td>{{ variant.name }}</td>
+                    <td><code>{{ variant.sku }}</code></td>
+                    <td>{{ variant.price | currencyFormat }}</td>
+                    <td>
+                      <span
+                        class="product-detail__variant-stock"
+                        [class.product-detail__variant-stock--low]="variant.stock < 10"
+                        [class.product-detail__variant-stock--out]="variant.stock === 0"
+                      >
+                        {{ variant.stock }}
+                      </span>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </section>
+        </div>
+      </mat-tab>
+
+      <!-- History Tab -->
+      <mat-tab label="Approval History">
+        <div class="product-detail__tab-content">
+          <section class="product-detail__section">
+            <h3 class="product-detail__section-title">Approval History</h3>
+
+            <div
+              class="product-detail__history"
+              *ngIf="product()?.approvalHistory?.length; else noHistory"
+            >
+              <div
+                *ngFor="let entry of product()?.approvalHistory"
+                class="product-detail__history-item"
+              >
+                <div class="product-detail__history-icon">
+                  <span class="material-icons">history</span>
+                </div>
+                <div class="product-detail__history-content">
+                  <span class="product-detail__history-action">
+                    {{ entry.action | titlecase }}
+                  </span>
+                  <span class="product-detail__history-time">
+                    {{ formatDate(entry.timestamp) }}
+                  </span>
+                  <p
+                    *ngIf="entry.details"
+                    class="product-detail__history-details"
+                  >
+                    {{ entry.details }}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <ng-template #noHistory>
+              <div class="product-detail__no-history">
+                <span class="material-icons">history</span>
+                <p>No approval history recorded</p>
+              </div>
+            </ng-template>
+          </section>
+        </div>
+      </mat-tab>
+    </mat-tab-group>
+  </ng-container>
+
+  <!-- Image Modal -->
+  <div
+    class="product-detail__modal"
+    *ngIf="showImageModal()"
+    (click)="closeImageModal()"
+  >
+    <div class="product-detail__modal-content" (click)="$event.stopPropagation()">
+      <button
+        type="button"
+        class="product-detail__modal-close"
+        (click)="closeImageModal()"
+      >
+        <span class="material-icons">close</span>
+      </button>
+
+      <img
+        [src]="sortedImages()[selectedImageIndex()]?.url"
+        [alt]="product()?.nameEn"
+        class="product-detail__modal-image"
+      />
+
+      <button
+        *ngIf="sortedImages().length > 1"
+        type="button"
+        class="product-detail__modal-nav product-detail__modal-nav--prev"
+        (click)="previousImage()"
+      >
+        <span class="material-icons">chevron_left</span>
+      </button>
+
+      <button
+        *ngIf="sortedImages().length > 1"
+        type="button"
+        class="product-detail__modal-nav product-detail__modal-nav--next"
+        (click)="nextImage()"
+      >
+        <span class="material-icons">chevron_right</span>
+      </button>
+
+      <div class="product-detail__modal-counter">
+        {{ selectedImageIndex() + 1 }} / {{ sortedImages().length }}
+      </div>
+    </div>
+  </div>
+</section>

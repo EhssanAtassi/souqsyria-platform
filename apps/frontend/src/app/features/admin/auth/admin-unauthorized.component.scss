@@ -49,3 +49,16 @@
     }
   }
 }
+
+// RTL support
+[dir='rtl'] {
+  .admin-unauthorized {
+    &__card {
+      text-align: center; // Center alignment works for RTL
+    }
+
+    &__actions {
+      flex-direction: row-reverse;
+    }
+  }
+}

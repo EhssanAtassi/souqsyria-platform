@@ -21,36 +21,69 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const configService = app.get(ConfigService);
   
-  // Enable CORS for frontend access
+  // SEC-H04 FIX: Strict CORS configuration
+  // Removed null origin bypass which allowed cross-origin attacks
+  const isDevelopment = process.env.NODE_ENV !== 'production';
+
   app.enableCors({
     origin: (origin, callback) => {
-      // Allow requests with no origin (mobile apps, curl, Postman)
-      if (!origin) return callback(null, true);
+      // SEC-H04: REMOVED the !origin bypass that allowed null origins
+      // Null origins can be exploited by attackers using data: URLs or sandboxed iframes
 
-      // Allow all localhost origins for development
-      if (origin.startsWith('http://localhost:') || origin.startsWith('http://127.0.0.1:')) {
-        return callback(null, true);
+      // In development, allow localhost with explicit origin check
+      if (isDevelopment) {
+        if (!origin) {
+          // Only allow no-origin requests from truly trusted sources in development
+          // Log these requests for monitoring
+          const logger = new Logger('CORS');
+          logger.warn('Request with no origin received - allowing only in development');
+          return callback(null, true);
+        }
+
+        if (
+          origin.startsWith('http://localhost:') ||
+          origin.startsWith('http://127.0.0.1:')
+        ) {
+          return callback(null, true);
+        }
       }
 
-      // Allow production domains
+      // Production: Strict whitelist only
       const allowedDomains = [
         'https://souqsyria.com',
+        'https://www.souqsyria.com',
         'https://admin.souqsyria.com',
         'https://vendor.souqsyria.com',
+        'https://api.souqsyria.com',
       ];
 
-      if (allowedDomains.includes(origin)) {
+      // Also allow from environment configuration for flexibility
+      const additionalOrigins = process.env.CORS_ALLOWED_ORIGINS?.split(',') || [];
+      const allAllowedOrigins = [...allowedDomains, ...additionalOrigins.map(o => o.trim())];
+
+      if (origin && allAllowedOrigins.includes(origin)) {
         return callback(null, true);
       }
 
-      // Reject other origins
-      callback(new Error('Not allowed by CORS'));
+      // Reject other origins with proper error
+      const logger = new Logger('CORS');
+      logger.warn(`Blocked CORS request from origin: ${origin || 'null'}`);
+      callback(new Error(`Origin ${origin} not allowed by CORS policy`));
     },
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept'],
+    allowedHeaders: [
+      'Content-Type',
+      'Authorization',
+      'X-Requested-With',
+      'Accept',
+      'X-CSRF-Token',
+      'X-Request-ID',
+    ],
+    exposedHeaders: ['X-Request-ID', 'X-RateLimit-Remaining', 'X-RateLimit-Reset'],
     credentials: true,
     preflightContinue: false,
     optionsSuccessStatus: 204,
+    maxAge: 86400, // Cache preflight requests for 24 hours
   });
   
   app.setGlobalPrefix('api');

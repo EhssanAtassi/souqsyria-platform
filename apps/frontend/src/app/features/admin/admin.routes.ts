@@ -136,6 +136,8 @@ export const adminRoutes: Routes = [
         data: {
           breadcrumb: 'Dashboard',
           animation: 'DashboardPage',
+          /** Dashboard accessible to all authenticated admin roles */
+          roles: ['super_admin', 'admin', 'moderator', 'vendor_manager', 'customer_service']
         },
       },
 
@@ -253,9 +255,14 @@ export const adminRoutes: Routes = [
         data: {
           breadcrumb: 'Profile',
           animation: 'ProfilePage',
+          /** Profile accessible to all authenticated admin roles */
+          roles: ['super_admin', 'admin', 'moderator', 'vendor_manager', 'customer_service'],
         },
       },
 
+      // =========================================================================
+      // SYSTEM SETTINGS MODULE
+      // =========================================================================
       /**
        * System Settings Route
        *
@@ -265,13 +272,92 @@ export const adminRoutes: Routes = [
        */
       {
         path: 'settings',
-        loadComponent: () =>
-          import('./settings/admin-settings.component').then((m) => m.AdminSettingsComponent),
+        loadChildren: () => import('./settings/settings.routes').then((m) => m.settingsRoutes),
         title: 'SouqSyria Admin | Settings',
         data: {
           roles: ['super_admin', 'admin'],
           breadcrumb: 'Settings',
           animation: 'SettingsPage',
+        },
+      },
+
+      // =========================================================================
+      // PRODUCT CATALOG MODULE
+      // =========================================================================
+      /**
+       * Product Management Routes
+       *
+       * @description
+       * Product catalog management including inventory and categories.
+       * Requires product management roles.
+       */
+      {
+        path: 'products',
+        loadChildren: () => import('./products/products.routes').then((m) => m.productsRoutes),
+        title: 'SouqSyria Admin | Products',
+        data: {
+          roles: ['super_admin', 'admin', 'moderator', 'vendor_manager'],
+          breadcrumb: 'Products',
+        },
+      },
+
+      // =========================================================================
+      // ORDER MANAGEMENT MODULE
+      // =========================================================================
+      /**
+       * Order Management Routes
+       *
+       * @description
+       * Order processing, refunds, and fulfillment management.
+       * Requires order management roles.
+       */
+      {
+        path: 'orders',
+        loadChildren: () => import('./orders/orders.routes').then((m) => m.ordersRoutes),
+        title: 'SouqSyria Admin | Orders',
+        data: {
+          roles: ['super_admin', 'admin', 'customer_service'],
+          breadcrumb: 'Orders',
+        },
+      },
+
+      // =========================================================================
+      // VENDOR MANAGEMENT MODULE
+      // =========================================================================
+      /**
+       * Vendor Management Routes
+       *
+       * @description
+       * Vendor onboarding, verification, and payout management.
+       * Requires vendor management roles.
+       */
+      {
+        path: 'vendors',
+        loadChildren: () => import('./vendors/vendors.routes').then((m) => m.vendorsRoutes),
+        title: 'SouqSyria Admin | Vendors',
+        data: {
+          roles: ['super_admin', 'admin', 'vendor_manager'],
+          breadcrumb: 'Vendors',
+        },
+      },
+
+      // =========================================================================
+      // ANALYTICS & REPORTING MODULE
+      // =========================================================================
+      /**
+       * Analytics Dashboard Routes
+       *
+       * @description
+       * Business intelligence, sales reports, and user analytics.
+       * Restricted to super_admin and admin roles.
+       */
+      {
+        path: 'analytics',
+        loadChildren: () => import('./analytics/analytics.routes').then((m) => m.analyticsRoutes),
+        title: 'SouqSyria Admin | Analytics',
+        data: {
+          roles: ['super_admin', 'admin'],
+          breadcrumb: 'Analytics',
         },
       },
     ],

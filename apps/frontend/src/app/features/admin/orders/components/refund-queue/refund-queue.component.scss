@@ -1,0 +1,1064 @@
+/**
+ * Refund Queue Component Styles
+ * @description Styles for the refund management interface
+ */
+
+// =============================================================================
+// VARIABLES
+// =============================================================================
+
+$color-primary: #1976d2;
+$color-primary-light: #e3f2fd;
+$color-success: #4caf50;
+$color-success-light: #e8f5e9;
+$color-warning: #ff9800;
+$color-warning-light: #fff3e0;
+$color-danger: #f44336;
+$color-danger-light: #ffebee;
+$color-info: #2196f3;
+$color-info-light: #e3f2fd;
+$color-secondary: #9e9e9e;
+$color-secondary-light: #f5f5f5;
+
+$color-text: #212121;
+$color-text-secondary: #757575;
+$color-border: #e0e0e0;
+$color-background: #fafafa;
+
+$border-radius: 8px;
+$shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.08);
+$shadow-md: 0 4px 12px rgba(0, 0, 0, 0.12);
+$shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.16);
+
+// =============================================================================
+// MAIN CONTAINER
+// =============================================================================
+
+.refund-queue {
+  padding: 24px;
+  background-color: $color-background;
+  min-height: 100vh;
+}
+
+// =============================================================================
+// HEADER
+// =============================================================================
+
+.refund-queue__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+  gap: 16px;
+}
+
+.refund-queue__header-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.refund-queue__title {
+  h1 {
+    margin: 0;
+    font-size: 24px;
+    font-weight: 600;
+    color: $color-text;
+  }
+}
+
+.refund-queue__subtitle {
+  display: block;
+  font-size: 14px;
+  color: $color-text-secondary;
+  margin-top: 2px;
+}
+
+.refund-queue__header-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+// =============================================================================
+// STATISTICS CARDS
+// =============================================================================
+
+.refund-queue__stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.stat-card {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 20px;
+  background: white;
+  border-radius: $border-radius;
+  box-shadow: $shadow-sm;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: $shadow-md;
+  }
+}
+
+.stat-card__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  flex-shrink: 0;
+
+  .material-icons {
+    font-size: 24px;
+  }
+}
+
+.stat-card__content {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.stat-card__value {
+  font-size: 24px;
+  font-weight: 700;
+  color: $color-text;
+  line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.stat-card__label {
+  font-size: 13px;
+  color: $color-text-secondary;
+  margin-top: 4px;
+}
+
+// Stat card variants
+.stat-card--warning {
+  .stat-card__icon {
+    background: $color-warning-light;
+    color: $color-warning;
+  }
+}
+
+.stat-card--danger {
+  .stat-card__icon {
+    background: $color-danger-light;
+    color: $color-danger;
+  }
+}
+
+.stat-card--primary {
+  .stat-card__icon {
+    background: $color-primary-light;
+    color: $color-primary;
+  }
+}
+
+.stat-card--info {
+  .stat-card__icon {
+    background: $color-info-light;
+    color: $color-info;
+  }
+}
+
+.stat-card--success {
+  .stat-card__icon {
+    background: $color-success-light;
+    color: $color-success;
+  }
+}
+
+// =============================================================================
+// TOOLBAR
+// =============================================================================
+
+.refund-queue__toolbar {
+  display: flex;
+  align-items: flex-end;
+  gap: 16px;
+  padding: 16px;
+  background: white;
+  border-radius: $border-radius $border-radius 0 0;
+  border-bottom: 1px solid $color-border;
+  flex-wrap: wrap;
+}
+
+.filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.filter-group__label {
+  font-size: 12px;
+  font-weight: 500;
+  color: $color-text-secondary;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.filter-group__select {
+  padding: 8px 12px;
+  border: 1px solid $color-border;
+  border-radius: 6px;
+  font-size: 14px;
+  color: $color-text;
+  background: white;
+  min-width: 160px;
+  cursor: pointer;
+
+  &:focus {
+    outline: none;
+    border-color: $color-primary;
+    box-shadow: 0 0 0 3px $color-primary-light;
+  }
+}
+
+.refund-queue__toolbar-spacer {
+  flex: 1;
+}
+
+.refund-queue__results-info {
+  font-size: 13px;
+  color: $color-text-secondary;
+  padding: 8px 0;
+}
+
+// =============================================================================
+// CONTENT & TABLE
+// =============================================================================
+
+.refund-queue__content {
+  background: white;
+  border-radius: 0 0 $border-radius $border-radius;
+  box-shadow: $shadow-sm;
+  overflow: hidden;
+}
+
+.refund-table-container {
+  overflow-x: auto;
+}
+
+.refund-table {
+  width: 100%;
+  border-collapse: collapse;
+
+  th,
+  td {
+    padding: 14px 16px;
+    text-align: left;
+    border-bottom: 1px solid $color-border;
+  }
+
+  th {
+    font-size: 12px;
+    font-weight: 600;
+    color: $color-text-secondary;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    background: $color-background;
+    white-space: nowrap;
+  }
+
+  tbody tr {
+    transition: background-color 0.15s;
+
+    &:hover {
+      background-color: rgba($color-primary, 0.04);
+    }
+
+    &:last-child td {
+      border-bottom: none;
+    }
+  }
+}
+
+.refund-table__row--urgent {
+  background-color: rgba($color-warning, 0.05);
+
+  &:hover {
+    background-color: rgba($color-warning, 0.1) !important;
+  }
+}
+
+// Table column widths
+.refund-table__th--order,
+.refund-table__td--order { min-width: 120px; }
+.refund-table__th--customer,
+.refund-table__td--customer { min-width: 160px; }
+.refund-table__th--amount,
+.refund-table__td--amount { min-width: 140px; }
+.refund-table__th--reason,
+.refund-table__td--reason { min-width: 180px; max-width: 250px; }
+.refund-table__th--status,
+.refund-table__td--status { min-width: 100px; }
+.refund-table__th--urgency,
+.refund-table__td--urgency { min-width: 100px; }
+.refund-table__th--date,
+.refund-table__td--date { min-width: 100px; }
+.refund-table__th--actions,
+.refund-table__td--actions { min-width: 140px; text-align: center; }
+
+// Order info
+.order-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.order-info__number {
+  font-weight: 600;
+  color: $color-primary;
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+.order-info__items {
+  font-size: 12px;
+  color: $color-text-secondary;
+}
+
+// Customer info
+.customer-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.customer-info__name {
+  font-weight: 500;
+  color: $color-text;
+}
+
+.customer-info__email {
+  font-size: 12px;
+  color: $color-text-secondary;
+}
+
+// Amount info
+.amount-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.amount-info__requested {
+  font-weight: 600;
+  color: $color-text;
+}
+
+.amount-info__percentage {
+  font-size: 12px;
+  color: $color-text-secondary;
+}
+
+// Reason text
+.reason-text {
+  font-size: 13px;
+  color: $color-text;
+  cursor: help;
+}
+
+// =============================================================================
+// STATUS BADGES
+// =============================================================================
+
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 500;
+  white-space: nowrap;
+
+  &[data-status='pending'] {
+    background: $color-warning-light;
+    color: darken($color-warning, 10%);
+  }
+
+  &[data-status='approved'],
+  &[data-status='completed'] {
+    background: $color-success-light;
+    color: darken($color-success, 10%);
+  }
+
+  &[data-status='processing'] {
+    background: $color-info-light;
+    color: darken($color-info, 10%);
+  }
+
+  &[data-status='rejected'] {
+    background: $color-danger-light;
+    color: darken($color-danger, 10%);
+  }
+}
+
+// =============================================================================
+// URGENCY BADGES
+// =============================================================================
+
+.urgency-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 500;
+  white-space: nowrap;
+
+  &[data-urgency='normal'] {
+    background: $color-secondary-light;
+    color: $color-text-secondary;
+  }
+
+  &[data-urgency='urgent'] {
+    background: $color-warning-light;
+    color: darken($color-warning, 10%);
+  }
+
+  &[data-urgency='critical'] {
+    background: $color-danger-light;
+    color: darken($color-danger, 10%);
+  }
+}
+
+.urgency-badge__icon {
+  font-size: 14px !important;
+}
+
+// =============================================================================
+// ACTION BUTTONS
+// =============================================================================
+
+.action-buttons {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+}
+
+// =============================================================================
+// PAGINATION
+// =============================================================================
+
+.refund-queue__pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px;
+  border-top: 1px solid $color-border;
+  background: $color-background;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.pagination-info {
+  font-size: 13px;
+  color: $color-text-secondary;
+}
+
+.pagination-controls {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.pagination-ellipsis {
+  padding: 0 8px;
+  color: $color-text-secondary;
+}
+
+.page-size-selector {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: $color-text-secondary;
+
+  select {
+    padding: 6px 10px;
+    border: 1px solid $color-border;
+    border-radius: 6px;
+    font-size: 13px;
+    background: white;
+    cursor: pointer;
+
+    &:focus {
+      outline: none;
+      border-color: $color-primary;
+    }
+  }
+}
+
+// =============================================================================
+// LOADING & EMPTY STATES
+// =============================================================================
+
+.loading-state,
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  text-align: center;
+}
+
+.loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid $color-border;
+  border-top-color: $color-primary;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 16px;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.empty-state {
+  .material-icons {
+    font-size: 64px;
+    color: $color-border;
+    margin-bottom: 16px;
+  }
+
+  h3 {
+    margin: 0 0 8px;
+    font-size: 18px;
+    font-weight: 600;
+    color: $color-text;
+  }
+
+  p {
+    margin: 0;
+    font-size: 14px;
+    color: $color-text-secondary;
+    max-width: 400px;
+  }
+}
+
+// =============================================================================
+// BUTTONS
+// =============================================================================
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 16px;
+  font-size: 14px;
+  font-weight: 500;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  .material-icons {
+    font-size: 18px;
+  }
+}
+
+.btn--primary {
+  background: $color-primary;
+  color: white;
+
+  &:hover:not(:disabled) {
+    background: darken($color-primary, 8%);
+  }
+}
+
+.btn--secondary {
+  background: $color-secondary-light;
+  color: $color-text;
+
+  &:hover:not(:disabled) {
+    background: darken($color-secondary-light, 5%);
+  }
+}
+
+.btn--success {
+  background: $color-success;
+  color: white;
+
+  &:hover:not(:disabled) {
+    background: darken($color-success, 8%);
+  }
+}
+
+.btn--danger {
+  background: $color-danger;
+  color: white;
+
+  &:hover:not(:disabled) {
+    background: darken($color-danger, 8%);
+  }
+}
+
+.btn--small {
+  padding: 6px 10px;
+  font-size: 13px;
+
+  .material-icons {
+    font-size: 16px;
+  }
+}
+
+.btn--icon {
+  padding: 8px;
+  background: transparent;
+  color: $color-text-secondary;
+
+  &:hover:not(:disabled) {
+    background: $color-secondary-light;
+    color: $color-text;
+  }
+
+  &.btn--success {
+    color: $color-success;
+    background: transparent;
+
+    &:hover:not(:disabled) {
+      background: $color-success-light;
+    }
+  }
+
+  &.btn--danger {
+    color: $color-danger;
+    background: transparent;
+
+    &:hover:not(:disabled) {
+      background: $color-danger-light;
+    }
+  }
+}
+
+.btn-spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: white;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+// =============================================================================
+// DIALOGS
+// =============================================================================
+
+.dialog-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 20px;
+}
+
+.dialog {
+  background: white;
+  border-radius: $border-radius;
+  box-shadow: $shadow-lg;
+  width: 100%;
+  max-width: 500px;
+  max-height: 90vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.dialog--large {
+  max-width: 700px;
+}
+
+.dialog__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 24px;
+  border-bottom: 1px solid $color-border;
+  background: $color-background;
+
+  h2 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 600;
+    color: $color-text;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    .material-icons {
+      font-size: 24px;
+    }
+  }
+
+  &.dialog__header--danger {
+    background: $color-danger-light;
+
+    h2 {
+      color: $color-danger;
+    }
+  }
+}
+
+.dialog__body {
+  padding: 24px;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.dialog__footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+  padding: 16px 24px;
+  border-top: 1px solid $color-border;
+  background: $color-background;
+}
+
+// =============================================================================
+// REFUND DETAIL DIALOG
+// =============================================================================
+
+.refund-detail__section {
+  margin-bottom: 24px;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.refund-detail__section-title {
+  margin: 0 0 16px;
+  font-size: 14px;
+  font-weight: 600;
+  color: $color-text-secondary;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid $color-border;
+}
+
+.refund-detail__grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+}
+
+.refund-detail__field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+
+  label {
+    font-size: 12px;
+    font-weight: 500;
+    color: $color-text-secondary;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  span,
+  p {
+    font-size: 14px;
+    color: $color-text;
+  }
+
+  a {
+    color: $color-primary;
+    text-decoration: none;
+    font-weight: 500;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+}
+
+.refund-detail__field--full {
+  grid-column: 1 / -1;
+}
+
+.refund-detail__amount {
+  font-weight: 600;
+  font-size: 16px !important;
+
+  small {
+    font-size: 13px;
+    font-weight: normal;
+    color: $color-text-secondary;
+    margin-left: 8px;
+  }
+}
+
+.refund-detail__reason {
+  margin: 0;
+  padding: 12px;
+  background: $color-background;
+  border-radius: 6px;
+  line-height: 1.5;
+  white-space: pre-wrap;
+}
+
+// =============================================================================
+// PROCESS DIALOG
+// =============================================================================
+
+.process-summary {
+  background: $color-background;
+  padding: 16px;
+  border-radius: 6px;
+  margin-bottom: 20px;
+}
+
+.process-summary__item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 1px solid $color-border;
+
+  &:last-child {
+    border-bottom: none;
+  }
+
+  label {
+    font-size: 13px;
+    color: $color-text-secondary;
+  }
+
+  span {
+    font-size: 14px;
+    font-weight: 500;
+    color: $color-text;
+  }
+}
+
+// =============================================================================
+// FORM CONTROLS
+// =============================================================================
+
+.form-group {
+  margin-bottom: 16px;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+
+  > label:not(.checkbox-label) {
+    display: block;
+    font-size: 13px;
+    font-weight: 500;
+    color: $color-text;
+    margin-bottom: 6px;
+  }
+}
+
+.form-control {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid $color-border;
+  border-radius: 6px;
+  font-size: 14px;
+  color: $color-text;
+  background: white;
+  transition: border-color 0.2s, box-shadow 0.2s;
+
+  &:focus {
+    outline: none;
+    border-color: $color-primary;
+    box-shadow: 0 0 0 3px $color-primary-light;
+  }
+
+  &::placeholder {
+    color: $color-text-secondary;
+  }
+}
+
+textarea.form-control {
+  resize: vertical;
+  min-height: 80px;
+}
+
+.form-hint {
+  display: block;
+  font-size: 12px;
+  color: $color-text-secondary;
+  margin-top: 4px;
+}
+
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+  color: $color-text;
+  cursor: pointer;
+
+  input[type='checkbox'] {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+    accent-color: $color-primary;
+  }
+}
+
+// =============================================================================
+// MAT-MENU STYLING
+// =============================================================================
+
+::ng-deep .mat-mdc-menu-panel {
+  min-width: 180px !important;
+
+  .mat-mdc-menu-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 14px;
+
+    .material-icons {
+      font-size: 20px;
+      color: $color-text-secondary;
+    }
+  }
+}
+
+// =============================================================================
+// RESPONSIVE DESIGN
+// =============================================================================
+
+@media (max-width: 1200px) {
+  .refund-queue__stats {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 992px) {
+  .refund-queue {
+    padding: 16px;
+  }
+
+  .refund-queue__header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .refund-queue__header-actions {
+    width: 100%;
+    justify-content: flex-end;
+  }
+
+  .refund-queue__toolbar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .filter-group {
+    width: 100%;
+
+    .filter-group__select {
+      width: 100%;
+    }
+  }
+
+  .refund-queue__toolbar-spacer {
+    display: none;
+  }
+
+  .refund-queue__results-info {
+    text-align: center;
+    width: 100%;
+  }
+}
+
+@media (max-width: 768px) {
+  .refund-queue__stats {
+    grid-template-columns: 1fr;
+  }
+
+  .refund-queue__pagination {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .dialog {
+    margin: 0;
+    max-height: 100vh;
+    border-radius: 0;
+  }
+
+  .refund-detail__grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+// =============================================================================
+// RTL SUPPORT
+// =============================================================================
+
+[dir='rtl'] {
+  .refund-queue__header-left {
+    flex-direction: row-reverse;
+  }
+
+  .stat-card {
+    flex-direction: row-reverse;
+  }
+
+  .refund-table {
+    th,
+    td {
+      text-align: right;
+    }
+  }
+
+  .refund-table__th--actions,
+  .refund-table__td--actions {
+    text-align: center;
+  }
+
+  .dialog__footer {
+    flex-direction: row-reverse;
+  }
+
+  .checkbox-label {
+    flex-direction: row-reverse;
+  }
+
+  .process-summary__item {
+    flex-direction: row-reverse;
+  }
+}

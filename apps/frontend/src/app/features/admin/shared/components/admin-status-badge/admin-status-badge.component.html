@@ -1,0 +1,15 @@
+<!-- Admin Status Badge Template -->
+<!-- Displays status indicators with automatic color mapping -->
+
+<span
+  class="status-badge"
+  [ngClass]="badgeClasses()"
+  role="status"
+  [attr.aria-label]="'Status: ' + displayLabel()"
+>
+  <!-- Optional dot indicator -->
+  <span *ngIf="showDot()" class="status-badge__dot" aria-hidden="true"></span>
+
+  <!-- Status label -->
+  <span class="status-badge__label">{{ displayLabel() }}</span>
+</span>

@@ -1,0 +1,51 @@
+<!-- Admin Stat Card Template -->
+<!-- Displays a single KPI metric with trend indicator and contextual information -->
+
+<article
+  class="stat-card"
+  [ngClass]="colorClass()"
+  [class.stat-card--loading]="loading()"
+  role="article"
+  [attr.aria-label]="title() + ': ' + formattedValue()"
+>
+  <!-- Loading Skeleton -->
+  <ng-container *ngIf="loading(); else cardContent">
+    <div class="stat-card__skeleton">
+      <div class="stat-card__skeleton-header"></div>
+      <div class="stat-card__skeleton-value"></div>
+      <div class="stat-card__skeleton-hint"></div>
+    </div>
+  </ng-container>
+
+  <!-- Card Content -->
+  <ng-template #cardContent>
+    <!-- Header with title and optional icon -->
+    <header class="stat-card__header">
+      <div class="stat-card__title-group">
+        <span *ngIf="icon()" class="stat-card__icon material-icons">{{ icon() }}</span>
+        <h3 class="stat-card__title">{{ title() }}</h3>
+      </div>
+
+      <!-- Trend indicator -->
+      <span
+        *ngIf="delta()"
+        class="stat-card__trend"
+        [ngClass]="trendClass()"
+        [attr.aria-label]="'Trend: ' + trend()"
+      >
+        <span class="stat-card__trend-icon material-icons">{{ trendIcon() }}</span>
+        <span class="stat-card__trend-text">{{ delta() }}</span>
+      </span>
+    </header>
+
+    <!-- Main value display -->
+    <p class="stat-card__value" aria-live="polite">
+      {{ formattedValue() }}
+    </p>
+
+    <!-- Contextual hint -->
+    <p *ngIf="hint()" class="stat-card__hint">
+      {{ hint() }}
+    </p>
+  </ng-template>
+</article>

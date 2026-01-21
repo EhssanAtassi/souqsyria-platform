@@ -1,0 +1,650 @@
+<!--
+  Verification Queue Component Template
+  @description Manages vendor verification workflow with review, approve, reject actions
+-->
+
+<div class="verification-queue">
+  <!-- ===================================================================== -->
+  <!-- HEADER -->
+  <!-- ===================================================================== -->
+  <header class="verification-queue__header">
+    <div class="verification-queue__title">
+      <button class="btn btn--icon btn--text" (click)="goToVendorList()" matTooltip="Back to Vendors">
+        <span class="material-icons">arrow_back</span>
+      </button>
+      <div>
+        <h1>Verification Queue</h1>
+        <span class="verification-queue__subtitle">Review and process vendor applications</span>
+      </div>
+    </div>
+
+    <div class="verification-queue__header-actions">
+      <button class="btn btn--secondary" (click)="refresh()">
+        <span class="material-icons">refresh</span>
+        Refresh
+      </button>
+    </div>
+  </header>
+
+  <!-- ===================================================================== -->
+  <!-- STATISTICS CARDS -->
+  <!-- ===================================================================== -->
+  <section class="verification-queue__stats">
+    <div class="stat-card" (click)="applyStatusFilter('pending')">
+      <div class="stat-card__icon stat-card__icon--warning">
+        <span class="material-icons">schedule</span>
+      </div>
+      <div class="stat-card__content">
+        <span class="stat-card__value">{{ stats().pending }}</span>
+        <span class="stat-card__label">New Pending</span>
+      </div>
+    </div>
+
+    <div class="stat-card" (click)="applyStatusFilter('under_review')">
+      <div class="stat-card__icon stat-card__icon--info">
+        <span class="material-icons">rate_review</span>
+      </div>
+      <div class="stat-card__content">
+        <span class="stat-card__value">{{ stats().underReview }}</span>
+        <span class="stat-card__label">Under Review</span>
+      </div>
+    </div>
+
+    <div class="stat-card" (click)="applyStatusFilter('documents_requested')">
+      <div class="stat-card__icon stat-card__icon--primary">
+        <span class="material-icons">description</span>
+      </div>
+      <div class="stat-card__content">
+        <span class="stat-card__value">{{ stats().documentsRequested }}</span>
+        <span class="stat-card__label">Docs Requested</span>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-card__icon stat-card__icon--success">
+        <span class="material-icons">refresh</span>
+      </div>
+      <div class="stat-card__content">
+        <span class="stat-card__value">{{ stats().resubmissions }}</span>
+        <span class="stat-card__label">Resubmissions</span>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-card__icon stat-card__icon--danger">
+        <span class="material-icons">hourglass_empty</span>
+      </div>
+      <div class="stat-card__content">
+        <span class="stat-card__value">{{ stats().avgWaitDays }}d</span>
+        <span class="stat-card__label">Avg. Wait Time</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================================================================== -->
+  <!-- TOOLBAR -->
+  <!-- ===================================================================== -->
+  <section class="verification-queue__toolbar">
+    <!-- Search -->
+    <div class="search-box">
+      <span class="material-icons search-box__icon">search</span>
+      <input
+        type="text"
+        class="search-box__input"
+        placeholder="Search by shop name or owner..."
+        [value]="searchTerm()"
+        (input)="onSearchInput($event)"
+      />
+      @if (searchTerm()) {
+        <button class="search-box__clear" (click)="onSearchInput({ target: { value: '' } } as any)">
+          <span class="material-icons">close</span>
+        </button>
+      }
+    </div>
+
+    <!-- Status Filter -->
+    <div class="filter-group">
+      <label class="filter-group__label">Status</label>
+      <select
+        class="filter-group__select"
+        [ngModel]="statusFilter()"
+        (ngModelChange)="applyStatusFilter($event)"
+      >
+        @for (option of statusOptions; track option.value) {
+          <option [value]="option.value">{{ option.label }}</option>
+        }
+      </select>
+    </div>
+
+    <!-- Sort -->
+    <div class="filter-group">
+      <label class="filter-group__label">Sort By</label>
+      <select
+        class="filter-group__select"
+        [ngModel]="sortBy()"
+        (ngModelChange)="applySort($event)"
+      >
+        @for (option of sortOptions; track option.value) {
+          <option [value]="option.value">{{ option.label }}</option>
+        }
+      </select>
+    </div>
+
+    <!-- Spacer -->
+    <div class="verification-queue__toolbar-spacer"></div>
+
+    <!-- Clear Filters -->
+    @if (activeFiltersCount() > 0) {
+      <button class="btn btn--text" (click)="clearFilters()">
+        <span class="material-icons">filter_alt_off</span>
+        Clear ({{ activeFiltersCount() }})
+      </button>
+    }
+
+    <!-- Results Info -->
+    <div class="verification-queue__results-info">
+      {{ filteredVerifications().length }} applications
+    </div>
+  </section>
+
+  <!-- ===================================================================== -->
+  <!-- VERIFICATION LIST -->
+  <!-- ===================================================================== -->
+  <section class="verification-queue__content">
+    @if (isLoading()) {
+      <div class="loading-state">
+        <div class="loading-spinner"></div>
+        <p>Loading verification queue...</p>
+      </div>
+    } @else if (filteredVerifications().length === 0) {
+      <div class="empty-state">
+        <span class="material-icons">fact_check</span>
+        <h3>No Pending Verifications</h3>
+        <p>
+          @if (activeFiltersCount() > 0) {
+            No applications match your current filters.
+          } @else {
+            All vendor applications have been processed.
+          }
+        </p>
+        @if (activeFiltersCount() > 0) {
+          <button class="btn btn--secondary" (click)="clearFilters()">Clear Filters</button>
+        }
+      </div>
+    } @else {
+      <div class="verification-cards">
+        @for (verification of filteredVerifications(); track trackByVerificationId($index, verification)) {
+          <div
+            class="verification-card"
+            [class.verification-card--urgent]="getUrgencyLevel(verification.daysPending || 0) === 'critical'"
+            [class.verification-card--warning]="getUrgencyLevel(verification.daysPending || 0) === 'warning'"
+          >
+            <!-- Card Header -->
+            <div class="verification-card__header">
+              <div class="verification-card__shop">
+                <span class="verification-card__shop-name">{{ verification.shopName }}</span>
+                @if (verification.isResubmission) {
+                  <span class="badge badge--info">Resubmission</span>
+                }
+              </div>
+              <span
+                class="status-badge"
+                [attr.data-status]="verification.status"
+              >
+                <span class="material-icons">{{ getStatusIcon(verification.status) }}</span>
+                {{ getStatusLabel(verification.status) }}
+              </span>
+            </div>
+
+            <!-- Card Body -->
+            <div class="verification-card__body">
+              <div class="verification-card__info">
+                <div class="info-item">
+                  <span class="material-icons">person</span>
+                  <span>{{ verification.ownerName }}</span>
+                </div>
+                <div class="info-item">
+                  <span class="material-icons">email</span>
+                  <span>{{ verification.ownerEmail }}</span>
+                </div>
+                <div class="info-item">
+                  <span class="material-icons">calendar_today</span>
+                  <span>Applied {{ formatDate(verification.appliedAt) }}</span>
+                </div>
+              </div>
+
+              <!-- Documents -->
+              <div class="verification-card__documents">
+                <span class="documents-label">Documents ({{ verification.documentsSubmitted.length }}):</span>
+                <div class="documents-list">
+                  @for (doc of verification.documentsSubmitted; track doc) {
+                    <span class="document-tag">{{ doc }}</span>
+                  }
+                </div>
+              </div>
+
+              <!-- Wait Time Indicator -->
+              @if (verification.daysPending) {
+                <div
+                  class="wait-indicator"
+                  [class.wait-indicator--warning]="getUrgencyLevel(verification.daysPending) === 'warning'"
+                  [class.wait-indicator--critical]="getUrgencyLevel(verification.daysPending) === 'critical'"
+                >
+                  <span class="material-icons">schedule</span>
+                  <span>{{ verification.daysPending }} days pending</span>
+                </div>
+              }
+            </div>
+
+            <!-- Card Actions -->
+            <div class="verification-card__actions">
+              <button
+                class="btn btn--text btn--small"
+                (click)="viewDetails(verification)"
+                matTooltip="View Details"
+              >
+                <span class="material-icons">visibility</span>
+                Details
+              </button>
+
+              @if (verification.status === 'pending') {
+                <button
+                  class="btn btn--secondary btn--small"
+                  (click)="startReview(verification)"
+                  [disabled]="isProcessing()"
+                  matTooltip="Start Review"
+                >
+                  <span class="material-icons">rate_review</span>
+                  Start Review
+                </button>
+              }
+
+              @if (verification.status === 'under_review' ||
+                   verification.status === 'documents_resubmitted' ||
+                   verification.status === 'final_review') {
+                <button
+                  class="btn btn--success btn--small"
+                  (click)="quickApprove(verification)"
+                  [disabled]="isProcessing()"
+                  matTooltip="Quick Approve"
+                >
+                  <span class="material-icons">check_circle</span>
+                  Approve
+                </button>
+                <button
+                  class="btn btn--danger btn--small"
+                  (click)="openActionDialog(verification, 'reject')"
+                  [disabled]="isProcessing()"
+                  matTooltip="Reject"
+                >
+                  <span class="material-icons">cancel</span>
+                  Reject
+                </button>
+                <button
+                  class="btn btn--warning btn--small"
+                  (click)="openActionDialog(verification, 'request_documents')"
+                  [disabled]="isProcessing()"
+                  matTooltip="Request Documents"
+                >
+                  <span class="material-icons">description</span>
+                  Request Docs
+                </button>
+              }
+            </div>
+          </div>
+        }
+      </div>
+
+      <!-- Pagination -->
+      @if (pagination().totalPages > 1) {
+        <div class="verification-queue__pagination">
+          <div class="pagination-info">
+            Page {{ pagination().page }} of {{ pagination().totalPages }}
+            ({{ pagination().total }} total)
+          </div>
+
+          <div class="pagination-controls">
+            <button
+              class="btn btn--icon btn--small"
+              [disabled]="pagination().page === 1"
+              (click)="goToPage(1)"
+              matTooltip="First Page"
+            >
+              <span class="material-icons">first_page</span>
+            </button>
+            <button
+              class="btn btn--icon btn--small"
+              [disabled]="pagination().page === 1"
+              (click)="goToPage(pagination().page - 1)"
+              matTooltip="Previous Page"
+            >
+              <span class="material-icons">chevron_left</span>
+            </button>
+
+            @for (page of pagesArray(); track page) {
+              @if (page === pagination().page ||
+                   page === 1 ||
+                   page === pagination().totalPages ||
+                   (page >= pagination().page - 1 && page <= pagination().page + 1)) {
+                <button
+                  class="btn btn--small"
+                  [class.btn--primary]="page === pagination().page"
+                  (click)="goToPage(page)"
+                >
+                  {{ page }}
+                </button>
+              } @else if (page === pagination().page - 2 || page === pagination().page + 2) {
+                <span class="pagination-ellipsis">...</span>
+              }
+            }
+
+            <button
+              class="btn btn--icon btn--small"
+              [disabled]="pagination().page === pagination().totalPages"
+              (click)="goToPage(pagination().page + 1)"
+              matTooltip="Next Page"
+            >
+              <span class="material-icons">chevron_right</span>
+            </button>
+            <button
+              class="btn btn--icon btn--small"
+              [disabled]="pagination().page === pagination().totalPages"
+              (click)="goToPage(pagination().totalPages)"
+              matTooltip="Last Page"
+            >
+              <span class="material-icons">last_page</span>
+            </button>
+          </div>
+
+          <div class="page-size-selector">
+            <label>Show:</label>
+            <select [ngModel]="pagination().limit" (ngModelChange)="changePageSize($event)">
+              <option [value]="10">10</option>
+              <option [value]="25">25</option>
+              <option [value]="50">50</option>
+            </select>
+          </div>
+        </div>
+      }
+    }
+  </section>
+</div>
+
+<!-- ======================================================================= -->
+<!-- DETAIL DIALOG -->
+<!-- ======================================================================= -->
+@if (showDetailDialog() && selectedVerification()) {
+  <div class="dialog-backdrop" (click)="closeDetailDialog()">
+    <div class="dialog dialog--large" (click)="$event.stopPropagation()">
+      <div class="dialog__header">
+        <h3>Verification Details</h3>
+        <button class="btn btn--icon btn--text" (click)="closeDetailDialog()">
+          <span class="material-icons">close</span>
+        </button>
+      </div>
+
+      <div class="dialog__body">
+        <!-- Shop Info Section -->
+        <div class="detail-section">
+          <h4>Shop Information</h4>
+          <div class="detail-grid">
+            <div class="detail-item">
+              <span class="detail-label">Shop Name</span>
+              <span class="detail-value">{{ selectedVerification()!.shopName }}</span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">Status</span>
+              <span
+                class="status-badge"
+                [attr.data-status]="selectedVerification()!.status"
+              >
+                {{ getStatusLabel(selectedVerification()!.status) }}
+              </span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">Application Date</span>
+              <span class="detail-value">{{ formatDate(selectedVerification()!.appliedAt) }}</span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">Days Pending</span>
+              <span
+                class="detail-value"
+                [class.text-warning]="getUrgencyLevel(selectedVerification()!.daysPending || 0) === 'warning'"
+                [class.text-danger]="getUrgencyLevel(selectedVerification()!.daysPending || 0) === 'critical'"
+              >
+                {{ selectedVerification()!.daysPending || 0 }} days
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Owner Info Section -->
+        <div class="detail-section">
+          <h4>Owner Information</h4>
+          <div class="detail-grid">
+            <div class="detail-item">
+              <span class="detail-label">Full Name</span>
+              <span class="detail-value">{{ selectedVerification()!.ownerName }}</span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">Email</span>
+              <span class="detail-value">{{ selectedVerification()!.ownerEmail }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Documents Section -->
+        <div class="detail-section">
+          <h4>Submitted Documents</h4>
+          <div class="documents-grid">
+            @for (doc of selectedVerification()!.documentsSubmitted; track doc) {
+              <div class="document-item">
+                <span class="material-icons">description</span>
+                <span>{{ doc }}</span>
+                <button class="btn btn--icon btn--small btn--text" matTooltip="View Document">
+                  <span class="material-icons">visibility</span>
+                </button>
+              </div>
+            }
+          </div>
+        </div>
+
+        <!-- Resubmission Notice -->
+        @if (selectedVerification()!.isResubmission) {
+          <div class="resubmission-notice">
+            <span class="material-icons">info</span>
+            <span>This is a resubmission after previous document request or rejection.</span>
+          </div>
+        }
+      </div>
+
+      <div class="dialog__footer">
+        <button class="btn btn--text" (click)="goToVendorDetail(selectedVerification()!.id)">
+          <span class="material-icons">open_in_new</span>
+          Full Profile
+        </button>
+        <div class="dialog__footer-spacer"></div>
+        @if (selectedVerification()!.status === 'under_review' ||
+             selectedVerification()!.status === 'documents_resubmitted' ||
+             selectedVerification()!.status === 'final_review') {
+          <button
+            class="btn btn--warning"
+            (click)="openActionDialog(selectedVerification()!, 'request_documents')"
+          >
+            <span class="material-icons">description</span>
+            Request Docs
+          </button>
+          <button
+            class="btn btn--danger"
+            (click)="openActionDialog(selectedVerification()!, 'reject')"
+          >
+            <span class="material-icons">cancel</span>
+            Reject
+          </button>
+          <button
+            class="btn btn--success"
+            (click)="openActionDialog(selectedVerification()!, 'approve')"
+          >
+            <span class="material-icons">check_circle</span>
+            Approve
+          </button>
+        } @else if (selectedVerification()!.status === 'pending') {
+          <button class="btn btn--primary" (click)="startReview(selectedVerification()!)">
+            <span class="material-icons">rate_review</span>
+            Start Review
+          </button>
+        }
+      </div>
+    </div>
+  </div>
+}
+
+<!-- ======================================================================= -->
+<!-- ACTION DIALOG -->
+<!-- ======================================================================= -->
+@if (showActionDialog() && selectedVerification()) {
+  <div class="dialog-backdrop" (click)="closeActionDialog()">
+    <div class="dialog" (click)="$event.stopPropagation()">
+      <div class="dialog__header">
+        <h3>
+          @switch (actionType()) {
+            @case ('approve') { Approve Vendor }
+            @case ('reject') { Reject Application }
+            @case ('request_documents') { Request Documents }
+          }
+        </h3>
+        <button class="btn btn--icon btn--text" (click)="closeActionDialog()">
+          <span class="material-icons">close</span>
+        </button>
+      </div>
+
+      <div class="dialog__body">
+        <!-- Vendor Summary -->
+        <div class="action-vendor-summary">
+          <span class="action-vendor-summary__name">{{ selectedVerification()!.shopName }}</span>
+          <span class="action-vendor-summary__owner">{{ selectedVerification()!.ownerName }}</span>
+        </div>
+
+        @switch (actionType()) {
+          <!-- Approve Form -->
+          @case ('approve') {
+            <div class="approve-notice">
+              <span class="material-icons">info</span>
+              <p>
+                Approving this vendor will allow them to start listing products and
+                making sales on the platform.
+              </p>
+            </div>
+
+            <div class="form-group">
+              <label>Notes (Optional)</label>
+              <textarea
+                placeholder="Add any notes for the approval..."
+                [ngModel]="actionFormData().notes"
+                (ngModelChange)="actionFormData.set({...actionFormData(), notes: $event})"
+              ></textarea>
+            </div>
+          }
+
+          <!-- Reject Form -->
+          @case ('reject') {
+            <div class="form-group">
+              <label>Rejection Reason <span class="required">*</span></label>
+              <select
+                [ngModel]="actionFormData().rejectionReason"
+                (ngModelChange)="actionFormData.set({...actionFormData(), rejectionReason: $event})"
+              >
+                <option value="">Select a reason...</option>
+                <option value="incomplete_documents">Incomplete Documents</option>
+                <option value="invalid_documents">Invalid/Fraudulent Documents</option>
+                <option value="business_not_eligible">Business Not Eligible</option>
+                <option value="duplicate_account">Duplicate Account</option>
+                <option value="policy_violation">Policy Violation</option>
+                <option value="other">Other</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label>Additional Notes</label>
+              <textarea
+                placeholder="Provide details about the rejection..."
+                [ngModel]="actionFormData().notes"
+                (ngModelChange)="actionFormData.set({...actionFormData(), notes: $event})"
+              ></textarea>
+            </div>
+          }
+
+          <!-- Request Documents Form -->
+          @case ('request_documents') {
+            <div class="form-group">
+              <label>Select Documents to Request <span class="required">*</span></label>
+              <div class="document-checkboxes">
+                @for (doc of actionFormData().requestedDocuments; track doc.id) {
+                  <label class="checkbox-item">
+                    <input
+                      type="checkbox"
+                      [checked]="doc.selected"
+                      (change)="toggleDocument(doc.id)"
+                    />
+                    <span class="checkbox-label">{{ doc.label }}</span>
+                  </label>
+                }
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label>Message to Vendor</label>
+              <textarea
+                placeholder="Explain what documents are needed and why..."
+                [ngModel]="actionFormData().notes"
+                (ngModelChange)="actionFormData.set({...actionFormData(), notes: $event})"
+              ></textarea>
+            </div>
+          }
+        }
+
+        <!-- Notify Vendor Checkbox -->
+        <label class="checkbox-item notify-checkbox">
+          <input
+            type="checkbox"
+            [checked]="actionFormData().notifyVendor"
+            (change)="actionFormData.set({...actionFormData(), notifyVendor: !actionFormData().notifyVendor})"
+          />
+          <span class="checkbox-label">Notify vendor via email</span>
+        </label>
+      </div>
+
+      <div class="dialog__footer">
+        <button class="btn btn--secondary" (click)="closeActionDialog()">Cancel</button>
+        <button
+          class="btn"
+          [class.btn--success]="actionType() === 'approve'"
+          [class.btn--danger]="actionType() === 'reject'"
+          [class.btn--warning]="actionType() === 'request_documents'"
+          [disabled]="isProcessing()"
+          (click)="submitAction()"
+        >
+          @if (isProcessing()) {
+            <span class="material-icons spinning">sync</span>
+            Processing...
+          } @else {
+            @switch (actionType()) {
+              @case ('approve') {
+                <span class="material-icons">check_circle</span>
+                Approve Vendor
+              }
+              @case ('reject') {
+                <span class="material-icons">cancel</span>
+                Reject Application
+              }
+              @case ('request_documents') {
+                <span class="material-icons">send</span>
+                Send Request
+              }
+            }
+          }
+        </button>
+      </div>
+    </div>
+  </div>
+}

@@ -77,3 +77,22 @@
     }
   }
 }
+
+// RTL support
+[dir='rtl'] {
+  .admin-sidebar {
+    &__link {
+      flex-direction: row-reverse;
+
+      &:hover {
+        // Flip hover transform direction for RTL
+        transform: translateX(-4px);
+      }
+    }
+
+    &__link--active {
+      // Flip gradient direction for RTL
+      background: linear-gradient(270deg, #c41e3a 0%, #d4af37 100%);
+    }
+  }
+}

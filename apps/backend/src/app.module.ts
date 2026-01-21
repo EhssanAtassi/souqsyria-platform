@@ -60,6 +60,9 @@ import { FeaturedCategoriesModule } from './featured-categories/featured-categor
 import { ProductCarouselsModule } from './product-carousels/product-carousels.module';
 import { HomepageModule } from './homepage/homepage.module';
 import { AdminDashboardModule } from './admin-dashboard/admin-dashboard.module';
+import { SystemSettingsModule } from './system-settings/system-settings.module';
+import { SharedDomainModule } from './common/shared-domain';
+import { HealthModule } from './health';
 
 @Module({
   imports: [
@@ -68,6 +71,8 @@ import { AdminDashboardModule } from './admin-dashboard/admin-dashboard.module';
       isGlobal: true, // Make ConfigService available globally
       envFilePath: '.env', // Path to .env file
     }),
+    // ✅ Shared Domain Module - Event-driven architecture for breaking circular dependencies
+    SharedDomainModule,
     TypeOrmModule.forRoot(typeOrmConfig),
     TypeOrmModule.forFeature([GuestSession]), // ✅ For GuestSessionMiddleware repository injection
     // ✅ Configure in-memory cache for idempotency
@@ -115,6 +120,9 @@ import { AdminDashboardModule } from './admin-dashboard/admin-dashboard.module';
     ProductCarouselsModule,
     HomepageModule,
     AdminDashboardModule,
+    SystemSettingsModule,
+    // ✅ Health Check Module - Kubernetes probes and monitoring
+    HealthModule,
     ThrottlerModule.forRoot([
       {
         name: 'short',

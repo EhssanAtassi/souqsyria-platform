@@ -21,6 +21,7 @@ import { AdminAnalyticsController } from './controllers/admin-analytics.controll
 import { AdminDashboardService } from './services/admin-dashboard.service';
 import { AdminAnalyticsService } from './services/admin-analytics.service';
 import { AdminExportService } from './services/admin-export.service';
+import { DashboardCacheService } from './services/dashboard-cache.service';
 
 // Entities from other modules
 import { User } from '../users/entities/user.entity';
@@ -108,14 +109,18 @@ import { AccessControlModule } from '../access-control/access-control.module';
     AdminAnalyticsController,
   ],
   providers: [
+    // Core Services
     AdminDashboardService,
     AdminAnalyticsService,
     AdminExportService,
+    // ✅ Cache Service for optimized metric retrieval
+    DashboardCacheService,
   ],
   exports: [
     AdminDashboardService,
     AdminAnalyticsService,
     AdminExportService,
+    DashboardCacheService,
   ],
 })
 export class AdminDashboardModule {}

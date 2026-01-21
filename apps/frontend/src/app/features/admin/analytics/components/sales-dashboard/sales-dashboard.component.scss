@@ -1,0 +1,1131 @@
+/**
+ * @file sales-dashboard.component.scss
+ * @description Styles for the Sales Dashboard component
+ *              Includes KPI cards, revenue charts, breakdown sections, and responsive design
+ */
+
+// ============================================================================
+// VARIABLES
+// ============================================================================
+$primary-color: #3b82f6;
+$success-color: #22c55e;
+$warning-color: #f59e0b;
+$danger-color: #ef4444;
+$purple-color: #8b5cf6;
+$cyan-color: #06b6d4;
+
+$card-shadow: 0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06);
+$card-shadow-hover: 0 4px 6px rgba(0, 0, 0, 0.1), 0 2px 4px rgba(0, 0, 0, 0.06);
+$border-radius: 8px;
+$transition-base: all 0.2s ease;
+
+// ============================================================================
+// MAIN CONTAINER
+// ============================================================================
+.sales-dashboard {
+  padding: 1.5rem;
+  max-width: 1600px;
+  margin: 0 auto;
+  min-height: calc(100vh - 64px);
+  background: #f8fafc;
+}
+
+// ============================================================================
+// HEADER
+// ============================================================================
+.sales-dashboard__header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.sales-dashboard__title {
+  h1 {
+    margin: 0 0 0.25rem;
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: #1e293b;
+  }
+}
+
+.sales-dashboard__subtitle {
+  color: #64748b;
+  font-size: 0.875rem;
+}
+
+.sales-dashboard__header-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+// ============================================================================
+// DATE SELECTOR
+// ============================================================================
+.date-selector {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+
+  &__select {
+    padding: 0.5rem 1rem;
+    border: 1px solid #e2e8f0;
+    border-radius: $border-radius;
+    background: white;
+    color: #374151;
+    font-size: 0.875rem;
+    cursor: pointer;
+    min-width: 140px;
+    transition: $transition-base;
+
+    &:hover {
+      border-color: $primary-color;
+    }
+
+    &:focus {
+      outline: none;
+      border-color: $primary-color;
+      box-shadow: 0 0 0 3px rgba($primary-color, 0.1);
+    }
+  }
+
+  &__custom {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem;
+    background: #f1f5f9;
+    border-radius: $border-radius;
+
+    input[type="date"] {
+      padding: 0.375rem 0.5rem;
+      border: 1px solid #e2e8f0;
+      border-radius: 4px;
+      font-size: 0.8125rem;
+      color: #374151;
+
+      &:focus {
+        outline: none;
+        border-color: $primary-color;
+      }
+    }
+
+    span {
+      color: #64748b;
+      font-size: 0.8125rem;
+    }
+  }
+}
+
+// ============================================================================
+// COMPARE TOGGLE
+// ============================================================================
+.compare-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  background: #f1f5f9;
+  border-radius: $border-radius;
+  cursor: pointer;
+  user-select: none;
+  transition: $transition-base;
+
+  &:hover {
+    background: #e2e8f0;
+  }
+
+  input[type="checkbox"] {
+    width: 1rem;
+    height: 1rem;
+    accent-color: $primary-color;
+    cursor: pointer;
+  }
+
+  span {
+    font-size: 0.8125rem;
+    color: #475569;
+  }
+}
+
+// ============================================================================
+// BUTTONS
+// ============================================================================
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: $border-radius;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: $transition-base;
+
+  .material-icons {
+    font-size: 1.125rem;
+  }
+
+  &--primary {
+    background: $primary-color;
+    color: white;
+
+    &:hover {
+      background: darken($primary-color, 8%);
+    }
+  }
+
+  &--secondary {
+    background: white;
+    color: #475569;
+    border: 1px solid #e2e8f0;
+
+    &:hover {
+      background: #f8fafc;
+      border-color: #cbd5e1;
+    }
+  }
+
+  &--small {
+    padding: 0.375rem 0.75rem;
+    font-size: 0.8125rem;
+  }
+}
+
+// ============================================================================
+// LOADING STATE
+// ============================================================================
+.loading-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem;
+  gap: 1rem;
+
+  p {
+    color: #64748b;
+    font-size: 0.9375rem;
+  }
+}
+
+.loading-spinner {
+  width: 48px;
+  height: 48px;
+  border: 3px solid #e2e8f0;
+  border-top-color: $primary-color;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+// ============================================================================
+// SKELETON LOADING STATES
+// ============================================================================
+
+/**
+ * Skeleton animations for sales dashboard loading states.
+ * Provides smooth visual feedback during data fetching.
+ */
+@keyframes sales-skeleton-pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+@keyframes sales-skeleton-shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+/**
+ * KPI card skeleton - loading placeholder for statistics cards.
+ */
+.kpi-skeleton {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  padding: 1.25rem;
+  background: white;
+  border-radius: $border-radius;
+  box-shadow: $card-shadow;
+
+  &__icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    background: #e2e8f0;
+    animation: sales-skeleton-pulse 1.5s ease-in-out infinite;
+    flex-shrink: 0;
+  }
+
+  &__content {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    flex: 1;
+  }
+
+  &__value {
+    height: 28px;
+    width: 80px;
+    background: linear-gradient(90deg, #f1f5f9 0%, #e2e8f0 50%, #f1f5f9 100%);
+    background-size: 200% 100%;
+    animation: sales-skeleton-shimmer 1.5s ease-in-out infinite;
+    border-radius: 4px;
+  }
+
+  &__label {
+    height: 14px;
+    width: 100px;
+    background: linear-gradient(90deg, #f1f5f9 0%, #e2e8f0 50%, #f1f5f9 100%);
+    background-size: 200% 100%;
+    animation: sales-skeleton-shimmer 1.5s ease-in-out infinite;
+    border-radius: 4px;
+  }
+
+  &__trend {
+    height: 20px;
+    width: 60px;
+    background: #f1f5f9;
+    animation: sales-skeleton-pulse 1.5s ease-in-out infinite;
+    border-radius: 10px;
+    margin-top: 0.25rem;
+  }
+}
+
+/**
+ * Chart skeleton - loading placeholder for chart areas.
+ */
+.chart-skeleton {
+  background: white;
+  border-radius: $border-radius;
+  box-shadow: $card-shadow;
+  padding: 1.25rem;
+
+  &__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #f1f5f9;
+  }
+
+  &__title {
+    height: 20px;
+    width: 150px;
+    background: linear-gradient(90deg, #f1f5f9 0%, #e2e8f0 50%, #f1f5f9 100%);
+    background-size: 200% 100%;
+    animation: sales-skeleton-shimmer 1.5s ease-in-out infinite;
+    border-radius: 4px;
+  }
+
+  &__actions {
+    display: flex;
+    gap: 0.5rem;
+  }
+
+  &__action-btn {
+    height: 32px;
+    width: 80px;
+    background: #f1f5f9;
+    animation: sales-skeleton-pulse 1.5s ease-in-out infinite;
+    border-radius: $border-radius;
+  }
+
+  &__body {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    min-height: 250px;
+  }
+
+  &__bar-row {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  &__bar-label {
+    height: 14px;
+    width: 60px;
+    background: #e2e8f0;
+    animation: sales-skeleton-pulse 1.5s ease-in-out infinite;
+    border-radius: 4px;
+    flex-shrink: 0;
+  }
+
+  &__bar {
+    height: 24px;
+    background: linear-gradient(90deg, #f1f5f9 0%, #e2e8f0 50%, #f1f5f9 100%);
+    background-size: 200% 100%;
+    animation: sales-skeleton-shimmer 1.5s ease-in-out infinite;
+    border-radius: 4px;
+    flex: 1;
+
+    &--short {
+      max-width: 30%;
+    }
+
+    &--medium {
+      max-width: 50%;
+    }
+
+    &--long {
+      max-width: 75%;
+    }
+
+    &--full {
+      max-width: 90%;
+    }
+  }
+
+  &__line-area {
+    height: 200px;
+    background: linear-gradient(180deg, rgba(59, 130, 246, 0.1) 0%, transparent 100%);
+    border-radius: $border-radius;
+    position: relative;
+    overflow: hidden;
+
+    &::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, #f1f5f9 0%, #e2e8f0 50%, #f1f5f9 100%);
+      background-size: 200% 100%;
+      animation: sales-skeleton-shimmer 1.5s ease-in-out infinite;
+    }
+  }
+}
+
+/**
+ * Table skeleton for breakdown sections.
+ */
+.breakdown-skeleton {
+  background: white;
+  border-radius: $border-radius;
+  box-shadow: $card-shadow;
+  overflow: hidden;
+
+  &__header {
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid #f1f5f9;
+  }
+
+  &__title {
+    height: 18px;
+    width: 120px;
+    background: linear-gradient(90deg, #f1f5f9 0%, #e2e8f0 50%, #f1f5f9 100%);
+    background-size: 200% 100%;
+    animation: sales-skeleton-shimmer 1.5s ease-in-out infinite;
+    border-radius: 4px;
+  }
+
+  &__row {
+    display: flex;
+    align-items: center;
+    padding: 0.875rem 1.25rem;
+    border-bottom: 1px solid #f8fafc;
+    gap: 1rem;
+
+    &:last-child {
+      border-bottom: none;
+    }
+  }
+
+  &__rank {
+    width: 24px;
+    height: 24px;
+    background: #f1f5f9;
+    animation: sales-skeleton-pulse 1.5s ease-in-out infinite;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  &__name {
+    height: 14px;
+    flex: 1;
+    max-width: 150px;
+    background: linear-gradient(90deg, #f1f5f9 0%, #e2e8f0 50%, #f1f5f9 100%);
+    background-size: 200% 100%;
+    animation: sales-skeleton-shimmer 1.5s ease-in-out infinite;
+    border-radius: 4px;
+  }
+
+  &__value {
+    height: 14px;
+    width: 70px;
+    background: linear-gradient(90deg, #f1f5f9 0%, #e2e8f0 50%, #f1f5f9 100%);
+    background-size: 200% 100%;
+    animation: sales-skeleton-shimmer 1.5s ease-in-out infinite;
+    border-radius: 4px;
+    margin-left: auto;
+  }
+
+  &__bar-wrapper {
+    flex: 1;
+    height: 8px;
+    background: #f8fafc;
+    border-radius: 4px;
+    overflow: hidden;
+  }
+
+  &__bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #e2e8f0 0%, #cbd5e1 50%, #e2e8f0 100%);
+    background-size: 200% 100%;
+    animation: sales-skeleton-shimmer 1.5s ease-in-out infinite;
+    border-radius: 4px;
+  }
+}
+
+// ============================================================================
+// KPI CARDS SECTION
+// ============================================================================
+.sales-dashboard__kpis {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.kpi-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  padding: 1.25rem;
+  background: white;
+  border-radius: $border-radius;
+  box-shadow: $card-shadow;
+  transition: $transition-base;
+
+  &:hover {
+    box-shadow: $card-shadow-hover;
+    transform: translateY(-2px);
+  }
+
+  &__icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    flex-shrink: 0;
+
+    .material-icons {
+      font-size: 1.5rem;
+      color: white;
+    }
+  }
+
+  // Icon color variants
+  &[data-color="blue"] .kpi-card__icon {
+    background: linear-gradient(135deg, $primary-color, #60a5fa);
+  }
+
+  &[data-color="green"] .kpi-card__icon {
+    background: linear-gradient(135deg, $success-color, #4ade80);
+  }
+
+  &[data-color="purple"] .kpi-card__icon {
+    background: linear-gradient(135deg, $purple-color, #a78bfa);
+  }
+
+  &[data-color="orange"] .kpi-card__icon {
+    background: linear-gradient(135deg, $warning-color, #fbbf24);
+  }
+
+  &[data-color="red"] .kpi-card__icon {
+    background: linear-gradient(135deg, $danger-color, #f87171);
+  }
+
+  &[data-color="cyan"] .kpi-card__icon {
+    background: linear-gradient(135deg, $cyan-color, #22d3ee);
+  }
+
+  &__content {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    flex: 1;
+    min-width: 0;
+  }
+
+  &__value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #1e293b;
+    line-height: 1.2;
+  }
+
+  &__label {
+    font-size: 0.8125rem;
+    color: #64748b;
+  }
+
+  &__change {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.125rem;
+    font-size: 0.75rem;
+    font-weight: 500;
+    padding: 0.125rem 0.375rem;
+    border-radius: 4px;
+    margin-top: 0.25rem;
+    width: fit-content;
+
+    .material-icons {
+      font-size: 0.875rem;
+    }
+
+    &--positive {
+      background: rgba($success-color, 0.1);
+      color: $success-color;
+    }
+
+    &--negative {
+      background: rgba($danger-color, 0.1);
+      color: $danger-color;
+    }
+  }
+}
+
+// ============================================================================
+// CHART SECTION
+// ============================================================================
+.sales-dashboard__chart {
+  margin-bottom: 1.5rem;
+}
+
+.chart-card {
+  background: white;
+  border-radius: $border-radius;
+  box-shadow: $card-shadow;
+  overflow: hidden;
+
+  &__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid #f1f5f9;
+
+    h3 {
+      margin: 0;
+      font-size: 1rem;
+      font-weight: 600;
+      color: #1e293b;
+    }
+  }
+
+  &__controls {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  &__summary {
+    display: flex;
+    gap: 2rem;
+    padding: 1rem 1.25rem;
+    background: #f8fafc;
+    border-bottom: 1px solid #f1f5f9;
+  }
+
+  &__body {
+    padding: 1.25rem;
+  }
+}
+
+// Period selector buttons
+.period-selector {
+  display: flex;
+  background: #f1f5f9;
+  border-radius: 6px;
+  padding: 2px;
+}
+
+.period-btn {
+  padding: 0.375rem 0.75rem;
+  border: none;
+  background: transparent;
+  color: #64748b;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: $transition-base;
+
+  &:hover {
+    color: #374151;
+  }
+
+  &--active {
+    background: white;
+    color: $primary-color;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  }
+}
+
+// Summary items
+.summary-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+
+  &__value {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #1e293b;
+  }
+
+  &__label {
+    font-size: 0.75rem;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.025em;
+  }
+}
+
+// ============================================================================
+// BAR CHART
+// ============================================================================
+.bar-chart {
+  display: flex;
+  gap: 0.5rem;
+  min-height: 280px;
+
+  &__y-axis {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 0.5rem 0;
+    text-align: right;
+    width: 48px;
+    flex-shrink: 0;
+
+    span {
+      font-size: 0.6875rem;
+      color: #94a3b8;
+    }
+  }
+
+  &__bars {
+    flex: 1;
+    display: flex;
+    align-items: flex-end;
+    gap: 4px;
+    padding-bottom: 24px;
+    border-bottom: 1px solid #e2e8f0;
+    position: relative;
+    overflow-x: auto;
+  }
+
+  &__bar-wrapper {
+    flex: 1;
+    min-width: 24px;
+    max-width: 48px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+
+    &:hover .bar-chart__bar {
+      background: darken($primary-color, 8%);
+    }
+  }
+
+  &__bar {
+    width: 100%;
+    background: $primary-color;
+    border-radius: 4px 4px 0 0;
+    transition: $transition-base;
+    min-height: 4px;
+  }
+
+  &__label {
+    font-size: 0.625rem;
+    color: #94a3b8;
+    white-space: nowrap;
+    writing-mode: vertical-rl;
+    text-orientation: mixed;
+    transform: rotate(180deg);
+    max-height: 60px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}
+
+// ============================================================================
+// BREAKDOWNS SECTION
+// ============================================================================
+.sales-dashboard__breakdowns {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+
+  @media (max-width: 1024px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.breakdown-card {
+  background: white;
+  border-radius: $border-radius;
+  box-shadow: $card-shadow;
+  overflow: hidden;
+
+  &__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid #f1f5f9;
+
+    h3 {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin: 0;
+      font-size: 0.9375rem;
+      font-weight: 600;
+      color: #1e293b;
+
+      .material-icons {
+        font-size: 1.125rem;
+        color: #64748b;
+      }
+    }
+  }
+
+  &__body {
+    padding: 1rem 1.25rem;
+    max-height: 320px;
+    overflow-y: auto;
+  }
+}
+
+.view-all-link {
+  font-size: 0.8125rem;
+  color: $primary-color;
+  text-decoration: none;
+  font-weight: 500;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+// Empty state
+.empty-state-small {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  text-align: center;
+
+  .material-icons {
+    font-size: 2.5rem;
+    color: #cbd5e1;
+    margin-bottom: 0.5rem;
+  }
+
+  p {
+    margin: 0;
+    color: #94a3b8;
+    font-size: 0.875rem;
+  }
+}
+
+// Breakdown list
+.breakdown-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.breakdown-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+
+  &__info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.125rem;
+  }
+
+  &__name {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #1e293b;
+  }
+
+  &__meta {
+    font-size: 0.75rem;
+    color: #94a3b8;
+  }
+
+  &__stats {
+    display: flex;
+    align-items: baseline;
+    gap: 0.5rem;
+  }
+
+  &__value {
+    font-size: 0.9375rem;
+    font-weight: 600;
+    color: #1e293b;
+  }
+
+  &__percent {
+    font-size: 0.75rem;
+    color: #64748b;
+    background: #f1f5f9;
+    padding: 0.125rem 0.375rem;
+    border-radius: 4px;
+  }
+
+  &__bar {
+    height: 6px;
+    background: #e2e8f0;
+    border-radius: 3px;
+    overflow: hidden;
+  }
+
+  &__bar-fill {
+    height: 100%;
+    background: $primary-color;
+    border-radius: 3px;
+    transition: width 0.5s ease;
+
+    &--vendor {
+      background: $purple-color;
+    }
+
+    &--region {
+      background: $success-color;
+    }
+  }
+}
+
+// ============================================================================
+// QUICK LINKS
+// ============================================================================
+.sales-dashboard__quick-links {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 1rem;
+}
+
+.quick-link {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem 1.25rem;
+  background: white;
+  border-radius: $border-radius;
+  box-shadow: $card-shadow;
+  text-decoration: none;
+  color: #475569;
+  transition: $transition-base;
+
+  &:hover {
+    box-shadow: $card-shadow-hover;
+    transform: translateY(-2px);
+    color: $primary-color;
+
+    .material-icons {
+      color: $primary-color;
+    }
+  }
+
+  .material-icons {
+    font-size: 1.5rem;
+    color: #64748b;
+    transition: $transition-base;
+  }
+
+  span:last-child {
+    font-size: 0.875rem;
+    font-weight: 500;
+  }
+}
+
+// ============================================================================
+// MATERIAL MENU OVERRIDES
+// ============================================================================
+::ng-deep {
+  .mat-mdc-menu-panel {
+    border-radius: $border-radius !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+  }
+
+  .mat-mdc-menu-item {
+    font-size: 0.875rem !important;
+
+    .material-icons {
+      margin-right: 0.75rem;
+      font-size: 1.125rem;
+      color: #64748b;
+    }
+  }
+}
+
+// ============================================================================
+// RESPONSIVE DESIGN
+// ============================================================================
+@media (max-width: 768px) {
+  .sales-dashboard {
+    padding: 1rem;
+  }
+
+  .sales-dashboard__header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .sales-dashboard__header-actions {
+    flex-wrap: wrap;
+  }
+
+  .date-selector {
+    flex-direction: column;
+    width: 100%;
+
+    &__select {
+      width: 100%;
+    }
+
+    &__custom {
+      width: 100%;
+      flex-wrap: wrap;
+    }
+  }
+
+  .sales-dashboard__kpis {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .kpi-card {
+    padding: 1rem;
+
+    &__icon {
+      width: 40px;
+      height: 40px;
+
+      .material-icons {
+        font-size: 1.25rem;
+      }
+    }
+
+    &__value {
+      font-size: 1.25rem;
+    }
+  }
+
+  .chart-card__header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+
+  .chart-card__summary {
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+
+  .bar-chart {
+    min-height: 200px;
+  }
+
+  .bar-chart__y-axis {
+    width: 36px;
+  }
+
+  .sales-dashboard__quick-links {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 480px) {
+  .sales-dashboard__kpis {
+    grid-template-columns: 1fr;
+  }
+
+  .sales-dashboard__quick-links {
+    grid-template-columns: 1fr;
+  }
+}
+
+// ============================================================================
+// RTL SUPPORT
+// ============================================================================
+[dir="rtl"] {
+  .sales-dashboard__header-actions {
+    flex-direction: row-reverse;
+  }
+
+  .kpi-card {
+    flex-direction: row-reverse;
+  }
+
+  .bar-chart__y-axis {
+    text-align: left;
+  }
+
+  .bar-chart__label {
+    transform: rotate(0deg);
+  }
+
+  .breakdown-card__header {
+    h3 {
+      flex-direction: row-reverse;
+    }
+  }
+
+  .quick-link {
+    flex-direction: row-reverse;
+  }
+
+  .btn {
+    flex-direction: row-reverse;
+  }
+
+  .view-all-link {
+    margin-left: 0;
+    margin-right: auto;
+  }
+
+  ::ng-deep .mat-mdc-menu-item .material-icons {
+    margin-right: 0;
+    margin-left: 0.75rem;
+  }
+}

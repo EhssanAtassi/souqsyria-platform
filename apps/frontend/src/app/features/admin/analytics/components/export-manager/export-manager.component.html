@@ -1,0 +1,327 @@
+<!--
+  Export Manager Component Template
+  @description Manage report exports, history, and downloads
+-->
+
+<div class="export-manager">
+  <!-- ===================================================================== -->
+  <!-- HEADER -->
+  <!-- ===================================================================== -->
+  <header class="export-manager__header">
+    <div class="export-manager__title">
+      <h1>Export Manager</h1>
+      <span class="export-manager__subtitle">Generate and download analytics reports</span>
+    </div>
+  </header>
+
+  <!-- Alert Messages -->
+  @if (successMessage()) {
+    <div class="alert alert--success">
+      <span class="material-icons">check_circle</span>
+      <span>{{ successMessage() }}</span>
+      <button (click)="successMessage.set(null)">
+        <span class="material-icons">close</span>
+      </button>
+    </div>
+  }
+
+  @if (errorMessage()) {
+    <div class="alert alert--error">
+      <span class="material-icons">error</span>
+      <span>{{ errorMessage() }}</span>
+      <button (click)="errorMessage.set(null)">
+        <span class="material-icons">close</span>
+      </button>
+    </div>
+  }
+
+  <!-- ===================================================================== -->
+  <!-- EXPORT GENERATOR -->
+  <!-- ===================================================================== -->
+  <section class="export-manager__generator">
+    <div class="generator-card">
+      <div class="generator-card__header">
+        <h2>
+          <span class="material-icons">add_circle</span>
+          Generate New Export
+        </h2>
+      </div>
+
+      <div class="generator-card__body">
+        <!-- Export Type Selection -->
+        <div class="form-section">
+          <label class="form-section__label">Select Report Type</label>
+          <div class="type-grid">
+            @for (exportType of exportTypes; track trackByType($index, exportType)) {
+              <button
+                class="type-card"
+                [class.type-card--active]="selectedType() === exportType.type"
+                (click)="selectedType.set(exportType.type)"
+              >
+                <span class="material-icons">{{ exportType.icon }}</span>
+                <span class="type-card__label">{{ exportType.label }}</span>
+                <span class="type-card__desc">{{ exportType.description }}</span>
+              </button>
+            }
+          </div>
+        </div>
+
+        <!-- Format Selection -->
+        <div class="form-section">
+          <label class="form-section__label">Export Format</label>
+          <div class="format-options">
+            @for (fmt of exportFormats; track trackByFormat($index, fmt)) {
+              <label class="format-option">
+                <input
+                  type="radio"
+                  name="format"
+                  [value]="fmt.format"
+                  [checked]="selectedFormat() === fmt.format"
+                  (change)="selectedFormat.set(fmt.format)"
+                />
+                <span class="format-option__box">
+                  <span class="material-icons">{{ fmt.icon }}</span>
+                  <span>{{ fmt.label }}</span>
+                </span>
+              </label>
+            }
+          </div>
+        </div>
+
+        <!-- Date Range -->
+        <div class="form-section">
+          <label class="form-section__label">Date Range</label>
+          <div class="date-range">
+            <div class="date-presets">
+              @for (preset of datePresets; track preset.days) {
+                <button
+                  class="preset-btn"
+                  (click)="applyDatePreset(preset.days)"
+                >
+                  {{ preset.label }}
+                </button>
+              }
+            </div>
+            <div class="date-inputs">
+              <div class="date-input">
+                <label>From</label>
+                <input
+                  type="date"
+                  [value]="dateRange().startDate"
+                  (change)="dateRange.set({...dateRange(), startDate: $any($event.target).value})"
+                />
+              </div>
+              <div class="date-input">
+                <label>To</label>
+                <input
+                  type="date"
+                  [value]="dateRange().endDate"
+                  (change)="dateRange.set({...dateRange(), endDate: $any($event.target).value})"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Options -->
+        <div class="form-section">
+          <label class="form-section__label">Options</label>
+          <div class="options-row">
+            <label class="checkbox-option">
+              <input
+                type="checkbox"
+                [checked]="includeHeaders()"
+                (change)="includeHeaders.set($any($event.target).checked)"
+              />
+              <span>Include column headers</span>
+            </label>
+          </div>
+          <div class="filename-input">
+            <label>Custom Filename (optional)</label>
+            <input
+              type="text"
+              [value]="customFilename()"
+              (input)="customFilename.set($any($event.target).value)"
+              placeholder="Leave empty for auto-generated name"
+            />
+            <span class="filename-preview">Preview: {{ filenamePreview() }}</span>
+          </div>
+        </div>
+
+        <!-- Generate Button -->
+        <div class="form-section form-section--actions">
+          <button
+            class="btn btn--primary btn--large"
+            [disabled]="isGenerating()"
+            (click)="generateExport()"
+          >
+            @if (isGenerating()) {
+              <span class="btn-spinner"></span>
+              Generating...
+            } @else {
+              <span class="material-icons">download</span>
+              Generate Export
+            }
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================================================================== -->
+  <!-- QUICK EXPORTS -->
+  <!-- ===================================================================== -->
+  <section class="export-manager__quick">
+    <h3>Quick Exports</h3>
+    <div class="quick-exports">
+      <button
+        class="quick-export-btn"
+        (click)="quickExport('sales', 'xlsx')"
+        [disabled]="isGenerating() && currentGeneratingType() === 'sales'"
+      >
+        <span class="material-icons">analytics</span>
+        <span>Sales Report (Excel)</span>
+      </button>
+      <button
+        class="quick-export-btn"
+        (click)="quickExport('commissions', 'csv')"
+        [disabled]="isGenerating() && currentGeneratingType() === 'commissions'"
+      >
+        <span class="material-icons">monetization_on</span>
+        <span>Commissions (CSV)</span>
+      </button>
+      <button
+        class="quick-export-btn"
+        (click)="quickExport('users', 'xlsx')"
+        [disabled]="isGenerating() && currentGeneratingType() === 'users'"
+      >
+        <span class="material-icons">people</span>
+        <span>User Analytics (Excel)</span>
+      </button>
+      <button
+        class="quick-export-btn"
+        (click)="quickExport('orders', 'pdf')"
+        [disabled]="isGenerating() && currentGeneratingType() === 'orders'"
+      >
+        <span class="material-icons">shopping_bag</span>
+        <span>Orders Report (PDF)</span>
+      </button>
+    </div>
+  </section>
+
+  <!-- ===================================================================== -->
+  <!-- EXPORT HISTORY -->
+  <!-- ===================================================================== -->
+  <section class="export-manager__history">
+    <div class="history-header">
+      <h3>
+        <span class="material-icons">history</span>
+        Export History
+      </h3>
+      <span class="history-count">{{ exportHistory().length }} exports</span>
+    </div>
+
+    @if (isLoadingHistory()) {
+      <div class="loading-state">
+        <div class="loading-spinner"></div>
+        <p>Loading export history...</p>
+      </div>
+    } @else if (exportHistory().length === 0) {
+      <div class="empty-state">
+        <span class="material-icons">folder_open</span>
+        <p>No exports yet</p>
+        <span>Generate your first export using the form above</span>
+      </div>
+    } @else {
+      <div class="history-table">
+        <div class="history-table__header">
+          <span class="history-table__col history-table__col--type">Type</span>
+          <span class="history-table__col history-table__col--file">Filename</span>
+          <span class="history-table__col history-table__col--size">Size</span>
+          <span class="history-table__col history-table__col--date">Created</span>
+          <span class="history-table__col history-table__col--status">Status</span>
+          <span class="history-table__col history-table__col--actions">Actions</span>
+        </div>
+
+        <div class="history-table__body">
+          @for (item of exportHistory(); track trackByHistoryId($index, item)) {
+            <div class="history-row" [class.history-row--expired]="isExpired(item)">
+              <span class="history-table__col history-table__col--type">
+                <span class="material-icons">{{ getTypeIcon(item.type) }}</span>
+                {{ getTypeLabel(item.type) }}
+              </span>
+              <span class="history-table__col history-table__col--file">
+                <span class="filename">{{ item.filename }}</span>
+                <span class="format-badge">{{ item.format | uppercase }}</span>
+              </span>
+              <span class="history-table__col history-table__col--size">
+                {{ formatFileSize(item.fileSize) }}
+              </span>
+              <span class="history-table__col history-table__col--date">
+                {{ formatDate(item.createdAt) }}
+              </span>
+              <span class="history-table__col history-table__col--status">
+                <span class="status-badge" [class]="getStatusClass(item.status)">
+                  @if (item.status === 'completed') {
+                    <span class="material-icons">check_circle</span>
+                  } @else if (item.status === 'processing') {
+                    <span class="material-icons">hourglass_empty</span>
+                  } @else {
+                    <span class="material-icons">error</span>
+                  }
+                  {{ item.status }}
+                </span>
+                @if (isExpired(item)) {
+                  <span class="expired-badge">Expired</span>
+                }
+              </span>
+              <span class="history-table__col history-table__col--actions">
+                @if (item.status === 'completed' && !isExpired(item) && item.downloadUrl) {
+                  <button
+                    class="action-btn action-btn--download"
+                    (click)="downloadExport(item)"
+                    matTooltip="Download"
+                  >
+                    <span class="material-icons">download</span>
+                  </button>
+                }
+                <button
+                  class="action-btn action-btn--regenerate"
+                  (click)="regenerateExport(item)"
+                  matTooltip="Regenerate"
+                >
+                  <span class="material-icons">refresh</span>
+                </button>
+                <button
+                  class="action-btn action-btn--delete"
+                  (click)="deleteExport(item)"
+                  matTooltip="Remove from history"
+                >
+                  <span class="material-icons">delete_outline</span>
+                </button>
+              </span>
+            </div>
+          }
+        </div>
+      </div>
+    }
+  </section>
+
+  <!-- ===================================================================== -->
+  <!-- QUICK LINKS -->
+  <!-- ===================================================================== -->
+  <section class="export-manager__quick-links">
+    <a routerLink="/admin/analytics" class="quick-link">
+      <span class="material-icons">analytics</span>
+      <span>Sales Analytics</span>
+    </a>
+    <a routerLink="/admin/analytics/users" class="quick-link">
+      <span class="material-icons">people</span>
+      <span>User Analytics</span>
+    </a>
+    <a routerLink="/admin/analytics/commissions" class="quick-link">
+      <span class="material-icons">monetization_on</span>
+      <span>Commission Reports</span>
+    </a>
+  </section>
+</div>

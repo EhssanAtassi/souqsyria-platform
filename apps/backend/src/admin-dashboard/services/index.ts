@@ -7,3 +7,4 @@
 export * from './admin-dashboard.service';
 export * from './admin-analytics.service';
 export * from './admin-export.service';
+export * from './dashboard-cache.service';

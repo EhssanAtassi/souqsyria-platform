@@ -1,0 +1,214 @@
+<!--
+  Role Detail Component Template
+  @description View and edit role permissions
+-->
+
+<div class="role-detail">
+  <!-- ===================================================================== -->
+  <!-- HEADER -->
+  <!-- ===================================================================== -->
+  <header class="role-detail__header">
+    <div class="role-detail__title">
+      <a routerLink="/admin/settings/roles" class="back-link">
+        <span class="material-icons">arrow_back</span>
+      </a>
+      @if (role()) {
+        <div class="role-detail__info" [attr.data-color]="roleColor()">
+          <div class="role-detail__icon">
+            <span class="material-icons">{{ roleIcon() }}</span>
+          </div>
+          <div>
+            <h1>{{ role()!.displayName }}</h1>
+            <span class="role-detail__code">{{ role()!.name }}</span>
+          </div>
+        </div>
+      }
+    </div>
+
+    <div class="role-detail__actions">
+      @if (hasChanges()) {
+        <button
+          class="btn btn--secondary"
+          [disabled]="isSaving()"
+          (click)="resetChanges()"
+        >
+          <span class="material-icons">undo</span>
+          Reset
+        </button>
+      }
+      <button
+        class="btn btn--primary"
+        [disabled]="!hasChanges() || isSaving()"
+        (click)="saveChanges()"
+      >
+        @if (isSaving()) {
+          <span class="btn-spinner"></span>
+          Saving...
+        } @else {
+          <span class="material-icons">save</span>
+          Save Changes
+        }
+      </button>
+    </div>
+  </header>
+
+  <!-- Alert Messages -->
+  @if (successMessage()) {
+    <div class="alert alert--success">
+      <span class="material-icons">check_circle</span>
+      <span>{{ successMessage() }}</span>
+      <button (click)="successMessage.set(null)">
+        <span class="material-icons">close</span>
+      </button>
+    </div>
+  }
+
+  @if (errorMessage()) {
+    <div class="alert alert--warning">
+      <span class="material-icons">warning</span>
+      <span>{{ errorMessage() }}</span>
+      <button (click)="errorMessage.set(null)">
+        <span class="material-icons">close</span>
+      </button>
+    </div>
+  }
+
+  @if (isLoading()) {
+    <div class="loading-state">
+      <div class="loading-spinner"></div>
+      <p>Loading role details...</p>
+    </div>
+  } @else if (role()) {
+    <!-- ===================================================================== -->
+    <!-- ROLE SUMMARY -->
+    <!-- ===================================================================== -->
+    <section class="role-detail__summary">
+      <div class="summary-card">
+        <h3>Role Information</h3>
+        <p class="summary-description">{{ role()!.description }}</p>
+        <div class="summary-stats">
+          <div class="summary-stat">
+            <span class="material-icons">people</span>
+            <span>{{ role()!.userCount }} users</span>
+          </div>
+          <div class="summary-stat">
+            <span class="material-icons">lock</span>
+            <span>{{ enabledCount() }} of {{ totalPermissions() }} permissions</span>
+          </div>
+          <div class="summary-stat">
+            <span class="material-icons">update</span>
+            <span>Updated {{ formatDate(role()!.updatedAt) }}</span>
+          </div>
+        </div>
+        @if (role()!.isSystemRole) {
+          <div class="summary-badge">
+            <span class="material-icons">security</span>
+            <span>System Role - Cannot be deleted</span>
+          </div>
+        }
+      </div>
+
+      <!-- Quick Stats -->
+      <div class="permission-overview">
+        <div class="permission-progress">
+          <div class="permission-progress__header">
+            <span>Permissions Enabled</span>
+            <span>{{ enabledCount() }}/{{ totalPermissions() }}</span>
+          </div>
+          <div class="permission-progress__bar">
+            <div
+              class="permission-progress__fill"
+              [style.width.%]="(enabledCount() / totalPermissions()) * 100"
+            ></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================================================================== -->
+    <!-- PERMISSION MATRIX -->
+    <!-- ===================================================================== -->
+    <section class="role-detail__permissions">
+      <h2>
+        <span class="material-icons">lock</span>
+        Permission Matrix
+      </h2>
+      <p class="section-description">
+        Configure which actions this role can perform in each category.
+      </p>
+
+      <div class="permission-categories">
+        @for (category of permissionCategories(); track trackByCategory($index, category)) {
+          <div class="permission-category">
+            <div class="permission-category__header">
+              <div class="permission-category__info">
+                <span class="material-icons">{{ category.icon }}</span>
+                <div>
+                  <span class="permission-category__name">{{ category.name }}</span>
+                  <span class="permission-category__count">
+                    {{ getCategoryEnabledCount(category) }}/{{ category.permissions.length }} enabled
+                  </span>
+                </div>
+              </div>
+              <label class="category-toggle">
+                <input
+                  type="checkbox"
+                  [checked]="isCategoryFullyEnabled(category)"
+                  [indeterminate]="isCategoryPartiallyEnabled(category)"
+                  (change)="toggleCategory(category)"
+                />
+                <span>Enable All</span>
+              </label>
+            </div>
+
+            <div class="permission-category__body">
+              @for (permission of category.permissions; track trackByPermission($index, permission)) {
+                <label
+                  class="permission-item"
+                  [class.permission-item--enabled]="isPermissionEnabled(permission.id)"
+                >
+                  <input
+                    type="checkbox"
+                    [checked]="isPermissionEnabled(permission.id)"
+                    (change)="togglePermission(permission.id)"
+                  />
+                  <div class="permission-item__content">
+                    <span class="permission-item__name">
+                      {{ permission.name }}
+                      <span class="action-badge" [class]="getActionClass(permission.action)">
+                        {{ permission.action }}
+                      </span>
+                    </span>
+                    <span class="permission-item__description">{{ permission.description }}</span>
+                  </div>
+                </label>
+              }
+            </div>
+          </div>
+        }
+      </div>
+    </section>
+
+    <!-- ===================================================================== -->
+    <!-- UNSAVED CHANGES BAR -->
+    <!-- ===================================================================== -->
+    @if (hasChanges()) {
+      <div class="unsaved-bar">
+        <span class="material-icons">warning</span>
+        <span>You have unsaved changes</span>
+        <div class="unsaved-bar__actions">
+          <button class="btn btn--secondary btn--small" (click)="resetChanges()">
+            Discard
+          </button>
+          <button
+            class="btn btn--primary btn--small"
+            [disabled]="isSaving()"
+            (click)="saveChanges()"
+          >
+            Save Changes
+          </button>
+        </div>
+      </div>
+    }
+  }
+</div>

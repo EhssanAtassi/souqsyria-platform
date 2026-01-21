@@ -1,0 +1,296 @@
+<!-- Approval Queue Template -->
+<!-- Card-based pending product review interface -->
+
+<section class="approval-queue" aria-label="Product approval queue">
+  <!-- Header -->
+  <header class="approval-queue__header">
+    <div class="approval-queue__title-section">
+      <nav class="approval-queue__breadcrumb">
+        <a routerLink="/admin/products" class="approval-queue__breadcrumb-link">
+          <span class="material-icons">arrow_back</span>
+          Back to Products
+        </a>
+      </nav>
+      <h1 class="approval-queue__title">Product Approval Queue</h1>
+      <p class="approval-queue__subtitle">
+        {{ pagination().total }} products awaiting review
+      </p>
+    </div>
+
+    <div class="approval-queue__actions">
+      <button
+        type="button"
+        class="approval-queue__action-btn"
+        (click)="toggleSortOrder()"
+        matTooltip="Sort by submission date"
+      >
+        <span class="material-icons">
+          {{ sortOrder() === 'asc' ? 'arrow_upward' : 'arrow_downward' }}
+        </span>
+        <span>{{ sortOrder() === 'asc' ? 'Oldest First' : 'Newest First' }}</span>
+      </button>
+
+      <button
+        type="button"
+        class="approval-queue__action-btn"
+        (click)="refresh()"
+        matTooltip="Refresh"
+      >
+        <span class="material-icons">refresh</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Bulk Actions Bar -->
+  <div class="approval-queue__bulk-bar" *ngIf="showBulkActions()">
+    <div class="approval-queue__bulk-info">
+      <input
+        type="checkbox"
+        [checked]="allSelected()"
+        (change)="toggleSelectAll()"
+        aria-label="Select all"
+      />
+      <span>{{ selectedCount() }} selected</span>
+    </div>
+
+    <div class="approval-queue__bulk-actions">
+      <button
+        type="button"
+        class="approval-queue__bulk-btn approval-queue__bulk-btn--success"
+        (click)="bulkApprove()"
+        matTooltip="Approve all selected"
+      >
+        <span class="material-icons">check_circle</span>
+        Approve Selected
+      </button>
+
+      <button
+        type="button"
+        class="approval-queue__bulk-btn"
+        (click)="clearSelection()"
+        matTooltip="Clear selection"
+      >
+        <span class="material-icons">close</span>
+        Clear
+      </button>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="isLoading()" class="approval-queue__loading">
+    <span class="material-icons animate-spin">sync</span>
+    <p>Loading pending products...</p>
+  </div>
+
+  <!-- Products Grid -->
+  <div class="approval-queue__grid" *ngIf="!isLoading() && pendingProducts().length > 0">
+    <article
+      *ngFor="let product of pendingProducts(); trackBy: trackByProductId"
+      class="product-card"
+      [class.product-card--selected]="isSelected(product.id)"
+    >
+      <!-- Selection Checkbox -->
+      <div class="product-card__select">
+        <input
+          type="checkbox"
+          [checked]="isSelected(product.id)"
+          (change)="toggleSelection(product.id)"
+          aria-label="Select product"
+        />
+      </div>
+
+      <!-- Product Image -->
+      <div class="product-card__image" (click)="viewProduct(product.id)">
+        <img
+          *ngIf="product.thumbnail"
+          [src]="product.thumbnail"
+          [alt]="product.name"
+        />
+        <div *ngIf="!product.thumbnail" class="product-card__no-image">
+          <span class="material-icons">image</span>
+        </div>
+
+        <!-- Resubmission Badge -->
+        <span *ngIf="product.isResubmission" class="product-card__resubmission-badge">
+          Resubmission
+        </span>
+
+        <!-- Days Pending -->
+        <span
+          class="product-card__days-badge"
+          [attr.data-urgency]="getUrgencyClass(product.daysPending)"
+        >
+          {{ product.daysPending }}d pending
+        </span>
+      </div>
+
+      <!-- Product Info -->
+      <div class="product-card__content" (click)="viewProduct(product.id)">
+        <h3 class="product-card__name">{{ product.name }}</h3>
+
+        <div class="product-card__meta">
+          <span class="product-card__sku">
+            <span class="material-icons">qr_code</span>
+            {{ product.sku }}
+          </span>
+          <span class="product-card__price">
+            {{ product.price | currencyFormat }}
+          </span>
+        </div>
+
+        <div class="product-card__vendor">
+          <span class="material-icons">storefront</span>
+          {{ product.vendorName }}
+        </div>
+
+        <div class="product-card__category">
+          <span class="material-icons">category</span>
+          {{ product.categoryName }}
+        </div>
+
+        <div class="product-card__details">
+          <span class="product-card__images">
+            <span class="material-icons">photo_library</span>
+            {{ product.imageCount }} images
+          </span>
+          <span *ngIf="product.hasVariants" class="product-card__variants">
+            <span class="material-icons">style</span>
+            Has variants
+          </span>
+        </div>
+
+        <!-- Previous Rejection Reason -->
+        <div
+          *ngIf="product.previousRejectionReason"
+          class="product-card__previous-rejection"
+        >
+          <span class="material-icons">info</span>
+          <p>Previously rejected: {{ product.previousRejectionReason }}</p>
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <div class="product-card__actions">
+        <button
+          type="button"
+          class="product-card__action-btn product-card__action-btn--approve"
+          (click)="approveProduct(product)"
+          matTooltip="Approve product"
+        >
+          <span class="material-icons">check</span>
+          Approve
+        </button>
+
+        <button
+          type="button"
+          class="product-card__action-btn product-card__action-btn--reject"
+          (click)="openRejectionDialog(product)"
+          matTooltip="Reject product"
+        >
+          <span class="material-icons">close</span>
+          Reject
+        </button>
+
+        <button
+          type="button"
+          class="product-card__action-btn"
+          (click)="viewProduct(product.id)"
+          matTooltip="View details"
+        >
+          <span class="material-icons">visibility</span>
+        </button>
+      </div>
+    </article>
+  </div>
+
+  <!-- Empty State -->
+  <div
+    *ngIf="!isLoading() && pendingProducts().length === 0"
+    class="approval-queue__empty"
+  >
+    <span class="material-icons">check_circle</span>
+    <h3>All Caught Up!</h3>
+    <p>No products are waiting for approval.</p>
+    <button
+      type="button"
+      class="approval-queue__empty-btn"
+      routerLink="/admin/products"
+    >
+      Back to Products
+    </button>
+  </div>
+
+  <!-- Pagination -->
+  <footer
+    class="approval-queue__pagination"
+    *ngIf="!isLoading() && pendingProducts().length > 0"
+  >
+    <span class="approval-queue__page-info">{{ paginationText() }}</span>
+
+    <div class="approval-queue__page-controls">
+      <button
+        type="button"
+        class="approval-queue__page-btn"
+        [disabled]="pagination().page === 1"
+        (click)="previousPage()"
+        aria-label="Previous page"
+      >
+        <span class="material-icons">chevron_left</span>
+      </button>
+      <button
+        type="button"
+        class="approval-queue__page-btn"
+        [disabled]="pagination().page >= pagination().totalPages"
+        (click)="nextPage()"
+        aria-label="Next page"
+      >
+        <span class="material-icons">chevron_right</span>
+      </button>
+    </div>
+  </footer>
+</section>
+
+<!-- Rejection Dialog -->
+<div class="rejection-dialog-overlay" *ngIf="showRejectionDialog()" (click)="closeRejectionDialog()">
+  <div class="rejection-dialog" (click)="$event.stopPropagation()">
+    <header class="rejection-dialog__header">
+      <h2 class="rejection-dialog__title">Reject Product</h2>
+      <p class="rejection-dialog__product">{{ rejectingProduct()?.productName }}</p>
+    </header>
+
+    <div class="rejection-dialog__content">
+      <label class="rejection-dialog__label">
+        Rejection Reason <span class="rejection-dialog__required">*</span>
+      </label>
+      <textarea
+        class="rejection-dialog__textarea"
+        [(ngModel)]="rejectionReason"
+        rows="4"
+        placeholder="Explain why this product is being rejected..."
+      ></textarea>
+
+      <label class="rejection-dialog__checkbox">
+        <input type="checkbox" [(ngModel)]="allowResubmission" />
+        <span>Allow vendor to resubmit</span>
+      </label>
+    </div>
+
+    <footer class="rejection-dialog__actions">
+      <button
+        type="button"
+        class="rejection-dialog__btn rejection-dialog__btn--cancel"
+        (click)="closeRejectionDialog()"
+      >
+        Cancel
+      </button>
+      <button
+        type="button"
+        class="rejection-dialog__btn rejection-dialog__btn--confirm"
+        (click)="confirmRejection()"
+        [disabled]="!rejectionReason.trim()"
+      >
+        Reject Product
+      </button>
+    </footer>
+  </div>
+</div>

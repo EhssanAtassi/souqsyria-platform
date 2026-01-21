@@ -62,3 +62,27 @@
     color: #7f1d1d;
   }
 }
+
+// RTL support
+[dir='rtl'] {
+  .admin-profile {
+    &__header {
+      flex-direction: row-reverse;
+    }
+
+    &__avatar {
+      // Flip gradient direction for RTL
+      background: linear-gradient(225deg, #1e3a8a 0%, #c41e3a 100%);
+    }
+
+    &__info {
+      text-align: right;
+    }
+
+    article {
+      h3, p {
+        text-align: right;
+      }
+    }
+  }
+}

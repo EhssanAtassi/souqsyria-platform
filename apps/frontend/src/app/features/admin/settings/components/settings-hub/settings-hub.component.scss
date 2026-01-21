@@ -1,0 +1,591 @@
+/**
+ * Settings Hub Component Styles
+ * @description Styles for the settings navigation hub
+ */
+
+// =============================================================================
+// VARIABLES
+// =============================================================================
+
+$card-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+$card-shadow-hover: 0 4px 12px rgba(0, 0, 0, 0.15);
+$border-radius: 8px;
+
+// Color variants
+$colors: (
+  blue: (bg: #eff6ff, icon: #3b82f6, border: #bfdbfe),
+  purple: (bg: #f5f3ff, icon: #8b5cf6, border: #ddd6fe),
+  green: (bg: #f0fdf4, icon: #22c55e, border: #bbf7d0),
+  orange: (bg: #fff7ed, icon: #f97316, border: #fed7aa),
+  red: (bg: #fef2f2, icon: #ef4444, border: #fecaca),
+  teal: (bg: #f0fdfa, icon: #14b8a6, border: #99f6e4)
+);
+
+// =============================================================================
+// HOST & CONTAINER
+// =============================================================================
+
+.settings-hub {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 1.5rem;
+
+  @media (max-width: 768px) {
+    padding: 1rem;
+  }
+}
+
+// =============================================================================
+// HEADER
+// =============================================================================
+
+.settings-hub__header {
+  margin-bottom: 0.5rem;
+}
+
+.settings-hub__title {
+  h1 {
+    margin: 0;
+    font-size: 1.75rem;
+    font-weight: 600;
+    color: #1f2937;
+  }
+}
+
+.settings-hub__subtitle {
+  display: block;
+  margin-top: 0.25rem;
+  font-size: 0.875rem;
+  color: #6b7280;
+}
+
+// =============================================================================
+// PLATFORM STATUS
+// =============================================================================
+
+.status-card {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: $border-radius;
+  box-shadow: $card-shadow;
+  overflow: hidden;
+}
+
+.status-card__header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem 1.25rem;
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  border-bottom: 1px solid #e5e7eb;
+
+  .material-icons {
+    color: #3b82f6;
+    font-size: 1.5rem;
+  }
+
+  h3 {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #374151;
+  }
+}
+
+.status-card__content {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 1rem;
+  padding: 1.25rem;
+}
+
+.status-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.status-item__label {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.status-item__value {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  color: #1f2937;
+
+  .material-icons {
+    font-size: 1.125rem;
+  }
+
+  &.status--success {
+    color: #16a34a;
+  }
+
+  &.status--warning {
+    color: #ea580c;
+  }
+
+  &.status--unknown {
+    color: #6b7280;
+  }
+}
+
+.status-card__loading,
+.status-card__error {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  padding: 2rem;
+  color: #6b7280;
+}
+
+.status-card__error {
+  color: #dc2626;
+
+  .material-icons {
+    font-size: 1.5rem;
+  }
+}
+
+// =============================================================================
+// SETTINGS SECTIONS
+// =============================================================================
+
+.settings-hub__sections {
+  h2 {
+    margin: 0 0 1rem;
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: #374151;
+  }
+}
+
+.sections-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1rem;
+}
+
+.section-card {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  padding: 1.25rem;
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: $border-radius;
+  box-shadow: $card-shadow;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  cursor: pointer;
+
+  &:hover {
+    box-shadow: $card-shadow-hover;
+    transform: translateY(-2px);
+  }
+
+  // Color variants using data attributes
+  @each $name, $values in $colors {
+    $color-name: "" + $name;
+    &[data-color="#{$color-name}"] {
+      .section-card__icon {
+        background: map-get($values, bg);
+        border-color: map-get($values, border);
+
+        .material-icons {
+          color: map-get($values, icon);
+        }
+      }
+
+      &:hover {
+        border-color: map-get($values, border);
+      }
+    }
+  }
+}
+
+.section-card__icon {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 10px;
+  border: 1px solid transparent;
+
+  .material-icons {
+    font-size: 1.5rem;
+  }
+}
+
+.section-card__content {
+  flex: 1;
+  min-width: 0;
+
+  h3 {
+    margin: 0 0 0.375rem;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #1f2937;
+  }
+
+  p {
+    margin: 0;
+    font-size: 0.8125rem;
+    color: #6b7280;
+    line-height: 1.4;
+  }
+}
+
+.section-card__arrow {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: #f3f4f6;
+  transition: all 0.2s ease;
+
+  .material-icons {
+    font-size: 1rem;
+    color: #6b7280;
+  }
+
+  .section-card:hover & {
+    background: #3b82f6;
+
+    .material-icons {
+      color: white;
+    }
+  }
+}
+
+.section-card__badge {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  padding: 0.25rem 0.5rem;
+  font-size: 0.625rem;
+  font-weight: 600;
+  color: #7c3aed;
+  background: #ede9fe;
+  border-radius: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+}
+
+// =============================================================================
+// QUICK ACTIONS
+// =============================================================================
+
+.settings-hub__quick-actions {
+  h2 {
+    margin: 0 0 1rem;
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: #374151;
+  }
+}
+
+.quick-actions-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.quick-action {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.625rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #374151;
+  background: white;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.15s ease;
+
+  .material-icons {
+    font-size: 1.125rem;
+    color: #6b7280;
+  }
+
+  &:hover:not(:disabled) {
+    background: #f9fafb;
+    border-color: #9ca3af;
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+// =============================================================================
+// INFO BANNER
+// =============================================================================
+
+.info-banner {
+  display: flex;
+  gap: 1rem;
+  padding: 1rem 1.25rem;
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  border-radius: $border-radius;
+
+  > .material-icons {
+    flex-shrink: 0;
+    color: #3b82f6;
+    font-size: 1.5rem;
+  }
+}
+
+.info-banner__content {
+  strong {
+    display: block;
+    margin-bottom: 0.25rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #1e40af;
+  }
+
+  p {
+    margin: 0;
+    font-size: 0.8125rem;
+    color: #1e40af;
+    line-height: 1.5;
+  }
+}
+
+// =============================================================================
+// LOADING SPINNER
+// =============================================================================
+
+.loading-spinner {
+  width: 32px;
+  height: 32px;
+  border: 3px solid #e5e7eb;
+  border-top-color: #3b82f6;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+
+  &--small {
+    width: 20px;
+    height: 20px;
+    border-width: 2px;
+  }
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+// =============================================================================
+// SKELETON LOADING STATES
+// =============================================================================
+
+/**
+ * Skeleton animations for settings hub loading states.
+ * Provides smooth visual feedback while settings data loads.
+ */
+@keyframes settings-skeleton-pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+@keyframes settings-skeleton-shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+/**
+ * Status card skeleton - loading placeholder for platform status.
+ */
+.status-skeleton {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: $border-radius;
+  box-shadow: $card-shadow;
+  overflow: hidden;
+
+  &__header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1rem 1.25rem;
+    background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+    border-bottom: 1px solid #e5e7eb;
+  }
+
+  &__header-icon {
+    width: 24px;
+    height: 24px;
+    border-radius: 4px;
+    background: #e5e7eb;
+    animation: settings-skeleton-pulse 1.5s ease-in-out infinite;
+  }
+
+  &__header-title {
+    height: 16px;
+    width: 120px;
+    background: linear-gradient(90deg, #e5e7eb 0%, #d1d5db 50%, #e5e7eb 100%);
+    background-size: 200% 100%;
+    animation: settings-skeleton-shimmer 1.5s ease-in-out infinite;
+    border-radius: 4px;
+  }
+
+  &__content {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 1rem;
+    padding: 1.25rem;
+  }
+
+  &__item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  &__label {
+    height: 10px;
+    width: 80px;
+    background: #e5e7eb;
+    animation: settings-skeleton-pulse 1.5s ease-in-out infinite;
+    border-radius: 4px;
+  }
+
+  &__value {
+    height: 16px;
+    width: 100px;
+    background: linear-gradient(90deg, #f3f4f6 0%, #e5e7eb 50%, #f3f4f6 100%);
+    background-size: 200% 100%;
+    animation: settings-skeleton-shimmer 1.5s ease-in-out infinite;
+    border-radius: 4px;
+  }
+}
+
+/**
+ * Settings section card skeleton - loading placeholder for navigation cards.
+ */
+.section-skeleton {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.25rem;
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: $border-radius;
+  box-shadow: $card-shadow;
+
+  &__icon {
+    width: 48px;
+    height: 48px;
+    border-radius: $border-radius;
+    background: #f3f4f6;
+    animation: settings-skeleton-pulse 1.5s ease-in-out infinite;
+    flex-shrink: 0;
+  }
+
+  &__content {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    flex: 1;
+  }
+
+  &__title {
+    height: 18px;
+    width: 140px;
+    background: linear-gradient(90deg, #f3f4f6 0%, #e5e7eb 50%, #f3f4f6 100%);
+    background-size: 200% 100%;
+    animation: settings-skeleton-shimmer 1.5s ease-in-out infinite;
+    border-radius: 4px;
+  }
+
+  &__description {
+    height: 14px;
+    width: 200px;
+    background: linear-gradient(90deg, #f3f4f6 0%, #e5e7eb 50%, #f3f4f6 100%);
+    background-size: 200% 100%;
+    animation: settings-skeleton-shimmer 1.5s ease-in-out infinite;
+    border-radius: 4px;
+  }
+
+  &__arrow {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: #f3f4f6;
+    animation: settings-skeleton-pulse 1.5s ease-in-out infinite;
+  }
+}
+
+/**
+ * Section group skeleton - loading placeholder for grouped sections.
+ */
+.section-group-skeleton {
+  &__title {
+    height: 14px;
+    width: 100px;
+    background: #e5e7eb;
+    animation: settings-skeleton-pulse 1.5s ease-in-out infinite;
+    border-radius: 4px;
+    margin-bottom: 1rem;
+  }
+
+  &__cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1rem;
+  }
+}
+
+// =============================================================================
+// RTL SUPPORT
+// =============================================================================
+
+[dir="rtl"] {
+  .section-card__arrow .material-icons {
+    transform: rotate(180deg);
+  }
+
+  .section-card__badge {
+    right: auto;
+    left: 0.5rem;
+  }
+
+  .info-banner {
+    flex-direction: row-reverse;
+    text-align: right;
+  }
+}

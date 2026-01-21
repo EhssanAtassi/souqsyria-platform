@@ -1,0 +1,725 @@
+<!--
+  Vendor Detail Component Template
+  @description Displays comprehensive vendor information with tabs
+-->
+
+<div class="vendor-detail">
+  @if (isLoading()) {
+    <div class="loading-state">
+      <div class="loading-spinner"></div>
+      <p>Loading vendor details...</p>
+    </div>
+  } @else if (vendor()) {
+    <!-- ===================================================================== -->
+    <!-- HEADER -->
+    <!-- ===================================================================== -->
+    <header class="vendor-detail__header">
+      <div class="vendor-detail__header-left">
+        <button class="btn btn--icon" (click)="goBack()" matTooltip="Back to Vendors">
+          <span class="material-icons">arrow_back</span>
+        </button>
+
+        <div class="vendor-profile">
+          <div class="vendor-profile__logo">
+            @if (vendor()!.logo) {
+              <img [src]="vendor()!.logo" [alt]="vendor()!.shopName" />
+            } @else {
+              <span class="material-icons">store</span>
+            }
+          </div>
+          <div class="vendor-profile__info">
+            <h1>{{ vendor()!.shopName }}</h1>
+            <div class="vendor-profile__meta">
+              <span
+                class="status-badge"
+                [attr.data-status]="vendor()!.verificationStatus"
+              >
+                {{ getVerificationLabel(vendor()!.verificationStatus) }}
+              </span>
+              <span
+                class="account-badge"
+                [attr.data-status]="vendor()!.accountStatus"
+              >
+                {{ getAccountLabel(vendor()!.accountStatus) }}
+              </span>
+              <span class="vendor-profile__rating">
+                <span class="material-icons">star</span>
+                {{ vendor()!.rating | number:'1.1-1' }}
+                ({{ vendor()!.reviewCount }} reviews)
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="vendor-detail__header-actions">
+        @if (hasPendingVerification()) {
+          <button class="btn btn--success" (click)="openVerificationDialog('approve')">
+            <span class="material-icons">check_circle</span>
+            Approve
+          </button>
+          <button class="btn btn--warning" (click)="openVerificationDialog('request_docs')">
+            <span class="material-icons">description</span>
+            Request Docs
+          </button>
+          <button class="btn btn--danger" (click)="openVerificationDialog('reject')">
+            <span class="material-icons">cancel</span>
+            Reject
+          </button>
+        }
+        <button class="btn btn--secondary" [matMenuTriggerFor]="actionsMenu">
+          <span class="material-icons">more_vert</span>
+          Actions
+        </button>
+        <mat-menu #actionsMenu="matMenu">
+          <button mat-menu-item (click)="openStatusDialog()" [disabled]="!canChangeStatus()">
+            <span class="material-icons">toggle_on</span>
+            Change Status
+          </button>
+          <button mat-menu-item (click)="openCommissionDialog()" [disabled]="!canEditCommission()">
+            <span class="material-icons">percent</span>
+            Edit Commission
+          </button>
+          <mat-divider></mat-divider>
+          <button mat-menu-item>
+            <span class="material-icons">email</span>
+            Contact Vendor
+          </button>
+        </mat-menu>
+        <button class="btn btn--secondary" (click)="refresh()">
+          <span class="material-icons">refresh</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- ===================================================================== -->
+    <!-- TABS -->
+    <!-- ===================================================================== -->
+    <nav class="vendor-detail__tabs">
+      <button
+        class="tab-btn"
+        [class.tab-btn--active]="activeTab() === 'overview'"
+        (click)="setActiveTab('overview')"
+      >
+        <span class="material-icons">dashboard</span>
+        Overview
+      </button>
+      <button
+        class="tab-btn"
+        [class.tab-btn--active]="activeTab() === 'verification'"
+        (click)="setActiveTab('verification')"
+      >
+        <span class="material-icons">verified</span>
+        Verification
+      </button>
+      <button
+        class="tab-btn"
+        [class.tab-btn--active]="activeTab() === 'commission'"
+        (click)="setActiveTab('commission')"
+      >
+        <span class="material-icons">payments</span>
+        Commission
+      </button>
+      <button
+        class="tab-btn"
+        [class.tab-btn--active]="activeTab() === 'performance'"
+        (click)="setActiveTab('performance')"
+      >
+        <span class="material-icons">analytics</span>
+        Performance
+      </button>
+    </nav>
+
+    <!-- ===================================================================== -->
+    <!-- TAB CONTENT -->
+    <!-- ===================================================================== -->
+    <div class="vendor-detail__content">
+      <!-- Overview Tab -->
+      @if (activeTab() === 'overview') {
+        <div class="tab-content">
+          <div class="overview-grid">
+            <!-- Shop Info Card -->
+            <div class="info-card">
+              <div class="info-card__header">
+                <span class="material-icons">store</span>
+                <h3>Shop Information</h3>
+              </div>
+              <div class="info-card__body">
+                <div class="info-row">
+                  <label>Shop Name</label>
+                  <span>{{ vendor()!.shopName }}</span>
+                </div>
+                <div class="info-row">
+                  <label>Description</label>
+                  <span>{{ vendor()!.description || 'No description' }}</span>
+                </div>
+                <div class="info-row">
+                  <label>Products</label>
+                  <span>{{ vendor()!.productCount }} products</span>
+                </div>
+                <div class="info-row">
+                  <label>Joined</label>
+                  <span>{{ formatDate(vendor()!.createdAt) }}</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Owner Info Card -->
+            <div class="info-card">
+              <div class="info-card__header">
+                <span class="material-icons">person</span>
+                <h3>Owner Information</h3>
+              </div>
+              <div class="info-card__body">
+                <div class="info-row">
+                  <label>Full Name</label>
+                  <span>{{ vendor()!.owner.fullName }}</span>
+                </div>
+                <div class="info-row">
+                  <label>Email</label>
+                  <span>{{ vendor()!.owner.email }}</span>
+                </div>
+                <div class="info-row">
+                  <label>Phone</label>
+                  <span>{{ vendor()!.owner.phone || 'Not provided' }}</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Metrics Card -->
+            <div class="info-card">
+              <div class="info-card__header">
+                <span class="material-icons">trending_up</span>
+                <h3>Key Metrics</h3>
+              </div>
+              <div class="info-card__body">
+                <div class="info-row">
+                  <label>Total Sales</label>
+                  <span class="info-value--highlight">{{ vendor()!.metrics.totalSales | currencyFormat }}</span>
+                </div>
+                <div class="info-row">
+                  <label>Total Orders</label>
+                  <span>{{ vendor()!.totalOrders }}</span>
+                </div>
+                <div class="info-row">
+                  <label>Average Rating</label>
+                  <span>
+                    <span class="rating-stars">
+                      @for (star of getRatingStars(vendor()!.rating); track $index) {
+                        <span class="material-icons">{{ star }}</span>
+                      }
+                    </span>
+                    {{ vendor()!.rating | number:'1.1-1' }}
+                  </span>
+                </div>
+                <div class="info-row">
+                  <label>Commission Rate</label>
+                  <span>{{ vendor()!.commission.currentRate }}%</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Commission Summary Card -->
+            <div class="info-card">
+              <div class="info-card__header">
+                <span class="material-icons">account_balance</span>
+                <h3>Commission Summary</h3>
+              </div>
+              <div class="info-card__body">
+                <div class="info-row">
+                  <label>Total Earned</label>
+                  <span>{{ vendor()!.commission.totalEarned | currencyFormat }}</span>
+                </div>
+                <div class="info-row">
+                  <label>Pending Payout</label>
+                  <span>{{ vendor()!.commission.pendingPayout | currencyFormat }}</span>
+                </div>
+                <div class="info-row">
+                  <label>Total Paid Out</label>
+                  <span>{{ vendor()!.commission.totalPaidOut | currencyFormat }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      }
+
+      <!-- Verification Tab -->
+      @if (activeTab() === 'verification') {
+        <div class="tab-content">
+          <div class="verification-section">
+            <!-- Current Status -->
+            <div class="info-card info-card--full">
+              <div class="info-card__header">
+                <span class="material-icons">verified</span>
+                <h3>Current Verification Status</h3>
+              </div>
+              <div class="info-card__body">
+                <div class="verification-status">
+                  <span
+                    class="status-badge status-badge--large"
+                    [attr.data-status]="vendor()!.verificationStatus"
+                  >
+                    {{ getVerificationLabel(vendor()!.verificationStatus) }}
+                  </span>
+                  @if (vendor()!.verifiedAt) {
+                    <p>Verified on {{ formatDate(vendor()!.verifiedAt!) }}</p>
+                  }
+                </div>
+              </div>
+            </div>
+
+            <!-- Verification History -->
+            <div class="info-card info-card--full">
+              <div class="info-card__header">
+                <span class="material-icons">history</span>
+                <h3>Verification History</h3>
+              </div>
+              <div class="info-card__body">
+                @if (vendor()!.verificationHistory && vendor()!.verificationHistory.length > 0) {
+                  <div class="verification-timeline">
+                    @for (entry of vendor()!.verificationHistory; track $index) {
+                      <div class="timeline-item">
+                        <div class="timeline-item__dot" [attr.data-status]="entry.status"></div>
+                        <div class="timeline-item__content">
+                          <div class="timeline-item__header">
+                            <span
+                              class="status-badge"
+                              [attr.data-status]="entry.status"
+                            >
+                              {{ getVerificationLabel(entry.status) }}
+                            </span>
+                            <span class="timeline-item__date">
+                              {{ formatDate(entry.timestamp) }}
+                            </span>
+                          </div>
+                          @if (entry.notes) {
+                            <p class="timeline-item__notes">{{ entry.notes }}</p>
+                          }
+                          @if (entry.reviewedBy) {
+                            <span class="timeline-item__reviewer">By: {{ entry.reviewedBy }}</span>
+                          }
+                        </div>
+                      </div>
+                    }
+                  </div>
+                } @else {
+                  <p class="no-data">No verification history available</p>
+                }
+              </div>
+            </div>
+          </div>
+        </div>
+      }
+
+      <!-- Commission Tab -->
+      @if (activeTab() === 'commission') {
+        <div class="tab-content">
+          <div class="commission-section">
+            <!-- Current Commission -->
+            <div class="info-card">
+              <div class="info-card__header">
+                <span class="material-icons">percent</span>
+                <h3>Current Commission</h3>
+                @if (canEditCommission()) {
+                  <button class="btn btn--small btn--secondary" (click)="openCommissionDialog()">
+                    <span class="material-icons">edit</span>
+                    Edit
+                  </button>
+                }
+              </div>
+              <div class="info-card__body">
+                <div class="commission-rate">
+                  <span class="commission-rate__value">{{ vendor()!.commission.currentRate }}%</span>
+                  <span class="commission-rate__label">Commission Rate</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Earnings Summary -->
+            <div class="info-card">
+              <div class="info-card__header">
+                <span class="material-icons">account_balance_wallet</span>
+                <h3>Earnings Summary</h3>
+              </div>
+              <div class="info-card__body">
+                <div class="earnings-grid">
+                  <div class="earnings-item">
+                    <span class="earnings-item__value">{{ vendor()!.commission.totalEarned | currencyFormat }}</span>
+                    <span class="earnings-item__label">Total Earned</span>
+                  </div>
+                  <div class="earnings-item">
+                    <span class="earnings-item__value">{{ vendor()!.commission.pendingPayout | currencyFormat }}</span>
+                    <span class="earnings-item__label">Pending Payout</span>
+                  </div>
+                  <div class="earnings-item">
+                    <span class="earnings-item__value">{{ vendor()!.commission.totalPaidOut | currencyFormat }}</span>
+                    <span class="earnings-item__label">Total Paid</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      }
+
+      <!-- Performance Tab -->
+      @if (activeTab() === 'performance') {
+        <div class="tab-content">
+          @if (performance()) {
+            <div class="performance-section">
+              <!-- Sales Metrics -->
+              <div class="info-card">
+                <div class="info-card__header">
+                  <span class="material-icons">shopping_cart</span>
+                  <h3>Sales Performance</h3>
+                </div>
+                <div class="info-card__body">
+                  <div class="metrics-grid">
+                    <div class="metric-item">
+                      <span class="metric-item__value">{{ performance()!.sales.totalRevenue | currencyFormat }}</span>
+                      <span class="metric-item__label">Total Revenue</span>
+                    </div>
+                    <div class="metric-item">
+                      <span class="metric-item__value">{{ performance()!.sales.orderCount }}</span>
+                      <span class="metric-item__label">Orders</span>
+                    </div>
+                    <div class="metric-item">
+                      <span class="metric-item__value">{{ performance()!.sales.itemsSold }}</span>
+                      <span class="metric-item__label">Items Sold</span>
+                    </div>
+                    <div class="metric-item">
+                      <span class="metric-item__value">{{ performance()!.sales.averageOrderValue | currencyFormat }}</span>
+                      <span class="metric-item__label">Avg. Order Value</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Fulfillment Metrics -->
+              <div class="info-card">
+                <div class="info-card__header">
+                  <span class="material-icons">local_shipping</span>
+                  <h3>Fulfillment Performance</h3>
+                </div>
+                <div class="info-card__body">
+                  <div class="metrics-grid">
+                    <div class="metric-item">
+                      <span class="metric-item__value">{{ performance()!.fulfillment.fulfillmentRate | number:'1.0-0' }}%</span>
+                      <span class="metric-item__label">Fulfillment Rate</span>
+                    </div>
+                    <div class="metric-item">
+                      <span class="metric-item__value">{{ performance()!.fulfillment.onTimeDeliveryRate | number:'1.0-0' }}%</span>
+                      <span class="metric-item__label">On-Time Delivery</span>
+                    </div>
+                    <div class="metric-item">
+                      <span class="metric-item__value">{{ performance()!.fulfillment.returnRate | number:'1.1-1' }}%</span>
+                      <span class="metric-item__label">Return Rate</span>
+                    </div>
+                    <div class="metric-item">
+                      <span class="metric-item__value">{{ performance()!.fulfillment.cancelRate | number:'1.1-1' }}%</span>
+                      <span class="metric-item__label">Cancel Rate</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Top Products -->
+              @if (performance()!.topProducts && performance()!.topProducts.length > 0) {
+                <div class="info-card info-card--full">
+                  <div class="info-card__header">
+                    <span class="material-icons">inventory_2</span>
+                    <h3>Top Products</h3>
+                  </div>
+                  <div class="info-card__body">
+                    <table class="simple-table">
+                      <thead>
+                        <tr>
+                          <th>Product</th>
+                          <th>Units Sold</th>
+                          <th>Revenue</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        @for (product of performance()!.topProducts; track product.productId) {
+                          <tr>
+                            <td>
+                              <a [routerLink]="['/admin/products', product.productId]">
+                                {{ product.name }}
+                              </a>
+                            </td>
+                            <td>{{ product.unitsSold }}</td>
+                            <td>{{ product.revenue | currencyFormat }}</td>
+                          </tr>
+                        }
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              }
+            </div>
+          } @else {
+            <div class="loading-state">
+              <div class="loading-spinner"></div>
+              <p>Loading performance data...</p>
+            </div>
+          }
+        </div>
+      }
+    </div>
+  }
+</div>
+
+<!-- ======================================================================= -->
+<!-- COMMISSION EDIT DIALOG -->
+<!-- ======================================================================= -->
+@if (showCommissionDialog() && vendor()) {
+  <div class="dialog-overlay" (click)="closeCommissionDialog()">
+    <div class="dialog" (click)="$event.stopPropagation()">
+      <div class="dialog__header">
+        <h2>
+          <span class="material-icons">percent</span>
+          Edit Commission Rate
+        </h2>
+        <button class="btn btn--icon" (click)="closeCommissionDialog()">
+          <span class="material-icons">close</span>
+        </button>
+      </div>
+
+      <div class="dialog__body">
+        <div class="form-group">
+          <label for="commissionRate">Commission Rate (%)</label>
+          <input
+            type="number"
+            id="commissionRate"
+            class="form-control"
+            [(ngModel)]="newCommissionRate"
+            [min]="0"
+            [max]="100"
+            step="0.5"
+          />
+          <small class="form-hint">Current rate: {{ vendor()!.commission.currentRate }}%</small>
+        </div>
+
+        <div class="form-group">
+          <label for="effectiveDate">Effective Date</label>
+          <input
+            type="date"
+            id="effectiveDate"
+            class="form-control"
+            [(ngModel)]="commissionEffectiveDate"
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="commissionReason">Reason (optional)</label>
+          <textarea
+            id="commissionReason"
+            class="form-control"
+            [(ngModel)]="commissionReason"
+            rows="3"
+            placeholder="Reason for commission rate change..."
+          ></textarea>
+        </div>
+      </div>
+
+      <div class="dialog__footer">
+        <button class="btn btn--secondary" (click)="closeCommissionDialog()" [disabled]="isProcessing()">
+          Cancel
+        </button>
+        <button class="btn btn--primary" (click)="submitCommissionUpdate()" [disabled]="isProcessing()">
+          @if (isProcessing()) {
+            <span class="btn-spinner"></span>
+            Saving...
+          } @else {
+            <span class="material-icons">save</span>
+            Save Changes
+          }
+        </button>
+      </div>
+    </div>
+  </div>
+}
+
+<!-- ======================================================================= -->
+<!-- STATUS CHANGE DIALOG -->
+<!-- ======================================================================= -->
+@if (showStatusDialog() && vendor()) {
+  <div class="dialog-overlay" (click)="closeStatusDialog()">
+    <div class="dialog" (click)="$event.stopPropagation()">
+      <div class="dialog__header">
+        <h2>
+          <span class="material-icons">toggle_on</span>
+          Change Account Status
+        </h2>
+        <button class="btn btn--icon" (click)="closeStatusDialog()">
+          <span class="material-icons">close</span>
+        </button>
+      </div>
+
+      <div class="dialog__body">
+        <div class="form-group">
+          <label for="accountStatus">Account Status</label>
+          <select
+            id="accountStatus"
+            class="form-control"
+            [(ngModel)]="newStatus"
+          >
+            @for (status of accountStatuses; track status.value) {
+              <option [value]="status.value" [disabled]="status.value === 'banned' && vendor()!.accountStatus !== 'banned'">
+                {{ status.label }}
+              </option>
+            }
+          </select>
+        </div>
+
+        @if (newStatus === 'suspended' || newStatus === 'banned') {
+          <div class="form-group">
+            <label for="statusReason">Reason *</label>
+            <textarea
+              id="statusReason"
+              class="form-control"
+              [(ngModel)]="statusReason"
+              rows="3"
+              placeholder="Provide a reason for this status change..."
+              required
+            ></textarea>
+          </div>
+        }
+
+        @if (newStatus === 'banned') {
+          <div class="warning-box">
+            <span class="material-icons">warning</span>
+            <p>Banning a vendor is a permanent action and cannot be undone. The vendor will lose access to their account and all their products will be delisted.</p>
+          </div>
+        }
+      </div>
+
+      <div class="dialog__footer">
+        <button class="btn btn--secondary" (click)="closeStatusDialog()" [disabled]="isProcessing()">
+          Cancel
+        </button>
+        <button
+          class="btn"
+          [class.btn--primary]="newStatus !== 'banned'"
+          [class.btn--danger]="newStatus === 'banned'"
+          (click)="submitStatusChange()"
+          [disabled]="isProcessing()"
+        >
+          @if (isProcessing()) {
+            <span class="btn-spinner"></span>
+            Saving...
+          } @else {
+            <span class="material-icons">save</span>
+            Save Changes
+          }
+        </button>
+      </div>
+    </div>
+  </div>
+}
+
+<!-- ======================================================================= -->
+<!-- VERIFICATION ACTION DIALOG -->
+<!-- ======================================================================= -->
+@if (showVerificationDialog() && vendor()) {
+  <div class="dialog-overlay" (click)="closeVerificationDialog()">
+    <div class="dialog" (click)="$event.stopPropagation()">
+      <div class="dialog__header" [class.dialog__header--danger]="verificationAction === 'reject'">
+        <h2>
+          @switch (verificationAction) {
+            @case ('approve') {
+              <span class="material-icons">check_circle</span>
+              Approve Vendor
+            }
+            @case ('reject') {
+              <span class="material-icons">cancel</span>
+              Reject Vendor
+            }
+            @case ('request_docs') {
+              <span class="material-icons">description</span>
+              Request Documents
+            }
+          }
+        </h2>
+        <button class="btn btn--icon" (click)="closeVerificationDialog()">
+          <span class="material-icons">close</span>
+        </button>
+      </div>
+
+      <div class="dialog__body">
+        @if (verificationAction === 'request_docs') {
+          <div class="form-group">
+            <label>Select Documents to Request</label>
+            <div class="checkbox-list">
+              @for (doc of documentTypes; track doc.value) {
+                <label class="checkbox-label">
+                  <input
+                    type="checkbox"
+                    [checked]="requestedDocuments.includes(doc.value)"
+                    (change)="toggleDocument(doc.value)"
+                  />
+                  <span>{{ doc.label }}</span>
+                </label>
+              }
+            </div>
+          </div>
+        }
+
+        <div class="form-group">
+          <label for="verificationNotes">
+            @if (verificationAction === 'reject') {
+              Rejection Reason *
+            } @else {
+              Notes (optional)
+            }
+          </label>
+          <textarea
+            id="verificationNotes"
+            class="form-control"
+            [(ngModel)]="verificationNotes"
+            rows="3"
+            [placeholder]="verificationAction === 'reject'
+              ? 'Please provide a reason for rejecting this vendor...'
+              : 'Add any notes...'"
+            [required]="verificationAction === 'reject'"
+          ></textarea>
+        </div>
+      </div>
+
+      <div class="dialog__footer">
+        <button class="btn btn--secondary" (click)="closeVerificationDialog()" [disabled]="isProcessing()">
+          Cancel
+        </button>
+        <button
+          class="btn"
+          [class.btn--success]="verificationAction === 'approve'"
+          [class.btn--warning]="verificationAction === 'request_docs'"
+          [class.btn--danger]="verificationAction === 'reject'"
+          (click)="submitVerificationAction()"
+          [disabled]="isProcessing() || (verificationAction === 'reject' && !verificationNotes.trim()) || (verificationAction === 'request_docs' && requestedDocuments.length === 0)"
+        >
+          @if (isProcessing()) {
+            <span class="btn-spinner"></span>
+            Processing...
+          } @else {
+            @switch (verificationAction) {
+              @case ('approve') {
+                <span class="material-icons">check_circle</span>
+                Approve Vendor
+              }
+              @case ('reject') {
+                <span class="material-icons">cancel</span>
+                Reject Vendor
+              }
+              @case ('request_docs') {
+                <span class="material-icons">send</span>
+                Send Request
+              }
+            }
+          }
+        </button>
+      </div>
+    </div>
+  </div>
+}

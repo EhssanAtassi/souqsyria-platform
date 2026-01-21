@@ -1,0 +1,1267 @@
+/**
+ * Product List Component Styles
+ * BEM naming convention with responsive design and RTL support
+ */
+
+// =============================================================================
+// VARIABLES
+// =============================================================================
+
+$primary-color: #1976d2;
+$success-color: #4caf50;
+$warning-color: #ff9800;
+$danger-color: #f44336;
+$info-color: #2196f3;
+
+$text-primary: #1a1a2e;
+$text-secondary: #6b7280;
+$border-color: #e5e7eb;
+$background-light: #f8fafc;
+$background-white: #ffffff;
+
+$shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+$shadow-md: 0 4px 6px rgba(0, 0, 0, 0.07);
+
+$radius-sm: 6px;
+$radius-md: 8px;
+$radius-lg: 12px;
+
+$spacing-xs: 4px;
+$spacing-sm: 8px;
+$spacing-md: 16px;
+$spacing-lg: 24px;
+$spacing-xl: 32px;
+
+// =============================================================================
+// ACCESSIBILITY UTILITIES
+// =============================================================================
+
+/**
+ * Screen reader only content
+ * Visually hides content but keeps it accessible to assistive technologies
+ * @see WCAG 2.1 guideline 1.3.1 Info and Relationships
+ */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+// =============================================================================
+// MAIN CONTAINER
+// =============================================================================
+
+.product-list {
+  padding: $spacing-lg;
+  max-width: 1600px;
+  margin: 0 auto;
+
+  @media (max-width: 768px) {
+    padding: $spacing-md;
+  }
+
+  // ===========================================================================
+  // HEADER
+  // ===========================================================================
+
+  &__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: $spacing-lg;
+    margin-bottom: $spacing-lg;
+
+    @media (max-width: 1024px) {
+      flex-direction: column;
+    }
+  }
+
+  &__title-section {
+    flex-shrink: 0;
+  }
+
+  &__title {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: $text-primary;
+    margin: 0 0 $spacing-xs 0;
+  }
+
+  &__subtitle {
+    font-size: 0.875rem;
+    color: $text-secondary;
+    margin: 0;
+  }
+
+  &__stats {
+    display: flex;
+    gap: $spacing-md;
+    flex-wrap: wrap;
+
+    @media (max-width: 768px) {
+      width: 100%;
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  // ===========================================================================
+  // STAT CARDS
+  // ===========================================================================
+
+  .stat-card {
+    display: flex;
+    align-items: center;
+    gap: $spacing-sm;
+    padding: $spacing-md;
+    background: $background-white;
+    border: 1px solid $border-color;
+    border-radius: $radius-md;
+    min-width: 140px;
+
+    &--compact {
+      padding: $spacing-sm $spacing-md;
+    }
+
+    &--success {
+      border-left: 3px solid $success-color;
+
+      .stat-card__icon {
+        color: $success-color;
+      }
+    }
+
+    &--warning {
+      border-left: 3px solid $warning-color;
+
+      .stat-card__icon {
+        color: $warning-color;
+      }
+    }
+
+    &--danger {
+      border-left: 3px solid $danger-color;
+
+      .stat-card__icon {
+        color: $danger-color;
+      }
+    }
+
+    &__icon {
+      font-size: 1.5rem;
+      color: $primary-color;
+    }
+
+    &__content {
+      display: flex;
+      flex-direction: column;
+    }
+
+    &__value {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: $text-primary;
+      line-height: 1.2;
+    }
+
+    &__label {
+      font-size: 0.75rem;
+      color: $text-secondary;
+    }
+  }
+
+  // ===========================================================================
+  // TOOLBAR
+  // ===========================================================================
+
+  &__toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: $spacing-md;
+    align-items: center;
+    margin-bottom: $spacing-md;
+    padding: $spacing-md;
+    background: $background-white;
+    border: 1px solid $border-color;
+    border-radius: $radius-md;
+
+    @media (max-width: 768px) {
+      flex-direction: column;
+      align-items: stretch;
+    }
+  }
+
+  &__search {
+    position: relative;
+    flex: 1;
+    min-width: 250px;
+    max-width: 400px;
+
+    @media (max-width: 768px) {
+      max-width: none;
+    }
+  }
+
+  &__search-icon {
+    position: absolute;
+    left: $spacing-sm;
+    top: 50%;
+    transform: translateY(-50%);
+    color: $text-secondary;
+    font-size: 1.25rem;
+    pointer-events: none;
+
+    [dir='rtl'] & {
+      left: auto;
+      right: $spacing-sm;
+    }
+  }
+
+  &__search-input {
+    width: 100%;
+    padding: $spacing-sm $spacing-lg $spacing-sm $spacing-xl;
+    border: 1px solid $border-color;
+    border-radius: $radius-sm;
+    font-size: 0.875rem;
+    transition: border-color 0.2s, box-shadow 0.2s;
+
+    [dir='rtl'] & {
+      padding: $spacing-sm $spacing-xl $spacing-sm $spacing-lg;
+    }
+
+    &:focus {
+      outline: none;
+      border-color: $primary-color;
+      box-shadow: 0 0 0 3px rgba($primary-color, 0.1);
+    }
+
+    &::placeholder {
+      color: $text-secondary;
+    }
+  }
+
+  &__search-clear {
+    position: absolute;
+    right: $spacing-sm;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    padding: $spacing-xs;
+    cursor: pointer;
+    color: $text-secondary;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    [dir='rtl'] & {
+      right: auto;
+      left: $spacing-sm;
+    }
+
+    &:hover {
+      background: $background-light;
+      color: $text-primary;
+    }
+
+    .material-icons {
+      font-size: 1rem;
+    }
+  }
+
+  &__filters {
+    display: flex;
+    gap: $spacing-sm;
+    align-items: center;
+    flex-wrap: wrap;
+
+    @media (max-width: 768px) {
+      width: 100%;
+    }
+  }
+
+  &__filter-select {
+    padding: $spacing-sm $spacing-md;
+    border: 1px solid $border-color;
+    border-radius: $radius-sm;
+    font-size: 0.875rem;
+    background: $background-white;
+    cursor: pointer;
+    min-width: 140px;
+
+    &:focus {
+      outline: none;
+      border-color: $primary-color;
+    }
+  }
+
+  &__filter-checkbox {
+    display: flex;
+    align-items: center;
+    gap: $spacing-xs;
+    font-size: 0.875rem;
+    color: $text-secondary;
+    cursor: pointer;
+    white-space: nowrap;
+
+    input {
+      cursor: pointer;
+    }
+  }
+
+  &__filter-clear {
+    display: flex;
+    align-items: center;
+    gap: $spacing-xs;
+    padding: $spacing-sm $spacing-md;
+    background: none;
+    border: none;
+    color: $primary-color;
+    font-size: 0.875rem;
+    cursor: pointer;
+    border-radius: $radius-sm;
+
+    &:hover {
+      background: rgba($primary-color, 0.1);
+    }
+
+    .material-icons {
+      font-size: 1rem;
+    }
+  }
+
+  &__actions {
+    display: flex;
+    gap: $spacing-sm;
+    margin-left: auto;
+
+    [dir='rtl'] & {
+      margin-left: 0;
+      margin-right: auto;
+    }
+
+    @media (max-width: 768px) {
+      margin-left: 0;
+      width: 100%;
+      justify-content: flex-end;
+    }
+  }
+
+  &__action-btn {
+    display: flex;
+    align-items: center;
+    gap: $spacing-xs;
+    padding: $spacing-sm $spacing-md;
+    background: $background-white;
+    border: 1px solid $border-color;
+    border-radius: $radius-sm;
+    font-size: 0.875rem;
+    color: $text-primary;
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+
+    &:hover {
+      background: $background-light;
+      border-color: $primary-color;
+    }
+
+    .material-icons {
+      font-size: 1.25rem;
+    }
+  }
+
+  &__action-label {
+    @media (max-width: 1200px) {
+      display: none;
+    }
+  }
+
+  &__badge {
+    position: absolute;
+    top: -6px;
+    right: -6px;
+    min-width: 18px;
+    height: 18px;
+    padding: 0 $spacing-xs;
+    background: $danger-color;
+    color: white;
+    font-size: 0.625rem;
+    font-weight: 600;
+    border-radius: 9px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    [dir='rtl'] & {
+      right: auto;
+      left: -6px;
+    }
+  }
+
+  // ===========================================================================
+  // BULK ACTIONS BAR
+  // ===========================================================================
+
+  &__bulk-bar {
+    display: flex;
+    align-items: center;
+    gap: $spacing-md;
+    padding: $spacing-md;
+    background: rgba($primary-color, 0.05);
+    border: 1px solid rgba($primary-color, 0.2);
+    border-radius: $radius-md;
+    margin-bottom: $spacing-md;
+
+    @media (max-width: 768px) {
+      flex-direction: column;
+      align-items: stretch;
+    }
+  }
+
+  &__bulk-count {
+    font-weight: 500;
+    color: $primary-color;
+  }
+
+  &__bulk-actions {
+    display: flex;
+    gap: $spacing-sm;
+    margin-left: auto;
+
+    [dir='rtl'] & {
+      margin-left: 0;
+      margin-right: auto;
+    }
+
+    @media (max-width: 768px) {
+      margin-left: 0;
+      flex-wrap: wrap;
+    }
+  }
+
+  &__bulk-btn {
+    display: flex;
+    align-items: center;
+    gap: $spacing-xs;
+    padding: $spacing-sm $spacing-md;
+    background: $background-white;
+    border: 1px solid $border-color;
+    border-radius: $radius-sm;
+    font-size: 0.875rem;
+    cursor: pointer;
+    transition: all 0.2s;
+
+    &:hover {
+      background: $background-light;
+    }
+
+    &--success {
+      background: $success-color;
+      border-color: $success-color;
+      color: white;
+
+      &:hover {
+        background: darken($success-color, 10%);
+      }
+    }
+
+    &--warning {
+      &:hover {
+        background: rgba($warning-color, 0.1);
+        border-color: $warning-color;
+      }
+    }
+
+    .material-icons {
+      font-size: 1rem;
+    }
+  }
+
+  // ===========================================================================
+  // LOADING STATE
+  // ===========================================================================
+
+  &__loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: $spacing-xl * 2;
+    color: $text-secondary;
+
+    .material-icons {
+      font-size: 2.5rem;
+      margin-bottom: $spacing-md;
+      color: $primary-color;
+    }
+
+    p {
+      margin: 0;
+    }
+  }
+
+  // ===========================================================================
+  // SKELETON LOADING STATES
+  // ===========================================================================
+
+  /**
+   * Skeleton animations for product list loading states.
+   * Provides smooth shimmer effect during data fetching.
+   */
+  @keyframes product-skeleton-pulse {
+    0%, 100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.5;
+    }
+  }
+
+  @keyframes product-skeleton-shimmer {
+    0% {
+      background-position: -200% 0;
+    }
+    100% {
+      background-position: 200% 0;
+    }
+  }
+
+  /**
+   * Table skeleton - loading placeholder for product table rows.
+   * Matches the structure of actual product table rows.
+   */
+  &__table-skeleton {
+    background: $background-white;
+    border: 1px solid $border-color;
+    border-radius: $radius-md;
+    overflow: hidden;
+  }
+
+  &__skeleton-header {
+    display: flex;
+    align-items: center;
+    padding: $spacing-md;
+    background: $background-light;
+    border-bottom: 1px solid $border-color;
+    gap: $spacing-lg;
+  }
+
+  &__skeleton-header-cell {
+    height: 12px;
+    background: darken($background-light, 8%);
+    border-radius: $radius-sm;
+
+    &--checkbox {
+      width: 18px;
+      height: 18px;
+      border-radius: $radius-sm;
+    }
+
+    &--product {
+      width: 80px;
+      flex: 2;
+      max-width: 80px;
+    }
+
+    &--sku {
+      width: 40px;
+    }
+
+    &--price {
+      width: 50px;
+    }
+
+    &--stock {
+      width: 50px;
+    }
+
+    &--vendor {
+      width: 60px;
+    }
+
+    &--status {
+      width: 50px;
+    }
+
+    &--sales {
+      width: 50px;
+    }
+
+    &--actions {
+      width: 60px;
+    }
+  }
+
+  &__skeleton-row {
+    display: flex;
+    align-items: center;
+    padding: $spacing-md;
+    border-bottom: 1px solid $border-color;
+    gap: $spacing-lg;
+
+    &:last-child {
+      border-bottom: none;
+    }
+  }
+
+  &__skeleton-cell {
+    display: flex;
+    align-items: center;
+    gap: $spacing-md;
+
+    &--checkbox {
+      width: 48px;
+      justify-content: center;
+    }
+
+    &--product {
+      flex: 2;
+      min-width: 280px;
+    }
+
+    &--sku {
+      flex: 0.8;
+      min-width: 100px;
+    }
+
+    &--price {
+      flex: 0.8;
+      min-width: 100px;
+    }
+
+    &--stock {
+      flex: 0.6;
+      min-width: 80px;
+    }
+
+    &--vendor {
+      flex: 1;
+      min-width: 120px;
+    }
+
+    &--status {
+      flex: 0.8;
+      min-width: 100px;
+    }
+
+    &--sales {
+      flex: 0.8;
+      min-width: 100px;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: $spacing-xs;
+
+      [dir='rtl'] & {
+        align-items: flex-start;
+      }
+    }
+
+    &--actions {
+      width: 100px;
+      justify-content: center;
+    }
+  }
+
+  &__skeleton-checkbox {
+    width: 16px;
+    height: 16px;
+    border-radius: $radius-sm;
+    background: $border-color;
+    animation: product-skeleton-pulse 1.5s ease-in-out infinite;
+  }
+
+  &__skeleton-thumb {
+    width: 48px;
+    height: 48px;
+    border-radius: $radius-sm;
+    background: $border-color;
+    animation: product-skeleton-pulse 1.5s ease-in-out infinite;
+    flex-shrink: 0;
+  }
+
+  &__skeleton-text-group {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-xs;
+    flex: 1;
+  }
+
+  &__skeleton-text {
+    height: 14px;
+    border-radius: $radius-sm;
+    background: linear-gradient(90deg, $background-light 0%, darken($background-light, 5%) 50%, $background-light 100%);
+    background-size: 200% 100%;
+    animation: product-skeleton-shimmer 1.5s ease-in-out infinite;
+
+    &--primary {
+      width: 140px;
+      height: 16px;
+    }
+
+    &--secondary {
+      width: 80px;
+      height: 12px;
+    }
+
+    &--short {
+      width: 50px;
+    }
+
+    &--medium {
+      width: 80px;
+    }
+
+    &--long {
+      width: 120px;
+    }
+
+    &--badge {
+      width: 70px;
+      height: 24px;
+      border-radius: $radius-md;
+    }
+
+    &--price {
+      width: 70px;
+      height: 16px;
+    }
+
+    &--sku {
+      width: 90px;
+      height: 24px;
+      border-radius: $radius-sm;
+    }
+  }
+
+  &__skeleton-action {
+    width: 32px;
+    height: 32px;
+    border-radius: $radius-sm;
+    background: $background-light;
+    animation: product-skeleton-pulse 1.5s ease-in-out infinite;
+  }
+
+  /**
+   * Stats card skeleton - loading placeholder for filter stat cards.
+   */
+  &__stat-skeleton {
+    display: flex;
+    align-items: center;
+    gap: $spacing-md;
+    padding: $spacing-md $spacing-lg;
+    background: $background-white;
+    border: 1px solid $border-color;
+    border-radius: $radius-md;
+  }
+
+  &__stat-skeleton-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: $radius-sm;
+    background: $background-light;
+    animation: product-skeleton-pulse 1.5s ease-in-out infinite;
+  }
+
+  &__stat-skeleton-content {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-xs;
+  }
+
+  &__stat-skeleton-value {
+    height: 20px;
+    width: 48px;
+    background: linear-gradient(90deg, $background-light 0%, darken($background-light, 5%) 50%, $background-light 100%);
+    background-size: 200% 100%;
+    animation: product-skeleton-shimmer 1.5s ease-in-out infinite;
+    border-radius: $radius-sm;
+  }
+
+  &__stat-skeleton-label {
+    height: 14px;
+    width: 64px;
+    background: linear-gradient(90deg, $background-light 0%, darken($background-light, 5%) 50%, $background-light 100%);
+    background-size: 200% 100%;
+    animation: product-skeleton-shimmer 1.5s ease-in-out infinite;
+    border-radius: $radius-sm;
+  }
+
+  // ===========================================================================
+  // TABLE
+  // ===========================================================================
+
+  &__table-wrapper {
+    background: $background-white;
+    border: 1px solid $border-color;
+    border-radius: $radius-md;
+    overflow: hidden;
+  }
+
+  &__table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  &__th {
+    padding: $spacing-md;
+    text-align: left;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: $text-secondary;
+    background: $background-light;
+    border-bottom: 1px solid $border-color;
+    white-space: nowrap;
+
+    [dir='rtl'] & {
+      text-align: right;
+    }
+
+    &--checkbox {
+      width: 48px;
+      text-align: center;
+    }
+
+    &--product {
+      min-width: 280px;
+    }
+
+    &--actions {
+      width: 100px;
+      text-align: center;
+    }
+  }
+
+  &__sort-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: $spacing-xs;
+    background: none;
+    border: none;
+    padding: 0;
+    font: inherit;
+    color: inherit;
+    cursor: pointer;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+
+    &:hover {
+      color: $primary-color;
+    }
+
+    .material-icons {
+      font-size: 1rem;
+    }
+  }
+
+  &__tr {
+    cursor: pointer;
+    transition: background-color 0.2s;
+
+    &:hover {
+      background: $background-light;
+    }
+
+    &--selected {
+      background: rgba($primary-color, 0.05);
+
+      &:hover {
+        background: rgba($primary-color, 0.08);
+      }
+    }
+
+    &:not(:last-child) {
+      border-bottom: 1px solid $border-color;
+    }
+  }
+
+  &__td {
+    padding: $spacing-md;
+    font-size: 0.875rem;
+    color: $text-primary;
+    vertical-align: middle;
+
+    &--checkbox {
+      text-align: center;
+    }
+
+    &--product {
+      // Handled by inner elements
+    }
+
+    &--price {
+      white-space: nowrap;
+    }
+
+    &--sales {
+      text-align: right;
+
+      [dir='rtl'] & {
+        text-align: left;
+      }
+    }
+
+    &--actions {
+      text-align: center;
+    }
+  }
+
+  // ===========================================================================
+  // PRODUCT INFO
+  // ===========================================================================
+
+  &__product-info {
+    display: flex;
+    align-items: center;
+    gap: $spacing-md;
+  }
+
+  &__product-thumb {
+    width: 48px;
+    height: 48px;
+    object-fit: cover;
+    border-radius: $radius-sm;
+    border: 1px solid $border-color;
+  }
+
+  &__product-thumb-placeholder {
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: $background-light;
+    border: 1px solid $border-color;
+    border-radius: $radius-sm;
+    color: $text-secondary;
+
+    .material-icons {
+      font-size: 1.5rem;
+    }
+  }
+
+  &__product-details {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    overflow: hidden;
+  }
+
+  &__product-name {
+    font-weight: 500;
+    color: $text-primary;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 220px;
+  }
+
+  &__product-category {
+    font-size: 0.75rem;
+    color: $text-secondary;
+  }
+
+  &__sku {
+    font-family: monospace;
+    font-size: 0.75rem;
+    background: $background-light;
+    padding: $spacing-xs $spacing-sm;
+    border-radius: $radius-sm;
+  }
+
+  &__price {
+    font-weight: 600;
+    color: $text-primary;
+    display: block;
+  }
+
+  &__sale-price {
+    font-size: 0.75rem;
+    color: $success-color;
+    text-decoration: line-through;
+    display: block;
+  }
+
+  &__stock {
+    font-weight: 500;
+
+    &--low {
+      color: $warning-color;
+    }
+
+    &--out {
+      color: $danger-color;
+    }
+  }
+
+  &__vendor {
+    display: flex;
+    align-items: center;
+    gap: $spacing-xs;
+  }
+
+  &__vendor-name {
+    font-size: 0.875rem;
+  }
+
+  &__vendor-verified {
+    color: $primary-color;
+
+    .material-icons {
+      font-size: 1rem;
+    }
+  }
+
+  &__sales-info {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 2px;
+
+    [dir='rtl'] & {
+      align-items: flex-start;
+    }
+  }
+
+  &__sales-count {
+    font-weight: 600;
+  }
+
+  &__rating {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    font-size: 0.75rem;
+    color: $text-secondary;
+
+    .material-icons {
+      font-size: 0.875rem;
+      color: #ffc107;
+    }
+  }
+
+  &__review-count {
+    color: $text-secondary;
+  }
+
+  // ===========================================================================
+  // QUICK ACTIONS
+  // ===========================================================================
+
+  &__quick-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    background: none;
+    border: 1px solid transparent;
+    border-radius: $radius-sm;
+    color: $text-secondary;
+    cursor: pointer;
+    transition: all 0.2s;
+
+    &:hover {
+      background: $background-light;
+      border-color: $border-color;
+      color: $text-primary;
+    }
+
+    &--approve {
+      color: $success-color;
+
+      &:hover {
+        background: rgba($success-color, 0.1);
+        border-color: $success-color;
+      }
+    }
+
+    .material-icons {
+      font-size: 1.25rem;
+    }
+  }
+
+  // ===========================================================================
+  // EMPTY STATE
+  // ===========================================================================
+
+  &__empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: $spacing-xl * 3;
+    text-align: center;
+    color: $text-secondary;
+
+    .material-icons {
+      font-size: 4rem;
+      margin-bottom: $spacing-md;
+      opacity: 0.3;
+    }
+
+    h3 {
+      margin: 0 0 $spacing-sm 0;
+      color: $text-primary;
+      font-size: 1.25rem;
+    }
+
+    p {
+      margin: 0 0 $spacing-lg 0;
+    }
+  }
+
+  &__empty-btn {
+    padding: $spacing-sm $spacing-lg;
+    background: $primary-color;
+    color: white;
+    border: none;
+    border-radius: $radius-sm;
+    font-size: 0.875rem;
+    cursor: pointer;
+    transition: background-color 0.2s;
+
+    &:hover {
+      background: darken($primary-color, 10%);
+    }
+  }
+
+  // ===========================================================================
+  // PAGINATION
+  // ===========================================================================
+
+  &__pagination {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: $spacing-lg;
+    padding: $spacing-md;
+    background: $background-white;
+    border: 1px solid $border-color;
+    border-top: none;
+    border-radius: 0 0 $radius-md $radius-md;
+
+    @media (max-width: 768px) {
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+  }
+
+  &__page-size {
+    display: flex;
+    align-items: center;
+    gap: $spacing-sm;
+    font-size: 0.875rem;
+    color: $text-secondary;
+
+    select {
+      padding: $spacing-xs $spacing-sm;
+      border: 1px solid $border-color;
+      border-radius: $radius-sm;
+      background: $background-white;
+      font-size: 0.875rem;
+      cursor: pointer;
+
+      &:focus {
+        outline: none;
+        border-color: $primary-color;
+      }
+    }
+  }
+
+  &__page-info {
+    font-size: 0.875rem;
+    color: $text-secondary;
+  }
+
+  &__page-controls {
+    display: flex;
+    gap: $spacing-xs;
+  }
+
+  &__page-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    background: $background-white;
+    border: 1px solid $border-color;
+    border-radius: $radius-sm;
+    color: $text-primary;
+    cursor: pointer;
+    transition: all 0.2s;
+
+    &:hover:not(:disabled) {
+      background: $background-light;
+      border-color: $primary-color;
+    }
+
+    &:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    .material-icons {
+      font-size: 1.25rem;
+    }
+  }
+}
+
+// =============================================================================
+// ANIMATIONS
+// =============================================================================
+
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+// =============================================================================
+// PRINT STYLES
+// =============================================================================
+
+@media print {
+  .product-list {
+    &__toolbar,
+    &__bulk-bar,
+    &__pagination,
+    &__quick-btn,
+    &__th--checkbox,
+    &__td--checkbox,
+    &__th--actions,
+    &__td--actions {
+      display: none !important;
+    }
+
+    &__table-wrapper {
+      border: none;
+      box-shadow: none;
+    }
+
+    &__tr {
+      page-break-inside: avoid;
+    }
+  }
+}

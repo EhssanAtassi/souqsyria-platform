@@ -164,3 +164,45 @@
     }
   }
 }
+
+// RTL support
+[dir='rtl'] {
+  .admin-header {
+    // Flip gradient direction for RTL
+    background: linear-gradient(270deg, #d4af37 0%, #f6e9c4 100%);
+
+    &__branding {
+      flex-direction: row-reverse;
+    }
+
+    &__right {
+      flex-direction: row-reverse;
+    }
+
+    &__actions {
+      flex-direction: row-reverse;
+    }
+
+    &__action {
+      flex-direction: row-reverse;
+    }
+
+    &__session {
+      flex-direction: row-reverse;
+    }
+
+    &__identity {
+      text-align: right;
+    }
+  }
+
+  @media (max-width: 960px) {
+    .admin-header {
+      align-items: flex-end;
+
+      &__right {
+        flex-direction: column;
+      }
+    }
+  }
+}

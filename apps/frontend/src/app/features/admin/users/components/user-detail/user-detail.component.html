@@ -1,0 +1,350 @@
+<!-- User Detail Template -->
+<!-- Comprehensive user profile view with tabs for different sections -->
+
+<section class="user-detail" aria-label="User details">
+  <!-- Breadcrumb Navigation -->
+  <nav class="user-detail__breadcrumb">
+    <a routerLink="/admin/users" class="user-detail__breadcrumb-link">
+      <span class="material-icons">arrow_back</span>
+      Back to Users
+    </a>
+  </nav>
+
+  <!-- Loading State -->
+  <div *ngIf="isLoading()" class="user-detail__loading">
+    <div class="user-detail__loading-content">
+      <span class="material-icons animate-spin">sync</span>
+      <p>Loading user details...</p>
+    </div>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="errorMessage()" class="user-detail__error">
+    <span class="material-icons">error_outline</span>
+    <p>{{ errorMessage() }}</p>
+    <button type="button" class="user-detail__error-btn" (click)="refresh()">
+      Try Again
+    </button>
+  </div>
+
+  <!-- Main Content -->
+  <ng-container *ngIf="!isLoading() && user()">
+    <!-- Profile Header -->
+    <header class="user-detail__header">
+      <div class="user-detail__profile">
+        <!-- Avatar -->
+        <div class="user-detail__avatar-wrapper">
+          <img
+            *ngIf="user()?.avatar"
+            [src]="user()?.avatar"
+            [alt]="fullName()"
+            class="user-detail__avatar"
+          />
+          <div *ngIf="!user()?.avatar" class="user-detail__avatar-placeholder">
+            {{ initials() }}
+          </div>
+          <span
+            class="user-detail__status-indicator"
+            [attr.data-status]="user()?.status"
+            [title]="user()?.status | titlecase"
+          ></span>
+        </div>
+
+        <!-- User Info -->
+        <div class="user-detail__info">
+          <h1 class="user-detail__name">{{ fullName() }}</h1>
+          <p class="user-detail__email">
+            {{ user()?.email }}
+            <span *ngIf="user()?.emailVerified" class="user-detail__verified" title="Email verified">
+              <span class="material-icons">verified</span>
+            </span>
+          </p>
+          <p *ngIf="user()?.phone" class="user-detail__phone">
+            <span class="material-icons">phone</span>
+            {{ user()?.phone }}
+          </p>
+          <p class="user-detail__member-since">
+            <span class="material-icons">calendar_today</span>
+            Member since {{ memberSince() }}
+          </p>
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <div class="user-detail__actions">
+        <button
+          type="button"
+          class="user-detail__action-btn"
+          (click)="refresh()"
+          title="Refresh"
+        >
+          <span class="material-icons">refresh</span>
+        </button>
+        <button
+          type="button"
+          class="user-detail__action-btn"
+          (click)="openRoleDialog()"
+          title="Manage roles"
+        >
+          <span class="material-icons">admin_panel_settings</span>
+          <span>Manage Roles</span>
+        </button>
+        <button
+          type="button"
+          class="user-detail__action-btn"
+          [class.user-detail__action-btn--warning]="user()?.status === 'active'"
+          (click)="openStatusDialog()"
+          title="Change status"
+        >
+          <span class="material-icons">toggle_on</span>
+          <span>Change Status</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- Status Badges -->
+    <div class="user-detail__badges">
+      <div class="user-detail__badge-group">
+        <span class="user-detail__badge-label">Account Status:</span>
+        <app-admin-status-badge
+          [status]="user()?.status || 'unknown'"
+          [variant]="getStatusVariant(user()?.status!)"
+        />
+      </div>
+      <div class="user-detail__badge-group">
+        <span class="user-detail__badge-label">KYC Status:</span>
+        <app-admin-status-badge
+          [status]="user()?.kyc?.status || 'unknown'"
+          [variant]="getKycVariant(user()?.kyc?.status!)"
+        />
+      </div>
+      <div class="user-detail__badge-group" *ngIf="user()?.roles && user()!.roles.length > 0">
+        <span class="user-detail__badge-label">Roles:</span>
+        <div class="user-detail__roles">
+          <span
+            *ngFor="let role of user()?.roles"
+            class="user-detail__role-badge"
+            [attr.data-role]="role.name"
+          >
+            {{ role.displayName }}
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tabbed Content -->
+    <mat-tab-group
+      class="user-detail__tabs"
+      [selectedIndex]="activeTab()"
+      (selectedIndexChange)="onTabChange($event)"
+    >
+      <!-- Overview Tab -->
+      <mat-tab label="Overview">
+        <div class="user-detail__tab-content">
+          <!-- Quick Stats -->
+          <div class="user-detail__stats">
+            <article class="stat-card">
+              <span class="material-icons stat-card__icon">shopping_bag</span>
+              <div class="stat-card__content">
+                <span class="stat-card__value">{{ ordersSummary()?.totalOrders || 0 | number }}</span>
+                <span class="stat-card__label">Total Orders</span>
+              </div>
+            </article>
+
+            <article class="stat-card">
+              <span class="material-icons stat-card__icon">payments</span>
+              <div class="stat-card__content">
+                <span class="stat-card__value">{{ ordersSummary()?.totalSpent || 0 | currencyFormat }}</span>
+                <span class="stat-card__label">Total Spent</span>
+              </div>
+            </article>
+
+            <article class="stat-card">
+              <span class="material-icons stat-card__icon">trending_up</span>
+              <div class="stat-card__content">
+                <span class="stat-card__value">{{ ordersSummary()?.averageOrderValue || 0 | currencyFormat }}</span>
+                <span class="stat-card__label">Avg. Order Value</span>
+              </div>
+            </article>
+
+            <article class="stat-card">
+              <span class="material-icons stat-card__icon">favorite</span>
+              <div class="stat-card__content">
+                <span class="stat-card__value">{{ user()?.wishlistCount || 0 | number }}</span>
+                <span class="stat-card__label">Wishlist Items</span>
+              </div>
+            </article>
+
+            <article class="stat-card">
+              <span class="material-icons stat-card__icon">rate_review</span>
+              <div class="stat-card__content">
+                <span class="stat-card__value">{{ user()?.reviewCount || 0 | number }}</span>
+                <span class="stat-card__label">Reviews</span>
+              </div>
+            </article>
+
+            <article class="stat-card">
+              <span class="material-icons stat-card__icon">location_on</span>
+              <div class="stat-card__content">
+                <span class="stat-card__value">{{ user()?.addressCount || 0 | number }}</span>
+                <span class="stat-card__label">Addresses</span>
+              </div>
+            </article>
+          </div>
+
+          <!-- Profile Details -->
+          <div class="user-detail__section">
+            <h3 class="user-detail__section-title">Profile Information</h3>
+            <div class="user-detail__profile-grid">
+              <div class="user-detail__field">
+                <span class="user-detail__field-label">First Name</span>
+                <span class="user-detail__field-value">{{ user()?.firstName || '-' }}</span>
+              </div>
+              <div class="user-detail__field">
+                <span class="user-detail__field-label">Last Name</span>
+                <span class="user-detail__field-value">{{ user()?.lastName || '-' }}</span>
+              </div>
+              <div class="user-detail__field">
+                <span class="user-detail__field-label">Email</span>
+                <span class="user-detail__field-value">{{ user()?.email || '-' }}</span>
+              </div>
+              <div class="user-detail__field">
+                <span class="user-detail__field-label">Phone</span>
+                <span class="user-detail__field-value">{{ user()?.phone || '-' }}</span>
+              </div>
+              <div class="user-detail__field">
+                <span class="user-detail__field-label">Date of Birth</span>
+                <span class="user-detail__field-value">
+                  {{ user()?.dateOfBirth ? (user()?.dateOfBirth | date:'longDate') : '-' }}
+                </span>
+              </div>
+              <div class="user-detail__field">
+                <span class="user-detail__field-label">Gender</span>
+                <span class="user-detail__field-value">{{ user()?.gender || '-' }}</span>
+              </div>
+              <div class="user-detail__field">
+                <span class="user-detail__field-label">Last Login</span>
+                <span class="user-detail__field-value">
+                  {{ user()?.lastLoginAt ? (user()?.lastLoginAt | date:'medium') : 'Never' }}
+                </span>
+              </div>
+              <div class="user-detail__field">
+                <span class="user-detail__field-label">Last Updated</span>
+                <span class="user-detail__field-value">
+                  {{ user()?.updatedAt | date:'medium' }}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Orders by Status -->
+          <div class="user-detail__section" *ngIf="ordersSummary()?.ordersByStatus?.length">
+            <h3 class="user-detail__section-title">Orders by Status</h3>
+            <div class="user-detail__order-status-grid">
+              <div
+                *ngFor="let item of ordersSummary()?.ordersByStatus"
+                class="user-detail__order-status-item"
+              >
+                <span class="user-detail__order-status-count">{{ item.count }}</span>
+                <span class="user-detail__order-status-label">{{ item.status | titlecase }}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Recent Activity Preview -->
+          <div class="user-detail__section" *ngIf="user()?.recentActivity?.length">
+            <div class="user-detail__section-header">
+              <h3 class="user-detail__section-title">Recent Activity</h3>
+              <button
+                type="button"
+                class="user-detail__section-link"
+                (click)="onTabChange(1)"
+              >
+                View All
+                <span class="material-icons">arrow_forward</span>
+              </button>
+            </div>
+            <ul class="user-detail__recent-activity">
+              <li *ngFor="let activity of user()?.recentActivity?.slice(0, 5)" class="activity-item">
+                <span class="activity-item__icon material-icons">history</span>
+                <div class="activity-item__content">
+                  <span class="activity-item__action">{{ activity.action }}</span>
+                  <span *ngIf="activity.details" class="activity-item__details">
+                    {{ activity.details }}
+                  </span>
+                </div>
+                <span class="activity-item__time">
+                  {{ activity.timestamp | date:'short' }}
+                </span>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </mat-tab>
+
+      <!-- Activity Tab -->
+      <mat-tab label="Activity Log">
+        <div class="user-detail__tab-content">
+          <div class="user-detail__activity">
+            <!-- Loading State -->
+            <div *ngIf="isLoadingActivity()" class="user-detail__activity-loading">
+              <span class="material-icons animate-spin">sync</span>
+              <p>Loading activity...</p>
+            </div>
+
+            <!-- Activity Timeline -->
+            <ul *ngIf="!isLoadingActivity()" class="activity-timeline">
+              <li
+                *ngFor="let activity of activities()"
+                class="activity-timeline__item"
+              >
+                <div class="activity-timeline__icon">
+                  <span class="material-icons">{{ getActivityIcon(activity.action) }}</span>
+                </div>
+                <div class="activity-timeline__content">
+                  <div class="activity-timeline__header">
+                    <span class="activity-timeline__action">{{ activity.action | titlecase }}</span>
+                    <span class="activity-timeline__time">
+                      {{ formatActivityTime(activity.timestamp) }}
+                    </span>
+                  </div>
+                  <p *ngIf="activity.resource" class="activity-timeline__resource">
+                    {{ activity.resource }}
+                    <span *ngIf="activity.resourceId">(#{{ activity.resourceId }})</span>
+                  </p>
+                  <div *ngIf="activity.ipAddress" class="activity-timeline__meta">
+                    <span class="activity-timeline__ip">
+                      <span class="material-icons">language</span>
+                      {{ activity.ipAddress }}
+                    </span>
+                  </div>
+                </div>
+              </li>
+
+              <!-- Empty State -->
+              <li *ngIf="activities().length === 0" class="activity-timeline__empty">
+                <span class="material-icons">history</span>
+                <p>No activity recorded</p>
+              </li>
+            </ul>
+
+            <!-- Load More -->
+            <div
+              *ngIf="activityPagination().page < activityPagination().totalPages"
+              class="user-detail__load-more"
+            >
+              <button
+                type="button"
+                class="user-detail__load-more-btn"
+                (click)="loadMoreActivity()"
+                [disabled]="isLoadingActivity()"
+              >
+                Load More
+              </button>
+            </div>
+          </div>
+        </div>
+      </mat-tab>
+    </mat-tab-group>
+  </ng-container>
+</section>

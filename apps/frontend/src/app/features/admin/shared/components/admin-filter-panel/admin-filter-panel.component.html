@@ -1,0 +1,236 @@
+<!-- Admin Filter Panel Template -->
+<!-- Flexible filter panel with various input types -->
+
+<div
+  class="filter-panel"
+  [class.filter-panel--collapsed]="isCollapsed()"
+  [class.filter-panel--loading]="loading()"
+>
+  <!-- Header -->
+  <header class="filter-panel__header" (click)="toggleCollapsed()">
+    <div class="filter-panel__title-group">
+      <span class="filter-panel__icon material-icons">filter_list</span>
+      <h3 class="filter-panel__title">{{ title() }}</h3>
+      <span *ngIf="hasActiveFilters()" class="filter-panel__badge">
+        {{ activeFilterCount() }}
+      </span>
+    </div>
+
+    <button
+      *ngIf="collapsible()"
+      type="button"
+      class="filter-panel__toggle"
+      [attr.aria-expanded]="!isCollapsed()"
+      aria-label="Toggle filters"
+    >
+      <span class="material-icons">
+        {{ isCollapsed() ? 'expand_more' : 'expand_less' }}
+      </span>
+    </button>
+  </header>
+
+  <!-- Content -->
+  <div class="filter-panel__content" [class.filter-panel__content--hidden]="isCollapsed()">
+    <!-- Filter fields grid -->
+    <div class="filter-panel__fields">
+      <div
+        *ngFor="let field of fields(); trackBy: trackByKey"
+        class="filter-field"
+        [ngClass]="[getColClass(field), field.className || '']"
+      >
+        <label [for]="'filter-' + field.key" class="filter-field__label">
+          {{ field.label }}
+          <span *ngIf="field.required" class="filter-field__required">*</span>
+        </label>
+
+        <!-- Field inputs by type -->
+        <ng-container [ngSwitch]="field.type">
+          <!-- Text input -->
+          <input
+            *ngSwitchCase="'text'"
+            [id]="'filter-' + field.key"
+            type="text"
+            class="filter-field__input"
+            [placeholder]="field.placeholder || ''"
+            [ngModel]="getFieldValue(field.key)"
+            (ngModelChange)="onFieldChange(field.key, $event)"
+          />
+
+          <!-- Number input -->
+          <input
+            *ngSwitchCase="'number'"
+            [id]="'filter-' + field.key"
+            type="number"
+            class="filter-field__input"
+            [placeholder]="field.placeholder || ''"
+            [min]="field.min"
+            [max]="field.max"
+            [step]="field.step || 1"
+            [ngModel]="getFieldValue(field.key)"
+            (ngModelChange)="onFieldChange(field.key, $event)"
+          />
+
+          <!-- Date input -->
+          <input
+            *ngSwitchCase="'date'"
+            [id]="'filter-' + field.key"
+            type="date"
+            class="filter-field__input"
+            [min]="field.min"
+            [max]="field.max"
+            [ngModel]="getFieldValue(field.key)"
+            (ngModelChange)="onFieldChange(field.key, $event)"
+          />
+
+          <!-- Select dropdown -->
+          <select
+            *ngSwitchCase="'select'"
+            [id]="'filter-' + field.key"
+            class="filter-field__select"
+            [ngModel]="getFieldValue(field.key)"
+            (ngModelChange)="onFieldChange(field.key, $event)"
+          >
+            <option value="">{{ field.placeholder || 'Select...' }}</option>
+            <option
+              *ngFor="let opt of field.options; trackBy: trackByOption"
+              [value]="opt.value"
+              [disabled]="opt.disabled"
+            >
+              {{ opt.label }}
+              <ng-container *ngIf="opt.count !== undefined"> ({{ opt.count }})</ng-container>
+            </option>
+          </select>
+
+          <!-- Multiselect checkboxes -->
+          <div *ngSwitchCase="'multiselect'" class="filter-field__multiselect">
+            <label
+              *ngFor="let opt of field.options; trackBy: trackByOption"
+              class="filter-field__checkbox-label"
+            >
+              <input
+                type="checkbox"
+                class="filter-field__checkbox"
+                [checked]="isOptionSelected(field.key, opt.value)"
+                [disabled]="opt.disabled"
+                (change)="onMultiselectChange(field.key, opt.value, $any($event.target).checked)"
+              />
+              <span class="filter-field__checkbox-text">
+                {{ opt.label }}
+                <span *ngIf="opt.count !== undefined" class="filter-field__option-count">
+                  ({{ opt.count }})
+                </span>
+              </span>
+            </label>
+          </div>
+
+          <!-- Radio buttons -->
+          <div *ngSwitchCase="'radio'" class="filter-field__radio-group">
+            <label
+              *ngFor="let opt of field.options; trackBy: trackByOption"
+              class="filter-field__radio-label"
+            >
+              <input
+                type="radio"
+                class="filter-field__radio"
+                [name]="'filter-' + field.key"
+                [value]="opt.value"
+                [disabled]="opt.disabled"
+                [checked]="getFieldValue(field.key) === opt.value"
+                (change)="onFieldChange(field.key, opt.value)"
+              />
+              <span class="filter-field__radio-text">{{ opt.label }}</span>
+            </label>
+          </div>
+
+          <!-- Checkbox (single) -->
+          <label *ngSwitchCase="'checkbox'" class="filter-field__checkbox-single">
+            <input
+              type="checkbox"
+              class="filter-field__checkbox"
+              [checked]="getFieldValue(field.key)"
+              (change)="onFieldChange(field.key, $any($event.target).checked)"
+            />
+            <span class="filter-field__checkbox-text">{{ field.placeholder || 'Yes' }}</span>
+          </label>
+
+          <!-- Date range -->
+          <div *ngSwitchCase="'dateRange'" class="filter-field__date-range">
+            <input
+              type="date"
+              class="filter-field__input filter-field__input--half"
+              [placeholder]="'From'"
+              [ngModel]="getFieldValue(field.key + 'From')"
+              (ngModelChange)="onFieldChange(field.key + 'From', $event)"
+            />
+            <span class="filter-field__range-separator">to</span>
+            <input
+              type="date"
+              class="filter-field__input filter-field__input--half"
+              [placeholder]="'To'"
+              [ngModel]="getFieldValue(field.key + 'To')"
+              (ngModelChange)="onFieldChange(field.key + 'To', $event)"
+            />
+          </div>
+
+          <!-- Number range -->
+          <div *ngSwitchCase="'numberRange'" class="filter-field__number-range">
+            <input
+              type="number"
+              class="filter-field__input filter-field__input--half"
+              [placeholder]="'Min'"
+              [min]="field.min"
+              [max]="field.max"
+              [ngModel]="getFieldValue(field.key + 'Min')"
+              (ngModelChange)="onFieldChange(field.key + 'Min', $event)"
+            />
+            <span class="filter-field__range-separator">-</span>
+            <input
+              type="number"
+              class="filter-field__input filter-field__input--half"
+              [placeholder]="'Max'"
+              [min]="field.min"
+              [max]="field.max"
+              [ngModel]="getFieldValue(field.key + 'Max')"
+              (ngModelChange)="onFieldChange(field.key + 'Max', $event)"
+            />
+          </div>
+
+          <!-- Default fallback (text) -->
+          <input
+            *ngSwitchDefault
+            [id]="'filter-' + field.key"
+            type="text"
+            class="filter-field__input"
+            [placeholder]="field.placeholder || ''"
+            [ngModel]="getFieldValue(field.key)"
+            (ngModelChange)="onFieldChange(field.key, $event)"
+          />
+        </ng-container>
+      </div>
+    </div>
+
+    <!-- Actions -->
+    <div class="filter-panel__actions">
+      <button
+        *ngIf="showReset()"
+        type="button"
+        class="filter-panel__btn filter-panel__btn--reset"
+        (click)="resetFilters()"
+        [disabled]="!hasActiveFilters() && !showApply()"
+      >
+        <span class="material-icons">refresh</span>
+        Reset
+      </button>
+
+      <button
+        *ngIf="showApply()"
+        type="button"
+        class="filter-panel__btn filter-panel__btn--apply"
+        (click)="applyFilters()"
+      >
+        <span class="material-icons">check</span>
+        Apply Filters
+      </button>
+    </div>
+  </div>
+</div>

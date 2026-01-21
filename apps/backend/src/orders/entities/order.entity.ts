@@ -15,13 +15,25 @@ import {
   UpdateDateColumn,
   DeleteDateColumn,
   JoinColumn,
+  Index,
 } from 'typeorm';
 import { User } from '../../users/entities/user.entity';
 import { OrderItem } from './order-item.entity';
 import { OrderStatusLog } from './order-status-log.entity';
 import { PaymentTransaction } from '../../payment/entities/payment-transaction.entity';
 
+/**
+ * PERF-C01: Database indexes for optimized queries
+ * - user: JOINs with user table (customer orders lookup)
+ * - status + created_at: Admin dashboard queries for order status filtering
+ * - payment_status: Payment reconciliation queries
+ * - status: General status filtering
+ */
 @Entity('orders')
+@Index(['user'])
+@Index(['status', 'created_at'])
+@Index(['payment_status'])
+@Index(['status'])
 export class Order {
   @PrimaryGeneratedColumn()
   id: number;

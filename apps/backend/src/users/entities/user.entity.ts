@@ -1,6 +1,14 @@
 /**
  * @file user.entity.ts
  * @description User table synced from Firebase Auth. Used to assign app-specific roles and preferences.
+ *
+ * Security Features:
+ * - OAuth tokens stored encrypted (AES-256-GCM) - SEC-H01 fix
+ * - Password reset tokens hashed before storage - SEC-H02 fix
+ * - Account lockout after failed login attempts - SEC-H06 fix
+ *
+ * @author SouqSyria Development Team
+ * @since 2026-01-21
  */
 import {
   Entity,
@@ -12,12 +20,17 @@ import {
   UpdateDateColumn,
   DeleteDateColumn,
   OneToMany,
+  Index,
 } from 'typeorm';
 import { Role } from '../../roles/entities/role.entity';
 import { Wishlist } from '../../wishlist/entities/wishlist.entity';
 import { Address } from '../../addresses/entities/address.entity';
 
 @Entity('users')
+@Index(['email'], { unique: true })
+@Index(['role', 'isBanned'])
+@Index(['googleId'])
+@Index(['facebookId'])
 export class User {
   @PrimaryGeneratedColumn()
   id: number;
@@ -25,6 +38,7 @@ export class User {
   @Column({ name: 'firebase_uid', nullable: true, unique: true })
   firebaseUid: string;
 
+  @Index()
   @Column({ nullable: true })
   email: string;
 
@@ -81,14 +95,18 @@ export class User {
 
   /**
    * OAuth access token from provider (optional).
-   * Stored for accessing provider APIs on behalf of user.
+   * SECURITY: Stored encrypted with AES-256-GCM (SEC-H01 fix).
+   * The stored value is a base64-encoded JSON containing IV, ciphertext, and auth tag.
+   * Use EncryptionService.encryptToString() before storing and decryptFromString() when reading.
    */
   @Column({ name: 'oauth_access_token', type: 'text', nullable: true })
   oauthAccessToken: string;
 
   /**
    * OAuth refresh token from provider (optional).
-   * Used to obtain new access tokens without re-authentication.
+   * SECURITY: Stored encrypted with AES-256-GCM (SEC-H01 fix).
+   * The stored value is a base64-encoded JSON containing IV, ciphertext, and auth tag.
+   * Use EncryptionService.encryptToString() before storing and decryptFromString() when reading.
    */
   @Column({ name: 'oauth_refresh_token', type: 'text', nullable: true })
   oauthRefreshToken: string;

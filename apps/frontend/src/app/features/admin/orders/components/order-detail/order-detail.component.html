@@ -1,0 +1,524 @@
+<!-- Order Detail Template -->
+<!-- Comprehensive order view with timeline, items, and actions -->
+
+<section class="order-detail" aria-label="Order details">
+  <!-- Loading State -->
+  <div *ngIf="isLoading()" class="order-detail__loading">
+    <span class="material-icons animate-spin">sync</span>
+    <p>Loading order details...</p>
+  </div>
+
+  <ng-container *ngIf="!isLoading() && order() as orderData">
+    <!-- Header -->
+    <header class="order-detail__header">
+      <div class="order-detail__header-left">
+        <nav class="order-detail__breadcrumb">
+          <a (click)="goBack()" class="order-detail__breadcrumb-link">
+            <span class="material-icons">arrow_back</span>
+            Back to Orders
+          </a>
+        </nav>
+
+        <div class="order-detail__title-row">
+          <h1 class="order-detail__title">{{ orderData.orderNumber }}</h1>
+          <span
+            class="order-detail__status-badge order-detail__status-badge--large"
+            [attr.data-status]="getStatusClass(orderData.status)"
+          >
+            {{ getStatusLabel(orderData.status) }}
+          </span>
+          <span
+            class="order-detail__payment-badge"
+            [attr.data-status]="getPaymentStatusClass(orderData.paymentStatus)"
+          >
+            {{ getPaymentStatusLabel(orderData.paymentStatus) }}
+          </span>
+        </div>
+
+        <p class="order-detail__meta">
+          Placed on {{ formatDate(orderData.createdAt) }}
+          <span *ngIf="orderData.deliveredAt">
+            &bull; Delivered {{ formatDate(orderData.deliveredAt) }}
+          </span>
+        </p>
+      </div>
+
+      <div class="order-detail__header-actions">
+        <button
+          type="button"
+          class="order-detail__action-btn"
+          (click)="printInvoice()"
+          matTooltip="Print Invoice"
+        >
+          <span class="material-icons">print</span>
+          <span>Print</span>
+        </button>
+
+        <button
+          type="button"
+          class="order-detail__action-btn"
+          (click)="refresh()"
+          matTooltip="Refresh"
+        >
+          <span class="material-icons">refresh</span>
+        </button>
+
+        <button
+          *ngIf="canUpdateStatus()"
+          type="button"
+          class="order-detail__action-btn order-detail__action-btn--primary"
+          (click)="openStatusDialog()"
+        >
+          <span class="material-icons">sync</span>
+          <span>Update Status</span>
+        </button>
+
+        <button
+          type="button"
+          class="order-detail__action-btn"
+          [matMenuTriggerFor]="moreMenu"
+          matTooltip="More Actions"
+        >
+          <span class="material-icons">more_vert</span>
+        </button>
+
+        <mat-menu #moreMenu="matMenu">
+          <button mat-menu-item (click)="openNotesDialog()">
+            <span class="material-icons">note_add</span>
+            <span>Add Note</span>
+          </button>
+          <button
+            mat-menu-item
+            *ngIf="canCancelOrder()"
+            (click)="openCancelDialog()"
+            class="order-detail__menu-danger"
+          >
+            <span class="material-icons">cancel</span>
+            <span>Cancel Order</span>
+          </button>
+        </mat-menu>
+      </div>
+    </header>
+
+    <!-- Main Content -->
+    <div class="order-detail__content">
+      <!-- Left Column: Order Items & Timeline -->
+      <div class="order-detail__main">
+        <!-- Tabs -->
+        <div class="order-detail__tabs">
+          <button
+            type="button"
+            class="order-detail__tab"
+            [class.order-detail__tab--active]="activeTab() === 'items'"
+            (click)="setActiveTab('items')"
+          >
+            <span class="material-icons">inventory_2</span>
+            Items ({{ orderData.items.length }})
+          </button>
+          <button
+            type="button"
+            class="order-detail__tab"
+            [class.order-detail__tab--active]="activeTab() === 'timeline'"
+            (click)="setActiveTab('timeline')"
+          >
+            <span class="material-icons">timeline</span>
+            Timeline
+          </button>
+        </div>
+
+        <!-- Items Tab -->
+        <div
+          class="order-detail__tab-content"
+          *ngIf="activeTab() === 'items'"
+        >
+          <div class="order-detail__items-card">
+            <table class="order-detail__items-table">
+              <thead>
+                <tr>
+                  <th class="order-detail__item-th">Product</th>
+                  <th class="order-detail__item-th">Vendor</th>
+                  <th class="order-detail__item-th order-detail__item-th--center">Qty</th>
+                  <th class="order-detail__item-th order-detail__item-th--right">Unit Price</th>
+                  <th class="order-detail__item-th order-detail__item-th--right">Total</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr
+                  *ngFor="let item of orderData.items; trackBy: trackByItemId"
+                  class="order-detail__item-row"
+                >
+                  <td class="order-detail__item-td">
+                    <div class="order-detail__item-product">
+                      <div class="order-detail__item-image">
+                        <img
+                          *ngIf="item.thumbnail"
+                          [src]="item.thumbnail"
+                          [alt]="item.productName"
+                        />
+                        <span *ngIf="!item.thumbnail" class="material-icons">image</span>
+                      </div>
+                      <div class="order-detail__item-info">
+                        <span
+                          class="order-detail__item-name"
+                          (click)="viewProduct(item.productId)"
+                        >
+                          {{ item.productName }}
+                        </span>
+                        <span *ngIf="item.variant" class="order-detail__item-variant">
+                          {{ item.variant }}
+                        </span>
+                      </div>
+                    </div>
+                  </td>
+                  <td class="order-detail__item-td order-detail__item-td--vendor">
+                    {{ item.vendorName }}
+                  </td>
+                  <td class="order-detail__item-td order-detail__item-td--center">
+                    {{ item.quantity }}
+                  </td>
+                  <td class="order-detail__item-td order-detail__item-td--right">
+                    {{ item.unitPrice | currencyFormat }}
+                  </td>
+                  <td class="order-detail__item-td order-detail__item-td--right order-detail__item-td--total">
+                    {{ item.totalPrice | currencyFormat }}
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Timeline Tab -->
+        <div
+          class="order-detail__tab-content"
+          *ngIf="activeTab() === 'timeline'"
+        >
+          <div class="order-detail__timeline-card">
+            <div class="order-detail__timeline">
+              <div
+                *ngFor="let event of timeline(); let last = last"
+                class="order-detail__timeline-item"
+                [class.order-detail__timeline-item--last]="last"
+              >
+                <div
+                  class="order-detail__timeline-icon"
+                  [attr.data-status]="getStatusClass(event.status)"
+                >
+                  <span class="material-icons">{{ getTimelineIcon(event.status) }}</span>
+                </div>
+                <div class="order-detail__timeline-content">
+                  <span class="order-detail__timeline-title">{{ event.title }}</span>
+                  <span *ngIf="event.description" class="order-detail__timeline-desc">
+                    {{ event.description }}
+                  </span>
+                  <span class="order-detail__timeline-meta">
+                    {{ formatShortDate(event.timestamp) }}
+                    <span *ngIf="event.triggeredBy"> by {{ event.triggeredBy }}</span>
+                  </span>
+                </div>
+              </div>
+
+              <!-- Empty timeline -->
+              <div *ngIf="timeline().length === 0" class="order-detail__timeline-empty">
+                <span class="material-icons">history</span>
+                <p>No timeline events yet</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Column: Details Cards -->
+      <aside class="order-detail__sidebar">
+        <!-- Customer Info -->
+        <div class="order-detail__card">
+          <div class="order-detail__card-header">
+            <span class="material-icons">person</span>
+            <h3>Customer</h3>
+          </div>
+          <div class="order-detail__card-content">
+            <div class="order-detail__customer-info">
+              <span
+                class="order-detail__customer-name"
+                (click)="viewCustomer(orderData.customer.id)"
+              >
+                {{ orderData.customer.fullName }}
+              </span>
+              <span class="order-detail__customer-email">
+                <span class="material-icons">email</span>
+                {{ orderData.customer.email }}
+              </span>
+              <span *ngIf="orderData.customer.phone" class="order-detail__customer-phone">
+                <span class="material-icons">phone</span>
+                {{ orderData.customer.phone }}
+              </span>
+              <span class="order-detail__customer-orders">
+                {{ orderData.customer.totalOrders }} orders total
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Shipping Address -->
+        <div class="order-detail__card">
+          <div class="order-detail__card-header">
+            <span class="material-icons">local_shipping</span>
+            <h3>Shipping Address</h3>
+          </div>
+          <div class="order-detail__card-content">
+            <address class="order-detail__address">
+              <p>{{ orderData.shippingAddress.addressLine1 }}</p>
+              <p *ngIf="orderData.shippingAddress.addressLine2">
+                {{ orderData.shippingAddress.addressLine2 }}
+              </p>
+              <p>
+                {{ orderData.shippingAddress.city }},
+                {{ orderData.shippingAddress.state }}
+                {{ orderData.shippingAddress.postalCode }}
+              </p>
+              <p>{{ orderData.shippingAddress.country }}</p>
+            </address>
+            <div
+              *ngIf="orderData.shippingAddress.instructions"
+              class="order-detail__delivery-instructions"
+            >
+              <span class="order-detail__delivery-label">Delivery Instructions:</span>
+              <p>{{ orderData.shippingAddress.instructions }}</p>
+            </div>
+            <div *ngIf="orderData.trackingNumber" class="order-detail__tracking">
+              <span class="order-detail__tracking-label">Tracking Number:</span>
+              <code class="order-detail__tracking-number">{{ orderData.trackingNumber }}</code>
+            </div>
+          </div>
+        </div>
+
+        <!-- Payment Summary -->
+        <div class="order-detail__card">
+          <div class="order-detail__card-header">
+            <span class="material-icons">receipt</span>
+            <h3>Payment Summary</h3>
+          </div>
+          <div class="order-detail__card-content">
+            <div class="order-detail__payment-summary">
+              <div class="order-detail__payment-row">
+                <span>Subtotal</span>
+                <span>{{ orderData.subtotal | currencyFormat }}</span>
+              </div>
+              <div class="order-detail__payment-row">
+                <span>Shipping</span>
+                <span>{{ orderData.shippingCost | currencyFormat }}</span>
+              </div>
+              <div *ngIf="orderData.taxAmount > 0" class="order-detail__payment-row">
+                <span>Tax</span>
+                <span>{{ orderData.taxAmount | currencyFormat }}</span>
+              </div>
+              <div *ngIf="orderData.discountAmount" class="order-detail__payment-row order-detail__payment-row--discount">
+                <span>
+                  Discount
+                  <code *ngIf="orderData.couponCode">({{ orderData.couponCode }})</code>
+                </span>
+                <span>-{{ orderData.discountAmount | currencyFormat }}</span>
+              </div>
+              <div class="order-detail__payment-row order-detail__payment-row--total">
+                <span>Total</span>
+                <span>{{ orderData.totalAmount | currencyFormat }}</span>
+              </div>
+            </div>
+
+            <div class="order-detail__payment-method">
+              <span class="material-icons">credit_card</span>
+              <span>{{ orderData.paymentMethod }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Order Notes -->
+        <div *ngIf="orderData.notes" class="order-detail__card">
+          <div class="order-detail__card-header">
+            <span class="material-icons">notes</span>
+            <h3>Notes</h3>
+          </div>
+          <div class="order-detail__card-content">
+            <p class="order-detail__notes">{{ orderData.notes }}</p>
+          </div>
+        </div>
+      </aside>
+    </div>
+  </ng-container>
+</section>
+
+<!-- Status Update Dialog -->
+<div
+  class="dialog-overlay"
+  *ngIf="showStatusDialog()"
+  (click)="closeStatusDialog()"
+>
+  <div class="dialog" (click)="$event.stopPropagation()">
+    <header class="dialog__header">
+      <h2 class="dialog__title">Update Order Status</h2>
+      <p class="dialog__subtitle">{{ order()?.orderNumber }}</p>
+    </header>
+
+    <div class="dialog__content">
+      <div class="dialog__field">
+        <label class="dialog__label">New Status</label>
+        <select class="dialog__select" [(ngModel)]="newStatus">
+          <option *ngFor="let status of orderStatuses" [value]="status.value">
+            {{ status.label }}
+          </option>
+        </select>
+      </div>
+
+      <div *ngIf="newStatus === 'shipped'" class="dialog__field">
+        <label class="dialog__label">Tracking Number</label>
+        <input
+          type="text"
+          class="dialog__input"
+          [(ngModel)]="trackingNumber"
+          placeholder="Enter tracking number"
+        />
+      </div>
+
+      <div class="dialog__field">
+        <label class="dialog__label">Notes (optional)</label>
+        <textarea
+          class="dialog__textarea"
+          [(ngModel)]="statusNotes"
+          rows="3"
+          placeholder="Add notes about this status change..."
+        ></textarea>
+      </div>
+
+      <label class="dialog__checkbox">
+        <input type="checkbox" [(ngModel)]="notifyCustomer" />
+        <span>Notify customer via email</span>
+      </label>
+    </div>
+
+    <footer class="dialog__actions">
+      <button
+        type="button"
+        class="dialog__btn dialog__btn--cancel"
+        (click)="closeStatusDialog()"
+      >
+        Cancel
+      </button>
+      <button
+        type="button"
+        class="dialog__btn dialog__btn--primary"
+        (click)="submitStatusUpdate()"
+      >
+        Update Status
+      </button>
+    </footer>
+  </div>
+</div>
+
+<!-- Cancel Order Dialog -->
+<div
+  class="dialog-overlay"
+  *ngIf="showCancelDialog()"
+  (click)="closeCancelDialog()"
+>
+  <div class="dialog" (click)="$event.stopPropagation()">
+    <header class="dialog__header">
+      <h2 class="dialog__title dialog__title--danger">Cancel Order</h2>
+      <p class="dialog__subtitle">{{ order()?.orderNumber }}</p>
+    </header>
+
+    <div class="dialog__content">
+      <div class="dialog__warning">
+        <span class="material-icons">warning</span>
+        <p>This action cannot be undone. The order will be permanently cancelled.</p>
+      </div>
+
+      <div class="dialog__field">
+        <label class="dialog__label">Cancellation Reason *</label>
+        <textarea
+          class="dialog__textarea"
+          [(ngModel)]="cancelReason"
+          rows="3"
+          placeholder="Enter the reason for cancellation..."
+          required
+        ></textarea>
+      </div>
+
+      <label class="dialog__checkbox">
+        <input type="checkbox" [(ngModel)]="restockOnCancel" />
+        <span>Restock cancelled items</span>
+      </label>
+
+      <label class="dialog__checkbox">
+        <input type="checkbox" [(ngModel)]="processRefundOnCancel" />
+        <span>Process refund automatically</span>
+      </label>
+    </div>
+
+    <footer class="dialog__actions">
+      <button
+        type="button"
+        class="dialog__btn dialog__btn--cancel"
+        (click)="closeCancelDialog()"
+      >
+        Go Back
+      </button>
+      <button
+        type="button"
+        class="dialog__btn dialog__btn--danger"
+        (click)="submitCancel()"
+        [disabled]="!cancelReason"
+      >
+        Cancel Order
+      </button>
+    </footer>
+  </div>
+</div>
+
+<!-- Add Notes Dialog -->
+<div
+  class="dialog-overlay"
+  *ngIf="showNotesDialog()"
+  (click)="closeNotesDialog()"
+>
+  <div class="dialog" (click)="$event.stopPropagation()">
+    <header class="dialog__header">
+      <h2 class="dialog__title">Add Note</h2>
+      <p class="dialog__subtitle">{{ order()?.orderNumber }}</p>
+    </header>
+
+    <div class="dialog__content">
+      <div class="dialog__field">
+        <label class="dialog__label">Note Content</label>
+        <textarea
+          class="dialog__textarea"
+          [(ngModel)]="newNoteContent"
+          rows="4"
+          placeholder="Enter your note..."
+        ></textarea>
+      </div>
+
+      <label class="dialog__checkbox">
+        <input type="checkbox" [(ngModel)]="noteIsInternal" />
+        <span>Internal note (not visible to customer)</span>
+      </label>
+    </div>
+
+    <footer class="dialog__actions">
+      <button
+        type="button"
+        class="dialog__btn dialog__btn--cancel"
+        (click)="closeNotesDialog()"
+      >
+        Cancel
+      </button>
+      <button
+        type="button"
+        class="dialog__btn dialog__btn--primary"
+        (click)="submitNote()"
+        [disabled]="!newNoteContent.trim()"
+      >
+        Add Note
+      </button>
+    </footer>
+  </div>
+</div>

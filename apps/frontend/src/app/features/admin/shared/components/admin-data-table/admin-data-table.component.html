@@ -1,0 +1,232 @@
+<!-- Admin Data Table Template -->
+<!-- Feature-rich data table with sorting, selection, and pagination -->
+
+<div
+  class="data-table-wrapper"
+  [class.data-table-wrapper--loading]="loading()"
+>
+  <!-- Selection info bar -->
+  <div *ngIf="selectable() && selectedCount() > 0" class="data-table__selection-bar">
+    <span class="data-table__selection-count">
+      {{ selectedCount() }} item(s) selected
+    </span>
+    <button
+      type="button"
+      class="data-table__selection-clear"
+      (click)="toggleAllSelection()"
+    >
+      Clear selection
+    </button>
+  </div>
+
+  <!-- Table container -->
+  <div class="data-table-container">
+    <table
+      class="data-table"
+      [class.data-table--striped]="striped()"
+      [class.data-table--hoverable]="hoverable()"
+      [class.data-table--compact]="compact()"
+      [class.data-table--clickable]="clickable()"
+    >
+      <!-- Table header -->
+      <thead class="data-table__head">
+        <tr>
+          <!-- Selection checkbox column -->
+          <th *ngIf="selectable()" class="data-table__th data-table__th--checkbox">
+            <label class="data-table__checkbox-wrapper" *ngIf="multiSelect()">
+              <input
+                type="checkbox"
+                class="data-table__checkbox"
+                [checked]="allSelected()"
+                [indeterminate]="someSelected()"
+                (change)="toggleAllSelection()"
+                aria-label="Select all rows"
+              />
+            </label>
+          </th>
+
+          <!-- Data columns -->
+          <th
+            *ngFor="let column of visibleColumns(); trackBy: trackByColumn"
+            class="data-table__th"
+            [ngClass]="{
+              'data-table__th--sortable': column.sortable,
+              'data-table__th--sorted': isColumnSorted(column),
+              'data-table__th--nowrap': column.nowrap
+            }"
+            [style.width]="column.width"
+            [style.min-width]="column.minWidth"
+            [style.text-align]="column.align || 'left'"
+            (click)="column.sortable && onSortClick(column)"
+            [attr.aria-sort]="isColumnSorted(column) ? (sortState()?.direction === 'asc' ? 'ascending' : 'descending') : null"
+            [title]="column.headerTooltip || ''"
+          >
+            <div class="data-table__th-content">
+              <span>{{ column.header }}</span>
+              <span *ngIf="column.sortable" class="data-table__sort-icon material-icons">
+                {{ getSortIcon(column) }}
+              </span>
+            </div>
+          </th>
+
+          <!-- Actions column -->
+          <th *ngIf="hasActions()" class="data-table__th data-table__th--actions">
+            Actions
+          </th>
+        </tr>
+      </thead>
+
+      <!-- Table body -->
+      <tbody class="data-table__body">
+        <!-- Loading skeleton rows -->
+        <ng-container *ngIf="loading()">
+          <tr *ngFor="let _ of skeletonRows" class="data-table__row data-table__row--skeleton">
+            <td *ngIf="selectable()" class="data-table__td">
+              <div class="data-table__skeleton data-table__skeleton--checkbox"></div>
+            </td>
+            <td *ngFor="let column of visibleColumns()" class="data-table__td">
+              <div class="data-table__skeleton"></div>
+            </td>
+            <td *ngIf="hasActions()" class="data-table__td">
+              <div class="data-table__skeleton data-table__skeleton--actions"></div>
+            </td>
+          </tr>
+        </ng-container>
+
+        <!-- Empty state -->
+        <ng-container *ngIf="!loading() && data().length === 0">
+          <tr class="data-table__row data-table__row--empty">
+            <td
+              [attr.colspan]="visibleColumns().length + (selectable() ? 1 : 0) + (hasActions() ? 1 : 0)"
+              class="data-table__td data-table__td--empty"
+            >
+              <div class="data-table__empty">
+                <span class="data-table__empty-icon material-icons">{{ emptyIcon() }}</span>
+                <p class="data-table__empty-message">{{ emptyMessage() }}</p>
+              </div>
+            </td>
+          </tr>
+        </ng-container>
+
+        <!-- Data rows -->
+        <ng-container *ngIf="!loading() && data().length > 0">
+          <tr
+            *ngFor="let row of data(); let i = index; trackBy: trackByRow"
+            class="data-table__row"
+            [class.data-table__row--selected]="isSelected(row)"
+            (click)="onRowClick(row, i, $event)"
+          >
+            <!-- Selection checkbox -->
+            <td *ngIf="selectable()" class="data-table__td data-table__td--checkbox">
+              <label class="data-table__checkbox-wrapper">
+                <input
+                  type="checkbox"
+                  class="data-table__checkbox"
+                  [checked]="isSelected(row)"
+                  (change)="toggleRowSelection(row)"
+                  (click)="$event.stopPropagation()"
+                  [attr.aria-label]="'Select row ' + (i + 1)"
+                />
+              </label>
+            </td>
+
+            <!-- Data cells -->
+            <td
+              *ngFor="let column of visibleColumns(); trackBy: trackByColumn"
+              class="data-table__td"
+              [ngClass]="column.className"
+              [style.text-align]="column.align || 'left'"
+              [class.data-table__td--nowrap]="column.nowrap"
+            >
+              <!-- Status type -->
+              <ng-container *ngIf="column.type === 'status'">
+                <ng-container *ngIf="statusCellTemplate; else defaultStatus">
+                  <ng-container
+                    *ngTemplateOutlet="statusCellTemplate; context: { $implicit: row, column: column, value: getCellValue(row, column) }"
+                  ></ng-container>
+                </ng-container>
+                <ng-template #defaultStatus>
+                  <app-admin-status-badge
+                    [status]="getCellValue(row, column) | json"
+                  />
+                </ng-template>
+              </ng-container>
+
+              <!-- Date type -->
+              <ng-container *ngIf="column.type === 'date'">
+                {{ getCellValue(row, column) | date:(column.dateFormat || 'mediumDate') }}
+              </ng-container>
+
+              <!-- Datetime type -->
+              <ng-container *ngIf="column.type === 'datetime'">
+                {{ getCellValue(row, column) | date:(column.dateFormat || 'medium') }}
+              </ng-container>
+
+              <!-- Number type -->
+              <ng-container *ngIf="column.type === 'number'">
+                {{ getCellValue(row, column) | number }}
+              </ng-container>
+
+              <!-- Currency type -->
+              <ng-container *ngIf="column.type === 'currency'">
+                {{ formatCellValue(getCellValue(row, column), column) }}
+              </ng-container>
+
+              <!-- Boolean type -->
+              <ng-container *ngIf="column.type === 'boolean'">
+                <span class="data-table__boolean" [class.data-table__boolean--true]="getCellValue(row, column)">
+                  {{ getCellValue(row, column) ? 'Yes' : 'No' }}
+                </span>
+              </ng-container>
+
+              <!-- Custom type -->
+              <ng-container *ngIf="column.type === 'custom' && customCellTemplate">
+                <ng-container
+                  *ngTemplateOutlet="customCellTemplate; context: { $implicit: row, column: column, value: getCellValue(row, column) }"
+                ></ng-container>
+              </ng-container>
+
+              <!-- Default text type -->
+              <ng-container *ngIf="!column.type || column.type === 'text'">
+                {{ getCellValue(row, column) ?? '-' }}
+              </ng-container>
+            </td>
+
+            <!-- Actions cell -->
+            <td *ngIf="hasActions()" class="data-table__td data-table__td--actions">
+              <div class="data-table__actions">
+                <ng-container *ngFor="let action of actions()">
+                  <button
+                    *ngIf="isActionVisible(action, row)"
+                    type="button"
+                    class="data-table__action"
+                    [ngClass]="'data-table__action--' + (action.variant || 'default')"
+                    [disabled]="isActionDisabled(action, row)"
+                    [title]="action.tooltip || action.label"
+                    (click)="onRowAction(action, row, i, $event)"
+                  >
+                    <span *ngIf="action.icon" class="material-icons">{{ action.icon }}</span>
+                    <span class="data-table__action-label">{{ action.label }}</span>
+                  </button>
+                </ng-container>
+              </div>
+            </td>
+          </tr>
+        </ng-container>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Pagination -->
+  <div *ngIf="showPagination() && totalItems() > 0" class="data-table__pagination">
+    <app-admin-pagination
+      [currentPage]="currentPage()"
+      [pageSize]="pageSize()"
+      [totalItems]="totalItems()"
+      [pageSizeOptions]="pageSizeOptions()"
+      [disabled]="loading()"
+      (pageChange)="onPageChange($event)"
+      (pageSizeChange)="onPageSizeChange($event)"
+    />
+  </div>
+</div>

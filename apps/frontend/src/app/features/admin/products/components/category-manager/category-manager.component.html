@@ -1,0 +1,407 @@
+<!-- Category Manager Template -->
+<!-- Hierarchical category tree with CRUD operations -->
+
+<section class="category-manager" aria-label="Category management">
+  <!-- Header -->
+  <header class="category-manager__header">
+    <div class="category-manager__title-section">
+      <nav class="category-manager__breadcrumb">
+        <a routerLink="/admin/products" class="category-manager__breadcrumb-link">
+          <span class="material-icons">arrow_back</span>
+          Back to Products
+        </a>
+      </nav>
+      <h1 class="category-manager__title">Category Management</h1>
+      <p class="category-manager__subtitle">
+        {{ totalCategories() }} categories ({{ activeCategories() }} active)
+      </p>
+    </div>
+
+    <div class="category-manager__actions">
+      <button
+        type="button"
+        class="category-manager__action-btn category-manager__action-btn--primary"
+        (click)="openCreateDialog()"
+        matTooltip="Add new category"
+      >
+        <span class="material-icons">add</span>
+        <span>Add Category</span>
+      </button>
+
+      <button
+        type="button"
+        class="category-manager__action-btn"
+        (click)="expandAll()"
+        matTooltip="Expand all"
+      >
+        <span class="material-icons">unfold_more</span>
+      </button>
+
+      <button
+        type="button"
+        class="category-manager__action-btn"
+        (click)="collapseAll()"
+        matTooltip="Collapse all"
+      >
+        <span class="material-icons">unfold_less</span>
+      </button>
+
+      <button
+        type="button"
+        class="category-manager__action-btn"
+        (click)="refresh()"
+        matTooltip="Refresh"
+      >
+        <span class="material-icons">refresh</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Search Bar -->
+  <div class="category-manager__search">
+    <span class="material-icons category-manager__search-icon">search</span>
+    <input
+      type="text"
+      class="category-manager__search-input"
+      placeholder="Search categories..."
+      [value]="searchTerm()"
+      (input)="onSearch($event)"
+    />
+    <button
+      *ngIf="searchTerm()"
+      type="button"
+      class="category-manager__search-clear"
+      (click)="clearSearch()"
+    >
+      <span class="material-icons">close</span>
+    </button>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="isLoading()" class="category-manager__loading">
+    <span class="material-icons animate-spin">sync</span>
+    <p>Loading categories...</p>
+  </div>
+
+  <!-- Category Tree -->
+  <div class="category-manager__tree" *ngIf="!isLoading()">
+    <!-- Empty State -->
+    <div *ngIf="filteredCategories().length === 0" class="category-manager__empty">
+      <span class="material-icons">folder_off</span>
+      <h3>No Categories Found</h3>
+      <p *ngIf="searchTerm()">No categories match your search "{{ searchTerm() }}"</p>
+      <p *ngIf="!searchTerm()">Start by creating your first category</p>
+      <button
+        *ngIf="!searchTerm()"
+        type="button"
+        class="category-manager__empty-btn"
+        (click)="openCreateDialog()"
+      >
+        <span class="material-icons">add</span>
+        Create Category
+      </button>
+    </div>
+
+    <!-- Recursive Category Tree -->
+    <ng-container
+      *ngFor="let category of filteredCategories(); trackBy: trackByCategoryId"
+    >
+      <ng-container
+        *ngTemplateOutlet="categoryNode; context: { $implicit: category, level: 0 }"
+      ></ng-container>
+    </ng-container>
+  </div>
+</section>
+
+<!-- Recursive Category Node Template -->
+<ng-template #categoryNode let-category let-level="level">
+  <div
+    class="category-node"
+    [class.category-node--inactive]="!category.isActive"
+    [style.--level]="level"
+  >
+    <div class="category-node__content">
+      <!-- Expand Toggle -->
+      <button
+        type="button"
+        class="category-node__toggle"
+        *ngIf="category.children?.length"
+        (click)="toggleExpand(category.id)"
+        [attr.aria-expanded]="isExpanded(category.id)"
+      >
+        <span class="material-icons">
+          {{ isExpanded(category.id) ? 'expand_more' : 'chevron_right' }}
+        </span>
+      </button>
+      <span *ngIf="!category.children?.length" class="category-node__toggle-spacer"></span>
+
+      <!-- Category Icon -->
+      <span class="category-node__icon material-icons">
+        {{ category.icon || 'folder' }}
+      </span>
+
+      <!-- Category Info -->
+      <div class="category-node__info">
+        <span class="category-node__name">{{ category.nameEn }}</span>
+        <span class="category-node__name-ar">{{ category.nameAr }}</span>
+      </div>
+
+      <!-- Product Count -->
+      <span class="category-node__count" *ngIf="category.productCount !== undefined">
+        {{ category.productCount }} products
+      </span>
+
+      <!-- Status Badge -->
+      <span
+        class="category-node__status"
+        [class.category-node__status--active]="category.isActive"
+        [class.category-node__status--inactive]="!category.isActive"
+      >
+        {{ category.isActive ? 'Active' : 'Inactive' }}
+      </span>
+
+      <!-- Actions Menu -->
+      <div class="category-node__actions">
+        <button
+          type="button"
+          class="category-node__action-btn"
+          matTooltip="Add subcategory"
+          (click)="openCreateDialog(category.id)"
+        >
+          <span class="material-icons">add</span>
+        </button>
+
+        <button
+          type="button"
+          class="category-node__action-btn"
+          matTooltip="Edit category"
+          (click)="openEditDialog(category)"
+        >
+          <span class="material-icons">edit</span>
+        </button>
+
+        <button
+          type="button"
+          class="category-node__action-btn"
+          [matTooltip]="category.isActive ? 'Deactivate' : 'Activate'"
+          (click)="toggleStatus(category)"
+        >
+          <span class="material-icons">
+            {{ category.isActive ? 'visibility_off' : 'visibility' }}
+          </span>
+        </button>
+
+        <button
+          type="button"
+          class="category-node__action-btn category-node__action-btn--danger"
+          matTooltip="Delete category"
+          (click)="deleteCategory(category)"
+          [disabled]="category.productCount > 0 || category.children?.length > 0"
+        >
+          <span class="material-icons">delete</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Children (Recursive) -->
+    <div
+      class="category-node__children"
+      *ngIf="category.children?.length && isExpanded(category.id)"
+    >
+      <ng-container *ngFor="let child of category.children; trackBy: trackByCategoryId">
+        <ng-container
+          *ngTemplateOutlet="categoryNode; context: { $implicit: child, level: level + 1 }"
+        ></ng-container>
+      </ng-container>
+    </div>
+  </div>
+</ng-template>
+
+<!-- Category Form Dialog -->
+<div
+  class="category-dialog-overlay"
+  *ngIf="showFormDialog()"
+  (click)="closeFormDialog()"
+>
+  <div class="category-dialog" (click)="$event.stopPropagation()">
+    <header class="category-dialog__header">
+      <h2 class="category-dialog__title">
+        {{ formMode() === 'create' ? 'Create Category' : 'Edit Category' }}
+      </h2>
+      <button
+        type="button"
+        class="category-dialog__close"
+        (click)="closeFormDialog()"
+      >
+        <span class="material-icons">close</span>
+      </button>
+    </header>
+
+    <form
+      class="category-dialog__form"
+      [formGroup]="categoryForm"
+      (ngSubmit)="saveCategory()"
+    >
+      <div class="category-dialog__content">
+        <!-- Name (English) -->
+        <div class="category-dialog__field">
+          <label class="category-dialog__label">
+            Name (English) <span class="category-dialog__required">*</span>
+          </label>
+          <input
+            type="text"
+            class="category-dialog__input"
+            formControlName="nameEn"
+            placeholder="Enter category name in English"
+            (blur)="formMode() === 'create' && generateSlug()"
+          />
+          <span
+            *ngIf="getFieldError('nameEn')"
+            class="category-dialog__error"
+          >
+            {{ getFieldError('nameEn') }}
+          </span>
+        </div>
+
+        <!-- Name (Arabic) -->
+        <div class="category-dialog__field">
+          <label class="category-dialog__label">
+            Name (Arabic) <span class="category-dialog__required">*</span>
+          </label>
+          <input
+            type="text"
+            class="category-dialog__input"
+            formControlName="nameAr"
+            placeholder="أدخل اسم الفئة بالعربية"
+            dir="rtl"
+          />
+          <span
+            *ngIf="getFieldError('nameAr')"
+            class="category-dialog__error"
+          >
+            {{ getFieldError('nameAr') }}
+          </span>
+        </div>
+
+        <!-- Slug -->
+        <div class="category-dialog__field">
+          <label class="category-dialog__label">
+            Slug <span class="category-dialog__required">*</span>
+          </label>
+          <div class="category-dialog__input-group">
+            <input
+              type="text"
+              class="category-dialog__input"
+              formControlName="slug"
+              placeholder="category-slug"
+            />
+            <button
+              type="button"
+              class="category-dialog__input-btn"
+              (click)="generateSlug()"
+              matTooltip="Generate from name"
+            >
+              <span class="material-icons">autorenew</span>
+            </button>
+          </div>
+          <span
+            *ngIf="getFieldError('slug')"
+            class="category-dialog__error"
+          >
+            {{ getFieldError('slug') }}
+          </span>
+        </div>
+
+        <!-- Parent Category -->
+        <div class="category-dialog__field">
+          <label class="category-dialog__label">Parent Category</label>
+          <select
+            class="category-dialog__select"
+            formControlName="parentId"
+          >
+            <option [ngValue]="null">— None (Root Category) —</option>
+            <option
+              *ngFor="let parent of parentOptions()"
+              [ngValue]="parent.id"
+            >
+              {{ parent.nameEn }}
+            </option>
+          </select>
+        </div>
+
+        <!-- Description -->
+        <div class="category-dialog__field">
+          <label class="category-dialog__label">Description</label>
+          <textarea
+            class="category-dialog__textarea"
+            formControlName="description"
+            placeholder="Optional description..."
+            rows="3"
+          ></textarea>
+        </div>
+
+        <!-- Icon -->
+        <div class="category-dialog__field">
+          <label class="category-dialog__label">Icon (Material Icon name)</label>
+          <div class="category-dialog__input-group">
+            <input
+              type="text"
+              class="category-dialog__input"
+              formControlName="icon"
+              placeholder="folder, category, shopping_bag..."
+            />
+            <span class="category-dialog__icon-preview material-icons">
+              {{ categoryForm.get('icon')?.value || 'folder' }}
+            </span>
+          </div>
+        </div>
+
+        <!-- Sort Order -->
+        <div class="category-dialog__field category-dialog__field--half">
+          <label class="category-dialog__label">Sort Order</label>
+          <input
+            type="number"
+            class="category-dialog__input"
+            formControlName="sortOrder"
+            min="0"
+          />
+        </div>
+
+        <!-- Active Toggle -->
+        <div class="category-dialog__field category-dialog__field--half">
+          <label class="category-dialog__label">Status</label>
+          <label class="category-dialog__toggle">
+            <input
+              type="checkbox"
+              formControlName="isActive"
+            />
+            <span class="category-dialog__toggle-slider"></span>
+            <span class="category-dialog__toggle-label">
+              {{ categoryForm.get('isActive')?.value ? 'Active' : 'Inactive' }}
+            </span>
+          </label>
+        </div>
+      </div>
+
+      <footer class="category-dialog__actions">
+        <button
+          type="button"
+          class="category-dialog__btn category-dialog__btn--cancel"
+          (click)="closeFormDialog()"
+        >
+          Cancel
+        </button>
+        <button
+          type="submit"
+          class="category-dialog__btn category-dialog__btn--submit"
+          [disabled]="isSaving() || categoryForm.invalid"
+        >
+          <span *ngIf="isSaving()" class="material-icons animate-spin">sync</span>
+          <span *ngIf="!isSaving()">
+            {{ formMode() === 'create' ? 'Create Category' : 'Save Changes' }}
+          </span>
+        </button>
+      </footer>
+    </form>
+  </div>
+</div>

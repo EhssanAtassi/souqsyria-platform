@@ -1,0 +1,372 @@
+<!--
+  Sales Dashboard Component Template
+  @description Comprehensive sales analytics with KPIs, revenue charts, and breakdowns
+-->
+
+<div class="sales-dashboard">
+  <!-- ===================================================================== -->
+  <!-- HEADER -->
+  <!-- ===================================================================== -->
+  <header class="sales-dashboard__header">
+    <div class="sales-dashboard__title">
+      <h1>Sales Analytics</h1>
+      <span class="sales-dashboard__subtitle">Monitor revenue, orders, and sales performance</span>
+    </div>
+
+    <div class="sales-dashboard__header-actions">
+      <!-- Date Range Selector -->
+      <div class="date-selector">
+        <select
+          class="date-selector__select"
+          [ngModel]="selectedPreset()"
+          (ngModelChange)="applyDatePreset($event)"
+        >
+          @for (preset of datePresets; track preset.value) {
+            <option [value]="preset.value">{{ preset.label }}</option>
+          }
+        </select>
+
+        @if (selectedPreset() === 'custom') {
+          <div class="date-selector__custom">
+            <input
+              type="date"
+              [value]="dateRange().startDate"
+              (change)="dateRange.set({...dateRange(), startDate: $any($event.target).value})"
+            />
+            <span>to</span>
+            <input
+              type="date"
+              [value]="dateRange().endDate"
+              (change)="dateRange.set({...dateRange(), endDate: $any($event.target).value})"
+            />
+            <button class="btn btn--primary btn--small" (click)="applyCustomRange()">Apply</button>
+          </div>
+        }
+      </div>
+
+      <!-- Compare Toggle -->
+      <label class="compare-toggle">
+        <input
+          type="checkbox"
+          [checked]="compareEnabled()"
+          (change)="toggleComparison()"
+        />
+        <span>Compare with previous period</span>
+      </label>
+
+      <!-- Export Menu -->
+      <button class="btn btn--secondary" [matMenuTriggerFor]="exportMenu">
+        <span class="material-icons">download</span>
+        Export
+      </button>
+      <mat-menu #exportMenu="matMenu">
+        <button mat-menu-item (click)="exportReport('csv')">
+          <span class="material-icons">description</span>
+          Export as CSV
+        </button>
+        <button mat-menu-item (click)="exportReport('xlsx')">
+          <span class="material-icons">table_chart</span>
+          Export as Excel
+        </button>
+        <button mat-menu-item (click)="exportReport('pdf')">
+          <span class="material-icons">picture_as_pdf</span>
+          Export as PDF
+        </button>
+      </mat-menu>
+
+      <button class="btn btn--secondary" (click)="refresh()">
+        <span class="material-icons">refresh</span>
+      </button>
+    </div>
+  </header>
+
+  @if (isLoading()) {
+    <div class="loading-state">
+      <div class="loading-spinner"></div>
+      <p>Loading analytics data...</p>
+    </div>
+  } @else {
+    <!-- ===================================================================== -->
+    <!-- KPI CARDS -->
+    <!-- ===================================================================== -->
+    <section class="sales-dashboard__kpis">
+      @for (metric of kpiMetrics(); track trackByKPI($index, metric)) {
+        <div class="kpi-card" [attr.data-color]="metric.color">
+          <div class="kpi-card__icon">
+            <span class="material-icons">{{ metric.icon }}</span>
+          </div>
+          <div class="kpi-card__content">
+            <span class="kpi-card__value">{{ formatKPIValue(metric) }}</span>
+            <span class="kpi-card__label">{{ metric.label }}</span>
+            @if (metric.change !== undefined) {
+              <span
+                class="kpi-card__change"
+                [class.kpi-card__change--positive]="metric.change > 0"
+                [class.kpi-card__change--negative]="metric.change < 0"
+              >
+                <span class="material-icons">
+                  {{ metric.change > 0 ? 'trending_up' : metric.change < 0 ? 'trending_down' : 'trending_flat' }}
+                </span>
+                {{ metric.change > 0 ? '+' : '' }}{{ metric.change.toFixed(1) }}%
+              </span>
+            }
+          </div>
+        </div>
+      }
+    </section>
+
+    <!-- ===================================================================== -->
+    <!-- REVENUE CHART -->
+    <!-- ===================================================================== -->
+    <section class="sales-dashboard__chart">
+      <div class="chart-card">
+        <div class="chart-card__header">
+          <h3>Revenue Overview</h3>
+          <div class="chart-card__controls">
+            <div class="period-selector">
+              <button
+                class="period-btn"
+                [class.period-btn--active]="chartPeriod() === 'daily'"
+                (click)="changeChartPeriod('daily')"
+              >
+                Daily
+              </button>
+              <button
+                class="period-btn"
+                [class.period-btn--active]="chartPeriod() === 'weekly'"
+                (click)="changeChartPeriod('weekly')"
+              >
+                Weekly
+              </button>
+              <button
+                class="period-btn"
+                [class.period-btn--active]="chartPeriod() === 'monthly'"
+                (click)="changeChartPeriod('monthly')"
+              >
+                Monthly
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="chart-card__summary">
+          <div class="summary-item">
+            <span class="summary-item__value">{{ totalRevenue() | currencyFormat }}</span>
+            <span class="summary-item__label">Total Revenue</span>
+          </div>
+          <div class="summary-item">
+            <span class="summary-item__value">{{ totalOrders() | number }}</span>
+            <span class="summary-item__label">Total Orders</span>
+          </div>
+        </div>
+
+        <div class="chart-card__body">
+          <div class="bar-chart">
+            <div class="bar-chart__y-axis">
+              <span>{{ (maxRevenue() / 1000) | number:'1.0-0' }}K</span>
+              <span>{{ (maxRevenue() * 0.75 / 1000) | number:'1.0-0' }}K</span>
+              <span>{{ (maxRevenue() * 0.5 / 1000) | number:'1.0-0' }}K</span>
+              <span>{{ (maxRevenue() * 0.25 / 1000) | number:'1.0-0' }}K</span>
+              <span>0</span>
+            </div>
+            <div class="bar-chart__bars">
+              @for (item of revenueChartData(); track trackByChartDate($index, item); let i = $index) {
+                @if (i % Math.ceil(revenueChartData().length / 20) === 0 || revenueChartData().length <= 20) {
+                  <div
+                    class="bar-chart__bar-wrapper"
+                    [matTooltip]="item.date + ': ' + (item.revenue | currencyFormat) + ' (' + item.orders + ' orders)'"
+                  >
+                    <div
+                      class="bar-chart__bar"
+                      [style.height]="getBarHeight(item.revenue)"
+                    ></div>
+                    <span class="bar-chart__label">{{ formatChartLabel(item.date) }}</span>
+                  </div>
+                }
+              }
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================================================================== -->
+    <!-- BREAKDOWNS GRID -->
+    <!-- ===================================================================== -->
+    <section class="sales-dashboard__breakdowns">
+      <!-- Sales by Category -->
+      <div class="breakdown-card">
+        <div class="breakdown-card__header">
+          <h3>
+            <span class="material-icons">category</span>
+            Sales by Category
+          </h3>
+        </div>
+        <div class="breakdown-card__body">
+          @if (salesByCategory().length === 0) {
+            <div class="empty-state-small">
+              <span class="material-icons">inbox</span>
+              <p>No category data available</p>
+            </div>
+          } @else {
+            <div class="breakdown-list">
+              @for (category of salesByCategory(); track trackByCategory($index, category)) {
+                <div class="breakdown-item">
+                  <div class="breakdown-item__info">
+                    <span class="breakdown-item__name">{{ category.categoryName }}</span>
+                    <span class="breakdown-item__meta">{{ category.orders }} orders</span>
+                  </div>
+                  <div class="breakdown-item__stats">
+                    <span class="breakdown-item__value">{{ category.revenue | currencyFormat }}</span>
+                    <span class="breakdown-item__percent">{{ category.percentageOfTotal | number:'1.1-1' }}%</span>
+                  </div>
+                  <div class="breakdown-item__bar">
+                    <div
+                      class="breakdown-item__bar-fill"
+                      [style.width.%]="category.percentageOfTotal"
+                    ></div>
+                  </div>
+                </div>
+              }
+            </div>
+          }
+        </div>
+      </div>
+
+      <!-- Sales by Vendor -->
+      <div class="breakdown-card">
+        <div class="breakdown-card__header">
+          <h3>
+            <span class="material-icons">store</span>
+            Top Vendors
+          </h3>
+          <a routerLink="/admin/vendors" class="view-all-link">View All</a>
+        </div>
+        <div class="breakdown-card__body">
+          @if (salesByVendor().length === 0) {
+            <div class="empty-state-small">
+              <span class="material-icons">inbox</span>
+              <p>No vendor data available</p>
+            </div>
+          } @else {
+            <div class="breakdown-list">
+              @for (vendor of salesByVendor(); track trackByVendor($index, vendor)) {
+                <div class="breakdown-item">
+                  <div class="breakdown-item__info">
+                    <span class="breakdown-item__name">{{ vendor.vendorName }}</span>
+                    <span class="breakdown-item__meta">
+                      {{ vendor.orders }} orders &bull; {{ vendor.commissions | currencyFormat }} commission
+                    </span>
+                  </div>
+                  <div class="breakdown-item__stats">
+                    <span class="breakdown-item__value">{{ vendor.revenue | currencyFormat }}</span>
+                    <span class="breakdown-item__percent">{{ vendor.percentageOfTotal | number:'1.1-1' }}%</span>
+                  </div>
+                  <div class="breakdown-item__bar">
+                    <div
+                      class="breakdown-item__bar-fill breakdown-item__bar-fill--vendor"
+                      [style.width.%]="vendor.percentageOfTotal"
+                    ></div>
+                  </div>
+                </div>
+              }
+            </div>
+          }
+        </div>
+      </div>
+
+      <!-- Sales by Region -->
+      <div class="breakdown-card">
+        <div class="breakdown-card__header">
+          <h3>
+            <span class="material-icons">location_on</span>
+            Sales by Region
+          </h3>
+        </div>
+        <div class="breakdown-card__body">
+          @if (salesByRegion().length === 0) {
+            <div class="empty-state-small">
+              <span class="material-icons">inbox</span>
+              <p>No regional data available</p>
+            </div>
+          } @else {
+            <div class="breakdown-list">
+              @for (region of salesByRegion(); track trackByRegion($index, region)) {
+                <div class="breakdown-item">
+                  <div class="breakdown-item__info">
+                    <span class="breakdown-item__name">{{ region.region }}</span>
+                    <span class="breakdown-item__meta">{{ region.orders }} orders</span>
+                  </div>
+                  <div class="breakdown-item__stats">
+                    <span class="breakdown-item__value">{{ region.revenue | currencyFormat }}</span>
+                    <span class="breakdown-item__percent">{{ region.percentageOfTotal | number:'1.1-1' }}%</span>
+                  </div>
+                  <div class="breakdown-item__bar">
+                    <div
+                      class="breakdown-item__bar-fill breakdown-item__bar-fill--region"
+                      [style.width.%]="region.percentageOfTotal"
+                    ></div>
+                  </div>
+                </div>
+              }
+            </div>
+          }
+        </div>
+      </div>
+
+      <!-- Payment Methods -->
+      <div class="breakdown-card">
+        <div class="breakdown-card__header">
+          <h3>
+            <span class="material-icons">payment</span>
+            Payment Methods
+          </h3>
+        </div>
+        <div class="breakdown-card__body">
+          @if (!orderAnalytics() || orderAnalytics()!.ordersByPaymentMethod.length === 0) {
+            <div class="empty-state-small">
+              <span class="material-icons">inbox</span>
+              <p>No payment data available</p>
+            </div>
+          } @else {
+            <div class="breakdown-list">
+              @for (method of orderAnalytics()!.ordersByPaymentMethod; track method.method) {
+                <div class="breakdown-item">
+                  <div class="breakdown-item__info">
+                    <span class="breakdown-item__name">{{ method.method }}</span>
+                    <span class="breakdown-item__meta">{{ method.count }} orders</span>
+                  </div>
+                  <div class="breakdown-item__stats">
+                    <span class="breakdown-item__value">{{ method.revenue | currencyFormat }}</span>
+                  </div>
+                </div>
+              }
+            </div>
+          }
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================================================================== -->
+    <!-- QUICK LINKS -->
+    <!-- ===================================================================== -->
+    <section class="sales-dashboard__quick-links">
+      <a routerLink="/admin/analytics/users" class="quick-link">
+        <span class="material-icons">people</span>
+        <span>User Analytics</span>
+      </a>
+      <a routerLink="/admin/analytics/commissions" class="quick-link">
+        <span class="material-icons">monetization_on</span>
+        <span>Commission Reports</span>
+      </a>
+      <a routerLink="/admin/analytics/exports" class="quick-link">
+        <span class="material-icons">cloud_download</span>
+        <span>Export Manager</span>
+      </a>
+      <a routerLink="/admin/orders" class="quick-link">
+        <span class="material-icons">shopping_bag</span>
+        <span>Order Management</span>
+      </a>
+    </section>
+  }
+</div>

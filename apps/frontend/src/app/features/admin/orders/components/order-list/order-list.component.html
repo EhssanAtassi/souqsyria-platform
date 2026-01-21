@@ -1,0 +1,535 @@
+<!-- Order List Template -->
+<!-- Order management dashboard with filtering and bulk actions -->
+
+<section class="order-list" aria-label="Order management">
+  <!-- Header -->
+  <header class="order-list__header">
+    <div class="order-list__title-section">
+      <h1 class="order-list__title">Order Management</h1>
+      <p class="order-list__subtitle">
+        Manage and track customer orders
+      </p>
+    </div>
+
+    <div class="order-list__actions">
+      <button
+        type="button"
+        class="order-list__action-btn"
+        [matMenuTriggerFor]="exportMenu"
+        matTooltip="Export orders"
+      >
+        <span class="material-icons">download</span>
+        <span>Export</span>
+      </button>
+
+      <mat-menu #exportMenu="matMenu">
+        <button mat-menu-item (click)="exportOrders('csv')">
+          <span class="material-icons">description</span>
+          <span>Export as CSV</span>
+        </button>
+        <button mat-menu-item (click)="exportOrders('xlsx')">
+          <span class="material-icons">table_chart</span>
+          <span>Export as Excel</span>
+        </button>
+      </mat-menu>
+
+      <button
+        type="button"
+        class="order-list__action-btn"
+        routerLink="/admin/orders/refunds"
+        matTooltip="View refund queue"
+      >
+        <span class="material-icons">request_quote</span>
+        <span>Refunds</span>
+        <span *ngIf="stats().refundRequests > 0" class="order-list__badge">
+          {{ stats().refundRequests }}
+        </span>
+      </button>
+
+      <button
+        type="button"
+        class="order-list__action-btn"
+        (click)="refresh()"
+        matTooltip="Refresh"
+      >
+        <span class="material-icons">refresh</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Statistics Cards -->
+  <div class="order-list__stats">
+    <div
+      class="order-list__stat-card"
+      (click)="applyStatusFilter('all')"
+      [class.order-list__stat-card--active]="statusFilter() === 'all'"
+    >
+      <span class="material-icons order-list__stat-icon">shopping_bag</span>
+      <div class="order-list__stat-content">
+        <span class="order-list__stat-value">{{ stats().total }}</span>
+        <span class="order-list__stat-label">Total Orders</span>
+      </div>
+    </div>
+
+    <div
+      class="order-list__stat-card order-list__stat-card--warning"
+      (click)="applyStatusFilter('pending')"
+      [class.order-list__stat-card--active]="statusFilter() === 'pending'"
+    >
+      <span class="material-icons order-list__stat-icon">pending</span>
+      <div class="order-list__stat-content">
+        <span class="order-list__stat-value">{{ stats().pending }}</span>
+        <span class="order-list__stat-label">Pending</span>
+      </div>
+    </div>
+
+    <div
+      class="order-list__stat-card order-list__stat-card--info"
+      (click)="applyStatusFilter('processing')"
+      [class.order-list__stat-card--active]="statusFilter() === 'processing'"
+    >
+      <span class="material-icons order-list__stat-icon">autorenew</span>
+      <div class="order-list__stat-content">
+        <span class="order-list__stat-value">{{ stats().processing }}</span>
+        <span class="order-list__stat-label">Processing</span>
+      </div>
+    </div>
+
+    <div
+      class="order-list__stat-card order-list__stat-card--primary"
+      (click)="applyStatusFilter('shipped')"
+      [class.order-list__stat-card--active]="statusFilter() === 'shipped'"
+    >
+      <span class="material-icons order-list__stat-icon">local_shipping</span>
+      <div class="order-list__stat-content">
+        <span class="order-list__stat-value">{{ stats().shipped }}</span>
+        <span class="order-list__stat-label">Shipped</span>
+      </div>
+    </div>
+
+    <div
+      class="order-list__stat-card order-list__stat-card--success"
+      (click)="applyStatusFilter('delivered')"
+      [class.order-list__stat-card--active]="statusFilter() === 'delivered'"
+    >
+      <span class="material-icons order-list__stat-icon">check_circle</span>
+      <div class="order-list__stat-content">
+        <span class="order-list__stat-value">{{ stats().delivered }}</span>
+        <span class="order-list__stat-label">Delivered</span>
+      </div>
+    </div>
+
+    <div class="order-list__stat-card order-list__stat-card--revenue">
+      <span class="material-icons order-list__stat-icon">payments</span>
+      <div class="order-list__stat-content">
+        <span class="order-list__stat-value">{{ stats().totalRevenue | currencyFormat }}</span>
+        <span class="order-list__stat-label">Total Revenue</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toolbar -->
+  <div class="order-list__toolbar">
+    <!-- Search -->
+    <div class="order-list__search">
+      <span class="material-icons order-list__search-icon">search</span>
+      <input
+        type="text"
+        class="order-list__search-input"
+        placeholder="Search by order number or customer..."
+        [value]="searchTerm()"
+        (input)="onSearch($event)"
+      />
+      <button
+        *ngIf="searchTerm()"
+        type="button"
+        class="order-list__search-clear"
+        (click)="clearSearch()"
+      >
+        <span class="material-icons">close</span>
+      </button>
+    </div>
+
+    <!-- Filters -->
+    <div class="order-list__filters">
+      <!-- Order Status Filter -->
+      <select
+        class="order-list__select"
+        [value]="statusFilter()"
+        (change)="applyStatusFilter($any($event.target).value)"
+      >
+        <option value="all">All Statuses</option>
+        <option *ngFor="let status of orderStatuses" [value]="status.value">
+          {{ status.label }}
+        </option>
+      </select>
+
+      <!-- Payment Status Filter -->
+      <select
+        class="order-list__select"
+        [value]="paymentFilter()"
+        (change)="applyPaymentFilter($any($event.target).value)"
+      >
+        <option value="all">All Payments</option>
+        <option *ngFor="let status of paymentStatuses" [value]="status.value">
+          {{ status.label }}
+        </option>
+      </select>
+
+      <!-- Date Range Filter -->
+      <div class="order-list__date-filter">
+        <input
+          type="date"
+          class="order-list__date-input"
+          [value]="dateRange().from"
+          (change)="applyDateFilter($any($event.target).value, dateRange().to)"
+          placeholder="From"
+        />
+        <span class="order-list__date-separator">to</span>
+        <input
+          type="date"
+          class="order-list__date-input"
+          [value]="dateRange().to"
+          (change)="applyDateFilter(dateRange().from, $any($event.target).value)"
+          placeholder="To"
+        />
+      </div>
+
+      <!-- Refund Toggle -->
+      <label class="order-list__toggle">
+        <input
+          type="checkbox"
+          [checked]="refundFilter()"
+          (change)="toggleRefundFilter()"
+        />
+        <span>With Refunds</span>
+      </label>
+
+      <!-- Clear Filters -->
+      <button
+        *ngIf="activeFiltersCount() > 0"
+        type="button"
+        class="order-list__clear-btn"
+        (click)="clearFilters()"
+      >
+        <span class="material-icons">filter_alt_off</span>
+        Clear ({{ activeFiltersCount() }})
+      </button>
+    </div>
+  </div>
+
+  <!-- Bulk Actions Bar -->
+  <div class="order-list__bulk-bar" *ngIf="showBulkActions()">
+    <div class="order-list__bulk-info">
+      <input
+        type="checkbox"
+        [checked]="allSelected()"
+        (change)="toggleSelectAll()"
+        aria-label="Select all"
+      />
+      <span>{{ selectedCount() }} orders selected</span>
+    </div>
+
+    <div class="order-list__bulk-actions">
+      <button
+        type="button"
+        class="order-list__bulk-btn"
+        [matMenuTriggerFor]="bulkStatusMenu"
+      >
+        <span class="material-icons">sync</span>
+        Update Status
+      </button>
+
+      <mat-menu #bulkStatusMenu="matMenu">
+        <button mat-menu-item (click)="bulkUpdateStatus('confirmed')">
+          <span class="material-icons">check</span>
+          <span>Mark as Confirmed</span>
+        </button>
+        <button mat-menu-item (click)="bulkUpdateStatus('processing')">
+          <span class="material-icons">autorenew</span>
+          <span>Mark as Processing</span>
+        </button>
+        <button mat-menu-item (click)="bulkUpdateStatus('shipped')">
+          <span class="material-icons">local_shipping</span>
+          <span>Mark as Shipped</span>
+        </button>
+      </mat-menu>
+
+      <button
+        type="button"
+        class="order-list__bulk-btn"
+        (click)="bulkPrintLabels()"
+      >
+        <span class="material-icons">print</span>
+        Print Labels
+      </button>
+
+      <button
+        type="button"
+        class="order-list__bulk-btn order-list__bulk-btn--cancel"
+        (click)="clearSelection()"
+      >
+        <span class="material-icons">close</span>
+        Clear
+      </button>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="isLoading()" class="order-list__loading">
+    <span class="material-icons animate-spin">sync</span>
+    <p>Loading orders...</p>
+  </div>
+
+  <!-- Orders Table -->
+  <div class="order-list__table-wrapper" *ngIf="!isLoading()">
+    <table class="order-list__table" *ngIf="orders().length > 0">
+      <thead>
+        <tr>
+          <th class="order-list__th order-list__th--checkbox">
+            <input
+              type="checkbox"
+              [checked]="allSelected()"
+              (change)="toggleSelectAll()"
+              aria-label="Select all"
+            />
+          </th>
+          <th
+            class="order-list__th order-list__th--sortable"
+            (click)="sortBy('orderNumber')"
+          >
+            Order
+            <span *ngIf="getSortIndicator('orderNumber')" class="material-icons">
+              {{ getSortIndicator('orderNumber') }}
+            </span>
+          </th>
+          <th class="order-list__th">Customer</th>
+          <th
+            class="order-list__th order-list__th--sortable"
+            (click)="sortBy('totalAmount')"
+          >
+            Amount
+            <span *ngIf="getSortIndicator('totalAmount')" class="material-icons">
+              {{ getSortIndicator('totalAmount') }}
+            </span>
+          </th>
+          <th class="order-list__th">Items</th>
+          <th class="order-list__th">Status</th>
+          <th class="order-list__th">Payment</th>
+          <th
+            class="order-list__th order-list__th--sortable"
+            (click)="sortBy('createdAt')"
+          >
+            Date
+            <span *ngIf="getSortIndicator('createdAt')" class="material-icons">
+              {{ getSortIndicator('createdAt') }}
+            </span>
+          </th>
+          <th class="order-list__th order-list__th--actions">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr
+          *ngFor="let order of orders(); trackBy: trackByOrderId"
+          class="order-list__tr"
+          [class.order-list__tr--selected]="isSelected(order.id)"
+          [class.order-list__tr--refund]="order.hasRefundRequest"
+        >
+          <td class="order-list__td">
+            <input
+              type="checkbox"
+              [checked]="isSelected(order.id)"
+              (change)="toggleSelection(order.id)"
+              aria-label="Select order"
+            />
+          </td>
+
+          <td class="order-list__td order-list__td--order">
+            <div class="order-list__order-info">
+              <span class="order-list__order-number" (click)="viewOrder(order.id)">
+                {{ order.orderNumber }}
+              </span>
+              <span *ngIf="order.hasRefundRequest" class="order-list__refund-indicator">
+                <span class="material-icons">warning</span>
+                Refund Requested
+              </span>
+            </div>
+          </td>
+
+          <td class="order-list__td order-list__td--customer">
+            <div class="order-list__customer">
+              <span class="order-list__customer-name">{{ order.customer.fullName }}</span>
+              <span class="order-list__customer-email">{{ order.customer.email }}</span>
+            </div>
+          </td>
+
+          <td class="order-list__td order-list__td--amount">
+            <span class="order-list__amount">{{ order.totalAmount | currencyFormat }}</span>
+          </td>
+
+          <td class="order-list__td order-list__td--items">
+            <span class="order-list__items-count">{{ order.itemsCount }} items</span>
+          </td>
+
+          <td class="order-list__td">
+            <span
+              class="order-list__status-badge"
+              [attr.data-status]="getStatusClass(order.status)"
+            >
+              {{ getStatusLabel(order.status) }}
+            </span>
+          </td>
+
+          <td class="order-list__td">
+            <span
+              class="order-list__payment-badge"
+              [attr.data-status]="getPaymentStatusClass(order.paymentStatus)"
+            >
+              {{ getPaymentStatusLabel(order.paymentStatus) }}
+            </span>
+            <span class="order-list__payment-method">{{ order.paymentMethod }}</span>
+          </td>
+
+          <td class="order-list__td order-list__td--date">
+            {{ formatDate(order.createdAt) }}
+          </td>
+
+          <td class="order-list__td order-list__td--actions">
+            <button
+              type="button"
+              class="order-list__row-action"
+              matTooltip="View details"
+              (click)="viewOrder(order.id)"
+            >
+              <span class="material-icons">visibility</span>
+            </button>
+            <button
+              type="button"
+              class="order-list__row-action"
+              matTooltip="Update status"
+              (click)="openStatusDialog(order)"
+            >
+              <span class="material-icons">sync</span>
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- Empty State -->
+    <div *ngIf="orders().length === 0" class="order-list__empty">
+      <span class="material-icons">shopping_bag</span>
+      <h3>No Orders Found</h3>
+      <p *ngIf="searchTerm() || activeFiltersCount() > 0">
+        No orders match your current filters. Try adjusting your search criteria.
+      </p>
+      <p *ngIf="!searchTerm() && activeFiltersCount() === 0">
+        No orders have been placed yet.
+      </p>
+      <button
+        *ngIf="activeFiltersCount() > 0"
+        type="button"
+        class="order-list__empty-btn"
+        (click)="clearFilters()"
+      >
+        Clear Filters
+      </button>
+    </div>
+  </div>
+
+  <!-- Pagination -->
+  <footer
+    class="order-list__pagination"
+    *ngIf="!isLoading() && orders().length > 0"
+  >
+    <span class="order-list__page-info">{{ paginationText() }}</span>
+
+    <div class="order-list__page-controls">
+      <button
+        type="button"
+        class="order-list__page-btn"
+        [disabled]="pagination().page === 1"
+        (click)="previousPage()"
+        aria-label="Previous page"
+      >
+        <span class="material-icons">chevron_left</span>
+      </button>
+      <button
+        type="button"
+        class="order-list__page-btn"
+        [disabled]="pagination().page >= pagination().totalPages"
+        (click)="nextPage()"
+        aria-label="Next page"
+      >
+        <span class="material-icons">chevron_right</span>
+      </button>
+    </div>
+  </footer>
+</section>
+
+<!-- Status Update Dialog -->
+<div
+  class="status-dialog-overlay"
+  *ngIf="showStatusDialog()"
+  (click)="closeStatusDialog()"
+>
+  <div class="status-dialog" (click)="$event.stopPropagation()">
+    <header class="status-dialog__header">
+      <h2 class="status-dialog__title">Update Order Status</h2>
+      <p class="status-dialog__order">{{ updatingOrder()?.orderNumber }}</p>
+    </header>
+
+    <div class="status-dialog__content">
+      <div class="status-dialog__current">
+        <span class="status-dialog__current-label">Current Status</span>
+        <span
+          class="status-dialog__current-badge"
+          [attr.data-status]="getStatusClass(updatingOrder()?.status || 'pending')"
+        >
+          {{ getStatusLabel(updatingOrder()?.status || 'pending') }}
+        </span>
+      </div>
+
+      <div class="status-dialog__field">
+        <label class="status-dialog__label">New Status</label>
+        <select class="status-dialog__select" [(ngModel)]="newStatus">
+          <option *ngFor="let status of orderStatuses" [value]="status.value">
+            {{ status.label }}
+          </option>
+        </select>
+      </div>
+
+      <div class="status-dialog__field">
+        <label class="status-dialog__label">Notes (optional)</label>
+        <textarea
+          class="status-dialog__textarea"
+          [(ngModel)]="statusNotes"
+          rows="3"
+          placeholder="Add notes about this status change..."
+        ></textarea>
+      </div>
+
+      <label class="status-dialog__checkbox">
+        <input type="checkbox" [(ngModel)]="notifyCustomer" />
+        <span>Notify customer via email</span>
+      </label>
+    </div>
+
+    <footer class="status-dialog__actions">
+      <button
+        type="button"
+        class="status-dialog__btn status-dialog__btn--cancel"
+        (click)="closeStatusDialog()"
+      >
+        Cancel
+      </button>
+      <button
+        type="button"
+        class="status-dialog__btn status-dialog__btn--submit"
+        (click)="submitStatusUpdate()"
+      >
+        Update Status
+      </button>
+    </footer>
+  </div>
+</div>

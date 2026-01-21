@@ -1,0 +1,364 @@
+/**
+ * Admin Data Table Styles
+ * @description Comprehensive styling for the reusable data table
+ */
+
+// Wrapper
+.data-table-wrapper {
+  @apply bg-white rounded-lg border border-gray-200 overflow-hidden;
+
+  &--loading {
+    @apply pointer-events-none;
+  }
+}
+
+// Selection bar
+.data-table__selection-bar {
+  @apply flex items-center justify-between;
+  @apply px-4 py-2 bg-blue-50 border-b border-blue-100;
+}
+
+.data-table__selection-count {
+  @apply text-sm font-medium text-blue-700;
+}
+
+.data-table__selection-clear {
+  @apply text-sm text-blue-600 hover:text-blue-800;
+  @apply underline cursor-pointer;
+}
+
+// Table container (for horizontal scroll)
+.data-table-container {
+  @apply overflow-x-auto;
+}
+
+// Table
+.data-table {
+  @apply w-full border-collapse;
+
+  &--striped {
+    .data-table__body .data-table__row:nth-child(even) {
+      @apply bg-gray-50/50;
+    }
+  }
+
+  &--hoverable {
+    .data-table__body .data-table__row:not(.data-table__row--empty):hover {
+      @apply bg-gray-50;
+    }
+  }
+
+  &--compact {
+    .data-table__th,
+    .data-table__td {
+      @apply px-3 py-2;
+    }
+
+    .data-table__th {
+      @apply text-xs;
+    }
+
+    .data-table__td {
+      @apply text-xs;
+    }
+  }
+
+  &--clickable {
+    .data-table__body .data-table__row {
+      @apply cursor-pointer;
+    }
+  }
+}
+
+// Table head
+.data-table__head {
+  @apply bg-gray-50 border-b border-gray-200;
+}
+
+// Header cell
+.data-table__th {
+  @apply px-4 py-3;
+  @apply text-left text-xs font-semibold text-gray-600 uppercase tracking-wider;
+  @apply whitespace-nowrap;
+
+  &--sortable {
+    @apply cursor-pointer select-none;
+    @apply hover:bg-gray-100 transition-colors;
+
+    // WCAG 2.1 AA: Focus indicator for keyboard navigation
+    &:focus-visible {
+      @apply outline-none ring-2 ring-inset ring-blue-500;
+    }
+  }
+
+  &--sorted {
+    @apply text-gray-800;
+
+    .data-table__sort-icon {
+      @apply text-blue-600;
+    }
+  }
+
+  &--checkbox {
+    @apply w-12 text-center;
+  }
+
+  &--actions {
+    @apply w-auto text-right;
+  }
+
+  &--nowrap {
+    @apply whitespace-nowrap;
+  }
+}
+
+.data-table__th-content {
+  @apply inline-flex items-center gap-1;
+}
+
+.data-table__sort-icon {
+  @apply text-sm text-gray-400;
+}
+
+// Table body
+.data-table__body {
+  @apply divide-y divide-gray-100;
+}
+
+// Table row
+.data-table__row {
+  @apply transition-colors;
+
+  &--selected {
+    @apply bg-blue-50/50;
+
+    &:hover {
+      @apply bg-blue-50;
+    }
+  }
+
+  &--skeleton {
+    .data-table__skeleton {
+      @apply h-4 bg-gray-200 rounded animate-pulse;
+
+      &--checkbox {
+        @apply w-4 h-4 mx-auto;
+      }
+
+      &--actions {
+        @apply w-20 ml-auto;
+      }
+    }
+  }
+
+  &--empty {
+    &:hover {
+      @apply bg-white;
+    }
+  }
+}
+
+// Table cell
+.data-table__td {
+  @apply px-4 py-3;
+  @apply text-sm text-gray-700;
+
+  &--checkbox {
+    @apply w-12 text-center;
+  }
+
+  &--actions {
+    @apply text-right;
+  }
+
+  &--nowrap {
+    @apply whitespace-nowrap;
+  }
+
+  &--empty {
+    @apply py-12;
+  }
+}
+
+// Checkbox
+.data-table__checkbox-wrapper {
+  @apply inline-flex items-center justify-center;
+  @apply w-5 h-5 cursor-pointer;
+}
+
+.data-table__checkbox {
+  @apply w-4 h-4 rounded border-gray-300;
+  @apply text-blue-600 focus:ring-blue-400;
+  @apply cursor-pointer;
+}
+
+// Boolean display
+.data-table__boolean {
+  @apply text-gray-500;
+
+  &--true {
+    @apply text-emerald-600 font-medium;
+  }
+}
+
+// Empty state
+.data-table__empty {
+  @apply flex flex-col items-center justify-center;
+  @apply py-8 text-center;
+}
+
+.data-table__empty-icon {
+  @apply text-4xl text-gray-300 mb-2;
+}
+
+.data-table__empty-message {
+  @apply text-sm text-gray-500;
+}
+
+// Actions cell
+.data-table__actions {
+  @apply flex items-center justify-end gap-1;
+}
+
+.data-table__action {
+  @apply inline-flex items-center gap-1;
+  @apply px-2 py-1 rounded;
+  @apply text-xs font-medium;
+  @apply transition-colors;
+
+  // WCAG 2.1 AA: Enhanced focus indicators for keyboard navigation
+  &:focus-visible {
+    @apply outline-none ring-2 ring-offset-2;
+  }
+
+  &:disabled {
+    @apply opacity-50 cursor-not-allowed;
+  }
+
+  .material-icons {
+    @apply text-sm;
+  }
+
+  &--default {
+    @apply text-gray-600 hover:text-gray-800 hover:bg-gray-100;
+
+    &:focus-visible {
+      @apply ring-gray-500;
+    }
+  }
+
+  &--primary {
+    @apply text-blue-600 hover:text-blue-800 hover:bg-blue-50;
+
+    &:focus-visible {
+      @apply ring-blue-500;
+    }
+  }
+
+  &--danger {
+    @apply text-red-600 hover:text-red-800 hover:bg-red-50;
+
+    &:focus-visible {
+      @apply ring-red-500;
+    }
+  }
+
+  &--success {
+    @apply text-emerald-600 hover:text-emerald-800 hover:bg-emerald-50;
+
+    &:focus-visible {
+      @apply ring-emerald-500;
+    }
+  }
+
+  &--warning {
+    @apply text-amber-600 hover:text-amber-800 hover:bg-amber-50;
+
+    &:focus-visible {
+      @apply ring-amber-500;
+    }
+  }
+}
+
+.data-table__action-label {
+  @apply hidden sm:inline;
+}
+
+// Pagination footer
+.data-table__pagination {
+  @apply border-t border-gray-200;
+  @apply px-4 py-3;
+}
+
+// Skeleton animation
+.data-table__skeleton {
+  @apply bg-gray-200 rounded animate-pulse;
+}
+
+// RTL support
+[dir='rtl'] {
+  .data-table__th {
+    @apply text-right;
+
+    &--actions {
+      @apply text-left;
+    }
+  }
+
+  .data-table__td {
+    &--actions {
+      @apply text-left;
+    }
+  }
+
+  .data-table__th-content {
+    @apply flex-row-reverse;
+  }
+
+  .data-table__actions {
+    @apply flex-row-reverse justify-start;
+  }
+
+  .data-table__action {
+    @apply flex-row-reverse;
+  }
+}
+
+// Responsive adjustments
+@media (max-width: 640px) {
+  .data-table__th,
+  .data-table__td {
+    @apply px-2 py-2;
+  }
+
+  .data-table__action {
+    @apply p-1;
+
+    .material-icons {
+      @apply text-base;
+    }
+  }
+
+  .data-table__action-label {
+    @apply hidden;
+  }
+}
+
+// Print styles
+@media print {
+  .data-table-wrapper {
+    @apply border-none shadow-none;
+  }
+
+  .data-table__selection-bar,
+  .data-table__pagination {
+    @apply hidden;
+  }
+
+  .data-table__th--checkbox,
+  .data-table__td--checkbox,
+  .data-table__th--actions,
+  .data-table__td--actions {
+    @apply hidden;
+  }
+}

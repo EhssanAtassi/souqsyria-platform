@@ -1,16 +1,17 @@
 /**
  * @file enhanced-admin.guard.ts
  * @description Enhanced security guard for admin operations.
- * 
+ *
  * This guard provides additional security layers for administrative endpoints:
  * - IP whitelisting (optional, configurable)
- * - Enhanced rate limiting for admin operations
+ * - SEC-H03 FIX: Redis-based rate limiting for distributed environments
  * - Suspicious activity detection
  * - Session validation
  * - Detailed audit logging for admin actions
- * 
+ *
  * @author SouqSyria Development Team
  * @since 2026-01-20
+ * @updated 2026-01-21 - SEC-H03: Replaced in-memory rate limiting with Redis
  */
 
 import {
@@ -20,10 +21,13 @@ import {
   ForbiddenException,
   UnauthorizedException,
   Logger,
+  HttpException,
+  HttpStatus,
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { ConfigService } from '@nestjs/config';
 import { Request } from 'express';
+import { RateLimiterService } from '../services/rate-limiter.service';
 
 /**
  * Decorator key for skipping IP whitelist check
@@ -49,7 +53,7 @@ export const SENSITIVE_OPERATION_KEY = 'sensitiveOperation';
 @Injectable()
 export class EnhancedAdminGuard implements CanActivate {
   private readonly logger = new Logger(EnhancedAdminGuard.name);
-  
+
   /**
    * Default allowed IPs for admin access
    * Can be overridden via environment configuration
@@ -59,26 +63,17 @@ export class EnhancedAdminGuard implements CanActivate {
     '::1',
     'localhost',
   ];
-  
+
   /**
-   * Track failed attempts for rate limiting
-   * In production, this should use Redis for distributed tracking
+   * SEC-H03 FIX: Removed in-memory failedAttempts Map
+   * Rate limiting is now handled by RateLimiterService which uses Redis
+   * for distributed tracking across multiple server instances
    */
-  private readonly failedAttempts: Map<string, { count: number; lastAttempt: Date }> = new Map();
-  
-  /**
-   * Maximum failed attempts before temporary block
-   */
-  private readonly maxFailedAttempts = 5;
-  
-  /**
-   * Block duration in milliseconds (15 minutes)
-   */
-  private readonly blockDurationMs = 15 * 60 * 1000;
-  
+
   constructor(
     private readonly reflector: Reflector,
     private readonly configService: ConfigService,
+    private readonly rateLimiterService: RateLimiterService,
   ) {}
   
   /**
@@ -230,46 +225,62 @@ export class EnhancedAdminGuard implements CanActivate {
   }
   
   /**
-   * Checks rate limiting based on failed attempts
+   * Checks rate limiting using Redis-based distributed rate limiter
+   * SEC-H03 FIX: Replaced in-memory Map with RateLimiterService
    */
   private async checkRateLimiting(request: Request): Promise<void> {
     const clientIp = this.getClientIp(request);
-    const attempts = this.failedAttempts.get(clientIp);
-    
-    if (attempts) {
-      const timeSinceLastAttempt = Date.now() - attempts.lastAttempt.getTime();
-      
-      // Reset counter if block duration has passed
-      if (timeSinceLastAttempt > this.blockDurationMs) {
-        this.failedAttempts.delete(clientIp);
-        return;
-      }
-      
-      // Check if max attempts exceeded
-      if (attempts.count >= this.maxFailedAttempts) {
-        const remainingBlockTime = Math.ceil(
-          (this.blockDurationMs - timeSinceLastAttempt) / 60000,
-        );
-        throw new ForbiddenException(
-          `Too many failed attempts. Try again in ${remainingBlockTime} minutes.`,
-        );
-      }
+
+    const result = await this.rateLimiterService.checkLimit('adminApi', clientIp);
+
+    if (!result.allowed) {
+      this.logger.warn(
+        `Rate limit exceeded for admin API from IP: ${clientIp}. ` +
+          `Blocked for ${result.retryAfterSeconds}s`,
+      );
+
+      throw new HttpException(
+        {
+          statusCode: HttpStatus.TOO_MANY_REQUESTS,
+          message: `Too many requests. Try again in ${result.retryAfterSeconds} seconds.`,
+          retryAfter: result.retryAfterSeconds,
+        },
+        HttpStatus.TOO_MANY_REQUESTS,
+      );
     }
   }
-  
+
   /**
-   * Records a failed attempt
+   * Records a failed attempt using Redis-based rate limiter
+   * SEC-H03 FIX: Replaced in-memory tracking with distributed tracking
    */
-  public recordFailedAttempt(request: Request): void {
+  public async recordFailedAttempt(request: Request): Promise<void> {
     const clientIp = this.getClientIp(request);
-    const current = this.failedAttempts.get(clientIp) || { count: 0, lastAttempt: new Date() };
-    
-    this.failedAttempts.set(clientIp, {
-      count: current.count + 1,
-      lastAttempt: new Date(),
-    });
-    
-    this.logger.warn(`Failed admin attempt from IP: ${clientIp}, count: ${current.count + 1}`);
+
+    const result = await this.rateLimiterService.recordFailedAttempt(
+      'adminApi',
+      clientIp,
+    );
+
+    this.logger.warn(
+      `Failed admin attempt from IP: ${clientIp}, ` +
+        `attempts: ${result.currentAttempts}/${result.maxAttempts}`,
+    );
+
+    if (result.isBlocked) {
+      this.logger.error(
+        `Admin API access blocked for IP: ${clientIp} ` +
+          `for ${result.retryAfterSeconds}s due to too many failed attempts`,
+      );
+    }
+  }
+
+  /**
+   * Records a successful admin action (resets rate limit counter)
+   */
+  public async recordSuccess(request: Request): Promise<void> {
+    const clientIp = this.getClientIp(request);
+    await this.rateLimiterService.recordSuccess('adminApi', clientIp);
   }
   
   /**

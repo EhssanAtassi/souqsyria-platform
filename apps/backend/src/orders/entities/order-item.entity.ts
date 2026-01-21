@@ -11,11 +11,19 @@ import {
   Column,
   ManyToOne,
   JoinColumn,
+  Index,
 } from 'typeorm';
 import { Order } from './order.entity';
 import { ProductVariant } from '../../products/variants/entities/product-variant.entity';
 
+/**
+ * PERF-C01: Database indexes for optimized queries
+ * - order: JOINs with order table (order items lookup)
+ * - variant: JOINs with product_variant table (product sales analytics)
+ */
 @Entity('order_items')
+@Index(['order'])
+@Index(['variant'])
 export class OrderItem {
   @PrimaryGeneratedColumn()
   id: number;

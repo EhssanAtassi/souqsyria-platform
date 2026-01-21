@@ -9,6 +9,9 @@ import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, Between, MoreThanOrEqual, LessThanOrEqual, In } from 'typeorm';
 
+// Caching Service
+import { DashboardCacheService, CACHE_KEYS, CACHE_TTL } from './dashboard-cache.service';
+
 // Entities
 import { User } from '../../users/entities/user.entity';
 import { Order } from '../../orders/entities/order.entity';
@@ -66,6 +69,9 @@ export class AdminDashboardService {
 
     @InjectRepository(KycDocument)
     private readonly kycDocumentRepository: Repository<KycDocument>,
+
+    // Cache Service for optimized metric retrieval
+    private readonly cacheService: DashboardCacheService,
   ) {}
 
   // ===========================================================================
@@ -74,12 +80,25 @@ export class AdminDashboardService {
 
   /**
    * Get dashboard metrics
-   * @description Retrieves all key metrics for the dashboard overview
+   * @description Retrieves all key metrics for the dashboard overview with caching
    * @returns Dashboard metrics including counts, growth rates, and pending actions
    */
   async getDashboardMetrics(): Promise<DashboardMetricsDto> {
     this.logger.log('Fetching dashboard metrics');
 
+    // Use caching to reduce database load (15 minute TTL)
+    return this.cacheService.getOrSet(
+      CACHE_KEYS.DASHBOARD_METRICS,
+      () => this.computeDashboardMetrics(),
+      CACHE_TTL.MEDIUM,
+    );
+  }
+
+  /**
+   * Compute dashboard metrics (internal method without caching)
+   * @private
+   */
+  private async computeDashboardMetrics(): Promise<DashboardMetricsDto> {
     const now = new Date();
     const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
     const sixtyDaysAgo = new Date(now.getTime() - 60 * 24 * 60 * 60 * 1000);
@@ -134,10 +153,23 @@ export class AdminDashboardService {
 
   /**
    * Get pending actions counts
-   * @description Counts all items requiring admin attention
+   * @description Counts all items requiring admin attention with short caching
    * @returns Pending actions object with counts for each category
    */
   async getPendingActions(): Promise<PendingActionsDto> {
+    // Use short TTL (5 minutes) since pending items change frequently
+    return this.cacheService.getOrSet(
+      CACHE_KEYS.PENDING_ACTIONS,
+      () => this.computePendingActions(),
+      CACHE_TTL.SHORT,
+    );
+  }
+
+  /**
+   * Compute pending actions (internal method without caching)
+   * @private
+   */
+  private async computePendingActions(): Promise<PendingActionsDto> {
     const [
       pendingOrders,
       pendingProducts,
