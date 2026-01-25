@@ -25,7 +25,7 @@ import { Wishlist } from '../entities/wishlist.entity';
 import { ProductEntity } from '../../products/entities/product.entity';
 import { ProductVariant } from '../../products/variants/entities/product-variant.entity';
 import { User } from '../../users/entities/user.entity';
-import { CartService } from '../../cart/cart.service';
+import { CartService } from '../../cart/service/cart.service';
 
 // ============================================================================
 // Mock Factories - Syrian Marketplace Data

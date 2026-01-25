@@ -634,6 +634,15 @@ export interface DeviceData {
     colorDepth: number;
     pixelRatio: number;
   };
+  screenResolution?: string;
+  clientIP?: string;
+  colorDepth?: number;
+  pixelRatio?: number;
+  touchSupport?: boolean;
+  webglVendor?: string;
+  webglRenderer?: string;
+  canvasFingerprint?: string;
+  audioFingerprint?: string;
   timezone?: string;
   language?: string;
   platform?: string;

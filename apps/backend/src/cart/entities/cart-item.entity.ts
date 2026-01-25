@@ -31,7 +31,7 @@ import {
 } from 'typeorm';
 import { Cart } from './cart.entity';
 import { ProductVariant } from '../../products/variants/entities/product-variant.entity';
-import { ReservationStatus } from '../services/inventory-reservation.service';
+import { ReservationStatus } from '../../stock/entities/inventory-reservation.entity';
 
 @Entity('cart_items')
 export class CartItem {
@@ -190,8 +190,8 @@ export class CartItem {
       !!this.reservationId &&
       !!this.reservedUntil &&
       !this.isReservationExpired() &&
-      (this.reservationStatus === ReservationStatus.ACTIVE ||
-        this.reservationStatus === ReservationStatus.EXTENDED)
+      (this.reservationStatus === ReservationStatus.CONFIRMED ||
+        this.reservationStatus === ReservationStatus.ALLOCATED)
     );
   }
 

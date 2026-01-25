@@ -442,8 +442,11 @@ export class CartService {
     try {
       const cart = this.query.getValue();
       await this.offlineQueue.enqueue('SYNC', {
-        items: cart.items,
-        timestamp: new Date().toISOString()
+        cartData: cart,
+        metadata: {
+          timestamp: new Date().toISOString(),
+          itemCount: cart.items.length
+        }
       });
       console.log('Operation queued successfully for offline sync');
     } catch (queueError) {

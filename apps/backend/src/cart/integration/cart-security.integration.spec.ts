@@ -24,10 +24,10 @@ import { Repository } from 'typeorm';
 import { CartModule } from '../cart.module';
 import { Cart } from '../entities/cart.entity';
 import { CartItem } from '../entities/cart-item.entity';
-import { GuestSession } from '../../guest-sessions/entities/guest-session.entity';
+import { GuestSession } from '../entities/guest-session.entity';
 import { AuditLog } from '../../audit-log/entities/audit-log.entity';
-import { User } from '../../user/entities/user.entity';
-import { ProductVariant } from '../../product/entities/product-variant.entity';
+import { User } from '../../users/entities/user.entity';
+import { ProductVariant } from '../../products/variants/entities/product-variant.entity';
 
 // Test database configuration (use test database)
 const testDbConfig = {

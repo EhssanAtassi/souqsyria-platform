@@ -48,7 +48,7 @@ import { AuditLogModule } from '../audit-log/audit-log.module';
 import { User } from '../users/entities/user.entity';
 import { Route } from '../access-control/entities/route.entity';
 import { ProductEntity } from '../products/entities/product.entity';
-import { AuditLog } from '../audit/entities/audit-log.entity';
+import { AuditLog } from '../audit-log/entities/audit-log.entity';
 
 // Seeding Services
 import { CartSeederService } from './seeds/cart.seeder.service';

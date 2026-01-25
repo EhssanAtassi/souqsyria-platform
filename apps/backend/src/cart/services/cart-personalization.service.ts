@@ -36,10 +36,11 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, In } from 'typeorm';
-import { InjectRedis, Redis } from '@nestjs-modules/ioredis';
+import { InjectRedis } from '@nestjs-modules/ioredis';
+import { Redis } from 'ioredis';
 import { CartItem } from '../entities/cart-item.entity';
 import { ProductVariant } from '../../products/variants/entities/product-variant.entity';
-import { Product } from '../../products/entities/product.entity';
+import { ProductEntity } from '../../products/entities/product.entity';
 
 /**
  * Recommendation Strategy Enum
@@ -254,8 +255,8 @@ export class CartPersonalizationService {
     private readonly cartItemRepo: Repository<CartItem>,
     @InjectRepository(ProductVariant)
     private readonly variantRepo: Repository<ProductVariant>,
-    @InjectRepository(Product)
-    private readonly productRepo: Repository<Product>,
+    @InjectRepository(ProductEntity)
+    private readonly productRepo: Repository<ProductEntity>,
     @InjectRedis()
     private readonly redis: Redis,
   ) {
@@ -389,12 +390,12 @@ export class CartPersonalizationService {
           recommendations.push({
             variantId: variant.id,
             productId: product.id,
-            name: product.name,
+            name: product.nameEn,
             price: variant.price,
             relevanceScore: this.calculateContentSimilarity(cartItems, product),
-            category: product.category,
+            category: product.category?.nameEn || 'Unknown',
             reason: `Similar to items in your cart (${category})`,
-            tags: product.tags || [],
+            tags: [],
           });
         }
       }
@@ -434,10 +435,10 @@ export class CartPersonalizationService {
     const recommendations: RecommendedProduct[] = coPurchasedProducts.map(product => ({
       variantId: product.variants[0].id,
       productId: product.id,
-      name: product.name,
+      name: product.nameEn,
       price: product.variants[0].price,
       relevanceScore: 0.75, // Simulated relevance
-      category: product.category,
+      category: product.category?.nameEn || 'Unknown',
       reason: 'Customers who bought similar items also purchased this',
     }));
 
@@ -478,12 +479,12 @@ export class CartPersonalizationService {
     const recommendations: RecommendedProduct[] = regionalProducts.map(product => ({
       variantId: product.variants[0].id,
       productId: product.id,
-      name: product.name,
+      name: product.nameEn,
       price: product.variants[0].price,
       relevanceScore: 0.8,
-      category: product.category,
+      category: product.category?.nameEn || 'Unknown',
       reason: `Popular in ${region.replace('_', ' ')}`,
-      tags: product.tags || [],
+      tags: [],
     }));
 
     return {
@@ -526,12 +527,12 @@ export class CartPersonalizationService {
     const recommendations: RecommendedProduct[] = seasonalProducts.map(product => ({
       variantId: product.variants[0].id,
       productId: product.id,
-      name: product.name,
+      name: product.nameEn,
       price: product.variants[0].price,
       relevanceScore: 0.9,
-      category: product.category,
+      category: product.category?.nameEn || 'Unknown',
       reason: `Perfect for ${currentSeason}`,
-      tags: product.tags || [],
+      tags: [],
     }));
 
     return {
@@ -562,7 +563,8 @@ export class CartPersonalizationService {
 
     for (const cartItem of cartItems) {
       const category = cartItem.variant.product.category;
-      const complementaryCategories = complementaryMap[category] || [];
+      const categoryKey = category?.nameEn || '';
+      const complementaryCategories = complementaryMap[categoryKey] || [];
 
       if (complementaryCategories.length > 0) {
         const complementaryProducts = await this.productRepo
@@ -579,12 +581,12 @@ export class CartPersonalizationService {
             recommendations.push({
               variantId: variant.id,
               productId: product.id,
-              name: product.name,
+              name: product.nameEn,
               price: variant.price,
               relevanceScore: 0.85,
-              category: product.category,
+              category: product.category?.nameEn || 'Unknown',
               reason: `Complements your ${category}`,
-              tags: product.tags || [],
+              tags: [],
             });
           }
         }
@@ -632,12 +634,12 @@ export class CartPersonalizationService {
           recommendations.push({
             variantId: variant.id,
             productId: product.id,
-            name: product.name,
+            name: product.nameEn,
             price: variant.price,
             relevanceScore: 0.75,
-            category: product.category,
-            reason: `Premium alternative to ${cartItem.variant.product.name}`,
-            tags: product.tags || [],
+            category: product.category?.nameEn || 'Unknown',
+            reason: `Premium alternative to ${cartItem.variant.product.nameEn}`,
+            tags: [],
           });
         }
       }
@@ -732,7 +734,7 @@ export class CartPersonalizationService {
   /**
    * Calculate content similarity score between cart and product
    */
-  private calculateContentSimilarity(cartItems: CartItem[], product: Product): number {
+  private calculateContentSimilarity(cartItems: CartItem[], product: ProductEntity): number {
     // Simplified similarity calculation
     // In production, this would use more sophisticated algorithms (cosine similarity, etc.)
 
@@ -758,7 +760,7 @@ export class CartPersonalizationService {
   /**
    * Find co-purchased products (placeholder for collaborative filtering)
    */
-  private async findCoPurchasedProducts(variantIds: number[]): Promise<Product[]> {
+  private async findCoPurchasedProducts(variantIds: number[]): Promise<ProductEntity[]> {
     // Placeholder implementation
     // In production, this would query order history for co-purchase patterns
 
@@ -862,12 +864,12 @@ export class CartPersonalizationService {
     const recommendations: RecommendedProduct[] = popularProducts.map(product => ({
       variantId: product.variants[0].id,
       productId: product.id,
-      name: product.name,
+      name: product.nameEn,
       price: product.variants[0].price,
       relevanceScore: 0.6,
-      category: product.category,
+      category: product.category?.nameEn || 'Unknown',
       reason: 'Popular products in Syrian marketplace',
-      tags: product.tags || [],
+      tags: [],
     }));
 
     return {

@@ -36,7 +36,8 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
-import { InjectRedis, Redis } from '@nestjs-modules/ioredis';
+import { InjectRedis } from '@nestjs-modules/ioredis';
+import { Redis } from 'ioredis';
 import { Request } from 'express';
 import { AuditLogService } from '../../audit-log/service/audit-log.service';
 import { CartFraudDetectionService, FraudDetectionContext } from '../services/cart-fraud-detection.service';
@@ -261,7 +262,7 @@ export class CartSecurityGuard implements CanActivate {
     const clientIP = deviceData.clientIP;
 
     // Extract cart operation details
-    const operation = this.extractCartOperation(request);
+    const operationType = this.extractCartOperation(request);
     const quantity = request.body?.quantity || 1;
     const price = request.body?.price || 0;
 
@@ -274,9 +275,11 @@ export class CartSecurityGuard implements CanActivate {
       clientIP,
       userAgent: deviceData.userAgent,
       deviceFingerprint: '', // Will be set after fingerprint generation
-      operation,
-      quantity,
-      price,
+      operation: {
+        type: operationType,
+        quantity,
+        price,
+      },
       geolocation,
       timestamp: new Date(),
     };
@@ -454,11 +457,10 @@ export class CartSecurityGuard implements CanActivate {
       action: 'SECURITY_ASSESSMENT',
       module: 'cart_security',
       actorId: (request.user as any)?.id || null,
-      actorType: request.user ? 'user' : 'guest',
+      actorType: request.user ? 'user' : 'anonymous',
       entityType: 'security_event',
       entityId: null,
       description: `Week 3 security: ${riskAssessment.riskLevel} risk (${riskAssessment.riskScore}/100) → ${threatResponse.action}`,
-      metadata: eventData,
     });
   }
 

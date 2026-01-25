@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { AuditLogService } from '../../audit-log/services/audit-log.service';
+import { AuditLogService } from '../../audit-log/service/audit-log.service';
 import { FraudRiskAssessment } from './cart-fraud-detection.service';
 
 /**
@@ -586,21 +586,11 @@ export class ThreatResponseService {
     await this.auditLogService.logSimple({
       action: `THREAT_RESPONSE_${response.action.toUpperCase()}`,
       module: 'cart_security',
-      actorId: context.userId || null,
-      actorType: context.userId ? 'user' : 'guest',
+      actorId: context.userId ? parseInt(context.userId, 10) : null,
+      actorType: context.userId ? 'user' : 'anonymous',
       entityType: 'cart_operation',
-      entityId: context.cartId || null,
-      description: response.reason,
-      metadata: {
-        riskScore: riskAssessment.riskScore,
-        riskLevel: riskAssessment.riskLevel,
-        triggeredRules: riskAssessment.triggeredRules,
-        action: response.action,
-        duration: response.duration,
-        escalationLevel: response.escalationLevel,
-        ipAddress: context.ipAddress,
-        userAgent: context.userAgent,
-      },
+      entityId: context.cartId ? parseInt(context.cartId, 10) : null,
+      description: `${response.reason} (Risk: ${riskAssessment.riskLevel}, Score: ${riskAssessment.riskScore})`,
     });
   }
 
@@ -655,10 +645,15 @@ export class ThreatResponseService {
  */
 export interface ThreatResponseContext {
   userId?: string;
+  sessionId?: string;
   ipAddress?: string;
+  clientIP?: string;
   userAgent?: string;
+  deviceFingerprint?: string;
   cartId?: string;
   operation?: string;
+  endpoint?: string;
+  timestamp?: Date;
 }
 
 /**

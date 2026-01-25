@@ -5,10 +5,12 @@ import {
   HttpException,
   HttpStatus,
   Logger,
+  SetMetadata,
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { ConfigService } from '@nestjs/config';
-import { InjectRedis, Redis } from '@nestjs-modules/ioredis';
+import { InjectRedis } from '@nestjs-modules/ioredis';
+import { Redis } from 'ioredis';
 import { Request } from 'express';
 
 /**
@@ -41,11 +43,8 @@ export const RATE_LIMIT_KEY = 'rate_limit';
  * @Post('add')
  * async addToCart(@Body() dto: AddToCartDto) { ... }
  */
-export const RateLimit = (config: RateLimitConfig) => {
-  return (target: any, propertyKey: string, descriptor: PropertyDescriptor) => {
-    Reflector.createDecorator<RateLimitConfig>()(config)(target, propertyKey, descriptor);
-  };
-};
+export const RateLimit = (config: RateLimitConfig) =>
+  SetMetadata(RATE_LIMIT_KEY, config);
 
 /**
  * Cart Rate Limiting Guard

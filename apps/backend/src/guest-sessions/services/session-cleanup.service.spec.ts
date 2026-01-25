@@ -19,7 +19,7 @@ import { getRepositoryToken } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Logger } from '@nestjs/common';
 import { SessionCleanupService } from './session-cleanup.service';
-import { GuestSession } from '../entities/guest-session.entity';
+import { GuestSession } from '../../cart/entities/guest-session.entity';
 import { Cart } from '../../cart/entities/cart.entity';
 import { AuditLogService } from '../../audit-log/service/audit-log.service';
 

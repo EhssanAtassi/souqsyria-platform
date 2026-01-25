@@ -6,8 +6,8 @@ import {
   ApiBearerAuth,
 } from '@nestjs/swagger';
 import { CartMonitoringService } from '../services/cart-monitoring.service';
-import { PermissionsGuard } from '../../permissions/guards/permissions.guard';
-import { RequirePermissions } from '../../permissions/decorators/require-permissions.decorator';
+import { PermissionsGuard } from '../../access-control/guards/permissions.guard';
+import { Permissions } from '../../access-control/decorators/permissions.decorator';
 
 /**
  * Cart Monitoring Controller
@@ -91,7 +91,7 @@ export class CartMonitoringController {
    *         description: Internal server error
    */
   @Get('dashboard')
-  @RequirePermissions('cart:monitoring:read')
+  @Permissions('cart:monitoring:read')
   @ApiOperation({
     summary: 'Get monitoring dashboard data',
     description:

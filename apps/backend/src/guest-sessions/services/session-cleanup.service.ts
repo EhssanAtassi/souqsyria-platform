@@ -21,9 +21,9 @@
 
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, LessThan, In } from 'typeorm';
+import { Repository, LessThan, In, Between } from 'typeorm';
 import { Cron, CronExpression } from '@nestjs/schedule';
-import { GuestSession } from '../entities/guest-session.entity';
+import { GuestSession } from '../../cart/entities/guest-session.entity';
 import { Cart } from '../../cart/entities/cart.entity';
 import { AuditLogService } from '../../audit-log/service/audit-log.service';
 
@@ -365,11 +365,10 @@ export class SessionCleanupService {
         },
       }),
 
-      // Sessions currently in grace period
+      // Sessions currently in grace period (between 30 and 37 days old)
       this.guestSessionRepository.count({
         where: {
-          lastActivityAt: LessThan(sessionExpiryDate),
-          lastActivityAt: LessThan(gracePeriodExpiryDate),
+          lastActivityAt: Between(gracePeriodExpiryDate, sessionExpiryDate),
           status: In(['active', 'expired']),
         },
       }),

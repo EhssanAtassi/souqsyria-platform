@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { AuditLog } from '../../audit/entities/audit-log.entity';
+import { AuditLog } from '../../audit-log/entities/audit-log.entity';
 import { Cart } from '../entities/cart.entity';
 
 /**
@@ -280,7 +280,7 @@ export class CartFraudDetectionService {
       .andWhere(
         context.userId
           ? 'audit.actorId = :identifier'
-          : "JSON_EXTRACT(audit.metadata, '$.ipAddress') = :identifier",
+          : "JSON_EXTRACT(audit.meta, '$.ipAddress') = :identifier",
         { identifier },
       )
       .andWhere('audit.createdAt >= :rapidWindow', { rapidWindow })
@@ -293,7 +293,7 @@ export class CartFraudDetectionService {
       .andWhere(
         context.userId
           ? 'audit.actorId = :identifier'
-          : "JSON_EXTRACT(audit.metadata, '$.ipAddress') = :identifier",
+          : "JSON_EXTRACT(audit.meta, '$.ipAddress') = :identifier",
         { identifier },
       )
       .andWhere('audit.createdAt >= :burstWindow', { burstWindow })
@@ -343,7 +343,7 @@ export class CartFraudDetectionService {
     // Check total cart items if cart ID provided
     if (context.cartId) {
       const cart = await this.cartRepo.findOne({
-        where: { id: context.cartId },
+        where: { id: parseInt(context.cartId, 10) },
         relations: ['items'],
       });
 
@@ -360,8 +360,9 @@ export class CartFraudDetectionService {
         // Check for same product repeated
         const productCounts = new Map<string, number>();
         cart.items.forEach((item) => {
-          const current = productCounts.get(item.product.id) || 0;
-          productCounts.set(item.product.id, current + item.quantity);
+          const productId = item.variant?.product?.id?.toString() || 'unknown';
+          const current = productCounts.get(productId) || 0;
+          productCounts.set(productId, current + item.quantity);
         });
 
         const maxSameProduct = Math.max(...productCounts.values());
@@ -441,7 +442,7 @@ export class CartFraudDetectionService {
 
       if (recentOps.length > 0) {
         const previousFingerprints = recentOps
-          .map((op) => (op.metadata as any)?.deviceFingerprint)
+          .map((op) => (op.meta as any)?.deviceFingerprint)
           .filter((fp) => fp);
 
         // Check for fingerprint mismatch
@@ -502,7 +503,7 @@ export class CartFraudDetectionService {
         .getOne();
 
       if (recentOp) {
-        const previousGeo = (recentOp.metadata as any)?.geolocation;
+        const previousGeo = (recentOp.meta as any)?.geolocation;
         if (previousGeo && previousGeo.latitude && previousGeo.longitude) {
           const distance = this.calculateDistance(
             previousGeo.latitude,
@@ -534,7 +535,7 @@ export class CartFraudDetectionService {
 
       const uniqueCountries = new Set(
         recentCountries
-          .map((op) => (op.metadata as any)?.geolocation?.country)
+          .map((op) => (op.meta as any)?.geolocation?.country)
           .filter((c) => c),
       );
 
@@ -622,7 +623,7 @@ export class CartFraudDetectionService {
       const sameIpUsers = await this.auditLogRepo
         .createQueryBuilder('audit')
         .select('DISTINCT audit.actorId', 'userId')
-        .where("JSON_EXTRACT(audit.metadata, '$.ipAddress') = :ip", {
+        .where("JSON_EXTRACT(audit.meta, '$.ipAddress') = :ip", {
           ip: context.ipAddress,
         })
         .andWhere('audit.createdAt >= :last24h', { last24h })
@@ -639,7 +640,7 @@ export class CartFraudDetectionService {
       const last24h = new Date(Date.now() - 24 * 60 * 60 * 1000);
       const userIps = await this.auditLogRepo
         .createQueryBuilder('audit')
-        .select("JSON_EXTRACT(audit.metadata, '$.ipAddress')", 'ip')
+        .select("JSON_EXTRACT(audit.meta, '$.ipAddress')", 'ip')
         .where('audit.actorId = :userId', { userId: context.userId })
         .andWhere('audit.createdAt >= :last24h', { last24h })
         .distinct(true)
@@ -678,7 +679,7 @@ export class CartFraudDetectionService {
       .andWhere(
         context.userId
           ? 'audit.actorId = :identifier'
-          : "JSON_EXTRACT(audit.metadata, '$.ipAddress') = :identifier",
+          : "JSON_EXTRACT(audit.meta, '$.ipAddress') = :identifier",
         { identifier },
       )
       .andWhere('audit.createdAt >= :last5min', { last5min })
@@ -905,7 +906,9 @@ export class CartFraudDetectionService {
  */
 export interface FraudDetectionContext {
   userId?: string;
+  sessionId?: string;
   ipAddress?: string;
+  clientIP?: string;
   userAgent?: string;
   deviceFingerprint?: string;
   cartId?: string;
@@ -921,6 +924,7 @@ export interface FraudDetectionContext {
     latitude?: number;
     longitude?: number;
   };
+  timestamp?: Date;
 }
 
 /**

@@ -27,28 +27,30 @@ export class SimpleAuditLogDto {
   @IsString()
   module: string;
 
-  @ApiProperty({
-    description: 'ID of the user performing the action',
+  @ApiPropertyOptional({
+    description: 'ID of the user performing the action (null for anonymous users)',
     example: 123,
   })
+  @IsOptional()
   @IsNumber()
-  @Min(1) // Add this line
-  actorId: number;
+  @Min(1)
+  actorId?: number;
 
   // Replace your current actorType with this enhanced version:
   @ApiProperty({
     description: 'Type of actor performing the action',
-    enum: ['admin', 'vendor', 'user', 'system', 'api_client', 'support_agent'],
+    enum: ['admin', 'vendor', 'user', 'system', 'api_client', 'support_agent', 'anonymous'],
     example: 'user',
   })
-  @IsEnum(['admin', 'vendor', 'user', 'system', 'api_client', 'support_agent'])
+  @IsEnum(['admin', 'vendor', 'user', 'system', 'api_client', 'support_agent', 'anonymous'])
   actorType:
     | 'admin'
     | 'vendor'
     | 'user'
     | 'system'
     | 'api_client'
-    | 'support_agent';
+    | 'support_agent'
+    | 'anonymous';
   @ApiPropertyOptional({
     description: 'Type of entity being modified',
     example: 'order',

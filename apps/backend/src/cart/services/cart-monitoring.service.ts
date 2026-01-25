@@ -3,7 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, MoreThan, LessThan, Between } from 'typeorm';
 import { Cart } from '../entities/cart.entity';
 import { CartItem } from '../entities/cart-item.entity';
-import { AuditLog } from '../../audit/entities/audit-log.entity';
+import { AuditLog } from '../../audit-log/entities/audit-log.entity';
 
 /**
  * Cart Monitoring Service
@@ -230,13 +230,13 @@ export class CartMonitoringService {
       .getMany();
 
     const securityAlerts: SecurityAlert[] = alerts.map((alert) => {
-      const metadata = alert.metadata as any;
+      const metadata = alert.meta as any;
       return {
-        id: alert.id,
+        id: alert.id.toString(),
         timestamp: alert.createdAt,
         type: alert.action.replace('SECURITY_ALERT_', ''),
         severity: this.determineSeverity(metadata?.riskScore || 0),
-        userId: alert.actorId || null,
+        userId: alert.actorId ? alert.actorId.toString() : null,
         ipAddress: metadata?.ipAddress || 'Unknown',
         action: alert.description,
         details: metadata?.details || '',
@@ -277,7 +277,7 @@ export class CartMonitoringService {
 
     // Calculate average response time
     const responseTimes = operations
-      .map((op) => (op.metadata as any)?.responseTime)
+      .map((op) => (op.meta as any)?.responseTime)
       .filter((time) => time !== undefined);
 
     const avgResponseTime =
@@ -288,7 +288,7 @@ export class CartMonitoringService {
 
     // Calculate error rate
     const errorOperations = operations.filter(
-      (op) => op.action.includes('ERROR') || (op.metadata as any)?.error,
+      (op) => op.action.includes('ERROR') || (op.meta as any)?.error,
     );
     const errorRate = (errorOperations.length / operations.length) * 100;
 
@@ -324,11 +324,11 @@ export class CartMonitoringService {
       .getMany();
 
     return operations.map((op) => {
-      const metadata = op.metadata as any;
+      const metadata = op.meta as any;
       return {
-        id: op.id,
+        id: op.id.toString(),
         timestamp: op.createdAt,
-        userId: op.actorId || null,
+        userId: op.actorId ? op.actorId.toString() : null,
         operation: op.action.replace('CART_', '').replace('_', ' '),
         status: metadata?.error ? 'error' : 'success',
         responseTime: metadata?.responseTime || 0,
@@ -404,7 +404,7 @@ export class CartMonitoringService {
       if (operations.length === 0) continue;
 
       const responseTimes = operations
-        .map((op) => (op.metadata as any)?.responseTime)
+        .map((op) => (op.meta as any)?.responseTime)
         .filter((time) => time !== undefined);
 
       const avgResponseTime =
@@ -414,7 +414,7 @@ export class CartMonitoringService {
           : 0;
 
       const errorOps = operations.filter(
-        (op) => op.action.includes('ERROR') || (op.metadata as any)?.error,
+        (op) => op.action.includes('ERROR') || (op.meta as any)?.error,
       );
       const errorRate = (errorOps.length / operations.length) * 100;
 

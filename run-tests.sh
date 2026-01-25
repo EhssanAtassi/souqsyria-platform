@@ -61,7 +61,7 @@ else
 fi
 
 # Check if backend directory exists
-if [ -d "souqsyria-backend" ]; then
+if [ -d "apps/backend" ]; then
     print_result "Backend Directory" "PASS" "Backend directory found"
 else
     print_result "Backend Directory" "FAIL" "Backend directory not found"
@@ -69,7 +69,7 @@ else
 fi
 
 # Check if frontend directory exists
-if [ -d "souqsyria-angular-enterprise" ]; then
+if [ -d "apps/frontend" ]; then
     print_result "Frontend Directory" "PASS" "Frontend directory found"
 else
     print_result "Frontend Directory" "FAIL" "Frontend directory not found"

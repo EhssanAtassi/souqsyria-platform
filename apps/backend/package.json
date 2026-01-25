@@ -41,6 +41,7 @@
     "validate:cart-security": "ts-node scripts/validate-cart-security.ts"
   },
   "dependencies": {
+    "@nestjs-modules/ioredis": "^2.0.2",
     "@nestjs/cache-manager": "^3.0.1",
     "@nestjs/common": "^10.3.5",
     "@nestjs/config": "^4.0.2",
@@ -53,6 +54,7 @@
     "@nestjs/throttler": "^6.4.0",
     "@nestjs/typeorm": "^11.0.0",
     "@sentry/node": "^9.30.0",
+    "@types/ioredis": "^4.28.10",
     "@types/multer": "^2.0.0",
     "@types/nodemailer": "^7.0.5",
     "@types/passport-facebook": "^3.0.4",
@@ -63,6 +65,7 @@
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.1",
     "firebase-admin": "^13.3.0",
+    "ioredis": "^5.9.2",
     "multer": "^2.0.2",
     "mysql2": "^3.14.0",
     "nodemailer": "^7.0.12",

@@ -5,6 +5,32 @@ import { catchError, retry, retryWhen, mergeMap } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
 import { Cart, CartItem, CartValidationResult } from '../../shared/interfaces/cart.interface';
 
+// Define ValidateCartResponse interface for enhanced validation
+export interface ValidateCartResponse {
+  isValid: boolean;
+  warnings: Array<{
+    type: 'PRICE_INCREASE' | 'PRICE_DECREASE' | 'LOW_STOCK' | 'SHIPPING_DELAY';
+    itemId: string;
+    message: string;
+    oldValue?: any;
+    newValue?: any;
+  }>;
+  errors: Array<{
+    type: 'OUT_OF_STOCK' | 'PRICE_CHANGED' | 'SHIPPING_UNAVAILABLE';
+    itemId: string;
+    message: string;
+  }>;
+}
+
+// Utility functions for product/variant ID extraction
+function extractProductId(item: CartItem): string {
+  return item.product.id;
+}
+
+function extractVariantId(variantId: string): string {
+  return variantId;
+}
+
 /**
  * Cart Sync Service
  *
@@ -95,27 +121,7 @@ export class CartSyncService {
     );
   }
 
-  /**
-   * Fetch User Cart
-   *
-   * Retrieves cart for authenticated user.
-   *
-   * @param userId - User ID (optional, backend reads from JWT)
-   * @returns Observable<Cart>
-   */
-  fetchUserCart(userId?: string): Observable<Cart> {
-    console.log(`Fetching user cart${userId ? ' for user: ' + userId : ''}`);
-
-    const url = userId ? `${this.apiUrl}?userId=${userId}` : this.apiUrl;
-
-    return this.http.get<Cart>(url).pipe(
-      retry({ count: 3, delay: 1000 }),
-      catchError(error => {
-        console.error('Failed to fetch user cart:', error);
-        return throwError(() => error);
-      })
-    );
-  }
+  // Note: fetchUserCart implementation moved to enhanced version below (line ~252)
 
   /**
    * Sync Authenticated Cart (Enhanced for Phase 4.2)
