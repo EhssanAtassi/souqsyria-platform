@@ -307,7 +307,7 @@ describe('FeaturedProductShowcaseComponent', () => {
 
       const mockEvent = {
         target: mockImgElement
-      } as Event;
+      } as unknown as Event;
 
       component.onImageError(mockEvent);
 

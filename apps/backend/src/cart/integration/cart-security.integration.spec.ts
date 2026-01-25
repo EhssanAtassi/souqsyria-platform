@@ -45,11 +45,9 @@ const testDbConfig = {
 
 // Test Redis configuration
 const testRedisConfig = {
-  config: {
-    host: process.env.TEST_REDIS_HOST || 'localhost',
-    port: parseInt(process.env.TEST_REDIS_PORT) || 6380,
-    db: 1, // Use different DB for tests
-  },
+  host: process.env.TEST_REDIS_HOST || 'localhost',
+  port: parseInt(process.env.TEST_REDIS_PORT) || 6380,
+  db: 1, // Use different DB for tests
 };
 
 describe('Cart Security Integration Tests', () => {
@@ -340,10 +338,10 @@ describe('Cart Security Integration Tests', () => {
     it('should cleanup expired guest sessions and associated carts', async () => {
       // Create an expired guest session with cart
       const expiredSession = guestSessionRepository.create({
-        sessionToken: 'expired-session-token',
         status: 'active',
         lastActivityAt: new Date(Date.now() - 40 * 24 * 60 * 60 * 1000), // 40 days old
-        deviceFingerprint: { browser: 'Chrome' },
+        expiresAt: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000),
+        deviceFingerprint: { userAgent: 'Mozilla/5.0 Chrome', platform: 'MacIntel' },
       });
 
       await guestSessionRepository.save(expiredSession);
@@ -380,10 +378,10 @@ describe('Cart Security Integration Tests', () => {
     it('should preserve sessions within grace period', async () => {
       // Create a session within grace period
       const recentSession = guestSessionRepository.create({
-        sessionToken: 'recent-session-token',
         status: 'active',
         lastActivityAt: new Date(Date.now() - 35 * 24 * 60 * 60 * 1000), // 35 days old (within grace period)
-        deviceFingerprint: { browser: 'Firefox' },
+        expiresAt: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000),
+        deviceFingerprint: { userAgent: 'Mozilla/5.0 Firefox', platform: 'Linux' },
       });
 
       await guestSessionRepository.save(recentSession);
@@ -536,10 +534,10 @@ describe('Cart Security Integration Tests', () => {
 
     // Create test guest session
     const testGuestSession = guestSessionRepository.create({
-      sessionToken: 'test-guest-session-123',
       status: 'active',
       lastActivityAt: new Date(),
-      deviceFingerprint: { browser: 'Chrome', os: 'Windows' },
+      expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+      deviceFingerprint: { userAgent: 'Mozilla/5.0 Chrome', platform: 'Windows' },
     });
     const savedGuestSession = await guestSessionRepository.save(testGuestSession);
     testGuestSessionId = savedGuestSession.id;

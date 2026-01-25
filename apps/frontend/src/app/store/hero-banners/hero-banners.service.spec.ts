@@ -108,7 +108,7 @@ describe('HeroBannersService', () => {
       // Verify loading state was set
       setTimeout(() => {
         query.selectAll().subscribe(banners => {
-          expect(banners).toHaveLength(1);
+          expect(banners.length).toBe(1);
           expect(banners[0].id).toBe('test-banner-001');
           expect(banners[0].name.english).toBe('Damascus Steel Collection');
           expect(banners[0].name.arabic).toBe('مجموعة الفولاذ الدمشقي');
@@ -198,7 +198,7 @@ describe('HeroBannersService', () => {
       setTimeout(() => {
         const state = store.getValue();
         expect(state.ids).toContain('test-banner-001');
-        expect(state.entities['test-banner-001']).toBeDefined();
+        expect(state.entities?.['test-banner-001']).toBeDefined();
         done();
       }, 100);
     });
@@ -217,7 +217,7 @@ describe('HeroBannersService', () => {
 
       setTimeout(() => {
         query.selectAll().subscribe(banners => {
-          expect(banners).toHaveLength(1);
+          expect(banners.length).toBe(1);
           expect(banners[0].id).toBe('test-banner-001');
           expect(banners.find(b => b.id === 'old-banner')).toBeUndefined();
           done();

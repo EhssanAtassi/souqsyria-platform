@@ -23,23 +23,75 @@ describe('ProductService', () => {
 
   // Mock product data
   const mockProduct: Product = {
-    id: 1,
-    nameEn: 'Test Product',
-    nameAr: 'منتج اختبار',
+    id: 'test-product-1',
+    name: 'Test Product',
     slug: 'test-product',
-    descriptionEn: 'Test description',
-    descriptionAr: 'وصف الاختبار',
-    price: 1000,
-    discount: 0,
-    category: { id: 1, nameEn: 'Test Category', nameAr: 'فئة اختبار' },
-    image: 'test.jpg',
-    images: ['test.jpg'],
-    rating: 4.5,
-    reviewCount: 10,
-    inStock: true,
-    featured: false,
-    createdAt: new Date(),
-    updatedAt: new Date()
+    description: 'Test description',
+    price: {
+      amount: 100,
+      currency: 'USD'
+    },
+    category: {
+      id: 'test-category-1',
+      name: 'Test Category',
+      slug: 'test-category',
+      breadcrumb: ['Home', 'Test Category']
+    },
+    images: [
+      {
+        id: 'img-1',
+        url: 'test.jpg',
+        alt: 'Test image',
+        isPrimary: true,
+        order: 1
+      }
+    ],
+    specifications: {
+      materials: ['Test Material']
+    },
+    seller: {
+      id: 'seller-1',
+      name: 'Test Seller',
+      location: { city: 'Damascus', governorate: 'Damascus' },
+      verified: true,
+      rating: 4.5,
+      reviewCount: 10
+    },
+    shipping: {
+      methods: [
+        {
+          id: 'standard',
+          name: 'Standard',
+          cost: { amount: 5, currency: 'USD' },
+          deliveryTime: { min: 1, max: 3, unit: 'days' as const },
+          trackingAvailable: true,
+          insured: false
+        }
+      ],
+      deliveryTimes: {}
+    },
+    authenticity: {
+      certified: true,
+      heritage: 'traditional',
+      badges: ['Authentic']
+    },
+    inventory: {
+      inStock: true,
+      quantity: 10,
+      status: 'in_stock',
+      minOrderQuantity: 1,
+      lowStockThreshold: 5
+    },
+    reviews: {
+      averageRating: 4.5,
+      totalReviews: 10,
+      ratingDistribution: { 1: 0, 2: 0, 3: 1, 4: 3, 5: 6 }
+    },
+    timestamps: {
+      created: new Date(),
+      updated: new Date()
+    },
+    featured: false
   };
 
   const mockProducts: Product[] = [mockProduct];

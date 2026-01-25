@@ -107,7 +107,7 @@ describe('HeroBannersQuery', () => {
       store.set([banner1, banner2]);
 
       query.selectAll().pipe(take(1)).subscribe(banners => {
-        expect(banners).toHaveLength(2);
+        expect(banners.length).toBe(2);
         expect(banners).toContain(banner1);
         expect(banners).toContain(banner2);
         done();
@@ -153,7 +153,7 @@ describe('HeroBannersQuery', () => {
       store.set([activeBanner1, activeBanner2, draftBanner, pausedBanner]);
 
       query.selectActiveBanners$.pipe(take(1)).subscribe(banners => {
-        expect(banners).toHaveLength(2);
+        expect(banners.length).toBe(2);
         expect(banners.every(b => b.status === 'active')).toBe(true);
         expect(banners).toContain(activeBanner1);
         expect(banners).toContain(activeBanner2);
@@ -183,7 +183,7 @@ describe('HeroBannersQuery', () => {
       store.set([draftBanner, pausedBanner]);
 
       query.selectActiveBanners$.pipe(take(1)).subscribe(banners => {
-        expect(banners).toHaveLength(0);
+        expect(banners.length).toBe(0);
         done();
       });
     });
@@ -234,7 +234,7 @@ describe('HeroBannersQuery', () => {
       store.set([mainBanner, secondaryBanner, promoBanner]);
 
       query.selectBannersByType('main').pipe(take(1)).subscribe(banners => {
-        expect(banners).toHaveLength(1);
+        expect(banners.length).toBe(1);
         expect(banners[0].type).toBe('main');
         done();
       });
@@ -248,7 +248,7 @@ describe('HeroBannersQuery', () => {
       store.set([mainBanner, promoBanner1, promoBanner2]);
 
       query.selectBannersByType('promotional').pipe(take(1)).subscribe(banners => {
-        expect(banners).toHaveLength(2);
+        expect(banners.length).toBe(2);
         expect(banners.every(b => b.type === 'promotional')).toBe(true);
         done();
       });
@@ -264,7 +264,7 @@ describe('HeroBannersQuery', () => {
       store.set([activeBanner, scheduledBanner1, scheduledBanner2]);
 
       query.selectBannersByStatus('scheduled').pipe(take(1)).subscribe(banners => {
-        expect(banners).toHaveLength(2);
+        expect(banners.length).toBe(2);
         expect(banners.every(b => b.status === 'scheduled')).toBe(true);
         done();
       });
@@ -277,7 +277,7 @@ describe('HeroBannersQuery', () => {
       store.set([activeBanner, draftBanner]);
 
       query.selectBannersByStatus('draft').pipe(take(1)).subscribe(banners => {
-        expect(banners).toHaveLength(1);
+        expect(banners.length).toBe(1);
         expect(banners[0].status).toBe('draft');
         done();
       });
@@ -325,11 +325,11 @@ describe('HeroBannersQuery', () => {
         emissionCount++;
 
         if (emissionCount === 1) {
-          expect(banners).toHaveLength(1);
+          expect(banners.length).toBe(1);
           // Add second banner
           store.add(banner2);
         } else if (emissionCount === 2) {
-          expect(banners).toHaveLength(2);
+          expect(banners.length).toBe(2);
           done();
         }
       });
@@ -344,11 +344,11 @@ describe('HeroBannersQuery', () => {
         emissionCount++;
 
         if (emissionCount === 1) {
-          expect(banners).toHaveLength(1);
+          expect(banners.length).toBe(1);
           // Change status to paused
           store.update('b1', { status: 'paused' });
         } else if (emissionCount === 2) {
-          expect(banners).toHaveLength(0);
+          expect(banners.length).toBe(0);
           done();
         }
       });

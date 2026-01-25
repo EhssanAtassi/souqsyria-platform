@@ -21,6 +21,7 @@ import { Logger } from '@nestjs/common';
 import { SessionCleanupService } from './session-cleanup.service';
 import { GuestSession } from '../../cart/entities/guest-session.entity';
 import { Cart } from '../../cart/entities/cart.entity';
+import { CartItem } from '../../cart/entities/cart-item.entity';
 import { AuditLogService } from '../../audit-log/service/audit-log.service';
 
 // Mock repositories
@@ -42,28 +43,48 @@ const mockAuditLogService = {
 };
 
 // Test data generators
+const createMockCart = (itemCount: number = 2): Cart => {
+  const cart = new Cart();
+  cart.id = 123;
+  cart.sessionId = 'session-123';
+  cart.status = 'active';
+  cart.currency = 'SYP';
+  cart.version = 1;
+  cart.totalItems = itemCount;
+  cart.totalAmount = 50000 * itemCount;
+  cart.items = Array.from({ length: itemCount }, (_, i) => {
+    const item = new CartItem();
+    item.id = i + 1;
+    item.quantity = 1;
+    item.price_at_add = 50000;
+    return item;
+  });
+  cart.created_at = new Date();
+  cart.updated_at = new Date();
+  return cart;
+};
+
 const createMockGuestSession = (overrides: Partial<GuestSession> = {}): GuestSession => {
   const baseSession = new GuestSession();
   baseSession.id = 'session-123';
   baseSession.sessionToken = 'mock-token-123';
   baseSession.status = 'active';
   baseSession.lastActivityAt = new Date(Date.now() - 40 * 24 * 60 * 60 * 1000); // 40 days old
+  baseSession.expiresAt = new Date(Date.now() + 10 * 24 * 60 * 60 * 1000);
   baseSession.cart = createMockCart();
-  baseSession.deviceFingerprint = { browser: 'Chrome', os: 'Windows' };
+  baseSession.deviceFingerprint = {
+    userAgent: 'Mozilla/5.0 Chrome/91.0',
+    platform: 'MacIntel',
+    language: 'en-US',
+    screenResolution: '1920x1080',
+    timezone: 'UTC',
+    cookiesEnabled: true
+  };
+  baseSession.createdAt = new Date();
+  baseSession.updatedAt = new Date();
+  baseSession.generateSessionToken = jest.fn();
 
   return { ...baseSession, ...overrides };
-};
-
-const createMockCart = (itemCount: number = 2) => {
-  const cart = {
-    id: 'cart-123',
-    items: Array.from({ length: itemCount }, (_, i) => ({
-      id: `item-${i}`,
-      quantity: 1,
-      price_at_add: 50000,
-    })),
-  };
-  return cart;
 };
 
 describe('SessionCleanupService', () => {
@@ -415,10 +436,11 @@ describe('SessionCleanupService', () => {
     });
 
     it('should execute cleanup in proper transaction order', async () => {
+      const mockCart = createMockCart(1);
       const mockExpiredSessions = [
         createMockGuestSession({
           id: 'session-1',
-          cart: { id: 'cart-1', items: [{ id: 'item-1' }] },
+          cart: mockCart,
         }),
       ];
 

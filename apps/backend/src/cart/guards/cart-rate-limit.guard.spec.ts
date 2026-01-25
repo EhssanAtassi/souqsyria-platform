@@ -20,6 +20,13 @@ import { Reflector } from '@nestjs/core';
 import { Redis } from 'ioredis';
 import { CartRateLimitGuard, RATE_LIMIT_KEY, RateLimit } from './cart-rate-limit.guard';
 
+interface RateLimitConfig {
+  maxRequests: number;
+  windowSizeInSeconds: number;
+  penaltyDelayMs?: number;
+  message?: string;
+}
+
 // Mock Redis
 const mockRedis = {
   multi: jest.fn(),
@@ -50,9 +57,9 @@ const createMockExecutionContext = (
       headers: { 'user-agent': userAgent },
       route: { path },
       method: 'POST',
-    }),
+    } as any),
   }),
-  getHandler: () => ({}),
+  getHandler: () => (() => {}) as Function,
 });
 
 describe('CartRateLimitGuard', () => {
@@ -246,7 +253,7 @@ describe('CartRateLimitGuard', () => {
       );
 
       // Mock custom rate limit from decorator
-      const customLimit: RateLimit = {
+      const customLimit: RateLimitConfig = {
         maxRequests: 5,
         windowSizeInSeconds: 60,
         message: 'Custom limit exceeded'
@@ -328,7 +335,7 @@ describe('CartRateLimitGuard', () => {
 
   describe('Rate Limit Decorator', () => {
     it('should set metadata correctly', () => {
-      const testLimit: RateLimit = {
+      const testLimit: RateLimitConfig = {
         maxRequests: 15,
         windowSizeInSeconds: 120,
         message: 'Test limit exceeded'

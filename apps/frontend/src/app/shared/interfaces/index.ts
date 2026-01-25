@@ -48,10 +48,13 @@ export interface ApiResponse<T> {
 }
 
 export interface PaginationParams {
-  page: number;
-  limit: number;
+  page?: number;
+  limit?: number;
   sortBy?: string;
   sortOrder?: 'asc' | 'desc';
+  sort?: string;
+  search?: string;
+  category?: string;
 }
 
 export interface PaginatedResponse<T> extends ApiResponse<T[]> {

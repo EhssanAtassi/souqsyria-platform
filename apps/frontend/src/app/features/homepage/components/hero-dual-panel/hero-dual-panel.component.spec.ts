@@ -124,23 +124,13 @@ describe('HeroDualPanelComponent', () => {
     await TestBed.configureTestingModule({
       imports: [
         NoopAnimationsModule,
-        HeroDualPanelComponent
-      ],
-      declarations: [
+        HeroDualPanelComponent,
         MockSliderImageSwiperComponent,
         MockFeaturedProductShowcaseComponent
       ],
       providers: [
         { provide: Router, useValue: mockRouter }
       ]
-    })
-    .overrideComponent(HeroDualPanelComponent, {
-      remove: {
-        imports: [MockSliderImageSwiperComponent, MockFeaturedProductShowcaseComponent]
-      },
-      add: {
-        declarations: [MockSliderImageSwiperComponent, MockFeaturedProductShowcaseComponent]
-      }
     })
     .compileComponents();
 
@@ -297,8 +287,8 @@ describe('HeroDualPanelComponent', () => {
 
       const defaultBanners = component.displayOfferBanners();
       expect(defaultBanners.length).toBeGreaterThan(0);
-      expect(defaultBanners[0]).toHaveProperty('titleAr');
-      expect(defaultBanners[0]).toHaveProperty('titleEn');
+      expect(defaultBanners[0].titleAr).toBeDefined();
+      expect(defaultBanners[0].titleEn).toBeDefined();
     });
 
     it('should provide default featured product when none is provided', () => {

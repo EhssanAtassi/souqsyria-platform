@@ -133,7 +133,7 @@ export class ProductEnhancedService {
     
     loadingSubject.next(true);
     
-    return this.baseProductService.getProduct(slug).pipe(
+    return this.baseProductService.getProductBySlug(slug).pipe(
       tap(product => {
         if (product) {
           this.setCachedItem(this.productCache, cacheKey, product);
@@ -175,7 +175,9 @@ export class ProductEnhancedService {
     this.cacheStats.misses++;
     
     return this.baseProductService.getProducts().pipe(
-      map(products => {
+      map(response => {
+        // Extract data from PaginatedResponse
+        const products = Array.isArray(response) ? response : response.data || [];
         // Apply pagination and sorting
         let filteredProducts = [...products];
         
@@ -226,8 +228,9 @@ export class ProductEnhancedService {
     
     this.cacheStats.misses++;
     
-    return this.baseProductService.getProductsByCategory(categorySlug).pipe(
-      map(products => {
+    return this.baseProductService.getProducts({ category: categorySlug }).pipe(
+      map(response => {
+        const products = Array.isArray(response) ? response : response.data || [];
         let filteredProducts = products.filter(p => p.inventory.inStock);
         
         if (params?.sortBy) {
@@ -329,13 +332,15 @@ export class ProductEnhancedService {
     this.cacheStats.misses++;
     
     return this.baseProductService.searchProducts(query).pipe(
-      map(products => {
+      map(response => {
+        // Extract data from PaginatedResponse
+        const products = Array.isArray(response) ? response : response.data || [];
         const searchTerm = query.toLowerCase().trim();
         const searchWords = searchTerm.split(/\s+/);
-        
+
         // Advanced search with relevance scoring
         let results = products
-          .map(product => ({
+          .map((product: Product) => ({
             product,
             relevance: this.calculateRelevanceScore(product, searchWords, searchTerm)
           }))

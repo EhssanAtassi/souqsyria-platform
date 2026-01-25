@@ -164,7 +164,7 @@ describe('HeroBannersStore', () => {
 
       const state = store.getValue();
       expect(state.ids).toContain(mockBanner.id);
-      expect(state.entities[mockBanner.id]).toEqual(mockBanner);
+      expect(state.entities?.[mockBanner.id]).toEqual(mockBanner);
     });
 
     it('should add multiple banners', () => {
@@ -177,7 +177,7 @@ describe('HeroBannersStore', () => {
       store.add([mockBanner, banner2]);
 
       const state = store.getValue();
-      expect(state.ids).toHaveLength(2);
+      expect(state.ids?.length).toBe(2);
       expect(state.ids).toContain(mockBanner.id);
       expect(state.ids).toContain(banner2.id);
     });
@@ -195,7 +195,7 @@ describe('HeroBannersStore', () => {
       store.set([newBanner]);
 
       const state = store.getValue();
-      expect(state.ids).toHaveLength(1);
+      expect(state.ids?.length).toBe(1);
       expect(state.ids).toContain(newBanner.id);
       expect(state.ids).not.toContain(mockBanner.id);
     });
@@ -206,7 +206,7 @@ describe('HeroBannersStore', () => {
       const updatedPriority = 80;
       store.update(mockBanner.id, { priority: updatedPriority });
 
-      const banner = store.getValue().entities[mockBanner.id];
+      const banner = store.getValue().entities?.[mockBanner.id];
       expect(banner?.priority).toBe(updatedPriority);
     });
 
@@ -216,7 +216,7 @@ describe('HeroBannersStore', () => {
 
       const state = store.getValue();
       expect(state.ids).not.toContain(mockBanner.id);
-      expect(state.entities[mockBanner.id]).toBeUndefined();
+      expect(state.entities?.[mockBanner.id]).toBeUndefined();
     });
 
     it('should upsert a banner (add if not exists)', () => {
@@ -235,7 +235,7 @@ describe('HeroBannersStore', () => {
       };
       store.upsert(mockBanner.id, updatedBanner);
 
-      const banner = store.getValue().entities[mockBanner.id];
+      const banner = store.getValue().entities?.[mockBanner.id];
       expect(banner?.priority).toBe(75);
     });
   });
@@ -263,7 +263,7 @@ describe('HeroBannersStore', () => {
     it('should store English content correctly', () => {
       store.add(mockBanner);
 
-      const banner = store.getValue().entities[mockBanner.id];
+      const banner = store.getValue().entities?.[mockBanner.id];
       expect(banner?.name.english).toBe('Test Banner');
       expect(banner?.headline.english).toBe('Test Headline');
     });
@@ -271,7 +271,7 @@ describe('HeroBannersStore', () => {
     it('should store Arabic content correctly', () => {
       store.add(mockBanner);
 
-      const banner = store.getValue().entities[mockBanner.id];
+      const banner = store.getValue().entities?.[mockBanner.id];
       expect(banner?.name.arabic).toBe('بانر اختبار');
       expect(banner?.headline.arabic).toBe('عنوان اختبار');
     });
