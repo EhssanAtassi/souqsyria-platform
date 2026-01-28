@@ -324,6 +324,7 @@ describe('Role Management Integration Tests', () => {
       const createdRole: Role = {
         id: 6,
         ...createDto,
+        isActive: true,
         isSystem: false,
         permissionIds: createDto.permissionIds || [],
         userCount: 0,
