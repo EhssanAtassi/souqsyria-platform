@@ -186,9 +186,9 @@ export class RefundSeederService {
         processingTimeMs: processingTime,
       };
 
-    } catch (error) {
+    } catch (error: unknown) {
       await queryRunner.rollbackTransaction();
-      this.logger.error(`❌ Error seeding refunds: ${error.message}`, error.stack);
+      this.logger.error(`❌ Error seeding refunds: ${(error as Error).message}`, (error as Error).stack);
       throw error;
     } finally {
       await queryRunner.release();
@@ -336,9 +336,9 @@ export class RefundSeederService {
         },
       };
 
-    } catch (error) {
+    } catch (error: unknown) {
       await queryRunner.rollbackTransaction();
-      this.logger.error(`❌ Error generating bulk refunds: ${error.message}`, error.stack);
+      this.logger.error(`❌ Error generating bulk refunds: ${(error as Error).message}`, (error as Error).stack);
       throw error;
     } finally {
       await queryRunner.release();
@@ -474,9 +474,9 @@ export class RefundSeederService {
         cleanupTimeMs: cleanupTime,
       };
 
-    } catch (error) {
+    } catch (error: unknown) {
       await queryRunner.rollbackTransaction();
-      this.logger.error(`❌ Error cleaning up refund data: ${error.message}`, error.stack);
+      this.logger.error(`❌ Error cleaning up refund data: ${(error as Error).message}`, (error as Error).stack);
       throw error;
     } finally {
       await queryRunner.release();

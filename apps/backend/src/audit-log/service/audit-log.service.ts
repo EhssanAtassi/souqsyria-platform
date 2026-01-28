@@ -294,14 +294,14 @@ export class AuditLogService {
         processingTime,
       );
       return savedLog;
-    } catch (error) {
+    } catch (error: unknown) {
       this.updatePerformanceMetrics(Date.now() - startTime, false);
       this.logger.error(
-        `❌ [${requestId}] Complex log failed: ${error.message}`,
-        error.stack,
+        `❌ [${requestId}] Complex log failed: ${(error as Error).message}`,
+        (error as Error).stack,
       );
       throw new InternalServerErrorException(
-        `Failed to create audit log: ${error.message}`,
+        `Failed to create audit log: ${(error as Error).message}`,
       );
     }
   }
@@ -340,8 +340,8 @@ export class AuditLogService {
         `📊 Retrieved ${logs.length} audit logs (limit: ${limit})`,
       );
       return logs;
-    } catch (error) {
-      this.logger.error(`❌ Failed to retrieve all logs: ${error.message}`);
+    } catch (error: unknown) {
+      this.logger.error(`❌ Failed to retrieve all logs: ${(error as Error).message}`);
       throw new InternalServerErrorException('Failed to retrieve audit logs');
     }
   }
@@ -363,9 +363,9 @@ export class AuditLogService {
 
       this.logger.log(`👤 Retrieved ${logs.length} logs for actor ${actorId}`);
       return logs;
-    } catch (error) {
+    } catch (error: unknown) {
       this.logger.error(
-        `❌ Failed to retrieve logs for actor ${actorId}: ${error.message}`,
+        `❌ Failed to retrieve logs for actor ${actorId}: ${(error as Error).message}`,
       );
       throw new InternalServerErrorException(
         `Failed to retrieve logs for actor ${actorId}`,
@@ -610,14 +610,14 @@ export class AuditLogService {
         processingTime,
       );
       return savedLog;
-    } catch (error) {
+    } catch (error: unknown) {
       this.updatePerformanceMetrics(Date.now() - startTime, false);
       this.logger.error(
-        `❌ [${requestId}] Simple log failed: ${error.message}`,
-        error.stack,
+        `❌ [${requestId}] Simple log failed: ${(error as Error).message}`,
+        (error as Error).stack,
       );
       throw new InternalServerErrorException(
-        `Failed to create simple audit log: ${error.message}`,
+        `Failed to create simple audit log: ${(error as Error).message}`,
       );
     }
   }
@@ -762,10 +762,10 @@ export class AuditLogService {
         `🔍 Filtered search completed: ${logs.length}/${total} results (${Date.now() - startTime}ms)`,
       );
       return result;
-    } catch (error) {
+    } catch (error: unknown) {
       this.logger.error(
-        `❌ Filtered search failed: ${error.message}`,
-        error.stack,
+        `❌ Filtered search failed: ${(error as Error).message}`,
+        (error as Error).stack,
       );
       throw new InternalServerErrorException(
         'Failed to execute filtered search',
@@ -915,17 +915,17 @@ export class AuditLogService {
       );
 
       return response;
-    } catch (error) {
+    } catch (error: unknown) {
       response.status = 'failed';
       response.completedAt = new Date();
       response.processingTimeMs = Date.now() - startTime;
 
       this.logger.error(
-        `❌ [${batchId}] Bulk operation failed: ${error.message}`,
-        error.stack,
+        `❌ [${batchId}] Bulk operation failed: ${(error as Error).message}`,
+        (error as Error).stack,
       );
       throw new InternalServerErrorException(
-        `Bulk operation failed: ${error.message}`,
+        `Bulk operation failed: ${(error as Error).message}`,
       );
     }
   }
@@ -1017,10 +1017,10 @@ export class AuditLogService {
         `📊 Analytics calculated: ${logs.length} logs analyzed (${Date.now() - startTime}ms)`,
       );
       return analytics;
-    } catch (error) {
+    } catch (error: unknown) {
       this.logger.error(
-        `❌ Analytics calculation failed: ${error.message}`,
-        error.stack,
+        `❌ Analytics calculation failed: ${(error as Error).message}`,
+        (error as Error).stack,
       );
       throw new InternalServerErrorException('Failed to calculate analytics');
     }
@@ -1257,10 +1257,10 @@ export class AuditLogService {
         `🔒 Security monitoring completed (${Date.now() - startTime}ms)`,
       );
       return response;
-    } catch (error) {
+    } catch (error: unknown) {
       this.logger.error(
-        `❌ Security monitoring failed: ${error.message}`,
-        error.stack,
+        `❌ Security monitoring failed: ${(error as Error).message}`,
+        (error as Error).stack,
       );
       throw new InternalServerErrorException(
         'Failed to generate security monitoring report',
@@ -1471,10 +1471,10 @@ export class AuditLogService {
         `🏥 Health check completed: ${response.status} (${Date.now() - startTime}ms)`,
       );
       return response;
-    } catch (error) {
+    } catch (error: unknown) {
       this.logger.error(
-        `❌ Health check failed: ${error.message}`,
-        error.stack,
+        `❌ Health check failed: ${(error as Error).message}`,
+        (error as Error).stack,
       );
       throw new InternalServerErrorException('Failed to perform health check');
     }
@@ -1545,13 +1545,13 @@ export class AuditLogService {
         `📤 [${exportId}] Export completed: ${logs.length} records (${Date.now() - startTime}ms)`,
       );
       return response;
-    } catch (error) {
+    } catch (error: unknown) {
       this.logger.error(
-        `❌ [${exportId}] Export failed: ${error.message}`,
-        error.stack,
+        `❌ [${exportId}] Export failed: ${(error as Error).message}`,
+        (error as Error).stack,
       );
       throw new InternalServerErrorException(
-        `Export operation failed: ${error.message}`,
+        `Export operation failed: ${(error as Error).message}`,
       );
     }
   }
@@ -1593,10 +1593,10 @@ export class AuditLogService {
       );
 
       this.logger.log(`🗄️ Archived ${eligibleLogs.length} logs successfully`);
-    } catch (error) {
+    } catch (error: unknown) {
       this.logger.error(
-        `❌ Automated archival failed: ${error.message}`,
-        error.stack,
+        `❌ Automated archival failed: ${(error as Error).message}`,
+        (error as Error).stack,
       );
     }
   }
@@ -1625,8 +1625,8 @@ export class AuditLogService {
           `🧹 Cache cleanup completed: removed ${cleaned} expired entries`,
         );
       }
-    } catch (error) {
-      this.logger.error(`❌ Cache cleanup failed: ${error.message}`);
+    } catch (error: unknown) {
+      this.logger.error(`❌ Cache cleanup failed: ${(error as Error).message}`);
     }
   }
 
@@ -1762,9 +1762,9 @@ export class AuditLogService {
           (log) => log.severity === 'critical',
         ).length,
       };
-    } catch (error) {
+    } catch (error: unknown) {
       this.logger.error(
-        `❌ Security summary calculation failed: ${error.message}`,
+        `❌ Security summary calculation failed: ${(error as Error).message}`,
       );
       // Return default values if calculation fails
       return {

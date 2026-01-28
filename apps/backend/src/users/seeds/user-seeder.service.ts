@@ -255,7 +255,7 @@ export class UserSeederService {
       );
 
       return result;
-    } catch (error) {
+    } catch (error: unknown) {
       // Rollback transaction on error
       if (queryRunner && !dryRun) {
         await queryRunner.rollbackTransaction();
@@ -264,12 +264,12 @@ export class UserSeederService {
 
       const processingTime = Date.now() - startTime;
       this.logger.error(
-        `❌ User seeding failed after ${processingTime}ms: ${error.message}`,
-        error.stack,
+        `❌ User seeding failed after ${processingTime}ms: ${(error as Error).message}`,
+        (error as Error).stack,
       );
 
       throw new InternalServerErrorException(
-        `User seeding failed: ${error.message}`,
+        `User seeding failed: ${(error as Error).message}`,
       );
     } finally {
       if (queryRunner) {
@@ -434,10 +434,10 @@ export class UserSeederService {
           duplicatesInDb: duplicateCount,
         },
       };
-    } catch (error) {
+    } catch (error: unknown) {
       this.logger.error(
-        `❌ Failed to get seeding statistics: ${error.message}`,
-        error.stack,
+        `❌ Failed to get seeding statistics: ${(error as Error).message}`,
+        (error as Error).stack,
       );
       throw new InternalServerErrorException(
         'Failed to generate seeding statistics',
@@ -543,15 +543,15 @@ export class UserSeederService {
         deletedCount,
         processingTimeMs: processingTime,
       };
-    } catch (error) {
+    } catch (error: unknown) {
       const processingTime = Date.now() - startTime;
       this.logger.error(
-        `❌ User cleanup failed after ${processingTime}ms: ${error.message}`,
-        error.stack,
+        `❌ User cleanup failed after ${processingTime}ms: ${(error as Error).message}`,
+        (error as Error).stack,
       );
 
       throw new InternalServerErrorException(
-        `User cleanup failed: ${error.message}`,
+        `User cleanup failed: ${(error as Error).message}`,
       );
     }
   }
@@ -602,8 +602,8 @@ export class UserSeederService {
         },
         lastCheck: new Date(),
       };
-    } catch (error) {
-      this.logger.error(`❌ Health check failed: ${error.message}`);
+    } catch (error: unknown) {
+      this.logger.error(`❌ Health check failed: ${(error as Error).message}`);
 
       return {
         status: 'unhealthy',
@@ -776,17 +776,17 @@ export class UserSeederService {
               result.skipped++;
               break;
           }
-        } catch (error) {
+        } catch (error: unknown) {
           result.errors++;
           result.errorDetails.push({
             userName: userData.fullName,
             email: userData.email,
-            error: error.message,
-            details: error.stack,
+            error: (error as Error).message,
+            details: (error as Error).stack,
           });
 
           this.logger.error(
-            `❌ Failed to process user ${userData.fullName} (${userData.email}): ${error.message}`,
+            `❌ Failed to process user ${userData.fullName} (${userData.email}): ${(error as Error).message}`,
           );
         }
       }
@@ -1111,8 +1111,8 @@ export class UserSeederService {
       }
 
       return true;
-    } catch (error) {
-      this.logger.error(`❌ Seed data validation failed: ${error.message}`);
+    } catch (error: unknown) {
+      this.logger.error(`❌ Seed data validation failed: ${(error as Error).message}`);
       return false;
     }
   }

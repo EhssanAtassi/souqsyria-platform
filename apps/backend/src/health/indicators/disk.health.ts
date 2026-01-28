@@ -77,7 +77,7 @@ export class DiskHealthIndicator extends HealthIndicator {
       }
 
       return result;
-    } catch (error) {
+    } catch (error: unknown) {
       // If statfs is not available, return a basic healthy status
       if (error instanceof HealthCheckError) {
         throw error;
@@ -129,12 +129,12 @@ export class DiskHealthIndicator extends HealthIndicator {
       }
 
       return result;
-    } catch (error) {
+    } catch (error: unknown) {
       if (error instanceof HealthCheckError) {
         throw error;
       }
 
-      const errorMessage = error instanceof Error ? error.message : 'Unknown disk error';
+      const errorMessage = error instanceof Error ? (error as Error).message : 'Unknown disk error';
 
       throw new HealthCheckError(
         'Disk health check failed',

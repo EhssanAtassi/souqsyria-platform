@@ -38,12 +38,12 @@ export class StaffManagementService {
   ): Promise<User> {
     const { email, password, roleId, fullName } = createStaffDto;
 
-    const existing = await this.userRepository.findOne({ where: { email } });
+    const existing = await this.userRepository.findOne({ where: { email } })!;
     if (existing) {
       throw new BadRequestException('Email already registered.');
     }
 
-    const role = await this.roleRepository.findOne({ where: { id: roleId } });
+    const role = await this.roleRepository.findOne({ where: { id: roleId } })!;
     if (!role) throw new NotFoundException('Assigned Role not found');
 
     const passwordHash = await bcrypt.hash(password, 10);

@@ -151,10 +151,10 @@ export class AttributesService {
       this.logger.log(`Attribute creation completed in ${executionTime}ms`);
 
       return response;
-    } catch (error) {
+    } catch (error: unknown) {
       this.logger.error(
-        `Failed to create attribute: ${error.message}`,
-        error.stack,
+        `Failed to create attribute: ${(error as Error).message}`,
+        (error as Error).stack,
       );
 
       if (
@@ -255,10 +255,10 @@ export class AttributesService {
           cacheHit: false, // TODO: Implement Redis caching
         },
       };
-    } catch (error) {
+    } catch (error: unknown) {
       this.logger.error(
-        `Failed to fetch attributes: ${error.message}`,
-        error.stack,
+        `Failed to fetch attributes: ${(error as Error).message}`,
+        (error as Error).stack,
       );
       throw new InternalServerErrorException('Failed to fetch attributes');
     }
@@ -307,14 +307,14 @@ export class AttributesService {
 
       this.logger.log(`Attribute ${id} retrieved successfully`);
       return this.transformToResponseDto(attribute, language);
-    } catch (error) {
+    } catch (error: unknown) {
       if (error instanceof NotFoundException) {
         throw error;
       }
 
       this.logger.error(
-        `Failed to fetch attribute ${id}: ${error.message}`,
-        error.stack,
+        `Failed to fetch attribute ${id}: ${(error as Error).message}`,
+        (error as Error).stack,
       );
       throw new InternalServerErrorException(`Failed to fetch attribute ${id}`);
     }
@@ -400,7 +400,7 @@ export class AttributesService {
       this.logger.log(`Attribute update completed in ${executionTime}ms`);
 
       return response;
-    } catch (error) {
+    } catch (error: unknown) {
       if (
         error instanceof NotFoundException ||
         error instanceof BadRequestException ||
@@ -410,8 +410,8 @@ export class AttributesService {
       }
 
       this.logger.error(
-        `Failed to update attribute ${id}: ${error.message}`,
-        error.stack,
+        `Failed to update attribute ${id}: ${(error as Error).message}`,
+        (error as Error).stack,
       );
       throw new InternalServerErrorException(
         `Failed to update attribute ${id}`,
@@ -478,7 +478,7 @@ export class AttributesService {
         success: true,
         message: `Attribute "${attribute.nameEn}" deleted successfully`,
       };
-    } catch (error) {
+    } catch (error: unknown) {
       if (
         error instanceof NotFoundException ||
         error instanceof BadRequestException
@@ -487,8 +487,8 @@ export class AttributesService {
       }
 
       this.logger.error(
-        `Failed to delete attribute ${id}: ${error.message}`,
-        error.stack,
+        `Failed to delete attribute ${id}: ${(error as Error).message}`,
+        (error as Error).stack,
       );
       throw new InternalServerErrorException(
         `Failed to delete attribute ${id}`,

@@ -96,7 +96,7 @@
         (input)="onSearchInput($event)"
       />
       @if (searchTerm()) {
-        <button class="search-box__clear" (click)="onSearchInput({ target: { value: '' } } as any)">
+        <button class="search-box__clear" (click)="clearSearch()">
           <span class="material-icons">close</span>
         </button>
       }
@@ -541,7 +541,7 @@
               <textarea
                 placeholder="Add any notes for the approval..."
                 [ngModel]="actionFormData().notes"
-                (ngModelChange)="actionFormData.set({...actionFormData(), notes: $event})"
+                (ngModelChange)="updateNotes($event)"
               ></textarea>
             </div>
           }
@@ -552,7 +552,7 @@
               <label>Rejection Reason <span class="required">*</span></label>
               <select
                 [ngModel]="actionFormData().rejectionReason"
-                (ngModelChange)="actionFormData.set({...actionFormData(), rejectionReason: $event})"
+                (ngModelChange)="updateRejectionReason($event)"
               >
                 <option value="">Select a reason...</option>
                 <option value="incomplete_documents">Incomplete Documents</option>
@@ -569,7 +569,7 @@
               <textarea
                 placeholder="Provide details about the rejection..."
                 [ngModel]="actionFormData().notes"
-                (ngModelChange)="actionFormData.set({...actionFormData(), notes: $event})"
+                (ngModelChange)="updateNotes($event)"
               ></textarea>
             </div>
           }
@@ -597,7 +597,7 @@
               <textarea
                 placeholder="Explain what documents are needed and why..."
                 [ngModel]="actionFormData().notes"
-                (ngModelChange)="actionFormData.set({...actionFormData(), notes: $event})"
+                (ngModelChange)="updateNotes($event)"
               ></textarea>
             </div>
           }
@@ -608,7 +608,7 @@
           <input
             type="checkbox"
             [checked]="actionFormData().notifyVendor"
-            (change)="actionFormData.set({...actionFormData(), notifyVendor: !actionFormData().notifyVendor})"
+            (change)="toggleNotifyVendor()"
           />
           <span class="checkbox-label">Notify vendor via email</span>
         </label>

@@ -188,11 +188,11 @@ export class WarehouseSeederService {
         `Warehouse seeding completed: ${result.created} created, ${result.updated} updated, ${result.skipped} skipped`,
       );
       return result;
-    } catch (error) {
-      this.logger.error('Warehouse seeding failed', error.stack);
+    } catch (error: unknown) {
+      this.logger.error('Warehouse seeding failed', (error as Error).stack);
       return this.createErrorResult(
         'Seeding operation failed',
-        [error.message],
+        [(error as Error).message],
         startTime,
       );
     }
@@ -379,14 +379,14 @@ export class WarehouseSeederService {
               await manager.save(warehouse);
               created++;
             }
-          } catch (error) {
+          } catch (error: unknown) {
             errors++;
             errorDetails.push(
-              `Error processing ${warehouseData.name}: ${error.message}`,
+              `Error processing ${warehouseData.name}: ${(error as Error).message}`,
             );
             this.logger.error(
               `Error processing warehouse ${warehouseData.name}`,
-              error.stack,
+              (error as Error).stack,
             );
           }
         }
@@ -785,11 +785,11 @@ export class WarehouseSeederService {
         },
         lastCheck: new Date().toISOString(),
       };
-    } catch (error) {
+    } catch (error: unknown) {
       return {
         status: 'unhealthy',
         database: 'disconnected',
-        error: error.message,
+        error: (error as Error).message,
         lastCheck: new Date().toISOString(),
       };
     }

@@ -25,28 +25,7 @@ import { Subject, takeUntil, finalize, debounceTime, distinctUntilChanged } from
 
 import { AdminProductsService } from '../../../services';
 import { CurrencyFormatPipe } from '../../../shared';
-
-/**
- * Inventory item interface
- * @description Represents a product's inventory information
- */
-interface InventoryItem {
-  id: number;
-  productId: number;
-  productName: string;
-  sku: string;
-  thumbnail: string | null;
-  currentStock: number;
-  reservedStock: number;
-  availableStock: number;
-  minStockLevel: number;
-  maxStockLevel: number;
-  reorderPoint: number;
-  vendorName: string;
-  categoryName: string;
-  lastUpdated: Date;
-  stockStatus: 'in_stock' | 'low_stock' | 'out_of_stock' | 'overstock';
-}
+import { InventoryItem } from '../../../interfaces';
 
 /**
  * Stock filter options
@@ -97,6 +76,13 @@ export class InventoryManagerComponent implements OnInit, OnDestroy {
   private readonly router = inject(Router);
   private readonly dialog = inject(MatDialog);
   private readonly snackBar = inject(MatSnackBar);
+
+  // =========================================================================
+  // TEMPLATE HELPERS
+  // =========================================================================
+
+  /** Expose Math for template usage */
+  protected readonly Math = Math;
   private readonly destroy$ = new Subject<void>();
   private readonly searchSubject$ = new Subject<string>();
 
@@ -234,7 +220,9 @@ export class InventoryManagerComponent implements OnInit, OnDestroy {
         page: this.pagination().page,
         limit: this.pagination().limit,
         search: this.searchTerm(),
-        stockStatus: this.stockFilter() !== 'all' ? this.stockFilter() : undefined,
+        stockStatus: this.stockFilter() !== 'all'
+          ? this.stockFilter() as 'in_stock' | 'low_stock' | 'out_of_stock' | 'overstock'
+          : undefined,
         sortBy: this.sortConfig().field,
         sortOrder: this.sortConfig().direction
       })
@@ -522,7 +510,9 @@ export class InventoryManagerComponent implements OnInit, OnDestroy {
     this.productsService
       .exportInventory({
         format,
-        stockStatus: this.stockFilter() !== 'all' ? this.stockFilter() : undefined
+        stockStatus: this.stockFilter() !== 'all'
+          ? this.stockFilter() as 'in_stock' | 'low_stock' | 'out_of_stock' | 'overstock'
+          : undefined
       })
       .pipe(takeUntil(this.destroy$))
       .subscribe({

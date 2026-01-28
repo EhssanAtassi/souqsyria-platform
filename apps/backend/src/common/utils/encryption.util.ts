@@ -127,8 +127,8 @@ export class EncryptionService {
         authTag: authTag.toString('hex'),
         keyVersion: this.currentKeyVersion,
       };
-    } catch (error) {
-      this.logger.error(`Encryption failed: ${error.message}`);
+    } catch (error: unknown) {
+      this.logger.error(`Encryption failed: ${(error as Error).message}`);
       throw new Error('Failed to encrypt data');
     }
   }
@@ -172,13 +172,13 @@ export class EncryptionService {
       decrypted += decipher.final('utf8');
 
       return decrypted;
-    } catch (error) {
+    } catch (error: unknown) {
       // Authentication failure indicates tampered data
-      if (error.message.includes('Unsupported state')) {
+      if ((error as Error).message.includes('Unsupported state')) {
         this.logger.error('Data integrity check failed - possible tampering detected');
         throw new Error('Data integrity verification failed');
       }
-      this.logger.error(`Decryption failed: ${error.message}`);
+      this.logger.error(`Decryption failed: ${(error as Error).message}`);
       throw new Error('Failed to decrypt data');
     }
   }
@@ -215,8 +215,8 @@ export class EncryptionService {
         Buffer.from(encryptedString, 'base64').toString('utf8'),
       ) as EncryptedData;
       return this.decrypt(encryptedData);
-    } catch (error) {
-      this.logger.error(`Failed to parse encrypted string: ${error.message}`);
+    } catch (error: unknown) {
+      this.logger.error(`Failed to parse encrypted string: ${(error as Error).message}`);
       throw new Error('Invalid encrypted data format');
     }
   }

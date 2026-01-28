@@ -15,7 +15,7 @@ import {
   ChangeDetectionStrategy
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, FormControl } from '@angular/forms';
 import { RouterModule, Router } from '@angular/router';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
@@ -33,7 +33,8 @@ import {
   TableColumn,
   RowAction,
   FilterField,
-  FilterValues
+  FilterValues,
+  StatusVariant
 } from '../../../shared';
 import {
   UserListItem,
@@ -175,47 +176,47 @@ export class UserListComponent implements OnInit, OnDestroy {
   readonly tableColumns: TableColumn[] = [
     {
       key: 'fullName',
-      label: 'User',
+      header: 'User',
       sortable: true,
       template: 'user'
     },
     {
       key: 'email',
-      label: 'Email',
+      header: 'Email',
       sortable: true
     },
     {
       key: 'roles',
-      label: 'Roles',
+      header: 'Roles',
       template: 'roles'
     },
     {
       key: 'status',
-      label: 'Status',
+      header: 'Status',
       sortable: true,
       template: 'status'
     },
     {
       key: 'kyc',
-      label: 'KYC',
+      header: 'KYC',
       template: 'kyc'
     },
     {
       key: 'totalOrders',
-      label: 'Orders',
+      header: 'Orders',
       sortable: true,
       align: 'right'
     },
     {
       key: 'totalSpent',
-      label: 'Total Spent',
+      header: 'Total Spent',
       sortable: true,
       align: 'right',
       template: 'currency'
     },
     {
       key: 'createdAt',
-      label: 'Joined',
+      header: 'Joined',
       sortable: true,
       template: 'date'
     }
@@ -294,7 +295,7 @@ export class UserListComponent implements OnInit, OnDestroy {
     {
       key: 'dateRange',
       label: 'Registration Date',
-      type: 'daterange'
+      type: 'dateRange'
     }
   ];
 
@@ -306,6 +307,15 @@ export class UserListComponent implements OnInit, OnDestroy {
   searchForm: FormGroup = this.fb.group({
     search: ['']
   });
+
+  /**
+   * Get the search form control
+   * @description Returns the search input as a typed FormControl
+   * @returns FormControl for the search field
+   */
+  get searchControl(): FormControl<string> {
+    return this.searchForm.get('search') as FormControl<string>;
+  }
 
   // =========================================================================
   // LIFECYCLE HOOKS
@@ -715,15 +725,15 @@ export class UserListComponent implements OnInit, OnDestroy {
    * @param status - User status
    * @returns Badge variant
    */
-  getStatusVariant(status: UserStatus): string {
-    const variantMap: Record<UserStatus, string> = {
+  getStatusVariant(status: UserStatus): StatusVariant {
+    const variantMap: Record<UserStatus, StatusVariant> = {
       active: 'success',
-      inactive: 'secondary',
+      inactive: 'neutral',
       suspended: 'warning',
       banned: 'danger',
       pending_verification: 'info'
     };
-    return variantMap[status] || 'secondary';
+    return variantMap[status] || 'neutral';
   }
 
   /**
@@ -732,16 +742,16 @@ export class UserListComponent implements OnInit, OnDestroy {
    * @param status - KYC status
    * @returns Badge variant
    */
-  getKycVariant(status: KycStatus): string {
-    const variantMap: Record<KycStatus, string> = {
-      not_submitted: 'secondary',
+  getKycVariant(status: KycStatus): StatusVariant {
+    const variantMap: Record<KycStatus, StatusVariant> = {
+      not_submitted: 'neutral',
       pending: 'info',
       under_review: 'warning',
       approved: 'success',
       rejected: 'danger',
       requires_resubmission: 'warning'
     };
-    return variantMap[status] || 'secondary';
+    return variantMap[status] || 'neutral';
   }
 
   /**
@@ -751,5 +761,62 @@ export class UserListComponent implements OnInit, OnDestroy {
   refresh(): void {
     this.loadUsers();
     this.loadStatistics();
+  }
+
+  // =========================================================================
+  // SELECTION HELPERS
+  // =========================================================================
+
+  /**
+   * Get all user IDs from current page
+   * @description Helper method to avoid arrow functions in templates
+   * @returns Array of all user IDs
+   */
+  getAllUserIds(): number[] {
+    return this.users().map(u => u.id);
+  }
+
+  /**
+   * Select all users on current page
+   * @description Sets all user IDs from current page as selected
+   */
+  selectAllUsers(): void {
+    this.selectedUserIds.set(this.getAllUserIds());
+  }
+
+  /**
+   * Toggle select all users
+   * @description Clears selection if all selected, otherwise selects all
+   */
+  toggleSelectAll(): void {
+    if (this.isAllSelected()) {
+      this.clearSelection();
+    } else {
+      this.selectAllUsers();
+    }
+  }
+
+  /**
+   * Toggle individual user selection
+   * @description Adds or removes user from selection based on current state
+   * @param userId - User ID to toggle
+   */
+  toggleUserSelection(userId: number): void {
+    const currentSelected = this.selectedUserIds();
+    if (currentSelected.includes(userId)) {
+      this.selectedUserIds.set(currentSelected.filter(id => id !== userId));
+    } else {
+      this.selectedUserIds.set([...currentSelected, userId]);
+    }
+  }
+
+  /**
+   * Check if user is selected
+   * @description Helper method to avoid complex expressions in templates
+   * @param userId - User ID to check
+   * @returns Whether the user is selected
+   */
+  isUserSelected(userId: number): boolean {
+    return this.selectedUserIds().includes(userId);
   }
 }

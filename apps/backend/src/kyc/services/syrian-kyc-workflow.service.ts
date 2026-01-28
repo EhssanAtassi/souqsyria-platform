@@ -400,8 +400,8 @@ export class SyrianKycWorkflowService {
           reasonAr,
         );
         successful.push(documentId);
-      } catch (error) {
-        failed.push({ id: documentId, error: error.message });
+      } catch (error: unknown) {
+        failed.push({ id: documentId, error: (error as Error).message });
       }
     }
 
@@ -613,7 +613,7 @@ export class SyrianKycWorkflowService {
             `Automatic transition: ${transition.nameEn}`,
             `انتقال تلقائي: ${transition.nameAr}`,
           );
-        } catch (error) {
+        } catch (error: unknown) {
           this.logger.error(
             `Failed automatic transition for KYC document ${document.id}:`,
             error,
@@ -694,7 +694,7 @@ export class SyrianKycWorkflowService {
           'Document expired automatically',
           'انتهت صلاحية الوثيقة تلقائياً',
         );
-      } catch (error) {
+      } catch (error: unknown) {
         this.logger.error(
           `Failed to expire KYC document ${document.id}:`,
           error,

@@ -1,0 +1,598 @@
+/**
+ * @file _bi-tokens.scss
+ * @description Business Intelligence Dashboard Design Tokens
+ *              Defines the complete visual language for BI analytics components.
+ *              Follows 8px grid system with mobile-first responsive design.
+ * @module AdminDashboard/Analytics/BI/Styles
+ *
+ * @design-tokens
+ * - Colors: Semantic BI color palette for data visualization
+ * - Typography: Font families supporting Arabic/RTL and English
+ * - Spacing: 8px-based grid system
+ * - Shadows: Elevation system for card depth
+ * - Borders: Consistent radius values
+ * - Breakpoints: Mobile-first responsive breakpoints
+ * - Animations: Micro-interaction timing functions
+ */
+
+// =============================================================================
+// BI COLOR PALETTE
+// =============================================================================
+// Color psychology for Business Intelligence visualizations
+
+/// Primary brand color - Trust and professionalism
+/// @type Color
+$bi-primary: #1e3a8a;
+$bi-primary-light: #3b5998;
+$bi-primary-subtle: #eff6ff;
+$bi-primary-hover: #1e40af;
+
+/// Accent color - Syrian heritage red
+/// @type Color
+$bi-accent: #c41e3a;
+$bi-accent-light: #dc2626;
+$bi-accent-subtle: #fef2f2;
+
+/// Success color - Positive metrics, growth, recovery
+/// @type Color
+$bi-success: #047857;
+$bi-success-light: #10b981;
+$bi-success-subtle: #ecfdf5;
+$bi-success-dark: #065f46;
+
+/// Warning color - Attention required, opportunities
+/// @type Color
+$bi-warning: #d97706;
+$bi-warning-light: #fb923c;
+$bi-warning-subtle: #fffbeb;
+$bi-warning-dark: #b45309;
+
+/// Danger color - Alerts, drop-offs, churn risk
+/// @type Color
+$bi-danger: #c41e3a;
+$bi-danger-light: #ef4444;
+$bi-danger-subtle: #fef2f2;
+$bi-danger-dark: #991b1b;
+
+/// Info color - Neutral data, benchmarks
+/// @type Color
+$bi-info: #2563eb;
+$bi-info-light: #60a5fa;
+$bi-info-subtle: #eff6ff;
+
+/// Neutral colors - Text, borders, backgrounds
+/// @type Map
+$bi-neutral-50: #f9fafb;
+$bi-neutral-100: #f3f4f6;
+$bi-neutral-200: #e5e7eb;
+$bi-neutral-300: #d1d5db;
+$bi-neutral-400: #9ca3af;
+$bi-neutral-500: #6b7280;
+$bi-neutral-600: #4b5563;
+$bi-neutral-700: #374151;
+$bi-neutral-800: #1f2937;
+$bi-neutral-900: #111827;
+
+// Chart-specific colors for data visualization
+$bi-chart-colors: (
+  'revenue': $bi-primary,
+  'commission': $bi-accent,
+  'net-revenue': $bi-success,
+  'clv-high': #047857,
+  'clv-medium': #3b82f6,
+  'clv-low': #f59e0b,
+  'clv-at-risk': #ef4444,
+  'funnel-view': #6366f1,
+  'funnel-cart': #8b5cf6,
+  'funnel-checkout': #a855f7,
+  'funnel-purchase': #10b981,
+  'abandonment': #ef4444,
+  'recovery': #22c55e,
+  'cohort-high': #047857,
+  'cohort-medium': #fbbf24,
+  'cohort-low': #f87171
+);
+
+// =============================================================================
+// TYPOGRAPHY
+// =============================================================================
+// Font families with Arabic RTL support
+
+/// Arabic font family - Noto Sans Arabic for RTL support
+/// @type String
+$bi-font-arabic: 'Noto Sans Arabic', 'Segoe UI', sans-serif;
+
+/// English font family - Inter for metrics and UI
+/// @type String
+$bi-font-english: 'Inter', 'Segoe UI', -apple-system, sans-serif;
+
+/// Monospace font - Roboto Mono for data tables
+/// @type String
+$bi-font-mono: 'Roboto Mono', 'Fira Code', monospace;
+
+/// Display font family - For large headlines
+/// @type String
+$bi-font-display: 'Inter', 'Segoe UI', sans-serif;
+
+// Font sizes using clamp for fluid typography
+$bi-font-size-2xs: clamp(0.625rem, 1.5vw, 0.75rem);   // 10-12px
+$bi-font-size-xs: clamp(0.75rem, 1.5vw, 0.8125rem);   // 12-13px
+$bi-font-size-sm: clamp(0.8125rem, 1.75vw, 0.875rem); // 13-14px
+$bi-font-size-base: clamp(0.875rem, 2vw, 1rem);       // 14-16px
+$bi-font-size-lg: clamp(1rem, 2.25vw, 1.125rem);      // 16-18px
+$bi-font-size-xl: clamp(1.125rem, 2.5vw, 1.25rem);    // 18-20px
+$bi-font-size-2xl: clamp(1.25rem, 3vw, 1.5rem);       // 20-24px
+$bi-font-size-3xl: clamp(1.5rem, 3.5vw, 1.875rem);    // 24-30px
+$bi-font-size-4xl: clamp(1.875rem, 4vw, 2.25rem);     // 30-36px
+$bi-font-size-5xl: clamp(2.25rem, 5vw, 3rem);         // 36-48px
+
+// Font weights
+$bi-font-weight-normal: 400;
+$bi-font-weight-medium: 500;
+$bi-font-weight-semibold: 600;
+$bi-font-weight-bold: 700;
+$bi-font-weight-extrabold: 800;
+
+// Line heights
+$bi-line-height-tight: 1.1;
+$bi-line-height-snug: 1.25;
+$bi-line-height-normal: 1.5;
+$bi-line-height-relaxed: 1.625;
+$bi-line-height-loose: 2;
+
+// =============================================================================
+// SPACING (8px Grid System)
+// =============================================================================
+
+/// Base spacing unit - 8px
+/// @type Length
+$bi-space-unit: 8px;
+
+/// Spacing scale based on 8px grid
+/// @type Map
+$bi-space-0: 0;
+$bi-space-1: 4px;    // 0.5x
+$bi-space-2: 8px;    // 1x
+$bi-space-3: 12px;   // 1.5x
+$bi-space-4: 16px;   // 2x
+$bi-space-5: 20px;   // 2.5x
+$bi-space-6: 24px;   // 3x
+$bi-space-8: 32px;   // 4x
+$bi-space-10: 40px;  // 5x
+$bi-space-12: 48px;  // 6x
+$bi-space-16: 64px;  // 8x
+$bi-space-20: 80px;  // 10x
+$bi-space-24: 96px;  // 12x
+
+// Component-specific spacing
+$bi-card-padding-mobile: $bi-space-4;
+$bi-card-padding-tablet: $bi-space-5;
+$bi-card-padding-desktop: $bi-space-6;
+
+$bi-section-gap-mobile: $bi-space-4;
+$bi-section-gap-tablet: $bi-space-5;
+$bi-section-gap-desktop: $bi-space-6;
+
+// =============================================================================
+// SHADOWS (Elevation System)
+// =============================================================================
+
+/// Shadow for subtle elevation
+/// @type String
+$bi-shadow-xs: 0 1px 2px rgba(20, 30, 50, 0.04);
+
+/// Shadow for cards and panels
+/// @type String
+$bi-shadow-sm: 0 4px 12px rgba(20, 30, 50, 0.05);
+
+/// Shadow for elevated cards
+/// @type String
+$bi-shadow-md: 0 8px 24px rgba(20, 30, 50, 0.08);
+
+/// Shadow for floating elements
+/// @type String
+$bi-shadow-lg: 0 16px 40px rgba(20, 30, 50, 0.1);
+
+/// Shadow for modals and overlays
+/// @type String
+$bi-shadow-xl: 0 24px 60px rgba(20, 30, 50, 0.12);
+
+/// Shadow for tooltips
+/// @type String
+$bi-shadow-tooltip: 0 4px 16px rgba(0, 0, 0, 0.15);
+
+/// Glow shadow for active/focus states
+/// @type String
+$bi-shadow-glow-primary: 0 0 0 3px rgba($bi-primary, 0.3);
+$bi-shadow-glow-success: 0 0 0 3px rgba($bi-success, 0.3);
+$bi-shadow-glow-warning: 0 0 0 3px rgba($bi-warning, 0.3);
+$bi-shadow-glow-danger: 0 0 0 3px rgba($bi-danger, 0.3);
+
+// =============================================================================
+// BORDERS & RADIUS
+// =============================================================================
+
+/// Border radius values
+/// @type Map
+$bi-radius-none: 0;
+$bi-radius-sm: 4px;
+$bi-radius-md: 8px;
+$bi-radius-lg: 12px;
+$bi-radius-xl: 16px;
+$bi-radius-2xl: 20px;
+$bi-radius-3xl: 24px;
+$bi-radius-full: 9999px;
+
+/// Border widths
+/// @type Map
+$bi-border-width-0: 0;
+$bi-border-width-1: 1px;
+$bi-border-width-2: 2px;
+$bi-border-width-4: 4px;
+
+/// Border colors
+/// @type Map
+$bi-border-color-light: $bi-neutral-200;
+$bi-border-color-default: $bi-neutral-300;
+$bi-border-color-dark: $bi-neutral-400;
+
+// =============================================================================
+// BREAKPOINTS (Mobile-First)
+// =============================================================================
+
+/// Breakpoint values for responsive design
+/// @type Map
+$bi-breakpoints: (
+  'xs': 0,        // Mobile phones portrait
+  'sm': 480px,    // Mobile phones landscape
+  'md': 768px,    // Tablets portrait
+  'lg': 1024px,   // Tablets landscape / Small laptops
+  'xl': 1280px,   // Desktops
+  '2xl': 1536px   // Large screens
+);
+
+/// Container max-widths
+/// @type Map
+$bi-container-sm: 640px;
+$bi-container-md: 768px;
+$bi-container-lg: 1024px;
+$bi-container-xl: 1280px;
+$bi-container-2xl: 1536px;
+
+// =============================================================================
+// TRANSITIONS & ANIMATIONS
+// =============================================================================
+
+/// Transition durations
+/// @type Map
+$bi-duration-instant: 0ms;
+$bi-duration-fast: 150ms;
+$bi-duration-normal: 250ms;
+$bi-duration-slow: 350ms;
+$bi-duration-slower: 500ms;
+
+/// Transition timing functions
+/// @type Map
+$bi-ease-linear: linear;
+$bi-ease-in: cubic-bezier(0.4, 0, 1, 1);
+$bi-ease-out: cubic-bezier(0, 0, 0.2, 1);
+$bi-ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+$bi-ease-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
+$bi-ease-spring: cubic-bezier(0.175, 0.885, 0.32, 1.275);
+
+/// Common transition presets
+/// @type Map
+$bi-transition-base: all $bi-duration-normal $bi-ease-in-out;
+$bi-transition-fast: all $bi-duration-fast $bi-ease-in-out;
+$bi-transition-slow: all $bi-duration-slow $bi-ease-in-out;
+$bi-transition-transform: transform $bi-duration-normal $bi-ease-in-out;
+$bi-transition-opacity: opacity $bi-duration-normal $bi-ease-in-out;
+$bi-transition-colors: background-color $bi-duration-fast $bi-ease-in-out,
+                       border-color $bi-duration-fast $bi-ease-in-out,
+                       color $bi-duration-fast $bi-ease-in-out;
+
+// =============================================================================
+// Z-INDEX LAYERS
+// =============================================================================
+
+/// Z-index scale for layering
+/// @type Map
+$bi-z-base: 0;
+$bi-z-dropdown: 100;
+$bi-z-sticky: 200;
+$bi-z-fixed: 300;
+$bi-z-modal-backdrop: 400;
+$bi-z-modal: 500;
+$bi-z-popover: 600;
+$bi-z-tooltip: 700;
+$bi-z-toast: 800;
+$bi-z-max: 9999;
+
+// =============================================================================
+// CHART-SPECIFIC TOKENS
+// =============================================================================
+
+/// Chart dimensions
+/// @type Map
+$bi-chart-height-sm: 200px;
+$bi-chart-height-md: 280px;
+$bi-chart-height-lg: 360px;
+$bi-chart-height-xl: 440px;
+
+/// Heatmap color gradients
+/// @type Map
+$bi-heatmap-empty: $bi-neutral-100;
+$bi-heatmap-low: #d1fae5;
+$bi-heatmap-medium: #6ee7b7;
+$bi-heatmap-high: #10b981;
+$bi-heatmap-max: #047857;
+
+/// Funnel visualization widths
+/// @type Map
+$bi-funnel-width-start: 100%;
+$bi-funnel-width-step: 15%;
+$bi-funnel-min-width: 25%;
+
+// =============================================================================
+// COMPONENT-SPECIFIC TOKENS
+// =============================================================================
+
+/// Hero metric card dimensions
+/// @type Map
+$bi-hero-card-min-height: 140px;
+$bi-hero-card-max-width: 280px;
+
+/// Quick insight card dimensions
+/// @type Map
+$bi-insight-card-height: 180px;
+$bi-insight-card-width: 280px;
+
+/// Navigation dimensions
+/// @type Map
+$bi-nav-height-mobile: 56px;
+$bi-nav-height-desktop: 64px;
+$bi-sidebar-width-collapsed: 64px;
+$bi-sidebar-width-expanded: 280px;
+$bi-bottom-nav-height: 64px;
+
+/// Floating action button dimensions
+/// @type Map
+$bi-fab-size: 56px;
+$bi-fab-size-mini: 40px;
+$bi-fab-margin: $bi-space-4;
+
+// =============================================================================
+// RTL/ARABIC-SPECIFIC TOKENS
+// =============================================================================
+
+/// Arabic number mapping for RTL displays
+/// @type Map
+$bi-arabic-numerals: (
+  '0': '\u0660',
+  '1': '\u0661',
+  '2': '\u0662',
+  '3': '\u0663',
+  '4': '\u0664',
+  '5': '\u0665',
+  '6': '\u0666',
+  '7': '\u0667',
+  '8': '\u0668',
+  '9': '\u0669'
+);
+
+/// RTL direction adjustments
+/// @type Map
+$bi-rtl-direction: rtl;
+$bi-rtl-text-align: right;
+
+// =============================================================================
+// ACCESSIBILITY TOKENS
+// =============================================================================
+
+/// Focus ring styles for WCAG compliance
+/// @type Map
+$bi-focus-ring-width: 3px;
+$bi-focus-ring-offset: 2px;
+$bi-focus-ring-color: rgba($bi-primary, 0.5);
+
+/// Minimum touch target size (WCAG 2.5.5)
+/// @type Length
+$bi-touch-target-min: 44px;
+
+/// Reduced motion preference
+/// @type Boolean
+$bi-prefers-reduced-motion: false;
+
+// =============================================================================
+// MIXINS FOR TOKEN USAGE
+// =============================================================================
+
+/// Responsive breakpoint mixin
+/// @param {String} $breakpoint - Breakpoint name from $bi-breakpoints
+/// @example scss - Usage
+///   .component {
+///     @include bi-breakpoint('md') {
+///       display: grid;
+///     }
+///   }
+@mixin bi-breakpoint($breakpoint) {
+  $value: map-get($bi-breakpoints, $breakpoint);
+  @if $value == 0 {
+    @content;
+  } @else {
+    @media (min-width: $value) {
+      @content;
+    }
+  }
+}
+
+/// RTL support mixin
+/// @example scss - Usage
+///   .component {
+///     margin-left: 16px;
+///     @include bi-rtl {
+///       margin-left: 0;
+///       margin-right: 16px;
+///     }
+///   }
+@mixin bi-rtl {
+  [dir='rtl'] & {
+    @content;
+  }
+}
+
+/// Focus ring mixin for accessibility
+/// @example scss - Usage
+///   .button {
+///     @include bi-focus-ring;
+///   }
+@mixin bi-focus-ring($color: $bi-focus-ring-color) {
+  &:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 $bi-focus-ring-width $color;
+  }
+}
+
+/// Card elevation mixin
+/// @param {String} $level - Elevation level (sm, md, lg, xl)
+@mixin bi-elevation($level: 'md') {
+  @if $level == 'sm' {
+    box-shadow: $bi-shadow-sm;
+  } @else if $level == 'md' {
+    box-shadow: $bi-shadow-md;
+  } @else if $level == 'lg' {
+    box-shadow: $bi-shadow-lg;
+  } @else if $level == 'xl' {
+    box-shadow: $bi-shadow-xl;
+  }
+}
+
+/// Truncate text with ellipsis
+/// @param {Number} $lines - Number of lines before truncation
+@mixin bi-truncate($lines: 1) {
+  @if $lines == 1 {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  } @else {
+    display: -webkit-box;
+    -webkit-line-clamp: $lines;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+}
+
+/// Skeleton loading animation
+@mixin bi-skeleton {
+  background: linear-gradient(
+    90deg,
+    $bi-neutral-200 25%,
+    $bi-neutral-100 50%,
+    $bi-neutral-200 75%
+  );
+  background-size: 200% 100%;
+  animation: bi-skeleton-pulse 1.5s ease-in-out infinite;
+}
+
+/// Container query support
+/// @param {Length} $min-width - Minimum container width
+@mixin bi-container($min-width) {
+  @container (min-width: #{$min-width}) {
+    @content;
+  }
+}
+
+// =============================================================================
+// ANIMATIONS KEYFRAMES
+// =============================================================================
+
+@keyframes bi-skeleton-pulse {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+@keyframes bi-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes bi-slide-up {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes bi-slide-in-right {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes bi-pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.6;
+  }
+}
+
+@keyframes bi-bounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-4px);
+  }
+}
+
+@keyframes bi-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes bi-scale-in {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+// Live data pulse animation for real-time indicators
+@keyframes bi-live-pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba($bi-success, 0.4);
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba($bi-success, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba($bi-success, 0);
+  }
+}

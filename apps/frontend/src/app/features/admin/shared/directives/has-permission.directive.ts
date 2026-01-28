@@ -17,6 +17,7 @@ import {
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { AdminAuthService } from '../../../../shared/services/admin-auth.service';
+import { AdminPermission, AdminRole } from '../../../../shared/interfaces/admin.interface';
 
 /**
  * Permission check mode
@@ -154,8 +155,8 @@ export class HasPermissionDirective {
   constructor() {
     // React to auth state changes
     effect(() => {
-      // Access currentUser signal to trigger re-evaluation
-      const user = this.authService.currentUser();
+      // Access currentAdmin signal to trigger re-evaluation
+      const user = this.authService.currentAdmin();
       this.updateView();
     });
   }
@@ -191,13 +192,13 @@ export class HasPermissionDirective {
    */
   private checkPermission(): boolean {
     // If not logged in, no permissions
-    if (!this.authService.isLoggedIn()) {
+    if (!this.authService.isAuthenticated()) {
       return false;
     }
 
     // Check role if specified
     if (this.requiredRole) {
-      return this.authService.hasRole(this.requiredRole);
+      return this.authService.hasRole(this.requiredRole as AdminRole);
     }
 
     // If no permissions specified, allow access
@@ -217,9 +218,9 @@ export class HasPermissionDirective {
 
     // Check based on mode
     if (this.mode === 'all') {
-      return validPermissions.every(p => this.authService.hasPermission(p));
+      return validPermissions.every(p => this.authService.hasPermission(p as AdminPermission));
     } else {
-      return validPermissions.some(p => this.authService.hasPermission(p));
+      return validPermissions.some(p => this.authService.hasPermission(p as AdminPermission));
     }
   }
 }

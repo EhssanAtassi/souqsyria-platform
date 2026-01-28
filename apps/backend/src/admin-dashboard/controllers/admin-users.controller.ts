@@ -283,7 +283,7 @@ export class AdminUsersController {
           details: log.description || log.details,
         }));
       }
-    } catch (error) {
+    } catch (error: unknown) {
       // Audit log service might not have this method, skip
     }
 
@@ -381,7 +381,7 @@ export class AdminUsersController {
         beforeData: { status: previousStatus },
         afterData: { status: dto.status, reason: dto.reason },
       });
-    } catch (error) {
+    } catch (error: unknown) {
       // Log error but don't fail the operation
     }
 
@@ -460,7 +460,7 @@ export class AdminUsersController {
         beforeData: { roleId: previousRole, assignedRoleId: previousAssignedRole },
         afterData: { roleIds: dto.roleIds, replaceExisting: dto.replaceExisting },
       });
-    } catch (error) {
+    } catch (error: unknown) {
       // Log error but don't fail the operation
     }
 
@@ -581,7 +581,7 @@ export class AdminUsersController {
           notes: dto.notes,
         },
       });
-    } catch (error) {
+    } catch (error: unknown) {
       // Log error but don't fail the operation
     }
 

@@ -13,3 +13,4 @@ export { AdminProductsService } from './admin-products.service';
 export { AdminOrdersService } from './admin-orders.service';
 export { AdminVendorsService } from './admin-vendors.service';
 export { AdminAnalyticsService } from './admin-analytics.service';
+export { BiAnalyticsService } from './bi-analytics.service';

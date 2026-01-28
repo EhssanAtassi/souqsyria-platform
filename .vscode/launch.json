@@ -1,0 +1,69 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "node",
+      "request": "attach",
+      "name": "Attach to Backend (Docker)",
+      "port": 9229,
+      "restart": true,
+      "sourceMaps": true,
+      "skipFiles": ["<node_internals>/**"],
+      "localRoot": "${workspaceFolder}/apps/backend",
+      "remoteRoot": "/app"
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Debug Backend (Local)",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "start:debug"],
+      "cwd": "${workspaceFolder}/apps/backend",
+      "console": "integratedTerminal",
+      "sourceMaps": true,
+      "skipFiles": ["<node_internals>/**"]
+    },
+    {
+      "type": "chrome",
+      "request": "launch",
+      "name": "Debug Frontend (Chrome)",
+      "url": "http://localhost:4200",
+      "webRoot": "${workspaceFolder}/apps/frontend",
+      "sourceMaps": true,
+      "sourceMapPathOverrides": {
+        "webpack:/*": "${webRoot}/*",
+        "/./*": "${webRoot}/*",
+        "/src/*": "${webRoot}/src/*",
+        "/*": "*",
+        "/./~/*": "${webRoot}/node_modules/*"
+      }
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Jest - Backend Tests",
+      "program": "${workspaceFolder}/apps/backend/node_modules/.bin/jest",
+      "args": ["--runInBand", "--no-cache"],
+      "cwd": "${workspaceFolder}/apps/backend",
+      "console": "integratedTerminal",
+      "internalConsoleOptions": "neverOpen"
+    },
+    {
+      "type": "chrome",
+      "request": "launch",
+      "name": "Karma - Frontend Tests",
+      "url": "http://localhost:9876/debug.html",
+      "webRoot": "${workspaceFolder}/apps/frontend",
+      "pathMapping": {
+        "/_karma_webpack_": "${workspaceFolder}/apps/frontend"
+      },
+      "sourceMaps": true
+    }
+  ],
+  "compounds": [
+    {
+      "name": "Full Stack Debug",
+      "configurations": ["Attach to Backend (Docker)", "Debug Frontend (Chrome)"]
+    }
+  ]
+}

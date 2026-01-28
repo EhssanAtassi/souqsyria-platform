@@ -58,12 +58,12 @@ export class BusinessHealthIndicator extends HealthIndicator {
       }
 
       return result;
-    } catch (error) {
+    } catch (error: unknown) {
       if (error instanceof HealthCheckError) {
         throw error;
       }
 
-      const errorMessage = error instanceof Error ? error.message : 'Unknown business health error';
+      const errorMessage = error instanceof Error ? (error as Error).message : 'Unknown business health error';
 
       throw new HealthCheckError(
         'Business health check failed',
@@ -145,8 +145,8 @@ export class BusinessHealthIndicator extends HealthIndicator {
         metrics.totalOrders = 'unavailable';
       }
 
-    } catch (error) {
-      metrics.error = error instanceof Error ? error.message : 'Unknown error';
+    } catch (error: unknown) {
+      metrics.error = error instanceof Error ? (error as Error).message : 'Unknown error';
     }
 
     return metrics;

@@ -405,12 +405,12 @@ export class CategorySeederController {
         result,
         timestamp: new Date().toISOString(),
       };
-    } catch (error) {
+    } catch (error: unknown) {
       const totalTime = Date.now() - startTime;
 
       this.logger.error(
-        `❌ Category seeding failed after ${totalTime}ms: ${error.message}`,
-        error.stack,
+        `❌ Category seeding failed after ${totalTime}ms: ${(error as Error).message}`,
+        (error as Error).stack,
       );
 
       throw error;

@@ -103,9 +103,9 @@ export class RolesSeederService {
         role_hierarchy_levels: this.calculateHierarchyLevels(roles),
         performance_metrics: performanceMetrics,
       };
-    } catch (error) {
+    } catch (error: unknown) {
       console.error('Roles seeding failed:', error);
-      throw new Error(`Roles seeding failed: ${error.message}`);
+      throw new Error(`Roles seeding failed: ${(error as Error).message}`);
     }
   }
 

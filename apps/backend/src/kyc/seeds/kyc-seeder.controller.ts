@@ -159,7 +159,7 @@ export class KycSeederController {
       this.logger.log(`📊 Final Statistics:`, stats);
 
       return response;
-    } catch (error) {
+    } catch (error: unknown) {
       this.logger.error('❌ KYC seeding failed:', error);
       throw error;
     }
@@ -204,7 +204,7 @@ export class KycSeederController {
         executionTime: stats.totalExecutionTime,
         timestamp: new Date().toISOString(),
       };
-    } catch (error) {
+    } catch (error: unknown) {
       this.logger.error('❌ Document seeding failed:', error);
       throw error;
     }
@@ -253,7 +253,7 @@ export class KycSeederController {
         executionTime: stats.totalExecutionTime,
         timestamp: new Date().toISOString(),
       };
-    } catch (error) {
+    } catch (error: unknown) {
       this.logger.error('❌ Workflow states seeding failed:', error);
       throw error;
     }
@@ -338,7 +338,7 @@ export class KycSeederController {
         averageTimePerDocument: stats.totalExecutionTime / stats.documentsCreated,
         timestamp: new Date().toISOString(),
       };
-    } catch (error) {
+    } catch (error: unknown) {
       this.logger.error('❌ Bulk seeding failed:', error);
       throw error;
     }
@@ -409,7 +409,7 @@ export class KycSeederController {
       this.logger.log(`📈 Statistics retrieved: ${stats.overview.totalDocuments} documents, ${stats.overview.statusLogs} logs`);
       
       return stats;
-    } catch (error) {
+    } catch (error: unknown) {
       this.logger.error('❌ Failed to retrieve KYC statistics:', error);
       throw error;
     }
@@ -481,7 +481,7 @@ export class KycSeederController {
       }
 
       return response;
-    } catch (error) {
+    } catch (error: unknown) {
       this.logger.error('❌ Data integrity verification failed:', error);
       throw error;
     }
@@ -534,7 +534,7 @@ export class KycSeederController {
         warning: '⚠️ This operation cannot be undone',
         timestamp: new Date().toISOString(),
       };
-    } catch (error) {
+    } catch (error: unknown) {
       this.logger.error('❌ Failed to clear KYC data:', error);
       throw error;
     }

@@ -22,7 +22,7 @@ export class CountryService {
   }
 
   async findOne(id: number): Promise<Country> {
-    const country = await this.countryRepo.findOne({ where: { id } });
+    const country = await this.countryRepo.findOne({ where: { id } })!;
     if (!country) throw new NotFoundException('Country not found');
     return country;
   }

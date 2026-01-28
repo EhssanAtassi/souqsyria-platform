@@ -508,7 +508,7 @@ export class SyrianStockAnalyticsService {
       }
 
       this.logger.log('Daily stock analytics update completed successfully');
-    } catch (error) {
+    } catch (error: unknown) {
       this.logger.error('Failed to update stock analytics:', error);
     }
   }
@@ -536,7 +536,7 @@ export class SyrianStockAnalyticsService {
       this.logger.log(
         `Exchange rates updated: 1 USD = ${this.currentExchangeRates.usdToSyp} SYP, 1 EUR = ${this.currentExchangeRates.eurToSyp} SYP`,
       );
-    } catch (error) {
+    } catch (error: unknown) {
       this.logger.error('Failed to update exchange rates:', error);
     }
   }

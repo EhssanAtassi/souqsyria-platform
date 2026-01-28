@@ -126,7 +126,7 @@
         (input)="onSearchInput($event)"
       />
       @if (searchTerm()) {
-        <button class="search-box__clear" (click)="onSearchInput({ target: { value: '' } } as any)">
+        <button class="search-box__clear" (click)="clearSearch()">
           <span class="material-icons">close</span>
         </button>
       }
@@ -238,7 +238,7 @@
                   <div class="shop-info">
                     <div class="shop-info__logo">
                       @if (vendor.logo) {
-                        <img [src]="vendor.logo" [alt]="vendor.shopName" />
+                        <img [src]="vendor.logo" [alt]="vendor.shopNameEn" />
                       } @else {
                         <span class="material-icons">store</span>
                       }
@@ -248,10 +248,10 @@
                         class="shop-info__name"
                         [routerLink]="['/admin/vendors', vendor.id]"
                       >
-                        {{ vendor.shopName }}
+                        {{ vendor.shopNameEn }}
                       </a>
                       <span class="shop-info__products">
-                        {{ vendor.productCount }} products
+                        {{ vendor.totalProducts }} products
                       </span>
                     </div>
                   </div>

@@ -474,7 +474,7 @@ export class AuthService {
     const { email, otpCode } = verifyOtpDto;
     this.logger.log(`Verifying OTP for email: ${email}`);
 
-    const user = await this.userRepository.findOne({ where: { email } });
+    const user = await this.userRepository.findOne({ where: { email } })!;
 
     if (!user) {
       throw new BadRequestException('Invalid email.');
@@ -640,7 +640,7 @@ export class AuthService {
     const { email } = forgotPasswordDto;
     this.logger.log(`Password reset requested for email: ${email}`);
 
-    const user = await this.userRepository.findOne({ where: { email } });
+    const user = await this.userRepository.findOne({ where: { email } })!;
 
     if (!user) {
       // Don't reveal if email exists or not (security best practice)
@@ -749,7 +749,7 @@ export class AuthService {
     this.logger.log(`Password change requested for user ID: ${userId}`);
 
     // Find the user
-    const user = await this.userRepository.findOne({ where: { id: userId } });
+    const user = await this.userRepository.findOne({ where: { id: userId } })!;
 
     if (!user || user.deletedAt) {
       throw new NotFoundException('User not found.');
@@ -862,8 +862,8 @@ export class AuthService {
       return {
         message: 'Logout successful. Please remove the token from your client.',
       };
-    } catch (error) {
-      this.logger.error(`Logout failed for user ${userId}: ${error.message}`);
+    } catch (error: unknown) {
+      this.logger.error(`Logout failed for user ${userId}: ${(error as Error).message}`);
       throw new BadRequestException('Logout failed. Invalid token.');
     }
   }
@@ -956,15 +956,17 @@ export class AuthService {
         accessToken: newAccessToken,
         message: 'Token refreshed successfully.',
       };
-    } catch (error) {
-      if (error.name === 'TokenExpiredError') {
+    } catch (error: unknown) {
+      const err = error as Error & { name?: string };
+
+      if (err.name === 'TokenExpiredError') {
         this.logger.warn(`Expired token provided for refresh`);
         throw new UnauthorizedException(
           'Token has expired. Please log in again.',
         );
       }
 
-      if (error.name === 'JsonWebTokenError') {
+      if (err.name === 'JsonWebTokenError') {
         this.logger.warn(`Invalid token provided for refresh`);
         throw new UnauthorizedException('Invalid token. Please log in again.');
       }
@@ -977,7 +979,7 @@ export class AuthService {
         throw error;
       }
 
-      this.logger.error(`Token refresh failed: ${error.message}`);
+      this.logger.error(`Token refresh failed: ${(error as Error).message}`);
       throw new BadRequestException('Token refresh failed.');
     }
   }
@@ -990,7 +992,7 @@ export class AuthService {
     const { email } = resendOtpDto;
     this.logger.log(`OTP resend requested for email: ${email}`);
 
-    const user = await this.userRepository.findOne({ where: { email } });
+    const user = await this.userRepository.findOne({ where: { email } })!;
 
     if (!user) {
       // Don't reveal if email exists or not (security best practice)
@@ -1056,7 +1058,7 @@ export class AuthService {
     this.logger.log(`Account deletion requested for user ID: ${userId}`);
 
     // Find the user
-    const user = await this.userRepository.findOne({ where: { id: userId } });
+    const user = await this.userRepository.findOne({ where: { id: userId } })!;
 
     if (!user || user.deletedAt) {
       throw new NotFoundException('User not found or account already deleted.');
@@ -1114,9 +1116,9 @@ export class AuthService {
       this.logger.log(
         `User ${userId} account soft deleted - existing tokens should be invalidated`,
       );
-    } catch (error) {
+    } catch (error: unknown) {
       this.logger.warn(
-        `Failed to blacklist tokens during account deletion: ${error.message}`,
+        `Failed to blacklist tokens during account deletion: ${(error as Error).message}`,
       );
     }
 
@@ -1183,7 +1185,7 @@ export class AuthService {
     }
     try {
       return this.encryptionService.decryptFromString(user.oauthAccessToken);
-    } catch (error) {
+    } catch (error: unknown) {
       this.logger.error(`Failed to decrypt OAuth token for user ${user.id}`);
       return null;
     }
@@ -1202,7 +1204,7 @@ export class AuthService {
     }
     try {
       return this.encryptionService.decryptFromString(user.oauthRefreshToken);
-    } catch (error) {
+    } catch (error: unknown) {
       this.logger.error(`Failed to decrypt OAuth refresh token for user ${user.id}`);
       return null;
     }

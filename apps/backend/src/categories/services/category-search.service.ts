@@ -164,13 +164,13 @@ export class CategorySearchService {
       );
 
       return response;
-    } catch (error) {
+    } catch (error: unknown) {
       const queryTime = Date.now() - startTime;
       this.updatePerformanceMetrics(queryTime, false, false);
 
       this.logger.error(
-        `❌ [${searchId}] Search failed: ${error.message} (${queryTime}ms)`,
-        error.stack,
+        `❌ [${searchId}] Search failed: ${(error as Error).message} (${queryTime}ms)`,
+        (error as Error).stack,
       );
 
       if (error instanceof BadRequestException) {
@@ -289,10 +289,10 @@ export class CategorySearchService {
       );
 
       return suggestions;
-    } catch (error) {
+    } catch (error: unknown) {
       this.logger.error(
-        `❌ Quick search failed: ${error.message}`,
-        error.stack,
+        `❌ Quick search failed: ${(error as Error).message}`,
+        (error as Error).stack,
       );
       return []; // Return empty array for autocomplete graceful degradation
     }
@@ -348,10 +348,10 @@ export class CategorySearchService {
       const categories = await queryBuilder.getMany();
 
       return this.transformSearchResults(categories, filters.language || 'en');
-    } catch (error) {
+    } catch (error: unknown) {
       this.logger.error(
-        `❌ Hierarchy search failed: ${error.message}`,
-        error.stack,
+        `❌ Hierarchy search failed: ${(error as Error).message}`,
+        (error as Error).stack,
       );
       throw new InternalServerErrorException('Hierarchy search failed');
     }

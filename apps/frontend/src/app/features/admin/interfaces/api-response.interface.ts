@@ -48,6 +48,8 @@ export interface PaginationQuery {
 export interface PaginatedResponse<T> {
   /** Array of items for the current page */
   items: T[];
+  /** Array of items (alias for items) */
+  data?: T[];
   /** Total number of items across all pages */
   total: number;
   /** Current page number */
@@ -842,18 +844,21 @@ export interface CancelOrderRequest {
 
 /**
  * Vendor verification status
- * @description 9-state verification workflow
+ * @description 12-state verification workflow
  */
 export type VendorVerificationStatus =
   | 'pending'
   | 'under_review'
   | 'documents_requested'
+  | 'documents_resubmitted'
   | 'business_verification'
   | 'final_review'
   | 'approved'
   | 'rejected'
   | 'suspended'
-  | 'requires_resubmission';
+  | 'requires_resubmission'
+  | 'expired'
+  | 'revoked';
 
 /**
  * Vendor account status
@@ -896,6 +901,8 @@ export interface VendorCommissionSummary {
   currentRate: number;
   /** Total commissions paid (SYP) */
   totalPaid: number;
+  /** Total earned (alias for totalPaid) */
+  totalEarned?: number;
   /** Pending commission (SYP) */
   pendingAmount: number;
   /** Last payout date */
@@ -950,6 +957,10 @@ export interface VendorListItem {
   commissionRate: number;
   /** Average rating */
   rating: number;
+  /** Number of reviews */
+  reviewCount?: number;
+  /** Total orders */
+  totalOrders?: number;
   /** Total products */
   totalProducts: number;
   /** Total sales (SYP) */
@@ -998,6 +1009,8 @@ export interface VendorDetails extends VendorListItem {
   categories: string[];
   /** Verification history */
   verificationHistory: VendorVerificationHistoryEntry[];
+  /** Date when vendor was verified/approved */
+  verifiedAt?: Date;
   /** Last updated date */
   updatedAt: Date;
 }
@@ -1339,6 +1352,200 @@ export interface CommissionReport {
   byCategory: { categoryId: number; categoryName: string; amount: number }[];
   /** Commissions by day */
   byDay: { date: string; amount: number }[];
+}
+
+// =============================================================================
+// CATEGORY MANAGEMENT INTERFACES
+// =============================================================================
+
+/**
+ * Category interface
+ * @description Basic category structure with optional children for hierarchical views
+ */
+export interface Category {
+  /** Category ID */
+  id: number;
+  /** Category name in English */
+  nameEn: string;
+  /** Category name in Arabic */
+  nameAr: string;
+  /** Name alias for compatibility */
+  name?: string;
+  /** URL-friendly slug */
+  slug: string;
+  /** Parent category ID */
+  parentId?: number | null;
+  /** Whether category is active */
+  isActive?: boolean;
+  /** Display order */
+  sortOrder?: number;
+  /** Category icon */
+  icon?: string;
+  /** Category image URL */
+  imageUrl?: string;
+  /** Product count in this category */
+  productCount?: number;
+  /** Category description */
+  description?: string;
+  /** Child categories (for hierarchical views) */
+  children?: Category[];
+  /** Creation date */
+  createdAt?: Date | string;
+  /** Last update date */
+  updatedAt?: Date | string;
+}
+
+/**
+ * Category hierarchy interface
+ * @description Hierarchical category structure with children
+ */
+export interface CategoryHierarchy extends Category {
+  /** Child categories */
+  children: CategoryHierarchy[];
+  /** Depth level in hierarchy */
+  level?: number;
+  /** Full path of category names */
+  path?: string;
+}
+
+/**
+ * Category tree item
+ * @description Category tree structure for tree views
+ */
+export interface CategoryTreeItem {
+  /** Category ID */
+  id: number;
+  /** Category name in English */
+  nameEn: string;
+  /** Category name in Arabic */
+  nameAr: string;
+  /** URL-friendly slug */
+  slug: string;
+  /** Product count in category */
+  productCount: number;
+  /** Child categories */
+  children: CategoryTreeItem[];
+}
+
+/**
+ * Create category request
+ * @description Payload for creating a new category
+ */
+export interface CreateCategoryRequest {
+  /** Category name in English */
+  nameEn: string;
+  /** Category name in Arabic */
+  nameAr: string;
+  /** URL-friendly slug (optional, auto-generated if not provided) */
+  slug?: string;
+  /** Parent category ID */
+  parentId?: number | null;
+  /** Category description */
+  description?: string;
+  /** Category icon */
+  icon?: string;
+  /** Category image URL */
+  imageUrl?: string;
+  /** Display order */
+  sortOrder?: number;
+  /** Whether category is active */
+  isActive?: boolean;
+}
+
+/**
+ * Update category request
+ * @description Payload for updating an existing category
+ */
+export interface UpdateCategoryRequest extends Partial<CreateCategoryRequest> {
+  /** Category ID to update */
+  id?: number;
+}
+
+/**
+ * Inventory item
+ * @description Product inventory information for inventory management
+ */
+export interface InventoryItem {
+  /** Item ID */
+  id: number;
+  /** Product ID */
+  productId: number;
+  /** Product name */
+  productName: string;
+  /** Product SKU */
+  sku: string;
+  /** Product thumbnail */
+  thumbnail: string | null;
+  /** Current stock quantity */
+  currentStock: number;
+  /** Reserved stock */
+  reservedStock: number;
+  /** Available stock (currentStock - reservedStock) */
+  availableStock: number;
+  /** Minimum stock level threshold */
+  minStockLevel: number;
+  /** Maximum stock level */
+  maxStockLevel: number;
+  /** Reorder point level */
+  reorderPoint: number;
+  /** Vendor name */
+  vendorName: string;
+  /** Category name */
+  categoryName: string;
+  /** Last updated date */
+  lastUpdated: Date | string;
+  /** Stock status */
+  stockStatus: 'in_stock' | 'low_stock' | 'out_of_stock' | 'overstock';
+}
+
+/**
+ * Inventory summary
+ * @description Overall inventory statistics
+ */
+export interface InventorySummary {
+  /** Total number of products */
+  totalProducts: number;
+  /** Total stock across all products */
+  totalStock: number;
+  /** Number of products with low stock */
+  lowStockProducts: number;
+  /** Number of products out of stock */
+  outOfStockProducts: number;
+  /** Stock breakdown by category */
+  stockByCategory?: { categoryId: number; categoryName: string; totalStock: number }[];
+  /** Stock breakdown by warehouse */
+  stockByWarehouse?: { warehouseId: number; warehouseName: string; totalStock: number }[];
+}
+
+/**
+ * Bulk stock update request
+ * @description Request for bulk stock updates
+ */
+export interface BulkStockUpdateRequest {
+  /** Array of stock updates */
+  updates: {
+    /** Product ID */
+    productId: number;
+    /** New stock quantity */
+    stock: number;
+    /** Reason for adjustment */
+    reason?: string;
+  }[];
+}
+
+/**
+ * Bulk stock update result
+ * @description Result of bulk stock update operation
+ */
+export interface BulkStockUpdateResult {
+  /** Total items processed */
+  totalProcessed: number;
+  /** Successfully updated count */
+  successful: number;
+  /** Failed count */
+  failed: number;
+  /** Individual results */
+  results: { productId: number; success: boolean; error?: string }[];
 }
 
 // =============================================================================

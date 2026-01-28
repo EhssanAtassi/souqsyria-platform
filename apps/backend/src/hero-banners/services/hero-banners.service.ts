@@ -78,8 +78,8 @@ export class HeroBannersService {
       const savedBanner = await this.heroBannerRepository.save(banner);
       this.logger.log(`Hero banner created successfully: ${savedBanner.id}`);
       return savedBanner;
-    } catch (error) {
-      this.logger.error(`Failed to create hero banner: ${error.message}`, error.stack);
+    } catch (error: unknown) {
+      this.logger.error(`Failed to create hero banner: ${(error as Error).message}`, (error as Error).stack);
       throw new InternalServerErrorException('Failed to create hero banner');
     }
   }
@@ -273,8 +273,8 @@ export class HeroBannersService {
       const updatedBanner = await this.heroBannerRepository.save(banner);
       this.logger.log(`Hero banner updated successfully: ${id}`);
       return updatedBanner;
-    } catch (error) {
-      this.logger.error(`Failed to update hero banner: ${error.message}`, error.stack);
+    } catch (error: unknown) {
+      this.logger.error(`Failed to update hero banner: ${(error as Error).message}`, (error as Error).stack);
       throw new InternalServerErrorException('Failed to update hero banner');
     }
   }
@@ -296,8 +296,8 @@ export class HeroBannersService {
       banner.deletedAt = new Date();
       this.logger.log(`Hero banner soft deleted successfully: ${id}`);
       return banner;
-    } catch (error) {
-      this.logger.error(`Failed to delete hero banner: ${error.message}`, error.stack);
+    } catch (error: unknown) {
+      this.logger.error(`Failed to delete hero banner: ${(error as Error).message}`, (error as Error).stack);
       throw new InternalServerErrorException('Failed to delete hero banner');
     }
   }
@@ -330,8 +330,8 @@ export class HeroBannersService {
       banner.deletedAt = null;
       this.logger.log(`Hero banner restored successfully: ${id}`);
       return banner;
-    } catch (error) {
-      this.logger.error(`Failed to restore hero banner: ${error.message}`, error.stack);
+    } catch (error: unknown) {
+      this.logger.error(`Failed to restore hero banner: ${(error as Error).message}`, (error as Error).stack);
       throw new InternalServerErrorException('Failed to restore hero banner');
     }
   }

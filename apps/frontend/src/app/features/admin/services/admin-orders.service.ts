@@ -19,7 +19,8 @@ import {
   ProcessRefundRequest,
   CancelOrderRequest,
   RefundRequestItem,
-  OrderStatus
+  OrderStatus,
+  RefundStatus
 } from '../interfaces';
 
 /**
@@ -245,6 +246,7 @@ export class AdminOrdersService {
     page?: number;
     limit?: number;
     sortOrder?: 'asc' | 'desc';
+    status?: RefundStatus;
   } = {}): Observable<PaginatedResponse<RefundRequestItem>> {
     return this.api.getPaginated<RefundRequestItem>('refunds/pending', query);
   }

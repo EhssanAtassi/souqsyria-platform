@@ -116,10 +116,10 @@ export class AttributeValuesService {
       );
 
       return this.transformValueToResponseDto(savedValue, 'en');
-    } catch (error) {
+    } catch (error: unknown) {
       this.logger.error(
-        `Failed to create attribute value: ${error.message}`,
-        error.stack,
+        `Failed to create attribute value: ${(error as Error).message}`,
+        (error as Error).stack,
       );
 
       if (
@@ -185,14 +185,14 @@ export class AttributeValuesService {
       return values.map((value) =>
         this.transformValueToResponseDto(value, language),
       );
-    } catch (error) {
+    } catch (error: unknown) {
       if (error instanceof NotFoundException) {
         throw error;
       }
 
       this.logger.error(
-        `Failed to fetch attribute values: ${error.message}`,
-        error.stack,
+        `Failed to fetch attribute values: ${(error as Error).message}`,
+        (error as Error).stack,
       );
       throw new InternalServerErrorException(
         `Failed to fetch values for attribute ${attributeId}`,
@@ -236,14 +236,14 @@ export class AttributeValuesService {
 
       this.logger.log(`Attribute value ${valueId} retrieved successfully`);
       return this.transformValueToResponseDto(value, language);
-    } catch (error) {
+    } catch (error: unknown) {
       if (error instanceof NotFoundException) {
         throw error;
       }
 
       this.logger.error(
-        `Failed to fetch attribute value ${valueId}: ${error.message}`,
-        error.stack,
+        `Failed to fetch attribute value ${valueId}: ${(error as Error).message}`,
+        (error as Error).stack,
       );
       throw new InternalServerErrorException(
         `Failed to fetch attribute value ${valueId}`,
@@ -326,7 +326,7 @@ export class AttributeValuesService {
       this.logger.log(`Attribute value update completed in ${executionTime}ms`);
 
       return this.transformValueToResponseDto(updatedValue, 'en');
-    } catch (error) {
+    } catch (error: unknown) {
       if (
         error instanceof NotFoundException ||
         error instanceof BadRequestException ||
@@ -336,8 +336,8 @@ export class AttributeValuesService {
       }
 
       this.logger.error(
-        `Failed to update attribute value ${valueId}: ${error.message}`,
-        error.stack,
+        `Failed to update attribute value ${valueId}: ${(error as Error).message}`,
+        (error as Error).stack,
       );
       throw new InternalServerErrorException(
         `Failed to update attribute value ${valueId}`,
@@ -403,7 +403,7 @@ export class AttributeValuesService {
         success: true,
         message: `Attribute value "${value.valueEn}" deleted successfully`,
       };
-    } catch (error) {
+    } catch (error: unknown) {
       if (
         error instanceof NotFoundException ||
         error instanceof BadRequestException
@@ -412,8 +412,8 @@ export class AttributeValuesService {
       }
 
       this.logger.error(
-        `Failed to delete attribute value ${valueId}: ${error.message}`,
-        error.stack,
+        `Failed to delete attribute value ${valueId}: ${(error as Error).message}`,
+        (error as Error).stack,
       );
       throw new InternalServerErrorException(
         `Failed to delete attribute value ${valueId}`,
@@ -496,10 +496,10 @@ export class AttributeValuesService {
       return savedValues.map((value) =>
         this.transformValueToResponseDto(value, 'en'),
       );
-    } catch (error) {
+    } catch (error: unknown) {
       this.logger.error(
-        `Failed to bulk create attribute values: ${error.message}`,
-        error.stack,
+        `Failed to bulk create attribute values: ${(error as Error).message}`,
+        (error as Error).stack,
       );
 
       if (

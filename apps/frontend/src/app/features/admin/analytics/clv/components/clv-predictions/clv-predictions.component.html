@@ -1,0 +1,328 @@
+<!--
+  CLV Predictions Template
+  @description Predictive CLV analytics view
+-->
+
+<div class="clv-predictions">
+  <!-- Loading State -->
+  @if (loading()) {
+    <div class="clv-predictions__loading">
+      <div class="clv-predictions__skeleton-header"></div>
+      <div class="clv-predictions__skeleton-grid">
+        @for (i of [1,2,3,4]; track i) {
+          <div class="clv-predictions__skeleton-card"></div>
+        }
+      </div>
+      <div class="clv-predictions__skeleton-table"></div>
+    </div>
+  }
+
+  <!-- Error State -->
+  @if (error()) {
+    <div class="clv-predictions__error">
+      <span class="material-icons">error_outline</span>
+      <p>{{ error() }}</p>
+      <button type="button" (click)="onRefresh()">
+        <span class="material-icons">refresh</span>
+        Retry
+      </button>
+    </div>
+  }
+
+  <!-- Content -->
+  @if (!loading() && !error() && predictions().length > 0) {
+    <!-- Timeframe Selector -->
+    <div class="clv-predictions__header">
+      <div class="clv-predictions__title-section">
+        <h2 class="clv-predictions__title">
+          <span class="material-icons">insights</span>
+          CLV Predictions
+        </h2>
+        <p class="clv-predictions__subtitle">
+          Forecasted customer lifetime value for the next {{ currentTimeframe()?.label }}
+        </p>
+      </div>
+
+      <div class="clv-predictions__timeframe-selector">
+        @for (option of timeframeOptions; track trackByTimeframe($index, option)) {
+          <button
+            type="button"
+            class="clv-predictions__timeframe-btn"
+            [class.clv-predictions__timeframe-btn--active]="selectedTimeframe() === option.id"
+            (click)="onTimeframeChange(option.id)"
+          >
+            {{ option.label }}
+          </button>
+        }
+      </div>
+    </div>
+
+    <!-- Summary KPIs -->
+    @if (predictionSummary()) {
+      @let summary = predictionSummary()!;
+      <div class="clv-predictions__kpis">
+        <app-bi-kpi-card
+          title="Predicted Total CLV"
+          [value]="summary.totalPredictedCLV"
+          format="currency"
+          currencyCode="SYP"
+          icon="trending_up"
+          description="Forecasted total customer value"
+        />
+
+        <app-bi-kpi-card
+          title="Avg Confidence"
+          [value]="summary.averageConfidence * 100"
+          format="percent"
+          icon="verified"
+          description="Model prediction confidence"
+        />
+
+        <app-bi-kpi-card
+          title="High Risk Customers"
+          [value]="summary.highRiskCustomers"
+          format="number"
+          icon="warning"
+          description="Customers with high churn risk"
+        />
+
+        <app-bi-kpi-card
+          title="Growth Opportunities"
+          [value]="summary.growthOpportunities"
+          format="number"
+          icon="trending_up"
+          description="Customers with high growth potential"
+        />
+      </div>
+    }
+
+    <!-- Risk Distribution Chart -->
+    <div class="clv-predictions__charts">
+      <app-bi-chart-wrapper
+        title="Predictions by Risk Level"
+        subtitle="Customer distribution across risk categories"
+        [loading]="false"
+        [showExport]="true"
+        (export)="onChartExport($event)"
+      >
+        <div class="clv-predictions__risk-chart">
+          @let riskData = predictionsByRisk();
+          <div class="clv-predictions__risk-bars">
+            <div class="clv-predictions__risk-bar">
+              <div class="clv-predictions__risk-bar-label">
+                <span class="clv-predictions__risk-dot" style="background: #059669"></span>
+                Low Risk
+              </div>
+              <div class="clv-predictions__risk-bar-track">
+                <div
+                  class="clv-predictions__risk-bar-fill"
+                  style="background: #059669"
+                  [style.width.%]="(riskData.low.length / predictions().length) * 100"
+                ></div>
+              </div>
+              <span class="clv-predictions__risk-bar-value">
+                {{ riskData.low.length }} ({{ ((riskData.low.length / predictions().length) * 100) | number:'1.0-0' }}%)
+              </span>
+            </div>
+
+            <div class="clv-predictions__risk-bar">
+              <div class="clv-predictions__risk-bar-label">
+                <span class="clv-predictions__risk-dot" style="background: #d97706"></span>
+                Medium Risk
+              </div>
+              <div class="clv-predictions__risk-bar-track">
+                <div
+                  class="clv-predictions__risk-bar-fill"
+                  style="background: #d97706"
+                  [style.width.%]="(riskData.medium.length / predictions().length) * 100"
+                ></div>
+              </div>
+              <span class="clv-predictions__risk-bar-value">
+                {{ riskData.medium.length }} ({{ ((riskData.medium.length / predictions().length) * 100) | number:'1.0-0' }}%)
+              </span>
+            </div>
+
+            <div class="clv-predictions__risk-bar">
+              <div class="clv-predictions__risk-bar-label">
+                <span class="clv-predictions__risk-dot" style="background: #ef4444"></span>
+                High Risk
+              </div>
+              <div class="clv-predictions__risk-bar-track">
+                <div
+                  class="clv-predictions__risk-bar-fill"
+                  style="background: #ef4444"
+                  [style.width.%]="(riskData.high.length / predictions().length) * 100"
+                ></div>
+              </div>
+              <span class="clv-predictions__risk-bar-value">
+                {{ riskData.high.length }} ({{ ((riskData.high.length / predictions().length) * 100) | number:'1.0-0' }}%)
+              </span>
+            </div>
+          </div>
+        </div>
+      </app-bi-chart-wrapper>
+
+      <!-- Confidence Distribution -->
+      <app-bi-chart-wrapper
+        title="Prediction Confidence"
+        subtitle="Model confidence distribution"
+        [loading]="false"
+        [showExport]="true"
+        (export)="onChartExport($event)"
+      >
+        <div class="clv-predictions__confidence-chart">
+          <div class="clv-predictions__confidence-placeholder">
+            <span class="material-icons">analytics</span>
+            <span>Confidence Distribution Chart</span>
+            <small>{{ predictions().length }} predictions analyzed</small>
+          </div>
+        </div>
+      </app-bi-chart-wrapper>
+    </div>
+
+    <!-- Tables Section -->
+    <div class="clv-predictions__tables">
+      <!-- Growth Opportunities -->
+      <div class="clv-predictions__table-card">
+        <div class="clv-predictions__table-header">
+          <h3>
+            <span class="material-icons" style="color: #059669">trending_up</span>
+            Top Growth Opportunities
+          </h3>
+        </div>
+        <div class="clv-predictions__table-wrapper">
+          <table class="clv-predictions__table">
+            <thead>
+              <tr>
+                <th>Customer ID</th>
+                <th>Current CLV</th>
+                <th>Predicted CLV</th>
+                <th>Growth Potential</th>
+                <th>Confidence</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (prediction of topGrowthOpportunities(); track trackByPrediction($index, prediction)) {
+                <tr>
+                  <td>
+                    <span class="clv-predictions__customer-id">#{{ prediction.customerId }}</span>
+                  </td>
+                  <td>{{ formatCurrency(prediction.currentCLV) }}</td>
+                  <td>
+                    <span class="clv-predictions__predicted-value">
+                      {{ formatCurrency(prediction.predictedCLV) }}
+                    </span>
+                  </td>
+                  <td>
+                    <span
+                      class="clv-predictions__badge"
+                      style="background: #dcfce7; color: #166534"
+                    >
+                      +{{ formatPercent(prediction.growthPotential) }}
+                    </span>
+                  </td>
+                  <td>
+                    <div class="clv-predictions__confidence-bar">
+                      <div
+                        class="clv-predictions__confidence-fill"
+                        [style.width.%]="prediction.confidence * 100"
+                        [style.backgroundColor]="getConfidenceColor(prediction.confidence)"
+                      ></div>
+                    </div>
+                    <span class="clv-predictions__confidence-text">
+                      {{ formatPercent(prediction.confidence) }}
+                    </span>
+                  </td>
+                  <td>
+                    <button
+                      type="button"
+                      class="clv-predictions__view-btn"
+                      (click)="onViewCustomer(prediction)"
+                    >
+                      <span class="material-icons">visibility</span>
+                    </button>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- High Risk Customers -->
+      <div class="clv-predictions__table-card">
+        <div class="clv-predictions__table-header">
+          <h3>
+            <span class="material-icons" style="color: #ef4444">warning</span>
+            High Risk Customers
+          </h3>
+        </div>
+        <div class="clv-predictions__table-wrapper">
+          <table class="clv-predictions__table">
+            <thead>
+              <tr>
+                <th>Customer ID</th>
+                <th>Current CLV</th>
+                <th>Churn Risk</th>
+                <th>Last Activity</th>
+                <th>Confidence</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (prediction of highRiskCustomers(); track trackByPrediction($index, prediction)) {
+                <tr>
+                  <td>
+                    <span class="clv-predictions__customer-id">#{{ prediction.customerId }}</span>
+                  </td>
+                  <td>{{ formatCurrency(prediction.currentCLV) }}</td>
+                  <td>
+                    <span
+                      class="clv-predictions__badge"
+                      [style.backgroundColor]="'#fef2f2'"
+                      [style.color]="'#991b1b'"
+                    >
+                      {{ formatPercent(prediction.churnRisk) }}
+                    </span>
+                  </td>
+                  <td>{{ prediction.lastActivityDays || 'N/A' }} days ago</td>
+                  <td>
+                    <div class="clv-predictions__confidence-bar">
+                      <div
+                        class="clv-predictions__confidence-fill"
+                        [style.width.%]="prediction.confidence * 100"
+                        [style.backgroundColor]="getConfidenceColor(prediction.confidence)"
+                      ></div>
+                    </div>
+                    <span class="clv-predictions__confidence-text">
+                      {{ formatPercent(prediction.confidence) }}
+                    </span>
+                  </td>
+                  <td>
+                    <button
+                      type="button"
+                      class="clv-predictions__view-btn"
+                      (click)="onViewCustomer(prediction)"
+                    >
+                      <span class="material-icons">visibility</span>
+                    </button>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- Empty State -->
+  @if (!loading() && !error() && predictions().length === 0) {
+    <div class="clv-predictions__empty">
+      <span class="material-icons">insights</span>
+      <h3>No Predictions Available</h3>
+      <p>CLV predictions will appear here once enough data is collected.</p>
+    </div>
+  }
+</div>

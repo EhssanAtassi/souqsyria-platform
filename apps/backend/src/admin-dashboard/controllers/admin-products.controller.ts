@@ -534,8 +534,8 @@ export class AdminProductsController {
         });
 
         approved++;
-      } catch (error) {
-        errors.push(`Product ${productId}: ${error.message}`);
+      } catch (error: unknown) {
+        errors.push(`Product ${productId}: ${(error as Error).message}`);
         failed++;
       }
     }
@@ -608,8 +608,8 @@ export class AdminProductsController {
         });
 
         rejected++;
-      } catch (error) {
-        errors.push(`Product ${productId}: ${error.message}`);
+      } catch (error: unknown) {
+        errors.push(`Product ${productId}: ${(error as Error).message}`);
         failed++;
       }
     }

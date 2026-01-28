@@ -162,8 +162,8 @@ export class PaymentSeederService {
           this.logger.debug(
             `Created payment ${payment.id} for order ${paymentInfo.order.id} (${methodKey}/${statusKey})`,
           );
-        } catch (error) {
-          this.logger.error(`Failed to create payment: ${error.message}`);
+        } catch (error: unknown) {
+          this.logger.error(`Failed to create payment: ${(error as Error).message}`);
           throw error;
         }
       }
@@ -191,9 +191,9 @@ export class PaymentSeederService {
         paymentsByMethod,
         paymentsByStatus,
       };
-    } catch (error) {
+    } catch (error: unknown) {
       const executionTime = Date.now() - startTime;
-      this.logger.error(`❌ Payment seeding failed: ${error.message}`);
+      this.logger.error(`❌ Payment seeding failed: ${(error as Error).message}`);
 
       return {
         success: false,
@@ -202,7 +202,7 @@ export class PaymentSeederService {
         executionTime,
         paymentsByMethod: {},
         paymentsByStatus: {},
-        error: error.message,
+        error: (error as Error).message,
       };
     }
   }
@@ -291,9 +291,9 @@ export class PaymentSeederService {
       this.logger.log(`✅ Created ${refundsCreated} refund transactions`);
 
       return { success: true, refundsCreated };
-    } catch (error) {
-      this.logger.error(`❌ Refund seeding failed: ${error.message}`);
-      return { success: false, refundsCreated: 0, error: error.message };
+    } catch (error: unknown) {
+      this.logger.error(`❌ Refund seeding failed: ${(error as Error).message}`);
+      return { success: false, refundsCreated: 0, error: (error as Error).message };
     }
   }
 
@@ -796,14 +796,14 @@ export class PaymentSeederService {
           },
         },
       };
-    } catch (error) {
+    } catch (error: unknown) {
       return {
         success: false,
         message: {
           en: 'Failed to clear payment seeding data',
           ar: 'فشل في مسح بيانات بذور المدفوعات',
         },
-        error: error.message,
+        error: (error as Error).message,
       };
     }
   }

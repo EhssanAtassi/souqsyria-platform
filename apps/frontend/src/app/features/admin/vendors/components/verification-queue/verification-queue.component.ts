@@ -282,14 +282,14 @@ export class VerificationQueueComponent implements OnInit, OnDestroy {
       )
       .subscribe({
         next: (response: PaginatedResponse<VendorVerificationItem>) => {
-          this.verifications.set(response.data);
+          this.verifications.set(response.items);
           this.pagination.set({
             page: response.page,
             limit: response.limit,
             total: response.total,
             totalPages: response.totalPages
           });
-          this.calculateStats(response.data);
+          this.calculateStats(response.items);
         },
         error: (error) => {
           console.error('Error loading verifications:', error);
@@ -419,6 +419,40 @@ export class VerificationQueueComponent implements OnInit, OnDestroy {
   goToVendorDetail(vendorId: number): void {
     this.closeDetailDialog();
     this.router.navigate(['/admin/vendors', vendorId], { queryParams: { tab: 'verification' } });
+  }
+
+  // ===========================================================================
+  // FORM HELPERS
+  // ===========================================================================
+
+  /**
+   * Update notes in action form data
+   * @param notes - New notes value
+   */
+  updateNotes(notes: string): void {
+    this.actionFormData.update(data => ({ ...data, notes }));
+  }
+
+  /**
+   * Update rejection reason in action form data
+   * @param reason - New rejection reason
+   */
+  updateRejectionReason(reason: string): void {
+    this.actionFormData.update(data => ({ ...data, rejectionReason: reason }));
+  }
+
+  /**
+   * Toggle notify vendor flag
+   */
+  toggleNotifyVendor(): void {
+    this.actionFormData.update(data => ({ ...data, notifyVendor: !data.notifyVendor }));
+  }
+
+  /**
+   * Clear search term
+   */
+  clearSearch(): void {
+    this.searchTerm.set('');
   }
 
   // ===========================================================================
@@ -657,6 +691,7 @@ export class VerificationQueueComponent implements OnInit, OnDestroy {
       approved: 'Approved',
       rejected: 'Rejected',
       suspended: 'Suspended',
+      requires_resubmission: 'Requires Resubmission',
       expired: 'Expired',
       revoked: 'Revoked'
     };
@@ -679,6 +714,7 @@ export class VerificationQueueComponent implements OnInit, OnDestroy {
       approved: 'verified',
       rejected: 'cancel',
       suspended: 'pause_circle',
+      requires_resubmission: 'assignment_return',
       expired: 'timer_off',
       revoked: 'block'
     };

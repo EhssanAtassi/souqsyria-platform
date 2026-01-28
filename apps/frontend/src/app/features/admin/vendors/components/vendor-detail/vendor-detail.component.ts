@@ -20,6 +20,7 @@ import { RouterModule, Router, ActivatedRoute } from '@angular/router';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatMenuModule } from '@angular/material/menu';
+import { MatDividerModule } from '@angular/material/divider';
 import { Subject, takeUntil, finalize, switchMap, filter } from 'rxjs';
 
 import { AdminVendorsService } from '../../../services';
@@ -90,6 +91,7 @@ interface VendorPerformance {
     MatSnackBarModule,
     MatTooltipModule,
     MatMenuModule,
+    MatDividerModule,
     CurrencyFormatPipe
   ],
   templateUrl: './vendor-detail.component.html',
@@ -483,7 +485,7 @@ export class VendorDetailComponent implements OnInit, OnDestroy {
 
     switch (this.verificationAction) {
       case 'approve':
-        action$ = this.vendorsService.approveVendor(vendorData.id, this.verificationNotes);
+        action$ = this.vendorsService.approveVendor(vendorData.id, { notes: this.verificationNotes });
         break;
       case 'reject':
         if (!this.verificationNotes.trim()) {
@@ -491,7 +493,7 @@ export class VendorDetailComponent implements OnInit, OnDestroy {
           this.isProcessing.set(false);
           return;
         }
-        action$ = this.vendorsService.rejectVendor(vendorData.id, this.verificationNotes);
+        action$ = this.vendorsService.rejectVendor(vendorData.id, { reason: this.verificationNotes });
         break;
       case 'request_docs':
         if (this.requestedDocuments.length === 0) {
@@ -499,11 +501,11 @@ export class VendorDetailComponent implements OnInit, OnDestroy {
           this.isProcessing.set(false);
           return;
         }
-        action$ = this.vendorsService.requestDocuments(
-          vendorData.id,
-          this.requestedDocuments,
-          this.verificationNotes
-        );
+        action$ = this.vendorsService.requestDocuments(vendorData.id, {
+          documents: this.requestedDocuments,
+          notes: this.verificationNotes,
+          notifyVendor: true
+        });
         break;
     }
 
@@ -542,6 +544,9 @@ export class VendorDetailComponent implements OnInit, OnDestroy {
       under_review: 'info',
       documents_requested: 'warning',
       documents_resubmitted: 'info',
+      requires_resubmission: 'warning',
+      business_verification: 'info',
+      final_review: 'info',
       approved: 'success',
       rejected: 'danger',
       suspended: 'danger',
@@ -562,6 +567,9 @@ export class VendorDetailComponent implements OnInit, OnDestroy {
       under_review: 'Under Review',
       documents_requested: 'Documents Requested',
       documents_resubmitted: 'Documents Resubmitted',
+      requires_resubmission: 'Requires Resubmission',
+      business_verification: 'Business Verification',
+      final_review: 'Final Review',
       approved: 'Approved',
       rejected: 'Rejected',
       suspended: 'Suspended',

@@ -20,6 +20,7 @@ import {
   UpdateVendorCommissionRequest,
   ProcessPayoutRequest,
   PayoutRequestItem,
+  PayoutStatus,
   VendorVerificationStatus,
   VendorAccountStatus
 } from '../interfaces';
@@ -209,14 +210,14 @@ export class AdminVendorsService {
    * Approve vendor
    * @description Convenience method to approve a vendor
    * @param vendorId - Vendor ID
-   * @param notes - Approval notes
+   * @param params - Approval parameters including notes and notifyVendor flag
    * @returns Observable of updated vendor details
    */
-  approveVendor(vendorId: number, notes?: string): Observable<VendorDetails> {
+  approveVendor(vendorId: number, params?: { notes?: string; notifyVendor?: boolean }): Observable<VendorDetails> {
     return this.updateVerification(vendorId, {
       status: 'approved',
-      notes,
-      notifyVendor: true
+      notes: params?.notes,
+      notifyVendor: params?.notifyVendor ?? true
     });
   }
 
@@ -224,14 +225,15 @@ export class AdminVendorsService {
    * Reject vendor
    * @description Convenience method to reject a vendor application
    * @param vendorId - Vendor ID
-   * @param reason - Rejection reason
+   * @param params - Rejection parameters including reason, notes, and notifyVendor flag
    * @returns Observable of updated vendor details
    */
-  rejectVendor(vendorId: number, reason: string): Observable<VendorDetails> {
+  rejectVendor(vendorId: number, params: { reason: string; notes?: string; notifyVendor?: boolean }): Observable<VendorDetails> {
     return this.updateVerification(vendorId, {
       status: 'rejected',
-      rejectionReason: reason,
-      notifyVendor: true
+      rejectionReason: params.reason,
+      notes: params.notes,
+      notifyVendor: params.notifyVendor ?? true
     });
   }
 
@@ -239,20 +241,18 @@ export class AdminVendorsService {
    * Request documents
    * @description Requests additional documents from vendor
    * @param vendorId - Vendor ID
-   * @param documents - List of required document types
-   * @param notes - Instructions for vendor
+   * @param params - Request parameters including documents list, notes, and notifyVendor flag
    * @returns Observable of updated vendor details
    */
   requestDocuments(
     vendorId: number,
-    documents: string[],
-    notes?: string
+    params: { documents: string[]; notes?: string; notifyVendor?: boolean }
   ): Observable<VendorDetails> {
     return this.updateVerification(vendorId, {
       status: 'documents_requested',
-      requestedDocuments: documents,
-      notes,
-      notifyVendor: true
+      requestedDocuments: params.documents,
+      notes: params.notes,
+      notifyVendor: params.notifyVendor ?? true
     });
   }
 
@@ -405,13 +405,14 @@ export class AdminVendorsService {
   /**
    * Get pending payout requests
    * @description Retrieves list of payout requests awaiting processing
-   * @param query - Pagination parameters
+   * @param query - Query parameters including pagination and status filter
    * @returns Observable of paginated payout request list
    */
   getPendingPayouts(query: {
     page?: number;
     limit?: number;
     sortOrder?: 'asc' | 'desc';
+    status?: PayoutStatus;
   } = {}): Observable<PaginatedResponse<PayoutRequestItem>> {
     return this.api.getPaginated<PayoutRequestItem>('payouts/pending', query);
   }

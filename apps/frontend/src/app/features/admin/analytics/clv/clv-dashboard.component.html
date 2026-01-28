@@ -1,0 +1,114 @@
+<!--
+  CLV Dashboard Template
+  @description Main container for CLV Analytics with navigation and controls
+-->
+
+<div class="clv-dashboard">
+  <!-- Header Section -->
+  <header class="clv-dashboard__header">
+    <div class="clv-dashboard__title-section">
+      <h1 class="clv-dashboard__title">
+        <span class="material-icons clv-dashboard__icon">analytics</span>
+        Customer Lifetime Value Analytics
+      </h1>
+      <p class="clv-dashboard__subtitle">
+        Analyze customer value, segment behavior, and predict future revenue
+      </p>
+    </div>
+
+    <div class="clv-dashboard__controls">
+      <!-- Date Range Picker -->
+      <app-bi-date-range-picker
+        [showGranularity]="true"
+        [showComparison]="false"
+        (dateChange)="onDateRangeChange($event)"
+        (granularityChange)="onGranularityChange($event)"
+      />
+
+      <!-- Action Buttons -->
+      <div class="clv-dashboard__actions">
+        <!-- Refresh Button -->
+        <button
+          type="button"
+          class="clv-dashboard__action-btn"
+          [disabled]="isLoading()"
+          (click)="onRefresh()"
+          title="Refresh data"
+        >
+          <span class="material-icons" [class.clv-dashboard__icon--spin]="isLoading()">
+            refresh
+          </span>
+        </button>
+
+        <!-- Export Dropdown -->
+        <div class="clv-dashboard__export-dropdown">
+          <button
+            type="button"
+            class="clv-dashboard__action-btn clv-dashboard__action-btn--primary"
+            [disabled]="isExporting()"
+          >
+            @if (isExporting()) {
+              <span class="material-icons clv-dashboard__icon--spin">sync</span>
+            } @else {
+              <span class="material-icons">download</span>
+            }
+            Export
+          </button>
+          <div class="clv-dashboard__export-menu">
+            <button type="button" (click)="onExport('csv')">
+              <span class="material-icons">table_chart</span>
+              Export as CSV
+            </button>
+            <button type="button" (click)="onExport('xlsx')">
+              <span class="material-icons">grid_on</span>
+              Export as Excel
+            </button>
+            <button type="button" (click)="onExport('pdf')">
+              <span class="material-icons">picture_as_pdf</span>
+              Export as PDF
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Navigation Tabs -->
+  <nav class="clv-dashboard__nav">
+    <ul class="clv-dashboard__tabs" role="tablist">
+      @for (tab of navTabs; track trackByTab($index, tab)) {
+        <li class="clv-dashboard__tab-item">
+          <a
+            [routerLink]="tab.path"
+            routerLinkActive="clv-dashboard__tab--active"
+            class="clv-dashboard__tab"
+            [attr.aria-selected]="activeTab() === tab.id"
+            [title]="tab.description"
+          >
+            <span class="material-icons clv-dashboard__tab-icon">{{ tab.icon }}</span>
+            <span class="clv-dashboard__tab-label">{{ tab.label }}</span>
+          </a>
+        </li>
+      }
+    </ul>
+
+    <!-- Current Date Range Badge -->
+    <div class="clv-dashboard__date-badge">
+      <span class="material-icons">calendar_today</span>
+      {{ dateRangeText() }}
+    </div>
+  </nav>
+
+  <!-- Content Area -->
+  <main class="clv-dashboard__content">
+    <!-- Loading Overlay -->
+    @if (isLoading()) {
+      <div class="clv-dashboard__loading-overlay">
+        <div class="clv-dashboard__spinner"></div>
+      </div>
+    }
+
+    <!-- Router Outlet for Child Components -->
+    <router-outlet />
+  </main>
+</div>

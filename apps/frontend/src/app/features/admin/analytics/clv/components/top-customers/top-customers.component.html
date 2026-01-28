@@ -1,0 +1,358 @@
+<!--
+  Top Customers Template
+  @description High-value customer rankings view
+-->
+
+<div class="top-customers">
+  <!-- Loading State -->
+  @if (loading()) {
+    <div class="top-customers__loading">
+      <div class="top-customers__skeleton-header"></div>
+      <div class="top-customers__skeleton-table"></div>
+    </div>
+  }
+
+  <!-- Error State -->
+  @if (error()) {
+    <div class="top-customers__error">
+      <span class="material-icons">error_outline</span>
+      <p>{{ error() }}</p>
+      <button type="button" (click)="onRefresh()">
+        <span class="material-icons">refresh</span>
+        Retry
+      </button>
+    </div>
+  }
+
+  <!-- Content -->
+  @if (!loading() && !error() && customers().length > 0) {
+    <!-- Summary KPIs -->
+    @if (summary()) {
+      @let stats = summary()!;
+      <div class="top-customers__kpis">
+        <app-bi-kpi-card
+          title="Total Customer Value"
+          [value]="stats.totalCLV"
+          format="currency"
+          currencyCode="SYP"
+          icon="account_balance"
+          description="Combined CLV of all customers"
+        />
+
+        <app-bi-kpi-card
+          title="Average CLV"
+          [value]="stats.avgCLV"
+          format="currency"
+          currencyCode="SYP"
+          icon="person"
+          description="Average lifetime value per customer"
+        />
+
+        <app-bi-kpi-card
+          title="Total Orders"
+          [value]="stats.totalOrders"
+          format="compact"
+          icon="shopping_cart"
+          description="Total orders from top customers"
+        />
+
+        <app-bi-kpi-card
+          title="Avg Order Value"
+          [value]="stats.avgOrderValue"
+          format="currency"
+          currencyCode="SYP"
+          icon="receipt"
+          description="Average order value"
+        />
+      </div>
+    }
+
+    <!-- Filters & Actions -->
+    <div class="top-customers__toolbar">
+      <div class="top-customers__filters">
+        <!-- Search -->
+        <div class="top-customers__search">
+          <span class="material-icons">search</span>
+          <input
+            type="text"
+            placeholder="Search by ID, name, or email..."
+            [ngModel]="searchQuery()"
+            (ngModelChange)="onSearch($event)"
+          />
+        </div>
+
+        <!-- Segment Filter -->
+        <select
+          class="top-customers__select"
+          [ngModel]="selectedSegment()"
+          (ngModelChange)="onSegmentChange($event)"
+        >
+          @for (option of segmentOptions; track option.value) {
+            <option [value]="option.value">{{ option.label }}</option>
+          }
+        </select>
+      </div>
+
+      <div class="top-customers__actions">
+        <span class="top-customers__count">
+          {{ filteredCustomers().length }} customers
+        </span>
+
+        <button type="button" class="top-customers__btn" (click)="onRefresh()">
+          <span class="material-icons">refresh</span>
+        </button>
+
+        <div class="top-customers__export-dropdown">
+          <button type="button" class="top-customers__btn top-customers__btn--primary">
+            <span class="material-icons">download</span>
+            Export
+          </button>
+          <div class="top-customers__export-menu">
+            <button type="button" (click)="onExport('csv')">Export as CSV</button>
+            <button type="button" (click)="onExport('xlsx')">Export as Excel</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Table -->
+    <div class="top-customers__table-wrapper">
+      <table class="top-customers__table">
+        <thead>
+          <tr>
+            <th>Rank</th>
+            <th
+              class="top-customers__sortable"
+              [class.top-customers__sorted]="isSorted('customerId')"
+              (click)="onSort('customerId')"
+            >
+              Customer
+              <span class="material-icons">{{ getSortIcon('customerId') }}</span>
+            </th>
+            <th>Segment</th>
+            <th
+              class="top-customers__sortable"
+              [class.top-customers__sorted]="isSorted('clv')"
+              (click)="onSort('clv')"
+            >
+              CLV
+              <span class="material-icons">{{ getSortIcon('clv') }}</span>
+            </th>
+            <th
+              class="top-customers__sortable"
+              [class.top-customers__sorted]="isSorted('orderCount')"
+              (click)="onSort('orderCount')"
+            >
+              Orders
+              <span class="material-icons">{{ getSortIcon('orderCount') }}</span>
+            </th>
+            <th
+              class="top-customers__sortable"
+              [class.top-customers__sorted]="isSorted('avgOrderValue')"
+              (click)="onSort('avgOrderValue')"
+            >
+              Avg Order
+              <span class="material-icons">{{ getSortIcon('avgOrderValue') }}</span>
+            </th>
+            <th
+              class="top-customers__sortable"
+              [class.top-customers__sorted]="isSorted('lastOrderDate')"
+              (click)="onSort('lastOrderDate')"
+            >
+              Last Order
+              <span class="material-icons">{{ getSortIcon('lastOrderDate') }}</span>
+            </th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (customer of paginatedCustomers(); track trackByCustomer($index, customer); let i = $index) {
+            <tr>
+              <td>
+                <span class="top-customers__rank">
+                  {{ (currentPage() - 1) * pageSize() + i + 1 }}
+                </span>
+              </td>
+              <td>
+                <div class="top-customers__customer-info">
+                  <span class="top-customers__avatar">
+                    {{ (customer.name || 'U').charAt(0).toUpperCase() }}
+                  </span>
+                  <div class="top-customers__customer-details">
+                    <span class="top-customers__name">
+                      {{ customer.name || 'Customer #' + customer.customerId }}
+                    </span>
+                    <span class="top-customers__email">{{ customer.email || 'No email' }}</span>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <span
+                  class="top-customers__segment-badge"
+                  [style.backgroundColor]="getSegmentColor(customer.segment)"
+                >
+                  {{ getSegmentLabel(customer.segment) }}
+                </span>
+              </td>
+              <td class="top-customers__clv-cell">
+                {{ formatCurrency(customer.clv) }}
+              </td>
+              <td>{{ customer.orderCount | number }}</td>
+              <td>{{ formatCurrency(customer.avgOrderValue) }}</td>
+              <td>{{ customer.lastOrderDate | date:'mediumDate' }}</td>
+              <td>
+                <button
+                  type="button"
+                  class="top-customers__view-btn"
+                  (click)="onViewCustomer(customer)"
+                >
+                  <span class="material-icons">visibility</span>
+                </button>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Pagination -->
+    @if (totalPages() > 1) {
+      <div class="top-customers__pagination">
+        <button
+          type="button"
+          class="top-customers__page-btn"
+          [disabled]="currentPage() === 1"
+          (click)="onPageChange(currentPage() - 1)"
+        >
+          <span class="material-icons">chevron_left</span>
+        </button>
+
+        @for (page of getPageNumbers(); track page) {
+          <button
+            type="button"
+            class="top-customers__page-btn"
+            [class.top-customers__page-btn--active]="page === currentPage()"
+            (click)="onPageChange(page)"
+          >
+            {{ page }}
+          </button>
+        }
+
+        <button
+          type="button"
+          class="top-customers__page-btn"
+          [disabled]="currentPage() === totalPages()"
+          (click)="onPageChange(currentPage() + 1)"
+        >
+          <span class="material-icons">chevron_right</span>
+        </button>
+      </div>
+    }
+  }
+
+  <!-- Customer Detail Panel -->
+  @if (selectedCustomer()) {
+    @let customer = selectedCustomer()!;
+    <div class="top-customers__detail-overlay" (click)="closeCustomerDetail()">
+      <div class="top-customers__detail-panel" (click)="$event.stopPropagation()">
+        <div class="top-customers__detail-header">
+          <div class="top-customers__detail-title">
+            <span
+              class="top-customers__detail-avatar"
+              [style.backgroundColor]="getSegmentColor(customer.segment)"
+            >
+              {{ (customer.name || 'U').charAt(0).toUpperCase() }}
+            </span>
+            <div>
+              <h3>{{ customer.name || 'Customer #' + customer.customerId }}</h3>
+              <p>{{ customer.email || 'No email' }}</p>
+            </div>
+          </div>
+          <button
+            type="button"
+            class="top-customers__close-btn"
+            (click)="closeCustomerDetail()"
+          >
+            <span class="material-icons">close</span>
+          </button>
+        </div>
+
+        <div class="top-customers__detail-content">
+          <div class="top-customers__detail-grid">
+            <div class="top-customers__detail-stat">
+              <span class="top-customers__detail-stat-label">Customer ID</span>
+              <span class="top-customers__detail-stat-value">#{{ customer.customerId }}</span>
+            </div>
+            <div class="top-customers__detail-stat">
+              <span class="top-customers__detail-stat-label">Segment</span>
+              <span
+                class="top-customers__segment-badge"
+                [style.backgroundColor]="getSegmentColor(customer.segment)"
+              >
+                {{ getSegmentLabel(customer.segment) }}
+              </span>
+            </div>
+            <div class="top-customers__detail-stat">
+              <span class="top-customers__detail-stat-label">Lifetime Value</span>
+              <span class="top-customers__detail-stat-value top-customers__clv-value">
+                {{ formatCurrency(customer.clv) }}
+              </span>
+            </div>
+            <div class="top-customers__detail-stat">
+              <span class="top-customers__detail-stat-label">Total Orders</span>
+              <span class="top-customers__detail-stat-value">{{ customer.orderCount }}</span>
+            </div>
+            <div class="top-customers__detail-stat">
+              <span class="top-customers__detail-stat-label">Avg Order Value</span>
+              <span class="top-customers__detail-stat-value">
+                {{ formatCurrency(customer.avgOrderValue) }}
+              </span>
+            </div>
+            <div class="top-customers__detail-stat">
+              <span class="top-customers__detail-stat-label">Last Order</span>
+              <span class="top-customers__detail-stat-value">
+                {{ customer.lastOrderDate | date:'mediumDate' }}
+              </span>
+            </div>
+            <div class="top-customers__detail-stat">
+              <span class="top-customers__detail-stat-label">First Order</span>
+              <span class="top-customers__detail-stat-value">
+                {{ customer.firstOrderDate | date:'mediumDate' }}
+              </span>
+            </div>
+            <div class="top-customers__detail-stat">
+              <span class="top-customers__detail-stat-label">Customer Since</span>
+              <span class="top-customers__detail-stat-value">
+                {{ customer.customerSince | date:'mediumDate' }}
+              </span>
+            </div>
+          </div>
+
+          <div class="top-customers__detail-actions">
+            <button type="button" class="top-customers__action-btn">
+              <span class="material-icons">shopping_bag</span>
+              View Orders
+            </button>
+            <button type="button" class="top-customers__action-btn">
+              <span class="material-icons">email</span>
+              Send Email
+            </button>
+            <button type="button" class="top-customers__action-btn">
+              <span class="material-icons">local_offer</span>
+              Create Offer
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- Empty State -->
+  @if (!loading() && !error() && customers().length === 0) {
+    <div class="top-customers__empty">
+      <span class="material-icons">people</span>
+      <h3>No Customers Found</h3>
+      <p>Customer data will appear here once available.</p>
+    </div>
+  }
+</div>

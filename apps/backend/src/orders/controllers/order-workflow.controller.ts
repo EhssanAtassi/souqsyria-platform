@@ -687,17 +687,17 @@ export class OrderWorkflowController {
           success: true,
           newState: updatedWorkflow.currentState,
         });
-      } catch (error) {
+      } catch (error: unknown) {
         failed++;
         results.push({
           workflowId,
           success: false,
-          error: error.message,
+          error: (error as Error).message,
         });
 
         this.logger.error(
           `Failed to execute bulk action on workflow ${workflowId}`,
-          error.stack,
+          (error as Error).stack,
         );
       }
     }

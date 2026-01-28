@@ -1,56 +1,87 @@
-# Dependencies
-node_modules
+# ============================================================================
+# Docker Build Ignore File - Backend
+# ============================================================================
+# Excludes files/directories from Docker COPY commands to reduce image size
+# and build time. Only necessary files are included in the final image.
+# ============================================================================
+
+# Node modules (will be reinstalled)
+node_modules/
 npm-debug.log
 yarn-error.log
 
-# Build output
-dist
-build
-*.tsbuildinfo
+# Distribution files (will be rebuilt)
+dist/
 
-# Environment files
+# Development files
 .env
 .env.local
 .env.*.local
-.env.test
-
-# IDE
-.idea
-.vscode
+.vscode/
+.idea/
+.DS_Store
 *.swp
 *.swo
 *~
 
-# OS
-.DS_Store
-Thumbs.db
-
 # Git
-.git
+.git/
 .gitignore
-.gitattributes
 
 # Testing
-coverage
-.nyc_output
-*.test.ts
+coverage/
 *.spec.ts
-test
+test/
 
 # Documentation
-*.md
 README.md
-docs
+CHANGELOG.md
+LICENSE
 
-# Docker
-Dockerfile
-.dockerignore
-docker-compose*.yml
+# CI/CD
+.github/
+.gitlab-ci.yml
+jenkins/
+azure-pipelines.yml
 
-# Logs
-logs
-*.log
+# Editor files
+*.code-workspace
+.editorconfig
+.prettierignore
+.eslintignore
+
+# OS files
+Thumbs.db
+.DS_Store
+.AppleDouble
+.LSOverride
 
 # Temporary files
-tmp
-temp
+*.tmp
+*.temp
+*.log
+
+# Build artifacts
+build/
+out/
+
+# Dependency lock files (not needed, npm ci handles this)
+# package-lock.json  # Keep for reproducible builds
+# yarn.lock
+
+# Environment templates (use .env.example instead)
+# .env.example
+
+# Docker files (not needed in image)
+docker-compose.yml
+Dockerfile
+.dockerignore
+
+# Development scripts
+scripts/dev
+dev-server.sh
+
+# Backup files
+*.bak
+*.backup
+*.old

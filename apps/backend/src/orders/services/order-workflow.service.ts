@@ -382,14 +382,14 @@ export class OrderWorkflowService {
         );
 
         return savedWorkflow;
-      } catch (error) {
+      } catch (error: unknown) {
         this.logger.error(
           `Failed to execute action ${action} on workflow ${workflowId}`,
-          error.stack,
+          (error as Error).stack,
         );
 
         // Update error tracking
-        await this.recordWorkflowError(workflowId, action, error);
+        await this.recordWorkflowError(workflowId, action, error as Error);
         throw error;
       }
     });
@@ -745,8 +745,8 @@ export class OrderWorkflowService {
         workflow.lastError = {
           timestamp: new Date(),
           action: action,
-          message: error.message,
-          stackTrace: error.stack,
+          message: (error as Error).message,
+          stackTrace: (error as Error).stack,
           retryable: this.isRetryableError(error),
         };
         await this.workflowRepo.save(workflow);

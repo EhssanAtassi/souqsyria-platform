@@ -143,11 +143,11 @@ export class RolesSeederController {
     try {
       const result = await this.rolesSeederService.seedRoles();
       return result;
-    } catch (error) {
+    } catch (error: unknown) {
       throw new HttpException(
         {
           success: false,
-          error: error.message,
+          error: (error as Error).message,
         },
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
@@ -215,11 +215,11 @@ export class RolesSeederController {
         optimization_applied: true,
         custom_roles_created: bulkConfig.custom_roles?.length || 0,
       };
-    } catch (error) {
+    } catch (error: unknown) {
       throw new HttpException(
         {
           success: false,
-          error: error.message,
+          error: (error as Error).message,
           bulk_config: bulkConfig,
         },
         HttpStatus.INTERNAL_SERVER_ERROR,
@@ -265,11 +265,11 @@ export class RolesSeederController {
         statistics,
         generated_at: new Date().toISOString(),
       };
-    } catch (error) {
+    } catch (error: unknown) {
       throw new HttpException(
         {
           success: false,
-          error: error.message,
+          error: (error as Error).message,
         },
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
@@ -338,11 +338,11 @@ export class RolesSeederController {
         type_balance_score: this.calculateTypeBalance(rolesByType),
         generated_at: new Date().toISOString(),
       };
-    } catch (error) {
+    } catch (error: unknown) {
       throw new HttpException(
         {
           success: false,
-          error: error.message,
+          error: (error as Error).message,
         },
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
@@ -384,11 +384,11 @@ export class RolesSeederController {
         },
         generated_at: new Date().toISOString(),
       };
-    } catch (error) {
+    } catch (error: unknown) {
       throw new HttpException(
         {
           success: false,
-          error: error.message,
+          error: (error as Error).message,
         },
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
@@ -458,11 +458,11 @@ export class RolesSeederController {
         generated_at: new Date().toISOString(),
         expires_at: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(), // 24 hours
       };
-    } catch (error) {
+    } catch (error: unknown) {
       throw new HttpException(
         {
           success: false,
-          error: error.message,
+          error: (error as Error).message,
           export_config: exportConfig,
         },
         HttpStatus.INTERNAL_SERVER_ERROR,
@@ -507,11 +507,11 @@ export class RolesSeederController {
         warning: 'Access control system has been reset',
         cleared_at: new Date().toISOString(),
       };
-    } catch (error) {
+    } catch (error: unknown) {
       throw new HttpException(
         {
           success: false,
-          error: error.message,
+          error: (error as Error).message,
         },
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
@@ -556,11 +556,11 @@ export class RolesSeederController {
         sample_size: sampleSize || 'default',
         test_completed_at: new Date().toISOString(),
       };
-    } catch (error) {
+    } catch (error: unknown) {
       throw new HttpException(
         {
           success: false,
-          error: error.message,
+          error: (error as Error).message,
           test_mode: true,
         },
         HttpStatus.INTERNAL_SERVER_ERROR,

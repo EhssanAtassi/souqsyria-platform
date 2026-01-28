@@ -23,7 +23,7 @@ import { MatTabsModule } from '@angular/material/tabs';
 import { Subject, forkJoin, takeUntil, finalize } from 'rxjs';
 
 import { AdminUsersService } from '../../../services';
-import { AdminStatusBadgeComponent, CurrencyFormatPipe } from '../../../shared';
+import { AdminStatusBadgeComponent, CurrencyFormatPipe, StatusVariant } from '../../../shared';
 import { UserDetails, UserStatus, KycStatus, PaginatedResponse } from '../../../interfaces';
 import { RoleAssignmentDialogComponent } from '../role-assignment-dialog/role-assignment-dialog.component';
 import { StatusChangeDialogComponent } from '../status-change-dialog/status-change-dialog.component';
@@ -343,15 +343,15 @@ export class UserDetailComponent implements OnInit, OnDestroy {
    * @param status - User status
    * @returns Badge variant
    */
-  getStatusVariant(status: UserStatus): string {
-    const variantMap: Record<UserStatus, string> = {
+  getStatusVariant(status: UserStatus): StatusVariant {
+    const variantMap: Record<UserStatus, StatusVariant> = {
       active: 'success',
-      inactive: 'secondary',
+      inactive: 'neutral',
       suspended: 'warning',
       banned: 'danger',
       pending_verification: 'info'
     };
-    return variantMap[status] || 'secondary';
+    return variantMap[status] || 'neutral';
   }
 
   /**
@@ -359,16 +359,16 @@ export class UserDetailComponent implements OnInit, OnDestroy {
    * @param status - KYC status
    * @returns Badge variant
    */
-  getKycVariant(status: KycStatus): string {
-    const variantMap: Record<KycStatus, string> = {
-      not_submitted: 'secondary',
+  getKycVariant(status: KycStatus): StatusVariant {
+    const variantMap: Record<KycStatus, StatusVariant> = {
+      not_submitted: 'neutral',
       pending: 'info',
       under_review: 'warning',
       approved: 'success',
       rejected: 'danger',
       requires_resubmission: 'warning'
     };
-    return variantMap[status] || 'secondary';
+    return variantMap[status] || 'neutral';
   }
 
   /**

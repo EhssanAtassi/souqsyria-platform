@@ -53,9 +53,9 @@ export class ShipmentTrackingService {
             changedBy: null,
           });
         }
-      } catch (e) {
+      } catch (e: unknown) {
         this.logger.error(
-          `Failed to poll carrier for shipment ${shipment.id}: ${e.message}`,
+          `Failed to poll carrier for shipment ${shipment.id}: ${(e as Error).message}`,
         );
       }
     }

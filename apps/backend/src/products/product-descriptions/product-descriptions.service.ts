@@ -26,7 +26,7 @@ export class ProductDescriptionsService {
   }
 
   async update(id: number, dto: UpdateProductDescriptionDto) {
-    const desc = await this.descRepo.findOne({ where: { id } });
+    const desc = await this.descRepo.findOne({ where: { id } })!;
     if (!desc) throw new NotFoundException('Description not found');
     Object.assign(desc, dto);
     return this.descRepo.save(desc);
@@ -40,7 +40,7 @@ export class ProductDescriptionsService {
   }
 
   async delete(id: number) {
-    const desc = await this.descRepo.findOne({ where: { id } });
+    const desc = await this.descRepo.findOne({ where: { id } })!;
     if (!desc) throw new NotFoundException('Description not found');
     return this.descRepo.remove(desc);
   }

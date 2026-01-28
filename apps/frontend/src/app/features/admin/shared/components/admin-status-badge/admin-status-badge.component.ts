@@ -26,6 +26,12 @@ export type StatusVariant = 'default' | 'success' | 'warning' | 'danger' | 'info
 export type BadgeSize = 'xs' | 'sm' | 'md' | 'lg';
 
 /**
+ * Status mapping type
+ * @description Maps status strings to their visual variants
+ */
+export type StatusMapping = Record<string, StatusVariant>;
+
+/**
  * Predefined status mappings
  * @description Maps common status strings to their visual variants
  */

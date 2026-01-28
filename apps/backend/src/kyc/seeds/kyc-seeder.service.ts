@@ -141,8 +141,8 @@ export class KycSeederService {
       });
 
       return stats;
-    } catch (error) {
-      stats.errors.push(`Seeding failed: ${error.message}`);
+    } catch (error: unknown) {
+      stats.errors.push(`Seeding failed: ${(error as Error).message}`);
       stats.totalExecutionTime = Date.now() - startTime;
 
       this.logger.error('❌ KYC seeding failed:', error);
@@ -210,7 +210,7 @@ export class KycSeederService {
         } else {
           this.logger.debug(`⚠️ KYC document already exists: ${documentData.titleEn}`);
         }
-      } catch (error) {
+      } catch (error: unknown) {
         this.logger.error(`❌ Failed to create KYC document ${documentData.titleEn}:`, error);
       }
     }
@@ -249,7 +249,7 @@ export class KycSeederService {
         created++;
 
         this.logger.debug(`✅ Created status log: ${logData.newStatus}`);
-      } catch (error) {
+      } catch (error: unknown) {
         this.logger.error(`❌ Failed to create status log ${logData.newStatus}:`, error);
       }
     }
@@ -357,7 +357,7 @@ export class KycSeederService {
         } else {
           this.logger.debug(`⚠️ Workflow state document already exists: ${status}`);
         }
-      } catch (error) {
+      } catch (error: unknown) {
         this.logger.error(`❌ Failed to create workflow state document ${status}:`, error);
       }
     }
@@ -461,7 +461,7 @@ export class KycSeederService {
 
       this.logger.log(`✅ Created ${created} bulk KYC documents for performance testing`);
       return created;
-    } catch (error) {
+    } catch (error: unknown) {
       this.logger.error('❌ Failed to create bulk KYC documents:', error);
       return 0;
     }
@@ -481,7 +481,7 @@ export class KycSeederService {
       });
 
       this.logger.log('✅ All KYC data cleared successfully');
-    } catch (error) {
+    } catch (error: unknown) {
       this.logger.error('❌ Failed to clear KYC data:', error);
       throw error;
     }
@@ -597,8 +597,8 @@ export class KycSeederService {
         issues,
         summary,
       };
-    } catch (error) {
-      issues.push(`Integrity check failed: ${error.message}`);
+    } catch (error: unknown) {
+      issues.push(`Integrity check failed: ${(error as Error).message}`);
       return {
         isValid: false,
         issues,

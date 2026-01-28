@@ -159,13 +159,13 @@ export class AddressSeederService {
       this.logSeedingStats(stats);
 
       return stats;
-    } catch (error) {
-      stats.errors.push(`Address System Seeding failed: ${error.message}`);
+    } catch (error: unknown) {
+      stats.errors.push(`Address System Seeding failed: ${(error as Error).message}`);
       this.logger.error(
-        `❌ Address System Seeding failed: ${error.message}`,
-        error.stack,
+        `❌ Address System Seeding failed: ${(error as Error).message}`,
+        (error as Error).stack,
       );
-      throw new Error(`Address System Seeding failed: ${error.message}`);
+      throw new Error(`Address System Seeding failed: ${(error as Error).message}`);
     }
   }
 
@@ -234,9 +234,9 @@ export class AddressSeederService {
             this.logger.debug(`Created governorate: ${governorateData.nameEn}`);
           }
         }
-      } catch (error) {
+      } catch (error: unknown) {
         this.logger.error(
-          `Failed to process governorate ${governorateData.nameEn}: ${error.message}`,
+          `Failed to process governorate ${governorateData.nameEn}: ${(error as Error).message}`,
         );
         throw error;
       }
@@ -323,9 +323,9 @@ export class AddressSeederService {
             this.logger.debug(`Created city: ${cityData.nameEn}`);
           }
         }
-      } catch (error) {
+      } catch (error: unknown) {
         this.logger.error(
-          `Failed to process city ${cityData.nameEn}: ${error.message}`,
+          `Failed to process city ${cityData.nameEn}: ${(error as Error).message}`,
         );
         throw error;
       }
@@ -397,9 +397,9 @@ export class AddressSeederService {
             this.logger.debug(`Created test user: ${userData.email}`);
           }
         }
-      } catch (error) {
+      } catch (error: unknown) {
         this.logger.error(
-          `Failed to create test user ${userData.email}: ${error.message}`,
+          `Failed to create test user ${userData.email}: ${(error as Error).message}`,
         );
         throw error;
       }
@@ -577,9 +577,9 @@ export class AddressSeederService {
             this.logger.debug(`Created address: ${addressData.label}`);
           }
         }
-      } catch (error) {
+      } catch (error: unknown) {
         this.logger.error(
-          `Failed to process address ${addressData.label}: ${error.message}`,
+          `Failed to process address ${addressData.label}: ${(error as Error).message}`,
         );
         // Continue with other addresses instead of throwing
       }
@@ -735,11 +735,11 @@ export class AddressSeederService {
       }
 
       return { valid, issues };
-    } catch (error) {
-      this.logger.error('❌ Address system validation failed:', error.stack);
+    } catch (error: unknown) {
+      this.logger.error('❌ Address system validation failed:', (error as Error).stack);
       return {
         valid: false,
-        issues: [`Validation failed due to error: ${error.message}`],
+        issues: [`Validation failed due to error: ${(error as Error).message}`],
       };
     }
   }
@@ -774,8 +774,8 @@ export class AddressSeederService {
       this.logger.log('Removed test users');
 
       this.logger.log('✅ Address data cleanup completed');
-    } catch (error) {
-      this.logger.error('❌ Address data cleanup failed:', error.stack);
+    } catch (error: unknown) {
+      this.logger.error('❌ Address data cleanup failed:', (error as Error).stack);
       throw error;
     }
   }

@@ -1,0 +1,107 @@
+{
+  "$schema": "./node_modules/@angular/service-worker/config/schema.json",
+  "index": "/index.html",
+  "appData": {
+    "name": "SouqSyria Admin Dashboard",
+    "version": "1.0.0",
+    "description": "High-performance admin dashboard for SouqSyria e-commerce platform"
+  },
+  "assetGroups": [
+    {
+      "name": "app",
+      "installMode": "prefetch",
+      "updateMode": "prefetch",
+      "resources": {
+        "files": [
+          "/favicon.ico",
+          "/index.html",
+          "/manifest.json",
+          "/*.css",
+          "/*.js"
+        ]
+      }
+    },
+    {
+      "name": "assets",
+      "installMode": "lazy",
+      "updateMode": "prefetch",
+      "resources": {
+        "files": [
+          "/assets/**",
+          "/*.(eot|svg|cur|jpg|png|webp|gif|otf|ttf|woff|woff2|ani)"
+        ]
+      }
+    },
+    {
+      "name": "fonts",
+      "installMode": "lazy",
+      "updateMode": "prefetch",
+      "resources": {
+        "files": [
+          "/assets/fonts/**/*.woff2",
+          "/assets/fonts/**/*.woff",
+          "https://fonts.gstatic.com/**/*.woff2",
+          "https://fonts.googleapis.com/icon?family=Material+Icons"
+        ]
+      }
+    }
+  ],
+  "dataGroups": [
+    {
+      "name": "api-performance",
+      "urls": [
+        "/api/admin/dashboard/**",
+        "/api/admin/analytics/quick-metrics/**"
+      ],
+      "cacheConfig": {
+        "strategy": "performance",
+        "maxSize": 20,
+        "maxAge": "5m"
+      }
+    },
+    {
+      "name": "api-freshness",
+      "urls": [
+        "/api/admin/users/**",
+        "/api/admin/orders/**",
+        "/api/admin/products/**",
+        "/api/admin/vendors/**"
+      ],
+      "cacheConfig": {
+        "strategy": "freshness",
+        "maxSize": 50,
+        "maxAge": "2m",
+        "timeout": "10s"
+      }
+    },
+    {
+      "name": "api-analytics",
+      "urls": [
+        "/api/admin/analytics/**",
+        "/api/admin/bi/**"
+      ],
+      "cacheConfig": {
+        "strategy": "performance",
+        "maxSize": 30,
+        "maxAge": "10m"
+      }
+    },
+    {
+      "name": "external-apis",
+      "urls": [
+        "https://api.exchangerate-api.com/**"
+      ],
+      "cacheConfig": {
+        "strategy": "performance",
+        "maxSize": 10,
+        "maxAge": "1h"
+      }
+    }
+  ],
+  "navigationUrls": [
+    "/**",
+    "!/**/*.*",
+    "!/**/*__*",
+    "!/**/*__*/**"
+  ]
+}

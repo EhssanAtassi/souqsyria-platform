@@ -331,10 +331,10 @@ export class CategoriesAdminSearchController {
               : [],
         },
       };
-    } catch (error) {
+    } catch (error: unknown) {
       const processingTime = Date.now() - startTime;
       this.logger.error(
-        `❌ [${requestId}] Advanced search failed: ${error.message} (${processingTime}ms)`,
+        `❌ [${requestId}] Advanced search failed: ${(error as Error).message} (${processingTime}ms)`,
       );
       throw error;
     }
@@ -496,10 +496,10 @@ export class CategoriesAdminSearchController {
           cached: false, // TODO: Implement caching
         },
       };
-    } catch (error) {
+    } catch (error: unknown) {
       const processingTime = Date.now() - startTime;
       this.logger.error(
-        `❌ [${requestId}] Quick search failed: ${error.message} (${processingTime}ms)`,
+        `❌ [${requestId}] Quick search failed: ${(error as Error).message} (${processingTime}ms)`,
       );
       throw error;
     }
@@ -640,10 +640,10 @@ export class CategoriesAdminSearchController {
           requestId,
         },
       };
-    } catch (error) {
+    } catch (error: unknown) {
       const processingTime = Date.now() - startTime;
       this.logger.error(
-        `❌ [${requestId}] Hierarchy tree retrieval failed: ${error.message} (${processingTime}ms)`,
+        `❌ [${requestId}] Hierarchy tree retrieval failed: ${(error as Error).message} (${processingTime}ms)`,
       );
       throw error;
     }
@@ -787,10 +787,10 @@ export class CategoriesAdminSearchController {
           generatedAt: new Date(),
         },
       };
-    } catch (error) {
+    } catch (error: unknown) {
       const processingTime = Date.now() - startTime;
       this.logger.error(
-        `❌ [${requestId}] Analytics retrieval failed: ${error.message} (${processingTime}ms)`,
+        `❌ [${requestId}] Analytics retrieval failed: ${(error as Error).message} (${processingTime}ms)`,
       );
       throw error;
     }

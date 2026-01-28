@@ -245,14 +245,14 @@ export class BrandsService {
         hasNextPage,
         hasPreviousPage,
       };
-    } catch (error) {
+    } catch (error: unknown) {
       const processingTime = Date.now() - startTime;
       this.logger.error(
-        `❌ Failed to find brands: ${error.message} (${processingTime}ms)`,
-        error.stack,
+        `❌ Failed to find brands: ${(error as Error).message} (${processingTime}ms)`,
+        (error as Error).stack,
       );
       throw new BadRequestException(
-        `Failed to retrieve brands: ${error.message}`,
+        `Failed to retrieve brands: ${(error as Error).message}`,
       );
     }
   }
@@ -335,7 +335,7 @@ export class BrandsService {
       );
 
       return responseDto;
-    } catch (error) {
+    } catch (error: unknown) {
       const processingTime = Date.now() - startTime;
 
       // Handle known errors gracefully
@@ -344,18 +344,18 @@ export class BrandsService {
         error instanceof BadRequestException
       ) {
         this.logger.warn(
-          `⚠️ Brand retrieval failed: ${error.message} (${processingTime}ms)`,
+          `⚠️ Brand retrieval failed: ${(error as Error).message} (${processingTime}ms)`,
         );
         throw error;
       }
 
       // Handle unexpected errors
       this.logger.error(
-        `❌ Unexpected error retrieving brand ID: ${id}: ${error.message} (${processingTime}ms)`,
-        error.stack,
+        `❌ Unexpected error retrieving brand ID: ${id}: ${(error as Error).message} (${processingTime}ms)`,
+        (error as Error).stack,
       );
       throw new InternalServerErrorException(
-        `Failed to retrieve brand: ${error.message}`,
+        `Failed to retrieve brand: ${(error as Error).message}`,
       );
     }
   }
@@ -499,7 +499,7 @@ export class BrandsService {
 
       // Return updated brand in standardized format
       return this.transformToResponseDto(updatedBrand, 'en');
-    } catch (error) {
+    } catch (error: unknown) {
       const processingTime = Date.now() - startTime;
 
       // Handle known validation errors
@@ -509,18 +509,18 @@ export class BrandsService {
         error instanceof ConflictException
       ) {
         this.logger.warn(
-          `⚠️ Brand update failed: ${error.message} (${processingTime}ms)`,
+          `⚠️ Brand update failed: ${(error as Error).message} (${processingTime}ms)`,
         );
         throw error;
       }
 
       // Handle unexpected errors
       this.logger.error(
-        `❌ Unexpected error updating brand ID: ${id}: ${error.message} (${processingTime}ms)`,
-        error.stack,
+        `❌ Unexpected error updating brand ID: ${id}: ${(error as Error).message} (${processingTime}ms)`,
+        (error as Error).stack,
       );
       throw new InternalServerErrorException(
-        `Failed to update brand: ${error.message}`,
+        `Failed to update brand: ${(error as Error).message}`,
       );
     }
   }
@@ -645,10 +645,10 @@ export class BrandsService {
         .execute();
 
       this.logger.debug(`📈 View count incremented for brand ID: ${brandId}`);
-    } catch (error) {
+    } catch (error: unknown) {
       // Log error but don't throw - view tracking shouldn't break brand retrieval
       this.logger.error(
-        `❌ Failed to increment view count for brand ID: ${brandId}: ${error.message}`,
+        `❌ Failed to increment view count for brand ID: ${brandId}: ${(error as Error).message}`,
       );
     }
   }
@@ -667,7 +667,7 @@ export class BrandsService {
 
     try {
       // Simple query without relations for basic use cases
-      const brand = await this.brandRepository.findOne({ where: { id } });
+      const brand = await this.brandRepository.findOne({ where: { id } })!;
 
       if (!brand) {
         throw new NotFoundException(`Brand with ID ${id} not found`);
@@ -679,12 +679,12 @@ export class BrandsService {
       );
 
       return brand;
-    } catch (error) {
+    } catch (error: unknown) {
       if (error instanceof NotFoundException) {
         throw error;
       }
 
-      this.logger.error(`❌ Failed to retrieve brand: ${error.message}`);
+      this.logger.error(`❌ Failed to retrieve brand: ${(error as Error).message}`);
       throw new InternalServerErrorException('Failed to retrieve brand');
     }
   }
@@ -877,9 +877,9 @@ export class BrandsService {
       this.logger.debug(
         `📊 Performance metrics updated for brand ID: ${brandId}`,
       );
-    } catch (error) {
+    } catch (error: unknown) {
       this.logger.error(
-        `❌ Failed to update performance metrics for brand ID: ${brandId}: ${error.message}`,
+        `❌ Failed to update performance metrics for brand ID: ${brandId}: ${(error as Error).message}`,
       );
     }
   }

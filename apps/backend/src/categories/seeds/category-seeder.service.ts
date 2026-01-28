@@ -229,7 +229,7 @@ export class CategorySeederService {
       );
 
       return result;
-    } catch (error) {
+    } catch (error: unknown) {
       // Rollback transaction on error
       if (queryRunner && !dryRun) {
         await queryRunner.rollbackTransaction();
@@ -238,12 +238,12 @@ export class CategorySeederService {
 
       const processingTime = Date.now() - startTime;
       this.logger.error(
-        `❌ Category seeding failed after ${processingTime}ms: ${error.message}`,
-        error.stack,
+        `❌ Category seeding failed after ${processingTime}ms: ${(error as Error).message}`,
+        (error as Error).stack,
       );
 
       throw new InternalServerErrorException(
-        `Category seeding failed: ${error.message}`,
+        `Category seeding failed: ${(error as Error).message}`,
       );
     } finally {
       if (queryRunner) {
@@ -393,10 +393,10 @@ export class CategorySeederService {
           duplicatesInDb: duplicateCount,
         },
       };
-    } catch (error) {
+    } catch (error: unknown) {
       this.logger.error(
-        `❌ Failed to get seeding statistics: ${error.message}`,
-        error.stack,
+        `❌ Failed to get seeding statistics: ${(error as Error).message}`,
+        (error as Error).stack,
       );
       throw new InternalServerErrorException(
         'Failed to generate seeding statistics',
@@ -490,15 +490,15 @@ export class CategorySeederService {
         deletedCount,
         processingTimeMs: processingTime,
       };
-    } catch (error) {
+    } catch (error: unknown) {
       const processingTime = Date.now() - startTime;
       this.logger.error(
-        `❌ Category cleanup failed after ${processingTime}ms: ${error.message}`,
-        error.stack,
+        `❌ Category cleanup failed after ${processingTime}ms: ${(error as Error).message}`,
+        (error as Error).stack,
       );
 
       throw new InternalServerErrorException(
-        `Category cleanup failed: ${error.message}`,
+        `Category cleanup failed: ${(error as Error).message}`,
       );
     }
   }
@@ -546,8 +546,8 @@ export class CategorySeederService {
         },
         lastCheck: new Date(),
       };
-    } catch (error) {
-      this.logger.error(`❌ Health check failed: ${error.message}`);
+    } catch (error: unknown) {
+      this.logger.error(`❌ Health check failed: ${(error as Error).message}`);
 
       return {
         status: 'unhealthy',
@@ -723,16 +723,16 @@ export class CategorySeederService {
                 result.skipped++;
                 break;
             }
-          } catch (error) {
+          } catch (error: unknown) {
             result.errors++;
             result.errorDetails.push({
               categoryName: categoryData.nameEn,
-              error: error.message,
-              details: error.stack,
+              error: (error as Error).message,
+              details: (error as Error).stack,
             });
 
             this.logger.error(
-              `❌ Failed to process category ${categoryData.nameEn}: ${error.message}`,
+              `❌ Failed to process category ${categoryData.nameEn}: ${(error as Error).message}`,
             );
           }
         }
@@ -1058,8 +1058,8 @@ export class CategorySeederService {
       }
 
       return true;
-    } catch (error) {
-      this.logger.error(`❌ Seed data validation failed: ${error.message}`);
+    } catch (error: unknown) {
+      this.logger.error(`❌ Seed data validation failed: ${(error as Error).message}`);
       return false;
     }
   }

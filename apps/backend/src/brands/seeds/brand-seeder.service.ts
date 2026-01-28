@@ -197,7 +197,7 @@ export class BrandSeederService {
       );
 
       return result;
-    } catch (error) {
+    } catch (error: unknown) {
       // Rollback transaction on error
       if (queryRunner && !dryRun) {
         await queryRunner.rollbackTransaction();
@@ -206,12 +206,12 @@ export class BrandSeederService {
 
       const processingTime = Date.now() - startTime;
       this.logger.error(
-        `❌ Brand seeding failed after ${processingTime}ms: ${error.message}`,
-        error.stack,
+        `❌ Brand seeding failed after ${processingTime}ms: ${(error as Error).message}`,
+        (error as Error).stack,
       );
 
       throw new InternalServerErrorException(
-        `Brand seeding failed: ${error.message}`,
+        `Brand seeding failed: ${(error as Error).message}`,
       );
     } finally {
       if (queryRunner) {
@@ -330,10 +330,10 @@ export class BrandSeederService {
           duplicatesInDb: duplicateCount,
         },
       };
-    } catch (error) {
+    } catch (error: unknown) {
       this.logger.error(
-        `❌ Failed to get seeding statistics: ${error.message}`,
-        error.stack,
+        `❌ Failed to get seeding statistics: ${(error as Error).message}`,
+        (error as Error).stack,
       );
       throw new InternalServerErrorException(
         'Failed to generate seeding statistics',
@@ -413,15 +413,15 @@ export class BrandSeederService {
         deletedCount,
         processingTimeMs: processingTime,
       };
-    } catch (error) {
+    } catch (error: unknown) {
       const processingTime = Date.now() - startTime;
       this.logger.error(
-        `❌ Brand cleanup failed after ${processingTime}ms: ${error.message}`,
-        error.stack,
+        `❌ Brand cleanup failed after ${processingTime}ms: ${(error as Error).message}`,
+        (error as Error).stack,
       );
 
       throw new InternalServerErrorException(
-        `Brand cleanup failed: ${error.message}`,
+        `Brand cleanup failed: ${(error as Error).message}`,
       );
     }
   }
@@ -463,8 +463,8 @@ export class BrandSeederService {
         },
         lastCheck: new Date(),
       };
-    } catch (error) {
-      this.logger.error(`❌ Health check failed: ${error.message}`);
+    } catch (error: unknown) {
+      this.logger.error(`❌ Health check failed: ${(error as Error).message}`);
 
       return {
         status: 'unhealthy',
@@ -593,16 +593,16 @@ export class BrandSeederService {
               result.skipped++;
               break;
           }
-        } catch (error) {
+        } catch (error: unknown) {
           result.errors++;
           result.errorDetails.push({
             brandName: brandData.name,
-            error: error.message,
-            details: error.stack,
+            error: (error as Error).message,
+            details: (error as Error).stack,
           });
 
           this.logger.error(
-            `❌ Failed to process brand ${brandData.name}: ${error.message}`,
+            `❌ Failed to process brand ${brandData.name}: ${(error as Error).message}`,
           );
         }
       }
@@ -802,8 +802,8 @@ export class BrandSeederService {
       }
 
       return true;
-    } catch (error) {
-      this.logger.error(`❌ Seed data validation failed: ${error.message}`);
+    } catch (error: unknown) {
+      this.logger.error(`❌ Seed data validation failed: ${(error as Error).message}`);
       return false;
     }
   }

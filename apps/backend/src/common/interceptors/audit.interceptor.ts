@@ -215,9 +215,9 @@ export class AuditInterceptor implements NestInterceptor {
       this.logger.debug(
         `✅ Auto-logged SUCCESS: ${auditData.action} by ${auditData.actorType}:${auditData.actorId} (${processingTime}ms)`,
       );
-    } catch (error) {
+    } catch (error: unknown) {
       this.logger.error(
-        `❌ Auto-logging failed for ${auditData.action}: ${error.message}`,
+        `❌ Auto-logging failed for ${auditData.action}: ${(error as Error).message}`,
         // Don't include stack trace to avoid log spam
       );
       // Continue normally - logging failures shouldn't break API
@@ -255,16 +255,16 @@ export class AuditInterceptor implements NestInterceptor {
         currency: auditData.currency,
         processingTimeMs: processingTime,
         wasSuccessful: false,
-        errorMessage: error.message || 'Unknown error',
+        errorMessage: (error as Error).message || 'Unknown error',
         errorCode: this.extractErrorCode(error),
-        description: `${auditData.action} failed: ${error.message}`,
+        description: `${auditData.action} failed: ${(error as Error).message}`,
         sessionId: auditData.sessionId,
       };
 
       await this.auditLogService.log(errorAuditDto);
 
       this.logger.error(
-        `❌ Auto-logged ERROR: ${auditData.action} by ${auditData.actorType}:${auditData.actorId} - ${error.message} (${processingTime}ms)`,
+        `❌ Auto-logged ERROR: ${auditData.action} by ${auditData.actorType}:${auditData.actorId} - ${(error as Error).message} (${processingTime}ms)`,
       );
     } catch (logError) {
       this.logger.error(

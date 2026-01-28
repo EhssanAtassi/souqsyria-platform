@@ -213,8 +213,8 @@ export class DashboardSeederService {
       });
 
       return stats;
-    } catch (error) {
-      stats.errors.push(`Seeding failed: ${error.message}`);
+    } catch (error: unknown) {
+      stats.errors.push(`Seeding failed: ${(error as Error).message}`);
       stats.totalExecutionTime = Date.now() - startTime;
 
       this.logger.error('❌ Dashboard analytics seeding failed:', error);
@@ -254,7 +254,7 @@ export class DashboardSeederService {
 
       this.logger.log(`✅ Created ${created} market overview records`);
       return created;
-    } catch (error) {
+    } catch (error: unknown) {
       this.logger.error(`❌ Failed to seed market overview data:`, error);
       return 0;
     }
@@ -303,7 +303,7 @@ export class DashboardSeederService {
 
       this.logger.log(`✅ Created ${created} business intelligence metrics`);
       return created;
-    } catch (error) {
+    } catch (error: unknown) {
       this.logger.error(`❌ Failed to seed business intelligence data:`, error);
       return 0;
     }
@@ -342,7 +342,7 @@ export class DashboardSeederService {
 
       this.logger.log(`✅ Created ${created} real-time metric entries`);
       return created;
-    } catch (error) {
+    } catch (error: unknown) {
       this.logger.error(`❌ Failed to seed real-time metrics data:`, error);
       return 0;
     }
@@ -387,7 +387,7 @@ export class DashboardSeederService {
 
       this.logger.log(`✅ Created ${created} market trend analysis entries`);
       return created;
-    } catch (error) {
+    } catch (error: unknown) {
       this.logger.error(`❌ Failed to seed market trends data:`, error);
       return 0;
     }
@@ -428,7 +428,7 @@ export class DashboardSeederService {
 
       this.logger.log(`✅ Created ${created} historical analytics records`);
       return created;
-    } catch (error) {
+    } catch (error: unknown) {
       this.logger.error(`❌ Failed to seed historical analytics data:`, error);
       return 0;
     }
@@ -466,7 +466,7 @@ export class DashboardSeederService {
 
       this.logger.log(`✅ Set ${created} KPI targets and benchmarks`);
       return created;
-    } catch (error) {
+    } catch (error: unknown) {
       this.logger.error(`❌ Failed to seed KPI targets:`, error);
       return 0;
     }
@@ -501,7 +501,7 @@ export class DashboardSeederService {
 
       this.logger.log(`✅ Configured ${created} dashboard widgets`);
       return created;
-    } catch (error) {
+    } catch (error: unknown) {
       this.logger.error(`❌ Failed to configure dashboard widgets:`, error);
       return 0;
     }
@@ -529,7 +529,7 @@ export class DashboardSeederService {
 
       this.logger.log(`✅ Created ${created} export template configurations`);
       return created;
-    } catch (error) {
+    } catch (error: unknown) {
       this.logger.error(`❌ Failed to create export templates:`, error);
       return 0;
     }
@@ -571,7 +571,7 @@ export class DashboardSeederService {
 
       this.logger.log(`✅ Created ${created} bulk analytics entries for performance testing`);
       return created;
-    } catch (error) {
+    } catch (error: unknown) {
       this.logger.error('❌ Failed to create bulk analytics data:', error);
       return 0;
     }
@@ -599,7 +599,7 @@ export class DashboardSeederService {
       });
 
       this.logger.log('✅ All dashboard analytics data cleared successfully');
-    } catch (error) {
+    } catch (error: unknown) {
       this.logger.error('❌ Failed to clear dashboard analytics data:', error);
       throw error;
     }
@@ -638,14 +638,14 @@ export class DashboardSeederService {
         },
         lastUpdated: new Date().toISOString(),
       };
-    } catch (error) {
+    } catch (error: unknown) {
       this.logger.error('❌ Failed to retrieve dashboard statistics:', error);
       return {
         overview: {},
         performance: {},
         usage: {},
         lastUpdated: new Date().toISOString(),
-        error: error.message,
+        error: (error as Error).message,
       };
     }
   }
@@ -684,8 +684,8 @@ export class DashboardSeederService {
         issues,
         summary: stats,
       };
-    } catch (error) {
-      issues.push(`Integrity check failed: ${error.message}`);
+    } catch (error: unknown) {
+      issues.push(`Integrity check failed: ${(error as Error).message}`);
       return {
         isValid: false,
         issues,

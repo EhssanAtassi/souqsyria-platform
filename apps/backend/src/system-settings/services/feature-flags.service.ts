@@ -183,7 +183,7 @@ export class FeatureFlagsService {
         enabled,
         metadata: enabled ? flag.getMetadata() : undefined,
       };
-    } catch (error) {
+    } catch (error: unknown) {
       if (error instanceof NotFoundException) {
         return { key: dto.key, enabled: false };
       }

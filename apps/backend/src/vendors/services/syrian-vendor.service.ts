@@ -525,12 +525,12 @@ export class SyrianVendorService {
           message: actionMessage,
         });
         processed++;
-      } catch (error) {
+      } catch (error: unknown) {
         this.logger.error(`Error processing vendor ${vendorId}:`, error);
         results.push({
           vendorId,
           success: false,
-          error: error.message,
+          error: (error as Error).message,
         });
         failed++;
       }

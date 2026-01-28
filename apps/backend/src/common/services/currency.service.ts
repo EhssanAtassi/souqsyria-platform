@@ -163,8 +163,8 @@ export class CurrencyService {
       this.logger.log(
         `Initialized ${defaultCurrencies.length} default currencies`,
       );
-    } catch (error) {
-      this.logger.error('Failed to initialize default currencies', error.stack);
+    } catch (error: unknown) {
+      this.logger.error('Failed to initialize default currencies', (error as Error).stack);
     }
   }
 
@@ -340,10 +340,10 @@ export class CurrencyService {
               `Updated ${currency.code}: ${previousRate} → ${newRate} (${changePercent.toFixed(2)}%)`,
             );
           }
-        } catch (error) {
+        } catch (error: unknown) {
           this.logger.error(
             `Failed to update exchange rate for ${currency.code}`,
-            error.message,
+            (error as Error).message,
           );
         }
       }
@@ -352,8 +352,8 @@ export class CurrencyService {
         `Exchange rate update completed. Updated ${updates.length} currencies`,
       );
       return updates;
-    } catch (error) {
-      this.logger.error('Failed to update exchange rates', error.stack);
+    } catch (error: unknown) {
+      this.logger.error('Failed to update exchange rates', (error as Error).stack);
       throw new InternalServerErrorException('Exchange rate update failed');
     }
   }
@@ -419,10 +419,10 @@ export class CurrencyService {
       };
 
       return mockRates[currencyCode] || null;
-    } catch (error) {
+    } catch (error: unknown) {
       this.logger.error(
         `Failed to fetch exchange rate for ${currencyCode}`,
-        error.message,
+        (error as Error).message,
       );
       return null;
     }

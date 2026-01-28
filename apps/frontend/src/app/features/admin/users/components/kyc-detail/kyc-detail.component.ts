@@ -20,7 +20,7 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { Subject, takeUntil, finalize } from 'rxjs';
 
 import { AdminUsersService } from '../../../services';
-import { AdminStatusBadgeComponent } from '../../../shared';
+import { AdminStatusBadgeComponent, StatusVariant } from '../../../shared';
 import { KycStatus, ReviewKycRequest } from '../../../interfaces';
 
 /**
@@ -834,15 +834,15 @@ export class KycDetailComponent implements OnInit, OnDestroy {
     return true;
   }
 
-  getStatusVariant(status: KycStatus): string {
-    const variantMap: Record<KycStatus, string> = {
-      not_submitted: 'secondary',
+  getStatusVariant(status: KycStatus): StatusVariant {
+    const variantMap: Record<KycStatus, StatusVariant> = {
+      not_submitted: 'neutral',
       pending: 'info',
       under_review: 'warning',
       approved: 'success',
       rejected: 'danger',
       requires_resubmission: 'warning'
     };
-    return variantMap[status] || 'secondary';
+    return variantMap[status] || 'neutral';
   }
 }

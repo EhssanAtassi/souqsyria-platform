@@ -20,6 +20,7 @@ import { RouterModule, Router } from '@angular/router';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatMenuModule } from '@angular/material/menu';
+import { MatDividerModule } from '@angular/material/divider';
 import { Subject, takeUntil, finalize, debounceTime, distinctUntilChanged } from 'rxjs';
 
 import { AdminVendorsService } from '../../../services';
@@ -85,6 +86,7 @@ interface VendorStats {
     MatSnackBarModule,
     MatTooltipModule,
     MatMenuModule,
+    MatDividerModule,
     CurrencyFormatPipe
   ],
   templateUrl: './vendor-list.component.html',
@@ -270,7 +272,7 @@ export class VendorListComponent implements OnInit, OnDestroy {
       )
       .subscribe({
         next: (response) => {
-          this.vendors.set(response.data);
+          this.vendors.set(response.items);
           this.pagination.set({
             page: response.page,
             limit: response.limit,
@@ -332,6 +334,14 @@ export class VendorListComponent implements OnInit, OnDestroy {
   onSearchInput(event: Event): void {
     const value = (event.target as HTMLInputElement).value;
     this.searchSubject.next(value);
+  }
+
+  /**
+   * Clear search term
+   */
+  clearSearch(): void {
+    this.searchTerm.set('');
+    this.searchSubject.next('');
   }
 
   /**
@@ -432,7 +442,7 @@ export class VendorListComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: () => {
-          this.snackBar.open(`${vendor.shopName} suspended`, 'Close', { duration: 3000 });
+          this.snackBar.open(`${vendor.shopNameEn} suspended`, 'Close', { duration: 3000 });
           this.loadVendors();
           this.loadStatistics();
         },
@@ -453,7 +463,7 @@ export class VendorListComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: () => {
-          this.snackBar.open(`${vendor.shopName} activated`, 'Close', { duration: 3000 });
+          this.snackBar.open(`${vendor.shopNameEn} activated`, 'Close', { duration: 3000 });
           this.loadVendors();
           this.loadStatistics();
         },
@@ -472,7 +482,7 @@ export class VendorListComponent implements OnInit, OnDestroy {
     const reason = prompt('Enter ban reason (this action is permanent):');
     if (!reason) return;
 
-    if (!confirm(`Are you sure you want to permanently ban ${vendor.shopName}?`)) {
+    if (!confirm(`Are you sure you want to permanently ban ${vendor.shopNameEn}?`)) {
       return;
     }
 
@@ -481,7 +491,7 @@ export class VendorListComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: () => {
-          this.snackBar.open(`${vendor.shopName} has been banned`, 'Close', { duration: 3000 });
+          this.snackBar.open(`${vendor.shopNameEn} has been banned`, 'Close', { duration: 3000 });
           this.loadVendors();
           this.loadStatistics();
         },
@@ -561,9 +571,12 @@ export class VendorListComponent implements OnInit, OnDestroy {
       under_review: 'info',
       documents_requested: 'warning',
       documents_resubmitted: 'info',
+      business_verification: 'info',
+      final_review: 'info',
       approved: 'success',
       rejected: 'danger',
       suspended: 'danger',
+      requires_resubmission: 'warning',
       expired: 'secondary',
       revoked: 'danger'
     };
@@ -581,9 +594,12 @@ export class VendorListComponent implements OnInit, OnDestroy {
       under_review: 'Under Review',
       documents_requested: 'Docs Requested',
       documents_resubmitted: 'Docs Resubmitted',
+      business_verification: 'Business Verification',
+      final_review: 'Final Review',
       approved: 'Approved',
       rejected: 'Rejected',
       suspended: 'Suspended',
+      requires_resubmission: 'Requires Resubmission',
       expired: 'Expired',
       revoked: 'Revoked'
     };

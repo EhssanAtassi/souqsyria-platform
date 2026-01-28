@@ -13,7 +13,7 @@
 import { TypeOrmModuleOptions } from '@nestjs/typeorm';
 import { config } from 'dotenv';
 
-config();
+config({ path: ['.env', '.env.development'] });
 
 /**
  * Determine if Redis is available for caching

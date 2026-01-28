@@ -4,4 +4,5 @@
  * @module AdminDashboard/SharedDirectives
  */
 
-export { HasPermissionDirective, PermissionMode } from './has-permission.directive';
+export { HasPermissionDirective } from './has-permission.directive';
+export type { PermissionMode } from './has-permission.directive';

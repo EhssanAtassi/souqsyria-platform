@@ -27,6 +27,12 @@ export type TrendDirection = 'up' | 'down' | 'neutral';
 export type ValueFormat = 'number' | 'currency' | 'percent' | 'text';
 
 /**
+ * Color theme for the card
+ * @description Visual color theme for the stat card
+ */
+export type ColorTheme = 'primary' | 'secondary' | 'success' | 'warning' | 'danger' | 'info' | 'neutral';
+
+/**
  * Admin Stat Card Component
  * @description A flexible card component for displaying key performance indicators (KPIs)
  *              with visual trend indicators and contextual hints.

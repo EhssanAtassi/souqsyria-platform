@@ -31,13 +31,13 @@
             <input
               type="date"
               [value]="dateRange().startDate"
-              (change)="dateRange.set({...dateRange(), startDate: $any($event.target).value})"
+              (change)="updateStartDate($event)"
             />
             <span>to</span>
             <input
               type="date"
               [value]="dateRange().endDate"
-              (change)="dateRange.set({...dateRange(), endDate: $any($event.target).value})"
+              (change)="updateEndDate($event)"
             />
             <button class="btn btn--primary btn--small" (click)="applyCustomRange()">Apply</button>
           </div>

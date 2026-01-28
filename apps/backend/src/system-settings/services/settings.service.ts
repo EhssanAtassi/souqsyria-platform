@@ -137,7 +137,7 @@ export class SettingsService {
     try {
       const setting = await this.findByKey(key);
       return setting.getTypedValue() as T;
-    } catch (error) {
+    } catch (error: unknown) {
       if (error instanceof NotFoundException && defaultValue !== undefined) {
         return defaultValue;
       }
@@ -242,8 +242,8 @@ export class SettingsService {
           this.invalidateCache(item.key);
           updated++;
         }
-      } catch (error) {
-        this.logger.warn(`Failed to update setting ${item.key}: ${error.message}`);
+      } catch (error: unknown) {
+        this.logger.warn(`Failed to update setting ${item.key}: ${(error as Error).message}`);
       }
     }
 

@@ -347,6 +347,14 @@ export class ProductListComponent implements OnInit {
   }
 
   /**
+   * Clear search input
+   * @description Clears the search term and resets the search
+   */
+  clearSearch(): void {
+    this.searchSubject$.next('');
+  }
+
+  /**
    * Handle filter change
    * @param filterName - Name of the filter
    * @param value - New filter value
@@ -661,7 +669,15 @@ export class ProductListComponent implements OnInit {
    * @param format - Export format (csv or xlsx)
    */
   exportProducts(format: 'csv' | 'xlsx'): void {
-    const query: ProductListQuery = { ...this.currentFilters() };
+    const filters = this.currentFilters();
+    const query: ProductListQuery = {
+      // Only include non-empty filter values
+      ...(filters.approvalStatus ? { approvalStatus: filters.approvalStatus } : {}),
+      ...(filters.status ? { status: filters.status } : {}),
+      ...(filters.categoryId ? { categoryId: filters.categoryId } : {}),
+      ...(filters.vendorId ? { vendorId: filters.vendorId } : {}),
+      ...(filters.lowStock !== undefined ? { lowStock: filters.lowStock } : {})
+    };
     const search = this.searchTerm();
     if (search) {
       query.search = search;

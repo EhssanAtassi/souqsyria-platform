@@ -101,9 +101,9 @@ export class FeaturesSeederService {
         features_by_category: featuresByCategory,
         performance_metrics: performanceMetrics,
       };
-    } catch (error) {
+    } catch (error: unknown) {
       console.error('Features seeding failed:', error);
-      throw new Error(`Features seeding failed: ${error.message}`);
+      throw new Error(`Features seeding failed: ${(error as Error).message}`);
     }
   }
 

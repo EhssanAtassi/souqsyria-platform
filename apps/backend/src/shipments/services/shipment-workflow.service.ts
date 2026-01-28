@@ -420,8 +420,8 @@ export class ShipmentWorkflowService {
       try {
         await this.transitionStatus(shipmentId, targetStatus, userId, notes);
         successful.push(shipmentId);
-      } catch (error) {
-        failed.push({ id: shipmentId, error: error.message });
+      } catch (error: unknown) {
+        failed.push({ id: shipmentId, error: (error as Error).message });
       }
     }
 
@@ -606,7 +606,7 @@ export class ShipmentWorkflowService {
             0, // System user
             `Automatic transition: ${transition.nameEn}`,
           );
-        } catch (error) {
+        } catch (error: unknown) {
           this.logger.error(
             `Failed automatic transition for shipment ${shipment.id}:`,
             error,
@@ -679,7 +679,7 @@ export class ShipmentWorkflowService {
           0, // System user
           'Auto-confirmed after 48 hours',
         );
-      } catch (error) {
+      } catch (error: unknown) {
         this.logger.error(
           `Failed to auto-confirm shipment ${shipment.id}:`,
           error,

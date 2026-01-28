@@ -423,6 +423,25 @@ export interface AuditLogResponse {
 // =============================================================================
 
 /**
+ * Feature flag category type
+ * @description Categories for organizing feature flags
+ */
+export type FeatureFlagCategory =
+  | 'user_experience'
+  | 'commerce'
+  | 'payment'
+  | 'shipping'
+  | 'security'
+  | 'performance'
+  | 'experimental';
+
+/**
+ * Feature flag environment
+ * @description Deployment environments where flags can be enabled
+ */
+export type FeatureFlagEnvironment = 'development' | 'staging' | 'production';
+
+/**
  * Feature flag definition
  * @description Feature toggle configuration
  */
@@ -444,6 +463,12 @@ export interface FeatureFlag {
 
   /** Rollout percentage (0-100) */
   rolloutPercentage: number;
+
+  /** Feature flag category */
+  category: FeatureFlagCategory;
+
+  /** Environments where this flag is enabled */
+  environments: FeatureFlagEnvironment[];
 
   /** Specific user IDs to enable for */
   enabledForUsers?: string[];

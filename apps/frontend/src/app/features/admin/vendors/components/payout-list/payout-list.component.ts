@@ -283,14 +283,15 @@ export class PayoutListComponent implements OnInit, OnDestroy {
       )
       .subscribe({
         next: (response: PaginatedResponse<PayoutRequestItem>) => {
-          this.payouts.set(response.data);
+          const items = response.items ?? response.data ?? [];
+          this.payouts.set(items);
           this.pagination.set({
             page: response.page,
             limit: response.limit,
             total: response.total,
             totalPages: response.totalPages
           });
-          this.calculateStats(response.data);
+          this.calculateStats(items);
         },
         error: (error) => {
           console.error('Error loading payouts:', error);
@@ -352,6 +353,64 @@ export class PayoutListComponent implements OnInit, OnDestroy {
   onSearchInput(event: Event): void {
     const value = (event.target as HTMLInputElement).value;
     this.searchTerm.set(value);
+  }
+
+  /**
+   * Clear search term
+   * @description Clears the search input
+   */
+  clearSearch(): void {
+    this.searchTerm.set('');
+  }
+
+  // ===========================================================================
+  // FORM DATA UPDATE HELPERS
+  // ===========================================================================
+
+  /**
+   * Update process form transaction reference
+   * @param value - New transaction reference value
+   */
+  updateProcessTransactionRef(value: string): void {
+    this.processFormData.update(data => ({ ...data, transactionReference: value }));
+  }
+
+  /**
+   * Update process form notes
+   * @param value - New notes value
+   */
+  updateProcessNotes(value: string): void {
+    this.processFormData.update(data => ({ ...data, notes: value }));
+  }
+
+  /**
+   * Toggle process form notify vendor checkbox
+   */
+  toggleProcessNotify(): void {
+    this.processFormData.update(data => ({ ...data, notifyVendor: !data.notifyVendor }));
+  }
+
+  /**
+   * Update reject form reason
+   * @param value - New rejection reason value
+   */
+  updateRejectReason(value: string): void {
+    this.rejectFormData.update(data => ({ ...data, reason: value }));
+  }
+
+  /**
+   * Update reject form notes
+   * @param value - New notes value
+   */
+  updateRejectNotes(value: string): void {
+    this.rejectFormData.update(data => ({ ...data, notes: value }));
+  }
+
+  /**
+   * Toggle reject form notify vendor checkbox
+   */
+  toggleRejectNotify(): void {
+    this.rejectFormData.update(data => ({ ...data, notifyVendor: !data.notifyVendor }));
   }
 
   /**
@@ -502,10 +561,8 @@ export class PayoutListComponent implements OnInit, OnDestroy {
     }
 
     this.isProcessing.set(true);
-    this.vendorsService.rejectPayout(payout.id, {
-      reason: formData.reason,
-      notes: formData.notes || undefined
-    })
+    const reason = formData.notes ? `${formData.reason}: ${formData.notes}` : formData.reason;
+    this.vendorsService.rejectPayout(payout.id, reason)
       .pipe(
         takeUntil(this.destroy$),
         finalize(() => this.isProcessing.set(false))
@@ -580,10 +637,7 @@ export class PayoutListComponent implements OnInit, OnDestroy {
     }
 
     this.isProcessing.set(true);
-    this.vendorsService.rejectPayout(payout.id, {
-      reason: 'on_hold',
-      notes: 'Put on hold for review'
-    })
+    this.vendorsService.rejectPayout(payout.id, 'on_hold: Put on hold for review')
       .pipe(
         takeUntil(this.destroy$),
         finalize(() => this.isProcessing.set(false))

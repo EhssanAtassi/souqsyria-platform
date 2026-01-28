@@ -108,7 +108,7 @@ export class CouponsService {
   }
 
   async getCouponById(id: number): Promise<CouponResponseDto> {
-    const coupon = await this.couponRepository.findOne({ where: { id } });
+    const coupon = await this.couponRepository.findOne({ where: { id } })!;
     if (!coupon) {
       throw new NotFoundException(`Coupon with ID ${id} not found`);
     }
@@ -116,7 +116,7 @@ export class CouponsService {
   }
 
   async getCouponByCode(code: string): Promise<CouponResponseDto> {
-    const coupon = await this.couponRepository.findOne({ where: { code } });
+    const coupon = await this.couponRepository.findOne({ where: { code } })!;
     if (!coupon) {
       throw new NotFoundException(`Coupon with code '${code}' not found`);
     }
@@ -128,7 +128,7 @@ export class CouponsService {
     updateCouponDto: UpdateCouponDto,
     updatedByUserId: number,
   ): Promise<CouponResponseDto> {
-    const coupon = await this.couponRepository.findOne({ where: { id } });
+    const coupon = await this.couponRepository.findOne({ where: { id } })!;
     if (!coupon) {
       throw new NotFoundException(`Coupon with ID ${id} not found`);
     }
@@ -139,7 +139,7 @@ export class CouponsService {
   }
 
   async deleteCoupon(id: number, deletedByUserId: number): Promise<void> {
-    const coupon = await this.couponRepository.findOne({ where: { id } });
+    const coupon = await this.couponRepository.findOne({ where: { id } })!;
     if (!coupon) {
       throw new NotFoundException(`Coupon with ID ${id} not found`);
     }
@@ -153,7 +153,7 @@ export class CouponsService {
   ): Promise<CouponValidationResponseDto> {
     const { code, order_amount } = validateCouponDto;
 
-    const coupon = await this.couponRepository.findOne({ where: { code } });
+    const coupon = await this.couponRepository.findOne({ where: { code } })!;
     if (!coupon) {
       return {
         is_valid: false,
@@ -188,7 +188,7 @@ export class CouponsService {
   }
 
   async activateCoupon(id: number, activatedByUserId: number): Promise<void> {
-    const coupon = await this.couponRepository.findOne({ where: { id } });
+    const coupon = await this.couponRepository.findOne({ where: { id } })!;
     if (!coupon) {
       throw new NotFoundException(`Coupon with ID ${id} not found`);
     }
@@ -201,7 +201,7 @@ export class CouponsService {
     id: number,
     deactivatedByUserId: number,
   ): Promise<void> {
-    const coupon = await this.couponRepository.findOne({ where: { id } });
+    const coupon = await this.couponRepository.findOne({ where: { id } })!;
     if (!coupon) {
       throw new NotFoundException(`Coupon with ID ${id} not found`);
     }

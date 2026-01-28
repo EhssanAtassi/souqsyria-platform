@@ -82,8 +82,8 @@ export class CouponsController {
   ): Promise<CouponResponseDto> {
     try {
       return await this.couponsService.createCoupon(createCouponDto, user.id);
-    } catch (error) {
-      if (error.message.includes('duplicate')) {
+    } catch (error: unknown) {
+      if ((error as Error).message.includes('duplicate')) {
         throw new HttpException(
           'Coupon code already exists',
           HttpStatus.CONFLICT,

@@ -202,7 +202,9 @@ export class CategoryManagerComponent implements OnInit, OnDestroy {
       )
       .subscribe({
         next: (response) => {
-          this.categories.set(response.categories);
+          // Cast to CategoryHierarchy[] since API returns hierarchical data with children arrays
+          const hierarchicalCategories = response.categories as CategoryHierarchy[];
+          this.categories.set(hierarchicalCategories);
           this.flatCategories.set(this.flattenCategories(response.categories));
         },
         error: (error) => {
@@ -462,14 +464,14 @@ export class CategoryManagerComponent implements OnInit, OnDestroy {
   /**
    * Flatten nested categories into single array
    * @param categories - Nested categories
-   * @returns Flat array of categories
+   * @returns Flat array of categories with level information
    */
-  private flattenCategories(categories: CategoryHierarchy[]): Category[] {
+  private flattenCategories(categories: Category[]): Category[] {
     const result: Category[] = [];
 
-    const flatten = (items: CategoryHierarchy[], level = 0) => {
+    const flatten = (items: Category[], level = 0) => {
       for (const item of items) {
-        result.push({ ...item, level } as any);
+        result.push({ ...item, level } as Category & { level: number });
         if (item.children?.length) {
           flatten(item.children, level + 1);
         }

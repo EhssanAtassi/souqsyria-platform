@@ -153,7 +153,7 @@ export class RateLimiterService implements OnModuleDestroy {
 
       this.redis.on('error', (error) => {
         this.redisHealthy = false;
-        this.logger.warn(`Redis connection error: ${error.message}`);
+        this.logger.warn(`Redis connection error: ${(error as Error).message}`);
       });
 
       this.redis.on('close', () => {
@@ -165,9 +165,9 @@ export class RateLimiterService implements OnModuleDestroy {
       await this.redis.ping();
       this.redisHealthy = true;
       this.logger.log('Rate limiter initialized with Redis');
-    } catch (error) {
+    } catch (error: unknown) {
       this.logger.warn(
-        `Failed to connect to Redis: ${error.message}. Using in-memory fallback.`,
+        `Failed to connect to Redis: ${(error as Error).message}. Using in-memory fallback.`,
       );
       this.redis = null;
       this.redisHealthy = false;

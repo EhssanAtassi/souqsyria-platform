@@ -1,0 +1,47 @@
+# ==========================================
+# Developer Experience - Additional Ignores
+# ==========================================
+# Add these to your .gitignore
+
+# Environment files (keep .env.development as template)
+.env
+.env.local
+.env.*.local
+
+# IDE
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json
+!.vscode/launch.json
+!.vscode/tasks.json
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Docker
+docker-compose.override.yml
+
+# Logs
+logs/
+*.log
+
+# Testing
+coverage/
+.nyc_output/
+test-results/
+
+# Build
+dist/
+build/
+.angular/
+.next/
+
+# Temporary
+tmp/
+temp/
+*.tmp

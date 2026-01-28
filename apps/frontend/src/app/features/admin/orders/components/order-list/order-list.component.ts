@@ -279,8 +279,8 @@ export class OrderListComponent implements OnInit {
       page: this.pagination().page,
       limit: this.pagination().limit,
       search: this.searchTerm() || undefined,
-      status: this.statusFilter() !== 'all' ? this.statusFilter() : undefined,
-      paymentStatus: this.paymentFilter() !== 'all' ? this.paymentFilter() : undefined,
+      status: this.statusFilter() !== 'all' ? this.statusFilter() as OrderStatus : undefined,
+      paymentStatus: this.paymentFilter() !== 'all' ? this.paymentFilter() as PaymentStatus : undefined,
       dateFrom: this.dateRange().from || undefined,
       dateTo: this.dateRange().to || undefined,
       hasRefundRequest: this.refundFilter() || undefined,
@@ -653,8 +653,8 @@ export class OrderListComponent implements OnInit {
    */
   exportOrders(format: 'csv' | 'xlsx'): void {
     const query: OrderListQuery = {
-      status: this.statusFilter() !== 'all' ? this.statusFilter() : undefined,
-      paymentStatus: this.paymentFilter() !== 'all' ? this.paymentFilter() : undefined,
+      status: this.statusFilter() !== 'all' ? this.statusFilter() as OrderStatus : undefined,
+      paymentStatus: this.paymentFilter() !== 'all' ? this.paymentFilter() as PaymentStatus : undefined,
       dateFrom: this.dateRange().from || undefined,
       dateTo: this.dateRange().to || undefined
     };

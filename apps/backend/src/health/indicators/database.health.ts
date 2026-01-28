@@ -61,8 +61,8 @@ export class DatabaseHealthIndicator extends HealthIndicator {
       }
 
       return result;
-    } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Unknown database error';
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? (error as Error).message : 'Unknown database error';
 
       throw new HealthCheckError(
         'Database health check failed',
@@ -91,8 +91,8 @@ export class DatabaseHealthIndicator extends HealthIndicator {
         poolStatus: 'healthy',
         maxConnections: this.dataSource.options.extra?.max || 'default',
       });
-    } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Connection pool error';
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? (error as Error).message : 'Connection pool error';
 
       throw new HealthCheckError(
         'Connection pool check failed',

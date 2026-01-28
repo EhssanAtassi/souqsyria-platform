@@ -64,7 +64,7 @@
         *ngIf="searchTerm()"
         type="button"
         class="product-list__search-clear"
-        (click)="onSearchInput({ target: { value: '' } } as any)"
+        (click)="clearSearch()"
         aria-label="Clear search"
       >
         <span class="material-icons">close</span>

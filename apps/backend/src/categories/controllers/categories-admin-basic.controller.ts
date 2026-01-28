@@ -194,10 +194,10 @@ export class CategoriesAdminBasicController {
       );
 
       return newCategory;
-    } catch (error) {
+    } catch (error: unknown) {
       const processingTime = Date.now() - startTime;
       this.logger.error(
-        `❌ [${requestId}] Category creation failed: ${error.message} (${processingTime}ms)`,
+        `❌ [${requestId}] Category creation failed: ${(error as Error).message} (${processingTime}ms)`,
       );
       throw error;
     }
@@ -278,10 +278,10 @@ export class CategoriesAdminBasicController {
       );
 
       return result;
-    } catch (error) {
+    } catch (error: unknown) {
       const processingTime = Date.now() - startTime;
       this.logger.error(
-        `❌ [${requestId}] Failed to retrieve categories: ${error.message} (${processingTime}ms)`,
+        `❌ [${requestId}] Failed to retrieve categories: ${(error as Error).message} (${processingTime}ms)`,
       );
       throw error;
     }
@@ -340,7 +340,7 @@ export class CategoriesAdminBasicController {
     this.logger.log(`🔍 [${requestId}] Retrieving category ID: ${id}`);
 
     try {
-      const category = await this.categoriesService.findOne(id);
+      const category = await this.categoriesService.findOne(id)!;
 
       if (!category) {
         throw new NotFoundException(`Category with ID ${id} not found`);
@@ -414,10 +414,10 @@ export class CategoriesAdminBasicController {
       };
 
       return response;
-    } catch (error) {
+    } catch (error: unknown) {
       const processingTime = Date.now() - startTime;
       this.logger.error(
-        `❌ [${requestId}] Failed to retrieve category: ${error.message} (${processingTime}ms)`,
+        `❌ [${requestId}] Failed to retrieve category: ${(error as Error).message} (${processingTime}ms)`,
       );
       throw error;
     }
@@ -518,10 +518,10 @@ export class CategoriesAdminBasicController {
       );
 
       return updatedCategory;
-    } catch (error) {
+    } catch (error: unknown) {
       const processingTime = Date.now() - startTime;
       this.logger.error(
-        `❌ [${requestId}] Category update failed: ${error.message} (${processingTime}ms)`,
+        `❌ [${requestId}] Category update failed: ${(error as Error).message} (${processingTime}ms)`,
       );
       throw error;
     }
@@ -640,10 +640,10 @@ export class CategoriesAdminBasicController {
           reason: reason || 'No reason provided',
         },
       };
-    } catch (error) {
+    } catch (error: unknown) {
       const processingTime = Date.now() - startTime;
       this.logger.error(
-        `❌ [${requestId}] Category deletion failed: ${error.message} (${processingTime}ms)`,
+        `❌ [${requestId}] Category deletion failed: ${(error as Error).message} (${processingTime}ms)`,
       );
       throw error;
     }

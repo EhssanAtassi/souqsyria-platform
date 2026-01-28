@@ -22,13 +22,13 @@
         <div class="vendor-profile">
           <div class="vendor-profile__logo">
             @if (vendor()!.logo) {
-              <img [src]="vendor()!.logo" [alt]="vendor()!.shopName" />
+              <img [src]="vendor()!.logo" [alt]="vendor()!.shopNameEn" />
             } @else {
               <span class="material-icons">store</span>
             }
           </div>
           <div class="vendor-profile__info">
-            <h1>{{ vendor()!.shopName }}</h1>
+            <h1>{{ vendor()!.shopNameEn }}</h1>
             <div class="vendor-profile__meta">
               <span
                 class="status-badge"
@@ -45,7 +45,7 @@
               <span class="vendor-profile__rating">
                 <span class="material-icons">star</span>
                 {{ vendor()!.rating | number:'1.1-1' }}
-                ({{ vendor()!.reviewCount }} reviews)
+                ({{ vendor()!.metrics.totalReviews }} reviews)
               </span>
             </div>
           </div>
@@ -147,15 +147,15 @@
               <div class="info-card__body">
                 <div class="info-row">
                   <label>Shop Name</label>
-                  <span>{{ vendor()!.shopName }}</span>
+                  <span>{{ vendor()!.shopNameEn }}</span>
                 </div>
                 <div class="info-row">
                   <label>Description</label>
-                  <span>{{ vendor()!.description || 'No description' }}</span>
+                  <span>{{ vendor()!.descriptionEn || 'No description' }}</span>
                 </div>
                 <div class="info-row">
                   <label>Products</label>
-                  <span>{{ vendor()!.productCount }} products</span>
+                  <span>{{ vendor()!.metrics.totalProducts }} products</span>
                 </div>
                 <div class="info-row">
                   <label>Joined</label>
@@ -199,7 +199,7 @@
                 </div>
                 <div class="info-row">
                   <label>Total Orders</label>
-                  <span>{{ vendor()!.totalOrders }}</span>
+                  <span>{{ vendor()!.metrics.totalOrders }}</span>
                 </div>
                 <div class="info-row">
                   <label>Average Rating</label>
@@ -232,11 +232,11 @@
                 </div>
                 <div class="info-row">
                   <label>Pending Payout</label>
-                  <span>{{ vendor()!.commission.pendingPayout | currencyFormat }}</span>
+                  <span>{{ vendor()!.commission.pendingAmount | currencyFormat }}</span>
                 </div>
                 <div class="info-row">
                   <label>Total Paid Out</label>
-                  <span>{{ vendor()!.commission.totalPaidOut | currencyFormat }}</span>
+                  <span>{{ vendor()!.commission.totalPaid | currencyFormat }}</span>
                 </div>
               </div>
             </div>
@@ -349,11 +349,11 @@
                     <span class="earnings-item__label">Total Earned</span>
                   </div>
                   <div class="earnings-item">
-                    <span class="earnings-item__value">{{ vendor()!.commission.pendingPayout | currencyFormat }}</span>
+                    <span class="earnings-item__value">{{ vendor()!.commission.pendingAmount | currencyFormat }}</span>
                     <span class="earnings-item__label">Pending Payout</span>
                   </div>
                   <div class="earnings-item">
-                    <span class="earnings-item__value">{{ vendor()!.commission.totalPaidOut | currencyFormat }}</span>
+                    <span class="earnings-item__value">{{ vendor()!.commission.totalPaid | currencyFormat }}</span>
                     <span class="earnings-item__label">Total Paid</span>
                   </div>
                 </div>

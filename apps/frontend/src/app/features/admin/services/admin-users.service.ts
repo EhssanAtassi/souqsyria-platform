@@ -18,7 +18,8 @@ import {
   AssignUserRolesRequest,
   ReviewKycRequest,
   KycVerificationItem,
-  UserRole
+  UserRole,
+  KycStatus
 } from '../interfaces';
 
 /**
@@ -240,7 +241,7 @@ export class AdminUsersService {
     userId: number;
     userName: string;
     userEmail: string;
-    status: string;
+    status: KycStatus;
     documentType: string;
     documents: { type: string; url: string; uploadedAt: Date }[];
     submittedAt: Date;

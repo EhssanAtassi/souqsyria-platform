@@ -32,6 +32,61 @@ function extractVariantId(variantId: string): string {
 }
 
 /**
+ * Validate Cart Response
+ *
+ * Response structure from cart validation endpoint.
+ */
+export interface ValidateCartResponse {
+  isValid: boolean;
+  warnings: CartValidationWarning[];
+  errors: CartValidationError[];
+}
+
+export interface CartValidationWarning {
+  type: 'PRICE_INCREASE' | 'PRICE_DECREASE' | 'LOW_STOCK' | 'SHIPPING_UNAVAILABLE';
+  itemId: string;
+  message: string;
+  oldValue?: number;
+  newValue?: number;
+}
+
+export interface CartValidationError {
+  type: 'OUT_OF_STOCK' | 'DISCONTINUED' | 'INVALID_QUANTITY' | 'SHIPPING_RESTRICTED';
+  itemId: string;
+  message: string;
+}
+
+/**
+ * Extract Product ID
+ *
+ * Helper function to extract numeric product ID from CartItem.
+ *
+ * @param item - Cart item
+ * @returns Product ID as number
+ */
+function extractProductId(item: CartItem): number {
+  if (typeof item.product.id === 'number') {
+    return item.product.id;
+  }
+  return parseInt(String(item.product.id), 10);
+}
+
+/**
+ * Extract Variant ID
+ *
+ * Helper function to extract numeric variant ID from variant ID string.
+ *
+ * @param variantId - Variant ID (string or number)
+ * @returns Variant ID as number
+ */
+function extractVariantId(variantId: string | number): number {
+  if (typeof variantId === 'number') {
+    return variantId;
+  }
+  return parseInt(String(variantId), 10);
+}
+
+/**
  * Cart Sync Service
  *
  * Handles HTTP communication with the NestJS backend cart API.
@@ -241,31 +296,6 @@ export class CartSyncService {
     );
   }
 
-  /**
-   * Fetch User Cart (Enhanced for Phase 4.2)
-   *
-   * Retrieves authenticated user's cart from server.
-   * Backend extracts user ID from JWT token.
-   *
-   * **Use Cases:**
-   * - After user login (to load their existing cart)
-   * - After cart merge (to get updated cart)
-   * - On app initialization for authenticated users
-   *
-   * @param userId - User ID (optional, for logging only)
-   * @returns Observable<Cart> - User's current cart
-   */
-  fetchUserCart(userId?: string): Observable<Cart> {
-    console.log(`[CartSyncService] Fetching user cart${userId ? ' for user: ' + userId : ''}`);
-
-    return this.http.get<Cart>(this.apiUrl).pipe(
-      retry({ count: 3, delay: 1000 }),
-      catchError((error) => {
-        console.error('[CartSyncService] Failed to fetch user cart:', error);
-        return throwError(() => error);
-      })
-    );
-  }
 
   /**
    * Validate Cart (Enhanced for Phase 4.2)

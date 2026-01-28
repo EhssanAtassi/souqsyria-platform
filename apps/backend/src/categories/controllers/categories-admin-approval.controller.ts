@@ -240,11 +240,11 @@ export class CategoriesAdminApprovalController {
           autoActivated: approveCategoryDto.autoActivate ?? true,
         },
       };
-    } catch (error) {
+    } catch (error: unknown) {
       const processingTime = Date.now() - startTime;
 
       this.logger.error(
-        `❌ [${requestId}] Category approval failed: ${error.message} (${processingTime}ms)`,
+        `❌ [${requestId}] Category approval failed: ${(error as Error).message} (${processingTime}ms)`,
       );
 
       throw error;
@@ -417,11 +417,11 @@ export class CategoriesAdminApprovalController {
           reasonLength: rejectCategoryDto.rejectionReason.length,
         },
       };
-    } catch (error) {
+    } catch (error: unknown) {
       const processingTime = Date.now() - startTime;
 
       this.logger.error(
-        `❌ [${requestId}] Category rejection failed: ${error.message} (${processingTime}ms)`,
+        `❌ [${requestId}] Category rejection failed: ${(error as Error).message} (${processingTime}ms)`,
       );
 
       throw error;
@@ -577,11 +577,11 @@ export class CategoriesAdminApprovalController {
           generatedAt: new Date(),
         },
       };
-    } catch (error) {
+    } catch (error: unknown) {
       const processingTime = Date.now() - startTime;
 
       this.logger.error(
-        `❌ [${requestId}] Failed to retrieve pending categories: ${error.message} (${processingTime}ms)`,
+        `❌ [${requestId}] Failed to retrieve pending categories: ${(error as Error).message} (${processingTime}ms)`,
       );
 
       throw error;
@@ -778,11 +778,11 @@ export class CategoriesAdminApprovalController {
           requestId,
         },
       };
-    } catch (error) {
+    } catch (error: unknown) {
       const processingTime = Date.now() - startTime;
 
       this.logger.error(
-        `❌ [${requestId}] Bulk status change failed: ${error.message} (${processingTime}ms)`,
+        `❌ [${requestId}] Bulk status change failed: ${(error as Error).message} (${processingTime}ms)`,
       );
 
       throw error;

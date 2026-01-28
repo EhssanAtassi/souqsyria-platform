@@ -118,10 +118,10 @@ async function runSimpleSeeding(): Promise<void> {
 
     const duration = Date.now() - startTime;
     console.log(`✅ Seeding completed successfully in ${duration}ms`);
-  } catch (error) {
-    console.error(`❌ Seeding failed:`, error.message);
-    if (error.stack) {
-      console.error('Stack trace:', error.stack);
+  } catch (error: unknown) {
+    console.error(`❌ Seeding failed:`, (error as Error).message);
+    if ((error as Error).stack) {
+      console.error('Stack trace:', (error as Error).stack);
     }
     process.exit(1);
   } finally {

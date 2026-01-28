@@ -120,7 +120,7 @@
         (input)="onSearchInput($event)"
       />
       @if (searchTerm()) {
-        <button class="search-box__clear" (click)="onSearchInput({ target: { value: '' } } as any)">
+        <button class="search-box__clear" (click)="clearSearch()">
           <span class="material-icons">close</span>
         </button>
       }
@@ -445,7 +445,7 @@
             type="text"
             placeholder="Enter bank transaction reference or ID..."
             [ngModel]="processFormData().transactionReference"
-            (ngModelChange)="processFormData.set({...processFormData(), transactionReference: $event})"
+            (ngModelChange)="updateProcessTransactionRef($event)"
           />
           <span class="input-hint">Optional - for tracking purposes</span>
         </div>
@@ -455,7 +455,7 @@
           <textarea
             placeholder="Add any notes about this payout..."
             [ngModel]="processFormData().notes"
-            (ngModelChange)="processFormData.set({...processFormData(), notes: $event})"
+            (ngModelChange)="updateProcessNotes($event)"
           ></textarea>
         </div>
 
@@ -463,7 +463,7 @@
           <input
             type="checkbox"
             [checked]="processFormData().notifyVendor"
-            (change)="processFormData.set({...processFormData(), notifyVendor: !processFormData().notifyVendor})"
+            (change)="toggleProcessNotify()"
           />
           <span class="checkbox-label">Notify vendor via email</span>
         </label>
@@ -519,7 +519,7 @@
           <label>Rejection Reason <span class="required">*</span></label>
           <select
             [ngModel]="rejectFormData().reason"
-            (ngModelChange)="rejectFormData.set({...rejectFormData(), reason: $event})"
+            (ngModelChange)="updateRejectReason($event)"
           >
             <option value="">Select a reason...</option>
             @for (reason of rejectionReasons; track reason.value) {
@@ -533,7 +533,7 @@
           <textarea
             placeholder="Provide details about the rejection..."
             [ngModel]="rejectFormData().notes"
-            (ngModelChange)="rejectFormData.set({...rejectFormData(), notes: $event})"
+            (ngModelChange)="updateRejectNotes($event)"
           ></textarea>
         </div>
 
@@ -541,7 +541,7 @@
           <input
             type="checkbox"
             [checked]="rejectFormData().notifyVendor"
-            (change)="rejectFormData.set({...rejectFormData(), notifyVendor: !rejectFormData().notifyVendor})"
+            (change)="toggleRejectNotify()"
           />
           <span class="checkbox-label">Notify vendor via email</span>
         </label>

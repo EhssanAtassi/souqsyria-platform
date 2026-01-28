@@ -69,7 +69,7 @@ import { HealthModule } from './health';
     // ✅ Load environment variables from .env file (must be first)
     ConfigModule.forRoot({
       isGlobal: true, // Make ConfigService available globally
-      envFilePath: '.env', // Path to .env file
+      envFilePath: ['.env.development', '.env'], // Support development and production env files
     }),
     // ✅ Shared Domain Module - Event-driven architecture for breaking circular dependencies
     SharedDomainModule,

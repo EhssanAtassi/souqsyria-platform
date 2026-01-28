@@ -24,6 +24,7 @@ import {
   AuditLogEntry,
   AuditLogFilter,
   AuditLogResponse,
+  AuditAction,
   FeatureFlag,
   ShippingZone,
   PaymentMethod
@@ -723,6 +724,8 @@ export class SettingsService {
         description: 'Streamlined checkout process with fewer steps',
         enabled: true,
         rolloutPercentage: 100,
+        category: 'commerce',
+        environments: ['development', 'staging', 'production'],
         createdAt: now,
         updatedAt: now
       },
@@ -733,6 +736,8 @@ export class SettingsService {
         description: 'Enable dark theme for the admin panel',
         enabled: false,
         rolloutPercentage: 0,
+        category: 'user_experience',
+        environments: ['development'],
         createdAt: now,
         updatedAt: now
       },
@@ -743,6 +748,8 @@ export class SettingsService {
         description: 'Generate product descriptions using AI',
         enabled: true,
         rolloutPercentage: 50,
+        category: 'experimental',
+        environments: ['development', 'staging'],
         enabledForRoles: ['super_admin', 'admin'],
         createdAt: now,
         updatedAt: now
@@ -754,6 +761,8 @@ export class SettingsService {
         description: 'Enhanced vendor analytics dashboard',
         enabled: true,
         rolloutPercentage: 25,
+        category: 'performance',
+        environments: ['development', 'staging'],
         createdAt: now,
         updatedAt: now
       }

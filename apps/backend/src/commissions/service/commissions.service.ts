@@ -140,7 +140,7 @@ export class CommissionsService {
       }
 
       // Step 4: Fallback to global default
-      const globalRule = await this.globalCommissionRepo.findOne({ where: {} });
+      const globalRule = await this.globalCommissionRepo.findOne({ where: {} })!;
 
       if (!globalRule) {
         throw new NotFoundException('Global commission rule not set');
@@ -150,8 +150,8 @@ export class CommissionsService {
         `Using global fallback commission: ${globalRule.percentage}%`,
       );
       return this.applyMembershipDiscount(globalRule.percentage, membershipId);
-    } catch (error) {
-      this.logger.error('Failed to resolve commission', error.stack);
+    } catch (error: unknown) {
+      this.logger.error('Failed to resolve commission', (error as Error).stack);
       throw new InternalServerErrorException('Could not resolve commission');
     }
   }
@@ -187,7 +187,7 @@ export class CommissionsService {
   async getGlobalCommission(): Promise<GlobalCommissionEntity> {
     this.logger.log('Fetching global commission rule');
 
-    const rule = await this.globalCommissionRepo.findOne({ where: {} });
+    const rule = await this.globalCommissionRepo.findOne({ where: {} })!;
     if (!rule) {
       this.logger.warn('Global commission rule is not set');
       throw new NotFoundException('Global commission rule not found');
@@ -212,7 +212,7 @@ export class CommissionsService {
     );
 
     // Find existing rule
-    let rule = await this.globalCommissionRepo.findOne({ where: {} });
+    let rule = await this.globalCommissionRepo.findOne({ where: {} })!;
 
     // If not exist, create new
     if (!rule) {
@@ -715,30 +715,30 @@ export class CommissionsService {
               created_at: new Date(),
               updated_at: new Date(),
             });
-          } catch (error) {
+          } catch (error: unknown) {
             failed++;
             errors.push({
               orderId: item.orderId,
-              error: error.message,
+              error: (error as Error).message,
             });
             this.logger.error(
               `Failed to calculate commission for order ${item.orderId}`,
-              error.stack,
+              (error as Error).stack,
             );
           }
         }
-      } catch (error) {
+      } catch (error: unknown) {
         // Handle batch-level errors
         batch.forEach((orderId) => {
           failed++;
           errors.push({
             orderId,
-            error: `Batch processing failed: ${error.message}`,
+            error: `Batch processing failed: ${(error as Error).message}`,
           });
         });
         this.logger.error(
           `Batch processing failed for orders ${batch.join(', ')}`,
-          error.stack,
+          (error as Error).stack,
         );
       }
     }
@@ -919,7 +919,7 @@ export class CommissionsService {
     }> = [];
 
     // Check for global commission rule
-    const globalRule = await this.globalCommissionRepo.findOne({ where: {} });
+    const globalRule = await this.globalCommissionRepo.findOne({ where: {} })!;
     if (!globalRule) {
       issues.push({
         type: 'error',

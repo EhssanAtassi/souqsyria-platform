@@ -235,13 +235,13 @@ export class CategoryAnalyticsService {
       );
       //
       return statistics;
-    } catch (error) {
+    } catch (error: unknown) {
       const calculationTime = Date.now() - startTime;
       this.updatePerformanceMetrics(calculationTime, false, false);
       //
       this.logger.error(
-        `❌ Failed to calculate statistics for category ${categoryId}: ${error.message}`,
-        error.stack,
+        `❌ Failed to calculate statistics for category ${categoryId}: ${(error as Error).message}`,
+        (error as Error).stack,
       );
       //
       if (error instanceof BadRequestException) {
@@ -327,10 +327,10 @@ export class CategoryAnalyticsService {
       );
       //
       return collectionAnalytics;
-    } catch (error) {
+    } catch (error: unknown) {
       this.logger.error(
-        `❌ Failed to calculate collection analytics: ${error.message}`,
-        error.stack,
+        `❌ Failed to calculate collection analytics: ${(error as Error).message}`,
+        (error as Error).stack,
       );
       throw new InternalServerErrorException(
         'Failed to calculate collection analytics',
@@ -412,10 +412,10 @@ export class CategoryAnalyticsService {
       );
       //
       return comparison;
-    } catch (error) {
+    } catch (error: unknown) {
       this.logger.error(
-        `❌ Failed to calculate performance comparison: ${error.message}`,
-        error.stack,
+        `❌ Failed to calculate performance comparison: ${(error as Error).message}`,
+        (error as Error).stack,
       );
       throw new InternalServerErrorException(
         'Failed to calculate performance comparison',
@@ -461,8 +461,8 @@ export class CategoryAnalyticsService {
         `✅ Core metrics calculated: ${JSON.stringify(coreMetrics)}`,
       );
       return coreMetrics;
-    } catch (error) {
-      this.logger.error(`❌ Core metrics calculation failed: ${error.message}`);
+    } catch (error: unknown) {
+      this.logger.error(`❌ Core metrics calculation failed: ${(error as Error).message}`);
       return {
         productCount: 0,
         viewCount: 0,

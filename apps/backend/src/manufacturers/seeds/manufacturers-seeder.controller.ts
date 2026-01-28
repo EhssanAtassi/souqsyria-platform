@@ -255,13 +255,13 @@ export class ManufacturersSeederController {
         timestamp: new Date().toISOString(),
         executionTimeMs: executionTime,
       };
-    } catch (error) {
+    } catch (error: unknown) {
       const executionTime = Date.now() - startTime;
       this.logger.error(`❌ Manufacturers seeding failed after ${executionTime}ms:`, error);
       
       throw new BadRequestException({
         message: '❌ Manufacturers seeding operation failed',
-        error: error.message,
+        error: (error as Error).message,
         timestamp: new Date().toISOString(),
         executionTimeMs: executionTime,
       });
@@ -348,13 +348,13 @@ export class ManufacturersSeederController {
         timestamp: new Date().toISOString(),
         executionTimeMs: executionTime,
       };
-    } catch (error) {
+    } catch (error: unknown) {
       const executionTime = Date.now() - startTime;
       this.logger.error(`❌ Sample manufacturers seeding failed:`, error);
       
       throw new BadRequestException({
         message: '❌ Failed to seed sample manufacturers',
-        error: error.message,
+        error: (error as Error).message,
         timestamp: new Date().toISOString(),
         executionTimeMs: executionTime,
       });
@@ -420,13 +420,13 @@ export class ManufacturersSeederController {
         timestamp: new Date().toISOString(),
         executionTimeMs: executionTime,
       };
-    } catch (error) {
+    } catch (error: unknown) {
       const executionTime = Date.now() - startTime;
       this.logger.error(`❌ Workflow analytics seeding failed:`, error);
       
       throw new BadRequestException({
         message: '❌ Failed to seed workflow analytics',
-        error: error.message,
+        error: (error as Error).message,
         timestamp: new Date().toISOString(),
         executionTimeMs: executionTime,
       });
@@ -489,13 +489,13 @@ export class ManufacturersSeederController {
         timestamp: new Date().toISOString(),
         executionTimeMs: executionTime,
       };
-    } catch (error) {
+    } catch (error: unknown) {
       const executionTime = Date.now() - startTime;
       this.logger.error(`❌ Categories seeding failed:`, error);
       
       throw new BadRequestException({
         message: '❌ Failed to seed manufacturing categories',
-        error: error.message,
+        error: (error as Error).message,
         timestamp: new Date().toISOString(),
         executionTimeMs: executionTime,
       });
@@ -586,13 +586,13 @@ export class ManufacturersSeederController {
         },
         timestamp: new Date().toISOString(),
       };
-    } catch (error) {
+    } catch (error: unknown) {
       const executionTime = Date.now() - startTime;
       this.logger.error(`❌ Bulk generation failed:`, error);
       
       throw new BadRequestException({
         message: '❌ Bulk manufacturers generation failed',
-        error: error.message,
+        error: (error as Error).message,
         timestamp: new Date().toISOString(),
         executionTimeMs: executionTime,
       });
@@ -633,11 +633,11 @@ export class ManufacturersSeederController {
       
       this.logger.log('✅ Statistics retrieved successfully');
       return stats;
-    } catch (error) {
+    } catch (error: unknown) {
       this.logger.error('❌ Failed to retrieve statistics:', error);
       throw new BadRequestException({
         message: '❌ Failed to retrieve seeding statistics',
-        error: error.message,
+        error: (error as Error).message,
         timestamp: new Date().toISOString(),
       });
     }
@@ -687,11 +687,11 @@ export class ManufacturersSeederController {
       }
 
       return response;
-    } catch (error) {
+    } catch (error: unknown) {
       this.logger.error('❌ Data integrity verification failed:', error);
       throw new BadRequestException({
         message: '❌ Data integrity verification failed',
-        error: error.message,
+        error: (error as Error).message,
         timestamp: new Date().toISOString(),
       });
     }
@@ -778,13 +778,13 @@ export class ManufacturersSeederController {
           'Category assignments',
         ],
       };
-    } catch (error) {
+    } catch (error: unknown) {
       const executionTime = Date.now() - startTime;
       this.logger.error(`❌ Failed to clear manufacturers data:`, error);
       
       throw new BadRequestException({
         message: '❌ Failed to clear manufacturers data',
-        error: error.message,
+        error: (error as Error).message,
         timestamp: new Date().toISOString(),
         executionTimeMs: executionTime,
       });

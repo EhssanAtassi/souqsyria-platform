@@ -2,6 +2,10 @@
 
 Syrian E-commerce Platform built with Angular 18 and NestJS.
 
+> **New Developer?** Start with [DEVELOPER_ONBOARDING.md](./DEVELOPER_ONBOARDING.md) for a comprehensive setup guide.
+>
+> **Quick Start:** Run `./dev-setup.sh` for automated environment setup!
+
 ## 🏗️ Monorepo Structure
 
 ```
@@ -16,34 +20,63 @@ souqsyria-platform/
 
 ## 🚀 Quick Start
 
+### Automated Setup (Recommended)
+
+```bash
+# One-command setup for new developers
+./dev-setup.sh
+
+# Start development environment
+make dev
+```
+
 ### Prerequisites
 
 - Node.js >= 18.0.0
 - npm >= 9.0.0
-- Docker & Docker Compose (for containerized setup)
+- Docker & Docker Compose (recommended)
+- Git
 
-### Installation
+### Manual Setup
 
 ```bash
-# Install all dependencies for all workspaces
+# Install all dependencies
 npm install
 
-# Or install dependencies for specific workspace
-npm install --workspace=apps/frontend
-npm install --workspace=apps/backend
+# Copy environment configuration
+cp .env.development .env
+
+# Set up Git hooks
+npx husky install
+
+# Start development (with Docker)
+make dev
+
+# OR start locally without Docker
+npm run dev
 ```
 
-### Development
+### Development Commands
 
 ```bash
-# Run both frontend and backend concurrently
-npm run dev
+# Docker-based development (recommended)
+make dev              # Start all services
+make dev-stop         # Stop services
+make dev-logs         # View logs
 
-# Run frontend only
-npm run frontend
+# Local development
+npm run dev           # Run frontend + backend
+npm run frontend      # Frontend only
+npm run backend       # Backend only
 
-# Run backend only
-npm run backend
+# Code quality
+make lint             # Run linters
+make format           # Format code
+make quality          # All quality checks
+
+# Testing
+make test             # Run all tests
+make test-coverage    # With coverage
 ```
 
 ### Building
@@ -113,9 +146,16 @@ npm run docker:down
 
 ## 📚 Documentation
 
-- Frontend docs: `apps/frontend/CLAUDE.md`
-- Backend docs: `apps/backend/README.md`
-- Docker guide: `DOCKER-SETUP.md`
+### Essential Guides
+- **[Developer Onboarding](./DEVELOPER_ONBOARDING.md)** - Complete setup and workflow guide
+- **[Quick Reference](./QUICK_REFERENCE.md)** - Command cheat sheet
+- **[DX Optimization Summary](./DX_OPTIMIZATION_SUMMARY.md)** - Development experience improvements
+
+### Technical Documentation
+- **[Testing Guide](./TEST_AUTOMATION_SUMMARY.md)** - Test automation and strategies
+- **[BI Components](./BI_COMPONENTS_IMPLEMENTATION.md)** - Business intelligence features
+- **Frontend**: `apps/frontend/CLAUDE.md`
+- **Backend**: `apps/backend/README.md`
 
 ## 🗂️ Git Structure
 
@@ -123,11 +163,29 @@ Each app maintains its own git history:
 - Frontend: `apps/frontend/.git`
 - Backend: `apps/backend/.git`
 
-## 🔗 URLs
+## 🔗 Development URLs
 
-- Frontend: http://localhost:4200
-- Backend API: http://localhost:3001/api
-- Swagger Docs: http://localhost:3001/api/docs
+| Service | URL | Purpose |
+|---------|-----|---------|
+| Frontend | http://localhost:4200 | Angular application |
+| Backend API | http://localhost:3001 | NestJS API |
+| Swagger Docs | http://localhost:3001/api/docs | API documentation |
+| phpMyAdmin | http://localhost:8080 | Database management |
+| Redis Commander | http://localhost:8081 | Cache management |
+| Mailhog | http://localhost:8025 | Email testing |
+
+## 🛠️ Developer Experience Features
+
+- **One-command setup** - Automated environment configuration
+- **Hot reload** - Frontend and backend auto-reload on changes
+- **Pre-commit hooks** - Automated code quality checks
+- **TypeScript strict mode** - Enhanced type safety
+- **Integrated debugging** - VS Code debug configurations
+- **Docker development** - Consistent environments across team
+- **Automated testing** - CI/CD with GitHub Actions
+- **Code formatting** - Prettier auto-format on save
+
+See [DX_OPTIMIZATION_SUMMARY.md](./DX_OPTIMIZATION_SUMMARY.md) for details.
 
 ## 📝 License
 

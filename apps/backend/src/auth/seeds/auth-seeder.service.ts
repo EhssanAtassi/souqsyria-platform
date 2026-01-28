@@ -110,8 +110,8 @@ export class AuthSeederService {
             await this.loginLogRepository.save(loginLog);
             createdCount++;
           }
-        } catch (error) {
-          this.logger.warn(`Failed to create login log: ${error.message}`);
+        } catch (error: unknown) {
+          this.logger.warn(`Failed to create login log: ${(error as Error).message}`);
         }
       }
 
@@ -128,8 +128,8 @@ export class AuthSeederService {
             await this.tokenBlacklistRepository.save(blacklistEntry);
             createdCount++;
           }
-        } catch (error) {
-          this.logger.warn(`Failed to create blacklist entry: ${error.message}`);
+        } catch (error: unknown) {
+          this.logger.warn(`Failed to create blacklist entry: ${(error as Error).message}`);
         }
       }
 
@@ -141,12 +141,12 @@ export class AuthSeederService {
         message: `Successfully seeded ${createdCount} authentication entries (login logs + blacklisted tokens)`
       };
 
-    } catch (error) {
+    } catch (error: unknown) {
       this.logger.error('❌ Authentication data seeding failed:', error);
       return {
         success: false,
         count: 0,
-        message: `Authentication seeding failed: ${error.message}`
+        message: `Authentication seeding failed: ${(error as Error).message}`
       };
     }
   }
@@ -493,9 +493,9 @@ export class AuthSeederService {
           securityEvents: suspiciousLogins + securityBlacklist
         }
       };
-    } catch (error) {
+    } catch (error: unknown) {
       this.logger.error('Failed to get auth analytics:', error);
-      return { error: error.message };
+      return { error: (error as Error).message };
     }
   }
 
@@ -527,8 +527,8 @@ export class AuthSeederService {
             results.errors.push(`Unknown operation type: ${operation.type}`);
             results.failed++;
         }
-      } catch (error) {
-        results.errors.push(`${operation.type} failed: ${error.message}`);
+      } catch (error: unknown) {
+        results.errors.push(`${operation.type} failed: ${(error as Error).message}`);
         results.failed++;
       }
     }
@@ -607,12 +607,12 @@ export class AuthSeederService {
         message: `Successfully cleared ${totalDeleted} authentication records`
       };
 
-    } catch (error) {
+    } catch (error: unknown) {
       this.logger.error('❌ Failed to clear authentication data:', error);
       return {
         success: false,
         deletedCount: 0,
-        message: `Failed to clear authentication data: ${error.message}`
+        message: `Failed to clear authentication data: ${(error as Error).message}`
       };
     }
   }

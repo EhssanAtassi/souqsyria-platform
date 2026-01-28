@@ -80,8 +80,8 @@ export class RedisHealthIndicator extends HealthIndicator {
       }
 
       return result;
-    } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Unknown cache error';
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? (error as Error).message : 'Unknown cache error';
 
       throw new HealthCheckError(
         'Cache health check failed',

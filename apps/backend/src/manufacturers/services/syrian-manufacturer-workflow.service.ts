@@ -564,8 +564,8 @@ export class SyrianManufacturerWorkflowService {
           reasonAr,
         );
         successful.push(manufacturerId);
-      } catch (error) {
-        failed.push({ id: manufacturerId, error: error.message });
+      } catch (error: unknown) {
+        failed.push({ id: manufacturerId, error: (error as Error).message });
       }
     }
 
@@ -593,7 +593,7 @@ export class SyrianManufacturerWorkflowService {
     for (const manufacturer of verifiedManufacturers) {
       try {
         await this.updateQualityMetrics(manufacturer.id);
-      } catch (error) {
+      } catch (error: unknown) {
         this.logger.error(
           `Failed to update quality metrics for manufacturer ${manufacturer.id}:`,
           error,

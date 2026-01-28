@@ -368,8 +368,8 @@ export class LocalizationService {
       this.logger.log(
         `Initialized ${commonTranslations.length * 2} translations`,
       );
-    } catch (error) {
-      this.logger.error('Failed to initialize translations', error.stack);
+    } catch (error: unknown) {
+      this.logger.error('Failed to initialize translations', (error as Error).stack);
     }
   }
 

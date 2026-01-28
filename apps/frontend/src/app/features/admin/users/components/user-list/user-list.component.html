@@ -142,15 +142,15 @@
         <span class="material-icons user-list__search-icon">search</span>
         <input
           type="text"
-          [formControl]="searchForm.controls['search']"
+          [formControl]="searchControl"
           placeholder="Search by name, email, or phone..."
           class="user-list__search-input"
         />
         <button
-          *ngIf="searchForm.controls['search'].value"
+          *ngIf="searchControl.value"
           type="button"
           class="user-list__search-clear"
-          (click)="searchForm.controls['search'].setValue('')"
+          (click)="searchControl.setValue('')"
           title="Clear search"
         >
           <span class="material-icons">close</span>
@@ -161,8 +161,8 @@
       <app-admin-filter-panel
         [fields]="filterFields"
         [values]="currentFilters()"
-        (filterChange)="onFilterChange($event)"
-        (filterReset)="onFilterReset()"
+        (filtersChange)="onFilterChange($event)"
+        (filtersReset)="onFilterReset()"
       />
     </div>
 
@@ -233,7 +233,7 @@
               <input
                 type="checkbox"
                 [checked]="isAllSelected()"
-                (change)="isAllSelected() ? clearSelection() : selectedUserIds.set(users().map(u => u.id))"
+                (change)="toggleSelectAll()"
                 aria-label="Select all users"
               />
             </th>
@@ -252,16 +252,14 @@
           <tr
             *ngFor="let user of users(); trackBy: trackById"
             class="user-list__row"
-            [class.user-list__row--selected]="selectedUserIds().includes(user.id)"
+            [class.user-list__row--selected]="isUserSelected(user.id)"
           >
             <!-- Checkbox -->
             <td class="user-list__td user-list__td--checkbox">
               <input
                 type="checkbox"
-                [checked]="selectedUserIds().includes(user.id)"
-                (change)="selectedUserIds().includes(user.id)
-                  ? selectedUserIds.set(selectedUserIds().filter(id => id !== user.id))
-                  : selectedUserIds.set([...selectedUserIds(), user.id])"
+                [checked]="isUserSelected(user.id)"
+                (change)="toggleUserSelection(user.id)"
                 [attr.aria-label]="'Select ' + user.fullName"
               />
             </td>
@@ -397,7 +395,6 @@
     <div class="user-list__pagination" *ngIf="pagination().total > 0">
       <app-admin-pagination
         [currentPage]="pagination().page"
-        [totalPages]="pagination().totalPages"
         [totalItems]="pagination().total"
         [pageSize]="pagination().limit"
         (pageChange)="onPageChange($event)"

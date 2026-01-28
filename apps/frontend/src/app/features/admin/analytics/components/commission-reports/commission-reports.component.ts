@@ -35,7 +35,7 @@ import {
 } from '../../../interfaces/api-response.interface';
 
 // Pipes
-import { CurrencyFormatPipe } from '../../../../shared/pipes/currency-format.pipe';
+import { CurrencyFormatPipe } from '../../../shared/pipes/currency-format.pipe';
 
 /**
  * Commission trends data structure
@@ -502,6 +502,24 @@ export class CommissionReportsComponent implements OnInit, OnDestroy {
    */
   applyCustomRange(): void {
     this.loadCommissionData();
+  }
+
+  /**
+   * Update start date from input event
+   * @param event - Input change event
+   */
+  updateStartDate(event: Event): void {
+    const target = event.target as HTMLInputElement;
+    this.dateRange.update(range => ({ ...range, startDate: target.value }));
+  }
+
+  /**
+   * Update end date from input event
+   * @param event - Input change event
+   */
+  updateEndDate(event: Event): void {
+    const target = event.target as HTMLInputElement;
+    this.dateRange.update(range => ({ ...range, endDate: target.value }));
   }
 
   /**

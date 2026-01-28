@@ -131,8 +131,8 @@ export class SyrianRefundController {
 
       // Placeholder return for compilation
       throw new BadRequestException('Implementation in progress');
-    } catch (error) {
-      this.logger.error(`Failed to create refund: ${error.message}`);
+    } catch (error: unknown) {
+      this.logger.error(`Failed to create refund: ${(error as Error).message}`);
       throw error;
     }
   }
@@ -192,8 +192,8 @@ export class SyrianRefundController {
         limit: paginationDto.limit || 20,
         totalPages: 0,
       };
-    } catch (error) {
-      this.logger.error(`Failed to retrieve refunds: ${error.message}`);
+    } catch (error: unknown) {
+      this.logger.error(`Failed to retrieve refunds: ${(error as Error).message}`);
       throw error;
     }
   }
@@ -233,8 +233,8 @@ export class SyrianRefundController {
 
       // Placeholder return for compilation
       throw new NotFoundException('Refund not found');
-    } catch (error) {
-      this.logger.error(`Failed to retrieve refund ${id}: ${error.message}`);
+    } catch (error: unknown) {
+      this.logger.error(`Failed to retrieve refund ${id}: ${(error as Error).message}`);
       throw error;
     }
   }
@@ -271,8 +271,8 @@ export class SyrianRefundController {
 
       // Placeholder return for compilation
       throw new NotFoundException('Refund not found');
-    } catch (error) {
-      this.logger.error(`Failed to update refund ${id}: ${error.message}`);
+    } catch (error: unknown) {
+      this.logger.error(`Failed to update refund ${id}: ${(error as Error).message}`);
       throw error;
     }
   }
@@ -320,8 +320,8 @@ export class SyrianRefundController {
     try {
       const result = await this.refundWorkflowService.submitRefund(id, user.id);
       return result;
-    } catch (error) {
-      this.logger.error(`Failed to submit refund ${id}: ${error.message}`);
+    } catch (error: unknown) {
+      this.logger.error(`Failed to submit refund ${id}: ${(error as Error).message}`);
       throw error;
     }
   }
@@ -356,9 +356,9 @@ export class SyrianRefundController {
         actionDto.notes,
       );
       return result;
-    } catch (error) {
+    } catch (error: unknown) {
       this.logger.error(
-        `Failed to start review for refund ${id}: ${error.message}`,
+        `Failed to start review for refund ${id}: ${(error as Error).message}`,
       );
       throw error;
     }
@@ -394,8 +394,8 @@ export class SyrianRefundController {
         actionDto.notes,
       );
       return result;
-    } catch (error) {
-      this.logger.error(`Failed to approve refund ${id}: ${error.message}`);
+    } catch (error: unknown) {
+      this.logger.error(`Failed to approve refund ${id}: ${(error as Error).message}`);
       throw error;
     }
   }
@@ -436,8 +436,8 @@ export class SyrianRefundController {
         user.id,
       );
       return result;
-    } catch (error) {
-      this.logger.error(`Failed to reject refund ${id}: ${error.message}`);
+    } catch (error: unknown) {
+      this.logger.error(`Failed to reject refund ${id}: ${(error as Error).message}`);
       throw error;
     }
   }
@@ -471,9 +471,9 @@ export class SyrianRefundController {
         user.id,
       );
       return result;
-    } catch (error) {
+    } catch (error: unknown) {
       this.logger.error(
-        `Failed to start processing for refund ${id}: ${error.message}`,
+        `Failed to start processing for refund ${id}: ${(error as Error).message}`,
       );
       throw error;
     }
@@ -512,8 +512,8 @@ export class SyrianRefundController {
         actionDto.externalReferenceId,
       );
       return result;
-    } catch (error) {
-      this.logger.error(`Failed to complete refund ${id}: ${error.message}`);
+    } catch (error: unknown) {
+      this.logger.error(`Failed to complete refund ${id}: ${(error as Error).message}`);
       throw error;
     }
   }
@@ -555,9 +555,9 @@ export class SyrianRefundController {
         user.id,
       );
       return result;
-    } catch (error) {
+    } catch (error: unknown) {
       this.logger.error(
-        `Failed to mark refund ${id} as failed: ${error.message}`,
+        `Failed to mark refund ${id} as failed: ${(error as Error).message}`,
       );
       throw error;
     }
@@ -625,8 +625,8 @@ export class SyrianRefundController {
           message: 'Implementation in progress',
         })),
       };
-    } catch (error) {
-      this.logger.error(`Failed to perform bulk action: ${error.message}`);
+    } catch (error: unknown) {
+      this.logger.error(`Failed to perform bulk action: ${(error as Error).message}`);
       throw error;
     }
   }
@@ -664,8 +664,8 @@ export class SyrianRefundController {
     try {
       const result = await this.refundWorkflowService.monitorSlaCompliance();
       return result;
-    } catch (error) {
-      this.logger.error(`Failed to retrieve SLA compliance: ${error.message}`);
+    } catch (error: unknown) {
+      this.logger.error(`Failed to retrieve SLA compliance: ${(error as Error).message}`);
       throw error;
     }
   }
@@ -722,8 +722,8 @@ export class SyrianRefundController {
         endDate,
       );
       return result;
-    } catch (error) {
-      this.logger.error(`Failed to generate analytics: ${error.message}`);
+    } catch (error: unknown) {
+      this.logger.error(`Failed to generate analytics: ${(error as Error).message}`);
       throw error;
     }
   }

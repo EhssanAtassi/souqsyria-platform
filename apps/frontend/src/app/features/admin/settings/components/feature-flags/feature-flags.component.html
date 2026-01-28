@@ -282,7 +282,7 @@
             <input
               type="text"
               [ngModel]="editingFlag()!.name"
-              (ngModelChange)="editingFlag.set({ ...editingFlag()!, name: $event })"
+              (ngModelChange)="updateFlagName($event)"
             />
           </div>
 
@@ -302,7 +302,7 @@
             <textarea
               rows="3"
               [ngModel]="editingFlag()!.description"
-              (ngModelChange)="editingFlag.set({ ...editingFlag()!, description: $event })"
+              (ngModelChange)="updateFlagDescription($event)"
             ></textarea>
           </div>
 
@@ -313,8 +313,8 @@
                 <label class="checkbox-item">
                   <input
                     type="checkbox"
-                    [checked]="editingFlag()!.environments.includes(env.value as 'development' | 'staging' | 'production')"
-                    (change)="toggleEnvironment(env.value as 'development' | 'staging' | 'production')"
+                    [checked]="isEnvironmentIncluded(env.value)"
+                    (change)="toggleEnvironment(env.value)"
                   />
                   <span>{{ env.label }}</span>
                 </label>

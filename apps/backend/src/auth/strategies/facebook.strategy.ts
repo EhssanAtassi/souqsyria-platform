@@ -106,7 +106,7 @@ export class FacebookStrategy extends PassportStrategy(Strategy, 'facebook') {
 
       // Pass profile to Passport (will be available as req.user in controller)
       done(null, facebookProfile);
-    } catch (error) {
+    } catch (error: unknown) {
       // Handle any errors during profile processing
       done(error, null);
     }

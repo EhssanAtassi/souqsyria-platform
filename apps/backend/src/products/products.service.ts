@@ -66,7 +66,7 @@ export class ProductsService {
     }
 
     if (vendorId) {
-      const vendor = await this.vendorRepo.findOne({ where: { id: vendorId } });
+      const vendor = await this.vendorRepo.findOne({ where: { id: vendorId } })!;
       if (!vendor) throw new NotFoundException('Vendor not found');
       product.vendor = vendor;
     }
@@ -192,7 +192,7 @@ export class ProductsService {
     id: number,
     dto: UpdateProductStatusDto,
   ): Promise<ProductEntity> {
-    const product = await this.productRepo.findOne({ where: { id } });
+    const product = await this.productRepo.findOne({ where: { id } })!;
     if (!product) throw new NotFoundException('Product not found');
 
     if (dto.isActive !== undefined) product.isActive = dto.isActive;

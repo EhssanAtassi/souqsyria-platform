@@ -179,11 +179,11 @@ export class AuditLogSeederController {
     try {
       const result = await this.auditLogSeederService.seedAuditLogs();
       return result;
-    } catch (error) {
+    } catch (error: unknown) {
       throw new HttpException(
         {
           success: false,
-          error: error.message,
+          error: (error as Error).message,
         },
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
@@ -251,11 +251,11 @@ export class AuditLogSeederController {
         custom_date_range: bulkConfig.date_range ? true : false,
         syrian_focus_enabled: bulkConfig.syrian_focus || false,
       };
-    } catch (error) {
+    } catch (error: unknown) {
       throw new HttpException(
         {
           success: false,
-          error: error.message,
+          error: (error as Error).message,
           bulk_config: bulkConfig,
         },
         HttpStatus.INTERNAL_SERVER_ERROR,
@@ -308,11 +308,11 @@ export class AuditLogSeederController {
         statistics,
         generated_at: new Date().toISOString(),
       };
-    } catch (error) {
+    } catch (error: unknown) {
       throw new HttpException(
         {
           success: false,
-          error: error.message,
+          error: (error as Error).message,
         },
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
@@ -381,11 +381,11 @@ export class AuditLogSeederController {
         severity_distribution: severityDistribution,
         generated_at: new Date().toISOString(),
       };
-    } catch (error) {
+    } catch (error: unknown) {
       throw new HttpException(
         {
           success: false,
-          error: error.message,
+          error: (error as Error).message,
         },
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
@@ -464,11 +464,11 @@ export class AuditLogSeederController {
         expires_at: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(), // 24 hours
         compliance_notice: 'Sensitive data handling follows GDPR and Syrian data protection laws',
       };
-    } catch (error) {
+    } catch (error: unknown) {
       throw new HttpException(
         {
           success: false,
-          error: error.message,
+          error: (error as Error).message,
           export_config: exportConfig,
         },
         HttpStatus.INTERNAL_SERVER_ERROR,
@@ -516,11 +516,11 @@ export class AuditLogSeederController {
         cleared_at: new Date().toISOString(),
         compliance_notice: 'Data clearing logged for regulatory compliance',
       };
-    } catch (error) {
+    } catch (error: unknown) {
       throw new HttpException(
         {
           success: false,
-          error: error.message,
+          error: (error as Error).message,
         },
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
@@ -579,11 +579,11 @@ export class AuditLogSeederController {
           compliance_features_tested: true,
         },
       };
-    } catch (error) {
+    } catch (error: unknown) {
       throw new HttpException(
         {
           success: false,
-          error: error.message,
+          error: (error as Error).message,
           test_mode: true,
         },
         HttpStatus.INTERNAL_SERVER_ERROR,

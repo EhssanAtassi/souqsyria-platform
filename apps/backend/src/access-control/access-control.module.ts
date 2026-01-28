@@ -14,11 +14,12 @@ import { Role } from '../roles/entities/role.entity';
 import { Route } from './entities/route.entity';
 import { RoutesService } from './routes/routes.service';
 import { RoutesController } from './routes/routes.controller';
-import { User } from '../users/entities/user.entity';
 import { AccessControlSeederService } from './seeds/access-control.seeder.service';
 import { AccessControlSeederController } from './seeds/access-control.seeder.controller';
 import { SecurityAuditModule } from './security-audit/security-audit.module';
 import { RouteManagementModule } from './route-management/route-management.module';
+import { RouteDiscoveryService } from './seeds/route-discovery.service';
+import { DiscoveryModule } from '@nestjs/core';
 
 @Module({
   imports: [
@@ -30,6 +31,7 @@ import { RouteManagementModule } from './route-management/route-management.modul
       Route,
       // User,
     ]),
+    DiscoveryModule,
     UsersModule,
     forwardRef(() => RolesModule),
     SecurityAuditModule, // Import SecurityAuditModule for audit logging
@@ -45,6 +47,7 @@ import { RouteManagementModule } from './route-management/route-management.modul
     PermissionsService,
     RolePermissionsService,
     RoutesService,
+    RouteDiscoveryService,
     AccessControlSeederService,
   ],
   exports: [
@@ -52,6 +55,7 @@ import { RouteManagementModule } from './route-management/route-management.modul
     PermissionsService,
     RolePermissionsService,
     RoutesService,
+    RouteDiscoveryService,
     AccessControlSeederService,
     SecurityAuditModule, // Export for use in other modules
     RouteManagementModule, // Export route management for other modules

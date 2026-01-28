@@ -253,7 +253,7 @@ export class MobileProductsService {
           optimizedForMobile: true,
         },
       };
-    } catch (error) {
+    } catch (error: unknown) {
       this.logger.error('Failed to get mobile product feed', error);
       throw error;
     }
@@ -290,7 +290,7 @@ export class MobileProductsService {
 
       // Transform to mobile-optimized detailed format
       return await this.transformToMobileProductDetails(product, language);
-    } catch (error) {
+    } catch (error: unknown) {
       if (error instanceof NotFoundException) {
         throw error;
       }
@@ -347,7 +347,7 @@ export class MobileProductsService {
         query,
         count: products.length,
       };
-    } catch (error) {
+    } catch (error: unknown) {
       this.logger.error(
         `Failed to perform quick search for query: ${query}`,
         error,

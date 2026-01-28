@@ -108,7 +108,7 @@
                 <input
                   type="date"
                   [value]="dateRange().startDate"
-                  (change)="dateRange.set({...dateRange(), startDate: $any($event.target).value})"
+                  (change)="updateStartDate($event)"
                 />
               </div>
               <div class="date-input">
@@ -116,7 +116,7 @@
                 <input
                   type="date"
                   [value]="dateRange().endDate"
-                  (change)="dateRange.set({...dateRange(), endDate: $any($event.target).value})"
+                  (change)="updateEndDate($event)"
                 />
               </div>
             </div>

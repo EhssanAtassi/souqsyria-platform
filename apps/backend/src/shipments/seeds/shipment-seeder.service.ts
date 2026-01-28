@@ -152,8 +152,8 @@ export class ShipmentSeederService {
       });
 
       return stats;
-    } catch (error) {
-      stats.errors.push(`Seeding failed: ${error.message}`);
+    } catch (error: unknown) {
+      stats.errors.push(`Seeding failed: ${(error as Error).message}`);
       stats.totalExecutionTime = Date.now() - startTime;
 
       this.logger.error('❌ Shipment seeding failed:', error);
@@ -191,7 +191,7 @@ export class ShipmentSeederService {
             `⚠️ Syrian shipping company already exists: ${companyData.nameEn}`,
           );
         }
-      } catch (error) {
+      } catch (error: unknown) {
         this.logger.error(
           `❌ Failed to create company ${companyData.nameEn}:`,
           error,
@@ -230,7 +230,7 @@ export class ShipmentSeederService {
             `⚠️ Legacy shipping company already exists: ${companyData.name}`,
           );
         }
-      } catch (error) {
+      } catch (error: unknown) {
         this.logger.error(
           `❌ Failed to create legacy company ${companyData.name}:`,
           error,
@@ -288,7 +288,7 @@ export class ShipmentSeederService {
             `⚠️ Sample shipment already exists: ${shipmentData.tracking_code}`,
           );
         }
-      } catch (error) {
+      } catch (error: unknown) {
         this.logger.error(
           `❌ Failed to create shipment ${shipmentData.tracking_code}:`,
           error,
@@ -328,7 +328,7 @@ export class ShipmentSeederService {
         created++;
 
         this.logger.debug(`✅ Created status log: ${logData.status}`);
-      } catch (error) {
+      } catch (error: unknown) {
         this.logger.error(
           `❌ Failed to create status log ${logData.status}:`,
           error,
@@ -439,7 +439,7 @@ export class ShipmentSeederService {
         `✅ Created ${created} bulk shipments for performance testing`,
       );
       return created;
-    } catch (error) {
+    } catch (error: unknown) {
       this.logger.error('❌ Failed to create bulk shipments:', error);
       return 0;
     }
@@ -462,7 +462,7 @@ export class ShipmentSeederService {
       });
 
       this.logger.log('✅ All shipment data cleared successfully');
-    } catch (error) {
+    } catch (error: unknown) {
       this.logger.error('❌ Failed to clear shipment data:', error);
       throw error;
     }
@@ -565,8 +565,8 @@ export class ShipmentSeederService {
         issues,
         summary,
       };
-    } catch (error) {
-      issues.push(`Integrity check failed: ${error.message}`);
+    } catch (error: unknown) {
+      issues.push(`Integrity check failed: ${(error as Error).message}`);
       return {
         isValid: false,
         issues,

@@ -70,10 +70,10 @@ export class SyrianPaymentMethodsService {
         await this.createDefaultPaymentMethods();
         this.logger.log('✅ Syrian payment methods initialized successfully');
       }
-    } catch (error) {
+    } catch (error: unknown) {
       this.logger.error(
         'Failed to initialize Syrian payment methods',
-        error.message,
+        (error as Error).message,
       );
     }
   }

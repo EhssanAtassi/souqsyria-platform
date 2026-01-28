@@ -19,6 +19,9 @@
  * - Zero overhead (compile-time decorator)
  * - Checked via Reflector at runtime (cached)
  *
+ * @swagger
+ * @tags Authentication Decorators
+ *
  * @example
  * ```typescript
  * // Mark entire controller as public
@@ -70,6 +73,13 @@ export const IS_PUBLIC_KEY = 'isPublic';
  * - Review public routes regularly for security
  * - Apply rate limiting to prevent abuse
  * - Consider IP-based restrictions if needed
+ *
+ * Use cases:
+ * - Login/registration endpoints
+ * - Password reset flows
+ * - Public content viewing
+ * - Health check endpoints
+ * - Public API documentation
  *
  * @returns Decorator function
  *

@@ -139,11 +139,11 @@ export class FeaturesSeederController {
     try {
       const result = await this.featuresSeederService.seedFeatures();
       return result;
-    } catch (error) {
+    } catch (error: unknown) {
       throw new HttpException(
         {
           success: false,
-          error: error.message,
+          error: (error as Error).message,
         },
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
@@ -213,11 +213,11 @@ export class FeaturesSeederController {
         bulk_configuration: bulkConfig,
         optimization_applied: true,
       };
-    } catch (error) {
+    } catch (error: unknown) {
       throw new HttpException(
         {
           success: false,
-          error: error.message,
+          error: (error as Error).message,
           bulk_config: bulkConfig,
         },
         HttpStatus.INTERNAL_SERVER_ERROR,
@@ -262,11 +262,11 @@ export class FeaturesSeederController {
         statistics,
         generated_at: new Date().toISOString(),
       };
-    } catch (error) {
+    } catch (error: unknown) {
       throw new HttpException(
         {
           success: false,
-          error: error.message,
+          error: (error as Error).message,
         },
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
@@ -332,11 +332,11 @@ export class FeaturesSeederController {
         category_balance_score: this.calculateCategoryBalance(categories),
         generated_at: new Date().toISOString(),
       };
-    } catch (error) {
+    } catch (error: unknown) {
       throw new HttpException(
         {
           success: false,
-          error: error.message,
+          error: (error as Error).message,
         },
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
@@ -402,11 +402,11 @@ export class FeaturesSeederController {
         generated_at: new Date().toISOString(),
         expires_at: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(), // 24 hours
       };
-    } catch (error) {
+    } catch (error: unknown) {
       throw new HttpException(
         {
           success: false,
-          error: error.message,
+          error: (error as Error).message,
           export_config: exportConfig,
         },
         HttpStatus.INTERNAL_SERVER_ERROR,
@@ -450,11 +450,11 @@ export class FeaturesSeederController {
         message: 'All features data cleared successfully',
         cleared_at: new Date().toISOString(),
       };
-    } catch (error) {
+    } catch (error: unknown) {
       throw new HttpException(
         {
           success: false,
-          error: error.message,
+          error: (error as Error).message,
         },
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
@@ -499,11 +499,11 @@ export class FeaturesSeederController {
         sample_size: sampleSize || 'default',
         test_completed_at: new Date().toISOString(),
       };
-    } catch (error) {
+    } catch (error: unknown) {
       throw new HttpException(
         {
           success: false,
-          error: error.message,
+          error: (error as Error).message,
           test_mode: true,
         },
         HttpStatus.INTERNAL_SERVER_ERROR,

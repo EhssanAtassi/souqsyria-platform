@@ -94,7 +94,7 @@ export class AdminAuthService {
 
     try {
       payload = this.jwtService.verify<AdminTokenPayload>(refreshToken);
-    } catch (error) {
+    } catch (error: unknown) {
       throw new UnauthorizedException('Invalid or expired refresh token.');
     }
 

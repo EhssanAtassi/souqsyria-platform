@@ -1,0 +1,342 @@
+/**
+ * BI KPI Card Styles
+ * @description Enhanced styling for KPI cards in BI dashboards
+ */
+
+// CSS Variables
+:host {
+  --kpi-bg: #ffffff;
+  --kpi-border: #e5e7eb;
+  --kpi-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  --kpi-title-color: #6b7280;
+  --kpi-value-color: #1f2937;
+  --kpi-positive-color: #059669;
+  --kpi-negative-color: #dc2626;
+  --kpi-neutral-color: #6b7280;
+  --kpi-radius: 12px;
+  --kpi-padding: 1.25rem;
+  --kpi-icon-size: 2.5rem;
+
+  display: block;
+}
+
+// Main Card
+.kpi-card {
+  background: var(--kpi-bg);
+  border: 1px solid var(--kpi-border);
+  border-radius: var(--kpi-radius);
+  padding: var(--kpi-padding);
+  transition: all 0.2s ease;
+
+  &:hover {
+    box-shadow: var(--kpi-shadow);
+  }
+
+  // Color Themes
+  &--primary {
+    --kpi-accent: #1e3a8a;
+    border-left: 4px solid var(--kpi-accent);
+  }
+
+  &--success {
+    --kpi-accent: #059669;
+    border-left: 4px solid var(--kpi-accent);
+  }
+
+  &--warning {
+    --kpi-accent: #d97706;
+    border-left: 4px solid var(--kpi-accent);
+  }
+
+  &--danger {
+    --kpi-accent: #dc2626;
+    border-left: 4px solid var(--kpi-accent);
+  }
+
+  &--info {
+    --kpi-accent: #0284c7;
+    border-left: 4px solid var(--kpi-accent);
+  }
+
+  // Compact variant
+  &--compact {
+    padding: 1rem;
+
+    .kpi-card__icon {
+      width: 2rem;
+      height: 2rem;
+
+      .material-icons {
+        font-size: 1.125rem;
+      }
+    }
+
+    .kpi-card__title {
+      font-size: 0.75rem;
+    }
+
+    .kpi-card__value {
+      font-size: 1.25rem;
+    }
+  }
+
+  // RTL support
+  [dir="rtl"] & {
+    border-left: none;
+    border-right: 4px solid var(--kpi-accent, var(--kpi-border));
+  }
+}
+
+// Main layout
+.kpi-card__main {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+}
+
+// Icon
+.kpi-card__icon {
+  flex-shrink: 0;
+  width: var(--kpi-icon-size);
+  height: var(--kpi-icon-size);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--kpi-accent, #f3f4f6);
+  border-radius: 10px;
+  color: white;
+
+  .material-icons {
+    font-size: 1.375rem;
+  }
+
+  // Fallback for no accent color
+  .kpi-card--default & {
+    background: #f3f4f6;
+    color: var(--kpi-title-color);
+  }
+}
+
+// Content area
+.kpi-card__content {
+  flex: 1;
+  min-width: 0;
+}
+
+// Title
+.kpi-card__title {
+  margin: 0 0 0.25rem;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--kpi-title-color);
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+  line-height: 1.3;
+}
+
+// Value
+.kpi-card__value {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--kpi-value-color);
+  line-height: 1.2;
+  margin-bottom: 0.375rem;
+  word-break: break-word;
+}
+
+// Change indicator
+.kpi-card__change {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.8125rem;
+  font-weight: 500;
+
+  &--positive {
+    color: var(--kpi-positive-color);
+
+    .kpi-card__trend-icon {
+      color: inherit;
+    }
+  }
+
+  &--negative {
+    color: var(--kpi-negative-color);
+
+    .kpi-card__trend-icon {
+      color: inherit;
+    }
+  }
+
+  &--neutral {
+    color: var(--kpi-neutral-color);
+
+    .kpi-card__trend-icon {
+      color: inherit;
+    }
+  }
+}
+
+.kpi-card__trend-icon {
+  font-size: 1.125rem;
+}
+
+.kpi-card__change-value {
+  font-weight: 600;
+}
+
+.kpi-card__subtitle {
+  margin-left: 0.375rem;
+  color: var(--kpi-title-color);
+  font-weight: 400;
+
+  [dir="rtl"] & {
+    margin-left: 0;
+    margin-right: 0.375rem;
+  }
+}
+
+.kpi-card__subtitle-only {
+  font-size: 0.8125rem;
+  color: var(--kpi-title-color);
+}
+
+// Comparison
+.kpi-card__comparison {
+  margin-top: 0.5rem;
+  padding-top: 0.5rem;
+  border-top: 1px dashed var(--kpi-border);
+  font-size: 0.75rem;
+  color: var(--kpi-title-color);
+}
+
+.kpi-card__comparison-label {
+  margin-right: 0.25rem;
+
+  [dir="rtl"] & {
+    margin-right: 0;
+    margin-left: 0.25rem;
+  }
+}
+
+.kpi-card__comparison-value {
+  font-weight: 500;
+  color: var(--kpi-value-color);
+}
+
+// Progress bar
+.kpi-card__progress {
+  margin-top: 0.75rem;
+}
+
+.kpi-card__progress-bar {
+  height: 6px;
+  background: #e5e7eb;
+  border-radius: 3px;
+  overflow: hidden;
+  margin-bottom: 0.375rem;
+}
+
+.kpi-card__progress-fill {
+  height: 100%;
+  background: var(--kpi-accent, #1e3a8a);
+  border-radius: 3px;
+  transition: width 0.3s ease;
+}
+
+.kpi-card__progress-label {
+  font-size: 0.6875rem;
+  color: var(--kpi-title-color);
+}
+
+// Sparkline
+.kpi-card__sparkline {
+  flex-shrink: 0;
+  width: 80px;
+  height: 40px;
+  align-self: center;
+
+  svg {
+    width: 100%;
+    height: 100%;
+  }
+}
+
+.kpi-card__sparkline-path {
+  stroke: var(--kpi-accent, #6b7280);
+  opacity: 0.7;
+}
+
+// Skeleton Loading
+.kpi-card__skeleton {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+}
+
+.kpi-card__skeleton-icon {
+  width: var(--kpi-icon-size);
+  height: var(--kpi-icon-size);
+  background: linear-gradient(90deg, #e5e7eb 25%, #f3f4f6 50%, #e5e7eb 75%);
+  background-size: 200% 100%;
+  border-radius: 10px;
+  animation: shimmer 1.5s infinite;
+}
+
+.kpi-card__skeleton-content {
+  flex: 1;
+}
+
+.kpi-card__skeleton-title {
+  width: 60%;
+  height: 12px;
+  background: linear-gradient(90deg, #e5e7eb 25%, #f3f4f6 50%, #e5e7eb 75%);
+  background-size: 200% 100%;
+  border-radius: 4px;
+  margin-bottom: 0.75rem;
+  animation: shimmer 1.5s infinite;
+}
+
+.kpi-card__skeleton-value {
+  width: 80%;
+  height: 28px;
+  background: linear-gradient(90deg, #e5e7eb 25%, #f3f4f6 50%, #e5e7eb 75%);
+  background-size: 200% 100%;
+  border-radius: 4px;
+  margin-bottom: 0.5rem;
+  animation: shimmer 1.5s infinite;
+}
+
+.kpi-card__skeleton-change {
+  width: 40%;
+  height: 12px;
+  background: linear-gradient(90deg, #e5e7eb 25%, #f3f4f6 50%, #e5e7eb 75%);
+  background-size: 200% 100%;
+  border-radius: 4px;
+  animation: shimmer 1.5s infinite;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+// Responsive
+@media (max-width: 640px) {
+  .kpi-card {
+    padding: 1rem;
+  }
+
+  .kpi-card__value {
+    font-size: 1.5rem;
+  }
+
+  .kpi-card__sparkline {
+    width: 60px;
+    height: 30px;
+  }
+}

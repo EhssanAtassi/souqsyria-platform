@@ -1,0 +1,226 @@
+<!--
+  Funnel Overview Template
+  @description Main overview dashboard for conversion funnel analytics
+-->
+
+<div class="funnel-overview">
+  <!-- Loading State -->
+  @if (loading()) {
+    <div class="funnel-overview__loading">
+      <div class="funnel-overview__skeleton-kpis">
+        @for (i of [1,2,3,4]; track i) {
+          <div class="funnel-overview__skeleton-card"></div>
+        }
+      </div>
+      <div class="funnel-overview__skeleton-funnel"></div>
+    </div>
+  }
+
+  <!-- Error State -->
+  @if (error()) {
+    <div class="funnel-overview__error">
+      <span class="material-icons">error_outline</span>
+      <p>{{ error() }}</p>
+      <button type="button" (click)="onRefresh()">
+        <span class="material-icons">refresh</span>
+        Retry
+      </button>
+    </div>
+  }
+
+  <!-- Content -->
+  @if (!loading() && !error() && funnelOverview()) {
+    @let overview = funnelOverview()!;
+
+    <!-- KPI Cards -->
+    <div class="funnel-overview__kpis">
+      <app-bi-kpi-card
+        title="Total Sessions"
+        [value]="overview.totalSessions"
+        format="compact"
+        icon="groups"
+        description="Total user sessions in funnel"
+      />
+
+      <app-bi-kpi-card
+        title="Conversion Rate"
+        [value]="overallConversionRate()"
+        format="percent"
+        [trend]="overview.conversionChange > 0 ? 'up' : overview.conversionChange < 0 ? 'down' : 'neutral'"
+        [change]="overview.conversionChange"
+        icon="trending_up"
+        description="Overall funnel conversion rate"
+      />
+
+      <app-bi-kpi-card
+        title="Total Purchases"
+        [value]="overview.totalPurchases"
+        format="compact"
+        icon="shopping_bag"
+        description="Completed purchases"
+      />
+
+      <app-bi-kpi-card
+        title="Avg Time to Convert"
+        [value]="overview.avgTimeToConvert"
+        format="duration"
+        icon="schedule"
+        description="Average conversion time"
+      />
+    </div>
+
+    <!-- Funnel Visualization -->
+    <app-bi-chart-wrapper
+      title="Conversion Funnel"
+      subtitle="User journey through purchase stages"
+      [loading]="false"
+      [showExport]="true"
+    >
+      <div class="funnel-overview__funnel">
+        @for (stage of stagesWithWidths(); track trackByStage($index, stage); let i = $index) {
+          <div class="funnel-overview__stage">
+            <div class="funnel-overview__stage-info">
+              <div class="funnel-overview__stage-header">
+                <span
+                  class="funnel-overview__stage-icon"
+                  [style.backgroundColor]="stage.color"
+                >
+                  <span class="material-icons">{{ stage.icon }}</span>
+                </span>
+                <div class="funnel-overview__stage-title">
+                  <span class="funnel-overview__stage-name">{{ stage.label }}</span>
+                  <span class="funnel-overview__stage-count">
+                    {{ formatNumber(stage.users) }} users
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <div class="funnel-overview__stage-bar-container">
+              <div
+                class="funnel-overview__stage-bar"
+                [style.width.%]="stage.widthPercent"
+                [style.backgroundColor]="stage.color"
+              >
+                <span class="funnel-overview__stage-percent">
+                  {{ formatPercent(stage.conversionRate) }}
+                </span>
+              </div>
+            </div>
+
+            <!-- Drop-off indicator (except for last stage) -->
+            @if (i < stagesWithWidths().length - 1) {
+              @let nextStage = stagesWithWidths()[i + 1];
+              @let dropoff = stage.users - nextStage.users;
+              @let dropoffRate = stage.users > 0 ? (dropoff / stage.users) * 100 : 0;
+
+              <div class="funnel-overview__dropoff">
+                <span class="material-icons">south</span>
+                <span class="funnel-overview__dropoff-text">
+                  -{{ formatNumber(dropoff) }} ({{ formatPercent(dropoffRate) }})
+                </span>
+              </div>
+            }
+          </div>
+        }
+      </div>
+    </app-bi-chart-wrapper>
+
+    <!-- Insights Section -->
+    @if (insights().length > 0) {
+      <div class="funnel-overview__insights">
+        <h3 class="funnel-overview__section-title">
+          <span class="material-icons">lightbulb</span>
+          Funnel Insights
+        </h3>
+        <div class="funnel-overview__insight-cards">
+          @for (insight of insights(); track $index) {
+            <div
+              class="funnel-overview__insight"
+              [class.funnel-overview__insight--success]="insight.type === 'success'"
+              [class.funnel-overview__insight--warning]="insight.type === 'warning'"
+              [class.funnel-overview__insight--info]="insight.type === 'info'"
+            >
+              <span class="material-icons">
+                @switch (insight.type) {
+                  @case ('success') { check_circle }
+                  @case ('warning') { warning }
+                  @case ('info') { info }
+                }
+              </span>
+              <p>{{ insight.message }}</p>
+            </div>
+          }
+        </div>
+      </div>
+    }
+
+    <!-- Stage Comparison Table -->
+    @if (stages().length > 0) {
+      <div class="funnel-overview__table-section">
+        <h3 class="funnel-overview__section-title">
+          <span class="material-icons">table_chart</span>
+          Stage Metrics
+        </h3>
+        <div class="funnel-overview__table-wrapper">
+          <table class="funnel-overview__table">
+            <thead>
+              <tr>
+                <th>Stage</th>
+                <th>Users</th>
+                <th>Conversion Rate</th>
+                <th>Drop-off</th>
+                <th>Avg Time</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (stage of stages(); track stage.stageId; let i = $index) {
+                @let config = getStageConfig(stage.stageId);
+                @let prevStage = i > 0 ? stages()[i - 1] : null;
+                @let dropoff = prevStage ? prevStage.users - stage.users : 0;
+                @let dropoffRate = prevStage && prevStage.users > 0 ? (dropoff / prevStage.users) * 100 : 0;
+
+                <tr>
+                  <td>
+                    <div class="funnel-overview__stage-cell">
+                      <span
+                        class="funnel-overview__stage-dot"
+                        [style.backgroundColor]="config?.color"
+                      ></span>
+                      {{ config?.label || stage.stageId }}
+                    </div>
+                  </td>
+                  <td>{{ stage.users | number }}</td>
+                  <td>
+                    <span class="funnel-overview__rate-badge">
+                      {{ formatPercent(stage.conversionRate) }}
+                    </span>
+                  </td>
+                  <td>
+                    @if (i > 0) {
+                      <span class="funnel-overview__dropoff-badge">
+                        -{{ formatPercent(dropoffRate) }}
+                      </span>
+                    } @else {
+                      <span class="funnel-overview__na">—</span>
+                    }
+                  </td>
+                  <td>{{ stage.avgTimeSpent || 0 }}s</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+    }
+  }
+
+  <!-- Empty State -->
+  @if (!loading() && !error() && !funnelOverview()) {
+    <div class="funnel-overview__empty">
+      <span class="material-icons">filter_alt</span>
+      <h3>No Funnel Data</h3>
+      <p>Conversion funnel data will appear here once tracking is active.</p>
+    </div>
+  }
+</div>

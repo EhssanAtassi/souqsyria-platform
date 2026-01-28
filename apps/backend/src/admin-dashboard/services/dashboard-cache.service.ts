@@ -139,7 +139,7 @@ export class DashboardCacheService {
       }
 
       return null;
-    } catch (error) {
+    } catch (error: unknown) {
       this.logger.error(`Cache get error for key ${key}:`, error);
       return null;
     }
@@ -164,7 +164,7 @@ export class DashboardCacheService {
       if (this.cacheManager) {
         await this.cacheManager.set(key, value, ttl);
       }
-    } catch (error) {
+    } catch (error: unknown) {
       this.logger.error(`Cache set error for key ${key}:`, error);
     }
   }
@@ -273,6 +273,72 @@ export class DashboardCacheService {
       this.invalidate(CACHE_KEYS.PENDING_ACTIONS),
       this.invalidate(CACHE_KEYS.TOP_PRODUCTS),
       this.invalidate(CACHE_KEYS.DASHBOARD_METRICS),
+    ]);
+  }
+
+  // ===========================================================================
+  // BI METRICS CACHE INVALIDATION
+  // ===========================================================================
+
+  /**
+   * Invalidate BI caches when CLV calculations complete
+   */
+  @OnEvent('clv.recalculated')
+  async onCLVRecalculated(): Promise<void> {
+    this.logger.debug('CLV recalculation detected, invalidating BI caches');
+    await Promise.all([
+      this.invalidateByPrefix('bi:clv'),
+      this.invalidateByPrefix('bi:enhanced:summary'),
+      this.invalidateByPrefix('bi:overview'),
+    ]);
+  }
+
+  /**
+   * Invalidate funnel caches when user sessions are updated
+   */
+  @OnEvent('session.created')
+  @OnEvent('session.ended')
+  async onSessionChange(): Promise<void> {
+    this.logger.debug('Session change detected, invalidating funnel caches');
+    await Promise.all([
+      this.invalidateByPrefix('bi:funnel'),
+      this.invalidateByPrefix('bi:enhanced:summary'),
+    ]);
+  }
+
+  /**
+   * Invalidate abandonment caches when cart is abandoned or recovered
+   */
+  @OnEvent('cart.abandoned')
+  @OnEvent('cart.recovered')
+  async onCartAbandonmentChange(): Promise<void> {
+    this.logger.debug('Cart abandonment change detected, invalidating caches');
+    await Promise.all([
+      this.invalidateByPrefix('bi:abandonment'),
+      this.invalidateByPrefix('bi:enhanced:summary'),
+    ]);
+  }
+
+  /**
+   * Invalidate cohort caches when new cohorts are created or updated
+   */
+  @OnEvent('cohort.created')
+  @OnEvent('cohort.updated')
+  async onCohortChange(): Promise<void> {
+    this.logger.debug('Cohort change detected, invalidating cohort caches');
+    await Promise.all([
+      this.invalidateByPrefix('bi:cohort'),
+      this.invalidateByPrefix('bi:overview'),
+    ]);
+  }
+
+  /**
+   * Clear all BI caches (for manual cache management)
+   */
+  async clearBICaches(): Promise<void> {
+    this.logger.log('Clearing all BI caches');
+    await Promise.all([
+      this.invalidateByPrefix('bi:'),
     ]);
   }
 

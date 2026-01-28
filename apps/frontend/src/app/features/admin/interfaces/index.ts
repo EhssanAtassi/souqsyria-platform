@@ -5,3 +5,4 @@
  */
 
 export * from './api-response.interface';
+export * from './bi-analytics.interface';

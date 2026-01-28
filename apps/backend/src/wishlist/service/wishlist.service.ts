@@ -63,7 +63,7 @@ export class WishlistService {
       product: { id: product.id },
       productVariant: productVariant ? { id: productVariant.id } : null,
     };
-    const existing = await this.wishlistRepo.findOne({ where });
+    const existing = await this.wishlistRepo.findOne({ where })!;
     if (existing) throw new ConflictException('Already in wishlist');
 
     const item = this.wishlistRepo.create({ user, product, productVariant });
@@ -98,7 +98,7 @@ export class WishlistService {
       product: { id: productId },
       productVariant: productVariantId ? { id: productVariantId } : null,
     };
-    const item = await this.wishlistRepo.findOne({ where });
+    const item = await this.wishlistRepo.findOne({ where })!;
     if (!item) throw new NotFoundException('Wishlist item not found');
     await this.wishlistRepo.remove(item);
     this.logger.log(

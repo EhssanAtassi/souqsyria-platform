@@ -93,10 +93,10 @@ export class CartSeederService {
         cartItems: savedItems,
         statistics,
       };
-    } catch (error) {
+    } catch (error: unknown) {
       this.logger.error(
-        `❌ Cart seeding failed: ${error.message}`,
-        error.stack,
+        `❌ Cart seeding failed: ${(error as Error).message}`,
+        (error as Error).stack,
       );
       throw error;
     }

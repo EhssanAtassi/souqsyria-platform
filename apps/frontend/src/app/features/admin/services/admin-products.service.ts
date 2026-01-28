@@ -20,7 +20,15 @@ import {
   RejectProductRequest,
   BulkProductApprovalRequest,
   BulkApprovalResult,
-  ProductStatus
+  ProductStatus,
+  Category,
+  CategoryHierarchy,
+  CreateCategoryRequest,
+  UpdateCategoryRequest,
+  InventoryItem,
+  InventorySummary,
+  BulkStockUpdateRequest,
+  BulkStockUpdateResult
 } from '../interfaces';
 
 /**
@@ -301,21 +309,26 @@ export class AdminProductsService {
    * Update product stock
    * @description Updates stock quantity for a product
    * @param productId - Product ID
-   * @param stock - New stock quantity
-   * @param reason - Reason for stock adjustment
+   * @param update - Stock update with quantity and reason
    * @returns Observable of updated product
    */
-  updateStock(productId: number, stock: number, reason?: string): Observable<ProductDetails> {
-    return this.api.patch<ProductDetails>(`${this.endpoint}/${productId}/stock`, { stock, reason });
+  updateStock(productId: number, update: {
+    quantity: number;
+    reason?: string;
+  }): Observable<ProductDetails> {
+    return this.api.patch<ProductDetails>(`${this.endpoint}/${productId}/stock`, {
+      stock: update.quantity,
+      reason: update.reason
+    });
   }
 
   /**
-   * Bulk update stock
-   * @description Updates stock for multiple products
+   * Bulk update stock (legacy format)
+   * @description Updates stock for multiple products using array format
    * @param updates - Array of stock updates
    * @returns Observable of bulk operation result
    */
-  bulkUpdateStock(updates: {
+  bulkUpdateStockLegacy(updates: {
     productId: number;
     stock: number;
     reason?: string;
@@ -325,7 +338,7 @@ export class AdminProductsService {
     failed: number;
     results: { productId: number; success: boolean; error?: string }[];
   }> {
-    return this.api.post(`${this.endpoint}/bulk/stock`, { updates });
+    return this.api.post(`${this.endpoint}/bulk/stock-legacy`, { updates });
   }
 
   // =========================================================================
@@ -349,6 +362,69 @@ export class AdminProductsService {
   }
 
   /**
+   * Get all categories
+   * @description Retrieves flat list or hierarchical categories
+   * @param options - Optional parameters for category retrieval
+   * @returns Observable of category response
+   */
+  getCategories(options?: {
+    includeInactive?: boolean;
+    flat?: boolean;
+  }): Observable<{ categories: Category[] }> {
+    return this.api.get<{ categories: Category[] }>('categories', options);
+  }
+
+  /**
+   * Get category hierarchy
+   * @description Retrieves hierarchical category structure with children
+   * @returns Observable of category hierarchy
+   */
+  getCategoryHierarchy(): Observable<CategoryHierarchy[]> {
+    return this.api.get<CategoryHierarchy[]>('categories/hierarchy');
+  }
+
+  /**
+   * Get category by ID
+   * @description Retrieves a single category by ID
+   * @param categoryId - Category ID
+   * @returns Observable of category details
+   */
+  getCategoryById(categoryId: number): Observable<Category> {
+    return this.api.get<Category>(`categories/${categoryId}`);
+  }
+
+  /**
+   * Create a new category
+   * @description Creates a new product category
+   * @param request - Category creation data
+   * @returns Observable of created category
+   */
+  createCategory(request: CreateCategoryRequest): Observable<Category> {
+    return this.api.post<Category>('categories', request);
+  }
+
+  /**
+   * Update an existing category
+   * @description Updates category information
+   * @param categoryId - Category ID to update
+   * @param request - Category update data
+   * @returns Observable of updated category
+   */
+  updateCategory(categoryId: number, request: UpdateCategoryRequest): Observable<Category> {
+    return this.api.patch<Category>(`categories/${categoryId}`, request);
+  }
+
+  /**
+   * Delete a category
+   * @description Deletes a category (if no products assigned)
+   * @param categoryId - Category ID to delete
+   * @returns Observable of void
+   */
+  deleteCategory(categoryId: number): Observable<void> {
+    return this.api.delete<void>(`categories/${categoryId}`);
+  }
+
+  /**
    * Get products by category
    * @description Retrieves products in a specific category
    * @param categoryId - Category ID
@@ -360,6 +436,59 @@ export class AdminProductsService {
     query: ProductListQuery = {}
   ): Observable<PaginatedResponse<ProductListItem>> {
     return this.getProducts({ ...query, categoryId });
+  }
+
+  // =========================================================================
+  // INVENTORY MANAGEMENT (Extended)
+  // =========================================================================
+
+  /**
+   * Get inventory list
+   * @description Retrieves paginated inventory items with filtering
+   * @param query - Pagination and filter parameters
+   * @returns Observable of paginated inventory items
+   */
+  getInventory(query: {
+    page?: number;
+    limit?: number;
+    search?: string;
+    stockStatus?: 'in_stock' | 'low_stock' | 'out_of_stock' | 'overstock';
+    categoryId?: number;
+    vendorId?: number;
+    sortBy?: string;
+    sortOrder?: 'asc' | 'desc';
+  } = {}): Observable<PaginatedResponse<InventoryItem>> {
+    return this.api.getPaginated<InventoryItem>(`${this.endpoint}/inventory`, query);
+  }
+
+  /**
+   * Bulk update stock
+   * @description Updates stock for multiple products at once
+   * @param request - Bulk stock update request
+   * @returns Observable of bulk operation result
+   */
+  bulkStockUpdate(request: {
+    productIds: number[];
+    adjustmentType: 'add' | 'remove' | 'set';
+    quantity: number;
+    reason?: string;
+  }): Observable<BulkStockUpdateResult> {
+    return this.api.post<BulkStockUpdateResult>(`${this.endpoint}/bulk/stock`, request);
+  }
+
+  /**
+   * Export inventory data
+   * @description Generates downloadable export of inventory data
+   * @param options - Export options including format and filters
+   * @returns Observable of export file blob
+   */
+  exportInventory(options: {
+    format: 'csv' | 'xlsx';
+    stockStatus?: 'in_stock' | 'low_stock' | 'out_of_stock' | 'overstock';
+    categoryId?: number;
+    vendorId?: number;
+  }): Observable<Blob> {
+    return this.api.downloadFile(`${this.endpoint}/inventory/export`, options);
   }
 
   // =========================================================================

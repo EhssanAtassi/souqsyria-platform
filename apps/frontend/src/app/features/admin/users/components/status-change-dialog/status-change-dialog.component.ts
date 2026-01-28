@@ -143,7 +143,7 @@ interface StatusOption {
             class="status-dialog__reason"
           >
             <label class="status-dialog__reason-label">
-              Reason for {{ selectedOption?.label.toLowerCase() }}
+              Reason for {{ selectedOption?.label?.toLowerCase() }}
               <span class="status-dialog__required">*</span>
             </label>
             <textarea

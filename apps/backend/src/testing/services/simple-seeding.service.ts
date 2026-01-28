@@ -74,8 +74,8 @@ export class SimpleSeedingService {
 
       const duration = Date.now() - startTime;
       this.logger.log(`✅ Simple seeding completed in ${duration}ms`);
-    } catch (error) {
-      this.logger.error('❌ Simple seeding failed:', error.message);
+    } catch (error: unknown) {
+      this.logger.error('❌ Simple seeding failed:', (error as Error).message);
       throw error;
     }
   }
@@ -243,8 +243,8 @@ export class SimpleSeedingService {
       });
 
       this.logger.log('✅ Test data cleanup completed');
-    } catch (error) {
-      this.logger.error('❌ Test data cleanup failed:', error.stack);
+    } catch (error: unknown) {
+      this.logger.error('❌ Test data cleanup failed:', (error as Error).stack);
       throw error;
     }
   }

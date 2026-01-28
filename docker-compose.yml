@@ -1,114 +1,416 @@
-# ==========================================
-# Docker Compose for SouqSyria E-commerce Platform
-# ==========================================
-# Services: MySQL, Backend (NestJS), Frontend (Angular)
-# ==========================================
+# ============================================================================
+# Docker Compose Configuration for SouqSyria E-commerce Platform
+# ============================================================================
+# Complete production-ready deployment configuration for the RBAC system.
+# Includes backend API, frontend SPA, MySQL database, Redis cache, and
+# networking with proper resource limits and restart policies.
+#
+# Usage:
+#   docker-compose up -d          # Start services
+#   docker-compose down           # Stop services
+#   docker-compose logs -f        # View logs
+#   docker-compose ps            # List services
+# ============================================================================
 
 version: '3.8'
 
+# ============================================================================
+# Services
+# ============================================================================
 services:
-  # ==========================================
-  # MySQL Database
-  # ==========================================
+  
+  # ========================================================================
+  # MySQL Database Service
+  # ========================================================================
+  # Stores all application data including users, roles, permissions, and
+  # business data. Uses MySQL 8 with InnoDB engine for ACID transactions.
+  # ========================================================================
   mysql:
-    image: mysql:8.0
+    image: mysql:8.0-debian
     container_name: souqsyria-mysql
+    
+    # Restart policy - auto-restart on failure
     restart: unless-stopped
+    
+    # Environment variables for MySQL initialization
     environment:
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root_password_change_me}
-      MYSQL_DATABASE: ${MYSQL_DATABASE:-souqsyria_dev}
-      MYSQL_USER: ${MYSQL_USER:-souqsyria}
-      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-souqsyria_password}
+      # Root user password (MUST be changed in production!)
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-rootpassword123}
+      
+      # Application database name
+      MYSQL_DATABASE: ${DB_DATABASE:-souqsyria}
+      
+      # Application database user
+      MYSQL_USER: ${DB_USERNAME:-souqsyria}
+      
+      # Application database user password
+      MYSQL_PASSWORD: ${DB_PASSWORD:-souqsyriapass}
+    
+    # Ports
     ports:
-      - "3307:3306"
+      # Expose MySQL on localhost only (port 3306 inside docker network)
+      # Only bind to localhost for security - direct DB access should be limited
+      - "127.0.0.1:3306:3306"
+    
+    # Volumes for data persistence
     volumes:
-      - mysql_data:/var/lib/mysql
-      - ./mysql-init:/docker-entrypoint-initdb.d
+      # MySQL data directory - persists database between container restarts
+      - mysql-data:/var/lib/mysql
+      
+      # MySQL configuration - custom tuning for production
+      - ./docker/mysql/my.cnf:/etc/mysql/conf.d/my.cnf:ro
+      
+      # Initial SQL scripts - run on first container startup
+      - ./docker/mysql/init-scripts:/docker-entrypoint-initdb.d:ro
+    
+    # Resource limits
+    deploy:
+      resources:
+        limits:
+          # Maximum CPU: 2 cores
+          cpus: '2'
+          # Maximum RAM: 2GB
+          memory: 2G
+        reservations:
+          # Minimum guaranteed CPU: 1 core
+          cpus: '1'
+          # Minimum guaranteed RAM: 1GB
+          memory: 1G
+    
+    # Networking
     networks:
       - souqsyria-network
+    
+    # Healthcheck configuration
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${MYSQL_ROOT_PASSWORD:-root_password_change_me}"]
+      # Command to check database health
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u${DB_USERNAME}", "-p${DB_PASSWORD}"]
+      # Check every 10 seconds
       interval: 10s
+      # Timeout after 5 seconds
       timeout: 5s
-      retries: 5
+      # Mark unhealthy after 3 failed checks
+      retries: 3
+      # Wait 30 seconds before starting health checks
       start_period: 30s
+    
+    # Logging configuration
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "100m"
+        max-file: "3"
+        labels: "app=souqsyria,service=mysql"
 
-  # ==========================================
-  # Backend (NestJS API)
-  # ==========================================
+  # ========================================================================
+  # Redis Cache Service
+  # ========================================================================
+  # In-memory data store for caching, session storage, and real-time
+  # features. Improves performance by reducing database queries.
+  # ========================================================================
+  redis:
+    image: redis:7-alpine
+    container_name: souqsyria-redis
+    
+    # Restart policy
+    restart: unless-stopped
+    
+    # Ports - internal only
+    ports:
+      # Expose Redis on localhost only for security
+      - "127.0.0.1:6379:6379"
+    
+    # Command with configuration
+    command: >
+      redis-server
+      --appendonly yes
+      --requirepass ${REDIS_PASSWORD:-redispassword}
+      --maxmemory 512mb
+      --maxmemory-policy allkeys-lru
+    
+    # Volumes for data persistence
+    volumes:
+      # Redis data directory - persists cache between restarts
+      - redis-data:/data
+    
+    # Resource limits
+    deploy:
+      resources:
+        limits:
+          # Maximum CPU: 1 core
+          cpus: '1'
+          # Maximum RAM: 1GB
+          memory: 1G
+        reservations:
+          # Minimum guaranteed CPU: 0.5 cores
+          cpus: '0.5'
+          # Minimum guaranteed RAM: 512MB
+          memory: 512M
+    
+    # Networking
+    networks:
+      - souqsyria-network
+    
+    # Healthcheck configuration
+    healthcheck:
+      # Check Redis connectivity
+      test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
+      # Check every 10 seconds
+      interval: 10s
+      # Timeout after 5 seconds
+      timeout: 5s
+      # Mark unhealthy after 3 failed checks
+      retries: 3
+      # Wait 20 seconds before starting health checks
+      start_period: 20s
+    
+    # Logging configuration
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "100m"
+        max-file: "3"
+        labels: "app=souqsyria,service=redis"
+
+  # ========================================================================
+  # Backend API Service (NestJS)
+  # ========================================================================
+  # Core application logic including RBAC, authentication, business logic,
+  # and API endpoints. Connects to MySQL and Redis.
+  # ========================================================================
   backend:
+    # Build from Dockerfile in apps/backend/
     build:
       context: ./apps/backend
       dockerfile: Dockerfile
+    
     container_name: souqsyria-backend
+    
+    # Restart policy - auto-restart on failure
     restart: unless-stopped
-    ports:
-      - "3005:3001"
+    
+    # Environment variables
     environment:
-      NODE_ENV: production
-      PORT: 3001
-      # Database configuration
-      DB_HOST: mysql
-      DB_PORT: 3306
-      DB_USERNAME: ${MYSQL_USER:-souqsyria}
-      DB_PASSWORD: ${MYSQL_PASSWORD:-souqsyria_password}
-      DB_NAME: ${MYSQL_DATABASE:-souqsyria_dev}
-      # Add other environment variables as needed
-      JWT_SECRET: ${JWT_SECRET:-your_jwt_secret_change_me}
-      JWT_EXPIRATION: ${JWT_EXPIRATION:-7d}
-      # Firebase config (optional - can be disabled for Docker)
-      FIREBASE_ENABLED: ${FIREBASE_ENABLED:-false}
+      # Node.js environment
+      NODE_ENV: ${NODE_ENV:-production}
+      
+      # Application port
+      PORT: ${PORT:-3000}
+      
+      # ================================================================
+      # Database Configuration
+      # ================================================================
+      DB_HOST: ${DB_HOST:-mysql}
+      DB_PORT: ${DB_PORT:-3306}
+      DB_USERNAME: ${DB_USERNAME:-souqsyria}
+      DB_PASSWORD: ${DB_PASSWORD:-souqsyriapass}
+      DB_DATABASE: ${DB_DATABASE:-souqsyria}
+      
+      # ================================================================
+      # Redis Configuration
+      # ================================================================
+      REDIS_HOST: ${REDIS_HOST:-redis}
+      REDIS_PORT: ${REDIS_PORT:-6379}
+      REDIS_PASSWORD: ${REDIS_PASSWORD:-redispassword}
+      
+      # ================================================================
+      # JWT Configuration
+      # ================================================================
+      # IMPORTANT: Change these in production!
+      JWT_SECRET: ${JWT_SECRET:-changeme-secret-key-in-production}
+      JWT_EXPIRATION: ${JWT_EXPIRATION:-15m}
+      JWT_REFRESH_EXPIRATION: ${JWT_REFRESH_EXPIRATION:-7d}
+      
+      # ================================================================
+      # OAuth Configuration (Optional)
+      # ================================================================
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-}
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET:-}
+      FACEBOOK_APP_ID: ${FACEBOOK_APP_ID:-}
+      FACEBOOK_APP_SECRET: ${FACEBOOK_APP_SECRET:-}
+      
+      # ================================================================
+      # CORS Configuration
+      # ================================================================
+      # Comma-separated list of allowed origins
+      CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:4200,http://localhost}
+      
+      # ================================================================
+      # Logging Configuration
+      # ================================================================
+      LOG_LEVEL: ${LOG_LEVEL:-info}
+      
+      # ================================================================
+      # Sentry/Error Tracking (Optional)
+      # ================================================================
+      SENTRY_DSN: ${SENTRY_DSN:-}
+    
+    # Ports
+    ports:
+      # Expose backend on internal network only
+      # Use Nginx reverse proxy for external access
+      - "3000:3000"
+    
+    # Volumes
+    volumes:
+      # Application logs
+      - ./logs/backend:/app/logs
+      
+      # Uploaded files
+      - ./uploads:/app/uploads
+    
+    # Depends on other services
     depends_on:
       mysql:
+        # Wait until MySQL is healthy before starting
         condition: service_healthy
+      redis:
+        # Wait until Redis is healthy before starting
+        condition: service_healthy
+    
+    # Resource limits
+    deploy:
+      resources:
+        limits:
+          # Maximum CPU: 2 cores
+          cpus: '2'
+          # Maximum RAM: 2GB
+          memory: 2G
+        reservations:
+          # Minimum guaranteed CPU: 1 core
+          cpus: '1'
+          # Minimum guaranteed RAM: 1GB
+          memory: 1G
+    
+    # Networking
     networks:
       - souqsyria-network
-    volumes:
-      - ./apps/backend/uploads:/app/uploads
-      - ./apps/backend/logs:/app/logs
+    
+    # Healthcheck configuration
     healthcheck:
-      test: ["CMD", "node", "-e", "require('http').get('http://localhost:3001/api/health', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"]
+      # Check health endpoint
+      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      # Check every 30 seconds
       interval: 30s
+      # Timeout after 10 seconds
       timeout: 10s
+      # Mark unhealthy after 3 failed checks
       retries: 3
-      start_period: 60s
+      # Wait 40 seconds before starting health checks (app startup time)
+      start_period: 40s
+    
+    # Logging configuration
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "100m"
+        max-file: "3"
+        labels: "app=souqsyria,service=backend"
 
-  # ==========================================
-  # Frontend (Angular with Nginx)
-  # ==========================================
+  # ========================================================================
+  # Frontend Service (Angular SPA + Nginx)
+  # ========================================================================
+  # Single-page application serving Angular application with Nginx.
+  # Includes reverse proxy to backend API and security headers.
+  # ========================================================================
   frontend:
+    # Build from Dockerfile in apps/frontend/
     build:
       context: ./apps/frontend
       dockerfile: Dockerfile
+    
     container_name: souqsyria-frontend
+    
+    # Restart policy
     restart: unless-stopped
+    
+    # Ports - expose on port 80 for HTTP
     ports:
-      - "4201:4200"
-    environment:
-      - API_URL=http://localhost:3005/api
+      # External port 80 -> Container port 80
+      - "80:80"
+    
+    # Depends on backend service
     depends_on:
-      - backend
+      backend:
+        # Wait until backend is healthy
+        condition: service_healthy
+    
+    # Resource limits
+    deploy:
+      resources:
+        limits:
+          # Maximum CPU: 1 core
+          cpus: '1'
+          # Maximum RAM: 512MB
+          memory: 512M
+        reservations:
+          # Minimum guaranteed CPU: 0.5 cores
+          cpus: '0.5'
+          # Minimum guaranteed RAM: 256MB
+          memory: 256M
+    
+    # Networking
     networks:
       - souqsyria-network
+    
+    # Healthcheck configuration
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:4200/health"]
+      # Check health endpoint
+      test: ["CMD", "curl", "-f", "http://localhost/healthz"]
+      # Check every 30 seconds
       interval: 30s
-      timeout: 10s
+      # Timeout after 5 seconds
+      timeout: 5s
+      # Mark unhealthy after 3 failed checks
       retries: 3
-      start_period: 20s
+      # Wait 10 seconds before starting health checks
+      start_period: 10s
+    
+    # Logging configuration
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "100m"
+        max-file: "3"
+        labels: "app=souqsyria,service=frontend"
 
-# ==========================================
+# ============================================================================
+# Volumes
+# ============================================================================
+# Named volumes persist data between container restarts and are managed
+# by Docker. They are not lost when containers are removed.
+volumes:
+  # MySQL database files
+  mysql-data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ./data/mysql
+  
+  # Redis data files
+  redis-data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ./data/redis
+
+# ============================================================================
 # Networks
-# ==========================================
+# ============================================================================
+# Custom bridge network for service-to-service communication.
+# Using named networks instead of the default network provides:
+# - Service discovery by name (DNS resolution)
+# - Network isolation
+# - Better security
 networks:
   souqsyria-network:
     driver: bridge
-    name: souqsyria-network
-
-# ==========================================
-# Volumes
-# ==========================================
-volumes:
-  mysql_data:
-    name: souqsyria_mysql_data
-    driver: local
+    driver_opts:
+      # Enable IPv6 for future compatibility (optional)
+      com.docker.network.bridge.enable_ip_masquerade: 'true'
+    ipam:
+      config:
+        # Subnet for network
+        - subnet: 172.28.0.0/16

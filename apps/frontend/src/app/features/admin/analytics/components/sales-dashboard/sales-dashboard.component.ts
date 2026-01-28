@@ -76,6 +76,13 @@ export class SalesDashboardComponent implements OnInit, OnDestroy {
   private readonly destroy$ = new Subject<void>();
 
   // ===========================================================================
+  // TEMPLATE HELPERS
+  // ===========================================================================
+
+  /** Expose Math for template usage */
+  protected readonly Math = Math;
+
+  // ===========================================================================
   // STATE SIGNALS
   // ===========================================================================
 
@@ -455,6 +462,24 @@ export class SalesDashboardComponent implements OnInit, OnDestroy {
   applyCustomRange(): void {
     this.selectedPreset.set('custom');
     this.loadAnalytics();
+  }
+
+  /**
+   * Update start date in date range
+   * @param event - Input change event
+   */
+  updateStartDate(event: Event): void {
+    const target = event.target as HTMLInputElement;
+    this.dateRange.update(range => ({ ...range, startDate: target.value }));
+  }
+
+  /**
+   * Update end date in date range
+   * @param event - Input change event
+   */
+  updateEndDate(event: Event): void {
+    const target = event.target as HTMLInputElement;
+    this.dateRange.update(range => ({ ...range, endDate: target.value }));
   }
 
   /**

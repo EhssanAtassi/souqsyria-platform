@@ -101,10 +101,10 @@ export class TransactionEventService {
     try {
       await this.eventEmitter.emitAsync(eventName, payload);
       this.logger.debug(`Event emitted successfully: ${eventName}`);
-    } catch (error) {
+    } catch (error: unknown) {
       this.logger.error(
         `Failed to emit event: ${eventName}`,
-        error instanceof Error ? error.stack : String(error)
+        error instanceof Error ? (error as Error).stack : String(error)
       );
       // Don't throw - event emission failures shouldn't break the main flow
     }

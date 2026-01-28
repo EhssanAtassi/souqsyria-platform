@@ -107,8 +107,8 @@ export class CategoryHierarchyService {
         isValid: true,
         maxDepthReached: newDepthLevel === this.MAX_DEPTH,
       };
-    } catch (error) {
-      this.logger.error(`❌ Hierarchy validation failed: ${error.message}`);
+    } catch (error: unknown) {
+      this.logger.error(`❌ Hierarchy validation failed: ${(error as Error).message}`);
       throw error;
     }
   }
@@ -304,10 +304,10 @@ export class CategoryHierarchyService {
         processingTimeMs: processingTime,
         message: `Category "${category.nameEn}" moved to ${newParent ? newParent.nameEn : 'root level'}`,
       };
-    } catch (error) {
+    } catch (error: unknown) {
       this.logger.error(
-        `❌ Failed to move category ${category.id}: ${error.message}`,
-        error.stack,
+        `❌ Failed to move category ${category.id}: ${(error as Error).message}`,
+        (error as Error).stack,
       );
       throw error;
     }
@@ -350,9 +350,9 @@ export class CategoryHierarchyService {
       );
 
       return updatedCategories;
-    } catch (error) {
+    } catch (error: unknown) {
       this.logger.error(
-        `❌ Failed to recalculate hierarchy for category ${categoryId}: ${error.message}`,
+        `❌ Failed to recalculate hierarchy for category ${categoryId}: ${(error as Error).message}`,
       );
       throw new InternalServerErrorException(
         'Failed to recalculate category hierarchy',
@@ -497,9 +497,9 @@ export class CategoryHierarchyService {
       this.clearHierarchyCache();
 
       return affectedCategories;
-    } catch (error) {
+    } catch (error: unknown) {
       this.logger.error(
-        `❌ Failed to handle deletion hierarchy for category ${category.id}: ${error.message}`,
+        `❌ Failed to handle deletion hierarchy for category ${category.id}: ${(error as Error).message}`,
       );
       throw new InternalServerErrorException(
         'Failed to handle category deletion hierarchy',
@@ -575,9 +575,9 @@ export class CategoryHierarchyService {
 
       this.logger.debug(`✅ Generated ${breadcrumbs.length} breadcrumb items`);
       return breadcrumbs;
-    } catch (error) {
+    } catch (error: unknown) {
       this.logger.error(
-        `❌ Failed to generate breadcrumbs for category ${category.id}: ${error.message}`,
+        `❌ Failed to generate breadcrumbs for category ${category.id}: ${(error as Error).message}`,
       );
 
       // Return minimal breadcrumb if generation fails
@@ -721,10 +721,10 @@ export class CategoryHierarchyService {
       );
 
       return rootCategories;
-    } catch (error) {
+    } catch (error: unknown) {
       this.logger.error(
-        `❌ Failed to build hierarchical tree: ${error.message}`,
-        error.stack,
+        `❌ Failed to build hierarchical tree: ${(error as Error).message}`,
+        (error as Error).stack,
       );
 
       // Return flat structure as fallback
@@ -823,9 +823,9 @@ export class CategoryHierarchyService {
       this.logger.debug(
         `✅ Updated parent metrics: ${childrenCount} children, ${totalProductCount} total products`,
       );
-    } catch (error) {
+    } catch (error: unknown) {
       this.logger.error(
-        `❌ Failed to update parent metrics for category ${parentId}: ${error.message}`,
+        `❌ Failed to update parent metrics for category ${parentId}: ${(error as Error).message}`,
       );
       // Don't throw error - metrics update shouldn't break main operations
     }

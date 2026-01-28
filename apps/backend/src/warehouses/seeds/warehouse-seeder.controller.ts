@@ -368,8 +368,8 @@ export class WarehouseSeederController {
         result,
         message: `Seeding completed: ${result.created} created, ${result.updated} updated, ${result.skipped} skipped`,
       };
-    } catch (error) {
-      this.logger.error('Warehouse seeding failed', error.stack);
+    } catch (error: unknown) {
+      this.logger.error('Warehouse seeding failed', (error as Error).stack);
       throw error;
     }
   }

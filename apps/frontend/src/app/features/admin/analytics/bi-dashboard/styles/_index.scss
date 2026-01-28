@@ -1,0 +1,18 @@
+/**
+ * @file BI Dashboard Styles Index
+ * @description Entry point for all BI Dashboard SCSS partials.
+ *              Forward all design tokens and mixins for use in components.
+ *
+ * @usage
+ * ```scss
+ * @use 'styles' as bi;
+ *
+ * .component {
+ *   color: bi.$color-primary;
+ *   @include bi.focus-ring;
+ * }
+ * ```
+ */
+
+// Forward all tokens and mixins
+@forward 'bi-tokens';

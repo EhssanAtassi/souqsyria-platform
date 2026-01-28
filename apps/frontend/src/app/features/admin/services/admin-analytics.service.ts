@@ -438,35 +438,29 @@ export class AdminAnalyticsService {
   /**
    * Export commission report
    * @description Generates downloadable commission report
-   * @param format - Export format (csv, xlsx, pdf)
-   * @param query - Date range parameters
+   * @param options - Export options including format, date range, and headers
    * @returns Observable of export response
    */
-  exportCommissionReport(
-    format: ExportFormat,
-    query: AnalyticsDateRangeQuery
-  ): Observable<ExportResponse> {
-    return this.api.post<ExportResponse>('analytics/export/commissions', {
-      format,
-      ...query
-    });
+  exportCommissionReport(options: {
+    format: ExportFormat;
+    dateRange: { startDate: string; endDate: string };
+    includeHeaders?: boolean;
+  }): Observable<ExportResponse> {
+    return this.api.post<ExportResponse>('analytics/export/commissions', options);
   }
 
   /**
    * Export user analytics
    * @description Generates downloadable user analytics report
-   * @param format - Export format (csv, xlsx, pdf)
-   * @param query - Date range parameters
+   * @param options - Export options including format, date range, and headers
    * @returns Observable of export response
    */
-  exportUserAnalytics(
-    format: ExportFormat,
-    query: AnalyticsDateRangeQuery
-  ): Observable<ExportResponse> {
-    return this.api.post<ExportResponse>('analytics/export/users', {
-      format,
-      ...query
-    });
+  exportUserAnalytics(options: {
+    format: ExportFormat;
+    dateRange: { startDate: string; endDate: string };
+    includeHeaders?: boolean;
+  }): Observable<ExportResponse> {
+    return this.api.post<ExportResponse>('analytics/export/users', options);
   }
 
   /**

@@ -72,7 +72,7 @@ export class MobileSeederService {
         `✅ Mobile seeding completed successfully in ${executionTime}s`,
       );
       return result;
-    } catch (error) {
+    } catch (error: unknown) {
       this.logger.error('❌ Mobile seeding failed', error);
       throw error;
     }

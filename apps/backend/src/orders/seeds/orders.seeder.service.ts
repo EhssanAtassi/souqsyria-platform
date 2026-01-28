@@ -178,8 +178,8 @@ export class OrdersSeederService {
             await this.statusLogRepository.save(log);
             statusLogsCreated++;
           }
-        } catch (error) {
-          this.logger.error(`Failed to create order: ${error.message}`);
+        } catch (error: unknown) {
+          this.logger.error(`Failed to create order: ${(error as Error).message}`);
           throw error;
         }
       }
@@ -211,9 +211,9 @@ export class OrdersSeederService {
         returnRequestsCreated,
         executionTime,
       };
-    } catch (error) {
+    } catch (error: unknown) {
       const executionTime = Date.now() - startTime;
-      this.logger.error(`❌ Orders seeding failed: ${error.message}`);
+      this.logger.error(`❌ Orders seeding failed: ${(error as Error).message}`);
 
       return {
         success: false,
@@ -221,7 +221,7 @@ export class OrdersSeederService {
         orderItemsCreated: 0,
         statusLogsCreated: 0,
         executionTime,
-        error: error.message,
+        error: (error as Error).message,
       };
     }
   }
@@ -291,9 +291,9 @@ export class OrdersSeederService {
       this.logger.log(`✅ Created ${returnRequestsCreated} return requests`);
 
       return { success: true, returnRequestsCreated };
-    } catch (error) {
-      this.logger.error(`❌ Return requests seeding failed: ${error.message}`);
-      return { success: false, returnRequestsCreated: 0, error: error.message };
+    } catch (error: unknown) {
+      this.logger.error(`❌ Return requests seeding failed: ${(error as Error).message}`);
+      return { success: false, returnRequestsCreated: 0, error: (error as Error).message };
     }
   }
 

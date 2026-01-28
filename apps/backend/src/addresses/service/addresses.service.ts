@@ -98,20 +98,23 @@ export class AddressesService {
 
     // If updating country, region, city, revalidate them
     if (dto.countryId) {
-      address.country = await this.countryRepo.findOne({
+      const country = await this.countryRepo.findOne({
         where: { id: dto.countryId },
       });
-      if (!address.country) throw new BadRequestException('Invalid country');
+      if (!country) throw new BadRequestException('Invalid country');
+      address.country = country;
     }
     if (dto.regionId) {
-      address.region = await this.regionRepo.findOne({
+      const region = await this.regionRepo.findOne({
         where: { id: dto.regionId },
       });
-      if (!address.region) throw new BadRequestException('Invalid region');
+      if (!region) throw new BadRequestException('Invalid region');
+      address.region = region;
     }
     if (dto.cityId) {
-      address.city = await this.cityRepo.findOne({ where: { id: dto.cityId } });
-      if (!address.city) throw new BadRequestException('Invalid city');
+      const city = await this.cityRepo.findOne({ where: { id: dto.cityId } })!;
+      if (!city) throw new BadRequestException('Invalid city');
+      address.city = city;
     }
 
     Object.assign(address, dto);
@@ -353,13 +356,13 @@ export class AddressesService {
    * Remove address by ID (for testing - returns boolean)
    */
   async removeById(id: number): Promise<boolean> {
-    const address = await this.addressRepo.findOne({ where: { id } });
+    const address = await this.addressRepo.findOne({ where: { id } })!;
     if (!address) {
       throw new NotFoundException('Address not found');
     }
 
     const result = await this.addressRepo.softDelete(id);
-    return result.affected > 0;
+    return (result.affected ?? 0) > 0;
   }
 
   /**

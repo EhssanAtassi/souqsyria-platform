@@ -20,7 +20,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { Subject, takeUntil, finalize } from 'rxjs';
 
 import { AdminUsersService } from '../../../services';
-import { AdminStatusBadgeComponent, AdminPaginationComponent } from '../../../shared';
+import { AdminStatusBadgeComponent, AdminPaginationComponent, StatusVariant } from '../../../shared';
 import { KycVerificationItem, KycStatus, PaginatedResponse } from '../../../interfaces';
 
 /**
@@ -188,7 +188,6 @@ import { KycVerificationItem, KycStatus, PaginatedResponse } from '../../../inte
         <div class="kyc-review__pagination" *ngIf="pagination().total > pagination().limit">
           <app-admin-pagination
             [currentPage]="pagination().page"
-            [totalPages]="pagination().totalPages"
             [totalItems]="pagination().total"
             [pageSize]="pagination().limit"
             (pageChange)="onPageChange($event)"
@@ -712,16 +711,16 @@ export class KycReviewComponent implements OnInit, OnDestroy {
   // UTILITIES
   // =========================================================================
 
-  getStatusVariant(status: KycStatus): string {
-    const variantMap: Record<KycStatus, string> = {
-      not_submitted: 'secondary',
+  getStatusVariant(status: KycStatus): StatusVariant {
+    const variantMap: Record<KycStatus, StatusVariant> = {
+      not_submitted: 'neutral',
       pending: 'info',
       under_review: 'warning',
       approved: 'success',
       rejected: 'danger',
       requires_resubmission: 'warning'
     };
-    return variantMap[status] || 'secondary';
+    return variantMap[status] || 'neutral';
   }
 
   trackById(index: number, item: KycVerificationItem): number {

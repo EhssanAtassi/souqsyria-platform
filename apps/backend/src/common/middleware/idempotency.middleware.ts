@@ -146,11 +146,11 @@ export class IdempotencyMiddleware implements NestMiddleware {
 
       // Continue to controller
       next();
-    } catch (error) {
+    } catch (error: unknown) {
       // Don't block request on cache errors - just log and continue
       this.logger.error(
-        `❌ Idempotency middleware error: ${error.message}`,
-        error.stack,
+        `❌ Idempotency middleware error: ${(error as Error).message}`,
+        (error as Error).stack,
       );
       next();
     }
@@ -214,9 +214,9 @@ export class IdempotencyMiddleware implements NestMiddleware {
     try {
       const cached = await this.cacheManager.get<CachedResponse>(cacheKey);
       return cached;
-    } catch (error) {
+    } catch (error: unknown) {
       this.logger.error(
-        `❌ Error retrieving cached response: ${error.message}`,
+        `❌ Error retrieving cached response: ${(error as Error).message}`,
       );
       return undefined;
     }
@@ -293,7 +293,7 @@ export class IdempotencyMiddleware implements NestMiddleware {
           .set(cacheKey, cachedResponse, this.CACHE_TTL * 1000) // Convert to milliseconds
           .catch((error) => {
             this.logger.error(
-              `❌ Error caching idempotent response: ${error.message}`,
+              `❌ Error caching idempotent response: ${(error as Error).message}`,
             );
           });
       } else {

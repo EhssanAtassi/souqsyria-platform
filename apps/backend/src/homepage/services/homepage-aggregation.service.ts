@@ -113,8 +113,8 @@ export class HomepageAggregationService {
           personalized,
         },
       };
-    } catch (error) {
-      this.logger.error(`Failed to fetch homepage data: ${error.message}`, error.stack);
+    } catch (error: unknown) {
+      this.logger.error(`Failed to fetch homepage data: ${(error as Error).message}`, (error as Error).stack);
       throw error;
     }
   }
@@ -143,8 +143,8 @@ export class HomepageAggregationService {
 
       this.logger.log(`Fetched ${result.data.length} hero banners`);
       return result.data;
-    } catch (error) {
-      this.logger.error(`Failed to fetch hero banners: ${error.message}`);
+    } catch (error: unknown) {
+      this.logger.error(`Failed to fetch hero banners: ${(error as Error).message}`);
       return []; // Return empty array on error to prevent homepage failure
     }
   }
@@ -163,8 +163,8 @@ export class HomepageAggregationService {
       const categories = await this.featuredCategoriesService.findActive(12);
       this.logger.log(`Fetched ${categories.length} featured categories`);
       return categories;
-    } catch (error) {
-      this.logger.error(`Failed to fetch featured categories: ${error.message}`);
+    } catch (error: unknown) {
+      this.logger.error(`Failed to fetch featured categories: ${(error as Error).message}`);
       return []; // Return empty array on error
     }
   }
@@ -199,8 +199,8 @@ export class HomepageAggregationService {
 
       this.logger.log(`Fetched ${carousels.length} product carousels`);
       return carousels;
-    } catch (error) {
-      this.logger.error(`Failed to fetch product carousels: ${error.message}`);
+    } catch (error: unknown) {
+      this.logger.error(`Failed to fetch product carousels: ${(error as Error).message}`);
       return []; // Return empty array on error
     }
   }
@@ -238,8 +238,8 @@ export class HomepageAggregationService {
         productCarouselsCount: carousels.length,
         totalProducts,
       };
-    } catch (error) {
-      this.logger.error(`Failed to fetch performance metrics: ${error.message}`);
+    } catch (error: unknown) {
+      this.logger.error(`Failed to fetch performance metrics: ${(error as Error).message}`);
       throw error;
     }
   }

@@ -179,10 +179,10 @@ export class OrdersService {
     if (dto.new_status === 'confirmed' && fromStatus !== 'confirmed') {
       try {
         await this.createShipmentForOrder(order, user);
-      } catch (error) {
+      } catch (error: unknown) {
         this.logger.error(
           `Failed to create shipment for order ${order.id}`,
-          error.stack,
+          (error as Error).stack,
         );
       }
     }

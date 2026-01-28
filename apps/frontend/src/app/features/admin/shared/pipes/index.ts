@@ -4,4 +4,5 @@
  * @module AdminDashboard/SharedPipes
  */
 
-export { CurrencyFormatPipe, CurrencyDisplayFormat, formatCurrency } from './currency-format.pipe';
+export { CurrencyFormatPipe, formatCurrency } from './currency-format.pipe';
+export type { CurrencyDisplayFormat } from './currency-format.pipe';

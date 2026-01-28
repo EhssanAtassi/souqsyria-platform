@@ -106,12 +106,12 @@ export class AttributeSeederController {
         },
         timestamp: new Date().toISOString(),
       };
-    } catch (error) {
+    } catch (error: unknown) {
       this.logger.error('❌ Seeding failed:', error);
       return {
         success: false,
         message: 'Seeding failed',
-        error: error.message,
+        error: (error as Error).message,
         timestamp: new Date().toISOString(),
       };
     }
@@ -163,11 +163,11 @@ export class AttributeSeederController {
         data: stats,
         timestamp: new Date().toISOString(),
       };
-    } catch (error) {
+    } catch (error: unknown) {
       this.logger.error('❌ Failed to get statistics:', error);
       return {
         success: false,
-        error: error.message,
+        error: (error as Error).message,
         timestamp: new Date().toISOString(),
       };
     }
@@ -215,11 +215,11 @@ export class AttributeSeederController {
         data: validation,
         timestamp: new Date().toISOString(),
       };
-    } catch (error) {
+    } catch (error: unknown) {
       this.logger.error('❌ Validation failed:', error);
       return {
         success: false,
-        error: error.message,
+        error: (error as Error).message,
         timestamp: new Date().toISOString(),
       };
     }
@@ -296,12 +296,12 @@ export class AttributeSeederController {
         },
         timestamp: new Date().toISOString(),
       };
-    } catch (error) {
+    } catch (error: unknown) {
       this.logger.error('❌ Cleanup failed:', error);
       return {
         success: false,
         message: 'Cleanup failed',
-        error: error.message,
+        error: (error as Error).message,
         timestamp: new Date().toISOString(),
       };
     }
@@ -350,7 +350,7 @@ export class AttributeSeederController {
         checks.database = 'connected';
         checks.repositories = 'accessible';
         checks.functionality = 'operational';
-      } catch (error) {
+      } catch (error: unknown) {
         checks.database = 'error';
         checks.repositories = 'error';
         checks.functionality = 'error';
@@ -366,12 +366,12 @@ export class AttributeSeederController {
         checks,
         timestamp: new Date().toISOString(),
       };
-    } catch (error) {
+    } catch (error: unknown) {
       this.logger.error('❌ Health check failed:', error);
       return {
         success: false,
         status: 'unhealthy',
-        error: error.message,
+        error: (error as Error).message,
         timestamp: new Date().toISOString(),
       };
     }
@@ -428,11 +428,11 @@ export class AttributeSeederController {
         data: dataInfo,
         timestamp: new Date().toISOString(),
       };
-    } catch (error) {
+    } catch (error: unknown) {
       this.logger.error('❌ Failed to get data info:', error);
       return {
         success: false,
-        error: error.message,
+        error: (error as Error).message,
         timestamp: new Date().toISOString(),
       };
     }

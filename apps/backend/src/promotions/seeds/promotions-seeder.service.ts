@@ -126,8 +126,8 @@ export class PromotionsSeederService {
             createdCampaigns.push(savedCampaign);
             createdCount++;
           }
-        } catch (error) {
-          this.logger.warn(`Failed to create campaign ${campaign.name_en}: ${error.message}`);
+        } catch (error: unknown) {
+          this.logger.warn(`Failed to create campaign ${campaign.name_en}: ${(error as Error).message}`);
         }
       }
 
@@ -144,8 +144,8 @@ export class PromotionsSeederService {
             await this.couponRepository.save(newCoupon);
             createdCount++;
           }
-        } catch (error) {
-          this.logger.warn(`Failed to create coupon ${coupon.code}: ${error.message}`);
+        } catch (error: unknown) {
+          this.logger.warn(`Failed to create coupon ${coupon.code}: ${(error as Error).message}`);
         }
       }
 
@@ -156,8 +156,8 @@ export class PromotionsSeederService {
           const usageEntry = this.couponUsageRepository.create(usage);
           await this.couponUsageRepository.save(usageEntry);
           createdCount++;
-        } catch (error) {
-          this.logger.warn(`Failed to create coupon usage: ${error.message}`);
+        } catch (error: unknown) {
+          this.logger.warn(`Failed to create coupon usage: ${(error as Error).message}`);
         }
       }
 
@@ -169,12 +169,12 @@ export class PromotionsSeederService {
         message: `Successfully seeded ${createdCount} promotional entries (campaigns + coupons + usage)`
       };
 
-    } catch (error) {
+    } catch (error: unknown) {
       this.logger.error('❌ Promotions data seeding failed:', error);
       return {
         success: false,
         count: 0,
-        message: `Promotions seeding failed: ${error.message}`
+        message: `Promotions seeding failed: ${(error as Error).message}`
       };
     }
   }
@@ -812,9 +812,9 @@ export class PromotionsSeederService {
           diasporaTargeted
         }
       };
-    } catch (error) {
+    } catch (error: unknown) {
       this.logger.error('Failed to get promotions analytics:', error);
-      return { error: error.message };
+      return { error: (error as Error).message };
     }
   }
 
@@ -846,8 +846,8 @@ export class PromotionsSeederService {
             results.errors.push(`Unknown operation type: ${operation.type}`);
             results.failed++;
         }
-      } catch (error) {
-        results.errors.push(`${operation.type} failed: ${error.message}`);
+      } catch (error: unknown) {
+        results.errors.push(`${operation.type} failed: ${(error as Error).message}`);
         results.failed++;
       }
     }
@@ -924,12 +924,12 @@ export class PromotionsSeederService {
         message: `Successfully cleared ${totalDeleted} promotions records`
       };
 
-    } catch (error) {
+    } catch (error: unknown) {
       this.logger.error('❌ Failed to clear promotions data:', error);
       return {
         success: false,
         deletedCount: 0,
-        message: `Failed to clear promotions data: ${error.message}`
+        message: `Failed to clear promotions data: ${(error as Error).message}`
       };
     }
   }

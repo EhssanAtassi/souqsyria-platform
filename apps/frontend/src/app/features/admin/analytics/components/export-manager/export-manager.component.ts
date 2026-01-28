@@ -543,6 +543,24 @@ export class ExportManagerComponent implements OnInit, OnDestroy {
     return date.toISOString().split('T')[0];
   }
 
+  /**
+   * Update start date in date range
+   * @param event - Input change event
+   */
+  updateStartDate(event: Event): void {
+    const target = event.target as HTMLInputElement;
+    this.dateRange.update(range => ({ ...range, startDate: target.value }));
+  }
+
+  /**
+   * Update end date in date range
+   * @param event - Input change event
+   */
+  updateEndDate(event: Event): void {
+    const target = event.target as HTMLInputElement;
+    this.dateRange.update(range => ({ ...range, endDate: target.value }));
+  }
+
   // =========================================================================
   // FORMATTING
   // =========================================================================

@@ -176,7 +176,7 @@ describe('DatabaseHealthIndicator', () => {
         await indicator.isHealthy('database_query');
       } catch (err: any) {
         expect(err).toBeInstanceOf(HealthCheckError);
-        expect(err.message).toBe('Database health check failed');
+        expect((err as Error).message).toBe('Database health check failed');
         expect(err.cause['database_query']).toHaveProperty('message');
       }
     });

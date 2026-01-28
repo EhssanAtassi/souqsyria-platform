@@ -225,10 +225,10 @@ export class CartMergeService {
             messages: mergeResult.messages,
             guestSessionConverted: true,
           };
-        } catch (error) {
+        } catch (error: unknown) {
           this.logger.error(
-            `❌ Failed to merge cart: ${error.message}`,
-            error.stack,
+            `❌ Failed to merge cart: ${(error as Error).message}`,
+            (error as Error).stack,
           );
 
           // Log audit event for failure
@@ -239,7 +239,7 @@ export class CartMergeService {
             actorType: 'user',
             entityType: 'cart',
             entityId: null,
-            description: `Failed to merge guest cart ${guestSessionId}: ${error.message}`,
+            description: `Failed to merge guest cart ${guestSessionId}: ${(error as Error).message}`,
           });
 
           throw error;

@@ -309,7 +309,7 @@ export class ShipmentSeederController {
       );
 
       return stats;
-    } catch (error) {
+    } catch (error: unknown) {
       this.logger.error('❌ Shipment seeding failed:', error);
       throw error;
     }

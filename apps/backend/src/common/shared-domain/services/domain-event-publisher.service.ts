@@ -83,10 +83,10 @@ export class DomainEventPublisher {
       // Emit asynchronously to allow multiple listeners
       await this.eventEmitter.emitAsync(eventName, event);
       this.logger.debug(`Domain event published: ${eventName}`);
-    } catch (error) {
+    } catch (error: unknown) {
       this.logger.error(
         `Failed to publish domain event: ${eventName}`,
-        error instanceof Error ? error.stack : String(error)
+        error instanceof Error ? (error as Error).stack : String(error)
       );
       // Don't throw - let the main flow continue
     }
@@ -130,7 +130,7 @@ export class DomainEventPublisher {
       try {
         await this.publish(eventName, data, { correlationId });
         return correlationId;
-      } catch (error) {
+      } catch (error: unknown) {
         lastError = error instanceof Error ? error : new Error(String(error));
         this.logger.warn(
           `Event publish attempt ${attempt}/${maxRetries} failed for ${eventName}`,

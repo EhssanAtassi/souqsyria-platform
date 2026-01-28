@@ -535,20 +535,32 @@ export class FeatureFlagsComponent implements OnInit, OnDestroy {
    * Toggle environment for editing flag
    * @param env - Environment to toggle
    */
-  toggleEnvironment(env: FeatureFlagEnvironment): void {
+  toggleEnvironment(env: FeatureFlagEnvironment | string): void {
     const flag = this.editingFlag();
-    if (!flag) return;
+    if (!flag || !env) return;
 
+    const envValue = env as FeatureFlagEnvironment;
     const envs = [...flag.environments];
-    const index = envs.indexOf(env);
+    const index = envs.indexOf(envValue);
 
     if (index !== -1) {
       envs.splice(index, 1);
     } else {
-      envs.push(env);
+      envs.push(envValue);
     }
 
     this.editingFlag.set({ ...flag, environments: envs });
+  }
+
+  /**
+   * Check if environment is included in editing flag
+   * @param env - Environment to check
+   * @returns True if environment is included
+   */
+  isEnvironmentIncluded(env: FeatureFlagEnvironment | string): boolean {
+    const flag = this.editingFlag();
+    if (!flag || !env) return false;
+    return flag.environments.includes(env as FeatureFlagEnvironment);
   }
 
   /**
@@ -560,6 +572,28 @@ export class FeatureFlagsComponent implements OnInit, OnDestroy {
     if (!flag) return;
 
     this.editingFlag.set({ ...flag, rolloutPercentage: Math.max(0, Math.min(100, value)) });
+  }
+
+  /**
+   * Update name for editing flag
+   * @param name - New name value
+   */
+  updateFlagName(name: string): void {
+    const flag = this.editingFlag();
+    if (!flag) return;
+
+    this.editingFlag.set({ ...flag, name });
+  }
+
+  /**
+   * Update description for editing flag
+   * @param description - New description value
+   */
+  updateFlagDescription(description: string): void {
+    const flag = this.editingFlag();
+    if (!flag) return;
+
+    this.editingFlag.set({ ...flag, description });
   }
 
   // ===========================================================================
