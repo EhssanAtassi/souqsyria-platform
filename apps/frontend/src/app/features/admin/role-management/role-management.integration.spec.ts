@@ -52,17 +52,17 @@ describe('Role Management Integration Tests', () => {
 
   /** Mock permissions for the SouqSyria platform */
   const MOCK_PERMISSIONS: Permission[] = [
-    { id: 1, name: 'manage_users', description: 'إدارة المستخدمين - Manage users', resource: 'users', action: 'manage', isSystem: true },
-    { id: 2, name: 'view_users', description: 'عرض المستخدمين - View users', resource: 'users', action: 'view', isSystem: true },
-    { id: 3, name: 'manage_roles', description: 'إدارة الأدوار - Manage roles', resource: 'roles', action: 'manage', isSystem: true },
-    { id: 4, name: 'view_roles', description: 'عرض الأدوار - View roles', resource: 'roles', action: 'view', isSystem: true },
-    { id: 5, name: 'manage_products', description: 'إدارة المنتجات - Manage products', resource: 'products', action: 'manage', isSystem: false },
-    { id: 6, name: 'view_products', description: 'عرض المنتجات - View products', resource: 'products', action: 'view', isSystem: false },
-    { id: 7, name: 'manage_orders', description: 'إدارة الطلبات - Manage orders', resource: 'orders', action: 'manage', isSystem: false },
-    { id: 8, name: 'view_orders', description: 'عرض الطلبات - View orders', resource: 'orders', action: 'view', isSystem: false },
-    { id: 9, name: 'manage_routes', description: 'إدارة المسارات - Manage routes', resource: 'routes', action: 'manage', isSystem: true },
-    { id: 10, name: 'view_audit_logs', description: 'عرض سجلات التدقيق - View audit logs', resource: 'audit', action: 'view', isSystem: true },
-    { id: 11, name: 'access_admin_panel', description: 'الوصول للوحة الإدارة - Access admin panel', resource: 'admin', action: 'access', isSystem: true }
+    { id: 1, name: 'manage_users', displayName: 'Manage Users', description: 'إدارة المستخدمين - Manage users', category: 'user_management', resource: 'users', action: 'manage', isSystem: true, createdAt: new Date('2024-01-01') },
+    { id: 2, name: 'view_users', displayName: 'View Users', description: 'عرض المستخدمين - View users', category: 'user_management', resource: 'users', action: 'view', isSystem: true, createdAt: new Date('2024-01-01') },
+    { id: 3, name: 'manage_roles', displayName: 'Manage Roles', description: 'إدارة الأدوار - Manage roles', category: 'role_management', resource: 'roles', action: 'manage', isSystem: true, createdAt: new Date('2024-01-01') },
+    { id: 4, name: 'view_roles', displayName: 'View Roles', description: 'عرض الأدوار - View roles', category: 'role_management', resource: 'roles', action: 'view', isSystem: true, createdAt: new Date('2024-01-01') },
+    { id: 5, name: 'manage_products', displayName: 'Manage Products', description: 'إدارة المنتجات - Manage products', category: 'product_management', resource: 'products', action: 'manage', isSystem: false, createdAt: new Date('2024-01-01') },
+    { id: 6, name: 'view_products', displayName: 'View Products', description: 'عرض المنتجات - View products', category: 'product_management', resource: 'products', action: 'view', isSystem: false, createdAt: new Date('2024-01-01') },
+    { id: 7, name: 'manage_orders', displayName: 'Manage Orders', description: 'إدارة الطلبات - Manage orders', category: 'order_management', resource: 'orders', action: 'manage', isSystem: false, createdAt: new Date('2024-01-01') },
+    { id: 8, name: 'view_orders', displayName: 'View Orders', description: 'عرض الطلبات - View orders', category: 'order_management', resource: 'orders', action: 'view', isSystem: false, createdAt: new Date('2024-01-01') },
+    { id: 9, name: 'manage_routes', displayName: 'Manage Routes', description: 'إدارة المسارات - Manage routes', category: 'route_management', resource: 'routes', action: 'manage', isSystem: true, createdAt: new Date('2024-01-01') },
+    { id: 10, name: 'view_audit_logs', displayName: 'View Audit Logs', description: 'عرض سجلات التدقيق - View audit logs', category: 'audit', resource: 'audit', action: 'view', isSystem: true, createdAt: new Date('2024-01-01') },
+    { id: 11, name: 'access_admin_panel', displayName: 'Access Admin Panel', description: 'الوصول للوحة الإدارة - Access admin panel', category: 'admin', resource: 'admin', action: 'access', isSystem: true, createdAt: new Date('2024-01-01') }
   ];
 
   /** Mock roles for the SouqSyria platform */

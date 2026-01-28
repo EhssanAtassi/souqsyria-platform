@@ -14,7 +14,7 @@
  *
  * // Import interfaces
  * import {
- *   HeroMetric,
+ *   BIDashboardHeroMetrics,
  *   CLVAnalytics,
  *   ConversionFunnelAnalytics
  * } from './bi-dashboard';
@@ -52,48 +52,52 @@ export { BIDashboardService } from './services/bi-dashboard.service';
  * @description TypeScript interfaces and types for all BI data structures
  *              including metrics, analytics, and configuration constants.
  */
-export {
+export type {
   // Customer Segments
-  CustomerSegmentType,
+  CustomerSegment,
   CustomerSegmentConfig,
-  CUSTOMER_SEGMENT_CONFIGS,
 
-  // Hero Metrics
-  HeroMetric,
-  MetricTrend,
+  // CLV Analytics
+  CustomerCLV,
+  CLVSegmentSummary,
+  CLVAnalytics,
 
   // Quick Insights
   QuickInsight,
 
-  // CLV Analytics
-  CLVAnalytics,
-  CLVTrendPoint,
-  CustomerSegment,
-  LifecycleStage,
-
   // Conversion Funnel
-  ConversionFunnelAnalytics,
+  FunnelStageType,
+  DeviceType,
   FunnelStage,
-  FunnelDropoff,
-  ConversionTrend,
+  FunnelComparison,
+  ConversionFunnelAnalytics,
 
   // Cart Abandonment
-  CartAbandonmentAnalytics,
   AbandonmentReason,
+  RecoveryCampaignStatus,
   AbandonedCart,
-  RecoveryAction,
+  RecoveryCampaign,
+  CartAbandonmentAnalytics,
 
   // Cohort Analysis
+  CohortDefinition,
+  RetentionMetric,
+  Cohort,
+  BehaviorPattern,
   CohortAnalysis,
-  CohortData,
-  RetentionRate,
-  CohortComparison,
 
-  // Dashboard State
-  DashboardTab,
-  DatePreset,
-  BIDashboardState,
-  BIDashboardFilters
+  // Dashboard Data
+  BIDashboardHeroMetrics,
+  BIDashboardData,
+  BIDashboardFilters,
+  BIExportConfig
+} from './interfaces/bi-dashboard.interfaces';
+
+export {
+  // Constants
+  CUSTOMER_SEGMENT_CONFIGS,
+  ABANDONMENT_REASON_LABELS,
+  FUNNEL_STAGE_LABELS
 } from './interfaces/bi-dashboard.interfaces';
 
 // ============================================================================

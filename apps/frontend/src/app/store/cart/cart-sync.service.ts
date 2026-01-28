@@ -5,32 +5,6 @@ import { catchError, retry, retryWhen, mergeMap } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
 import { Cart, CartItem, CartValidationResult } from '../../shared/interfaces/cart.interface';
 
-// Define ValidateCartResponse interface for enhanced validation
-export interface ValidateCartResponse {
-  isValid: boolean;
-  warnings: Array<{
-    type: 'PRICE_INCREASE' | 'PRICE_DECREASE' | 'LOW_STOCK' | 'SHIPPING_DELAY';
-    itemId: string;
-    message: string;
-    oldValue?: any;
-    newValue?: any;
-  }>;
-  errors: Array<{
-    type: 'OUT_OF_STOCK' | 'PRICE_CHANGED' | 'SHIPPING_UNAVAILABLE';
-    itemId: string;
-    message: string;
-  }>;
-}
-
-// Utility functions for product/variant ID extraction
-function extractProductId(item: CartItem): string {
-  return item.product.id;
-}
-
-function extractVariantId(variantId: string): string {
-  return variantId;
-}
-
 /**
  * Validate Cart Response
  *
@@ -176,7 +150,32 @@ export class CartSyncService {
     );
   }
 
-  // Note: fetchUserCart implementation moved to enhanced version below (line ~252)
+  /**
+   * Fetch User Cart
+   *
+   * Retrieves cart data for an authenticated user.
+   * JWT token is automatically included in request via HTTP interceptor.
+   *
+   * @param userId - User ID (for logging, backend extracts from JWT)
+   * @returns Observable<Cart>
+   */
+  fetchUserCart(userId: string): Observable<Cart> {
+    console.log(`[CartSyncService] Fetching user cart for user: ${userId}`);
+
+    return this.http.get<Cart>(this.apiUrl).pipe(
+      retry({
+        count: 3,
+        delay: (error, retryCount) => {
+          console.log(`[CartSyncService] Retry attempt ${retryCount} for fetchUserCart`);
+          return timer(Math.pow(2, retryCount) * 1000);
+        }
+      }),
+      catchError(error => {
+        console.error('[CartSyncService] Failed to fetch user cart:', error);
+        return throwError(() => error);
+      })
+    );
+  }
 
   /**
    * Sync Authenticated Cart (Enhanced for Phase 4.2)

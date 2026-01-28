@@ -600,8 +600,8 @@ export class WebVitalsService {
    */
   private sendToAnalytics(report: PerformanceReport): void {
     // Send to Google Analytics or custom analytics
-    if (window.gtag) {
-      window.gtag('event', 'performance_metrics', {
+    if ((window as any).gtag) {
+      (window as any).gtag('event', 'performance_metrics', {
         lcp: report.metrics.lcp,
         fid: report.metrics.fid,
         cls: report.metrics.cls,

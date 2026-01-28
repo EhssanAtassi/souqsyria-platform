@@ -4,46 +4,50 @@
  * @module AdminDashboard/Analytics/BIDashboard/Interfaces
  */
 
-export {
+export type {
   // Customer Segments
-  CustomerSegmentType,
+  CustomerSegment,
   CustomerSegmentConfig,
-  CUSTOMER_SEGMENT_CONFIGS,
 
-  // Hero Metrics
-  HeroMetric,
-  MetricTrend,
+  // CLV Analytics
+  CustomerCLV,
+  CLVSegmentSummary,
+  CLVAnalytics,
+
+  // Conversion Funnel
+  FunnelStageType,
+  DeviceType,
+  FunnelStage,
+  FunnelComparison,
+  ConversionFunnelAnalytics,
+
+  // Cart Abandonment
+  AbandonmentReason,
+  RecoveryCampaignStatus,
+  AbandonedCart,
+  RecoveryCampaign,
+  CartAbandonmentAnalytics,
+
+  // Cohort Analysis
+  CohortDefinition,
+  RetentionMetric,
+  Cohort,
+  BehaviorPattern,
+  CohortAnalysis,
 
   // Quick Insights
   QuickInsight,
 
-  // CLV Analytics
-  CLVAnalytics,
-  CLVTrendPoint,
-  CustomerSegment,
-  LifecycleStage,
+  // Dashboard Data
+  BIDashboardHeroMetrics,
+  BIDashboardData,
+  BIDashboardFilters,
+  BIExportConfig
+} from './bi-dashboard.interfaces';
 
-  // Conversion Funnel
-  ConversionFunnelAnalytics,
-  FunnelStage,
-  FunnelDropoff,
-  ConversionTrend,
-
-  // Cart Abandonment
-  CartAbandonmentAnalytics,
-  AbandonmentReason,
-  AbandonedCart,
-  RecoveryAction,
-
-  // Cohort Analysis
-  CohortAnalysis,
-  CohortData,
-  RetentionRate,
-  CohortComparison,
-
-  // Dashboard State
-  DashboardTab,
-  DatePreset,
-  BIDashboardState,
-  BIDashboardFilters
+export {
+  // Constants
+  CUSTOMER_SEGMENT_CONFIGS,
+  ABANDONMENT_REASON_LABELS,
+  FUNNEL_STAGE_LABELS
 } from './bi-dashboard.interfaces';

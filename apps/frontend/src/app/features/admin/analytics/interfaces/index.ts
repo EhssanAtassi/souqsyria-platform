@@ -67,15 +67,12 @@ export type {
  */
 export type {
   // Hero Metrics
-  HeroMetric,
-  MetricTrend,
+  BIDashboardHeroMetrics,
 
   // Quick Insights
   QuickInsight,
 
-  // Dashboard State
-  DashboardTab,
-  DatePreset,
-  BIDashboardState,
+  // Dashboard Data
+  BIDashboardData,
   BIDashboardFilters
 } from '../bi-dashboard/interfaces/bi-dashboard.interfaces';

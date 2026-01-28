@@ -263,9 +263,10 @@ export class UserTableComponent {
    * @returns Initials (e.g., "JD" for "John Doe")
    */
   getUserInitials(user: User): string {
-    if (!user.name) return '??';
-    
-    const parts = user.name.trim().split(' ');
+    const name = user.fullName || `${user.firstName || ''} ${user.lastName || ''}`.trim();
+    if (!name) return '??';
+
+    const parts = name.trim().split(' ');
     if (parts.length === 1) {
       return parts[0].substring(0, 2).toUpperCase();
     }
@@ -387,13 +388,13 @@ export class UserTableComponent {
   isActionAvailable(action: string, user: User): boolean {
     switch (action) {
       case 'ban':
-        return user.status !== 'BANNED';
+        return user.status !== 'banned';
       case 'unban':
-        return user.status === 'BANNED';
+        return user.status === 'banned';
       case 'suspend':
-        return user.status !== 'SUSPENDED' && user.status !== 'BANNED';
+        return user.status !== 'suspended' && user.status !== 'banned';
       case 'unsuspend':
-        return user.status === 'SUSPENDED';
+        return user.status === 'suspended';
       default:
         return true;
     }

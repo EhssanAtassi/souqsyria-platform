@@ -45,9 +45,11 @@ describe('User Management Integration Tests', () => {
   const MOCK_USERS: any[] = [
     {
       id: 1,
-      name: 'أحمد العلي',
+      firstName: 'أحمد',
+      lastName: 'العلي',
+      fullName: 'أحمد العلي',
       email: 'ahmad@souqsyria.com',
-      phoneNumber: '+963912345678',
+      phone: '+963912345678',
       status: 'active',
       businessRole: 'seller',
       adminRole: null,
@@ -62,9 +64,11 @@ describe('User Management Integration Tests', () => {
     },
     {
       id: 2,
-      name: 'فاطمة حسن',
+      firstName: 'فاطمة',
+      lastName: 'حسن',
+      fullName: 'فاطمة حسن',
       email: 'fatima@souqsyria.com',
-      phoneNumber: '+963923456789',
+      phone: '+963923456789',
       status: 'active',
       businessRole: 'customer',
       adminRole: null,
@@ -79,9 +83,11 @@ describe('User Management Integration Tests', () => {
     },
     {
       id: 3,
-      name: 'محمد خليل',
+      firstName: 'محمد',
+      lastName: 'خليل',
+      fullName: 'محمد خليل',
       email: 'mohammad@souqsyria.com',
-      phoneNumber: '+963934567890',
+      phone: '+963934567890',
       status: 'suspended',
       businessRole: 'seller',
       adminRole: null,
@@ -96,9 +102,11 @@ describe('User Management Integration Tests', () => {
     },
     {
       id: 4,
-      name: 'Sara Al-Abed',
+      firstName: 'Sara',
+      lastName: 'Al-Abed',
+      fullName: 'Sara Al-Abed',
       email: 'sara@souqsyria.com',
-      phoneNumber: '+963945678901',
+      phone: '+963945678901',
       status: 'banned',
       businessRole: 'customer',
       adminRole: null,
@@ -113,9 +121,11 @@ describe('User Management Integration Tests', () => {
     },
     {
       id: 5,
-      name: 'عمر الشامي',
+      firstName: 'عمر',
+      lastName: 'الشامي',
+      fullName: 'عمر الشامي',
       email: 'omar@souqsyria.com',
-      phoneNumber: '+963956789012',
+      phone: '+963956789012',
       status: 'active',
       businessRole: 'admin',
       adminRole: 'admin',
@@ -172,7 +182,7 @@ describe('User Management Integration Tests', () => {
   /** Mock user after role assignment */
   const MOCK_USER_WITH_ROLE = {
     ...MOCK_USERS[0],
-    adminRole: 'content_moderator'
+    adminRole: 'moderator' as any
   };
 
   // ---------------------------------------------------------------------------
@@ -233,8 +243,8 @@ describe('User Management Integration Tests', () => {
         next: () => {
           query.users$.subscribe(users => {
             expect(users.length).toBe(5);
-            expect(users[0].name).toBe('أحمد العلي');
-            expect(users[4].name).toBe('عمر الشامي');
+            expect(users[0].fullName).toBe('أحمد العلي');
+            expect(users[4].fullName).toBe('عمر الشامي');
             done();
           });
         },
@@ -451,7 +461,7 @@ describe('User Management Integration Tests', () => {
       query.selectedUser$.subscribe(user => {
         if (user) {
           expect(user.id).toBe(1);
-          expect(user.name).toBe('أحمد العلي');
+          expect(user.fullName).toBe('أحمد العلي');
           done();
         }
       });
@@ -461,7 +471,7 @@ describe('User Management Integration Tests', () => {
      * Verifies the role assignment flow updates the user in store.
      */
     it('should assign role to user and update store on success', (done) => {
-      const dto = { businessRole: 'seller' as any, adminRole: 'content_moderator' };
+      const dto = { businessRole: 'seller' as any, adminRole: 'moderator' as any };
       dataService.assignRoles.and.returnValue(of(MOCK_USER_WITH_ROLE));
 
       service.assignRoles(1, dto).subscribe({
@@ -486,7 +496,7 @@ describe('User Management Integration Tests', () => {
      * Verifies optimistic update is applied before API call.
      */
     it('should optimistically update role before API response', () => {
-      const dto = { businessRole: 'seller' as any, adminRole: 'content_moderator' };
+      const dto = { businessRole: 'seller' as any, adminRole: 'moderator' as any };
       // Simulate a pending request that never completes
       dataService.assignRoles.and.returnValue(of(MOCK_USER_WITH_ROLE));
 
@@ -607,7 +617,7 @@ describe('User Management Integration Tests', () => {
     it('should suspend user with reason and duration', (done) => {
       const suspendDto = {
         reason: 'مراجعة الحساب - Account review',
-        suspensionEndDate: new Date('2025-03-31')
+        until: new Date('2025-03-31')
       };
       dataService.suspendUser.and.returnValue(of(MOCK_SUSPENDED_USER));
 
@@ -634,7 +644,7 @@ describe('User Management Integration Tests', () => {
       const originalStatus = query.getEntity(1)!.status;
       const suspendDto = {
         reason: 'test',
-        suspensionEndDate: new Date()
+        until: new Date()
       };
 
       dataService.suspendUser.and.returnValue(

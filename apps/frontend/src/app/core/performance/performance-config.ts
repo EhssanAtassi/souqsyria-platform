@@ -187,7 +187,7 @@ export class PerformanceMonitoringService {
     console.log('Navigation Metrics:', {
       fcp,
       tti,
-      loadTime: entry.loadEventEnd - entry.navigationStart
+      loadTime: entry.loadEventEnd - entry.startTime
     });
   }
 
@@ -218,8 +218,8 @@ export class PerformanceMonitoringService {
         const memory = (performance as any).memory;
         const memoryUsageMB = memory.usedJSHeapSize / 1024 / 1024;
 
-        if (memoryUsageB > this.config.memoryManagement.maxMemoryUsage) {
-          console.warn(`Memory usage exceeded threshold: ${memoryUsageB}MB`);
+        if (memoryUsageMB > this.config.memoryManagement.maxMemoryUsage) {
+          console.warn(`Memory usage exceeded threshold: ${memoryUsageMB}MB`);
           this.triggerMemoryCleanup();
         }
       }
