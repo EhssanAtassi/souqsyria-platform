@@ -1,0 +1,460 @@
+<!--
+  User Analytics Component Template
+  @description Comprehensive user analytics with acquisition, engagement, and retention
+-->
+
+<div class="user-analytics">
+  <!-- ===================================================================== -->
+  <!-- HEADER -->
+  <!-- ===================================================================== -->
+  <header class="user-analytics__header">
+    <div class="user-analytics__title">
+      <h1>User Analytics</h1>
+      <span class="user-analytics__subtitle">Track user acquisition, engagement, and retention</span>
+    </div>
+
+    <div class="user-analytics__header-actions">
+      <!-- Date Range Selector -->
+      <div class="date-selector">
+        <select
+          class="date-selector__select"
+          [ngModel]="selectedPreset()"
+          (ngModelChange)="applyDatePreset($event)"
+        >
+          @for (preset of datePresets; track preset.value) {
+            <option [value]="preset.value">{{ preset.label }}</option>
+          }
+        </select>
+
+        @if (selectedPreset() === 'custom') {
+          <div class="date-selector__custom">
+            <input
+              type="date"
+              [value]="dateRange().startDate"
+              (change)="updateStartDate($event)"
+            />
+            <span>to</span>
+            <input
+              type="date"
+              [value]="dateRange().endDate"
+              (change)="updateEndDate($event)"
+            />
+            <button class="btn btn--primary btn--small" (click)="applyCustomRange()">Apply</button>
+          </div>
+        }
+      </div>
+
+      <!-- Export Menu -->
+      <button class="btn btn--secondary" [matMenuTriggerFor]="exportMenu">
+        <span class="material-icons">download</span>
+        Export
+      </button>
+      <mat-menu #exportMenu="matMenu">
+        <button mat-menu-item (click)="exportReport('csv')">
+          <span class="material-icons">description</span>
+          Export as CSV
+        </button>
+        <button mat-menu-item (click)="exportReport('xlsx')">
+          <span class="material-icons">table_chart</span>
+          Export as Excel
+        </button>
+        <button mat-menu-item (click)="exportReport('pdf')">
+          <span class="material-icons">picture_as_pdf</span>
+          Export as PDF
+        </button>
+      </mat-menu>
+
+      <button class="btn btn--secondary" (click)="refresh()">
+        <span class="material-icons">refresh</span>
+      </button>
+    </div>
+  </header>
+
+  @if (isLoading()) {
+    <div class="loading-state">
+      <div class="loading-spinner"></div>
+      <p>Loading user analytics...</p>
+    </div>
+  } @else {
+    <!-- Error Message -->
+    @if (errorMessage()) {
+      <div class="error-banner">
+        <span class="material-icons">warning</span>
+        <span>{{ errorMessage() }} (Showing demo data)</span>
+        <button (click)="errorMessage.set(null)">
+          <span class="material-icons">close</span>
+        </button>
+      </div>
+    }
+
+    <!-- ===================================================================== -->
+    <!-- KPI CARDS -->
+    <!-- ===================================================================== -->
+    <section class="user-analytics__kpis">
+      @for (metric of kpiMetrics(); track trackByKPI($index, metric)) {
+        <div
+          class="kpi-card"
+          [attr.data-color]="metric.color"
+          [matTooltip]="metric.description || ''"
+        >
+          <div class="kpi-card__icon">
+            <span class="material-icons">{{ metric.icon }}</span>
+          </div>
+          <div class="kpi-card__content">
+            <span class="kpi-card__value">{{ formatKPIValue(metric) }}</span>
+            <span class="kpi-card__label">{{ metric.label }}</span>
+            @if (metric.change !== undefined) {
+              <span
+                class="kpi-card__change"
+                [class.kpi-card__change--positive]="metric.change > 0"
+                [class.kpi-card__change--negative]="metric.change < 0"
+              >
+                <span class="material-icons">
+                  {{ metric.change > 0 ? 'trending_up' : metric.change < 0 ? 'trending_down' : 'trending_flat' }}
+                </span>
+                {{ metric.change > 0 ? '+' : '' }}{{ metric.change.toFixed(1) }}%
+              </span>
+            }
+          </div>
+        </div>
+      }
+    </section>
+
+    <!-- ===================================================================== -->
+    <!-- USER ACQUISITION CHART -->
+    <!-- ===================================================================== -->
+    <section class="user-analytics__chart">
+      <div class="chart-card">
+        <div class="chart-card__header">
+          <h3>
+            <span class="material-icons">person_add</span>
+            User Acquisition
+          </h3>
+          <div class="chart-legend">
+            <span class="legend-item legend-item--new">
+              <span class="legend-dot"></span>
+              New Users
+            </span>
+            <span class="legend-item legend-item--active">
+              <span class="legend-dot"></span>
+              Active Users
+            </span>
+          </div>
+        </div>
+        <div class="chart-card__body">
+          <div class="line-chart">
+            <div class="line-chart__y-axis">
+              <span>{{ (maxAcquisitionValue() | number:'1.0-0') }}</span>
+              <span>{{ (maxAcquisitionValue() * 0.75 | number:'1.0-0') }}</span>
+              <span>{{ (maxAcquisitionValue() * 0.5 | number:'1.0-0') }}</span>
+              <span>{{ (maxAcquisitionValue() * 0.25 | number:'1.0-0') }}</span>
+              <span>0</span>
+            </div>
+            <div class="line-chart__area">
+              @for (item of acquisitionChartData(); track item.date; let i = $index) {
+                @if (i % Math.ceil(acquisitionChartData().length / 15) === 0 || acquisitionChartData().length <= 15) {
+                  <div
+                    class="line-chart__point-group"
+                    [matTooltip]="formatDate(item.date) + ': ' + item.newUsers + ' new, ' + item.activeUsers + ' active'"
+                  >
+                    <div
+                      class="line-chart__bar line-chart__bar--active"
+                      [style.height]="getBarHeight(item.activeUsers, maxAcquisitionValue())"
+                    ></div>
+                    <div
+                      class="line-chart__bar line-chart__bar--new"
+                      [style.height]="getBarHeight(item.newUsers, maxAcquisitionValue())"
+                    ></div>
+                    <span class="line-chart__label">{{ formatDate(item.date, 'short') }}</span>
+                  </div>
+                }
+              }
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================================================================== -->
+    <!-- ENGAGEMENT & RETENTION ROW -->
+    <!-- ===================================================================== -->
+    <section class="user-analytics__row">
+      <!-- Active Users Engagement -->
+      <div class="chart-card chart-card--half">
+        <div class="chart-card__header">
+          <h3>
+            <span class="material-icons">timeline</span>
+            Active Users
+          </h3>
+          <div class="period-selector">
+            <button
+              class="period-btn"
+              [class.period-btn--active]="engagementView() === 'daily'"
+              (click)="changeEngagementView('daily')"
+            >
+              Daily
+            </button>
+            <button
+              class="period-btn"
+              [class.period-btn--active]="engagementView() === 'weekly'"
+              (click)="changeEngagementView('weekly')"
+            >
+              Weekly
+            </button>
+            <button
+              class="period-btn"
+              [class.period-btn--active]="engagementView() === 'monthly'"
+              (click)="changeEngagementView('monthly')"
+            >
+              Monthly
+            </button>
+          </div>
+        </div>
+        <div class="chart-card__body">
+          <div class="bar-chart bar-chart--engagement">
+            <div class="bar-chart__bars">
+              @for (item of engagementChartData(); track item.label; let i = $index) {
+                @if (i % Math.ceil(engagementChartData().length / 12) === 0 || engagementChartData().length <= 12) {
+                  <div
+                    class="bar-chart__bar-wrapper"
+                    [matTooltip]="item.fullLabel + ': ' + (item.value | number) + ' users'"
+                  >
+                    <div
+                      class="bar-chart__bar"
+                      [style.height]="getBarHeight(item.value, maxEngagementValue())"
+                    ></div>
+                    <span class="bar-chart__label">{{ item.label }}</span>
+                  </div>
+                }
+              }
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Retention Overview -->
+      <div class="chart-card chart-card--half">
+        <div class="chart-card__header">
+          <h3>
+            <span class="material-icons">repeat</span>
+            Retention Overview
+          </h3>
+        </div>
+        <div class="chart-card__body">
+          @if (userRetention()) {
+            <div class="retention-summary">
+              <div class="retention-metric">
+                <span class="retention-metric__value">{{ userRetention()!.overallRetention.week1 }}%</span>
+                <span class="retention-metric__label">Week 1</span>
+              </div>
+              <div class="retention-metric">
+                <span class="retention-metric__value">{{ userRetention()!.overallRetention.week4 }}%</span>
+                <span class="retention-metric__label">Week 4</span>
+              </div>
+              <div class="retention-metric">
+                <span class="retention-metric__value">{{ userRetention()!.overallRetention.week8 }}%</span>
+                <span class="retention-metric__label">Week 8</span>
+              </div>
+              <div class="retention-metric">
+                <span class="retention-metric__value">{{ userRetention()!.overallRetention.week12 }}%</span>
+                <span class="retention-metric__label">Week 12</span>
+              </div>
+            </div>
+
+            <!-- Cohort Table Preview -->
+            <div class="cohort-preview">
+              <h4>Recent Cohorts</h4>
+              <div class="cohort-table">
+                <div class="cohort-row cohort-row--header">
+                  <span class="cohort-cell cohort-cell--date">Cohort</span>
+                  <span class="cohort-cell">Users</span>
+                  <span class="cohort-cell">W1</span>
+                  <span class="cohort-cell">W2</span>
+                  <span class="cohort-cell">W3</span>
+                  <span class="cohort-cell">W4</span>
+                </div>
+                @for (cohort of userRetention()!.cohorts.slice(0, 5); track trackByCohort($index, cohort)) {
+                  <div class="cohort-row">
+                    <span class="cohort-cell cohort-cell--date">{{ formatDate(cohort.cohortDate, 'short') }}</span>
+                    <span class="cohort-cell">{{ cohort.initialUsers }}</span>
+                    @for (retention of cohort.retentionByWeek.slice(0, 4); track $index) {
+                      <span
+                        class="cohort-cell cohort-cell--value"
+                        [class]="getRetentionColor(retention)"
+                      >
+                        {{ retention }}%
+                      </span>
+                    }
+                    @for (empty of [].constructor(4 - cohort.retentionByWeek.slice(0, 4).length); track $index) {
+                      <span class="cohort-cell cohort-cell--empty">-</span>
+                    }
+                  </div>
+                }
+              </div>
+            </div>
+          } @else {
+            <div class="empty-state-small">
+              <span class="material-icons">inbox</span>
+              <p>No retention data available</p>
+            </div>
+          }
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================================================================== -->
+    <!-- DEMOGRAPHICS SECTION -->
+    <!-- ===================================================================== -->
+    <section class="user-analytics__demographics">
+      <!-- Users by Source -->
+      <div class="breakdown-card">
+        <div class="breakdown-card__header">
+          <h3>
+            <span class="material-icons">link</span>
+            Traffic Sources
+          </h3>
+        </div>
+        <div class="breakdown-card__body">
+          @if (userAnalytics() && userAnalytics()!.usersBySource.length > 0) {
+            <div class="breakdown-list">
+              @for (source of userAnalytics()!.usersBySource; track trackBySource($index, source)) {
+                <div class="breakdown-item">
+                  <div class="breakdown-item__info">
+                    <span class="breakdown-item__name">{{ source.source }}</span>
+                  </div>
+                  <div class="breakdown-item__stats">
+                    <span class="breakdown-item__value">{{ source.count | number }}</span>
+                    <span class="breakdown-item__percent">
+                      {{ ((source.count / userAnalytics()!.totalUsers) * 100) | number:'1.1-1' }}%
+                    </span>
+                  </div>
+                  <div class="breakdown-item__bar">
+                    <div
+                      class="breakdown-item__bar-fill breakdown-item__bar-fill--source"
+                      [style.width.%]="(source.count / userAnalytics()!.totalUsers) * 100"
+                    ></div>
+                  </div>
+                </div>
+              }
+            </div>
+          } @else {
+            <div class="empty-state-small">
+              <span class="material-icons">inbox</span>
+              <p>No source data available</p>
+            </div>
+          }
+        </div>
+      </div>
+
+      <!-- Users by Location -->
+      <div class="breakdown-card">
+        <div class="breakdown-card__header">
+          <h3>
+            <span class="material-icons">location_on</span>
+            User Locations
+          </h3>
+        </div>
+        <div class="breakdown-card__body">
+          @if (userAnalytics() && userAnalytics()!.usersByLocation.length > 0) {
+            <div class="breakdown-list">
+              @for (location of userAnalytics()!.usersByLocation; track trackByLocation($index, location)) {
+                <div class="breakdown-item">
+                  <div class="breakdown-item__info">
+                    <span class="breakdown-item__name">{{ location.location }}</span>
+                  </div>
+                  <div class="breakdown-item__stats">
+                    <span class="breakdown-item__value">{{ location.count | number }}</span>
+                    <span class="breakdown-item__percent">
+                      {{ ((location.count / userAnalytics()!.totalUsers) * 100) | number:'1.1-1' }}%
+                    </span>
+                  </div>
+                  <div class="breakdown-item__bar">
+                    <div
+                      class="breakdown-item__bar-fill breakdown-item__bar-fill--location"
+                      [style.width.%]="(location.count / userAnalytics()!.totalUsers) * 100"
+                    ></div>
+                  </div>
+                </div>
+              }
+            </div>
+          } @else {
+            <div class="empty-state-small">
+              <span class="material-icons">inbox</span>
+              <p>No location data available</p>
+            </div>
+          }
+        </div>
+      </div>
+
+      <!-- Engagement Metrics -->
+      <div class="breakdown-card">
+        <div class="breakdown-card__header">
+          <h3>
+            <span class="material-icons">insights</span>
+            Engagement Metrics
+          </h3>
+        </div>
+        <div class="breakdown-card__body">
+          @if (userEngagement()) {
+            <div class="engagement-metrics">
+              <div class="engagement-metric-card">
+                <span class="material-icons">timer</span>
+                <div class="engagement-metric-card__content">
+                  <span class="engagement-metric-card__value">
+                    {{ formatDuration(userEngagement()!.averageSessionDuration) }}
+                  </span>
+                  <span class="engagement-metric-card__label">Avg. Session Duration</span>
+                </div>
+              </div>
+              <div class="engagement-metric-card">
+                <span class="material-icons">description</span>
+                <div class="engagement-metric-card__content">
+                  <span class="engagement-metric-card__value">
+                    {{ userEngagement()!.pagesPerSession | number:'1.1-1' }}
+                  </span>
+                  <span class="engagement-metric-card__label">Pages per Session</span>
+                </div>
+              </div>
+              <div class="engagement-metric-card">
+                <span class="material-icons">exit_to_app</span>
+                <div class="engagement-metric-card__content">
+                  <span class="engagement-metric-card__value">
+                    {{ userEngagement()!.bounceRate | number:'1.1-1' }}%
+                  </span>
+                  <span class="engagement-metric-card__label">Bounce Rate</span>
+                </div>
+              </div>
+            </div>
+          } @else {
+            <div class="empty-state-small">
+              <span class="material-icons">inbox</span>
+              <p>No engagement data available</p>
+            </div>
+          }
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================================================================== -->
+    <!-- QUICK LINKS -->
+    <!-- ===================================================================== -->
+    <section class="user-analytics__quick-links">
+      <a routerLink="/admin/analytics" class="quick-link">
+        <span class="material-icons">analytics</span>
+        <span>Sales Analytics</span>
+      </a>
+      <a routerLink="/admin/analytics/commissions" class="quick-link">
+        <span class="material-icons">monetization_on</span>
+        <span>Commission Reports</span>
+      </a>
+      <a routerLink="/admin/users" class="quick-link">
+        <span class="material-icons">people</span>
+        <span>User Management</span>
+      </a>
+      <a routerLink="/admin/analytics/exports" class="quick-link">
+        <span class="material-icons">cloud_download</span>
+        <span>Export Manager</span>
+      </a>
+    </section>
+  }
+</div>

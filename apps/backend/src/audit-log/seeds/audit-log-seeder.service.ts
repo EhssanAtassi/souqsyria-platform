@@ -96,9 +96,9 @@ export class AuditLogSeederService {
         execution_time_ms: executionTime,
         ...analytics,
       };
-    } catch (error) {
+    } catch (error: unknown) {
       console.error('Audit log seeding failed:', error);
-      throw new Error(`Audit log seeding failed: ${error.message}`);
+      throw new Error(`Audit log seeding failed: ${(error as Error).message}`);
     }
   }
 

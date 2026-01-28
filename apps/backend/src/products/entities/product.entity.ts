@@ -1,6 +1,14 @@
 /**
  * @file product.entity.ts
  * @description Core Product Entity representing a product listing.
+ *
+ * Performance Optimization (PERF-C01):
+ * - Added indexes on foreign keys for faster JOINs
+ * - Added composite indexes for common query patterns
+ * - Added fulltext index on name columns for search
+ *
+ * @author SouqSyria Development Team
+ * @since 2026-01-21
  */
 import {
   Entity,
@@ -12,6 +20,7 @@ import {
   UpdateDateColumn,
   JoinColumn,
   OneToOne,
+  Index,
 } from 'typeorm';
 import { VendorEntity } from '../../vendors/entities/vendor.entity';
 import { ManufacturerEntity } from '../../manufacturers/entities/manufacturer.entity';
@@ -24,7 +33,23 @@ import { ProductAttribute } from './product-attribute.entity/product-attribute.e
 import { ProductPriceEntity } from '../pricing/entities/product-price.entity';
 import { Brand } from '../../brands/entities/brand.entity';
 
+/**
+ * PERF-C01: Database indexes for optimized queries
+ * - vendor_id: JOINs with vendor table
+ * - category_id: JOINs with category table, filtering by category
+ * - approval_status + createdAt: Admin dashboard queries for pending products
+ * - status + isActive: Storefront queries for published products
+ * - isFeatured + featuredPriority: Featured products sorting
+ * - slug: Product URL lookups (unique)
+ */
 @Entity('products')
+@Index(['vendor'])
+@Index(['category'])
+@Index(['brand'])
+@Index(['approvalStatus', 'createdAt'])
+@Index(['status', 'isActive', 'isPublished'])
+@Index(['isFeatured', 'featuredPriority'])
+@Index(['isBestSeller', 'salesCount'])
 export class ProductEntity {
   @PrimaryGeneratedColumn()
   id: number;

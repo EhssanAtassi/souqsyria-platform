@@ -359,10 +359,10 @@ export class CurrencyController {
           reference: item.reference,
           ...result,
         });
-      } catch (error) {
+      } catch (error: unknown) {
         conversions.push({
           reference: item.reference,
-          error: error.message,
+          error: (error as Error).message,
         });
       }
     }

@@ -1,0 +1,509 @@
+<!-- Inventory Manager Template -->
+<!-- Stock tracking and inventory management interface -->
+
+<section class="inventory-manager" aria-label="Inventory management">
+  <!-- Header -->
+  <header class="inventory-manager__header">
+    <div class="inventory-manager__title-section">
+      <nav class="inventory-manager__breadcrumb">
+        <a routerLink="/admin/products" class="inventory-manager__breadcrumb-link">
+          <span class="material-icons">arrow_back</span>
+          Back to Products
+        </a>
+      </nav>
+      <h1 class="inventory-manager__title">Inventory Management</h1>
+      <p class="inventory-manager__subtitle">
+        Track stock levels and manage inventory
+      </p>
+    </div>
+
+    <div class="inventory-manager__actions">
+      <button
+        type="button"
+        class="inventory-manager__action-btn"
+        [matMenuTriggerFor]="exportMenu"
+        matTooltip="Export inventory"
+      >
+        <span class="material-icons">download</span>
+        <span>Export</span>
+      </button>
+
+      <mat-menu #exportMenu="matMenu">
+        <button mat-menu-item (click)="exportInventory('csv')">
+          <span class="material-icons">description</span>
+          <span>Export as CSV</span>
+        </button>
+        <button mat-menu-item (click)="exportInventory('xlsx')">
+          <span class="material-icons">table_chart</span>
+          <span>Export as Excel</span>
+        </button>
+      </mat-menu>
+
+      <button
+        type="button"
+        class="inventory-manager__action-btn"
+        (click)="refresh()"
+        matTooltip="Refresh"
+      >
+        <span class="material-icons">refresh</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Statistics Cards -->
+  <div class="inventory-manager__stats">
+    <div class="inventory-manager__stat-card">
+      <span class="material-icons inventory-manager__stat-icon">inventory_2</span>
+      <div class="inventory-manager__stat-content">
+        <span class="inventory-manager__stat-value">{{ stats().totalItems }}</span>
+        <span class="inventory-manager__stat-label">Total Products</span>
+      </div>
+    </div>
+
+    <div
+      class="inventory-manager__stat-card inventory-manager__stat-card--danger"
+      (click)="applyStockFilter('out_of_stock')"
+    >
+      <span class="material-icons inventory-manager__stat-icon">error</span>
+      <div class="inventory-manager__stat-content">
+        <span class="inventory-manager__stat-value">{{ stats().outOfStock }}</span>
+        <span class="inventory-manager__stat-label">Out of Stock</span>
+      </div>
+    </div>
+
+    <div
+      class="inventory-manager__stat-card inventory-manager__stat-card--warning"
+      (click)="applyStockFilter('low_stock')"
+    >
+      <span class="material-icons inventory-manager__stat-icon">warning</span>
+      <div class="inventory-manager__stat-content">
+        <span class="inventory-manager__stat-value">{{ stats().lowStock }}</span>
+        <span class="inventory-manager__stat-label">Low Stock</span>
+      </div>
+    </div>
+
+    <div
+      class="inventory-manager__stat-card inventory-manager__stat-card--info"
+      (click)="applyStockFilter('overstock')"
+    >
+      <span class="material-icons inventory-manager__stat-icon">trending_up</span>
+      <div class="inventory-manager__stat-content">
+        <span class="inventory-manager__stat-value">{{ stats().overstock }}</span>
+        <span class="inventory-manager__stat-label">Overstock</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Low Stock Alert -->
+  <div class="inventory-manager__alert" *ngIf="lowStockItems().length > 0">
+    <div class="inventory-manager__alert-header">
+      <span class="material-icons">notifications_active</span>
+      <strong>Low Stock Alert</strong>
+      <span>{{ lowStockItems().length }} products need attention</span>
+    </div>
+    <div class="inventory-manager__alert-items">
+      <span
+        *ngFor="let item of lowStockItems()"
+        class="inventory-manager__alert-item"
+        (click)="openAdjustDialog(item)"
+      >
+        {{ item.productName }} ({{ item.currentStock }} left)
+      </span>
+    </div>
+  </div>
+
+  <!-- Toolbar -->
+  <div class="inventory-manager__toolbar">
+    <!-- Search -->
+    <div class="inventory-manager__search">
+      <span class="material-icons inventory-manager__search-icon">search</span>
+      <input
+        type="text"
+        class="inventory-manager__search-input"
+        placeholder="Search by product name or SKU..."
+        [value]="searchTerm()"
+        (input)="onSearch($event)"
+      />
+      <button
+        *ngIf="searchTerm()"
+        type="button"
+        class="inventory-manager__search-clear"
+        (click)="clearSearch()"
+      >
+        <span class="material-icons">close</span>
+      </button>
+    </div>
+
+    <!-- Stock Filter -->
+    <div class="inventory-manager__filter">
+      <select
+        class="inventory-manager__select"
+        [value]="stockFilter()"
+        (change)="applyStockFilter($any($event.target).value)"
+      >
+        <option value="all">All Stock Levels</option>
+        <option value="in_stock">In Stock</option>
+        <option value="low_stock">Low Stock</option>
+        <option value="out_of_stock">Out of Stock</option>
+        <option value="overstock">Overstock</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Bulk Actions Bar -->
+  <div class="inventory-manager__bulk-bar" *ngIf="showBulkActions()">
+    <div class="inventory-manager__bulk-info">
+      <input
+        type="checkbox"
+        [checked]="allSelected()"
+        (change)="toggleSelectAll()"
+        aria-label="Select all"
+      />
+      <span>{{ selectedCount() }} selected</span>
+    </div>
+
+    <div class="inventory-manager__bulk-actions">
+      <button
+        type="button"
+        class="inventory-manager__bulk-btn"
+        [matMenuTriggerFor]="bulkAdjustMenu"
+      >
+        <span class="material-icons">tune</span>
+        Adjust Stock
+      </button>
+
+      <mat-menu #bulkAdjustMenu="matMenu">
+        <button mat-menu-item (click)="bulkAdjustStock('add', 10)">
+          <span class="material-icons">add</span>
+          <span>Add 10 units</span>
+        </button>
+        <button mat-menu-item (click)="bulkAdjustStock('add', 50)">
+          <span class="material-icons">add</span>
+          <span>Add 50 units</span>
+        </button>
+        <button mat-menu-item (click)="bulkAdjustStock('remove', 10)">
+          <span class="material-icons">remove</span>
+          <span>Remove 10 units</span>
+        </button>
+      </mat-menu>
+
+      <button
+        type="button"
+        class="inventory-manager__bulk-btn"
+        (click)="clearSelection()"
+      >
+        <span class="material-icons">close</span>
+        Clear
+      </button>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="isLoading()" class="inventory-manager__loading">
+    <span class="material-icons animate-spin">sync</span>
+    <p>Loading inventory...</p>
+  </div>
+
+  <!-- Inventory Table -->
+  <div class="inventory-manager__table-wrapper" *ngIf="!isLoading()">
+    <table class="inventory-manager__table" *ngIf="inventoryItems().length > 0">
+      <thead>
+        <tr>
+          <th class="inventory-manager__th inventory-manager__th--checkbox">
+            <input
+              type="checkbox"
+              [checked]="allSelected()"
+              (change)="toggleSelectAll()"
+              aria-label="Select all"
+            />
+          </th>
+          <th class="inventory-manager__th inventory-manager__th--product">Product</th>
+          <th
+            class="inventory-manager__th inventory-manager__th--sortable"
+            (click)="sortBy('currentStock')"
+          >
+            Stock
+            <span *ngIf="getSortIndicator('currentStock')" class="material-icons">
+              {{ getSortIndicator('currentStock') }}
+            </span>
+          </th>
+          <th class="inventory-manager__th">Reserved</th>
+          <th class="inventory-manager__th">Available</th>
+          <th
+            class="inventory-manager__th inventory-manager__th--sortable"
+            (click)="sortBy('minStockLevel')"
+          >
+            Min Level
+            <span *ngIf="getSortIndicator('minStockLevel')" class="material-icons">
+              {{ getSortIndicator('minStockLevel') }}
+            </span>
+          </th>
+          <th class="inventory-manager__th">Status</th>
+          <th
+            class="inventory-manager__th inventory-manager__th--sortable"
+            (click)="sortBy('lastUpdated')"
+          >
+            Last Updated
+            <span *ngIf="getSortIndicator('lastUpdated')" class="material-icons">
+              {{ getSortIndicator('lastUpdated') }}
+            </span>
+          </th>
+          <th class="inventory-manager__th inventory-manager__th--actions">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr
+          *ngFor="let item of inventoryItems(); trackBy: trackByItemId"
+          class="inventory-manager__tr"
+          [class.inventory-manager__tr--selected]="isSelected(item.id)"
+          [class.inventory-manager__tr--danger]="item.stockStatus === 'out_of_stock'"
+          [class.inventory-manager__tr--warning]="item.stockStatus === 'low_stock'"
+        >
+          <td class="inventory-manager__td">
+            <input
+              type="checkbox"
+              [checked]="isSelected(item.id)"
+              (change)="toggleSelection(item.id)"
+              aria-label="Select item"
+            />
+          </td>
+
+          <td class="inventory-manager__td inventory-manager__td--product">
+            <div class="inventory-manager__product">
+              <div class="inventory-manager__product-image">
+                <img
+                  *ngIf="item.thumbnail"
+                  [src]="item.thumbnail"
+                  [alt]="item.productName"
+                />
+                <span *ngIf="!item.thumbnail" class="material-icons">image</span>
+              </div>
+              <div class="inventory-manager__product-info">
+                <span
+                  class="inventory-manager__product-name"
+                  (click)="viewProduct(item.productId)"
+                >
+                  {{ item.productName }}
+                </span>
+                <span class="inventory-manager__product-meta">
+                  <code>{{ item.sku }}</code>
+                  <span class="inventory-manager__product-vendor">{{ item.vendorName }}</span>
+                </span>
+              </div>
+            </div>
+          </td>
+
+          <td class="inventory-manager__td inventory-manager__td--stock">
+            <span
+              class="inventory-manager__stock-value"
+              [attr.data-status]="getStockStatusClass(item.stockStatus)"
+            >
+              {{ item.currentStock }}
+            </span>
+          </td>
+
+          <td class="inventory-manager__td">
+            <span class="inventory-manager__reserved">{{ item.reservedStock }}</span>
+          </td>
+
+          <td class="inventory-manager__td">
+            <span
+              class="inventory-manager__available"
+              [class.inventory-manager__available--low]="item.availableStock < item.minStockLevel"
+            >
+              {{ item.availableStock }}
+            </span>
+          </td>
+
+          <td class="inventory-manager__td">
+            <span class="inventory-manager__min-level">
+              {{ item.minStockLevel }}
+            </span>
+          </td>
+
+          <td class="inventory-manager__td">
+            <span
+              class="inventory-manager__status-badge"
+              [attr.data-status]="getStockStatusClass(item.stockStatus)"
+            >
+              {{ getStockStatusLabel(item.stockStatus) }}
+            </span>
+          </td>
+
+          <td class="inventory-manager__td inventory-manager__td--date">
+            {{ formatDate(item.lastUpdated) }}
+          </td>
+
+          <td class="inventory-manager__td inventory-manager__td--actions">
+            <button
+              type="button"
+              class="inventory-manager__row-action"
+              matTooltip="Adjust stock"
+              (click)="openAdjustDialog(item)"
+            >
+              <span class="material-icons">edit</span>
+            </button>
+            <button
+              type="button"
+              class="inventory-manager__row-action"
+              matTooltip="View product"
+              (click)="viewProduct(item.productId)"
+            >
+              <span class="material-icons">visibility</span>
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- Empty State -->
+    <div *ngIf="inventoryItems().length === 0" class="inventory-manager__empty">
+      <span class="material-icons">inventory</span>
+      <h3>No Inventory Items</h3>
+      <p *ngIf="searchTerm()">No items match "{{ searchTerm() }}"</p>
+      <p *ngIf="!searchTerm()">No inventory data available</p>
+    </div>
+  </div>
+
+  <!-- Pagination -->
+  <footer
+    class="inventory-manager__pagination"
+    *ngIf="!isLoading() && inventoryItems().length > 0"
+  >
+    <span class="inventory-manager__page-info">{{ paginationText() }}</span>
+
+    <div class="inventory-manager__page-controls">
+      <button
+        type="button"
+        class="inventory-manager__page-btn"
+        [disabled]="pagination().page === 1"
+        (click)="previousPage()"
+        aria-label="Previous page"
+      >
+        <span class="material-icons">chevron_left</span>
+      </button>
+      <button
+        type="button"
+        class="inventory-manager__page-btn"
+        [disabled]="pagination().page >= pagination().totalPages"
+        (click)="nextPage()"
+        aria-label="Next page"
+      >
+        <span class="material-icons">chevron_right</span>
+      </button>
+    </div>
+  </footer>
+</section>
+
+<!-- Stock Adjustment Dialog -->
+<div
+  class="adjust-dialog-overlay"
+  *ngIf="showAdjustDialog()"
+  (click)="closeAdjustDialog()"
+>
+  <div class="adjust-dialog" (click)="$event.stopPropagation()">
+    <header class="adjust-dialog__header">
+      <h2 class="adjust-dialog__title">Adjust Stock</h2>
+      <p class="adjust-dialog__product">{{ adjustingItem()?.productName }}</p>
+    </header>
+
+    <div class="adjust-dialog__content">
+      <div class="adjust-dialog__current">
+        <span class="adjust-dialog__current-label">Current Stock</span>
+        <span class="adjust-dialog__current-value">{{ adjustingItem()?.currentStock }}</span>
+      </div>
+
+      <div class="adjust-dialog__type">
+        <label class="adjust-dialog__type-label">Adjustment Type</label>
+        <div class="adjust-dialog__type-options">
+          <label class="adjust-dialog__type-option">
+            <input
+              type="radio"
+              name="adjustType"
+              value="add"
+              [(ngModel)]="adjustmentType"
+            />
+            <span class="material-icons">add</span>
+            Add
+          </label>
+          <label class="adjust-dialog__type-option">
+            <input
+              type="radio"
+              name="adjustType"
+              value="remove"
+              [(ngModel)]="adjustmentType"
+            />
+            <span class="material-icons">remove</span>
+            Remove
+          </label>
+          <label class="adjust-dialog__type-option">
+            <input
+              type="radio"
+              name="adjustType"
+              value="set"
+              [(ngModel)]="adjustmentType"
+            />
+            <span class="material-icons">edit</span>
+            Set To
+          </label>
+        </div>
+      </div>
+
+      <div class="adjust-dialog__quantity">
+        <label class="adjust-dialog__label">Quantity</label>
+        <input
+          type="number"
+          class="adjust-dialog__input"
+          [(ngModel)]="adjustmentQuantity"
+          min="0"
+          placeholder="Enter quantity"
+        />
+      </div>
+
+      <div class="adjust-dialog__reason">
+        <label class="adjust-dialog__label">Reason (optional)</label>
+        <textarea
+          class="adjust-dialog__textarea"
+          [(ngModel)]="adjustmentReason"
+          rows="2"
+          placeholder="Reason for adjustment..."
+        ></textarea>
+      </div>
+
+      <div class="adjust-dialog__preview">
+        <span class="adjust-dialog__preview-label">New Stock Level</span>
+        <span class="adjust-dialog__preview-value">
+          <ng-container [ngSwitch]="adjustmentType">
+            <ng-container *ngSwitchCase="'add'">
+              {{ (adjustingItem()?.currentStock || 0) + adjustmentQuantity }}
+            </ng-container>
+            <ng-container *ngSwitchCase="'remove'">
+              {{ Math.max(0, (adjustingItem()?.currentStock || 0) - adjustmentQuantity) }}
+            </ng-container>
+            <ng-container *ngSwitchCase="'set'">
+              {{ adjustmentQuantity }}
+            </ng-container>
+          </ng-container>
+        </span>
+      </div>
+    </div>
+
+    <footer class="adjust-dialog__actions">
+      <button
+        type="button"
+        class="adjust-dialog__btn adjust-dialog__btn--cancel"
+        (click)="closeAdjustDialog()"
+      >
+        Cancel
+      </button>
+      <button
+        type="button"
+        class="adjust-dialog__btn adjust-dialog__btn--submit"
+        (click)="submitAdjustment()"
+        [disabled]="adjustmentQuantity <= 0"
+      >
+        Update Stock
+      </button>
+    </footer>
+  </div>
+</div>

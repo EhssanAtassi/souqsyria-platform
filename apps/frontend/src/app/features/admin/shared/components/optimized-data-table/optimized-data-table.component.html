@@ -1,0 +1,338 @@
+<!-- Optimized Data Table Template -->
+<div 
+  #tableContainer
+  class="optimized-table-container"
+  [class.compact]="compact()"
+  [class.loading]="loading()"
+  [ngStyle]="{ height: shouldUseVirtualScroll() ? tableHeight() : 'auto' }"
+>
+  <!-- Performance Debug Info (Development Only) -->
+  @if (!shouldUseVirtualScroll() && renderedData().length !== data().length) {
+    <div class="table-performance-notice">
+      <span class="notice-icon">⚡</span>
+      Showing {{ renderedData().length }} of {{ data().length }} items for optimal performance.
+    </div>
+  }
+
+  <!-- Table Header -->
+  @if (showHeader()) {
+    <div class="table-header" [class.sticky]="shouldUseVirtualScroll()">
+      <div class="table-row header-row">
+        <!-- Selection Header -->
+        @if (selectable() && multiSelect()) {
+          <div class="table-cell checkbox-cell">
+            <input
+              type="checkbox"
+              class="table-checkbox header-checkbox"
+              [checked]="allVisibleSelected()"
+              [indeterminate]="someVisibleSelected()"
+              (change)="toggleAllVisibleSelection()"
+              [attr.aria-label]="allVisibleSelected() ? 'Deselect all visible' : 'Select all visible'"
+            />
+          </div>
+        }
+
+        <!-- Column Headers -->
+        @for (column of visibleColumns(); track trackByColumn($index, column)) {
+          <div
+            class="table-cell header-cell"
+            [class.sortable]="column.sortable"
+            [class.sorted]="isColumnSorted(column)"
+            [class.align-center]="column.align === 'center'"
+            [class.align-right]="column.align === 'right'"
+            [style.width]="column.width"
+            [style.min-width]="column.minWidth"
+            [attr.title]="column.headerTooltip"
+            (click)="column.sortable ? onSortClick(column) : null"
+            [attr.aria-sort]="isColumnSorted(column) ? sortState()?.direction : 'none'"
+          >
+            <div class="header-content">
+              <span class="header-text">{{ column.header }}</span>
+              @if (column.sortable) {
+                <span class="sort-icon material-icons" [attr.aria-hidden]="true">
+                  {{ getSortIcon(column) }}
+                </span>
+              }
+            </div>
+          </div>
+        }
+
+        <!-- Actions Header -->
+        @if (actions().length > 0) {
+          <div class="table-cell actions-cell header-cell">
+            <span class="header-text">Actions</span>
+          </div>
+        }
+      </div>
+    </div>
+  }
+
+  <!-- Table Body with Virtual Scrolling -->
+  @if (shouldUseVirtualScroll()) {
+    <cdk-virtual-scroll-viewport
+      class="virtual-scroll-viewport"
+      [itemSize]="itemHeight()"
+      [minBufferPx]="effectiveConfig().virtualScroll.bufferSize * itemHeight()"
+      [maxBufferPx]="effectiveConfig().virtualScroll.bufferSize * itemHeight() * 2"
+    >
+      <!-- Loading State -->
+      @if (loading()) {
+        @for (skeletonIndex of getSkeletonRows(); track skeletonIndex) {
+          <div class="table-row skeleton-row" [style.height.px]="itemHeight()">
+            @if (selectable()) {
+              <div class="table-cell checkbox-cell">
+                <div class="skeleton skeleton-checkbox"></div>
+              </div>
+            }
+            @for (column of visibleColumns(); track trackByColumn($index, column)) {
+              <div 
+                class="table-cell"
+                [class.align-center]="column.align === 'center'"
+                [class.align-right]="column.align === 'right'"
+                [style.width]="column.width"
+              >
+                <div class="skeleton skeleton-text"></div>
+              </div>
+            }
+            @if (actions().length > 0) {
+              <div class="table-cell actions-cell">
+                <div class="skeleton skeleton-button"></div>
+              </div>
+            }
+          </div>
+        }
+      } @else {
+        <!-- Data Rows -->
+        @for (row of data(); track trackByRow($index, row); let i = $index) {
+          <div
+            class="table-row data-row"
+            [class.selected]="isSelected(row)"
+            [class.clickable]="clickable()"
+            [style.height.px]="itemHeight()"
+            (click)="onRowClick(row, i, $event)"
+            [attr.aria-selected]="selectable() ? isSelected(row) : null"
+            [attr.tabindex]="clickable() ? '0' : null"
+          >
+            <!-- Selection Checkbox -->
+            @if (selectable()) {
+              <div class="table-cell checkbox-cell">
+                <input
+                  type="checkbox"
+                  class="table-checkbox row-checkbox"
+                  [checked]="isSelected(row)"
+                  (change)="toggleRowSelection(row)"
+                  [attr.aria-label]="'Select row ' + (i + 1)"
+                  (click)="$event.stopPropagation()"
+                />
+              </div>
+            }
+
+            <!-- Data Cells -->
+            @for (column of visibleColumns(); track trackByColumn($index, column)) {
+              <div
+                class="table-cell data-cell"
+                [class.align-center]="column.align === 'center'"
+                [class.align-right]="column.align === 'right'"
+                [class.nowrap]="column.nowrap"
+                [style.width]="column.width"
+                [style.min-width]="column.minWidth"
+              >
+                @switch (column.type) {
+                  @case ('custom') {
+                    @if (column.template === 'status' && statusCellTemplate) {
+                      <ng-container [ngTemplateOutlet]="statusCellTemplate" [ngTemplateOutletContext]="{ $implicit: row, value: getCellValue(row, column) }"></ng-container>
+                    } @else if (customCellTemplate) {
+                      <ng-container [ngTemplateOutlet]="customCellTemplate" [ngTemplateOutletContext]="{ $implicit: row, column: column, value: getCellValue(row, column) }"></ng-container>
+                    } @else {
+                      <span class="cell-content">{{ formatCellValue(getCellValue(row, column), column) }}</span>
+                    }
+                  }
+                  @default {
+                    <span class="cell-content" [attr.title]="formatCellValue(getCellValue(row, column), column)">
+                      {{ formatCellValue(getCellValue(row, column), column) }}
+                    </span>
+                  }
+                }
+              </div>
+            }
+
+            <!-- Action Buttons -->
+            @if (actions().length > 0) {
+              <div class="table-cell actions-cell">
+                <div class="action-buttons">
+                  @for (action of actions(); track action.key) {
+                    @if (isActionVisible(action, row)) {
+                      <button
+                        type="button"
+                        class="action-button"
+                        [class]="'btn-' + (action.variant || 'default')"
+                        [disabled]="isActionDisabled(action, row)"
+                        [attr.title]="action.tooltip || action.label"
+                        (click)="onRowAction(action, row, i, $event)"
+                      >
+                        @if (action.icon) {
+                          <span class="material-icons" [attr.aria-hidden]="true">{{ action.icon }}</span>
+                        }
+                        @if (!action.icon) {
+                          <span>{{ action.label }}</span>
+                        }
+                      </button>
+                    }
+                  }
+                </div>
+              </div>
+            }
+          </div>
+        }
+      }
+    </cdk-virtual-scroll-viewport>
+  } @else {
+    <!-- Regular Table Body (Non-Virtual) -->
+    <div class="table-body">
+      <!-- Loading State -->
+      @if (loading()) {
+        @for (skeletonIndex of getSkeletonRows(); track skeletonIndex) {
+          <div class="table-row skeleton-row">
+            @if (selectable()) {
+              <div class="table-cell checkbox-cell">
+                <div class="skeleton skeleton-checkbox"></div>
+              </div>
+            }
+            @for (column of visibleColumns(); track trackByColumn($index, column)) {
+              <div 
+                class="table-cell"
+                [class.align-center]="column.align === 'center'"
+                [class.align-right]="column.align === 'right'"
+                [style.width]="column.width"
+              >
+                <div class="skeleton skeleton-text"></div>
+              </div>
+            }
+            @if (actions().length > 0) {
+              <div class="table-cell actions-cell">
+                <div class="skeleton skeleton-button"></div>
+              </div>
+            }
+          </div>
+        }
+      } @else {
+        <!-- Data Rows -->
+        @for (row of renderedData(); track trackByRow($index, row); let i = $index) {
+          <div
+            class="table-row data-row"
+            [class.selected]="isSelected(row)"
+            [class.clickable]="clickable()"
+            (click)="onRowClick(row, i, $event)"
+            [attr.aria-selected]="selectable() ? isSelected(row) : null"
+            [attr.tabindex]="clickable() ? '0' : null"
+          >
+            <!-- Selection Checkbox -->
+            @if (selectable()) {
+              <div class="table-cell checkbox-cell">
+                <input
+                  type="checkbox"
+                  class="table-checkbox row-checkbox"
+                  [checked]="isSelected(row)"
+                  (change)="toggleRowSelection(row)"
+                  [attr.aria-label]="'Select row ' + (i + 1)"
+                  (click)="$event.stopPropagation()"
+                />
+              </div>
+            }
+
+            <!-- Data Cells -->
+            @for (column of visibleColumns(); track trackByColumn($index, column)) {
+              <div
+                class="table-cell data-cell"
+                [class.align-center]="column.align === 'center'"
+                [class.align-right]="column.align === 'right'"
+                [class.nowrap]="column.nowrap"
+                [style.width]="column.width"
+                [style.min-width]="column.minWidth"
+              >
+                @switch (column.type) {
+                  @case ('custom') {
+                    @if (column.template === 'status' && statusCellTemplate) {
+                      <ng-container [ngTemplateOutlet]="statusCellTemplate" [ngTemplateOutletContext]="{ $implicit: row, value: getCellValue(row, column) }"></ng-container>
+                    } @else if (customCellTemplate) {
+                      <ng-container [ngTemplateOutlet]="customCellTemplate" [ngTemplateOutletContext]="{ $implicit: row, column: column, value: getCellValue(row, column) }"></ng-container>
+                    } @else {
+                      <span class="cell-content">{{ formatCellValue(getCellValue(row, column), column) }}</span>
+                    }
+                  }
+                  @default {
+                    <span class="cell-content" [attr.title]="formatCellValue(getCellValue(row, column), column)">
+                      {{ formatCellValue(getCellValue(row, column), column) }}
+                    </span>
+                  }
+                }
+              </div>
+            }
+
+            <!-- Action Buttons -->
+            @if (actions().length > 0) {
+              <div class="table-cell actions-cell">
+                <div class="action-buttons">
+                  @for (action of actions(); track action.key) {
+                    @if (isActionVisible(action, row)) {
+                      <button
+                        type="button"
+                        class="action-button"
+                        [class]="'btn-' + (action.variant || 'default')"
+                        [disabled]="isActionDisabled(action, row)"
+                        [attr.title]="action.tooltip || action.label"
+                        (click)="onRowAction(action, row, i, $event)"
+                      >
+                        @if (action.icon) {
+                          <span class="material-icons" [attr.aria-hidden]="true">{{ action.icon }}</span>
+                        }
+                        @if (!action.icon) {
+                          <span>{{ action.label }}</span>
+                        }
+                      </button>
+                    }
+                  }
+                </div>
+              </div>
+            }
+          </div>
+        }
+
+        <!-- Truncation Notice -->
+        @if (renderedData().length < data().length) {
+          <div class="table-truncation-notice">
+            <div class="notice-content">
+              <span class="material-icons">info</span>
+              <span class="notice-text">
+                Showing {{ renderedData().length }} of {{ data().length }} items.
+                Use pagination or search to view more.
+              </span>
+            </div>
+          </div>
+        }
+      }
+
+      <!-- Empty State -->
+      @if (!loading() && renderedData().length === 0) {
+        <div class="table-empty-state">
+          <div class="empty-content">
+            <span class="material-icons empty-icon">{{ data().length === 0 ? 'inbox' : 'search_off' }}</span>
+            <p class="empty-message">
+              {{ data().length === 0 ? 'No data available' : 'No items match current filters' }}
+            </p>
+          </div>
+        </div>
+      }
+    </div>
+  }
+
+  <!-- Performance Metrics (Development Only) -->
+  @if (false) { <!-- Set to true for development debugging -->
+    <div class="performance-metrics">
+      <details>
+        <summary>Performance Metrics</summary>
+        <pre>{{ getPerformanceReport() }}</pre>
+      </details>
+    </div>
+  }
+</div>

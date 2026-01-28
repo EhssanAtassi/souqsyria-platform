@@ -40,6 +40,12 @@ export class StockService {
     private readonly warehouseRepo: Repository<Warehouse>,
   ) {}
 
+  /**
+   * Get stock quantity for a single variant
+   * @param variantId - The variant ID to check
+   * @param warehouseId - Optional warehouse ID to check specific warehouse
+   * @returns Stock quantity (0 if not found)
+   */
   async getStock(variantId: number, warehouseId?: number) {
     if (warehouseId) {
       const record = await this.stockRepo.findOne({
@@ -56,6 +62,47 @@ export class StockService {
       .getRawOne();
 
     return Number(sum.total || 0);
+  }
+
+  /**
+   * PERF-C02: Batch stock fetching to eliminate N+1 queries
+   * Fetches stock for multiple variants in a single database query
+   *
+   * @param variantIds - Array of variant IDs to check
+   * @returns Map of variant ID to total stock quantity
+   *
+   * @example
+   * const stockMap = await stockService.getStockBatch([1, 2, 3]);
+   * // Returns: Map { 1 => 50, 2 => 30, 3 => 0 }
+   */
+  async getStockBatch(variantIds: number[]): Promise<Map<number, number>> {
+    if (!variantIds || variantIds.length === 0) {
+      return new Map();
+    }
+
+    // Single query to get aggregated stock for all variants
+    const results = await this.stockRepo
+      .createQueryBuilder('stock')
+      .select('stock.variant_id', 'variantId')
+      .addSelect('SUM(stock.quantity)', 'total')
+      .where('stock.variant_id IN (:...variantIds)', { variantIds })
+      .groupBy('stock.variant_id')
+      .getRawMany<{ variantId: number; total: string }>();
+
+    // Build map with all requested variant IDs (default 0 for missing)
+    const stockMap = new Map<number, number>();
+    variantIds.forEach((id) => stockMap.set(id, 0));
+
+    // Populate with actual stock values
+    results.forEach((row) => {
+      stockMap.set(Number(row.variantId), Number(row.total || 0));
+    });
+
+    this.logger.debug(
+      `Batch fetched stock for ${variantIds.length} variants in single query`,
+    );
+
+    return stockMap;
   }
 
   async adjustStock(

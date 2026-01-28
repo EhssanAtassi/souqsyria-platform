@@ -403,10 +403,10 @@ export class CouponSeederService {
           `${results.seasonalCouponsCreated} seasonal, ${results.categorySpecificCreated} category, ` +
           `${results.userTierCouponsCreated} tier-specific coupons created`,
       );
-    } catch (error) {
+    } catch (error: unknown) {
       this.logger.error('❌ Coupon seeding failed:', error);
       results.success = false;
-      results.errors.push(error.message);
+      results.errors.push((error as Error).message);
     }
 
     return results;
@@ -456,8 +456,8 @@ export class CouponSeederService {
             `📝 General coupon ${couponData.code} already exists`,
           );
         }
-      } catch (error) {
-        const errorMsg = `Failed to seed general coupon ${couponData.code}: ${error.message}`;
+      } catch (error: unknown) {
+        const errorMsg = `Failed to seed general coupon ${couponData.code}: ${(error as Error).message}`;
         this.logger.error(errorMsg);
         results.errors.push(errorMsg);
         results.success = false;
@@ -512,8 +512,8 @@ export class CouponSeederService {
             `📝 Seasonal coupon ${couponData.code} already exists`,
           );
         }
-      } catch (error) {
-        const errorMsg = `Failed to seed seasonal coupon ${couponData.code}: ${error.message}`;
+      } catch (error: unknown) {
+        const errorMsg = `Failed to seed seasonal coupon ${couponData.code}: ${(error as Error).message}`;
         this.logger.error(errorMsg);
         results.errors.push(errorMsg);
         results.success = false;
@@ -583,8 +583,8 @@ export class CouponSeederService {
             `📝 Category coupon ${couponData.code} already exists`,
           );
         }
-      } catch (error) {
-        const errorMsg = `Failed to seed category coupon ${couponData.code}: ${error.message}`;
+      } catch (error: unknown) {
+        const errorMsg = `Failed to seed category coupon ${couponData.code}: ${(error as Error).message}`;
         this.logger.error(errorMsg);
         results.errors.push(errorMsg);
         results.success = false;
@@ -636,8 +636,8 @@ export class CouponSeederService {
         } else {
           this.logger.log(`📝 Tier coupon ${couponData.code} already exists`);
         }
-      } catch (error) {
-        const errorMsg = `Failed to seed tier coupon ${couponData.code}: ${error.message}`;
+      } catch (error: unknown) {
+        const errorMsg = `Failed to seed tier coupon ${couponData.code}: ${(error as Error).message}`;
         this.logger.error(errorMsg);
         results.errors.push(errorMsg);
         results.success = false;
@@ -664,7 +664,7 @@ export class CouponSeederService {
         success: true,
         deleted: totalDeleted,
       };
-    } catch (error) {
+    } catch (error: unknown) {
       this.logger.error('❌ Cleanup failed:', error);
       return {
         success: false,

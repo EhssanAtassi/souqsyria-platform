@@ -172,10 +172,10 @@ export class CategoriesService {
       );
 
       return await this.findById(savedCategory.id, 'en');
-    } catch (error) {
+    } catch (error: unknown) {
       this.logger.error(
-        `❌ Failed to create category: ${error.message}`,
-        error.stack,
+        `❌ Failed to create category: ${(error as Error).message}`,
+        (error as Error).stack,
       );
 
       if (
@@ -225,7 +225,7 @@ export class CategoriesService {
       );
 
       return this.transformToResponseDto(category, language, breadcrumbs);
-    } catch (error) {
+    } catch (error: unknown) {
       if (
         error instanceof NotFoundException ||
         error instanceof BadRequestException
@@ -233,7 +233,7 @@ export class CategoriesService {
         throw error;
       }
 
-      this.logger.error(`❌ Failed to find category ${id}: ${error.message}`);
+      this.logger.error(`❌ Failed to find category ${id}: ${(error as Error).message}`);
       throw new InternalServerErrorException(`Failed to find category ${id}`);
     }
   }
@@ -332,7 +332,7 @@ export class CategoriesService {
       this.logger.log(`✅ Category updated: ID ${id} (${processingTime}ms)`);
 
       return await this.findById(id, 'en');
-    } catch (error) {
+    } catch (error: unknown) {
       if (
         error instanceof NotFoundException ||
         error instanceof BadRequestException ||
@@ -341,7 +341,7 @@ export class CategoriesService {
         throw error;
       }
 
-      this.logger.error(`❌ Failed to update category ${id}: ${error.message}`);
+      this.logger.error(`❌ Failed to update category ${id}: ${(error as Error).message}`);
       throw new InternalServerErrorException(`Failed to update category ${id}`);
     }
   }
@@ -402,7 +402,7 @@ export class CategoriesService {
         success: true,
         message: `Category "${category.nameEn}" deleted successfully`,
       };
-    } catch (error) {
+    } catch (error: unknown) {
       if (
         error instanceof NotFoundException ||
         error instanceof BadRequestException
@@ -410,7 +410,7 @@ export class CategoriesService {
         throw error;
       }
 
-      this.logger.error(`❌ Failed to delete category ${id}: ${error.message}`);
+      this.logger.error(`❌ Failed to delete category ${id}: ${(error as Error).message}`);
       throw new InternalServerErrorException(`Failed to delete category ${id}`);
     }
   }
@@ -445,9 +445,9 @@ export class CategoriesService {
       });
 
       return await this.findById(id, 'en');
-    } catch (error) {
+    } catch (error: unknown) {
       this.logger.error(
-        `❌ Failed to restore category ${id}: ${error.message}`,
+        `❌ Failed to restore category ${id}: ${(error as Error).message}`,
       );
       throw new InternalServerErrorException(
         `Failed to restore category ${id}`,

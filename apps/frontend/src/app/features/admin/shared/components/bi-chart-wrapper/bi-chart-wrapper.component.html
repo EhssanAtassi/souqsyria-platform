@@ -1,0 +1,134 @@
+<!--
+  BI Chart Wrapper Template
+  @description Provides consistent wrapper for all BI charts with header, loading state, and actions
+-->
+
+<div [ngClass]="containerClasses()" (click)="closeExportMenu()">
+  <!-- Chart Header -->
+  <header class="bi-chart__header">
+    <div class="bi-chart__header-left">
+      <!-- Title -->
+      <h3 class="bi-chart__title">
+        {{ title() }}
+        @if (infoTooltip()) {
+          <span class="bi-chart__info-icon" [title]="infoTooltip()">
+            <span class="material-icons">info_outline</span>
+          </span>
+        }
+      </h3>
+
+      <!-- Subtitle -->
+      @if (subtitle()) {
+        <p class="bi-chart__subtitle">{{ subtitle() }}</p>
+      }
+
+      <!-- Date Range -->
+      @if (showDateRange() && dateRangeText()) {
+        <span class="bi-chart__date-range">
+          <span class="material-icons">date_range</span>
+          {{ dateRangeText() }}
+        </span>
+      }
+    </div>
+
+    <div class="bi-chart__header-right">
+      <!-- Custom Header Actions -->
+      @if (headerActionsTemplate) {
+        <ng-container *ngTemplateOutlet="headerActionsTemplate" />
+      }
+
+      <!-- Refresh Button -->
+      <button
+        type="button"
+        class="bi-chart__action-btn"
+        title="Refresh data"
+        (click)="onRefresh(); $event.stopPropagation()"
+      >
+        <span class="material-icons" [class.spinning]="loading()">refresh</span>
+      </button>
+
+      <!-- Export Button -->
+      @if (showExport()) {
+        <div class="bi-chart__export-container">
+          <button
+            type="button"
+            class="bi-chart__action-btn"
+            title="Export chart"
+            (click)="toggleExportMenu(); $event.stopPropagation()"
+          >
+            <span class="material-icons">download</span>
+          </button>
+
+          <!-- Export Menu Dropdown -->
+          @if (isExportMenuOpen) {
+            <div class="bi-chart__export-menu" (click)="$event.stopPropagation()">
+              @for (format of exportFormats(); track format) {
+                <button
+                  type="button"
+                  class="bi-chart__export-option"
+                  (click)="onExport(format)"
+                >
+                  <span class="material-icons">{{ getFormatIcon(format) }}</span>
+                  <span>{{ getFormatLabel(format) }}</span>
+                </button>
+              }
+            </div>
+          }
+        </div>
+      }
+
+      <!-- Fullscreen Button -->
+      @if (showFullscreen()) {
+        <button
+          type="button"
+          class="bi-chart__action-btn"
+          [title]="isFullscreen ? 'Exit fullscreen' : 'View fullscreen'"
+          (click)="toggleFullscreen(); $event.stopPropagation()"
+        >
+          <span class="material-icons">
+            {{ isFullscreen ? 'fullscreen_exit' : 'fullscreen' }}
+          </span>
+        </button>
+      }
+    </div>
+  </header>
+
+  <!-- Chart Content -->
+  <div class="bi-chart__content" [style]="contentStyle()">
+    <!-- Loading State -->
+    @if (loading()) {
+      <div class="bi-chart__loading">
+        <div class="bi-chart__skeleton">
+          <div class="bi-chart__skeleton-bar" style="height: 60%"></div>
+          <div class="bi-chart__skeleton-bar" style="height: 80%"></div>
+          <div class="bi-chart__skeleton-bar" style="height: 45%"></div>
+          <div class="bi-chart__skeleton-bar" style="height: 90%"></div>
+          <div class="bi-chart__skeleton-bar" style="height: 55%"></div>
+          <div class="bi-chart__skeleton-bar" style="height: 70%"></div>
+          <div class="bi-chart__skeleton-bar" style="height: 40%"></div>
+        </div>
+      </div>
+    }
+
+    <!-- Error State -->
+    @else if (error()) {
+      <div class="bi-chart__error">
+        <span class="material-icons bi-chart__error-icon">error_outline</span>
+        <p class="bi-chart__error-message">{{ error() }}</p>
+        <button
+          type="button"
+          class="bi-chart__error-retry"
+          (click)="onRefresh()"
+        >
+          <span class="material-icons">refresh</span>
+          Retry
+        </button>
+      </div>
+    }
+
+    <!-- Chart Content -->
+    @else {
+      <ng-content />
+    }
+  </div>
+</div>

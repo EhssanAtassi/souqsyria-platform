@@ -1,0 +1,237 @@
+/**
+ * Admin Confirmation Dialog Styles
+ * @description Styling for the confirmation dialog modal
+ */
+
+// Dialog container
+.confirmation-dialog {
+  @apply bg-white rounded-xl shadow-xl;
+  @apply w-full max-w-md mx-auto;
+  @apply overflow-hidden;
+
+  // Type-specific accent colors
+  --dialog-accent: theme('colors.blue.500');
+  --dialog-accent-light: theme('colors.blue.50');
+
+  &--info {
+    --dialog-accent: theme('colors.blue.500');
+    --dialog-accent-light: theme('colors.blue.50');
+  }
+
+  &--warning {
+    --dialog-accent: theme('colors.amber.500');
+    --dialog-accent-light: theme('colors.amber.50');
+  }
+
+  &--danger {
+    --dialog-accent: theme('colors.red.500');
+    --dialog-accent-light: theme('colors.red.50');
+  }
+
+  &--success {
+    --dialog-accent: theme('colors.emerald.500');
+    --dialog-accent-light: theme('colors.emerald.50');
+  }
+}
+
+// Header section
+.confirmation-dialog__header {
+  @apply flex flex-col items-center pt-6 pb-4 px-6;
+}
+
+.confirmation-dialog__icon-wrapper {
+  @apply w-12 h-12 rounded-full flex items-center justify-center mb-4;
+  background-color: var(--dialog-accent-light);
+}
+
+.confirmation-dialog__icon {
+  @apply text-2xl;
+  color: var(--dialog-accent);
+}
+
+.confirmation-dialog__title {
+  @apply text-lg font-semibold text-gray-900 text-center;
+}
+
+// Content section
+.confirmation-dialog__content {
+  @apply px-6 pb-4;
+}
+
+.confirmation-dialog__message {
+  @apply text-sm text-gray-600 text-center leading-relaxed;
+}
+
+.confirmation-dialog__details {
+  @apply mt-4 p-3 bg-gray-50 rounded-lg border border-gray-100;
+
+  p {
+    @apply text-xs text-gray-500 leading-relaxed;
+  }
+}
+
+// Text confirmation input
+.confirmation-dialog__confirmation {
+  @apply mt-4;
+}
+
+.confirmation-dialog__confirmation-label {
+  @apply block text-sm text-gray-700 mb-2;
+
+  strong {
+    @apply font-mono bg-gray-100 px-1.5 py-0.5 rounded text-gray-800;
+  }
+}
+
+.confirmation-dialog__confirmation-input {
+  @apply w-full px-3 py-2 border border-gray-300 rounded-md;
+  @apply text-sm text-gray-900;
+  @apply focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400;
+  @apply transition-colors duration-150;
+  @apply font-mono;
+
+  &::placeholder {
+    @apply text-gray-400 font-sans;
+  }
+}
+
+// Actions section
+.confirmation-dialog__actions {
+  @apply flex gap-3 px-6 py-4 bg-gray-50 border-t border-gray-100;
+}
+
+.confirmation-dialog__btn {
+  @apply flex-1 inline-flex items-center justify-center gap-2;
+  @apply px-4 py-2.5 rounded-lg;
+  @apply text-sm font-medium;
+  @apply transition-all duration-150;
+  @apply focus:outline-none focus:ring-2 focus:ring-offset-2;
+
+  &:disabled {
+    @apply opacity-50 cursor-not-allowed;
+  }
+
+  // Cancel button
+  &--cancel {
+    @apply bg-white border border-gray-300 text-gray-700;
+    @apply hover:bg-gray-50 focus:ring-gray-400;
+
+    &:disabled:hover {
+      @apply bg-white;
+    }
+  }
+
+  // Confirm button base
+  &--confirm {
+    @apply text-white;
+    background-color: var(--dialog-accent);
+    @apply focus:ring-blue-400;
+
+    &:hover:not(:disabled) {
+      @apply brightness-95;
+    }
+  }
+
+  // Type-specific confirm buttons
+  &--info {
+    @apply bg-blue-600 hover:bg-blue-700 focus:ring-blue-400;
+  }
+
+  &--warning {
+    @apply bg-amber-500 hover:bg-amber-600 focus:ring-amber-400;
+  }
+
+  &--danger {
+    @apply bg-red-600 hover:bg-red-700 focus:ring-red-400;
+  }
+
+  &--success {
+    @apply bg-emerald-600 hover:bg-emerald-700 focus:ring-emerald-400;
+  }
+}
+
+// Loading spinner
+.confirmation-dialog__spinner {
+  @apply w-4 h-4 border-2 border-white/30 border-t-white rounded-full;
+  @apply animate-spin;
+}
+
+// RTL support
+[dir='rtl'] {
+  .confirmation-dialog__btn {
+    @apply flex-row-reverse;
+  }
+
+  .confirmation-dialog__actions {
+    @apply flex-row-reverse;
+  }
+}
+
+// Animation for dialog entry
+@keyframes dialog-enter {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.confirmation-dialog {
+  animation: dialog-enter 0.2s ease-out;
+}
+
+// Backdrop styles (if using CDK overlay)
+::ng-deep .cdk-overlay-dark-backdrop {
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+/**
+ * Screen-reader-only utility class
+ * @description Visually hidden but accessible to screen readers (WCAG compliant)
+ */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/**
+ * Focus ring styles for keyboard navigation
+ * @description Enhanced focus indicators for WCAG 2.1 AA compliance
+ */
+.confirmation-dialog__btn:focus-visible {
+  @apply outline-none ring-2 ring-offset-2;
+
+  &.confirmation-dialog__btn--cancel {
+    @apply ring-gray-500;
+  }
+
+  &.confirmation-dialog__btn--info {
+    @apply ring-blue-500;
+  }
+
+  &.confirmation-dialog__btn--warning {
+    @apply ring-amber-500;
+  }
+
+  &.confirmation-dialog__btn--danger {
+    @apply ring-red-500;
+  }
+
+  &.confirmation-dialog__btn--success {
+    @apply ring-emerald-500;
+  }
+}
+
+.confirmation-dialog__confirmation-input:focus-visible {
+  @apply outline-none ring-2 ring-blue-400 ring-offset-1;
+}

@@ -10,10 +10,20 @@ import {
   JoinColumn,
   CreateDateColumn,
   UpdateDateColumn,
+  Index,
 } from 'typeorm';
 import { User } from '../../users/entities/user.entity';
 
+/**
+ * PERF-C01: Database indexes for optimized queries
+ * - user: JOINs with user table (vendor profile lookup)
+ * - isVerified + createdAt: Admin queries for vendor verification status
+ * - storeName: Store name search queries
+ */
 @Entity('vendors')
+@Index(['user'])
+@Index(['isVerified', 'createdAt'])
+@Index(['storeName'])
 export class VendorEntity {
   @PrimaryGeneratedColumn()
   id: number;

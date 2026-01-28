@@ -47,8 +47,6 @@ import {
   ExportReportDto,
   ExportResultDto,
   DateRangeType,
-  ExportFormat,
-  ReportType,
 } from '../dto';
 
 /**

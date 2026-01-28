@@ -1,0 +1,28 @@
+# Dependencies
+node_modules
+package-lock.json
+
+# Build outputs
+dist
+build
+coverage
+.angular
+
+# Logs
+*.log
+logs
+
+# Environment
+.env
+.env.*
+
+# IDE
+.idea
+.vscode
+
+# Testing
+test-infrastructure
+coverage
+
+# Documentation
+*.md

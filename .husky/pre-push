@@ -1,0 +1,9 @@
+#!/bin/sh
+. "$(dirname "$0")/_/husky.sh"
+
+echo "🧪 Running tests before push..."
+
+# Run quick tests
+npm run test:quick --if-present || npm run test -- --passWithNoTests
+
+echo "✅ Tests passed! Pushing..."

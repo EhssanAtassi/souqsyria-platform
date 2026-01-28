@@ -1,0 +1,261 @@
+<!--
+  Role List Component Template
+  @description Admin role management interface
+-->
+
+<div class="role-list">
+  <!-- ===================================================================== -->
+  <!-- HEADER -->
+  <!-- ===================================================================== -->
+  <header class="role-list__header">
+    <div class="role-list__title">
+      <a routerLink="/admin/settings" class="back-link">
+        <span class="material-icons">arrow_back</span>
+      </a>
+      <div>
+        <h1>Role Management</h1>
+        <span class="role-list__subtitle">Manage admin roles and permissions</span>
+      </div>
+    </div>
+
+    <div class="role-list__actions">
+      <button class="btn btn--primary">
+        <span class="material-icons">add</span>
+        Create Role
+      </button>
+    </div>
+  </header>
+
+  <!-- Alert Messages -->
+  @if (successMessage()) {
+    <div class="alert alert--success">
+      <span class="material-icons">check_circle</span>
+      <span>{{ successMessage() }}</span>
+      <button (click)="successMessage.set(null)">
+        <span class="material-icons">close</span>
+      </button>
+    </div>
+  }
+
+  @if (errorMessage()) {
+    <div class="alert alert--error">
+      <span class="material-icons">error</span>
+      <span>{{ errorMessage() }}</span>
+      <button (click)="errorMessage.set(null)">
+        <span class="material-icons">close</span>
+      </button>
+    </div>
+  }
+
+  @if (isLoading()) {
+    <div class="loading-state">
+      <div class="loading-spinner"></div>
+      <p>Loading roles...</p>
+    </div>
+  } @else {
+    <!-- ===================================================================== -->
+    <!-- OVERVIEW CARDS -->
+    <!-- ===================================================================== -->
+    <section class="role-list__overview">
+      <div class="overview-card">
+        <span class="material-icons">groups</span>
+        <div class="overview-card__content">
+          <span class="overview-card__value">{{ totalAdminUsers() }}</span>
+          <span class="overview-card__label">Total Admin Users</span>
+        </div>
+      </div>
+      <div class="overview-card">
+        <span class="material-icons">security</span>
+        <div class="overview-card__content">
+          <span class="overview-card__value">{{ systemRoles().length }}</span>
+          <span class="overview-card__label">System Roles</span>
+        </div>
+      </div>
+      <div class="overview-card">
+        <span class="material-icons">tune</span>
+        <div class="overview-card__content">
+          <span class="overview-card__value">{{ customRoles().length }}</span>
+          <span class="overview-card__label">Custom Roles</span>
+        </div>
+      </div>
+      <div class="overview-card">
+        <span class="material-icons">lock</span>
+        <div class="overview-card__content">
+          <span class="overview-card__value">{{ permissionCategories().length }}</span>
+          <span class="overview-card__label">Permission Categories</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================================================================== -->
+    <!-- SYSTEM ROLES -->
+    <!-- ===================================================================== -->
+    <section class="role-list__section">
+      <h2>
+        <span class="material-icons">security</span>
+        System Roles
+        <span class="role-count">{{ systemRoles().length }}</span>
+      </h2>
+      <p class="section-description">
+        Built-in roles that cannot be deleted. Permissions can still be modified.
+      </p>
+
+      <div class="roles-grid">
+        @for (role of systemRoles(); track trackByRole($index, role)) {
+          <div class="role-card" [attr.data-color]="getRoleColor(role.name)">
+            <div class="role-card__header">
+              <div class="role-card__icon">
+                <span class="material-icons">{{ getRoleIcon(role.name) }}</span>
+              </div>
+              <div class="role-card__info">
+                <span class="role-card__name">{{ role.displayName }}</span>
+                <span class="role-card__code">{{ role.name }}</span>
+              </div>
+              <span class="role-card__badge role-card__badge--system">System</span>
+            </div>
+
+            <p class="role-card__description">{{ role.description }}</p>
+
+            <div class="role-card__stats">
+              <div class="role-card__stat">
+                <span class="material-icons">people</span>
+                <span>{{ role.userCount }} users</span>
+              </div>
+              <div class="role-card__stat">
+                <span class="material-icons">update</span>
+                <span>{{ formatDate(role.updatedAt) }}</span>
+              </div>
+            </div>
+
+            <div class="role-card__actions">
+              <a [routerLink]="['/admin/settings/roles', role.id]" class="btn btn--secondary btn--small">
+                <span class="material-icons">visibility</span>
+                View Details
+              </a>
+            </div>
+          </div>
+        }
+      </div>
+    </section>
+
+    <!-- ===================================================================== -->
+    <!-- CUSTOM ROLES -->
+    <!-- ===================================================================== -->
+    @if (customRoles().length > 0) {
+      <section class="role-list__section">
+        <h2>
+          <span class="material-icons">tune</span>
+          Custom Roles
+          <span class="role-count">{{ customRoles().length }}</span>
+        </h2>
+        <p class="section-description">
+          Custom roles created by administrators. These can be fully modified or deleted.
+        </p>
+
+        <div class="roles-grid">
+          @for (role of customRoles(); track trackByRole($index, role)) {
+            <div class="role-card" data-color="gray">
+              <div class="role-card__header">
+                <div class="role-card__icon">
+                  <span class="material-icons">person</span>
+                </div>
+                <div class="role-card__info">
+                  <span class="role-card__name">{{ role.displayName }}</span>
+                  <span class="role-card__code">{{ role.name }}</span>
+                </div>
+                <span class="role-card__badge role-card__badge--custom">Custom</span>
+              </div>
+
+              <p class="role-card__description">{{ role.description }}</p>
+
+              <div class="role-card__stats">
+                <div class="role-card__stat">
+                  <span class="material-icons">people</span>
+                  <span>{{ role.userCount }} users</span>
+                </div>
+                <div class="role-card__stat">
+                  <span class="material-icons">update</span>
+                  <span>{{ formatDate(role.updatedAt) }}</span>
+                </div>
+              </div>
+
+              <div class="role-card__actions">
+                <a [routerLink]="['/admin/settings/roles', role.id]" class="btn btn--secondary btn--small">
+                  <span class="material-icons">edit</span>
+                  Edit
+                </a>
+                <button
+                  class="btn btn--danger btn--small"
+                  [disabled]="role.userCount > 0"
+                  (click)="confirmDelete(role)"
+                >
+                  <span class="material-icons">delete</span>
+                  Delete
+                </button>
+              </div>
+            </div>
+          }
+        </div>
+      </section>
+    }
+
+    <!-- ===================================================================== -->
+    <!-- PERMISSION CATEGORIES REFERENCE -->
+    <!-- ===================================================================== -->
+    <section class="role-list__section">
+      <h2>
+        <span class="material-icons">category</span>
+        Permission Categories
+      </h2>
+      <p class="section-description">
+        Available permission categories that can be assigned to roles.
+      </p>
+
+      <div class="categories-grid">
+        @for (category of permissionCategories(); track trackByCategory($index, category)) {
+          <div class="category-card">
+            <span class="material-icons">{{ category.icon }}</span>
+            <div class="category-card__content">
+              <span class="category-card__name">{{ category.name }}</span>
+              <span class="category-card__count">{{ category.permissions.length }} permissions</span>
+            </div>
+          </div>
+        }
+      </div>
+    </section>
+  }
+
+  <!-- ===================================================================== -->
+  <!-- DELETE CONFIRMATION MODAL -->
+  <!-- ===================================================================== -->
+  @if (deletingRole()) {
+    <div class="modal-overlay" (click)="cancelDelete()">
+      <div class="modal" (click)="$event.stopPropagation()">
+        <div class="modal__header">
+          <span class="material-icons modal__icon modal__icon--danger">warning</span>
+          <h3>Delete Role</h3>
+        </div>
+        <div class="modal__body">
+          <p>
+            Are you sure you want to delete the role
+            <strong>{{ deletingRole()!.displayName }}</strong>?
+          </p>
+          <p class="modal__warning">This action cannot be undone.</p>
+        </div>
+        <div class="modal__actions">
+          <button class="btn btn--secondary" (click)="cancelDelete()" [disabled]="isDeleting()">
+            Cancel
+          </button>
+          <button class="btn btn--danger" (click)="deleteRole()" [disabled]="isDeleting()">
+            @if (isDeleting()) {
+              <span class="btn-spinner"></span>
+              Deleting...
+            } @else {
+              Delete Role
+            }
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+</div>

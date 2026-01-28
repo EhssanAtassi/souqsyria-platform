@@ -111,12 +111,12 @@ export class CommissionSeederController {
         },
         timestamp: new Date().toISOString(),
       };
-    } catch (error) {
+    } catch (error: unknown) {
       this.logger.error('❌ Commission seeding failed:', error);
       return {
         success: false,
         message: 'Commission seeding failed',
-        error: error.message,
+        error: (error as Error).message,
         timestamp: new Date().toISOString(),
       };
     }
@@ -165,11 +165,11 @@ export class CommissionSeederController {
         data: stats,
         timestamp: new Date().toISOString(),
       };
-    } catch (error) {
+    } catch (error: unknown) {
       this.logger.error('❌ Failed to get commission statistics:', error);
       return {
         success: false,
-        error: error.message,
+        error: (error as Error).message,
         timestamp: new Date().toISOString(),
       };
     }
@@ -219,11 +219,11 @@ export class CommissionSeederController {
         data: validation,
         timestamp: new Date().toISOString(),
       };
-    } catch (error) {
+    } catch (error: unknown) {
       this.logger.error('❌ Commission validation failed:', error);
       return {
         success: false,
-        error: error.message,
+        error: (error as Error).message,
         timestamp: new Date().toISOString(),
       };
     }
@@ -300,12 +300,12 @@ export class CommissionSeederController {
         },
         timestamp: new Date().toISOString(),
       };
-    } catch (error) {
+    } catch (error: unknown) {
       this.logger.error('❌ Commission cleanup failed:', error);
       return {
         success: false,
         message: 'Cleanup failed',
-        error: error.message,
+        error: (error as Error).message,
         timestamp: new Date().toISOString(),
       };
     }
@@ -354,7 +354,7 @@ export class CommissionSeederController {
         checks.database = 'connected';
         checks.repositories = 'accessible';
         checks.functionality = 'operational';
-      } catch (error) {
+      } catch (error: unknown) {
         checks.database = 'error';
         checks.repositories = 'error';
         checks.functionality = 'error';
@@ -370,12 +370,12 @@ export class CommissionSeederController {
         checks,
         timestamp: new Date().toISOString(),
       };
-    } catch (error) {
+    } catch (error: unknown) {
       this.logger.error('❌ Health check failed:', error);
       return {
         success: false,
         status: 'unhealthy',
-        error: error.message,
+        error: (error as Error).message,
         timestamp: new Date().toISOString(),
       };
     }
@@ -448,11 +448,11 @@ export class CommissionSeederController {
         data: dataInfo,
         timestamp: new Date().toISOString(),
       };
-    } catch (error) {
+    } catch (error: unknown) {
       this.logger.error('❌ Failed to get commission data info:', error);
       return {
         success: false,
-        error: error.message,
+        error: (error as Error).message,
         timestamp: new Date().toISOString(),
       };
     }
@@ -556,11 +556,11 @@ export class CommissionSeederController {
         },
         timestamp: new Date().toISOString(),
       };
-    } catch (error) {
+    } catch (error: unknown) {
       this.logger.error('❌ Failed to generate calculation preview:', error);
       return {
         success: false,
-        error: error.message,
+        error: (error as Error).message,
         timestamp: new Date().toISOString(),
       };
     }

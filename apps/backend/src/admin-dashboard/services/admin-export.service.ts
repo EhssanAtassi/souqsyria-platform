@@ -128,11 +128,11 @@ export class AdminExportService {
 
     // Process export asynchronously
     this.processExport(jobId, dto).catch(error => {
-      this.logger.error(`Export job ${jobId} failed: ${error.message}`);
+      this.logger.error(`Export job ${jobId} failed: ${(error as Error).message}`);
       const failedJob = this.exportJobs.get(jobId);
       if (failedJob) {
         failedJob.status = 'failed';
-        failedJob.error = error.message;
+        failedJob.error = (error as Error).message;
       }
     });
 
@@ -211,9 +211,9 @@ export class AdminExportService {
       job.expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
 
       this.logger.log(`Export job ${jobId} completed: ${fileName}`);
-    } catch (error) {
+    } catch (error: unknown) {
       job.status = 'failed';
-      job.error = error.message;
+      job.error = (error as Error).message;
       throw error;
     }
   }

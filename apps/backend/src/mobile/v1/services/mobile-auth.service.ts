@@ -191,7 +191,7 @@ export class MobileAuthService {
             }
           : undefined,
       };
-    } catch (error) {
+    } catch (error: unknown) {
       this.logger.error('Mobile login failed', error);
       throw error;
     }
@@ -224,7 +224,7 @@ export class MobileAuthService {
         otpSent: true,
         expiresAt,
       };
-    } catch (error) {
+    } catch (error: unknown) {
       this.logger.error('Failed to initiate phone login', error);
       throw new BadRequestException('Failed to send OTP');
     }
@@ -288,7 +288,7 @@ export class MobileAuthService {
             }
           : undefined,
       };
-    } catch (error) {
+    } catch (error: unknown) {
       this.logger.error('OTP verification failed', error);
       throw error;
     }
@@ -339,7 +339,7 @@ export class MobileAuthService {
           deviceType,
         },
       };
-    } catch (error) {
+    } catch (error: unknown) {
       this.logger.error('Biometric authentication failed', error);
       throw error;
     }
@@ -360,7 +360,7 @@ export class MobileAuthService {
       this.logger.log(`Device registered for user ${userId}: ${deviceId}`);
 
       return { registered: true };
-    } catch (error) {
+    } catch (error: unknown) {
       this.logger.error('Device registration failed', error);
       throw new BadRequestException('Failed to register device');
     }
@@ -387,7 +387,7 @@ export class MobileAuthService {
       const tokens = await this.generateMobileTokens(user);
 
       return { tokens };
-    } catch (error) {
+    } catch (error: unknown) {
       this.logger.error('Token refresh failed', error);
       throw new UnauthorizedException('Invalid refresh token');
     }
@@ -456,7 +456,7 @@ export class MobileAuthService {
   ): Promise<boolean> {
     try {
       return await bcrypt.compare(password, hashedPassword);
-    } catch (error) {
+    } catch (error: unknown) {
       this.logger.error('Password verification error', error);
       return false;
     }
@@ -509,7 +509,7 @@ export class MobileAuthService {
 
       await this.mobileOTPRepository.save(otpEntity);
       this.logger.log(`OTP saved for ${phone} (expires: ${expiresAt})`);
-    } catch (error) {
+    } catch (error: unknown) {
       this.logger.error('Failed to save OTP', error);
       throw new BadRequestException('Failed to save OTP');
     }
@@ -553,7 +553,7 @@ export class MobileAuthService {
         await this.mobileOTPRepository.save(otpEntity);
         return false;
       }
-    } catch (error) {
+    } catch (error: unknown) {
       this.logger.error('OTP verification error', error);
       return false;
     }
@@ -566,7 +566,7 @@ export class MobileAuthService {
     try {
       await this.mobileOTPRepository.delete({ phone });
       this.logger.log(`Cleared OTP for ${phone}`);
-    } catch (error) {
+    } catch (error: unknown) {
       this.logger.error('Failed to clear OTP', error);
     }
   }
@@ -629,7 +629,7 @@ export class MobileAuthService {
       this.logger.log(
         `Updated device info for user ${userId}: ${deviceId} (${deviceType})`,
       );
-    } catch (error) {
+    } catch (error: unknown) {
       this.logger.error('Failed to update device info', error);
     }
   }

@@ -44,7 +44,7 @@ export class DescriptionsService {
    * Update a single description by ID
    */
   async update(id: number, dto: UpdateProductDescriptionDto) {
-    const desc = await this.descRepo.findOne({ where: { id } });
+    const desc = await this.descRepo.findOne({ where: { id } })!;
     if (!desc) throw new NotFoundException('Description not found');
 
     Object.assign(desc, dto);
@@ -71,7 +71,7 @@ export class DescriptionsService {
    * Delete a single description by ID
    */
   async delete(id: number) {
-    const desc = await this.descRepo.findOne({ where: { id } });
+    const desc = await this.descRepo.findOne({ where: { id } })!;
     if (!desc) throw new NotFoundException('Description not found');
 
     await this.descRepo.remove(desc);

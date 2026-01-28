@@ -406,10 +406,10 @@ export class SyrianShippingService {
       this.logger.log(
         `Initialized ${defaultCompanies.length} Syrian shipping companies`,
       );
-    } catch (error) {
+    } catch (error: unknown) {
       this.logger.error(
         'Failed to initialize Syrian shipping companies',
-        error.stack,
+        (error as Error).stack,
       );
     }
   }

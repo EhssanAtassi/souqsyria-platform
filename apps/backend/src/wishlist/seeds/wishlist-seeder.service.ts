@@ -168,8 +168,8 @@ export class WishlistSeederService {
       this.logger.log(`✅ Wishlist seeding completed: ${successful}/${wishlistData.length} items in ${processingTime}ms`);
       return result;
 
-    } catch (error) {
-      this.logger.error(`❌ Wishlist seeding failed: ${error.message}`, error.stack);
+    } catch (error: unknown) {
+      this.logger.error(`❌ Wishlist seeding failed: ${(error as Error).message}`, (error as Error).stack);
       throw error;
     }
   }
@@ -318,8 +318,8 @@ export class WishlistSeederService {
         if ((i / batchSize) % 10 === 0) {
           this.logger.log(`📦 Processed ${i + batch.length}/${wishlists.length} wishlist items`);
         }
-      } catch (error) {
-        this.logger.warn(`⚠️ Batch ${i / batchSize + 1} failed: ${error.message}`);
+      } catch (error: unknown) {
+        this.logger.warn(`⚠️ Batch ${i / batchSize + 1} failed: ${(error as Error).message}`);
       }
     }
 

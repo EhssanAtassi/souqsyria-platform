@@ -360,7 +360,7 @@ export class ProductSeederController {
         },
         message: `${PRODUCT_STATISTICS.total} products available for seeding across ${Object.keys(PRODUCT_STATISTICS).filter((k) => !['total', 'approved', 'pending', 'draft'].includes(k)).length} categories`,
       };
-    } catch (error) {
+    } catch (error: unknown) {
       throw new HttpException(
         'Failed to retrieve seed data information',
         HttpStatus.INTERNAL_SERVER_ERROR,
@@ -410,7 +410,7 @@ export class ProductSeederController {
         data: statistics,
         message: `Database contains ${statistics.database.totalProducts} products out of ${statistics.seedData.total} available in seed data`,
       };
-    } catch (error) {
+    } catch (error: unknown) {
       throw new HttpException(
         'Failed to generate statistics',
         HttpStatus.INTERNAL_SERVER_ERROR,
@@ -561,7 +561,7 @@ export class ProductSeederController {
         },
         message: `Found ${products.length} products matching the specified criteria`,
       };
-    } catch (error) {
+    } catch (error: unknown) {
       throw new HttpException(
         'Failed to generate products preview',
         HttpStatus.INTERNAL_SERVER_ERROR,
@@ -664,7 +664,7 @@ export class ProductSeederController {
         result,
         message: `Validation completed: ${result.totalProcessed} products processed, ${result.errors} errors found`,
       };
-    } catch (error) {
+    } catch (error: unknown) {
       if (error instanceof BadRequestException) {
         throw error;
       }
@@ -802,12 +802,12 @@ export class ProductSeederController {
           ? `Dry run completed: ${result.totalProcessed} products would be processed`
           : `Seeding completed: ${result.created} created, ${result.updated} updated, ${result.skipped} skipped`,
       };
-    } catch (error) {
+    } catch (error: unknown) {
       if (error instanceof BadRequestException) {
         throw error;
       }
       throw new HttpException(
-        `Seeding failed: ${error.message}`,
+        `Seeding failed: ${(error as Error).message}`,
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
@@ -834,9 +834,9 @@ export class ProductSeederController {
         result,
         message: `Electronics seeding completed: ${result.created} products created`,
       };
-    } catch (error) {
+    } catch (error: unknown) {
       throw new HttpException(
-        `Electronics seeding failed: ${error.message}`,
+        `Electronics seeding failed: ${(error as Error).message}`,
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
@@ -863,9 +863,9 @@ export class ProductSeederController {
         result,
         message: `Fashion seeding completed: ${result.created} products created`,
       };
-    } catch (error) {
+    } catch (error: unknown) {
       throw new HttpException(
-        `Fashion seeding failed: ${error.message}`,
+        `Fashion seeding failed: ${(error as Error).message}`,
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
@@ -892,9 +892,9 @@ export class ProductSeederController {
         result,
         message: `Food products seeding completed: ${result.created} products created`,
       };
-    } catch (error) {
+    } catch (error: unknown) {
       throw new HttpException(
-        `Food products seeding failed: ${error.message}`,
+        `Food products seeding failed: ${(error as Error).message}`,
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
@@ -921,9 +921,9 @@ export class ProductSeederController {
         result,
         message: `Home & garden products seeding completed: ${result.created} products created`,
       };
-    } catch (error) {
+    } catch (error: unknown) {
       throw new HttpException(
-        `Home & garden products seeding failed: ${error.message}`,
+        `Home & garden products seeding failed: ${(error as Error).message}`,
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
@@ -951,9 +951,9 @@ export class ProductSeederController {
         result,
         message: `Books & education products seeding completed: ${result.created} products created`,
       };
-    } catch (error) {
+    } catch (error: unknown) {
       throw new HttpException(
-        `Books & education products seeding failed: ${error.message}`,
+        `Books & education products seeding failed: ${(error as Error).message}`,
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
@@ -1037,12 +1037,12 @@ export class ProductSeederController {
           ? 'Complete deletion performed - all products removed'
           : undefined,
       };
-    } catch (error) {
+    } catch (error: unknown) {
       if (error instanceof BadRequestException) {
         throw error;
       }
       throw new HttpException(
-        `Cleanup failed: ${error.message}`,
+        `Cleanup failed: ${(error as Error).message}`,
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
@@ -1094,7 +1094,7 @@ export class ProductSeederController {
             ? 'Product seeding service is healthy and operational'
             : 'Product seeding service has issues - check logs for details',
       };
-    } catch (error) {
+    } catch (error: unknown) {
       throw new HttpException(
         'Health check failed',
         HttpStatus.INTERNAL_SERVER_ERROR,

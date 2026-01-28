@@ -21,3 +21,9 @@ export * from './order-management.dto';
 
 // Analytics Query DTOs
 export * from './analytics-query.dto';
+
+// Business Intelligence Analytics DTOs
+export * from './bi-analytics.dto';
+
+// Enhanced Business Intelligence Analytics DTOs
+export * from './bi-analytics-enhanced.dto';

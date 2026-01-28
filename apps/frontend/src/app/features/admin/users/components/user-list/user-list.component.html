@@ -1,0 +1,405 @@
+<!-- User List Template -->
+<!-- Main view for user management with search, filters, and data table -->
+
+<section class="user-list" aria-label="User management">
+  <!-- Page Header -->
+  <header class="user-list__header">
+    <div class="user-list__header-content">
+      <h2 class="user-list__title">User Management</h2>
+      <p class="user-list__subtitle">
+        Manage user accounts, roles, and verification status.
+      </p>
+    </div>
+
+    <div class="user-list__header-actions">
+      <!-- Refresh Button -->
+      <button
+        type="button"
+        class="user-list__action-btn"
+        (click)="refresh()"
+        [disabled]="isLoading()"
+        title="Refresh data"
+      >
+        <span class="material-icons" [class.animate-spin]="isLoading()">refresh</span>
+      </button>
+
+      <!-- Export Menu -->
+      <div class="user-list__export-menu">
+        <button
+          type="button"
+          class="user-list__action-btn"
+          [matMenuTriggerFor]="exportMenu"
+          [disabled]="isExporting()"
+          title="Export users"
+        >
+          <span class="material-icons">download</span>
+          <span>Export</span>
+        </button>
+        <mat-menu #exportMenu="matMenu">
+          <button mat-menu-item (click)="exportUsers('csv')">
+            <span class="material-icons">description</span>
+            <span>Export as CSV</span>
+          </button>
+          <button mat-menu-item (click)="exportUsers('xlsx')">
+            <span class="material-icons">table_chart</span>
+            <span>Export as Excel</span>
+          </button>
+        </mat-menu>
+      </div>
+
+      <!-- KYC Queue Link -->
+      <a
+        routerLink="/admin/users/kyc"
+        class="user-list__action-btn user-list__action-btn--primary"
+        title="View KYC verification queue"
+      >
+        <span class="material-icons">verified_user</span>
+        <span>KYC Queue</span>
+        <span *ngIf="statistics()?.pendingVerification" class="user-list__badge">
+          {{ statistics()?.pendingVerification }}
+        </span>
+      </a>
+    </div>
+  </header>
+
+  <!-- Statistics Cards -->
+  <section class="user-list__stats" aria-label="User statistics">
+    <!-- Loading skeleton -->
+    <ng-container *ngIf="isLoadingStats()">
+      <div *ngFor="let i of [1,2,3,4,5,6]" class="stat-card stat-card--skeleton">
+        <div class="skeleton-text skeleton-text--sm"></div>
+        <div class="skeleton-text skeleton-text--lg"></div>
+      </div>
+    </ng-container>
+
+    <!-- Statistics cards -->
+    <ng-container *ngIf="!isLoadingStats() && statistics()">
+      <article class="stat-card">
+        <span class="stat-card__icon material-icons">people</span>
+        <div class="stat-card__content">
+          <span class="stat-card__value">{{ statistics()?.total | number }}</span>
+          <span class="stat-card__label">Total Users</span>
+        </div>
+      </article>
+
+      <article class="stat-card stat-card--success">
+        <span class="stat-card__icon material-icons">check_circle</span>
+        <div class="stat-card__content">
+          <span class="stat-card__value">{{ statistics()?.active | number }}</span>
+          <span class="stat-card__label">Active</span>
+        </div>
+      </article>
+
+      <article class="stat-card stat-card--warning">
+        <span class="stat-card__icon material-icons">pause_circle</span>
+        <div class="stat-card__content">
+          <span class="stat-card__value">{{ statistics()?.suspended | number }}</span>
+          <span class="stat-card__label">Suspended</span>
+        </div>
+      </article>
+
+      <article class="stat-card stat-card--danger">
+        <span class="stat-card__icon material-icons">block</span>
+        <div class="stat-card__content">
+          <span class="stat-card__value">{{ statistics()?.banned | number }}</span>
+          <span class="stat-card__label">Banned</span>
+        </div>
+      </article>
+
+      <article class="stat-card stat-card--info">
+        <span class="stat-card__icon material-icons">pending</span>
+        <div class="stat-card__content">
+          <span class="stat-card__value">{{ statistics()?.pendingVerification | number }}</span>
+          <span class="stat-card__label">Pending KYC</span>
+        </div>
+      </article>
+
+      <article class="stat-card stat-card--primary">
+        <span class="stat-card__icon material-icons">person_add</span>
+        <div class="stat-card__content">
+          <span class="stat-card__value">{{ statistics()?.newThisMonth | number }}</span>
+          <span class="stat-card__label">New This Month</span>
+        </div>
+      </article>
+    </ng-container>
+  </section>
+
+  <!-- Error Alert -->
+  <div *ngIf="errorMessage()" class="user-list__error">
+    <span class="material-icons">error_outline</span>
+    <p>{{ errorMessage() }}</p>
+    <button type="button" class="user-list__error-retry" (click)="refresh()">
+      Try Again
+    </button>
+  </div>
+
+  <!-- Main Content -->
+  <div class="user-list__content">
+    <!-- Search and Filter Bar -->
+    <div class="user-list__toolbar">
+      <!-- Search Input -->
+      <div class="user-list__search">
+        <span class="material-icons user-list__search-icon">search</span>
+        <input
+          type="text"
+          [formControl]="searchControl"
+          placeholder="Search by name, email, or phone..."
+          class="user-list__search-input"
+        />
+        <button
+          *ngIf="searchControl.value"
+          type="button"
+          class="user-list__search-clear"
+          (click)="searchControl.setValue('')"
+          title="Clear search"
+        >
+          <span class="material-icons">close</span>
+        </button>
+      </div>
+
+      <!-- Filter Panel -->
+      <app-admin-filter-panel
+        [fields]="filterFields"
+        [values]="currentFilters()"
+        (filtersChange)="onFilterChange($event)"
+        (filtersReset)="onFilterReset()"
+      />
+    </div>
+
+    <!-- Bulk Actions Bar -->
+    <div *ngIf="hasSelection()" class="user-list__bulk-actions">
+      <span class="user-list__bulk-count">
+        {{ selectionCount() }} user(s) selected
+      </span>
+
+      <div class="user-list__bulk-buttons">
+        <button
+          type="button"
+          class="user-list__bulk-btn user-list__bulk-btn--success"
+          (click)="bulkUpdateStatus('active')"
+          title="Activate selected users"
+        >
+          <span class="material-icons">check_circle</span>
+          <span>Activate</span>
+        </button>
+
+        <button
+          type="button"
+          class="user-list__bulk-btn user-list__bulk-btn--warning"
+          (click)="bulkUpdateStatus('suspended')"
+          title="Suspend selected users"
+        >
+          <span class="material-icons">pause_circle</span>
+          <span>Suspend</span>
+        </button>
+
+        <button
+          type="button"
+          class="user-list__bulk-btn user-list__bulk-btn--danger"
+          (click)="bulkUpdateStatus('banned')"
+          title="Ban selected users"
+        >
+          <span class="material-icons">block</span>
+          <span>Ban</span>
+        </button>
+
+        <button
+          type="button"
+          class="user-list__bulk-btn"
+          (click)="clearSelection()"
+          title="Clear selection"
+        >
+          <span class="material-icons">close</span>
+          <span>Clear</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Data Table -->
+    <div class="user-list__table-container">
+      <!-- Loading State -->
+      <div *ngIf="isLoading()" class="user-list__loading">
+        <div class="user-list__loading-spinner">
+          <span class="material-icons animate-spin">sync</span>
+        </div>
+        <p>Loading users...</p>
+      </div>
+
+      <!-- User Table -->
+      <table *ngIf="!isLoading()" class="user-list__table">
+        <thead>
+          <tr>
+            <th class="user-list__th user-list__th--checkbox">
+              <input
+                type="checkbox"
+                [checked]="isAllSelected()"
+                (change)="toggleSelectAll()"
+                aria-label="Select all users"
+              />
+            </th>
+            <th class="user-list__th">User</th>
+            <th class="user-list__th">Email</th>
+            <th class="user-list__th">Roles</th>
+            <th class="user-list__th">Status</th>
+            <th class="user-list__th">KYC</th>
+            <th class="user-list__th user-list__th--right">Orders</th>
+            <th class="user-list__th user-list__th--right">Total Spent</th>
+            <th class="user-list__th">Joined</th>
+            <th class="user-list__th user-list__th--actions">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr
+            *ngFor="let user of users(); trackBy: trackById"
+            class="user-list__row"
+            [class.user-list__row--selected]="isUserSelected(user.id)"
+          >
+            <!-- Checkbox -->
+            <td class="user-list__td user-list__td--checkbox">
+              <input
+                type="checkbox"
+                [checked]="isUserSelected(user.id)"
+                (change)="toggleUserSelection(user.id)"
+                [attr.aria-label]="'Select ' + user.fullName"
+              />
+            </td>
+
+            <!-- User Info -->
+            <td class="user-list__td">
+              <div class="user-list__user-info">
+                <img
+                  *ngIf="user.avatar"
+                  [src]="user.avatar"
+                  [alt]="user.fullName"
+                  class="user-list__avatar"
+                />
+                <div *ngIf="!user.avatar" class="user-list__avatar-placeholder">
+                  {{ user.firstName?.charAt(0) }}{{ user.lastName?.charAt(0) }}
+                </div>
+                <div class="user-list__user-details">
+                  <a [routerLink]="['/admin/users', user.id]" class="user-list__user-name">
+                    {{ user.fullName }}
+                  </a>
+                  <span *ngIf="user.phone" class="user-list__user-phone">{{ user.phone }}</span>
+                </div>
+              </div>
+            </td>
+
+            <!-- Email -->
+            <td class="user-list__td">
+              <div class="user-list__email">
+                <span>{{ user.email }}</span>
+                <span *ngIf="user.emailVerified" class="user-list__verified-badge" title="Email verified">
+                  <span class="material-icons">verified</span>
+                </span>
+              </div>
+            </td>
+
+            <!-- Roles -->
+            <td class="user-list__td">
+              <div class="user-list__roles">
+                <span
+                  *ngFor="let role of user.roles"
+                  class="user-list__role-badge"
+                  [attr.data-role]="role.name"
+                >
+                  {{ role.displayName }}
+                </span>
+                <span *ngIf="user.roles.length === 0" class="user-list__no-roles">
+                  No roles
+                </span>
+              </div>
+            </td>
+
+            <!-- Status -->
+            <td class="user-list__td">
+              <app-admin-status-badge
+                [status]="user.status"
+                [variant]="getStatusVariant(user.status)"
+                size="sm"
+              />
+            </td>
+
+            <!-- KYC Status -->
+            <td class="user-list__td">
+              <app-admin-status-badge
+                [status]="user.kyc.status"
+                [variant]="getKycVariant(user.kyc.status)"
+                size="sm"
+              />
+            </td>
+
+            <!-- Orders -->
+            <td class="user-list__td user-list__td--right">
+              {{ user.totalOrders | number }}
+            </td>
+
+            <!-- Total Spent -->
+            <td class="user-list__td user-list__td--right">
+              <span class="user-list__currency">
+                {{ user.totalSpent | number:'1.0-0' }} SYP
+              </span>
+            </td>
+
+            <!-- Joined Date -->
+            <td class="user-list__td">
+              {{ user.createdAt | date:'mediumDate' }}
+            </td>
+
+            <!-- Actions -->
+            <td class="user-list__td user-list__td--actions">
+              <button
+                type="button"
+                class="user-list__action-icon"
+                [matMenuTriggerFor]="actionMenu"
+                title="Actions"
+              >
+                <span class="material-icons">more_vert</span>
+              </button>
+              <mat-menu #actionMenu="matMenu">
+                <button mat-menu-item (click)="onRowAction({ action: 'view', row: user })">
+                  <span class="material-icons">visibility</span>
+                  <span>View Details</span>
+                </button>
+                <button mat-menu-item (click)="onRowAction({ action: 'edit-roles', row: user })">
+                  <span class="material-icons">admin_panel_settings</span>
+                  <span>Manage Roles</span>
+                </button>
+                <button mat-menu-item (click)="onRowAction({ action: 'change-status', row: user })">
+                  <span class="material-icons">toggle_on</span>
+                  <span>Change Status</span>
+                </button>
+                <button mat-menu-item (click)="onRowAction({ action: 'view-activity', row: user })">
+                  <span class="material-icons">history</span>
+                  <span>View Activity</span>
+                </button>
+              </mat-menu>
+            </td>
+          </tr>
+
+          <!-- Empty State -->
+          <tr *ngIf="users().length === 0 && !isLoading()">
+            <td colspan="10" class="user-list__empty">
+              <span class="material-icons">person_search</span>
+              <p>No users found</p>
+              <p class="user-list__empty-hint">
+                Try adjusting your search or filters
+              </p>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Pagination -->
+    <div class="user-list__pagination" *ngIf="pagination().total > 0">
+      <app-admin-pagination
+        [currentPage]="pagination().page"
+        [totalItems]="pagination().total"
+        [pageSize]="pagination().limit"
+        (pageChange)="onPageChange($event)"
+        (pageSizeChange)="onPageSizeChange($event)"
+      />
+    </div>
+  </div>
+</section>

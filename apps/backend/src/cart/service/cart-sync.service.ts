@@ -179,10 +179,10 @@ export class CartSyncService {
       });
 
       return resolvedCart;
-    } catch (error) {
+    } catch (error: unknown) {
       this.logger.error(
-        `❌ Cart sync failed: ${error.message}`,
-        error.stack,
+        `❌ Cart sync failed: ${(error as Error).message}`,
+        (error as Error).stack,
       );
 
       // Log audit event for failure
@@ -193,7 +193,7 @@ export class CartSyncService {
         actorType: 'user',
         entityType: 'cart',
         entityId: null,
-        description: `Cart sync failed: ${error.message}`,
+        description: `Cart sync failed: ${(error as Error).message}`,
       });
 
       throw error;
@@ -305,10 +305,10 @@ export class CartSyncService {
       });
 
       return resolvedCart;
-    } catch (error) {
+    } catch (error: unknown) {
       this.logger.error(
-        `❌ Guest cart sync failed: ${error.message}`,
-        error.stack,
+        `❌ Guest cart sync failed: ${(error as Error).message}`,
+        (error as Error).stack,
       );
 
       // Log audit event for failure
@@ -319,7 +319,7 @@ export class CartSyncService {
         actorType: 'system',
         entityType: 'cart',
         entityId: null,
-        description: `Guest cart sync failed: ${error.message}`,
+        description: `Guest cart sync failed: ${(error as Error).message}`,
       });
 
       throw error;

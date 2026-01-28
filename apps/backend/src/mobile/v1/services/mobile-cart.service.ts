@@ -174,7 +174,7 @@ export class MobileCartService {
         },
         savings: this.calculateSavings(mobileItems),
       };
-    } catch (error) {
+    } catch (error: unknown) {
       this.logger.error(`Failed to get mobile cart for user ${userId}`, error);
       throw error;
     }
@@ -253,7 +253,7 @@ export class MobileCartService {
         cartItemCount: itemCount,
         message: 'Product added to cart successfully',
       };
-    } catch (error) {
+    } catch (error: unknown) {
       this.logger.error(`Quick add to cart failed for user ${userId}`, error);
 
       if (error instanceof NotFoundException) {
@@ -314,7 +314,7 @@ export class MobileCartService {
         success: true,
         message: 'Cart updated successfully',
       };
-    } catch (error) {
+    } catch (error: unknown) {
       this.logger.error(
         `Failed to update cart item ${itemId} for user ${userId}`,
         error,
@@ -360,7 +360,7 @@ export class MobileCartService {
         success: true,
         message: 'Cart cleared successfully',
       };
-    } catch (error) {
+    } catch (error: unknown) {
       this.logger.error(`Failed to clear cart for user ${userId}`, error);
       return {
         success: false,

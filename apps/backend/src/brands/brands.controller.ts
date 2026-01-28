@@ -89,10 +89,10 @@ export class BrandsController {
         `✅ Brand created: ${brand.name} (ID: ${brand.id}) in ${processingTime}ms`,
       );
       return brand;
-    } catch (error) {
+    } catch (error: unknown) {
       const processingTime = Date.now() - startTime;
       this.logger.error(
-        `❌ Failed to create brand: ${error.message} (${processingTime}ms)`,
+        `❌ Failed to create brand: ${(error as Error).message} (${processingTime}ms)`,
       );
       throw error;
     }
@@ -145,10 +145,10 @@ export class BrandsController {
       );
 
       return result;
-    } catch (error) {
+    } catch (error: unknown) {
       const processingTime = Date.now() - startTime;
       this.logger.error(
-        `❌ Failed to list brands: ${error.message} (${processingTime}ms)`,
+        `❌ Failed to list brands: ${(error as Error).message} (${processingTime}ms)`,
       );
       throw error;
     }
@@ -212,10 +212,10 @@ export class BrandsController {
         `✅ Retrieved brand: ${brand.displayName} (ID: ${id}) in ${processingTime}ms`,
       );
       return brand;
-    } catch (error) {
+    } catch (error: unknown) {
       const processingTime = Date.now() - startTime;
       this.logger.error(
-        `❌ Failed to retrieve brand ID: ${id}: ${error.message} (${processingTime}ms)`,
+        `❌ Failed to retrieve brand ID: ${id}: ${(error as Error).message} (${processingTime}ms)`,
       );
       throw error;
     }
@@ -267,10 +267,10 @@ export class BrandsController {
         `✅ Brand updated: ${updatedBrand.displayName} (ID: ${id}) in ${processingTime}ms`,
       );
       return updatedBrand;
-    } catch (error) {
+    } catch (error: unknown) {
       const processingTime = Date.now() - startTime;
       this.logger.error(
-        `❌ Failed to update brand ID: ${id}: ${error.message} (${processingTime}ms)`,
+        `❌ Failed to update brand ID: ${id}: ${(error as Error).message} (${processingTime}ms)`,
       );
       throw error;
     }
@@ -313,10 +313,10 @@ export class BrandsController {
       this.logger.log(
         `✅ Brand deleted successfully (ID: ${id}) in ${processingTime}ms`,
       );
-    } catch (error) {
+    } catch (error: unknown) {
       const processingTime = Date.now() - startTime;
       this.logger.error(
-        `❌ Failed to delete brand ID: ${id}: ${error.message} (${processingTime}ms)`,
+        `❌ Failed to delete brand ID: ${id}: ${(error as Error).message} (${processingTime}ms)`,
       );
       throw error;
     }

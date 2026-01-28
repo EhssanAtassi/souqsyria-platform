@@ -1,0 +1,1067 @@
+<!--
+  @file bi-dashboard.component.html
+  @description Business Intelligence Dashboard template.
+              Mobile-first responsive design with RTL/Arabic support.
+              Implements progressive disclosure and WCAG 2.1 AA accessibility.
+  @module AdminDashboard/Analytics/BI
+-->
+
+<!-- Skip Link for Accessibility -->
+<a href="#main-content" class="bi-skip-link">
+  {{ isRTL() ? 'تخطي إلى المحتوى الرئيسي' : 'Skip to main content' }}
+</a>
+
+<div class="bi-dashboard" [class.bi-dashboard--rtl]="isRTL()" [dir]="isRTL() ? 'rtl' : 'ltr'">
+  <!-- =========================================================================
+       HEADER SECTION
+       ========================================================================= -->
+  <header class="bi-header">
+    <div class="bi-header__content">
+      <!-- Title and Description -->
+      <div class="bi-header__text">
+        <h1 class="bi-header__title">
+          {{ isRTL() ? 'لوحة ذكاء الأعمال' : 'Business Intelligence' }}
+        </h1>
+        <p class="bi-header__subtitle">
+          {{ isRTL() ? 'تحليلات العملاء والتحويل والاحتفاظ' : 'Customer, conversion, and retention analytics' }}
+        </p>
+      </div>
+
+      <!-- Header Actions -->
+      <div class="bi-header__actions">
+        <!-- Date Preset Selector (Desktop) -->
+        <div class="bi-date-selector" *ngIf="!isMobileViewport()">
+          <label for="date-preset" class="sr-only">
+            {{ isRTL() ? 'اختر الفترة' : 'Select date range' }}
+          </label>
+          <select
+            id="date-preset"
+            class="bi-date-selector__select"
+            [value]="selectedDatePreset()"
+            (change)="selectDatePreset($any($event.target).value)"
+            aria-label="{{ isRTL() ? 'اختر الفترة الزمنية' : 'Select time period' }}"
+          >
+            <option *ngFor="let preset of datePresets" [value]="preset.id">
+              {{ isRTL() ? preset.labelAr : preset.label }}
+            </option>
+          </select>
+        </div>
+
+        <!-- Filter Toggle Button -->
+        <button
+          type="button"
+          class="bi-btn bi-btn--icon"
+          [class.bi-btn--active]="isFilterPanelOpen()"
+          (click)="toggleFilterPanel()"
+          [attr.aria-expanded]="isFilterPanelOpen()"
+          aria-controls="filter-panel"
+          [attr.aria-label]="isRTL() ? 'تصفية' : 'Filter'"
+        >
+          <span class="material-icons">filter_list</span>
+          <span class="bi-btn__label">{{ isRTL() ? 'تصفية' : 'Filter' }}</span>
+        </button>
+
+        <!-- Refresh Button -->
+        <button
+          type="button"
+          class="bi-btn bi-btn--icon"
+          (click)="refreshData()"
+          [disabled]="isLoading()"
+          [attr.aria-label]="isRTL() ? 'تحديث البيانات' : 'Refresh data'"
+        >
+          <span class="material-icons" [class.animate-spin]="isLoading()">refresh</span>
+        </button>
+
+        <!-- Export Button -->
+        <button
+          type="button"
+          class="bi-btn bi-btn--primary"
+          (click)="exportData()"
+          [attr.aria-label]="isRTL() ? 'تصدير البيانات' : 'Export data'"
+        >
+          <span class="material-icons">download</span>
+          <span class="bi-btn__label">{{ isRTL() ? 'تصدير' : 'Export' }}</span>
+        </button>
+
+        <!-- Mobile Menu Toggle -->
+        <button
+          type="button"
+          class="bi-btn bi-btn--icon bi-mobile-menu-toggle"
+          *ngIf="isMobileViewport()"
+          (click)="toggleMobileMenu()"
+          [attr.aria-expanded]="isMobileMenuOpen()"
+          aria-controls="mobile-nav"
+          [attr.aria-label]="isRTL() ? 'القائمة' : 'Menu'"
+        >
+          <span class="material-icons">{{ isMobileMenuOpen() ? 'close' : 'menu' }}</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Last Updated Indicator -->
+    <div class="bi-header__meta">
+      <span class="bi-live-indicator" *ngIf="!isLoading()">
+        <span class="bi-live-indicator__dot"></span>
+        {{ isRTL() ? 'مباشر' : 'Live' }}
+      </span>
+      <span class="bi-header__timestamp">
+        {{ isRTL() ? 'آخر تحديث:' : 'Last updated:' }}
+        {{ getRelativeTime(lastRefresh()) }}
+      </span>
+    </div>
+  </header>
+
+  <!-- =========================================================================
+       FILTER PANEL (Collapsible)
+       ========================================================================= -->
+  <aside
+    id="filter-panel"
+    class="bi-filter-panel"
+    [class.bi-filter-panel--open]="isFilterPanelOpen()"
+    [attr.aria-hidden]="!isFilterPanelOpen()"
+    role="region"
+    [attr.aria-label]="isRTL() ? 'خيارات التصفية' : 'Filter options'"
+  >
+    <form [formGroup]="filterForm" class="bi-filter-form">
+      <!-- Date Range -->
+      <div class="bi-filter-group">
+        <label class="bi-filter-label">
+          {{ isRTL() ? 'الفترة الزمنية' : 'Date Range' }}
+        </label>
+        <div class="bi-date-inputs">
+          <input
+            type="date"
+            formControlName="startDate"
+            class="bi-input"
+            [attr.aria-label]="isRTL() ? 'تاريخ البداية' : 'Start date'"
+          />
+          <span class="bi-date-separator">{{ isRTL() ? 'إلى' : 'to' }}</span>
+          <input
+            type="date"
+            formControlName="endDate"
+            class="bi-input"
+            [attr.aria-label]="isRTL() ? 'تاريخ النهاية' : 'End date'"
+          />
+        </div>
+      </div>
+
+      <!-- Segment Filter -->
+      <div class="bi-filter-group">
+        <label class="bi-filter-label">
+          {{ isRTL() ? 'شرائح العملاء' : 'Customer Segments' }}
+        </label>
+        <div class="bi-chip-group">
+          <button
+            *ngFor="let config of segmentConfigs"
+            type="button"
+            class="bi-chip"
+            [class.bi-chip--active]="filterForm.get('segments')?.value?.includes(config.segment)"
+            (click)="toggleSegmentFilter(config.segment)"
+            [style.--chip-color]="config.color"
+          >
+            <span class="material-icons bi-chip__icon">{{ config.icon }}</span>
+            <span class="bi-chip__label">{{ isRTL() ? config.labelAr : config.labelEn }}</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Compare with Previous -->
+      <div class="bi-filter-group">
+        <label class="bi-checkbox">
+          <input type="checkbox" formControlName="compareWithPrevious" />
+          <span class="bi-checkbox__box"></span>
+          <span class="bi-checkbox__label">
+            {{ isRTL() ? 'مقارنة مع الفترة السابقة' : 'Compare with previous period' }}
+          </span>
+        </label>
+      </div>
+
+      <!-- Filter Actions -->
+      <div class="bi-filter-actions">
+        <button type="button" class="bi-btn bi-btn--ghost" (click)="resetFilters()">
+          {{ isRTL() ? 'إعادة تعيين' : 'Reset' }}
+        </button>
+        <button type="button" class="bi-btn bi-btn--primary" (click)="toggleFilterPanel()">
+          {{ isRTL() ? 'تطبيق' : 'Apply' }}
+        </button>
+      </div>
+    </form>
+  </aside>
+
+  <!-- =========================================================================
+       NAVIGATION TABS
+       ========================================================================= -->
+  <nav
+    class="bi-nav-tabs"
+    [class.bi-nav-tabs--mobile-open]="isMobileMenuOpen()"
+    id="mobile-nav"
+    role="tablist"
+    [attr.aria-label]="isRTL() ? 'أقسام لوحة التحكم' : 'Dashboard sections'"
+  >
+    <button
+      *ngFor="let tab of tabs; trackBy: trackByTabId"
+      type="button"
+      role="tab"
+      class="bi-nav-tab"
+      [class.bi-nav-tab--active]="activeView() === tab.id"
+      [attr.aria-selected]="activeView() === tab.id"
+      [attr.aria-controls]="'panel-' + tab.id"
+      [id]="'tab-' + tab.id"
+      (click)="setActiveView(tab.id); toggleMobileMenu()"
+    >
+      <span class="material-icons bi-nav-tab__icon">{{ tab.icon }}</span>
+      <span class="bi-nav-tab__label">{{ isRTL() ? tab.labelAr : tab.labelEn }}</span>
+    </button>
+  </nav>
+
+  <!-- =========================================================================
+       ERROR ALERT
+       ========================================================================= -->
+  <div class="bi-alert bi-alert--error" *ngIf="errorMessage()" role="alert">
+    <span class="material-icons bi-alert__icon">error</span>
+    <p class="bi-alert__text">{{ errorMessage() }}</p>
+    <button
+      type="button"
+      class="bi-btn bi-btn--sm"
+      (click)="refreshData()"
+    >
+      {{ isRTL() ? 'إعادة المحاولة' : 'Retry' }}
+    </button>
+  </div>
+
+  <!-- =========================================================================
+       MAIN CONTENT
+       ========================================================================= -->
+  <main id="main-content" class="bi-main">
+    <!-- =====================================================================
+         HERO METRICS SECTION
+         ===================================================================== -->
+    <section
+      class="bi-hero-section"
+      [attr.aria-label]="isRTL() ? 'المقاييس الرئيسية' : 'Key metrics'"
+    >
+      <div class="bi-hero-grid">
+        <!-- Total Revenue Impact Card -->
+        <article class="bi-hero-card bi-hero-card--primary">
+          <ng-container *ngIf="!isLoadingHeroMetrics(); else heroSkeleton">
+            <div class="bi-hero-card__header">
+              <span class="material-icons bi-hero-card__icon">payments</span>
+              <span
+                class="bi-hero-card__trend"
+                [ngClass]="getTrendClass(heroMetrics()?.totalRevenueImpact?.trend || 'neutral')"
+              >
+                <span class="material-icons">
+                  {{ getTrendIcon(heroMetrics()?.totalRevenueImpact?.trend || 'neutral') }}
+                </span>
+                {{ heroMetrics()?.totalRevenueImpact?.change | number:'1.1-1' }}%
+              </span>
+            </div>
+            <p class="bi-hero-card__value">
+              {{ formatCurrency(heroMetrics()?.totalRevenueImpact?.value || 0) }}
+            </p>
+            <p class="bi-hero-card__label">
+              {{ isRTL() ? 'إجمالي تأثير الإيرادات' : 'Total Revenue Impact' }}
+            </p>
+          </ng-container>
+        </article>
+
+        <!-- Conversion Rate Card -->
+        <article class="bi-hero-card bi-hero-card--success">
+          <ng-container *ngIf="!isLoadingHeroMetrics(); else heroSkeleton">
+            <div class="bi-hero-card__header">
+              <span class="material-icons bi-hero-card__icon">trending_up</span>
+              <span
+                class="bi-hero-card__trend"
+                [ngClass]="getTrendClass(heroMetrics()?.conversionRate?.trend || 'neutral')"
+              >
+                <span class="material-icons">
+                  {{ getTrendIcon(heroMetrics()?.conversionRate?.trend || 'neutral') }}
+                </span>
+                {{ heroMetrics()?.conversionRate?.change | number:'1.2-2' }}%
+              </span>
+            </div>
+            <p class="bi-hero-card__value">
+              {{ formatPercent(heroMetrics()?.conversionRate?.value || 0) }}
+            </p>
+            <p class="bi-hero-card__label">
+              {{ isRTL() ? 'معدل التحويل' : 'Conversion Rate' }}
+            </p>
+          </ng-container>
+        </article>
+
+        <!-- Abandonment Rate Card -->
+        <article class="bi-hero-card bi-hero-card--warning">
+          <ng-container *ngIf="!isLoadingHeroMetrics(); else heroSkeleton">
+            <div class="bi-hero-card__header">
+              <span class="material-icons bi-hero-card__icon">remove_shopping_cart</span>
+              <span
+                class="bi-hero-card__trend"
+                [ngClass]="getTrendClass(heroMetrics()?.abandonmentRate?.trend || 'neutral', true)"
+              >
+                <span class="material-icons">
+                  {{ getTrendIcon(heroMetrics()?.abandonmentRate?.trend || 'neutral') }}
+                </span>
+                {{ heroMetrics()?.abandonmentRate?.change | number:'1.1-1' }}%
+              </span>
+            </div>
+            <p class="bi-hero-card__value">
+              {{ formatPercent(heroMetrics()?.abandonmentRate?.value || 0) }}
+            </p>
+            <p class="bi-hero-card__label">
+              {{ isRTL() ? 'معدل التخلي' : 'Abandonment Rate' }}
+            </p>
+          </ng-container>
+        </article>
+
+        <!-- Active Segments Card -->
+        <article class="bi-hero-card bi-hero-card--info">
+          <ng-container *ngIf="!isLoadingHeroMetrics(); else heroSkeleton">
+            <div class="bi-hero-card__header">
+              <span class="material-icons bi-hero-card__icon">groups</span>
+              <div class="bi-hero-card__badges">
+                <span class="bi-badge bi-badge--success">
+                  {{ heroMetrics()?.activeSegments?.highValueCount || 0 }}
+                  {{ isRTL() ? 'قيمة عالية' : 'high-value' }}
+                </span>
+                <span class="bi-badge bi-badge--danger">
+                  {{ heroMetrics()?.activeSegments?.atRiskCount || 0 }}
+                  {{ isRTL() ? 'معرضون للخطر' : 'at-risk' }}
+                </span>
+              </div>
+            </div>
+            <p class="bi-hero-card__value">
+              {{ heroMetrics()?.activeSegments?.value || 0 }}
+            </p>
+            <p class="bi-hero-card__label">
+              {{ isRTL() ? 'الشرائح النشطة' : 'Active Segments' }}
+            </p>
+          </ng-container>
+        </article>
+      </div>
+    </section>
+
+    <!-- =====================================================================
+         QUICK INSIGHTS CAROUSEL
+         ===================================================================== -->
+    <section
+      class="bi-insights-section"
+      aria-label="{{ isRTL() ? 'رؤى سريعة' : 'Quick insights' }}"
+      *ngIf="quickInsights().length > 0"
+    >
+      <div class="bi-section-header">
+        <h2 class="bi-section-title">
+          <span class="material-icons">lightbulb</span>
+          {{ isRTL() ? 'رؤى سريعة' : 'Quick Insights' }}
+        </h2>
+        <div class="bi-carousel-controls">
+          <button
+            type="button"
+            class="bi-btn bi-btn--icon bi-btn--sm"
+            (click)="previousInsight()"
+            [attr.aria-label]="isRTL() ? 'الرؤية السابقة' : 'Previous insight'"
+          >
+            <span class="material-icons">{{ isRTL() ? 'chevron_right' : 'chevron_left' }}</span>
+          </button>
+          <span class="bi-carousel-indicator">
+            {{ currentInsightIndex() + 1 }} / {{ totalInsights() }}
+          </span>
+          <button
+            type="button"
+            class="bi-btn bi-btn--icon bi-btn--sm"
+            (click)="nextInsight()"
+            [attr.aria-label]="isRTL() ? 'الرؤية التالية' : 'Next insight'"
+          >
+            <span class="material-icons">{{ isRTL() ? 'chevron_left' : 'chevron_right' }}</span>
+          </button>
+          <button
+            type="button"
+            class="bi-btn bi-btn--icon bi-btn--sm"
+            (click)="toggleAutoRotate()"
+            [attr.aria-label]="autoRotateInsights() ?
+              (isRTL() ? 'إيقاف التدوير التلقائي' : 'Pause auto-rotation') :
+              (isRTL() ? 'تشغيل التدوير التلقائي' : 'Start auto-rotation')"
+          >
+            <span class="material-icons">{{ autoRotateInsights() ? 'pause' : 'play_arrow' }}</span>
+          </button>
+        </div>
+      </div>
+
+      <div
+        #insightsCarousel
+        class="bi-insights-carousel"
+        role="region"
+        aria-live="polite"
+        aria-atomic="true"
+      >
+        <article
+          *ngFor="let insight of quickInsights(); let i = index; trackBy: trackById"
+          class="bi-insight-card"
+          [class.bi-insight-card--active]="i === currentInsightIndex()"
+          [class.bi-insight-card--primary]="insight.color === 'primary'"
+          [class.bi-insight-card--success]="insight.color === 'success'"
+          [class.bi-insight-card--warning]="insight.color === 'warning'"
+          [class.bi-insight-card--danger]="insight.color === 'danger'"
+          [class.bi-insight-card--info]="insight.color === 'info'"
+          [attr.aria-hidden]="i !== currentInsightIndex()"
+        >
+          <div class="bi-insight-card__icon-wrapper">
+            <span class="material-icons">{{ insight.icon }}</span>
+          </div>
+          <div class="bi-insight-card__content">
+            <h3 class="bi-insight-card__title">
+              {{ isRTL() ? insight.titleAr : insight.titleEn }}
+            </h3>
+            <p class="bi-insight-card__description">
+              {{ isRTL() ? insight.descriptionAr : insight.descriptionEn }}
+            </p>
+            <div class="bi-insight-card__metric">
+              <span class="bi-insight-card__value">{{ insight.metricValue }}</span>
+              <span class="bi-insight-card__label">{{ insight.metricLabel }}</span>
+              <span
+                *ngIf="insight.trend"
+                class="bi-insight-card__trend"
+                [ngClass]="getTrendClass(insight.trend)"
+              >
+                <span class="material-icons">{{ getTrendIcon(insight.trend) }}</span>
+                {{ insight.trendPercentage }}%
+              </span>
+            </div>
+          </div>
+          <button
+            *ngIf="insight.actionRoute"
+            type="button"
+            class="bi-btn bi-btn--sm bi-insight-card__action"
+            (click)="navigateToInsightAction(insight)"
+          >
+            {{ isRTL() ? insight.actionLabelAr : insight.actionLabelEn }}
+            <span class="material-icons">{{ isRTL() ? 'arrow_back' : 'arrow_forward' }}</span>
+          </button>
+        </article>
+      </div>
+
+      <!-- Carousel Dots -->
+      <div class="bi-carousel-dots" role="tablist">
+        <button
+          *ngFor="let insight of quickInsights(); let i = index"
+          type="button"
+          role="tab"
+          class="bi-carousel-dot"
+          [class.bi-carousel-dot--active]="i === currentInsightIndex()"
+          [attr.aria-selected]="i === currentInsightIndex()"
+          [attr.aria-label]="(isRTL() ? 'الرؤية ' : 'Insight ') + (i + 1)"
+          (click)="goToInsight(i)"
+        ></button>
+      </div>
+    </section>
+
+    <!-- =====================================================================
+         TAB PANELS
+         ===================================================================== -->
+
+    <!-- Overview Panel -->
+    <div
+      *ngIf="activeView() === 'overview'"
+      id="panel-overview"
+      role="tabpanel"
+      aria-labelledby="tab-overview"
+      class="bi-panel"
+    >
+      <div class="bi-panel-grid bi-panel-grid--2col">
+        <!-- CLV Summary Card -->
+        <section class="bi-card">
+          <header class="bi-card__header">
+            <h3 class="bi-card__title">
+              <span class="material-icons">people</span>
+              {{ isRTL() ? 'ملخص قيمة العميل' : 'Customer Value Summary' }}
+            </h3>
+            <a
+              [routerLink]="[]"
+              [queryParams]="{ view: 'clv' }"
+              class="bi-card__link"
+            >
+              {{ isRTL() ? 'عرض التفاصيل' : 'View details' }}
+              <span class="material-icons">{{ isRTL() ? 'arrow_back' : 'arrow_forward' }}</span>
+            </a>
+          </header>
+          <div class="bi-card__content">
+            <ng-container *ngIf="!isLoadingCLV(); else cardSkeleton">
+              <div class="bi-stats-row">
+                <div class="bi-stat">
+                  <span class="bi-stat__value">
+                    {{ formatNumber(clvAnalytics()?.summary?.totalCustomers || 0) }}
+                  </span>
+                  <span class="bi-stat__label">
+                    {{ isRTL() ? 'إجمالي العملاء' : 'Total Customers' }}
+                  </span>
+                </div>
+                <div class="bi-stat">
+                  <span class="bi-stat__value">
+                    {{ formatCurrency(clvAnalytics()?.summary?.averageCLV || 0) }}
+                  </span>
+                  <span class="bi-stat__label">
+                    {{ isRTL() ? 'متوسط القيمة' : 'Average CLV' }}
+                  </span>
+                </div>
+                <div class="bi-stat">
+                  <span class="bi-stat__value bi-stat__value--trend"
+                        [ngClass]="clvAnalytics()?.summary?.clvGrowth && clvAnalytics()!.summary.clvGrowth > 0 ? 'bi-trend--positive' : 'bi-trend--negative'">
+                    {{ clvAnalytics()?.summary?.clvGrowth | number:'1.1-1' }}%
+                  </span>
+                  <span class="bi-stat__label">
+                    {{ isRTL() ? 'النمو' : 'Growth' }}
+                  </span>
+                </div>
+              </div>
+              <!-- Segment Distribution Mini Chart -->
+              <div class="bi-mini-chart" *ngIf="segmentChartData().length > 0">
+                <ngx-charts-pie-chart
+                  [results]="segmentChartData()"
+                  [scheme]="segmentColorScheme"
+                  [legend]="false"
+                  [labels]="false"
+                  [doughnut]="true"
+                  [arcWidth]="0.4"
+                  [view]="[200, 150]"
+                >
+                </ngx-charts-pie-chart>
+              </div>
+            </ng-container>
+          </div>
+        </section>
+
+        <!-- Funnel Summary Card -->
+        <section class="bi-card">
+          <header class="bi-card__header">
+            <h3 class="bi-card__title">
+              <span class="material-icons">filter_alt</span>
+              {{ isRTL() ? 'ملخص مسار التحويل' : 'Conversion Funnel Summary' }}
+            </h3>
+            <a
+              [routerLink]="[]"
+              [queryParams]="{ view: 'funnel' }"
+              class="bi-card__link"
+            >
+              {{ isRTL() ? 'عرض التفاصيل' : 'View details' }}
+              <span class="material-icons">{{ isRTL() ? 'arrow_back' : 'arrow_forward' }}</span>
+            </a>
+          </header>
+          <div class="bi-card__content">
+            <ng-container *ngIf="!isLoadingFunnel(); else cardSkeleton">
+              <!-- Mini Funnel Visualization -->
+              <div class="bi-mini-funnel">
+                <div
+                  *ngFor="let stage of funnelChartData(); let i = index"
+                  class="bi-mini-funnel__stage"
+                  [style.width]="stage.width"
+                  [style.--stage-color]="funnelColorScheme.domain[i % funnelColorScheme.domain.length]"
+                >
+                  <span class="bi-mini-funnel__label">{{ stage.label }}</span>
+                  <span class="bi-mini-funnel__value">{{ formatPercent(stage.conversionRate) }}</span>
+                </div>
+              </div>
+              <div class="bi-stats-row bi-stats-row--compact">
+                <div class="bi-stat">
+                  <span class="bi-stat__value">
+                    {{ formatPercent(conversionFunnel()?.currentFunnel?.overallConversionRate || 0) }}
+                  </span>
+                  <span class="bi-stat__label">{{ isRTL() ? 'معدل التحويل' : 'Overall' }}</span>
+                </div>
+                <div class="bi-stat">
+                  <span class="bi-stat__value">
+                    {{ formatNumber(conversionFunnel()?.currentFunnel?.totalConversions || 0) }}
+                  </span>
+                  <span class="bi-stat__label">{{ isRTL() ? 'التحويلات' : 'Conversions' }}</span>
+                </div>
+              </div>
+            </ng-container>
+          </div>
+        </section>
+
+        <!-- Abandonment Summary Card -->
+        <section class="bi-card">
+          <header class="bi-card__header">
+            <h3 class="bi-card__title">
+              <span class="material-icons">remove_shopping_cart</span>
+              {{ isRTL() ? 'ملخص التخلي عن السلة' : 'Cart Abandonment Summary' }}
+            </h3>
+            <a
+              [routerLink]="[]"
+              [queryParams]="{ view: 'abandonment' }"
+              class="bi-card__link"
+            >
+              {{ isRTL() ? 'عرض التفاصيل' : 'View details' }}
+              <span class="material-icons">{{ isRTL() ? 'arrow_back' : 'arrow_forward' }}</span>
+            </a>
+          </header>
+          <div class="bi-card__content">
+            <ng-container *ngIf="!isLoadingAbandonment(); else cardSkeleton">
+              <div class="bi-stats-row">
+                <div class="bi-stat">
+                  <span class="bi-stat__value bi-stat__value--warning">
+                    {{ formatPercent(cartAbandonment()?.summary?.abandonmentRate || 0) }}
+                  </span>
+                  <span class="bi-stat__label">{{ isRTL() ? 'معدل التخلي' : 'Abandonment' }}</span>
+                </div>
+                <div class="bi-stat">
+                  <span class="bi-stat__value bi-stat__value--success">
+                    {{ formatPercent(cartAbandonment()?.summary?.recoveryRate || 0) }}
+                  </span>
+                  <span class="bi-stat__label">{{ isRTL() ? 'معدل الاسترداد' : 'Recovery' }}</span>
+                </div>
+                <div class="bi-stat">
+                  <span class="bi-stat__value">
+                    {{ formatCurrency(cartAbandonment()?.summary?.revenueRecovered || 0) }}
+                  </span>
+                  <span class="bi-stat__label">{{ isRTL() ? 'تم استرداده' : 'Recovered' }}</span>
+                </div>
+              </div>
+              <!-- Abandonment Reasons Mini Chart -->
+              <div class="bi-mini-chart" *ngIf="abandonmentReasonsChartData().length > 0">
+                <ngx-charts-bar-horizontal
+                  [results]="abandonmentReasonsChartData().slice(0, 4)"
+                  [scheme]="abandonmentColorScheme"
+                  [xAxis]="false"
+                  [yAxis]="true"
+                  [showDataLabel]="true"
+                  [view]="[280, 120]"
+                >
+                </ngx-charts-bar-horizontal>
+              </div>
+            </ng-container>
+          </div>
+        </section>
+
+        <!-- Cohort Summary Card -->
+        <section class="bi-card">
+          <header class="bi-card__header">
+            <h3 class="bi-card__title">
+              <span class="material-icons">groups</span>
+              {{ isRTL() ? 'ملخص تحليل المجموعات' : 'Cohort Analysis Summary' }}
+            </h3>
+            <a
+              [routerLink]="[]"
+              [queryParams]="{ view: 'cohort' }"
+              class="bi-card__link"
+            >
+              {{ isRTL() ? 'عرض التفاصيل' : 'View details' }}
+              <span class="material-icons">{{ isRTL() ? 'arrow_back' : 'arrow_forward' }}</span>
+            </a>
+          </header>
+          <div class="bi-card__content">
+            <ng-container *ngIf="!isLoadingCohort(); else cardSkeleton">
+              <div class="bi-stats-row">
+                <div class="bi-stat">
+                  <span class="bi-stat__value">
+                    {{ formatPercent(cohortAnalysis()?.summary?.averageWeek1Retention || 0) }}
+                  </span>
+                  <span class="bi-stat__label">{{ isRTL() ? 'الأسبوع 1' : 'Week 1' }}</span>
+                </div>
+                <div class="bi-stat">
+                  <span class="bi-stat__value">
+                    {{ formatPercent(cohortAnalysis()?.summary?.averageWeek4Retention || 0) }}
+                  </span>
+                  <span class="bi-stat__label">{{ isRTL() ? 'الأسبوع 4' : 'Week 4' }}</span>
+                </div>
+                <div class="bi-stat">
+                  <span class="bi-stat__value">
+                    {{ formatPercent(cohortAnalysis()?.summary?.averageWeek12Retention || 0) }}
+                  </span>
+                  <span class="bi-stat__label">{{ isRTL() ? 'الأسبوع 12' : 'Week 12' }}</span>
+                </div>
+              </div>
+              <!-- Retention Trend Indicator -->
+              <div class="bi-retention-trend">
+                <span
+                  class="bi-retention-trend__indicator"
+                  [ngClass]="{
+                    'bi-trend--positive': cohortAnalysis()?.summary?.retentionTrend === 'improving',
+                    'bi-trend--negative': cohortAnalysis()?.summary?.retentionTrend === 'declining',
+                    'bi-trend--neutral': cohortAnalysis()?.summary?.retentionTrend === 'stable'
+                  }"
+                >
+                  <span class="material-icons">
+                    {{
+                      cohortAnalysis()?.summary?.retentionTrend === 'improving' ? 'trending_up' :
+                      cohortAnalysis()?.summary?.retentionTrend === 'declining' ? 'trending_down' : 'trending_flat'
+                    }}
+                  </span>
+                  {{
+                    cohortAnalysis()?.summary?.retentionTrend === 'improving' ?
+                      (isRTL() ? 'تحسن' : 'Improving') :
+                    cohortAnalysis()?.summary?.retentionTrend === 'declining' ?
+                      (isRTL() ? 'تراجع' : 'Declining') :
+                      (isRTL() ? 'مستقر' : 'Stable')
+                  }}
+                </span>
+              </div>
+            </ng-container>
+          </div>
+        </section>
+      </div>
+    </div>
+
+    <!-- CLV Panel -->
+    <div
+      *ngIf="activeView() === 'clv'"
+      id="panel-clv"
+      role="tabpanel"
+      aria-labelledby="tab-clv"
+      class="bi-panel"
+    >
+      <ng-container *ngIf="!isLoadingCLV(); else panelSkeleton">
+        <!-- CLV Content will be expanded in full implementation -->
+        <section class="bi-card bi-card--full">
+          <header class="bi-card__header">
+            <h3 class="bi-card__title">
+              {{ isRTL() ? 'توزيع قيمة العميل' : 'Customer Lifetime Value Distribution' }}
+            </h3>
+          </header>
+          <div class="bi-card__content">
+            <div class="bi-chart-container" *ngIf="clvDistributionChartData().length > 0">
+              <ngx-charts-bar-vertical
+                [results]="clvDistributionChartData()"
+                [scheme]="clvColorScheme"
+                [xAxis]="true"
+                [yAxis]="true"
+                [legend]="false"
+                [showXAxisLabel]="true"
+                [showYAxisLabel]="true"
+                [xAxisLabel]="isRTL() ? 'نطاق القيمة' : 'CLV Range'"
+                [yAxisLabel]="isRTL() ? 'عدد العملاء' : 'Customer Count'"
+                [view]="isMobileViewport() ? [320, 280] : [700, 320]"
+              >
+              </ngx-charts-bar-vertical>
+            </div>
+          </div>
+        </section>
+
+        <!-- Segment Breakdown -->
+        <section class="bi-card bi-card--full">
+          <header class="bi-card__header">
+            <h3 class="bi-card__title">
+              {{ isRTL() ? 'توزيع الشرائح' : 'Segment Distribution' }}
+            </h3>
+          </header>
+          <div class="bi-card__content">
+            <div class="bi-segment-grid">
+              <article
+                *ngFor="let segment of clvAnalytics()?.segments"
+                class="bi-segment-card"
+                [style.--segment-color]="getSegmentConfig(segment.segment)?.color"
+              >
+                <div class="bi-segment-card__header">
+                  <span class="material-icons">{{ getSegmentConfig(segment.segment)?.icon }}</span>
+                  <span class="bi-segment-card__name">
+                    {{ isRTL() ? getSegmentConfig(segment.segment)?.labelAr : getSegmentConfig(segment.segment)?.labelEn }}
+                  </span>
+                </div>
+                <div class="bi-segment-card__stats">
+                  <span class="bi-segment-card__count">{{ formatNumber(segment.customerCount) }}</span>
+                  <span class="bi-segment-card__percent">{{ segment.percentageOfTotal | number:'1.1-1' }}%</span>
+                </div>
+                <div class="bi-segment-card__details">
+                  <span>{{ isRTL() ? 'متوسط القيمة:' : 'Avg CLV:' }} {{ formatCurrency(segment.averageCLV) }}</span>
+                  <span>{{ isRTL() ? 'خطر التسرب:' : 'Churn Risk:' }} {{ segment.averageChurnRisk | number:'1.0-0' }}%</span>
+                </div>
+              </article>
+            </div>
+          </div>
+        </section>
+      </ng-container>
+    </div>
+
+    <!-- Funnel Panel -->
+    <div
+      *ngIf="activeView() === 'funnel'"
+      id="panel-funnel"
+      role="tabpanel"
+      aria-labelledby="tab-funnel"
+      class="bi-panel"
+    >
+      <ng-container *ngIf="!isLoadingFunnel(); else panelSkeleton">
+        <section class="bi-card bi-card--full">
+          <header class="bi-card__header">
+            <h3 class="bi-card__title">
+              {{ isRTL() ? 'مسار التحويل' : 'Conversion Funnel' }}
+            </h3>
+          </header>
+          <div class="bi-card__content">
+            <!-- Funnel Visualization -->
+            <div class="bi-funnel">
+              <div
+                *ngFor="let stage of funnelChartData(); let i = index"
+                class="bi-funnel__stage"
+                [style.width]="stage.width"
+                [style.--stage-color]="funnelColorScheme.domain[i % funnelColorScheme.domain.length]"
+              >
+                <div class="bi-funnel__stage-content">
+                  <span class="material-icons">{{ funnelLabels[stage.stage]?.icon }}</span>
+                  <span class="bi-funnel__stage-label">
+                    {{ isRTL() ? funnelLabels[stage.stage]?.ar : funnelLabels[stage.stage]?.en }}
+                  </span>
+                  <span class="bi-funnel__stage-count">{{ formatNumber(stage.count) }}</span>
+                  <span class="bi-funnel__stage-rate">{{ formatPercent(stage.conversionRate) }}</span>
+                </div>
+                <div class="bi-funnel__drop-off" *ngIf="stage.dropOffRate > 0">
+                  <span class="material-icons">arrow_downward</span>
+                  <span>{{ formatPercent(stage.dropOffRate) }} {{ isRTL() ? 'تسرب' : 'drop-off' }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Biggest Drop-off Analysis -->
+        <section class="bi-card bi-card--alert" *ngIf="conversionFunnel()?.biggestDropOff">
+          <header class="bi-card__header">
+            <span class="material-icons bi-card__alert-icon">warning</span>
+            <h3 class="bi-card__title">
+              {{ isRTL() ? 'أكبر نقطة تسرب' : 'Biggest Drop-off Point' }}
+            </h3>
+          </header>
+          <div class="bi-card__content">
+            <div class="bi-drop-off-analysis">
+              <div class="bi-drop-off-analysis__metric">
+                <span class="bi-drop-off-analysis__value">
+                  {{ formatPercent(conversionFunnel()?.biggestDropOff?.dropOffRate || 0) }}
+                </span>
+                <span class="bi-drop-off-analysis__label">
+                  {{ isRTL() ? 'من' : 'From' }}
+                  {{ isRTL() ?
+                    funnelLabels[conversionFunnel()?.biggestDropOff?.fromStage || 'page_view']?.ar :
+                    funnelLabels[conversionFunnel()?.biggestDropOff?.fromStage || 'page_view']?.en }}
+                  {{ isRTL() ? 'إلى' : 'to' }}
+                  {{ isRTL() ?
+                    funnelLabels[conversionFunnel()?.biggestDropOff?.toStage || 'product_view']?.ar :
+                    funnelLabels[conversionFunnel()?.biggestDropOff?.toStage || 'product_view']?.en }}
+                </span>
+              </div>
+              <div class="bi-drop-off-analysis__lost">
+                <span class="material-icons">money_off</span>
+                <span>
+                  {{ isRTL() ? 'إيرادات ضائعة تقديرية:' : 'Est. Lost Revenue:' }}
+                  {{ formatCurrency(conversionFunnel()?.biggestDropOff?.estimatedLostRevenue || 0) }}
+                </span>
+              </div>
+              <div class="bi-drop-off-analysis__actions">
+                <h4>{{ isRTL() ? 'الإجراءات المقترحة' : 'Recommended Actions' }}</h4>
+                <ul>
+                  <li *ngFor="let action of conversionFunnel()?.biggestDropOff?.recommendedActions">
+                    {{ action }}
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </section>
+      </ng-container>
+    </div>
+
+    <!-- Abandonment Panel -->
+    <div
+      *ngIf="activeView() === 'abandonment'"
+      id="panel-abandonment"
+      role="tabpanel"
+      aria-labelledby="tab-abandonment"
+      class="bi-panel"
+    >
+      <ng-container *ngIf="!isLoadingAbandonment(); else panelSkeleton">
+        <!-- Abandonment content will be expanded -->
+        <section class="bi-card bi-card--full">
+          <header class="bi-card__header">
+            <h3 class="bi-card__title">
+              {{ isRTL() ? 'أسباب التخلي عن السلة' : 'Cart Abandonment Reasons' }}
+            </h3>
+          </header>
+          <div class="bi-card__content">
+            <div class="bi-chart-container" *ngIf="abandonmentReasonsChartData().length > 0">
+              <ngx-charts-pie-chart
+                [results]="abandonmentReasonsChartData()"
+                [scheme]="abandonmentColorScheme"
+                [legend]="true"
+                [legendTitle]="isRTL() ? 'الأسباب' : 'Reasons'"
+                [labels]="true"
+                [doughnut]="true"
+                [arcWidth]="0.4"
+                [view]="isMobileViewport() ? [320, 320] : [500, 320]"
+              >
+              </ngx-charts-pie-chart>
+            </div>
+          </div>
+        </section>
+      </ng-container>
+    </div>
+
+    <!-- Cohort Panel -->
+    <div
+      *ngIf="activeView() === 'cohort'"
+      id="panel-cohort"
+      role="tabpanel"
+      aria-labelledby="tab-cohort"
+      class="bi-panel"
+    >
+      <ng-container *ngIf="!isLoadingCohort(); else panelSkeleton">
+        <!-- Cohort Heatmap -->
+        <section class="bi-card bi-card--full">
+          <header class="bi-card__header">
+            <h3 class="bi-card__title">
+              {{ isRTL() ? 'خريطة حرارية للاحتفاظ' : 'Retention Heatmap' }}
+            </h3>
+          </header>
+          <div class="bi-card__content">
+            <div class="bi-heatmap" *ngIf="cohortHeatmapData().length > 0">
+              <div class="bi-heatmap__header">
+                <div class="bi-heatmap__label"></div>
+                <div
+                  *ngFor="let period of cohortHeatmapData()[0]?.periods; let i = index"
+                  class="bi-heatmap__col-header"
+                >
+                  {{ period.periodLabel }}
+                </div>
+              </div>
+              <div
+                *ngFor="let cohort of cohortHeatmapData()"
+                class="bi-heatmap__row"
+              >
+                <div class="bi-heatmap__row-label">{{ cohort.cohortLabel }}</div>
+                <div
+                  *ngFor="let period of cohort.periods"
+                  class="bi-heatmap__cell"
+                  [style.background-color]="getHeatmapColor(period.retentionRate)"
+                  [attr.title]="formatPercent(period.retentionRate) + ' retention'"
+                >
+                  <span class="bi-heatmap__cell-value">
+                    {{ (period.retentionRate * 100) | number:'1.0-0' }}%
+                  </span>
+                </div>
+              </div>
+            </div>
+            <!-- Heatmap Legend -->
+            <div class="bi-heatmap-legend">
+              <span class="bi-heatmap-legend__label">{{ isRTL() ? 'منخفض' : 'Low' }}</span>
+              <div class="bi-heatmap-legend__scale">
+                <div
+                  *ngFor="let color of cohortHeatmapColors"
+                  class="bi-heatmap-legend__item"
+                  [style.background-color]="color"
+                ></div>
+              </div>
+              <span class="bi-heatmap-legend__label">{{ isRTL() ? 'مرتفع' : 'High' }}</span>
+            </div>
+          </div>
+        </section>
+
+        <!-- Lifecycle Stages -->
+        <section class="bi-card bi-card--full">
+          <header class="bi-card__header">
+            <h3 class="bi-card__title">
+              {{ isRTL() ? 'مراحل دورة حياة العميل' : 'Customer Lifecycle Stages' }}
+            </h3>
+          </header>
+          <div class="bi-card__content">
+            <div class="bi-lifecycle-stages">
+              <article
+                *ngFor="let stage of cohortAnalysis()?.lifecycleStages"
+                class="bi-lifecycle-stage"
+                [class.bi-lifecycle-stage--new]="stage.stage === 'new'"
+                [class.bi-lifecycle-stage--active]="stage.stage === 'active'"
+                [class.bi-lifecycle-stage--at-risk]="stage.stage === 'at_risk'"
+                [class.bi-lifecycle-stage--dormant]="stage.stage === 'dormant'"
+                [class.bi-lifecycle-stage--churned]="stage.stage === 'churned'"
+              >
+                <div class="bi-lifecycle-stage__header">
+                  <span class="bi-lifecycle-stage__name">
+                    {{ isRTL() ? stage.labelAr : stage.labelEn }}
+                  </span>
+                  <span class="bi-lifecycle-stage__percent">{{ stage.percentage | number:'1.1-1' }}%</span>
+                </div>
+                <div class="bi-lifecycle-stage__bar">
+                  <div
+                    class="bi-lifecycle-stage__fill"
+                    [style.width.%]="stage.percentage"
+                  ></div>
+                </div>
+                <div class="bi-lifecycle-stage__stats">
+                  <span>{{ formatNumber(stage.count) }} {{ isRTL() ? 'عميل' : 'customers' }}</span>
+                  <span>{{ isRTL() ? 'متوسط القيمة:' : 'Avg value:' }} {{ formatCurrency(stage.averageValue) }}</span>
+                </div>
+              </article>
+            </div>
+          </div>
+        </section>
+      </ng-container>
+    </div>
+  </main>
+
+  <!-- =========================================================================
+       MOBILE BOTTOM NAVIGATION
+       ========================================================================= -->
+  <nav
+    class="bi-bottom-nav"
+    *ngIf="isMobileViewport()"
+    role="navigation"
+    [attr.aria-label]="isRTL() ? 'التنقل الرئيسي' : 'Main navigation'"
+  >
+    <button
+      *ngFor="let tab of tabs.slice(0, 5)"
+      type="button"
+      class="bi-bottom-nav__item"
+      [class.bi-bottom-nav__item--active]="activeView() === tab.id"
+      (click)="setActiveView(tab.id)"
+    >
+      <span class="material-icons">{{ tab.icon }}</span>
+      <span class="bi-bottom-nav__label">{{ isRTL() ? tab.labelAr : tab.labelEn }}</span>
+    </button>
+  </nav>
+
+  <!-- =========================================================================
+       FLOATING ACTION BUTTON (Mobile)
+       ========================================================================= -->
+  <button
+    *ngIf="isMobileViewport()"
+    type="button"
+    class="bi-fab"
+    (click)="refreshData()"
+    [disabled]="isLoading()"
+    [attr.aria-label]="isRTL() ? 'تحديث البيانات' : 'Refresh data'"
+  >
+    <span class="material-icons" [class.animate-spin]="isLoading()">refresh</span>
+  </button>
+</div>
+
+<!-- =========================================================================
+     SKELETON TEMPLATES
+     ========================================================================= -->
+
+<!-- Hero Card Skeleton -->
+<ng-template #heroSkeleton>
+  <div class="bi-skeleton bi-skeleton--hero">
+    <div class="bi-skeleton__header"></div>
+    <div class="bi-skeleton__value"></div>
+    <div class="bi-skeleton__label"></div>
+  </div>
+</ng-template>
+
+<!-- Card Content Skeleton -->
+<ng-template #cardSkeleton>
+  <div class="bi-skeleton bi-skeleton--card">
+    <div class="bi-skeleton__row"></div>
+    <div class="bi-skeleton__row bi-skeleton__row--short"></div>
+    <div class="bi-skeleton__row"></div>
+    <div class="bi-skeleton__chart"></div>
+  </div>
+</ng-template>
+
+<!-- Full Panel Skeleton -->
+<ng-template #panelSkeleton>
+  <div class="bi-skeleton bi-skeleton--panel">
+    <div class="bi-skeleton__header"></div>
+    <div class="bi-skeleton__chart bi-skeleton__chart--large"></div>
+    <div class="bi-skeleton__grid">
+      <div class="bi-skeleton__card"></div>
+      <div class="bi-skeleton__card"></div>
+      <div class="bi-skeleton__card"></div>
+      <div class="bi-skeleton__card"></div>
+    </div>
+  </div>
+</ng-template>

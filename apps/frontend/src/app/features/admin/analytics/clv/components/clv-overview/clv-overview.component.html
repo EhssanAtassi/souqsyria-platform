@@ -1,0 +1,209 @@
+<!--
+  CLV Overview Template
+  @description Main overview dashboard for CLV analytics
+-->
+
+<div class="clv-overview">
+  <!-- Loading State -->
+  @if (loading()) {
+    <div class="clv-overview__loading">
+      <div class="clv-overview__skeleton-grid">
+        @for (i of [1,2,3,4]; track i) {
+          <div class="clv-overview__skeleton-card"></div>
+        }
+      </div>
+      <div class="clv-overview__skeleton-charts">
+        <div class="clv-overview__skeleton-chart"></div>
+        <div class="clv-overview__skeleton-chart"></div>
+      </div>
+    </div>
+  }
+
+  <!-- Error State -->
+  @if (error()) {
+    <div class="clv-overview__error">
+      <span class="material-icons">error_outline</span>
+      <p>{{ error() }}</p>
+      <button type="button" (click)="onRefresh()">
+        <span class="material-icons">refresh</span>
+        Retry
+      </button>
+    </div>
+  }
+
+  <!-- Content -->
+  @if (!loading() && !error() && clvSummary()) {
+    <!-- KPI Cards Row -->
+    <div class="clv-overview__kpis">
+      <app-bi-kpi-card
+        title="Average CLV"
+        [value]="clvSummary()!.averageCLV"
+        format="currency"
+        currencyCode="SYP"
+        [change]="clvSummary()!.clvGrowthRate"
+        [trend]="clvSummary()!.clvGrowthRate > 0 ? 'up' : clvSummary()!.clvGrowthRate < 0 ? 'down' : 'neutral'"
+        [sparkline]="avgCLVSparkline()"
+        icon="monetization_on"
+        description="Average lifetime value per customer"
+      />
+
+      <app-bi-kpi-card
+        title="Total Customer Value"
+        [value]="clvSummary()!.totalCLV"
+        format="currency"
+        currencyCode="SYP"
+        icon="account_balance"
+        description="Combined lifetime value of all customers"
+      />
+
+      <app-bi-kpi-card
+        title="Total Customers"
+        [value]="clvSummary()!.totalCustomers"
+        format="compact"
+        [sparkline]="customerCountSparkline()"
+        icon="people"
+        description="Total number of tracked customers"
+      />
+
+      <app-bi-kpi-card
+        title="CLV Growth Rate"
+        [value]="clvSummary()!.clvGrowthRate"
+        format="percent"
+        [trend]="clvSummary()!.clvGrowthRate > 0 ? 'up' : clvSummary()!.clvGrowthRate < 0 ? 'down' : 'neutral'"
+        icon="trending_up"
+        description="Month-over-month CLV change"
+      />
+    </div>
+
+    <!-- Charts Row -->
+    <div class="clv-overview__charts">
+      <!-- CLV Trend Chart -->
+      <app-bi-chart-wrapper
+        title="CLV Trend Over Time"
+        subtitle="Average customer lifetime value by period"
+        [loading]="false"
+        [showExport]="true"
+        (export)="onChartExport($event)"
+      >
+        <div class="clv-overview__trend-chart">
+          @if (trendData().length > 0) {
+            <div class="clv-overview__trend-placeholder">
+              <!-- Chart would render here via ngx-charts -->
+              <div class="clv-overview__chart-info">
+                <span class="material-icons">show_chart</span>
+                <span>CLV Trend Chart</span>
+                <small>{{ trendData().length }} data points</small>
+              </div>
+            </div>
+          } @else {
+            <div class="clv-overview__no-data">
+              <span class="material-icons">timeline</span>
+              <span>No trend data available</span>
+            </div>
+          }
+        </div>
+      </app-bi-chart-wrapper>
+
+      <!-- Customer Segments Chart -->
+      <app-bi-chart-wrapper
+        title="Customer Segments"
+        subtitle="Distribution by value tier"
+        [loading]="false"
+        [showExport]="true"
+        (export)="onChartExport($event)"
+      >
+        @if (segmentChartData().length > 0) {
+          <app-bi-segment-chart
+            [segments]="segmentChartData()"
+            chartType="donut"
+            [showLegend]="true"
+            legendPosition="right"
+            [showPercentages]="true"
+            [showValues]="true"
+            valueFormat="number"
+            [centerText]="clvSummary()!.totalCustomers.toLocaleString()"
+            centerSubtext="customers"
+            (segmentClick)="onSegmentClick($event)"
+          />
+        } @else {
+          <div class="clv-overview__no-data">
+            <span class="material-icons">pie_chart</span>
+            <span>No segment data available</span>
+          </div>
+        }
+      </app-bi-chart-wrapper>
+    </div>
+
+    <!-- Insights Section -->
+    @if (insights().length > 0) {
+      <div class="clv-overview__insights">
+        <h3 class="clv-overview__section-title">
+          <span class="material-icons">lightbulb</span>
+          Quick Insights
+        </h3>
+        <div class="clv-overview__insight-cards">
+          @for (insight of insights(); track $index) {
+            <div
+              class="clv-overview__insight"
+              [class.clv-overview__insight--success]="insight.type === 'success'"
+              [class.clv-overview__insight--warning]="insight.type === 'warning'"
+              [class.clv-overview__insight--info]="insight.type === 'info'"
+            >
+              <span class="material-icons">
+                @switch (insight.type) {
+                  @case ('success') { check_circle }
+                  @case ('warning') { warning }
+                  @case ('info') { info }
+                }
+              </span>
+              <p>{{ insight.message }}</p>
+            </div>
+          }
+        </div>
+      </div>
+    }
+
+    <!-- Segment Details Table -->
+    @if (segments().length > 0) {
+      <div class="clv-overview__segment-details">
+        <h3 class="clv-overview__section-title">
+          <span class="material-icons">table_chart</span>
+          Segment Breakdown
+        </h3>
+        <div class="clv-overview__table-wrapper">
+          <table class="clv-overview__table">
+            <thead>
+              <tr>
+                <th>Segment</th>
+                <th>Customers</th>
+                <th>Avg CLV</th>
+                <th>Total Revenue</th>
+                <th>Revenue Share</th>
+                <th>Retention Rate</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (segment of segments(); track segment.tier) {
+                <tr>
+                  <td>
+                    <span
+                      class="clv-overview__segment-badge"
+                      [style.backgroundColor]="getSegmentColor(segment.tier)"
+                    >
+                      {{ formatSegmentLabel(segment.tier) }}
+                    </span>
+                  </td>
+                  <td>{{ segment.customerCount | number }}</td>
+                  <td>{{ formatCurrency(segment.avgCLV) }}</td>
+                  <td>{{ formatCurrency(segment.totalRevenue) }}</td>
+                  <td>{{ (segment.revenueShare * 100) | number:'1.1-1' }}%</td>
+                  <td>{{ (segment.retentionRate * 100) | number:'1.0-0' }}%</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+    }
+  }
+</div>

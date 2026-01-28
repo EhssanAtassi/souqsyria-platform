@@ -65,7 +65,7 @@ export class ShipmentsService {
   ): Promise<Shipment> {
     this.logger.log(`Creating shipment for order #${dto.order_id}`);
 
-    const order = await this.orderRepo.findOne({ where: { id: dto.order_id } });
+    const order = await this.orderRepo.findOne({ where: { id: dto.order_id } })!;
     if (!order) throw new NotFoundException('Order not found');
 
     const items = await this.orderItemRepo.findByIds(dto.order_item_ids);
@@ -112,9 +112,9 @@ export class ShipmentsService {
         shipment.tracking_url = res.trackingUrl;
         shipment.external_status = res.status;
         await this.shipmentRepo.save(shipment);
-      } catch (e) {
+      } catch (e: unknown) {
         this.logger.error(
-          `Failed to register shipment with carrier: ${e.message}`,
+          `Failed to register shipment with carrier: ${(e as Error).message}`,
         );
       }
     }

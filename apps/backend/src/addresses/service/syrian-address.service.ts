@@ -28,7 +28,6 @@ import {
   SyrianCityEntity,
   SyrianDistrictEntity,
   SyrianAddressEntity,
-  AddressType,
   AddressStatus,
   VerificationMethod,
 } from '../entities';
@@ -346,8 +345,8 @@ export class SyrianAddressService {
 
       // Initialize major cities (this would be expanded with full city data)
       await this.initializeMajorCities();
-    } catch (error) {
-      this.logger.error('Failed to initialize Syrian divisions', error.stack);
+    } catch (error: unknown) {
+      this.logger.error('Failed to initialize Syrian divisions', (error as Error).stack);
     }
   }
 
@@ -603,7 +602,7 @@ export class SyrianAddressService {
       (city ? city.logistics?.deliverySupported !== false : true);
 
     const baseDeliveryTime = city?.logistics?.averageDeliveryTime || 24;
-    const deliveryFee = this.calculateDeliveryFee(governorate, city);
+    const deliveryFee = this.calculateDeliveryFee(governorate, city ?? undefined);
 
     return {
       isSupported,
@@ -684,7 +683,7 @@ export class SyrianAddressService {
 
   private calculateDeliveryFee(
     governorate: SyrianGovernorateEntity,
-    city?: SyrianCityEntity,
+    __city?: SyrianCityEntity,
   ): number {
     let baseFee = 500; // SYP
 

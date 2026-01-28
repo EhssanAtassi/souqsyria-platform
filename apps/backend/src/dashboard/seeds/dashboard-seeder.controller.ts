@@ -266,7 +266,7 @@ export class DashboardSeederController {
         executionTime: stats.totalExecutionTime,
         timestamp: new Date().toISOString(),
       };
-    } catch (error) {
+    } catch (error: unknown) {
       this.logger.error('❌ Market overview seeding failed:', error);
       throw error;
     }
@@ -335,7 +335,7 @@ export class DashboardSeederController {
         executionTime: stats.totalExecutionTime,
         timestamp: new Date().toISOString(),
       };
-    } catch (error) {
+    } catch (error: unknown) {
       this.logger.error('❌ Business intelligence seeding failed:', error);
       throw error;
     }
@@ -402,7 +402,7 @@ export class DashboardSeederController {
         executionTime: stats.totalExecutionTime,
         timestamp: new Date().toISOString(),
       };
-    } catch (error) {
+    } catch (error: unknown) {
       this.logger.error('❌ Real-time metrics seeding failed:', error);
       throw error;
     }
@@ -471,7 +471,7 @@ export class DashboardSeederController {
         executionTime: stats.totalExecutionTime,
         timestamp: new Date().toISOString(),
       };
-    } catch (error) {
+    } catch (error: unknown) {
       this.logger.error('❌ Market trends seeding failed:', error);
       throw error;
     }
@@ -524,7 +524,7 @@ export class DashboardSeederController {
         executionTime: stats.totalExecutionTime,
         timestamp: new Date().toISOString(),
       };
-    } catch (error) {
+    } catch (error: unknown) {
       this.logger.error('❌ Historical data seeding failed:', error);
       throw error;
     }
@@ -617,7 +617,7 @@ export class DashboardSeederController {
         averageTimePerEntry: stats.totalExecutionTime / stats.bulkAnalyticsCreated,
         timestamp: new Date().toISOString(),
       };
-    } catch (error) {
+    } catch (error: unknown) {
       this.logger.error('❌ Bulk analytics seeding failed:', error);
       throw error;
     }
@@ -706,7 +706,7 @@ export class DashboardSeederController {
       this.logger.log(`📈 Statistics retrieved: ${stats.overview.marketDataEntries} market entries, ${stats.overview.intelligenceMetrics} intelligence metrics`);
       
       return stats;
-    } catch (error) {
+    } catch (error: unknown) {
       this.logger.error('❌ Failed to retrieve Dashboard statistics:', error);
       throw error;
     }
@@ -789,7 +789,7 @@ export class DashboardSeederController {
       }
 
       return response;
-    } catch (error) {
+    } catch (error: unknown) {
       this.logger.error('❌ Data integrity verification failed:', error);
       throw error;
     }
@@ -846,7 +846,7 @@ export class DashboardSeederController {
         warning: '⚠️ This operation cannot be undone',
         timestamp: new Date().toISOString(),
       };
-    } catch (error) {
+    } catch (error: unknown) {
       this.logger.error('❌ Failed to clear Dashboard analytics data:', error);
       throw error;
     }

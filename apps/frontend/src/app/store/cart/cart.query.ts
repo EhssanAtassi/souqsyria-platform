@@ -1,8 +1,9 @@
 import { Query } from '@datorama/akita';
 import { Injectable } from '@angular/core';
-import { CartStore } from './cart.store';
-import { Cart } from '../../shared/interfaces/cart.interface';
+import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
+import { CartStore } from './cart.store';
+import { Cart, CartItem, CartGroupedBySeller } from '../../shared/interfaces/cart.interface';
 
 /**
  * Cart Query Service
@@ -36,37 +37,37 @@ import { map } from 'rxjs/operators';
 export class CartQuery extends Query<Cart> {
 
   /** Observable of complete cart state */
-  cart$;
+  cart$!: Observable<Cart>;
 
   /** Observable of cart items array */
-  items$;
+  items$!: Observable<CartItem[]>;
 
   /** Observable of total item count */
-  itemCount$;
+  itemCount$!: Observable<number>;
 
   /** Observable of cart total amount */
-  total$;
+  total$!: Observable<number>;
 
   /** Observable of subtotal (before shipping and discounts) */
-  subtotal$;
+  subtotal$!: Observable<number>;
 
   /** Observable of applied discount amount */
-  discount$;
+  discount$!: Observable<number>;
 
   /** Observable of shipping cost */
-  shipping$;
+  shipping$!: Observable<number>;
 
   /**
    * Cart Empty State Observable
    * Returns true if cart has no items
    */
-  isEmpty$;
+  isEmpty$!: Observable<boolean>;
 
   /**
    * Discount Applied Observable
    * Returns true if any discount is applied
    */
-  hasDiscount$;
+  hasDiscount$!: Observable<boolean>;
 
   /**
    * Items Grouped by Seller Observable
@@ -79,7 +80,7 @@ export class CartQuery extends Query<Cart> {
    * - items: Array of items from this seller
    * - subtotal: Total for items from this seller
    */
-  itemsBySeller$;
+  itemsBySeller$!: Observable<CartGroupedBySeller[]>;
 
   constructor(protected override store: CartStore) {
     super(store);

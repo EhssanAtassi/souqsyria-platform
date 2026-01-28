@@ -1,0 +1,609 @@
+<!--
+  Refund Queue Component Template
+  @description Displays and manages customer refund requests
+-->
+
+<div class="refund-queue">
+  <!-- ===================================================================== -->
+  <!-- HEADER -->
+  <!-- ===================================================================== -->
+  <header class="refund-queue__header">
+    <div class="refund-queue__header-left">
+      <button class="btn btn--icon" (click)="goToOrders()" matTooltip="Back to Orders">
+        <span class="material-icons">arrow_back</span>
+      </button>
+      <div class="refund-queue__title">
+        <h1>Refund Queue</h1>
+        <span class="refund-queue__subtitle">Manage customer refund requests</span>
+      </div>
+    </div>
+
+    <div class="refund-queue__header-actions">
+      <button class="btn btn--secondary" (click)="refresh()">
+        <span class="material-icons">refresh</span>
+        Refresh
+      </button>
+    </div>
+  </header>
+
+  <!-- ===================================================================== -->
+  <!-- STATISTICS CARDS -->
+  <!-- ===================================================================== -->
+  <section class="refund-queue__stats">
+    <div class="stat-card stat-card--warning" (click)="applyStatusFilter('pending')">
+      <div class="stat-card__icon">
+        <span class="material-icons">pending_actions</span>
+      </div>
+      <div class="stat-card__content">
+        <span class="stat-card__value">{{ stats().pendingCount }}</span>
+        <span class="stat-card__label">Pending Requests</span>
+      </div>
+    </div>
+
+    <div class="stat-card stat-card--danger">
+      <div class="stat-card__icon">
+        <span class="material-icons">warning</span>
+      </div>
+      <div class="stat-card__content">
+        <span class="stat-card__value">{{ urgentCount() }}</span>
+        <span class="stat-card__label">Urgent (3+ days)</span>
+      </div>
+    </div>
+
+    <div class="stat-card stat-card--primary">
+      <div class="stat-card__icon">
+        <span class="material-icons">payments</span>
+      </div>
+      <div class="stat-card__content">
+        <span class="stat-card__value">{{ stats().pendingAmount | currencyFormat }}</span>
+        <span class="stat-card__label">Pending Amount</span>
+      </div>
+    </div>
+
+    <div class="stat-card stat-card--info">
+      <div class="stat-card__icon">
+        <span class="material-icons">schedule</span>
+      </div>
+      <div class="stat-card__content">
+        <span class="stat-card__value">{{ stats().avgProcessingDays }} days</span>
+        <span class="stat-card__label">Avg. Wait Time</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================================================================== -->
+  <!-- TOOLBAR -->
+  <!-- ===================================================================== -->
+  <section class="refund-queue__toolbar">
+    <!-- Status Filter -->
+    <div class="filter-group">
+      <label class="filter-group__label">Status</label>
+      <select
+        class="filter-group__select"
+        [ngModel]="statusFilter()"
+        (ngModelChange)="applyStatusFilter($event)"
+      >
+        @for (status of refundStatuses; track status.value) {
+          <option [value]="status.value">{{ status.label }}</option>
+        }
+      </select>
+    </div>
+
+    <!-- Urgency Filter -->
+    <div class="filter-group">
+      <label class="filter-group__label">Priority</label>
+      <select
+        class="filter-group__select"
+        [ngModel]="urgencyFilter()"
+        (ngModelChange)="applyUrgencyFilter($event)"
+      >
+        @for (option of urgencyOptions; track option.value) {
+          <option [value]="option.value">{{ option.label }}</option>
+        }
+      </select>
+    </div>
+
+    <!-- Spacer -->
+    <div class="refund-queue__toolbar-spacer"></div>
+
+    <!-- Results Info -->
+    <div class="refund-queue__results-info">
+      Showing {{ filteredRefunds().length }} of {{ pagination().total }} requests
+    </div>
+  </section>
+
+  <!-- ===================================================================== -->
+  <!-- REFUND TABLE -->
+  <!-- ===================================================================== -->
+  <section class="refund-queue__content">
+    @if (isLoading()) {
+      <div class="loading-state">
+        <div class="loading-spinner"></div>
+        <p>Loading refund requests...</p>
+      </div>
+    } @else if (filteredRefunds().length === 0) {
+      <div class="empty-state">
+        <span class="material-icons">inbox</span>
+        <h3>No Refund Requests</h3>
+        <p>
+          @if (statusFilter() !== 'all' || urgencyFilter() !== 'all') {
+            No refund requests match your filters. Try adjusting your criteria.
+          } @else {
+            There are no pending refund requests at this time.
+          }
+        </p>
+      </div>
+    } @else {
+      <div class="refund-table-container">
+        <table class="refund-table">
+          <thead>
+            <tr>
+              <th class="refund-table__th--order">Order</th>
+              <th class="refund-table__th--customer">Customer</th>
+              <th class="refund-table__th--amount">Amount</th>
+              <th class="refund-table__th--reason">Reason</th>
+              <th class="refund-table__th--status">Status</th>
+              <th class="refund-table__th--urgency">Priority</th>
+              <th class="refund-table__th--date">Requested</th>
+              <th class="refund-table__th--actions">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (refund of filteredRefunds(); track trackByRefundId($index, refund)) {
+              <tr class="refund-table__row" [class.refund-table__row--urgent]="refund.daysPending >= 3">
+                <!-- Order Info -->
+                <td class="refund-table__td--order">
+                  <div class="order-info">
+                    <a
+                      class="order-info__number"
+                      [routerLink]="['/admin/orders', refund.orderId]"
+                    >
+                      #{{ refund.orderNumber }}
+                    </a>
+                    <span class="order-info__items">
+                      {{ refund.affectedItemsCount }} item(s)
+                    </span>
+                  </div>
+                </td>
+
+                <!-- Customer -->
+                <td class="refund-table__td--customer">
+                  <div class="customer-info">
+                    <span class="customer-info__name">{{ refund.customerName }}</span>
+                    <span class="customer-info__email">{{ refund.customerEmail }}</span>
+                  </div>
+                </td>
+
+                <!-- Amount -->
+                <td class="refund-table__td--amount">
+                  <div class="amount-info">
+                    <span class="amount-info__requested">{{ refund.requestedAmount | currencyFormat }}</span>
+                    <span class="amount-info__percentage">
+                      {{ getRefundPercentage(refund.requestedAmount, refund.orderTotal) }}% of order
+                    </span>
+                  </div>
+                </td>
+
+                <!-- Reason -->
+                <td class="refund-table__td--reason">
+                  <span class="reason-text" [matTooltip]="refund.reason">
+                    {{ refund.reason.length > 40 ? (refund.reason | slice:0:40) + '...' : refund.reason }}
+                  </span>
+                </td>
+
+                <!-- Status -->
+                <td class="refund-table__td--status">
+                  <span
+                    class="status-badge"
+                    [attr.data-status]="refund.status"
+                  >
+                    {{ getStatusLabel(refund.status) }}
+                  </span>
+                </td>
+
+                <!-- Urgency/Priority -->
+                <td class="refund-table__td--urgency">
+                  <span
+                    class="urgency-badge"
+                    [attr.data-urgency]="getUrgencyClass(refund.daysPending)"
+                  >
+                    <span class="material-icons urgency-badge__icon">
+                      @switch (getUrgencyClass(refund.daysPending)) {
+                        @case ('critical') { error }
+                        @case ('urgent') { warning }
+                        @default { schedule }
+                      }
+                    </span>
+                    {{ refund.daysPending }}d
+                  </span>
+                </td>
+
+                <!-- Requested Date -->
+                <td class="refund-table__td--date">
+                  {{ formatShortDate(refund.requestedAt) }}
+                </td>
+
+                <!-- Actions -->
+                <td class="refund-table__td--actions">
+                  <div class="action-buttons">
+                    <button
+                      class="btn btn--icon btn--small"
+                      (click)="openRefundDetail(refund)"
+                      matTooltip="View Details"
+                    >
+                      <span class="material-icons">visibility</span>
+                    </button>
+
+                    @if (refund.status === 'pending') {
+                      <button
+                        class="btn btn--icon btn--small btn--success"
+                        (click)="openApproveDialog(refund)"
+                        matTooltip="Approve Refund"
+                      >
+                        <span class="material-icons">check_circle</span>
+                      </button>
+                      <button
+                        class="btn btn--icon btn--small btn--danger"
+                        (click)="openRejectDialog(refund)"
+                        matTooltip="Reject Refund"
+                      >
+                        <span class="material-icons">cancel</span>
+                      </button>
+                    }
+
+                    <button
+                      class="btn btn--icon btn--small"
+                      [matMenuTriggerFor]="actionMenu"
+                      matTooltip="More Actions"
+                    >
+                      <span class="material-icons">more_vert</span>
+                    </button>
+
+                    <mat-menu #actionMenu="matMenu">
+                      <button mat-menu-item (click)="viewOrder(refund.orderId)">
+                        <span class="material-icons">receipt_long</span>
+                        View Order
+                      </button>
+                      @if (refund.status === 'pending') {
+                        <button mat-menu-item (click)="quickApprove(refund)">
+                          <span class="material-icons">flash_on</span>
+                          Quick Approve
+                        </button>
+                      }
+                    </mat-menu>
+                  </div>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Pagination -->
+      @if (pagination().totalPages > 1) {
+        <div class="refund-queue__pagination">
+          <div class="pagination-info">
+            Page {{ pagination().page }} of {{ pagination().totalPages }}
+            ({{ pagination().total }} total)
+          </div>
+
+          <div class="pagination-controls">
+            <button
+              class="btn btn--icon btn--small"
+              [disabled]="pagination().page === 1"
+              (click)="goToPage(1)"
+              matTooltip="First Page"
+            >
+              <span class="material-icons">first_page</span>
+            </button>
+            <button
+              class="btn btn--icon btn--small"
+              [disabled]="pagination().page === 1"
+              (click)="goToPage(pagination().page - 1)"
+              matTooltip="Previous Page"
+            >
+              <span class="material-icons">chevron_left</span>
+            </button>
+
+            @for (page of pagesArray(); track page) {
+              @if (page === pagination().page ||
+                   page === 1 ||
+                   page === pagination().totalPages ||
+                   (page >= pagination().page - 1 && page <= pagination().page + 1)) {
+                <button
+                  class="btn btn--small"
+                  [class.btn--primary]="page === pagination().page"
+                  (click)="goToPage(page)"
+                >
+                  {{ page }}
+                </button>
+              } @else if (page === pagination().page - 2 || page === pagination().page + 2) {
+                <span class="pagination-ellipsis">...</span>
+              }
+            }
+
+            <button
+              class="btn btn--icon btn--small"
+              [disabled]="pagination().page === pagination().totalPages"
+              (click)="goToPage(pagination().page + 1)"
+              matTooltip="Next Page"
+            >
+              <span class="material-icons">chevron_right</span>
+            </button>
+            <button
+              class="btn btn--icon btn--small"
+              [disabled]="pagination().page === pagination().totalPages"
+              (click)="goToPage(pagination().totalPages)"
+              matTooltip="Last Page"
+            >
+              <span class="material-icons">last_page</span>
+            </button>
+          </div>
+
+          <div class="page-size-selector">
+            <label>Show:</label>
+            <select [ngModel]="pagination().limit" (ngModelChange)="changePageSize($event)">
+              <option [value]="10">10</option>
+              <option [value]="25">25</option>
+              <option [value]="50">50</option>
+            </select>
+          </div>
+        </div>
+      }
+    }
+  </section>
+</div>
+
+<!-- ======================================================================= -->
+<!-- REFUND DETAIL DIALOG -->
+<!-- ======================================================================= -->
+@if (showDetailDialog() && selectedRefund()) {
+  <div class="dialog-overlay" (click)="closeDetailDialog()">
+    <div class="dialog dialog--large" (click)="$event.stopPropagation()">
+      <div class="dialog__header">
+        <h2>Refund Request Details</h2>
+        <button class="btn btn--icon" (click)="closeDetailDialog()">
+          <span class="material-icons">close</span>
+        </button>
+      </div>
+
+      <div class="dialog__body">
+        <div class="refund-detail">
+          <!-- Order & Customer Section -->
+          <div class="refund-detail__section">
+            <h3 class="refund-detail__section-title">Order Information</h3>
+            <div class="refund-detail__grid">
+              <div class="refund-detail__field">
+                <label>Order Number</label>
+                <span>
+                  <a [routerLink]="['/admin/orders', selectedRefund()!.orderId]" (click)="closeDetailDialog()">
+                    #{{ selectedRefund()!.orderNumber }}
+                  </a>
+                </span>
+              </div>
+              <div class="refund-detail__field">
+                <label>Order Total</label>
+                <span>{{ selectedRefund()!.orderTotal | currencyFormat }}</span>
+              </div>
+              <div class="refund-detail__field">
+                <label>Affected Items</label>
+                <span>{{ selectedRefund()!.affectedItemsCount }} item(s)</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Customer Section -->
+          <div class="refund-detail__section">
+            <h3 class="refund-detail__section-title">Customer</h3>
+            <div class="refund-detail__grid">
+              <div class="refund-detail__field">
+                <label>Name</label>
+                <span>{{ selectedRefund()!.customerName }}</span>
+              </div>
+              <div class="refund-detail__field">
+                <label>Email</label>
+                <span>{{ selectedRefund()!.customerEmail }}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Refund Request Section -->
+          <div class="refund-detail__section">
+            <h3 class="refund-detail__section-title">Refund Request</h3>
+            <div class="refund-detail__grid">
+              <div class="refund-detail__field">
+                <label>Requested Amount</label>
+                <span class="refund-detail__amount">
+                  {{ selectedRefund()!.requestedAmount | currencyFormat }}
+                  <small>({{ getRefundPercentage(selectedRefund()!.requestedAmount, selectedRefund()!.orderTotal) }}% of order)</small>
+                </span>
+              </div>
+              <div class="refund-detail__field">
+                <label>Status</label>
+                <span
+                  class="status-badge"
+                  [attr.data-status]="selectedRefund()!.status"
+                >
+                  {{ getStatusLabel(selectedRefund()!.status) }}
+                </span>
+              </div>
+              <div class="refund-detail__field">
+                <label>Requested On</label>
+                <span>{{ formatDate(selectedRefund()!.requestedAt) }}</span>
+              </div>
+              <div class="refund-detail__field">
+                <label>Days Pending</label>
+                <span
+                  class="urgency-badge"
+                  [attr.data-urgency]="getUrgencyClass(selectedRefund()!.daysPending)"
+                >
+                  {{ selectedRefund()!.daysPending }} days
+                </span>
+              </div>
+            </div>
+
+            <div class="refund-detail__field refund-detail__field--full">
+              <label>Reason for Refund</label>
+              <p class="refund-detail__reason">{{ selectedRefund()!.reason }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="dialog__footer">
+        <button class="btn btn--secondary" (click)="closeDetailDialog()">
+          Close
+        </button>
+        @if (selectedRefund()!.status === 'pending') {
+          <button class="btn btn--danger" (click)="openRejectDialog(selectedRefund()!)">
+            <span class="material-icons">cancel</span>
+            Reject
+          </button>
+          <button class="btn btn--success" (click)="openApproveDialog(selectedRefund()!)">
+            <span class="material-icons">check_circle</span>
+            Approve
+          </button>
+        }
+      </div>
+    </div>
+  </div>
+}
+
+<!-- ======================================================================= -->
+<!-- PROCESS REFUND DIALOG (APPROVE/REJECT) -->
+<!-- ======================================================================= -->
+@if (showProcessDialog() && selectedRefund()) {
+  <div class="dialog-overlay" (click)="closeProcessDialog()">
+    <div class="dialog" (click)="$event.stopPropagation()">
+      <div class="dialog__header" [class.dialog__header--danger]="processAction === 'reject'">
+        <h2>
+          @if (processAction === 'approve') {
+            <span class="material-icons">check_circle</span>
+            Approve Refund
+          } @else {
+            <span class="material-icons">cancel</span>
+            Reject Refund
+          }
+        </h2>
+        <button class="btn btn--icon" (click)="closeProcessDialog()">
+          <span class="material-icons">close</span>
+        </button>
+      </div>
+
+      <div class="dialog__body">
+        <!-- Refund Summary -->
+        <div class="process-summary">
+          <div class="process-summary__item">
+            <label>Order:</label>
+            <span>#{{ selectedRefund()!.orderNumber }}</span>
+          </div>
+          <div class="process-summary__item">
+            <label>Customer:</label>
+            <span>{{ selectedRefund()!.customerName }}</span>
+          </div>
+          <div class="process-summary__item">
+            <label>Requested Amount:</label>
+            <span>{{ selectedRefund()!.requestedAmount | currencyFormat }}</span>
+          </div>
+        </div>
+
+        @if (processAction === 'approve') {
+          <!-- Partial Refund Option -->
+          <div class="form-group">
+            <label class="checkbox-label">
+              <input
+                type="checkbox"
+                [checked]="isPartialRefund"
+                (change)="togglePartialRefund()"
+              />
+              <span>Issue partial refund</span>
+            </label>
+          </div>
+
+          @if (isPartialRefund) {
+            <div class="form-group">
+              <label for="refundAmount">Refund Amount (SYP)</label>
+              <input
+                type="number"
+                id="refundAmount"
+                class="form-control"
+                [(ngModel)]="refundAmount"
+                [min]="0"
+                [max]="selectedRefund()!.requestedAmount"
+                placeholder="Enter refund amount"
+              />
+              <small class="form-hint">
+                Max: {{ selectedRefund()!.requestedAmount | currencyFormat }}
+              </small>
+            </div>
+          }
+
+          <!-- Restock Option -->
+          <div class="form-group">
+            <label class="checkbox-label">
+              <input type="checkbox" [(ngModel)]="restockItems" />
+              <span>Restock returned items to inventory</span>
+            </label>
+          </div>
+        }
+
+        <!-- Reason/Notes -->
+        <div class="form-group">
+          <label for="processReason">
+            @if (processAction === 'approve') {
+              Notes (optional)
+            } @else {
+              Rejection Reason *
+            }
+          </label>
+          <textarea
+            id="processReason"
+            class="form-control"
+            [(ngModel)]="processReason"
+            rows="3"
+            [placeholder]="processAction === 'approve'
+              ? 'Add any notes about this refund...'
+              : 'Please provide a reason for rejecting this refund request...'"
+            [required]="processAction === 'reject'"
+          ></textarea>
+        </div>
+
+        <!-- Notify Customer -->
+        <div class="form-group">
+          <label class="checkbox-label">
+            <input type="checkbox" [(ngModel)]="notifyCustomer" />
+            <span>Send email notification to customer</span>
+          </label>
+        </div>
+      </div>
+
+      <div class="dialog__footer">
+        <button
+          class="btn btn--secondary"
+          (click)="closeProcessDialog()"
+          [disabled]="isProcessing()"
+        >
+          Cancel
+        </button>
+        <button
+          class="btn"
+          [class.btn--success]="processAction === 'approve'"
+          [class.btn--danger]="processAction === 'reject'"
+          (click)="submitProcess()"
+          [disabled]="isProcessing() || (processAction === 'reject' && !processReason.trim())"
+        >
+          @if (isProcessing()) {
+            <span class="btn-spinner"></span>
+            Processing...
+          } @else if (processAction === 'approve') {
+            <span class="material-icons">check_circle</span>
+            {{ isPartialRefund ? 'Approve Partial Refund' : 'Approve Full Refund' }}
+          } @else {
+            <span class="material-icons">cancel</span>
+            Reject Refund
+          }
+        </button>
+      </div>
+    </div>
+  </div>
+}

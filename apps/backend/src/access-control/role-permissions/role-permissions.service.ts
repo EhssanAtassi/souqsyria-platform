@@ -54,7 +54,7 @@ export class RolePermissionsService {
     const { roleId, permissionId } = createRolePermissionDto;
 
     // Validate role exists
-    const role = await this.roleRepository.findOne({ where: { id: roleId } });
+    const role = await this.roleRepository.findOne({ where: { id: roleId } })!;
     if (!role) {
       throw new NotFoundException(`Role with ID ${roleId} not found`);
     }
@@ -113,7 +113,7 @@ export class RolePermissionsService {
     const { roleId, permissionIds, replaceExisting } = dto;
 
     // Validate role exists
-    const role = await this.roleRepository.findOne({ where: { id: roleId } });
+    const role = await this.roleRepository.findOne({ where: { id: roleId } })!;
     if (!role) {
       throw new NotFoundException(`Role with ID ${roleId} not found`);
     }
@@ -163,9 +163,9 @@ export class RolePermissionsService {
         });
         await this.rolePermissionRepository.save(rolePermission);
         assigned++;
-      } catch (error) {
+      } catch (error: unknown) {
         errors.push(
-          `Failed to assign permission ${permission.name}: ${error.message}`,
+          `Failed to assign permission ${permission.name}: ${(error as Error).message}`,
         );
       }
     }
@@ -196,7 +196,7 @@ export class RolePermissionsService {
     const { search, page = 1, limit = 20 } = query;
 
     // Validate role exists
-    const role = await this.roleRepository.findOne({ where: { id: roleId } });
+    const role = await this.roleRepository.findOne({ where: { id: roleId } })!;
     if (!role) {
       throw new NotFoundException(`Role with ID ${roleId} not found`);
     }
@@ -371,7 +371,7 @@ export class RolePermissionsService {
     adminUser: User,
   ): Promise<number> {
     // Validate role exists
-    const role = await this.roleRepository.findOne({ where: { id: roleId } });
+    const role = await this.roleRepository.findOne({ where: { id: roleId } })!;
     if (!role) {
       throw new NotFoundException(`Role with ID ${roleId} not found`);
     }

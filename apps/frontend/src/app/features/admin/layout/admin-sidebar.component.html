@@ -1,3 +1,6 @@
+<!-- Admin Sidebar Navigation -->
+<!-- Hierarchical navigation with expandable BI Analytics submenu -->
+
 <nav class="admin-sidebar" aria-label="Admin navigation">
   <div
     class="admin-sidebar__section"
@@ -6,14 +9,65 @@
     <p class="admin-sidebar__section-label">{{ section.label }}</p>
     <ul class="admin-sidebar__list">
       <li *ngFor="let item of section.items" class="admin-sidebar__item">
-        <a
-          [routerLink]="item.route"
-          routerLinkActive="admin-sidebar__link--active"
-          class="admin-sidebar__link"
-        >
-          <span class="admin-sidebar__icon" aria-hidden="true">{{ item.icon }}</span>
-          <span>{{ item.label }}</span>
-        </a>
+        <!-- Expandable Item (with children) -->
+        <ng-container *ngIf="item.expandable && item.children?.length; else simpleLink">
+          <button
+            type="button"
+            class="admin-sidebar__link admin-sidebar__link--expandable"
+            [class.admin-sidebar__link--expanded]="isExpanded(item.label)"
+            (click)="toggleExpanded(item.label)"
+            [attr.aria-expanded]="isExpanded(item.label)"
+            [attr.aria-controls]="'submenu-' + item.label"
+          >
+            <span class="admin-sidebar__icon material-icons" aria-hidden="true">{{ item.icon }}</span>
+            <span class="admin-sidebar__label">{{ item.label }}</span>
+            <span class="admin-sidebar__expand-icon material-icons" aria-hidden="true">
+              {{ isExpanded(item.label) ? 'expand_less' : 'expand_more' }}
+            </span>
+          </button>
+
+          <!-- Submenu -->
+          <ul
+            *ngIf="isExpanded(item.label)"
+            [id]="'submenu-' + item.label"
+            class="admin-sidebar__submenu"
+            role="menu"
+          >
+            <li *ngFor="let child of item.children" class="admin-sidebar__submenu-item" role="menuitem">
+              <a
+                [routerLink]="child.route"
+                routerLinkActive="admin-sidebar__submenu-link--active"
+                [routerLinkActiveOptions]="{ exact: child.route === '/admin/analytics' || child.route === '/admin/analytics/bi' }"
+                class="admin-sidebar__submenu-link"
+              >
+                <span class="admin-sidebar__submenu-icon material-icons" aria-hidden="true">{{ child.icon }}</span>
+                <span class="admin-sidebar__submenu-label">{{ child.label }}</span>
+                <span
+                  *ngIf="child.badge"
+                  class="admin-sidebar__badge"
+                  [class.admin-sidebar__badge--primary]="child.badgeColor === 'primary'"
+                  [class.admin-sidebar__badge--success]="child.badgeColor === 'success'"
+                  [class.admin-sidebar__badge--warning]="child.badgeColor === 'warning'"
+                  [class.admin-sidebar__badge--danger]="child.badgeColor === 'danger'"
+                >
+                  {{ child.badge }}
+                </span>
+              </a>
+            </li>
+          </ul>
+        </ng-container>
+
+        <!-- Simple Link (no children) -->
+        <ng-template #simpleLink>
+          <a
+            [routerLink]="item.route"
+            routerLinkActive="admin-sidebar__link--active"
+            class="admin-sidebar__link"
+          >
+            <span class="admin-sidebar__icon material-icons" aria-hidden="true">{{ item.icon }}</span>
+            <span>{{ item.label }}</span>
+          </a>
+        </ng-template>
       </li>
     </ul>
   </div>

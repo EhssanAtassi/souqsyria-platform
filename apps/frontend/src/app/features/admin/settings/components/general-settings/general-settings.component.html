@@ -1,0 +1,542 @@
+<!--
+  General Settings Component Template
+  @description Platform configuration management interface
+-->
+
+<div class="general-settings">
+  <!-- ===================================================================== -->
+  <!-- HEADER -->
+  <!-- ===================================================================== -->
+  <header class="general-settings__header">
+    <div class="general-settings__title">
+      <a routerLink="/admin/settings" class="back-link">
+        <span class="material-icons">arrow_back</span>
+      </a>
+      <div>
+        <h1>General Settings</h1>
+        <span class="general-settings__subtitle">Configure platform settings and preferences</span>
+      </div>
+    </div>
+
+    <div class="general-settings__actions">
+      <button
+        class="btn btn--secondary"
+        [disabled]="!hasChanges() || isSaving()"
+        (click)="resetSettings()"
+      >
+        <span class="material-icons">refresh</span>
+        Reset
+      </button>
+      <button
+        class="btn btn--primary"
+        [disabled]="!hasChanges() || isSaving()"
+        (click)="saveSettings()"
+      >
+        @if (isSaving()) {
+          <span class="btn-spinner"></span>
+          Saving...
+        } @else {
+          <span class="material-icons">save</span>
+          Save Changes
+        }
+      </button>
+    </div>
+  </header>
+
+  <!-- Alert Messages -->
+  @if (successMessage()) {
+    <div class="alert alert--success">
+      <span class="material-icons">check_circle</span>
+      <span>{{ successMessage() }}</span>
+      <button (click)="successMessage.set(null)">
+        <span class="material-icons">close</span>
+      </button>
+    </div>
+  }
+
+  @if (errorMessage()) {
+    <div class="alert alert--warning">
+      <span class="material-icons">warning</span>
+      <span>{{ errorMessage() }}</span>
+      <button (click)="errorMessage.set(null)">
+        <span class="material-icons">close</span>
+      </button>
+    </div>
+  }
+
+  @if (isLoading()) {
+    <div class="loading-state">
+      <div class="loading-spinner"></div>
+      <p>Loading settings...</p>
+    </div>
+  } @else {
+    <!-- ===================================================================== -->
+    <!-- TABS -->
+    <!-- ===================================================================== -->
+    <nav class="settings-tabs">
+      @for (tab of tabs; track trackByTab($index, tab)) {
+        <button
+          class="settings-tab"
+          [class.settings-tab--active]="activeTab() === tab.id"
+          (click)="setActiveTab(tab.id)"
+        >
+          <span class="material-icons">{{ tab.icon }}</span>
+          <span>{{ tab.label }}</span>
+        </button>
+      }
+    </nav>
+
+    <!-- ===================================================================== -->
+    <!-- TAB CONTENT -->
+    <!-- ===================================================================== -->
+    <div class="settings-content">
+      <!-- PLATFORM TAB -->
+      @if (isPlatformTab() && generalSettings()) {
+        <section class="settings-section">
+          <h2>
+            <span class="material-icons">dns</span>
+            Platform Information
+          </h2>
+
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="platformName">Platform Name</label>
+              <input
+                type="text"
+                id="platformName"
+                [ngModel]="generalSettings()!.platformName"
+                (ngModelChange)="updateGeneralField('platformName', $event)"
+              />
+              <span class="form-hint">Display name shown throughout the platform</span>
+            </div>
+
+            <div class="form-group">
+              <label for="contactEmail">Contact Email</label>
+              <input
+                type="email"
+                id="contactEmail"
+                [ngModel]="generalSettings()!.contactEmail"
+                (ngModelChange)="updateGeneralField('contactEmail', $event)"
+              />
+            </div>
+
+            <div class="form-group">
+              <label for="supportPhone">Support Phone</label>
+              <input
+                type="tel"
+                id="supportPhone"
+                [ngModel]="generalSettings()!.supportPhone"
+                (ngModelChange)="updateGeneralField('supportPhone', $event)"
+              />
+            </div>
+          </div>
+
+          <h3>
+            <span class="material-icons">engineering</span>
+            Maintenance Mode
+          </h3>
+
+          <div class="toggle-group">
+            <label class="toggle">
+              <input
+                type="checkbox"
+                [checked]="generalSettings()!.maintenanceMode"
+                (change)="updateGeneralField('maintenanceMode', $any($event.target).checked)"
+              />
+              <span class="toggle__slider"></span>
+              <span class="toggle__label">
+                {{ generalSettings()!.maintenanceMode ? 'Maintenance Mode Enabled' : 'Platform Operational' }}
+              </span>
+            </label>
+            @if (generalSettings()!.maintenanceMode) {
+              <div class="maintenance-warning">
+                <span class="material-icons">warning</span>
+                <span>Users will see a maintenance message when visiting the site</span>
+              </div>
+              <div class="form-group form-group--full">
+                <label for="maintenanceMessage">Maintenance Message</label>
+                <textarea
+                  id="maintenanceMessage"
+                  rows="3"
+                  [ngModel]="generalSettings()!.maintenanceMessage || ''"
+                  (ngModelChange)="updateGeneralField('maintenanceMessage', $event)"
+                  placeholder="We're currently performing scheduled maintenance..."
+                ></textarea>
+              </div>
+            }
+          </div>
+        </section>
+      }
+
+      <!-- LOCALIZATION TAB -->
+      @if (isLocalizationTab() && generalSettings()) {
+        <section class="settings-section">
+          <h2>
+            <span class="material-icons">language</span>
+            Languages
+          </h2>
+
+          <div class="form-group">
+            <label>Default Language</label>
+            <select
+              [ngModel]="generalSettings()!.defaultLanguage"
+              (ngModelChange)="updateGeneralField('defaultLanguage', $event)"
+            >
+              @for (lang of availableLanguages; track lang.code) {
+                <option
+                  [value]="lang.code"
+                  [disabled]="!isLanguageSupported(lang.code)"
+                >
+                  {{ lang.name }} ({{ lang.direction | uppercase }})
+                </option>
+              }
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Supported Languages</label>
+            <div class="checkbox-grid">
+              @for (lang of availableLanguages; track lang.code) {
+                <label class="checkbox-item">
+                  <input
+                    type="checkbox"
+                    [checked]="isLanguageSupported(lang.code)"
+                    [disabled]="lang.code === generalSettings()!.defaultLanguage"
+                    (change)="toggleLanguage(lang.code)"
+                  />
+                  <span>{{ lang.name }} ({{ lang.direction | uppercase }})</span>
+                </label>
+              }
+            </div>
+          </div>
+
+          <h2>
+            <span class="material-icons">attach_money</span>
+            Currencies
+          </h2>
+
+          <div class="form-group">
+            <label>Default Currency</label>
+            <select
+              [ngModel]="generalSettings()!.defaultCurrency"
+              (ngModelChange)="updateGeneralField('defaultCurrency', $event)"
+            >
+              @for (currency of availableCurrencies; track currency.code) {
+                <option
+                  [value]="currency.code"
+                  [disabled]="!isCurrencySupported(currency.code)"
+                >
+                  {{ currency.code }} - {{ currency.name }} ({{ currency.symbol }})
+                </option>
+              }
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Supported Currencies</label>
+            <div class="checkbox-grid">
+              @for (currency of availableCurrencies; track currency.code) {
+                <label class="checkbox-item">
+                  <input
+                    type="checkbox"
+                    [checked]="isCurrencySupported(currency.code)"
+                    [disabled]="currency.code === generalSettings()!.defaultCurrency"
+                    (change)="toggleCurrency(currency.code)"
+                  />
+                  <span>{{ currency.code }} - {{ currency.name }}</span>
+                </label>
+              }
+            </div>
+          </div>
+
+          <h2>
+            <span class="material-icons">schedule</span>
+            Date & Time
+          </h2>
+
+          <div class="form-grid">
+            <div class="form-group">
+              <label>Timezone</label>
+              <select
+                [ngModel]="generalSettings()!.timezone"
+                (ngModelChange)="updateGeneralField('timezone', $event)"
+              >
+                @for (tz of availableTimezones; track tz) {
+                  <option [value]="tz">{{ tz }}</option>
+                }
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label>Date Format</label>
+              <select
+                [ngModel]="generalSettings()!.dateFormat"
+                (ngModelChange)="updateGeneralField('dateFormat', $event)"
+              >
+                @for (format of dateFormats; track format.value) {
+                  <option [value]="format.value">{{ format.label }}</option>
+                }
+              </select>
+            </div>
+          </div>
+        </section>
+      }
+
+      <!-- COMMISSION TAB -->
+      @if (isCommissionTab() && commissionSettings()) {
+        <section class="settings-section">
+          <h2>
+            <span class="material-icons">percent</span>
+            Commission Rates
+          </h2>
+
+          <div class="form-grid form-grid--3col">
+            <div class="form-group">
+              <label for="defaultRate">Default Rate (%)</label>
+              <input
+                type="number"
+                id="defaultRate"
+                min="0"
+                max="100"
+                step="0.5"
+                [ngModel]="commissionSettings()!.defaultRate"
+                (ngModelChange)="updateCommissionField('defaultRate', $event)"
+              />
+              <span class="form-hint">Applied when no category rate exists</span>
+            </div>
+
+            <div class="form-group">
+              <label for="minRate">Minimum Rate (%)</label>
+              <input
+                type="number"
+                id="minRate"
+                min="0"
+                max="100"
+                step="0.5"
+                [ngModel]="commissionSettings()!.minRate"
+                (ngModelChange)="updateCommissionField('minRate', $event)"
+              />
+            </div>
+
+            <div class="form-group">
+              <label for="maxRate">Maximum Rate (%)</label>
+              <input
+                type="number"
+                id="maxRate"
+                min="0"
+                max="100"
+                step="0.5"
+                [ngModel]="commissionSettings()!.maxRate"
+                (ngModelChange)="updateCommissionField('maxRate', $event)"
+              />
+            </div>
+          </div>
+
+          <div class="toggle-group">
+            <label class="toggle">
+              <input
+                type="checkbox"
+                [checked]="commissionSettings()!.allowVendorRates"
+                (change)="updateCommissionField('allowVendorRates', $any($event.target).checked)"
+              />
+              <span class="toggle__slider"></span>
+              <span class="toggle__label">Allow vendor-specific commission rates</span>
+            </label>
+          </div>
+
+          <h3>Category Commission Rates</h3>
+          <div class="rate-table">
+            <div class="rate-table__header">
+              <span>Category</span>
+              <span>Rate (%)</span>
+            </div>
+            @for (category of commissionSettings()!.categoryRates; track trackByCategory($index, category)) {
+              <div class="rate-table__row">
+                <span class="rate-table__category">{{ category.categoryName }}</span>
+                <span class="rate-table__rate">{{ category.rate }}%</span>
+              </div>
+            }
+          </div>
+          <p class="form-hint">Category rates can be managed in the Category settings</p>
+        </section>
+      }
+
+      <!-- PAYMENT TAB -->
+      @if (isPaymentTab() && paymentSettings()) {
+        <section class="settings-section">
+          <h2>
+            <span class="material-icons">payment</span>
+            Payment Methods
+          </h2>
+
+          <div class="payment-methods">
+            @for (method of paymentSettings()!.enabledMethods; track trackByMethod($index, method)) {
+              <div class="payment-method" [class.payment-method--disabled]="!method.enabled">
+                <div class="payment-method__info">
+                  <span class="material-icons">{{ method.icon }}</span>
+                  <div>
+                    <span class="payment-method__name">{{ method.name }}</span>
+                    <span class="payment-method__type">{{ method.type | titlecase }}</span>
+                  </div>
+                </div>
+                <div class="payment-method__controls">
+                  @if (method.processingFee > 0) {
+                    <span class="payment-method__fee">{{ method.processingFee }}% fee</span>
+                  }
+                  <label class="toggle toggle--small">
+                    <input
+                      type="checkbox"
+                      [checked]="method.enabled"
+                      (change)="togglePaymentMethod(method.id)"
+                    />
+                    <span class="toggle__slider"></span>
+                  </label>
+                </div>
+              </div>
+            }
+          </div>
+
+          <h3>Payment Limits</h3>
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="minOrderAmount">Minimum Order Amount (SYP)</label>
+              <input
+                type="number"
+                id="minOrderAmount"
+                min="0"
+                [ngModel]="paymentSettings()!.minOrderAmount"
+                (ngModelChange)="updatePaymentField('minOrderAmount', $event)"
+              />
+            </div>
+
+            @if (paymentSettings()!.allowCOD) {
+              <div class="form-group">
+                <label for="codMaxAmount">COD Maximum Amount (SYP)</label>
+                <input
+                  type="number"
+                  id="codMaxAmount"
+                  min="0"
+                  [ngModel]="paymentSettings()!.codMaxAmount || 0"
+                  (ngModelChange)="updatePaymentField('codMaxAmount', $event)"
+                />
+              </div>
+            }
+          </div>
+
+          <h3>VAT Settings</h3>
+          <div class="toggle-group">
+            <label class="toggle">
+              <input
+                type="checkbox"
+                [checked]="paymentSettings()!.vatEnabled"
+                (change)="updatePaymentField('vatEnabled', $any($event.target).checked)"
+              />
+              <span class="toggle__slider"></span>
+              <span class="toggle__label">Enable VAT</span>
+            </label>
+
+            @if (paymentSettings()!.vatEnabled) {
+              <div class="form-group form-group--inline">
+                <label for="vatRate">VAT Rate (%)</label>
+                <input
+                  type="number"
+                  id="vatRate"
+                  min="0"
+                  max="100"
+                  step="0.5"
+                  class="input--small"
+                  [ngModel]="paymentSettings()!.vatRate"
+                  (ngModelChange)="updatePaymentField('vatRate', $event)"
+                />
+              </div>
+            }
+          </div>
+        </section>
+      }
+
+      <!-- SHIPPING TAB -->
+      @if (isShippingTab() && shippingSettings()) {
+        <section class="settings-section">
+          <h2>
+            <span class="material-icons">local_shipping</span>
+            Shipping Zones
+          </h2>
+
+          <div class="shipping-zones">
+            @for (zone of shippingSettings()!.zones; track trackByZone($index, zone)) {
+              <div class="shipping-zone" [class.shipping-zone--inactive]="!zone.active">
+                <div class="shipping-zone__header">
+                  <div class="shipping-zone__info">
+                    <span class="shipping-zone__name">{{ zone.name }}</span>
+                    <span class="shipping-zone__areas">{{ zone.areas.join(', ') }}</span>
+                  </div>
+                  <label class="toggle toggle--small">
+                    <input
+                      type="checkbox"
+                      [checked]="zone.active"
+                      (change)="toggleShippingZone(zone.id)"
+                    />
+                    <span class="toggle__slider"></span>
+                  </label>
+                </div>
+                <div class="shipping-zone__details">
+                  <div class="shipping-zone__stat">
+                    <span class="shipping-zone__stat-label">Base Rate</span>
+                    <span class="shipping-zone__stat-value">{{ formatCurrency(zone.baseRate) }}</span>
+                  </div>
+                  <div class="shipping-zone__stat">
+                    <span class="shipping-zone__stat-label">Per Item</span>
+                    <span class="shipping-zone__stat-value">+{{ formatCurrency(zone.perItemRate) }}</span>
+                  </div>
+                  <div class="shipping-zone__stat">
+                    <span class="shipping-zone__stat-label">Delivery</span>
+                    <span class="shipping-zone__stat-value">{{ zone.deliveryDays.min }}-{{ zone.deliveryDays.max }} days</span>
+                  </div>
+                </div>
+              </div>
+            }
+          </div>
+
+          <h3>Shipping Options</h3>
+          <div class="toggle-group">
+            <label class="toggle">
+              <input
+                type="checkbox"
+                [checked]="shippingSettings()!.freeShippingEnabled"
+                (change)="updateShippingField('freeShippingEnabled', $any($event.target).checked)"
+              />
+              <span class="toggle__slider"></span>
+              <span class="toggle__label">Enable free shipping threshold</span>
+            </label>
+
+            @if (shippingSettings()!.freeShippingEnabled) {
+              <div class="form-group form-group--inline">
+                <label for="freeShippingThreshold">Free shipping for orders over (SYP)</label>
+                <input
+                  type="number"
+                  id="freeShippingThreshold"
+                  min="0"
+                  class="input--medium"
+                  [ngModel]="shippingSettings()!.freeShippingThreshold || 0"
+                  (ngModelChange)="updateShippingField('freeShippingThreshold', $event)"
+                />
+              </div>
+            }
+          </div>
+
+          <div class="toggle-group">
+            <label class="toggle">
+              <input
+                type="checkbox"
+                [checked]="shippingSettings()!.sameDayDeliveryEnabled"
+                (change)="updateShippingField('sameDayDeliveryEnabled', $any($event.target).checked)"
+              />
+              <span class="toggle__slider"></span>
+              <span class="toggle__label">Enable same-day delivery (Damascus only)</span>
+            </label>
+          </div>
+        </section>
+      }
+    </div>
+  }
+</div>

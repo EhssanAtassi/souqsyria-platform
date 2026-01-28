@@ -465,7 +465,7 @@ export class SyrianAnalyticsService {
       this.logger.log(
         `Exchange rate updated: 1 USD = ${this.currentExchangeRate} SYP`,
       );
-    } catch (error) {
+    } catch (error: unknown) {
       this.logger.error('Failed to update exchange rates:', error);
     }
   }

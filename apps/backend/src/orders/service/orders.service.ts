@@ -72,16 +72,28 @@ export class OrdersService {
       throw new NotFoundException('One or more variants not found.');
     }
 
+    // PERF-C02: Batch stock fetching - single query instead of N queries
+    const stockMap = await this.stockService.getStockBatch(variantIds);
+
+    // Validate stock availability for all items
+    const insufficientStock: string[] = [];
     for (const item of dto.items) {
-      const available = await this.stockService.getStock(item.variant_id);
+      const available = stockMap.get(item.variant_id) || 0;
       if (available < item.quantity) {
+        insufficientStock.push(
+          `Variant ID ${item.variant_id}: requested ${item.quantity}, available ${available}`,
+        );
         this.logger.warn(
           `Variant ID ${item.variant_id} has only ${available} in stock.`,
         );
-        throw new BadRequestException(
-          `Variant ID ${item.variant_id} does not have enough stock.`,
-        );
       }
+    }
+
+    // Report all insufficient stock items at once for better UX
+    if (insufficientStock.length > 0) {
+      throw new BadRequestException(
+        `Insufficient stock for: ${insufficientStock.join('; ')}`,
+      );
     }
 
     const order = this.orderRepo.create({
@@ -167,10 +179,10 @@ export class OrdersService {
     if (dto.new_status === 'confirmed' && fromStatus !== 'confirmed') {
       try {
         await this.createShipmentForOrder(order, user);
-      } catch (error) {
+      } catch (error: unknown) {
         this.logger.error(
           `Failed to create shipment for order ${order.id}`,
-          error.stack,
+          (error as Error).stack,
         );
       }
     }

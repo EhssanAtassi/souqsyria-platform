@@ -88,7 +88,7 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
 
       // Pass profile to Passport (will be available as req.user in controller)
       done(null, googleProfile);
-    } catch (error) {
+    } catch (error: unknown) {
       // Handle any errors during profile processing
       done(error, null);
     }

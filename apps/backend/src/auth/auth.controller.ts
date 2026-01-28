@@ -131,8 +131,8 @@ export class AuthController {
           lastLoginAt: user.lastLoginAt,
         },
       };
-    } catch (error) {
-      this.logger.error(`Login failed: ${error.message}`, error.stack);
+    } catch (error: unknown) {
+      this.logger.error(`Login failed: ${(error as Error).message}`, (error as Error).stack);
       return {
         success: false,
         message: 'Login failed',
@@ -197,13 +197,13 @@ export class AuthController {
         `Google OAuth successful, redirecting to frontend: ${frontendUrl}`,
       );
       return res.redirect(redirectUrl.toString());
-    } catch (error) {
-      this.logger.error(`Google OAuth callback failed: ${error.message}`);
+    } catch (error: unknown) {
+      this.logger.error(`Google OAuth callback failed: ${(error as Error).message}`);
 
       // Redirect to frontend error page
       const frontendUrl = this.configService.get<string>('FRONTEND_URL');
       const errorUrl = new URL(`${frontendUrl}/auth/oauth/error`);
-      errorUrl.searchParams.set('error', error.message);
+      errorUrl.searchParams.set('error', (error as Error).message);
       errorUrl.searchParams.set('provider', 'google');
 
       return res.redirect(errorUrl.toString());
@@ -262,13 +262,13 @@ export class AuthController {
         `Facebook OAuth successful, redirecting to frontend: ${frontendUrl}`,
       );
       return res.redirect(redirectUrl.toString());
-    } catch (error) {
-      this.logger.error(`Facebook OAuth callback failed: ${error.message}`);
+    } catch (error: unknown) {
+      this.logger.error(`Facebook OAuth callback failed: ${(error as Error).message}`);
 
       // Redirect to frontend error page
       const frontendUrl = this.configService.get<string>('FRONTEND_URL');
       const errorUrl = new URL(`${frontendUrl}/auth/oauth/error`);
-      errorUrl.searchParams.set('error', error.message);
+      errorUrl.searchParams.set('error', (error as Error).message);
       errorUrl.searchParams.set('provider', 'facebook');
 
       return res.redirect(errorUrl.toString());

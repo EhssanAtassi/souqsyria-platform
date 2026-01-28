@@ -67,10 +67,10 @@ export class AnalyticsService {
       await this.analyticsRepository.save(analytics);
 
       this.logger.log(`✅ Analytics event tracked successfully`);
-    } catch (error) {
+    } catch (error: unknown) {
       this.logger.error(
-        `❌ Failed to track analytics event: ${error.message}`,
-        error.stack,
+        `❌ Failed to track analytics event: ${(error as Error).message}`,
+        (error as Error).stack,
       );
       // Don't throw error - analytics failures shouldn't break user experience
     }

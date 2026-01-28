@@ -28,6 +28,7 @@ import {
   IsNumber,
   Min,
 } from 'class-validator';
+import { applyDecorators } from '@nestjs/common';
 import { Transform } from 'class-transformer';
 import { ApiProperty } from '@nestjs/swagger';
 import { applyDecorators } from '@nestjs/common';

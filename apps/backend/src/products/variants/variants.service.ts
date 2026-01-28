@@ -68,9 +68,9 @@ export class VariantsService {
       this.logger.debug(
         `Initialized stock record for variant #${saved.id} in warehouse #${warehouseId}`,
       );
-    } catch (err) {
+    } catch (err: unknown) {
       this.logger.warn(
-        `Could not init stock for variant ${saved.id} in warehouse ${warehouseId}: ${err.message}`,
+        `Could not init stock for variant ${saved.id} in warehouse ${warehouseId}: ${(err as Error).message}`,
       );
     }
     return saved;
@@ -82,7 +82,7 @@ export class VariantsService {
    * @param dto Fields to update (partial)
    */
   async update(id: number, dto: UpdateProductVariantDto) {
-    const variant = await this.variantRepo.findOne({ where: { id } });
+    const variant = await this.variantRepo.findOne({ where: { id } })!;
     if (!variant) throw new NotFoundException('Variant not found');
     // ✅ If SKU changed, ensure it's not duplicated
     if (dto.sku && dto.sku !== variant.sku) {
@@ -149,7 +149,7 @@ export class VariantsService {
    * @param id Variant ID
    */
   async delete(id: number) {
-    const variant = await this.variantRepo.findOne({ where: { id } });
+    const variant = await this.variantRepo.findOne({ where: { id } })!;
     if (!variant) throw new NotFoundException('Variant not found');
 
     await this.variantRepo.remove(variant);
@@ -168,7 +168,7 @@ export class VariantsService {
    * @throws NotFoundException if variant doesn't exist
    */
   async remove(id: number): Promise<{ message: string }> {
-    const variant = await this.variantRepo.findOne({ where: { id } });
+    const variant = await this.variantRepo.findOne({ where: { id } })!;
     if (!variant) throw new NotFoundException('Variant not found');
 
     variant.isActive = false;

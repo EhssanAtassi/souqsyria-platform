@@ -1,67 +1,82 @@
-# ==========================================
-# Multi-stage Dockerfile for SouqSyria Frontend (Angular)
-# ==========================================
-# Stage 1: Build
-# ==========================================
-FROM node:20-alpine AS build
-
-# Install build dependencies for native modules
-RUN apk add --no-cache python3 make g++
+# ============================================================================
+# Stage 1: Builder
+# ============================================================================
+# Compiles Angular application from TypeScript to optimized JavaScript
+# Performs production build with ahead-of-time (AOT) compilation and
+# tree-shaking to minimize bundle size
+# ============================================================================
+FROM node:20-alpine AS builder
 
 # Set working directory
-WORKDIR /app
+WORKDIR /build
 
-# Copy package files
-COPY package*.json ./
+# Install build dependencies if needed
+RUN apk add --no-cache \
+    python3 \
+    make \
+    g++
 
-# Install dependencies (use npm install instead of npm ci for better ARM64 support)
-RUN npm install --legacy-peer-deps
+# Copy package files for dependency installation
+COPY package.json package-lock.json ./
 
-# Explicitly install rollup for ARM64 musl
-RUN npm install @rollup/rollup-linux-arm64-musl --save-optional --legacy-peer-deps || true
+# Install all dependencies using npm ci for reproducible builds
+# npm ci is preferred in Docker because it respects lock file exactly
+RUN npm ci
 
-# Copy source code and fix-budgets script
+# Copy source code
 COPY . .
 
-# Remove budget restrictions for Docker build
-RUN node fix-budgets.js
+# Build Angular application in production mode
+# Options:
+# --configuration production: Uses production build configuration
+# --output-hashing all: Enables content-based hashing for cache busting
+# --source-map false: Disables source maps to reduce bundle size
+# Results in optimized build output in dist/souq-syria-storefront/
+RUN npm run build -- --configuration production --source-map false
 
-# Build Angular application for production
-RUN npm run build -- --configuration production
+# ============================================================================
+# Stage 2: Production Runtime (Nginx)
+# ============================================================================
+# Lightweight Nginx image serves the compiled Angular SPA
+# Includes security headers, caching rules, and SPA routing configuration
+# ============================================================================
+FROM nginx:alpine
 
-# ==========================================
-# Stage 2: Production with Nginx
-# ==========================================
-FROM nginx:alpine AS production
+# Install curl for health checks
+RUN apk add --no-cache curl
 
-# Copy custom nginx configuration
+# Create non-root user for security
+RUN addgroup -g 101 -S nginx && \
+    adduser -S nginx -u 101
+
+# Copy Nginx configuration
+# Custom configuration handles SPA routing, caching, and security headers
 COPY nginx.conf /etc/nginx/nginx.conf
 
-# Remove default nginx website
-RUN rm -rf /usr/share/nginx/html/*
+# Copy compiled Angular application from builder stage
+# dist/souq-syria-storefront contains the production build output
+COPY --from=builder /build/dist/souq-syria-storefront /usr/share/nginx/html
 
-# Copy built Angular app from build stage (output is souq-syria-storefront)
-COPY --from=build /app/dist/souq-syria-storefront /usr/share/nginx/html
+# Create necessary directories with proper permissions
+RUN mkdir -p /var/cache/nginx && \
+    chown -R nginx:nginx /usr/share/nginx/html /var/cache/nginx /var/log/nginx && \
+    chmod -R 755 /usr/share/nginx/html
 
-# Add non-root user
-RUN addgroup -g 1001 -S angular && \
-    adduser -S angular -u 1001 && \
-    chown -R angular:angular /usr/share/nginx/html && \
-    chown -R angular:angular /var/cache/nginx && \
-    chown -R angular:angular /var/log/nginx && \
-    chown -R angular:angular /etc/nginx/conf.d && \
-    touch /var/run/nginx.pid && \
-    chown -R angular:angular /var/run/nginx.pid
+# Switch to nginx user for security
+USER nginx
 
-# Switch to non-root user
-USER angular
+# Expose port 80 for HTTP traffic
+EXPOSE 80
 
-# Expose port
-EXPOSE 4200
+# Health check configuration
+# Verifies that Nginx is responding to requests
+# - interval: Check every 30 seconds
+# - timeout: Allow 5 seconds for the check to complete
+# - retries: Mark unhealthy after 3 failed checks (90 seconds total)
+# - start-period: Allow 10 seconds for Nginx startup
+HEALTHCHECK --interval=30s --timeout=5s --retries=3 --start-period=10s \
+    CMD curl -f http://localhost/index.html || exit 1
 
-# Health check
-HEALTHCHECK --interval=30s --timeout=3s --start-period=10s --retries=3 \
-    CMD wget --no-verbose --tries=1 --spider http://localhost:4200/ || exit 1
-
-# Start nginx
+# Start Nginx in foreground mode
+# foreground mode ensures Nginx runs as PID 1 for proper signal handling
 CMD ["nginx", "-g", "daemon off;"]

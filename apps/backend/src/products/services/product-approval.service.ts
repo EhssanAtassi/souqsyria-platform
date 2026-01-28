@@ -111,10 +111,10 @@ export class ProductApprovalService {
       this.logger.log(
         `✅ Status change completed: ${product.nameEn} is now "${newStatus}" (${processingTime}ms)`,
       );
-    } catch (error) {
+    } catch (error: unknown) {
       this.logger.error(
-        `❌ Status change failed for product ${product.id}: ${error.message}`,
-        error.stack,
+        `❌ Status change failed for product ${product.id}: ${(error as Error).message}`,
+        (error as Error).stack,
       );
       throw error;
     }
@@ -154,9 +154,9 @@ export class ProductApprovalService {
       await this.handleStatusChange(product, 'pending', submittingUser);
 
       this.logger.log(`✅ Product ${productId} submitted for approval`);
-    } catch (error) {
+    } catch (error: unknown) {
       this.logger.error(
-        `❌ Failed to submit product ${productId} for approval: ${error.message}`,
+        `❌ Failed to submit product ${productId} for approval: ${(error as Error).message}`,
       );
       throw error;
     }
@@ -195,9 +195,9 @@ export class ProductApprovalService {
       await this.handleStatusChange(product, 'approved', adminUser, updateData);
 
       this.logger.log(`✅ Product ${productId} approved successfully`);
-    } catch (error) {
+    } catch (error: unknown) {
       this.logger.error(
-        `❌ Failed to approve product ${productId}: ${error.message}`,
+        `❌ Failed to approve product ${productId}: ${(error as Error).message}`,
       );
       throw error;
     }
@@ -242,9 +242,9 @@ export class ProductApprovalService {
       });
 
       this.logger.log(`❌ Product ${productId} rejected: ${rejectionReason}`);
-    } catch (error) {
+    } catch (error: unknown) {
       this.logger.error(
-        `❌ Failed to reject product ${productId}: ${error.message}`,
+        `❌ Failed to reject product ${productId}: ${(error as Error).message}`,
       );
       throw error;
     }
@@ -572,10 +572,10 @@ export class ProductApprovalService {
       }
 
       this.logger.debug(`✅ Post-approval actions completed for ${newStatus}`);
-    } catch (error) {
+    } catch (error: unknown) {
       this.logger.error(
-        `❌ Post-approval actions failed: ${error.message}`,
-        error.stack,
+        `❌ Post-approval actions failed: ${(error as Error).message}`,
+        (error as Error).stack,
       );
       // Don't throw - main operation succeeded
     }
@@ -772,15 +772,15 @@ export class ProductApprovalService {
 
         results.successful++;
         results.successfulIds.push(productId);
-      } catch (error) {
+      } catch (error: unknown) {
         this.logger.error(
-          `❌ Failed to change status for product ${productId}: ${error.message}`,
+          `❌ Failed to change status for product ${productId}: ${(error as Error).message}`,
         );
         results.failed++;
         results.failedIds.push(productId);
         results.errors.push({
           productId,
-          error: error.message,
+          error: (error as Error).message,
         });
       }
     }

@@ -1,0 +1,546 @@
+<!-- Product List Template -->
+<!-- Admin product catalog management with filtering and bulk actions -->
+
+<section class="product-list" aria-label="Product management">
+  <!-- Header with Statistics -->
+  <header class="product-list__header">
+    <div class="product-list__title-section">
+      <h1 class="product-list__title">Product Catalog</h1>
+      <p class="product-list__subtitle">
+        Manage products, approvals, and inventory
+      </p>
+    </div>
+
+    <!-- Quick Stats -->
+    <div class="product-list__stats" *ngIf="statistics()">
+      <article class="stat-card stat-card--compact">
+        <span class="material-icons stat-card__icon">inventory_2</span>
+        <div class="stat-card__content">
+          <span class="stat-card__value">{{ statistics()?.total | number }}</span>
+          <span class="stat-card__label">Total Products</span>
+        </div>
+      </article>
+
+      <article class="stat-card stat-card--compact stat-card--success">
+        <span class="material-icons stat-card__icon">check_circle</span>
+        <div class="stat-card__content">
+          <span class="stat-card__value">{{ statistics()?.active | number }}</span>
+          <span class="stat-card__label">Active</span>
+        </div>
+      </article>
+
+      <article class="stat-card stat-card--compact stat-card--warning">
+        <span class="material-icons stat-card__icon">pending</span>
+        <div class="stat-card__content">
+          <span class="stat-card__value">{{ statistics()?.pendingApproval | number }}</span>
+          <span class="stat-card__label">Pending Approval</span>
+        </div>
+      </article>
+
+      <article class="stat-card stat-card--compact stat-card--danger">
+        <span class="material-icons stat-card__icon">warning</span>
+        <div class="stat-card__content">
+          <span class="stat-card__value">{{ statistics()?.lowStockCount | number }}</span>
+          <span class="stat-card__label">Low Stock</span>
+        </div>
+      </article>
+    </div>
+  </header>
+
+  <!-- Toolbar -->
+  <div class="product-list__toolbar">
+    <!-- Search -->
+    <div class="product-list__search">
+      <span class="material-icons product-list__search-icon">search</span>
+      <input
+        type="text"
+        class="product-list__search-input"
+        placeholder="Search by name, SKU..."
+        [value]="searchTerm()"
+        (input)="onSearchInput($event)"
+        aria-label="Search products"
+      />
+      <button
+        *ngIf="searchTerm()"
+        type="button"
+        class="product-list__search-clear"
+        (click)="clearSearch()"
+        aria-label="Clear search"
+      >
+        <span class="material-icons">close</span>
+      </button>
+    </div>
+
+    <!-- Filters -->
+    <div class="product-list__filters">
+      <!-- Approval Status Filter -->
+      <select
+        class="product-list__filter-select"
+        [ngModel]="currentFilters().approvalStatus || ''"
+        (ngModelChange)="onFilterChange('approvalStatus', $event)"
+        aria-label="Filter by approval status"
+      >
+        <option *ngFor="let option of approvalStatusOptions" [value]="option.value">
+          {{ option.label }}
+        </option>
+      </select>
+
+      <!-- Product Status Filter -->
+      <select
+        class="product-list__filter-select"
+        [ngModel]="currentFilters().status || ''"
+        (ngModelChange)="onFilterChange('status', $event)"
+        aria-label="Filter by product status"
+      >
+        <option *ngFor="let option of statusOptions" [value]="option.value">
+          {{ option.label }}
+        </option>
+      </select>
+
+      <!-- Low Stock Filter -->
+      <label class="product-list__filter-checkbox">
+        <input
+          type="checkbox"
+          [ngModel]="currentFilters().lowStock || false"
+          (ngModelChange)="onFilterChange('lowStock', $event)"
+        />
+        <span>Low Stock Only</span>
+      </label>
+
+      <!-- Clear Filters -->
+      <button
+        type="button"
+        class="product-list__filter-clear"
+        (click)="clearFilters()"
+        *ngIf="searchTerm() || currentFilters().approvalStatus || currentFilters().status || currentFilters().lowStock"
+      >
+        <span class="material-icons">filter_alt_off</span>
+        Clear Filters
+      </button>
+    </div>
+
+    <!-- Actions -->
+    <div class="product-list__actions">
+      <button
+        type="button"
+        class="product-list__action-btn"
+        routerLink="/admin/products/pending"
+        matTooltip="View approval queue"
+      >
+        <span class="material-icons">approval</span>
+        <span class="product-list__action-label">Approval Queue</span>
+        <span class="product-list__badge" *ngIf="statistics()?.pendingApproval">
+          {{ statistics()?.pendingApproval }}
+        </span>
+      </button>
+
+      <button
+        type="button"
+        class="product-list__action-btn"
+        routerLink="/admin/products/categories"
+        matTooltip="Manage categories"
+      >
+        <span class="material-icons">category</span>
+        <span class="product-list__action-label">Categories</span>
+      </button>
+
+      <button
+        type="button"
+        class="product-list__action-btn"
+        (click)="refresh()"
+        matTooltip="Refresh data"
+      >
+        <span class="material-icons">refresh</span>
+      </button>
+
+      <!-- Export Menu -->
+      <button
+        type="button"
+        class="product-list__action-btn"
+        [matMenuTriggerFor]="exportMenu"
+        matTooltip="Export products"
+      >
+        <span class="material-icons">download</span>
+        <span class="product-list__action-label">Export</span>
+      </button>
+
+      <mat-menu #exportMenu="matMenu">
+        <button mat-menu-item (click)="exportProducts('csv')">
+          <span class="material-icons">description</span>
+          <span>Export as CSV</span>
+        </button>
+        <button mat-menu-item (click)="exportProducts('xlsx')">
+          <span class="material-icons">table_chart</span>
+          <span>Export as Excel</span>
+        </button>
+      </mat-menu>
+    </div>
+  </div>
+
+  <!-- Bulk Actions Bar -->
+  <div class="product-list__bulk-bar" *ngIf="showBulkActions()">
+    <span class="product-list__bulk-count">
+      {{ selectedCount() }} product{{ selectedCount() > 1 ? 's' : '' }} selected
+    </span>
+
+    <div class="product-list__bulk-actions">
+      <button
+        type="button"
+        class="product-list__bulk-btn product-list__bulk-btn--success"
+        (click)="bulkApprove()"
+        matTooltip="Approve selected products"
+      >
+        <span class="material-icons">check_circle</span>
+        Approve
+      </button>
+
+      <button
+        type="button"
+        class="product-list__bulk-btn"
+        (click)="bulkActivate()"
+        matTooltip="Activate selected products"
+      >
+        <span class="material-icons">toggle_on</span>
+        Activate
+      </button>
+
+      <button
+        type="button"
+        class="product-list__bulk-btn product-list__bulk-btn--warning"
+        (click)="bulkDeactivate()"
+        matTooltip="Deactivate selected products"
+      >
+        <span class="material-icons">toggle_off</span>
+        Deactivate
+      </button>
+
+      <button
+        type="button"
+        class="product-list__bulk-btn"
+        (click)="clearSelection()"
+        matTooltip="Clear selection"
+      >
+        <span class="material-icons">close</span>
+        Clear
+      </button>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div
+    *ngIf="isLoading()"
+    class="product-list__loading"
+    role="status"
+    aria-live="polite"
+    aria-label="Loading products"
+  >
+    <span class="material-icons animate-spin" aria-hidden="true">sync</span>
+    <p>Loading products...</p>
+  </div>
+
+  <!-- Products Table -->
+  <div
+    class="product-list__table-wrapper"
+    *ngIf="!isLoading()"
+    [attr.aria-busy]="isLoading()"
+  >
+    <table
+      class="product-list__table"
+      *ngIf="products().length > 0"
+      role="grid"
+      aria-label="Product catalog"
+      [attr.aria-describedby]="'product-table-info'"
+      [attr.aria-rowcount]="pagination().total"
+    >
+      <!-- Screen reader description -->
+      <caption id="product-table-info" class="sr-only">
+        Product catalog table showing {{ pagination().total }} products.
+        Use column headers to sort. Select rows for bulk actions.
+      </caption>
+      <thead>
+        <tr role="row">
+          <th scope="col" class="product-list__th product-list__th--checkbox">
+            <input
+              type="checkbox"
+              [checked]="allSelected()"
+              [indeterminate]="someSelected()"
+              (change)="toggleSelectAll()"
+              aria-label="Select all products on this page"
+            />
+          </th>
+          <th
+            scope="col"
+            class="product-list__th product-list__th--product"
+            [attr.aria-sort]="sortField() === 'name' ? (sortOrder() === 'asc' ? 'ascending' : 'descending') : 'none'"
+          >
+            <button
+              type="button"
+              class="product-list__sort-btn"
+              (click)="onSortChange('name')"
+              [attr.aria-label]="'Sort by product name, currently ' + (sortField() === 'name' ? (sortOrder() === 'asc' ? 'ascending' : 'descending') : 'unsorted')"
+            >
+              Product
+              <span class="material-icons" aria-hidden="true">{{ getSortIcon('name') }}</span>
+            </button>
+          </th>
+          <th scope="col" class="product-list__th">SKU</th>
+          <th
+            scope="col"
+            class="product-list__th"
+            [attr.aria-sort]="sortField() === 'price' ? (sortOrder() === 'asc' ? 'ascending' : 'descending') : 'none'"
+          >
+            <button
+              type="button"
+              class="product-list__sort-btn"
+              (click)="onSortChange('price')"
+              [attr.aria-label]="'Sort by price, currently ' + (sortField() === 'price' ? (sortOrder() === 'asc' ? 'ascending' : 'descending') : 'unsorted')"
+            >
+              Price
+              <span class="material-icons" aria-hidden="true">{{ getSortIcon('price') }}</span>
+            </button>
+          </th>
+          <th
+            scope="col"
+            class="product-list__th"
+            [attr.aria-sort]="sortField() === 'stock' ? (sortOrder() === 'asc' ? 'ascending' : 'descending') : 'none'"
+          >
+            <button
+              type="button"
+              class="product-list__sort-btn"
+              (click)="onSortChange('stock')"
+              [attr.aria-label]="'Sort by stock, currently ' + (sortField() === 'stock' ? (sortOrder() === 'asc' ? 'ascending' : 'descending') : 'unsorted')"
+            >
+              Stock
+              <span class="material-icons" aria-hidden="true">{{ getSortIcon('stock') }}</span>
+            </button>
+          </th>
+          <th scope="col" class="product-list__th">Vendor</th>
+          <th scope="col" class="product-list__th">Approval</th>
+          <th scope="col" class="product-list__th">Status</th>
+          <th
+            scope="col"
+            class="product-list__th"
+            [attr.aria-sort]="sortField() === 'sales' ? (sortOrder() === 'asc' ? 'ascending' : 'descending') : 'none'"
+          >
+            <button
+              type="button"
+              class="product-list__sort-btn"
+              (click)="onSortChange('sales')"
+              [attr.aria-label]="'Sort by sales, currently ' + (sortField() === 'sales' ? (sortOrder() === 'asc' ? 'ascending' : 'descending') : 'unsorted')"
+            >
+              Sales
+              <span class="material-icons" aria-hidden="true">{{ getSortIcon('sales') }}</span>
+            </button>
+          </th>
+          <th scope="col" class="product-list__th product-list__th--actions">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr
+          *ngFor="let product of products(); trackBy: trackByProductId"
+          role="row"
+          class="product-list__tr"
+          [class.product-list__tr--selected]="isSelected(product.id)"
+          [attr.aria-selected]="isSelected(product.id)"
+          (click)="viewProduct(product.id)"
+          (keydown.enter)="viewProduct(product.id)"
+          tabindex="0"
+        >
+          <td role="gridcell" class="product-list__td product-list__td--checkbox" (click)="$event.stopPropagation()">
+            <input
+              type="checkbox"
+              [checked]="isSelected(product.id)"
+              (change)="toggleSelection(product.id)"
+              [attr.aria-label]="'Select ' + product.nameEn"
+            />
+          </td>
+
+          <td class="product-list__td product-list__td--product">
+            <div class="product-list__product-info">
+              <img
+                *ngIf="product.thumbnail"
+                [src]="product.thumbnail"
+                [alt]="product.nameEn"
+                class="product-list__product-thumb"
+              />
+              <div *ngIf="!product.thumbnail" class="product-list__product-thumb-placeholder">
+                <span class="material-icons">image</span>
+              </div>
+              <div class="product-list__product-details">
+                <span class="product-list__product-name">{{ product.nameEn }}</span>
+                <span class="product-list__product-category">{{ product.category?.nameEn }}</span>
+              </div>
+            </div>
+          </td>
+
+          <td class="product-list__td">
+            <code class="product-list__sku">{{ product.sku }}</code>
+          </td>
+
+          <td class="product-list__td product-list__td--price">
+            <span class="product-list__price">{{ product.price | currencyFormat }}</span>
+            <span *ngIf="product.salePrice" class="product-list__sale-price">
+              {{ product.salePrice | currencyFormat }}
+            </span>
+          </td>
+
+          <td class="product-list__td">
+            <span
+              class="product-list__stock"
+              [class.product-list__stock--low]="product.stock < 10"
+              [class.product-list__stock--out]="product.stock === 0"
+            >
+              {{ product.stock }}
+            </span>
+          </td>
+
+          <td class="product-list__td">
+            <div class="product-list__vendor">
+              <span class="product-list__vendor-name">{{ product.vendor?.shopName }}</span>
+              <span
+                *ngIf="product.vendor?.isVerified"
+                class="product-list__vendor-verified"
+                matTooltip="Verified vendor"
+              >
+                <span class="material-icons">verified</span>
+              </span>
+            </div>
+          </td>
+
+          <td class="product-list__td">
+            <app-admin-status-badge
+              [status]="product.approvalStatus"
+              [variant]="getApprovalVariant(product.approvalStatus)"
+            />
+          </td>
+
+          <td class="product-list__td">
+            <app-admin-status-badge
+              [status]="product.status"
+              [variant]="getStatusVariant(product.status)"
+            />
+          </td>
+
+          <td class="product-list__td product-list__td--sales">
+            <div class="product-list__sales-info">
+              <span class="product-list__sales-count">{{ product.totalSold | number }}</span>
+              <div class="product-list__rating" *ngIf="product.averageRating > 0">
+                <span class="material-icons">star</span>
+                <span>{{ product.averageRating | number:'1.1-1' }}</span>
+                <span class="product-list__review-count">({{ product.reviewCount }})</span>
+              </div>
+            </div>
+          </td>
+
+          <td class="product-list__td product-list__td--actions" (click)="$event.stopPropagation()">
+            <button
+              *ngIf="product.approvalStatus === 'pending'"
+              type="button"
+              class="product-list__quick-btn product-list__quick-btn--approve"
+              (click)="quickApprove(product, $event)"
+              matTooltip="Quick approve"
+            >
+              <span class="material-icons">check</span>
+            </button>
+
+            <button
+              type="button"
+              class="product-list__quick-btn"
+              [matMenuTriggerFor]="rowMenu"
+              matTooltip="More actions"
+            >
+              <span class="material-icons">more_vert</span>
+            </button>
+
+            <mat-menu #rowMenu="matMenu">
+              <button mat-menu-item (click)="viewProduct(product.id)">
+                <span class="material-icons">visibility</span>
+                <span>View Details</span>
+              </button>
+              <button mat-menu-item (click)="openStatusDialog(product, $event)">
+                <span class="material-icons">edit</span>
+                <span>Change Status</span>
+              </button>
+              <button mat-menu-item (click)="toggleFeatured(product, $event)">
+                <span class="material-icons">star</span>
+                <span>Toggle Featured</span>
+              </button>
+            </mat-menu>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- Empty State -->
+    <div *ngIf="products().length === 0" class="product-list__empty">
+      <span class="material-icons">inventory_2</span>
+      <h3>No Products Found</h3>
+      <p>Try adjusting your filters or search term.</p>
+      <button
+        type="button"
+        class="product-list__empty-btn"
+        (click)="clearFilters()"
+      >
+        Clear Filters
+      </button>
+    </div>
+  </div>
+
+  <!-- Pagination -->
+  <footer class="product-list__pagination" *ngIf="!isLoading() && products().length > 0">
+    <div class="product-list__page-size">
+      <label>Rows per page:</label>
+      <select
+        [ngModel]="pagination().limit"
+        (ngModelChange)="changePageSize($event)"
+        aria-label="Rows per page"
+      >
+        <option [value]="10">10</option>
+        <option [value]="20">20</option>
+        <option [value]="50">50</option>
+        <option [value]="100">100</option>
+      </select>
+    </div>
+
+    <span class="product-list__page-info">{{ paginationText() }}</span>
+
+    <div class="product-list__page-controls">
+      <button
+        type="button"
+        class="product-list__page-btn"
+        [disabled]="pagination().page === 1"
+        (click)="goToPage(1)"
+        aria-label="First page"
+      >
+        <span class="material-icons">first_page</span>
+      </button>
+      <button
+        type="button"
+        class="product-list__page-btn"
+        [disabled]="pagination().page === 1"
+        (click)="previousPage()"
+        aria-label="Previous page"
+      >
+        <span class="material-icons">chevron_left</span>
+      </button>
+      <button
+        type="button"
+        class="product-list__page-btn"
+        [disabled]="pagination().page >= pagination().totalPages"
+        (click)="nextPage()"
+        aria-label="Next page"
+      >
+        <span class="material-icons">chevron_right</span>
+      </button>
+      <button
+        type="button"
+        class="product-list__page-btn"
+        [disabled]="pagination().page >= pagination().totalPages"
+        (click)="goToPage(pagination().totalPages)"
+        aria-label="Last page"
+      >
+        <span class="material-icons">last_page</span>
+      </button>
+    </div>
+  </footer>
+</section>

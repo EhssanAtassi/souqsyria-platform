@@ -272,7 +272,7 @@ export class AuditLog {
 
     try {
       return crypto.createHmac('sha256', secret).update(data).digest('hex');
-    } catch (error) {
+    } catch (error: unknown) {
       // Fallback to simple checksum if crypto fails
       return `checksum_${data.length}_${Date.now()}`;
     }

@@ -359,12 +359,12 @@ export class BrandSeederController {
         result,
         timestamp: new Date().toISOString(),
       };
-    } catch (error) {
+    } catch (error: unknown) {
       const totalTime = Date.now() - startTime;
 
       this.logger.error(
-        `❌ Brand seeding failed after ${totalTime}ms: ${error.message}`,
-        error.stack,
+        `❌ Brand seeding failed after ${totalTime}ms: ${(error as Error).message}`,
+        (error as Error).stack,
       );
 
       throw error;

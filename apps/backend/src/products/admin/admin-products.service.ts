@@ -103,7 +103,7 @@ export class AdminProductsService {
   }
 
   async toggleStatus(id: number, dto: ToggleProductStatusDto) {
-    const product = await this.productRepo.findOne({ where: { id } });
+    const product = await this.productRepo.findOne({ where: { id } })!;
     if (!product) throw new NotFoundException('Product not found');
 
     if (dto.isActive !== undefined) product.isActive = dto.isActive;

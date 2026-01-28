@@ -16,6 +16,10 @@ import { EmailService } from './service/email.service';
 import { TokenBlacklist } from './entity/token-blacklist.entity';
 import { RefreshToken } from './entity/refresh-token.entity';
 
+// Common services
+import { EncryptionService } from '../common/utils/encryption.util';
+import { RateLimiterService } from '../common/services/rate-limiter.service';
+
 // Seeding Components
 import { AuthSeederService } from './seeds/auth-seeder.service';
 import { AuthSeederController } from './seeds/auth-seeder.controller';
@@ -49,6 +53,8 @@ import { AuthSeederController } from './seeds/auth-seeder.controller';
     GoogleStrategy,
     FacebookStrategy,
     EmailService,
+    EncryptionService,
+    RateLimiterService,
   ],
   exports: [AuthService, AuthSeederService],
 })

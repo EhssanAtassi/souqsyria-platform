@@ -115,8 +115,8 @@ export class StaffManagementSeederService {
 
             createdCount++;
           }
-        } catch (error) {
-          this.logger.warn(`Failed to create staff ${staff.email}: ${error.message}`);
+        } catch (error: unknown) {
+          this.logger.warn(`Failed to create staff ${staff.email}: ${(error as Error).message}`);
         }
       }
 
@@ -128,12 +128,12 @@ export class StaffManagementSeederService {
         message: `Successfully seeded ${createdCount} staff members across Syrian e-commerce departments`
       };
 
-    } catch (error) {
+    } catch (error: unknown) {
       this.logger.error('❌ Staff hierarchy seeding failed:', error);
       return {
         success: false,
         count: 0,
-        message: `Staff seeding failed: ${error.message}`
+        message: `Staff seeding failed: ${(error as Error).message}`
       };
     }
   }
@@ -607,9 +607,9 @@ export class StaffManagementSeederService {
           completionRate: `${Math.round((totalStaff / 150) * 100)}%`
         }
       };
-    } catch (error) {
+    } catch (error: unknown) {
       this.logger.error('Failed to get staff analytics:', error);
-      return { error: error.message };
+      return { error: (error as Error).message };
     }
   }
 
@@ -642,8 +642,8 @@ export class StaffManagementSeederService {
             results.errors.push(`Unknown operation type: ${operation.type}`);
             results.failed++;
         }
-      } catch (error) {
-        results.errors.push(`${operation.type} failed: ${error.message}`);
+      } catch (error: unknown) {
+        results.errors.push(`${operation.type} failed: ${(error as Error).message}`);
         results.failed++;
       }
     }
@@ -711,12 +711,12 @@ export class StaffManagementSeederService {
         message: `Successfully cleared ${result.affected || 0} seeded staff members`
       };
 
-    } catch (error) {
+    } catch (error: unknown) {
       this.logger.error('❌ Failed to clear seeded staff:', error);
       return {
         success: false,
         deletedCount: 0,
-        message: `Failed to clear staff: ${error.message}`
+        message: `Failed to clear staff: ${(error as Error).message}`
       };
     }
   }

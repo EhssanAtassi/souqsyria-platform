@@ -1,0 +1,365 @@
+<!--
+  Audit Log Component Template
+  @description Administrative action history viewer
+-->
+
+<div class="audit-log">
+  <!-- ===================================================================== -->
+  <!-- HEADER -->
+  <!-- ===================================================================== -->
+  <header class="audit-log__header">
+    <div class="audit-log__title">
+      <a routerLink="/admin/settings" class="back-link">
+        <span class="material-icons">arrow_back</span>
+      </a>
+      <div>
+        <h1>Audit Log</h1>
+        <span class="audit-log__subtitle">Track administrative actions and security events</span>
+      </div>
+    </div>
+
+    <div class="audit-log__actions">
+      <button
+        class="btn btn--secondary"
+        [disabled]="isExporting() || entries().length === 0"
+        (click)="exportLog('csv')"
+      >
+        @if (isExporting()) {
+          <span class="btn-spinner"></span>
+        } @else {
+          <span class="material-icons">download</span>
+        }
+        Export CSV
+      </button>
+    </div>
+  </header>
+
+  @if (errorMessage()) {
+    <div class="alert alert--warning">
+      <span class="material-icons">warning</span>
+      <span>{{ errorMessage() }}</span>
+      <button (click)="errorMessage.set(null)">
+        <span class="material-icons">close</span>
+      </button>
+    </div>
+  }
+
+  <!-- ===================================================================== -->
+  <!-- FILTERS -->
+  <!-- ===================================================================== -->
+  <section class="audit-log__filters">
+    <div class="filter-row">
+      <!-- Search -->
+      <div class="filter-group filter-group--search">
+        <span class="material-icons">search</span>
+        <input
+          type="text"
+          placeholder="Search by resource ID or user..."
+          [value]="searchQuery()"
+          (input)="onSearchInput($event)"
+        />
+      </div>
+
+      <!-- Action Type -->
+      <div class="filter-group">
+        <label>Action</label>
+        <select
+          [ngModel]="selectedAction()"
+          (ngModelChange)="setActionFilter($event)"
+        >
+          @for (action of actionTypes; track action.value) {
+            <option [value]="action.value">{{ action.label }}</option>
+          }
+        </select>
+      </div>
+
+      <!-- Resource Type -->
+      <div class="filter-group">
+        <label>Resource</label>
+        <select
+          [ngModel]="selectedResourceType()"
+          (ngModelChange)="setResourceTypeFilter($event)"
+        >
+          @for (type of resourceTypes; track type.value) {
+            <option [value]="type.value">{{ type.label }}</option>
+          }
+        </select>
+      </div>
+
+      <!-- Date Range -->
+      <div class="filter-group filter-group--date">
+        <label>Date Range</label>
+        <div class="date-inputs">
+          <input
+            type="date"
+            [ngModel]="startDate()"
+            (ngModelChange)="startDate.set($event)"
+            (change)="applyDateFilter()"
+          />
+          <span>to</span>
+          <input
+            type="date"
+            [ngModel]="endDate()"
+            (ngModelChange)="endDate.set($event)"
+            (change)="applyDateFilter()"
+          />
+        </div>
+      </div>
+
+      @if (hasActiveFilters()) {
+        <button class="btn btn--text" (click)="clearFilters()">
+          <span class="material-icons">clear</span>
+          Clear Filters
+        </button>
+      }
+    </div>
+  </section>
+
+  <!-- ===================================================================== -->
+  <!-- LOG TABLE -->
+  <!-- ===================================================================== -->
+  <section class="audit-log__table-container">
+    @if (isLoading()) {
+      <div class="loading-state">
+        <div class="loading-spinner"></div>
+        <p>Loading audit log...</p>
+      </div>
+    } @else if (entries().length === 0) {
+      <div class="empty-state">
+        <span class="material-icons">history</span>
+        <p>No audit log entries found</p>
+        @if (hasActiveFilters()) {
+          <button class="btn btn--secondary" (click)="clearFilters()">
+            Clear Filters
+          </button>
+        }
+      </div>
+    } @else {
+      <div class="audit-table">
+        <div class="audit-table__header">
+          <span class="audit-table__col audit-table__col--time">Time</span>
+          <span class="audit-table__col audit-table__col--action">Action</span>
+          <span class="audit-table__col audit-table__col--resource">Resource</span>
+          <span class="audit-table__col audit-table__col--user">Admin User</span>
+          <span class="audit-table__col audit-table__col--status">Status</span>
+          <span class="audit-table__col audit-table__col--actions">Details</span>
+        </div>
+
+        <div class="audit-table__body">
+          @for (entry of entries(); track trackByEntry($index, entry)) {
+            <div
+              class="audit-row"
+              [class.audit-row--failed]="!entry.success"
+              (click)="viewEntryDetail(entry)"
+            >
+              <span class="audit-table__col audit-table__col--time">
+                <span class="time-value">{{ formatDate(entry.timestamp) }}</span>
+              </span>
+
+              <span class="audit-table__col audit-table__col--action">
+                <span class="action-badge" [class]="getActionColor(entry.action)">
+                  <span class="material-icons">{{ getActionIcon(entry.action) }}</span>
+                  {{ getActionLabel(entry.action) }}
+                </span>
+              </span>
+
+              <span class="audit-table__col audit-table__col--resource">
+                <span class="resource-type">{{ entry.resourceType }}</span>
+                <span class="resource-id">{{ entry.resourceId }}</span>
+              </span>
+
+              <span class="audit-table__col audit-table__col--user">
+                <span class="user-name">{{ entry.adminUser.name }}</span>
+                <span class="user-role">{{ entry.adminUser.role }}</span>
+              </span>
+
+              <span class="audit-table__col audit-table__col--status">
+                @if (entry.success) {
+                  <span class="status-badge status-badge--success">
+                    <span class="material-icons">check_circle</span>
+                    Success
+                  </span>
+                } @else {
+                  <span class="status-badge status-badge--failed">
+                    <span class="material-icons">error</span>
+                    Failed
+                  </span>
+                }
+              </span>
+
+              <span class="audit-table__col audit-table__col--actions">
+                <button class="view-btn" (click)="viewEntryDetail(entry); $event.stopPropagation()">
+                  <span class="material-icons">visibility</span>
+                </button>
+              </span>
+            </div>
+          }
+        </div>
+      </div>
+
+      <!-- Pagination -->
+      <div class="audit-log__pagination">
+        <div class="pagination-info">
+          <span>{{ paginationInfo() }}</span>
+          <select
+            class="page-size-select"
+            [ngModel]="pageSize()"
+            (ngModelChange)="changePageSize($event)"
+          >
+            @for (size of pageSizeOptions; track size) {
+              <option [value]="size">{{ size }} per page</option>
+            }
+          </select>
+        </div>
+
+        <div class="pagination-controls">
+          <button
+            class="pagination-btn"
+            [disabled]="currentPage() === 1"
+            (click)="goToPage(currentPage() - 1)"
+          >
+            <span class="material-icons">chevron_left</span>
+          </button>
+
+          @for (page of getVisiblePages(); track trackByPage($index, page)) {
+            @if (page === -1) {
+              <span class="pagination-ellipsis">...</span>
+            } @else {
+              <button
+                class="pagination-btn"
+                [class.pagination-btn--active]="page === currentPage()"
+                (click)="goToPage(page)"
+              >
+                {{ page }}
+              </button>
+            }
+          }
+
+          <button
+            class="pagination-btn"
+            [disabled]="currentPage() === totalPages()"
+            (click)="goToPage(currentPage() + 1)"
+          >
+            <span class="material-icons">chevron_right</span>
+          </button>
+        </div>
+      </div>
+    }
+  </section>
+
+  <!-- ===================================================================== -->
+  <!-- ENTRY DETAIL MODAL -->
+  <!-- ===================================================================== -->
+  @if (selectedEntry()) {
+    <div class="modal-overlay" (click)="closeEntryDetail()">
+      <div class="modal" (click)="$event.stopPropagation()">
+        <div class="modal__header">
+          <h3>Audit Log Entry</h3>
+          <button class="modal__close" (click)="closeEntryDetail()">
+            <span class="material-icons">close</span>
+          </button>
+        </div>
+
+        <div class="modal__body">
+          <div class="detail-section">
+            <h4>Action Details</h4>
+            <div class="detail-grid">
+              <div class="detail-item">
+                <span class="detail-label">Action</span>
+                <span class="detail-value">
+                  <span class="action-badge" [class]="getActionColor(selectedEntry()!.action)">
+                    <span class="material-icons">{{ getActionIcon(selectedEntry()!.action) }}</span>
+                    {{ getActionLabel(selectedEntry()!.action) }}
+                  </span>
+                </span>
+              </div>
+              <div class="detail-item">
+                <span class="detail-label">Timestamp</span>
+                <span class="detail-value">{{ formatFullDate(selectedEntry()!.timestamp) }}</span>
+              </div>
+              <div class="detail-item">
+                <span class="detail-label">Resource Type</span>
+                <span class="detail-value">{{ selectedEntry()!.resourceType }}</span>
+              </div>
+              <div class="detail-item">
+                <span class="detail-label">Resource ID</span>
+                <span class="detail-value detail-value--mono">{{ selectedEntry()!.resourceId }}</span>
+              </div>
+              <div class="detail-item">
+                <span class="detail-label">Status</span>
+                <span class="detail-value">
+                  @if (selectedEntry()!.success) {
+                    <span class="status-badge status-badge--success">Success</span>
+                  } @else {
+                    <span class="status-badge status-badge--failed">Failed</span>
+                  }
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <div class="detail-section">
+            <h4>Admin User</h4>
+            <div class="detail-grid">
+              <div class="detail-item">
+                <span class="detail-label">Name</span>
+                <span class="detail-value">{{ selectedEntry()!.adminUser.name }}</span>
+              </div>
+              <div class="detail-item">
+                <span class="detail-label">Email</span>
+                <span class="detail-value">{{ selectedEntry()!.adminUser.email }}</span>
+              </div>
+              <div class="detail-item">
+                <span class="detail-label">Role</span>
+                <span class="detail-value">{{ selectedEntry()!.adminUser.role }}</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="detail-section">
+            <h4>Request Information</h4>
+            <div class="detail-grid">
+              <div class="detail-item">
+                <span class="detail-label">IP Address</span>
+                <span class="detail-value detail-value--mono">{{ selectedEntry()!.ipAddress }}</span>
+              </div>
+              <div class="detail-item detail-item--full">
+                <span class="detail-label">User Agent</span>
+                <span class="detail-value detail-value--small">{{ selectedEntry()!.userAgent }}</span>
+              </div>
+            </div>
+          </div>
+
+          @if (selectedEntry()!.changes && selectedEntry()!.changes!.length > 0) {
+            <div class="detail-section">
+              <h4>Changes</h4>
+              <div class="changes-table">
+                <div class="changes-table__header">
+                  <span>Field</span>
+                  <span>Old Value</span>
+                  <span>New Value</span>
+                </div>
+                @for (change of selectedEntry()!.changes; track change.field) {
+                  <div class="changes-table__row">
+                    <span class="changes-table__field">{{ change.field }}</span>
+                    <span class="changes-table__old">{{ change.oldValue | json }}</span>
+                    <span class="changes-table__new">{{ change.newValue | json }}</span>
+                  </div>
+                }
+              </div>
+            </div>
+          }
+
+          @if (selectedEntry()!.errorMessage) {
+            <div class="detail-section">
+              <h4>Error Details</h4>
+              <div class="error-box">
+                {{ selectedEntry()!.errorMessage }}
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+  }
+</div>

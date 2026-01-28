@@ -1,0 +1,132 @@
+<!--
+  Funnel Dashboard Template
+  @description Main container for Conversion Funnel Analytics
+-->
+
+<div class="funnel-dashboard">
+  <!-- Header Section -->
+  <header class="funnel-dashboard__header">
+    <div class="funnel-dashboard__title-section">
+      <h1 class="funnel-dashboard__title">
+        <span class="material-icons funnel-dashboard__icon">filter_alt</span>
+        Conversion Funnel Analytics
+      </h1>
+      <p class="funnel-dashboard__subtitle">
+        Track user journey from browsing to purchase completion
+      </p>
+    </div>
+
+    <div class="funnel-dashboard__controls">
+      <!-- Date Range Picker -->
+      <app-bi-date-range-picker
+        [showGranularity]="true"
+        [showComparison]="false"
+        (dateChange)="onDateRangeChange($event)"
+        (granularityChange)="onGranularityChange($event)"
+      />
+
+      <!-- Device Filter -->
+      <select
+        class="funnel-dashboard__device-select"
+        [value]="selectedDevice()"
+        (change)="onDeviceChange($any($event.target).value)"
+      >
+        @for (option of deviceOptions; track option.value) {
+          <option [value]="option.value">{{ option.label }}</option>
+        }
+      </select>
+
+      <!-- Action Buttons -->
+      <div class="funnel-dashboard__actions">
+        <button
+          type="button"
+          class="funnel-dashboard__action-btn"
+          [disabled]="isLoading()"
+          (click)="onRefresh()"
+          title="Refresh data"
+        >
+          <span class="material-icons" [class.funnel-dashboard__icon--spin]="isLoading()">
+            refresh
+          </span>
+        </button>
+
+        <!-- Export Dropdown -->
+        <div class="funnel-dashboard__export-dropdown">
+          <button
+            type="button"
+            class="funnel-dashboard__action-btn funnel-dashboard__action-btn--primary"
+            [disabled]="isExporting()"
+          >
+            @if (isExporting()) {
+              <span class="material-icons funnel-dashboard__icon--spin">sync</span>
+            } @else {
+              <span class="material-icons">download</span>
+            }
+            Export
+          </button>
+          <div class="funnel-dashboard__export-menu">
+            <button type="button" (click)="onExport('csv')">
+              <span class="material-icons">table_chart</span>
+              Export as CSV
+            </button>
+            <button type="button" (click)="onExport('xlsx')">
+              <span class="material-icons">grid_on</span>
+              Export as Excel
+            </button>
+            <button type="button" (click)="onExport('pdf')">
+              <span class="material-icons">picture_as_pdf</span>
+              Export as PDF
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Navigation Tabs -->
+  <nav class="funnel-dashboard__nav">
+    <ul class="funnel-dashboard__tabs" role="tablist">
+      @for (tab of navTabs; track trackByTab($index, tab)) {
+        <li class="funnel-dashboard__tab-item">
+          <a
+            [routerLink]="tab.path"
+            routerLinkActive="funnel-dashboard__tab--active"
+            class="funnel-dashboard__tab"
+            [attr.aria-selected]="activeTab() === tab.id"
+            [title]="tab.description"
+          >
+            <span class="material-icons funnel-dashboard__tab-icon">{{ tab.icon }}</span>
+            <span class="funnel-dashboard__tab-label">{{ tab.label }}</span>
+          </a>
+        </li>
+      }
+    </ul>
+
+    <!-- Info Badges -->
+    <div class="funnel-dashboard__badges">
+      @if (selectedDevice() !== 'all') {
+        <span class="funnel-dashboard__badge">
+          <span class="material-icons">devices</span>
+          {{ selectedDevice() | titlecase }}
+        </span>
+      }
+      <span class="funnel-dashboard__badge">
+        <span class="material-icons">calendar_today</span>
+        {{ dateRangeText() }}
+      </span>
+    </div>
+  </nav>
+
+  <!-- Content Area -->
+  <main class="funnel-dashboard__content">
+    <!-- Loading Overlay -->
+    @if (isLoading()) {
+      <div class="funnel-dashboard__loading-overlay">
+        <div class="funnel-dashboard__spinner"></div>
+      </div>
+    }
+
+    <!-- Router Outlet for Child Components -->
+    <router-outlet />
+  </main>
+</div>

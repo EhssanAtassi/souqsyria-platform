@@ -209,9 +209,9 @@ export class SyrianCommissionAnalyticsController {
           query.language,
         ),
       };
-    } catch (error) {
+    } catch (error: unknown) {
       this.logger.error(
-        `Failed to generate commission dashboard: ${error.message}`,
+        `Failed to generate commission dashboard: ${(error as Error).message}`,
       );
       throw error;
     }
@@ -279,9 +279,9 @@ export class SyrianCommissionAnalyticsController {
           language === 'ar' ? 'الإلكترونيات' : 'Electronics',
         platformTakeRate: 2.5,
       };
-    } catch (error) {
+    } catch (error: unknown) {
       this.logger.error(
-        `Failed to generate commission overview: ${error.message}`,
+        `Failed to generate commission overview: ${(error as Error).message}`,
       );
       throw error;
     }
@@ -347,9 +347,9 @@ export class SyrianCommissionAnalyticsController {
         nationalRank: i + 1,
         monthlyGrowthRate: Math.round((Math.random() * 30 - 5) * 100) / 100,
       }));
-    } catch (error) {
+    } catch (error: unknown) {
       this.logger.error(
-        `Failed to generate vendor performance: ${error.message}`,
+        `Failed to generate vendor performance: ${(error as Error).message}`,
       );
       throw error;
     }
@@ -446,9 +446,9 @@ export class SyrianCommissionAnalyticsController {
         recommendations: this.getVendorRecommendations(vendorId, language),
         payoutHistory: this.getVendorPayoutHistory(vendorId, 6), // Last 6 months
       };
-    } catch (error) {
+    } catch (error: unknown) {
       this.logger.error(
-        `Failed to generate vendor ${vendorId} performance: ${error.message}`,
+        `Failed to generate vendor ${vendorId} performance: ${(error as Error).message}`,
       );
       throw error;
     }
@@ -507,9 +507,9 @@ export class SyrianCommissionAnalyticsController {
         default:
           return this.getAnalyticsByVendor(query, startDate, endDate);
       }
-    } catch (error) {
+    } catch (error: unknown) {
       this.logger.error(
-        `Failed to generate commission analytics: ${error.message}`,
+        `Failed to generate commission analytics: ${(error as Error).message}`,
       );
       throw error;
     }
@@ -636,9 +636,9 @@ export class SyrianCommissionAnalyticsController {
           },
         ],
       };
-    } catch (error) {
+    } catch (error: unknown) {
       this.logger.error(
-        `Failed to generate optimization recommendations: ${error.message}`,
+        `Failed to generate optimization recommendations: ${(error as Error).message}`,
       );
       throw error;
     }
@@ -710,9 +710,9 @@ export class SyrianCommissionAnalyticsController {
           ],
         },
       };
-    } catch (error) {
+    } catch (error: unknown) {
       this.logger.error(
-        `Failed to generate payout analytics: ${error.message}`,
+        `Failed to generate payout analytics: ${(error as Error).message}`,
       );
       throw error;
     }
@@ -777,9 +777,9 @@ export class SyrianCommissionAnalyticsController {
         productRates: [], // Would be populated from product commission entities
         membershipDiscounts: [], // Would be populated from membership discount entities
       };
-    } catch (error) {
+    } catch (error: unknown) {
       this.logger.error(
-        `Failed to retrieve commission rates: ${error.message}`,
+        `Failed to retrieve commission rates: ${(error as Error).message}`,
       );
       throw error;
     }

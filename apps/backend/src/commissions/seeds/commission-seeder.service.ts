@@ -287,10 +287,10 @@ export class CommissionSeederService {
           `${results.categoryCommissionsCreated} category, ${results.vendorCommissionsCreated} vendor, ` +
           `${results.membershipDiscountsCreated} membership rules created`,
       );
-    } catch (error) {
+    } catch (error: unknown) {
       this.logger.error('❌ Commission seeding failed:', error);
       results.success = false;
-      results.errors.push(error.message);
+      results.errors.push((error as Error).message);
     }
 
     return results;
@@ -331,8 +331,8 @@ export class CommissionSeederService {
             `📝 Global commission ${commissionData.percentage}% already exists`,
           );
         }
-      } catch (error) {
-        const errorMsg = `Failed to seed global commission ${commissionData.percentage}%: ${error.message}`;
+      } catch (error: unknown) {
+        const errorMsg = `Failed to seed global commission ${commissionData.percentage}%: ${(error as Error).message}`;
         this.logger.error(errorMsg);
         results.errors.push(errorMsg);
         results.success = false;
@@ -385,8 +385,8 @@ export class CommissionSeederService {
             `📝 Category commission for ${commissionData.categoryName} already exists`,
           );
         }
-      } catch (error) {
-        const errorMsg = `Failed to seed category commission ${commissionData.categoryName}: ${error.message}`;
+      } catch (error: unknown) {
+        const errorMsg = `Failed to seed category commission ${commissionData.categoryName}: ${(error as Error).message}`;
         this.logger.error(errorMsg);
         results.errors.push(errorMsg);
         results.success = false;
@@ -457,7 +457,7 @@ export class CommissionSeederService {
         success: true,
         deleted: totalDeleted,
       };
-    } catch (error) {
+    } catch (error: unknown) {
       this.logger.error('❌ Cleanup failed:', error);
       return {
         success: false,
@@ -579,8 +579,8 @@ export class CommissionSeederService {
           'Update or deactivate expired membership discounts',
         );
       }
-    } catch (error) {
-      issues.push(`Validation failed: ${error.message}`);
+    } catch (error: unknown) {
+      issues.push(`Validation failed: ${(error as Error).message}`);
     }
 
     return {

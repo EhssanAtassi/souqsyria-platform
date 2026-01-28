@@ -82,10 +82,10 @@ export class EmailService {
 
       await this.transporter.sendMail(mailOptions);
       this.logger.log(`✅ Password reset email sent successfully to: ${email}`);
-    } catch (error) {
+    } catch (error: unknown) {
       this.logger.error(
         `❌ Failed to send password reset email to: ${email}`,
-        error.message,
+        (error as Error).message,
       );
       throw error;
     }
@@ -118,10 +118,10 @@ export class EmailService {
 
       await this.transporter.sendMail(mailOptions);
       this.logger.log(`✅ Verification email sent successfully to: ${email}`);
-    } catch (error) {
+    } catch (error: unknown) {
       this.logger.error(
         `❌ Failed to send verification email to: ${email}`,
-        error.message,
+        (error as Error).message,
       );
       throw error;
     }

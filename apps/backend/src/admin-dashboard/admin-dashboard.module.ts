@@ -16,11 +16,15 @@ import { AdminVendorsController } from './controllers/admin-vendors.controller';
 import { AdminProductsController } from './controllers/admin-products.controller';
 import { AdminOrdersController } from './controllers/admin-orders.controller';
 import { AdminAnalyticsController } from './controllers/admin-analytics.controller';
+import { AdminBIAnalyticsController } from './controllers/admin-bi-analytics.controller';
+import { AdminAnalyticsEnhancedController } from './controllers/admin-analytics-enhanced.controller';
 
 // Services
 import { AdminDashboardService } from './services/admin-dashboard.service';
 import { AdminAnalyticsService } from './services/admin-analytics.service';
+import { AdminAnalyticsEnhancedService } from './services/admin-analytics-enhanced.service';
 import { AdminExportService } from './services/admin-export.service';
+import { DashboardCacheService } from './services/dashboard-cache.service';
 
 // Entities from other modules
 import { User } from '../users/entities/user.entity';
@@ -48,6 +52,9 @@ import { RefundModule } from '../refund/refund.module';
 import { RolesModule } from '../roles/roles.module';
 import { AccessControlModule } from '../access-control/access-control.module';
 
+// Business Intelligence Module for BI service integration
+import { BusinessIntelligenceModule } from '../business-intelligence/business-intelligence.module';
+
 /**
  * Admin Dashboard Module
  * @description Provides comprehensive admin/owner dashboard functionality including:
@@ -57,6 +64,12 @@ import { AccessControlModule } from '../access-control/access-control.module';
  *              - Product approval and bulk operations
  *              - Order management and refund processing
  *              - Analytics and report generation
+ *              - Business Intelligence (Phase 2):
+ *                * Customer Lifetime Value (CLV) Analytics
+ *                * Conversion Funnel Tracking
+ *                * Cart Abandonment Analysis
+ *                * Cohort Analysis (Retention, Revenue, Behavioral)
+ *                * Event Tracking and Real-time Session Monitoring
  *
  * @example
  * ```typescript
@@ -98,6 +111,9 @@ import { AccessControlModule } from '../access-control/access-control.module';
     RefundModule,
     RolesModule,
     AccessControlModule,
+
+    // Business Intelligence Module for BI services
+    BusinessIntelligenceModule,
   ],
   controllers: [
     AdminDashboardController,
@@ -106,16 +122,26 @@ import { AccessControlModule } from '../access-control/access-control.module';
     AdminProductsController,
     AdminOrdersController,
     AdminAnalyticsController,
+    // ✅ Phase 2: Business Intelligence Analytics Controller
+    AdminBIAnalyticsController,
+    // ✅ Phase 2.5: Enhanced Analytics Controller (Integrated BI + Operational)
+    AdminAnalyticsEnhancedController,
   ],
   providers: [
+    // Core Services
     AdminDashboardService,
     AdminAnalyticsService,
+    AdminAnalyticsEnhancedService,
     AdminExportService,
+    // ✅ Cache Service for optimized metric retrieval
+    DashboardCacheService,
   ],
   exports: [
     AdminDashboardService,
     AdminAnalyticsService,
+    AdminAnalyticsEnhancedService,
     AdminExportService,
+    DashboardCacheService,
   ],
 })
 export class AdminDashboardModule {}

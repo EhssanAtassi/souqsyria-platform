@@ -487,8 +487,8 @@ export class AttributeSeederService {
               results.valuesCreated++;
             }
           }
-        } catch (error) {
-          const errorMsg = `Failed to seed attribute ${attributeData.nameEn}: ${error.message}`;
+        } catch (error: unknown) {
+          const errorMsg = `Failed to seed attribute ${attributeData.nameEn}: ${(error as Error).message}`;
           this.logger.error(errorMsg);
           results.errors.push(errorMsg);
           results.success = false;
@@ -498,10 +498,10 @@ export class AttributeSeederService {
       this.logger.log(
         `✅ Attributes seeding completed: ${results.attributesCreated} attributes, ${results.valuesCreated} values created`,
       );
-    } catch (error) {
+    } catch (error: unknown) {
       this.logger.error('❌ Attributes seeding failed:', error);
       results.success = false;
-      results.errors.push(error.message);
+      results.errors.push((error as Error).message);
     }
 
     return results;
@@ -528,7 +528,7 @@ export class AttributeSeederService {
         success: true,
         deleted: attributesDeleted.affected || 0,
       };
-    } catch (error) {
+    } catch (error: unknown) {
       this.logger.error('❌ Cleanup failed:', error);
       return {
         success: false,
@@ -635,8 +635,8 @@ export class AttributeSeederService {
         );
         recommendations.push('Add Arabic translations for all attributes');
       }
-    } catch (error) {
-      issues.push(`Validation failed: ${error.message}`);
+    } catch (error: unknown) {
+      issues.push(`Validation failed: ${(error as Error).message}`);
     }
 
     return {

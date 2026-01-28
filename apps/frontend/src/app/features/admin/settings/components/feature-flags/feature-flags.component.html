@@ -1,0 +1,362 @@
+<!--
+  Feature Flags Component Template
+  @description Feature toggle management interface
+-->
+
+<div class="feature-flags">
+  <!-- ===================================================================== -->
+  <!-- HEADER -->
+  <!-- ===================================================================== -->
+  <header class="feature-flags__header">
+    <div class="feature-flags__title">
+      <a routerLink="/admin/settings" class="back-link">
+        <span class="material-icons">arrow_back</span>
+      </a>
+      <div>
+        <h1>Feature Flags</h1>
+        <span class="feature-flags__subtitle">Toggle platform features and control rollouts</span>
+      </div>
+    </div>
+
+    <button class="btn btn--secondary" (click)="loadFeatureFlags()">
+      <span class="material-icons">refresh</span>
+      Refresh
+    </button>
+  </header>
+
+  <!-- Alert Messages -->
+  @if (successMessage()) {
+    <div class="alert alert--success">
+      <span class="material-icons">check_circle</span>
+      <span>{{ successMessage() }}</span>
+      <button (click)="successMessage.set(null)">
+        <span class="material-icons">close</span>
+      </button>
+    </div>
+  }
+
+  @if (errorMessage()) {
+    <div class="alert alert--warning">
+      <span class="material-icons">warning</span>
+      <span>{{ errorMessage() }}</span>
+      <button (click)="errorMessage.set(null)">
+        <span class="material-icons">close</span>
+      </button>
+    </div>
+  }
+
+  <!-- ===================================================================== -->
+  <!-- STATS OVERVIEW -->
+  <!-- ===================================================================== -->
+  <section class="feature-flags__stats">
+    <div class="stat-card">
+      <div class="stat-card__icon stat-card__icon--total">
+        <span class="material-icons">flag</span>
+      </div>
+      <div class="stat-card__content">
+        <span class="stat-card__value">{{ stats().total }}</span>
+        <span class="stat-card__label">Total Flags</span>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-card__icon stat-card__icon--enabled">
+        <span class="material-icons">check_circle</span>
+      </div>
+      <div class="stat-card__content">
+        <span class="stat-card__value">{{ stats().enabled }}</span>
+        <span class="stat-card__label">Enabled</span>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-card__icon stat-card__icon--disabled">
+        <span class="material-icons">cancel</span>
+      </div>
+      <div class="stat-card__content">
+        <span class="stat-card__value">{{ stats().disabled }}</span>
+        <span class="stat-card__label">Disabled</span>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-card__icon stat-card__icon--experimental">
+        <span class="material-icons">science</span>
+      </div>
+      <div class="stat-card__content">
+        <span class="stat-card__value">{{ stats().experimental }}</span>
+        <span class="stat-card__label">Experimental</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================================================================== -->
+  <!-- FILTERS -->
+  <!-- ===================================================================== -->
+  <section class="feature-flags__filters">
+    <div class="filter-row">
+      <!-- Search -->
+      <div class="filter-group filter-group--search">
+        <span class="material-icons">search</span>
+        <input
+          type="text"
+          placeholder="Search flags by name or key..."
+          [value]="searchQuery()"
+          (input)="onSearchInput($event)"
+        />
+      </div>
+
+      <!-- Category -->
+      <div class="filter-group">
+        <label>Category</label>
+        <select
+          [ngModel]="selectedCategory()"
+          (ngModelChange)="setCategoryFilter($event)"
+        >
+          @for (category of categories; track category.value) {
+            <option [value]="category.value">{{ category.label }}</option>
+          }
+        </select>
+      </div>
+
+      <!-- Environment -->
+      <div class="filter-group">
+        <label>Environment</label>
+        <select
+          [ngModel]="selectedEnvironment()"
+          (ngModelChange)="setEnvironmentFilter($event)"
+        >
+          @for (env of environments; track env.value) {
+            <option [value]="env.value">{{ env.label }}</option>
+          }
+        </select>
+      </div>
+
+      <!-- Enabled Only Toggle -->
+      <label class="filter-toggle">
+        <input
+          type="checkbox"
+          [checked]="showEnabledOnly()"
+          (change)="toggleEnabledFilter()"
+        />
+        <span>Enabled Only</span>
+      </label>
+
+      @if (hasActiveFilters()) {
+        <button class="btn btn--text" (click)="clearFilters()">
+          <span class="material-icons">clear</span>
+          Clear
+        </button>
+      }
+    </div>
+  </section>
+
+  <!-- ===================================================================== -->
+  <!-- FLAGS LIST -->
+  <!-- ===================================================================== -->
+  <section class="feature-flags__content">
+    @if (isLoading()) {
+      <div class="loading-state">
+        <div class="loading-spinner"></div>
+        <p>Loading feature flags...</p>
+      </div>
+    } @else if (filteredFlags().length === 0) {
+      <div class="empty-state">
+        <span class="material-icons">flag</span>
+        <p>No feature flags found</p>
+        @if (hasActiveFilters()) {
+          <button class="btn btn--secondary" (click)="clearFilters()">
+            Clear Filters
+          </button>
+        }
+      </div>
+    } @else {
+      <div class="flag-groups">
+        @for (group of flagsByCategory(); track trackByGroup($index, group)) {
+          <div class="flag-group">
+            <div class="flag-group__header">
+              <span class="material-icons">{{ group.categoryInfo.icon }}</span>
+              <span class="flag-group__name">{{ group.categoryInfo.label }}</span>
+              <span class="flag-group__count">{{ group.flags.length }} flags</span>
+            </div>
+
+            <div class="flag-group__body">
+              @for (flag of group.flags; track trackByFlag($index, flag)) {
+                <div class="flag-card" [class.flag-card--disabled]="!flag.enabled">
+                  <div class="flag-card__main">
+                    <div class="flag-card__toggle">
+                      <label class="toggle-switch">
+                        <input
+                          type="checkbox"
+                          [checked]="flag.enabled"
+                          [disabled]="savingFlagId() === flag.id"
+                          (change)="toggleFlag(flag)"
+                        />
+                        <span class="toggle-switch__slider"></span>
+                      </label>
+                    </div>
+
+                    <div class="flag-card__info">
+                      <div class="flag-card__header">
+                        <span class="flag-card__name">{{ flag.name }}</span>
+                        <span class="flag-card__key">{{ flag.key }}</span>
+                      </div>
+                      <p class="flag-card__description">{{ flag.description }}</p>
+                    </div>
+
+                    <div class="flag-card__meta">
+                      <div class="flag-meta">
+                        <span class="flag-meta__label">Environments</span>
+                        <div class="env-badges">
+                          @for (env of flag.environments; track env) {
+                            <span
+                              class="env-badge"
+                              [class.env-badge--dev]="env === 'development'"
+                              [class.env-badge--staging]="env === 'staging'"
+                              [class.env-badge--prod]="env === 'production'"
+                            >
+                              {{ env === 'development' ? 'DEV' : env === 'staging' ? 'STG' : 'PROD' }}
+                            </span>
+                          }
+                        </div>
+                      </div>
+
+                      @if (flag.rolloutPercentage !== undefined && flag.rolloutPercentage < 100) {
+                        <div class="flag-meta">
+                          <span class="flag-meta__label">Rollout</span>
+                          <div class="rollout-indicator">
+                            <div class="rollout-bar">
+                              <div
+                                class="rollout-bar__fill"
+                                [style.width.%]="flag.rolloutPercentage"
+                              ></div>
+                            </div>
+                            <span class="rollout-value">{{ flag.rolloutPercentage }}%</span>
+                          </div>
+                        </div>
+                      }
+                    </div>
+
+                    <div class="flag-card__actions">
+                      <button
+                        class="action-btn"
+                        title="Edit flag"
+                        (click)="editFlag(flag)"
+                      >
+                        <span class="material-icons">edit</span>
+                      </button>
+                    </div>
+                  </div>
+
+                  <div class="flag-card__footer">
+                    <span class="flag-date">
+                      <span class="material-icons">update</span>
+                      Updated {{ formatDate(flag.updatedAt) }}
+                    </span>
+                  </div>
+                </div>
+              }
+            </div>
+          </div>
+        }
+      </div>
+    }
+  </section>
+
+  <!-- ===================================================================== -->
+  <!-- EDIT MODAL -->
+  <!-- ===================================================================== -->
+  @if (editingFlag()) {
+    <div class="modal-overlay" (click)="closeEditModal()">
+      <div class="modal" (click)="$event.stopPropagation()">
+        <div class="modal__header">
+          <h3>Edit Feature Flag</h3>
+          <button class="modal__close" (click)="closeEditModal()">
+            <span class="material-icons">close</span>
+          </button>
+        </div>
+
+        <div class="modal__body">
+          <div class="form-group">
+            <label>Name</label>
+            <input
+              type="text"
+              [ngModel]="editingFlag()!.name"
+              (ngModelChange)="updateFlagName($event)"
+            />
+          </div>
+
+          <div class="form-group">
+            <label>Key</label>
+            <input
+              type="text"
+              [value]="editingFlag()!.key"
+              disabled
+              class="input--disabled"
+            />
+            <small>Feature key cannot be changed</small>
+          </div>
+
+          <div class="form-group">
+            <label>Description</label>
+            <textarea
+              rows="3"
+              [ngModel]="editingFlag()!.description"
+              (ngModelChange)="updateFlagDescription($event)"
+            ></textarea>
+          </div>
+
+          <div class="form-group">
+            <label>Environments</label>
+            <div class="checkbox-group">
+              @for (env of environments.slice(1); track env.value) {
+                <label class="checkbox-item">
+                  <input
+                    type="checkbox"
+                    [checked]="isEnvironmentIncluded(env.value)"
+                    (change)="toggleEnvironment(env.value)"
+                  />
+                  <span>{{ env.label }}</span>
+                </label>
+              }
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Rollout Percentage</label>
+            <div class="rollout-input">
+              <input
+                type="range"
+                min="0"
+                max="100"
+                [value]="editingFlag()!.rolloutPercentage"
+                (input)="updateRolloutPercentage(+($any($event.target).value))"
+              />
+              <span class="rollout-input__value">{{ editingFlag()!.rolloutPercentage }}%</span>
+            </div>
+            <small>Percentage of users who will see this feature</small>
+          </div>
+        </div>
+
+        <div class="modal__footer">
+          <button class="btn btn--secondary" (click)="closeEditModal()">
+            Cancel
+          </button>
+          <button
+            class="btn btn--primary"
+            [disabled]="savingFlagId() === editingFlag()!.id"
+            (click)="saveFlag()"
+          >
+            @if (savingFlagId() === editingFlag()!.id) {
+              <span class="btn-spinner"></span>
+              Saving...
+            } @else {
+              <span class="material-icons">save</span>
+              Save Changes
+            }
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+</div>

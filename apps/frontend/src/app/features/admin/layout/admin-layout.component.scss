@@ -52,3 +52,13 @@
     }
   }
 }
+
+// RTL support
+[dir='rtl'] {
+  .admin-layout {
+    &__body {
+      // Grid automatically respects direction, but ensure sidebar appears on right
+      direction: rtl;
+    }
+  }
+}

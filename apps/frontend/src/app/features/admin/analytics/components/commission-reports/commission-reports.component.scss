@@ -1,0 +1,1009 @@
+/**
+ * @file commission-reports.component.scss
+ * @description Styles for the Commission Reports component
+ *              Includes KPI cards, trend charts, vendor/category breakdowns
+ */
+
+// ============================================================================
+// VARIABLES
+// ============================================================================
+$primary-color: #3b82f6;
+$success-color: #22c55e;
+$warning-color: #f59e0b;
+$danger-color: #ef4444;
+$purple-color: #8b5cf6;
+$cyan-color: #06b6d4;
+
+$card-shadow: 0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06);
+$card-shadow-hover: 0 4px 6px rgba(0, 0, 0, 0.1), 0 2px 4px rgba(0, 0, 0, 0.06);
+$border-radius: 8px;
+$transition-base: all 0.2s ease;
+
+// ============================================================================
+// MAIN CONTAINER
+// ============================================================================
+.commission-reports {
+  padding: 1.5rem;
+  max-width: 1600px;
+  margin: 0 auto;
+  min-height: calc(100vh - 64px);
+  background: #f8fafc;
+}
+
+// ============================================================================
+// HEADER
+// ============================================================================
+.commission-reports__header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.commission-reports__title {
+  h1 {
+    margin: 0 0 0.25rem;
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: #1e293b;
+  }
+}
+
+.commission-reports__subtitle {
+  color: #64748b;
+  font-size: 0.875rem;
+}
+
+.commission-reports__header-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+// ============================================================================
+// DATE SELECTOR
+// ============================================================================
+.date-selector {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+
+  &__select {
+    padding: 0.5rem 1rem;
+    border: 1px solid #e2e8f0;
+    border-radius: $border-radius;
+    background: white;
+    color: #374151;
+    font-size: 0.875rem;
+    cursor: pointer;
+    min-width: 140px;
+    transition: $transition-base;
+
+    &:hover {
+      border-color: $primary-color;
+    }
+
+    &:focus {
+      outline: none;
+      border-color: $primary-color;
+      box-shadow: 0 0 0 3px rgba($primary-color, 0.1);
+    }
+  }
+
+  &__custom {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem;
+    background: #f1f5f9;
+    border-radius: $border-radius;
+
+    input[type="date"] {
+      padding: 0.375rem 0.5rem;
+      border: 1px solid #e2e8f0;
+      border-radius: 4px;
+      font-size: 0.8125rem;
+      color: #374151;
+
+      &:focus {
+        outline: none;
+        border-color: $primary-color;
+      }
+    }
+
+    span {
+      color: #64748b;
+      font-size: 0.8125rem;
+    }
+  }
+}
+
+// ============================================================================
+// BUTTONS
+// ============================================================================
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: $border-radius;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: $transition-base;
+
+  .material-icons {
+    font-size: 1.125rem;
+  }
+
+  &--primary {
+    background: $primary-color;
+    color: white;
+
+    &:hover {
+      background: darken($primary-color, 8%);
+    }
+  }
+
+  &--secondary {
+    background: white;
+    color: #475569;
+    border: 1px solid #e2e8f0;
+
+    &:hover {
+      background: #f8fafc;
+      border-color: #cbd5e1;
+    }
+  }
+
+  &--small {
+    padding: 0.375rem 0.75rem;
+    font-size: 0.8125rem;
+  }
+}
+
+// ============================================================================
+// ERROR BANNER
+// ============================================================================
+.error-banner {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: $border-radius;
+  margin-bottom: 1rem;
+  color: #991b1b;
+  font-size: 0.875rem;
+
+  .material-icons:first-child {
+    font-size: 1.25rem;
+    color: $danger-color;
+  }
+
+  button {
+    margin-left: auto;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0.25rem;
+    color: #991b1b;
+    opacity: 0.7;
+
+    &:hover {
+      opacity: 1;
+    }
+  }
+}
+
+// ============================================================================
+// LOADING STATE
+// ============================================================================
+.loading-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem;
+  gap: 1rem;
+
+  p {
+    color: #64748b;
+    font-size: 0.9375rem;
+  }
+}
+
+.loading-spinner {
+  width: 48px;
+  height: 48px;
+  border: 3px solid #e2e8f0;
+  border-top-color: $success-color;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+// ============================================================================
+// KPI CARDS
+// ============================================================================
+.commission-reports__kpis {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.kpi-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  padding: 1.25rem;
+  background: white;
+  border-radius: $border-radius;
+  box-shadow: $card-shadow;
+  transition: $transition-base;
+
+  &:hover {
+    box-shadow: $card-shadow-hover;
+    transform: translateY(-2px);
+  }
+
+  &__icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    flex-shrink: 0;
+
+    .material-icons {
+      font-size: 1.5rem;
+      color: white;
+    }
+  }
+
+  &[data-color="blue"] .kpi-card__icon {
+    background: linear-gradient(135deg, $primary-color, #60a5fa);
+  }
+
+  &[data-color="green"] .kpi-card__icon {
+    background: linear-gradient(135deg, $success-color, #4ade80);
+  }
+
+  &[data-color="purple"] .kpi-card__icon {
+    background: linear-gradient(135deg, $purple-color, #a78bfa);
+  }
+
+  &[data-color="orange"] .kpi-card__icon {
+    background: linear-gradient(135deg, $warning-color, #fbbf24);
+  }
+
+  &__content {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    flex: 1;
+    min-width: 0;
+  }
+
+  &__value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #1e293b;
+    line-height: 1.2;
+  }
+
+  &__label {
+    font-size: 0.8125rem;
+    color: #64748b;
+  }
+
+  &__change {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.125rem;
+    font-size: 0.75rem;
+    font-weight: 500;
+    padding: 0.125rem 0.375rem;
+    border-radius: 4px;
+    margin-top: 0.25rem;
+    width: fit-content;
+
+    .material-icons {
+      font-size: 0.875rem;
+    }
+
+    &--positive {
+      background: rgba($success-color, 0.1);
+      color: $success-color;
+    }
+
+    &--negative {
+      background: rgba($danger-color, 0.1);
+      color: $danger-color;
+    }
+  }
+}
+
+// ============================================================================
+// CHART CARD
+// ============================================================================
+.commission-reports__chart {
+  margin-bottom: 1.5rem;
+}
+
+.chart-card {
+  background: white;
+  border-radius: $border-radius;
+  box-shadow: $card-shadow;
+  overflow: hidden;
+
+  &__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid #f1f5f9;
+
+    h3 {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin: 0;
+      font-size: 1rem;
+      font-weight: 600;
+      color: #1e293b;
+
+      .material-icons {
+        font-size: 1.125rem;
+        color: #64748b;
+      }
+    }
+  }
+
+  &__controls {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  &__summary {
+    display: flex;
+    gap: 2rem;
+    padding: 1rem 1.25rem;
+    background: #f8fafc;
+    border-bottom: 1px solid #f1f5f9;
+  }
+
+  &__body {
+    padding: 1.25rem;
+  }
+}
+
+// Period selector
+.period-selector {
+  display: flex;
+  background: #f1f5f9;
+  border-radius: 6px;
+  padding: 2px;
+}
+
+.period-btn {
+  padding: 0.375rem 0.75rem;
+  border: none;
+  background: transparent;
+  color: #64748b;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: $transition-base;
+
+  &:hover {
+    color: #374151;
+  }
+
+  &--active {
+    background: white;
+    color: $success-color;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  }
+}
+
+// Summary items
+.summary-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+
+  &__value {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #1e293b;
+  }
+
+  &__label {
+    font-size: 0.75rem;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.025em;
+  }
+
+  &--highlight {
+    padding-left: 1rem;
+    border-left: 2px solid $success-color;
+  }
+}
+
+// ============================================================================
+// BAR CHART
+// ============================================================================
+.bar-chart {
+  display: flex;
+  gap: 0.5rem;
+  min-height: 280px;
+
+  &__y-axis {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 0.5rem 0;
+    text-align: right;
+    width: 70px;
+    flex-shrink: 0;
+
+    span {
+      font-size: 0.6875rem;
+      color: #94a3b8;
+    }
+  }
+
+  &__bars {
+    flex: 1;
+    display: flex;
+    align-items: flex-end;
+    gap: 4px;
+    padding-bottom: 24px;
+    border-bottom: 1px solid #e2e8f0;
+    position: relative;
+    overflow-x: auto;
+  }
+
+  &__bar-wrapper {
+    flex: 1;
+    min-width: 24px;
+    max-width: 48px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+
+    &:hover .bar-chart__bar {
+      background: darken($success-color, 8%);
+    }
+  }
+
+  &__bar {
+    width: 100%;
+    background: $success-color;
+    border-radius: 4px 4px 0 0;
+    transition: $transition-base;
+    min-height: 4px;
+  }
+
+  &__label {
+    font-size: 0.625rem;
+    color: #94a3b8;
+    white-space: nowrap;
+    writing-mode: vertical-rl;
+    text-orientation: mixed;
+    transform: rotate(180deg);
+    max-height: 60px;
+    overflow: hidden;
+  }
+}
+
+// ============================================================================
+// BREAKDOWNS
+// ============================================================================
+.commission-reports__breakdowns {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+
+  @media (max-width: 1024px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.breakdown-card {
+  background: white;
+  border-radius: $border-radius;
+  box-shadow: $card-shadow;
+  overflow: hidden;
+
+  &__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid #f1f5f9;
+
+    h3 {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin: 0;
+      font-size: 0.9375rem;
+      font-weight: 600;
+      color: #1e293b;
+
+      .material-icons {
+        font-size: 1.125rem;
+        color: #64748b;
+      }
+    }
+  }
+
+  &__body {
+    padding: 1rem 1.25rem;
+    max-height: 400px;
+    overflow-y: auto;
+  }
+}
+
+// View toggle
+.view-toggle {
+  display: flex;
+  background: #f1f5f9;
+  border-radius: 6px;
+  padding: 2px;
+
+  &__btn {
+    padding: 0.25rem 0.625rem;
+    border: none;
+    background: transparent;
+    color: #64748b;
+    font-size: 0.75rem;
+    font-weight: 500;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: $transition-base;
+
+    &:hover {
+      color: #374151;
+    }
+
+    &--active {
+      background: white;
+      color: $primary-color;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+    }
+  }
+}
+
+// Breakdown list
+.breakdown-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.875rem;
+}
+
+.breakdown-item {
+  display: grid;
+  grid-template-columns: 28px 1fr auto;
+  grid-template-rows: auto auto;
+  gap: 0.25rem 0.75rem;
+  align-items: center;
+
+  &__rank {
+    grid-row: 1 / 3;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #f1f5f9;
+    border-radius: 50%;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #64748b;
+  }
+
+  &__info {
+    grid-column: 2;
+    grid-row: 1;
+  }
+
+  &__name {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #1e293b;
+  }
+
+  &__stats {
+    grid-column: 3;
+    grid-row: 1;
+    display: flex;
+    align-items: baseline;
+    gap: 0.5rem;
+    justify-content: flex-end;
+  }
+
+  &__value {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #1e293b;
+  }
+
+  &__percent {
+    font-size: 0.6875rem;
+    color: #64748b;
+    background: #f1f5f9;
+    padding: 0.125rem 0.375rem;
+    border-radius: 4px;
+  }
+
+  &__bar {
+    grid-column: 2 / 4;
+    grid-row: 2;
+    height: 6px;
+    background: #e2e8f0;
+    border-radius: 3px;
+    overflow: hidden;
+  }
+
+  &__bar-fill {
+    height: 100%;
+    border-radius: 3px;
+    transition: width 0.5s ease;
+
+    &--vendor {
+      background: $success-color;
+    }
+
+    &--category {
+      background: $purple-color;
+    }
+  }
+}
+
+// Empty state
+.empty-state-small {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  text-align: center;
+
+  .material-icons {
+    font-size: 2.5rem;
+    color: #cbd5e1;
+    margin-bottom: 0.5rem;
+  }
+
+  p {
+    margin: 0;
+    color: #94a3b8;
+    font-size: 0.875rem;
+  }
+}
+
+// ============================================================================
+// HIGHLIGHT CARD
+// ============================================================================
+.commission-reports__highlight {
+  margin-bottom: 1.5rem;
+}
+
+.highlight-card {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  padding: 1.25rem 1.5rem;
+  background: linear-gradient(135deg, #fef3c7, #fde68a);
+  border-radius: $border-radius;
+  box-shadow: $card-shadow;
+
+  &__icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 56px;
+    height: 56px;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+
+    .material-icons {
+      font-size: 2rem;
+      color: $warning-color;
+    }
+  }
+
+  &__content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  &__title {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #92400e;
+  }
+
+  &__vendor {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #78350f;
+  }
+
+  &__amount {
+    font-size: 0.875rem;
+    color: #92400e;
+  }
+
+  &__link {
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+    padding: 0.5rem 1rem;
+    background: white;
+    border-radius: $border-radius;
+    color: $warning-color;
+    text-decoration: none;
+    font-size: 0.875rem;
+    font-weight: 500;
+    transition: $transition-base;
+
+    &:hover {
+      background: #fffbeb;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .material-icons {
+      font-size: 1.125rem;
+    }
+  }
+}
+
+// ============================================================================
+// QUICK LINKS
+// ============================================================================
+.commission-reports__quick-links {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 1rem;
+}
+
+.quick-link {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem 1.25rem;
+  background: white;
+  border-radius: $border-radius;
+  box-shadow: $card-shadow;
+  text-decoration: none;
+  color: #475569;
+  transition: $transition-base;
+
+  &:hover {
+    box-shadow: $card-shadow-hover;
+    transform: translateY(-2px);
+    color: $success-color;
+
+    .material-icons {
+      color: $success-color;
+    }
+  }
+
+  .material-icons {
+    font-size: 1.5rem;
+    color: #64748b;
+    transition: $transition-base;
+  }
+
+  span:last-child {
+    font-size: 0.875rem;
+    font-weight: 500;
+  }
+}
+
+// ============================================================================
+// MATERIAL MENU OVERRIDES
+// ============================================================================
+::ng-deep {
+  .mat-mdc-menu-panel {
+    border-radius: $border-radius !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+  }
+
+  .mat-mdc-menu-item {
+    font-size: 0.875rem !important;
+
+    .material-icons {
+      margin-right: 0.75rem;
+      font-size: 1.125rem;
+      color: #64748b;
+    }
+  }
+}
+
+// ============================================================================
+// RESPONSIVE
+// ============================================================================
+@media (max-width: 768px) {
+  .commission-reports {
+    padding: 1rem;
+  }
+
+  .commission-reports__header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .commission-reports__header-actions {
+    flex-wrap: wrap;
+  }
+
+  .date-selector {
+    flex-direction: column;
+    width: 100%;
+
+    &__select {
+      width: 100%;
+    }
+
+    &__custom {
+      width: 100%;
+      flex-wrap: wrap;
+    }
+  }
+
+  .commission-reports__kpis {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .kpi-card {
+    padding: 1rem;
+
+    &__value {
+      font-size: 1.25rem;
+    }
+  }
+
+  .chart-card__header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+
+  .chart-card__summary {
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+
+  .bar-chart {
+    min-height: 200px;
+  }
+
+  .bar-chart__y-axis {
+    width: 50px;
+  }
+
+  .highlight-card {
+    flex-direction: column;
+    text-align: center;
+
+    &__link {
+      width: 100%;
+      justify-content: center;
+    }
+  }
+
+  .commission-reports__quick-links {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 480px) {
+  .commission-reports__kpis {
+    grid-template-columns: 1fr;
+  }
+
+  .commission-reports__quick-links {
+    grid-template-columns: 1fr;
+  }
+}
+
+// ============================================================================
+// RTL SUPPORT
+// ============================================================================
+[dir="rtl"] {
+  .commission-reports__header-actions {
+    flex-direction: row-reverse;
+  }
+
+  .kpi-card {
+    flex-direction: row-reverse;
+  }
+
+  .bar-chart__y-axis {
+    text-align: left;
+  }
+
+  .bar-chart__label {
+    transform: rotate(0deg);
+  }
+
+  .breakdown-card__header {
+    h3 {
+      flex-direction: row-reverse;
+    }
+  }
+
+  .breakdown-item {
+    grid-template-columns: auto 1fr 28px;
+
+    &__rank {
+      grid-column: 3;
+    }
+
+    &__info {
+      grid-column: 2;
+    }
+
+    &__stats {
+      grid-column: 1;
+      justify-content: flex-start;
+    }
+
+    &__bar {
+      grid-column: 1 / 3;
+    }
+  }
+
+  .quick-link {
+    flex-direction: row-reverse;
+  }
+
+  .highlight-card {
+    flex-direction: row-reverse;
+
+    &__link {
+      flex-direction: row-reverse;
+    }
+  }
+
+  .summary-item--highlight {
+    padding-left: 0;
+    padding-right: 1rem;
+    border-left: none;
+    border-right: 2px solid $success-color;
+  }
+
+  ::ng-deep .mat-mdc-menu-item .material-icons {
+    margin-right: 0;
+    margin-left: 0.75rem;
+  }
+}

@@ -99,10 +99,10 @@ export class GuestSessionMiddleware implements NestMiddleware {
 
       // Continue to next middleware/controller
       next();
-    } catch (error) {
+    } catch (error: unknown) {
       this.logger.error(
-        `❌ Guest session middleware error: ${error.message}`,
-        error.stack,
+        `❌ Guest session middleware error: ${(error as Error).message}`,
+        (error as Error).stack,
       );
 
       // Don't block request on session errors - create fallback session

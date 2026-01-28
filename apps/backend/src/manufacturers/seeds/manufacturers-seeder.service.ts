@@ -208,9 +208,9 @@ export class ManufacturersSeederService {
       this.logger.log(`📈 Statistics: ${JSON.stringify(stats, null, 2)}`);
 
       return stats;
-    } catch (error) {
+    } catch (error: unknown) {
       stats.totalExecutionTime = Date.now() - startTime;
-      stats.errors.push(error.message);
+      stats.errors.push((error as Error).message);
       
       this.logger.error('❌ Manufacturers seeding failed:', error);
       throw error;
@@ -274,8 +274,8 @@ export class ManufacturersSeederService {
         count++;
 
         this.logger.debug(`✅ Created manufacturer: ${manufacturerData.nameEn}`);
-      } catch (error) {
-        this.logger.warn(`⚠️ Failed to create manufacturer ${manufacturerData.nameEn}: ${error.message}`);
+      } catch (error: unknown) {
+        this.logger.warn(`⚠️ Failed to create manufacturer ${manufacturerData.nameEn}: ${(error as Error).message}`);
       }
     }
 
@@ -437,8 +437,8 @@ export class ManufacturersSeederService {
         if (created % 100 === 0) {
           this.logger.debug(`🚀 Generated ${created}/${count} bulk manufacturers...`);
         }
-      } catch (error) {
-        this.logger.warn(`⚠️ Failed to create bulk manufacturer ${i + 1}: ${error.message}`);
+      } catch (error: unknown) {
+        this.logger.warn(`⚠️ Failed to create bulk manufacturer ${i + 1}: ${(error as Error).message}`);
       }
     }
 
@@ -458,7 +458,7 @@ export class ManufacturersSeederService {
         
         this.logger.log('✅ All Manufacturers data cleared successfully');
       });
-    } catch (error) {
+    } catch (error: unknown) {
       this.logger.error('❌ Failed to clear Manufacturers data:', error);
       throw error;
     }
@@ -531,7 +531,7 @@ export class ManufacturersSeederService {
         },
         lastUpdated: new Date().toISOString(),
       };
-    } catch (error) {
+    } catch (error: unknown) {
       this.logger.error('❌ Failed to get seeding statistics:', error);
       return {
         overview: { error: 'Failed to retrieve statistics' },
@@ -591,11 +591,11 @@ export class ManufacturersSeederService {
           },
         },
       };
-    } catch (error) {
+    } catch (error: unknown) {
       this.logger.error('❌ Data integrity verification failed:', error);
       return {
         isValid: false,
-        issues: [`Integrity check failed: ${error.message}`],
+        issues: [`Integrity check failed: ${(error as Error).message}`],
         summary: null,
       };
     }

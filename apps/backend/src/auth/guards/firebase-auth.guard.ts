@@ -50,10 +50,10 @@ export class FirebaseAuthGuard implements CanActivate {
         role_id: dbUser.role?.id,
       };
       return true;
-    } catch (error) {
+    } catch (error: unknown) {
       console.error(
         'Auth failed: Firebase token invalid or expired',
-        error?.message || error,
+        (error as Error)?.message || error,
       );
       return false;
     }

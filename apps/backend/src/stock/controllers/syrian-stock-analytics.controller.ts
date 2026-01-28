@@ -185,8 +185,8 @@ export class SyrianStockAnalyticsController {
         );
 
       return dashboard;
-    } catch (error) {
-      this.logger.error(`Failed to generate stock dashboard: ${error.message}`);
+    } catch (error: unknown) {
+      this.logger.error(`Failed to generate stock dashboard: ${(error as Error).message}`);
       throw error;
     }
   }
@@ -279,8 +279,8 @@ export class SyrianStockAnalyticsController {
           critical: dashboard.performanceMetrics.criticalCount,
         },
       };
-    } catch (error) {
-      this.logger.error(`Failed to generate stock overview: ${error.message}`);
+    } catch (error: unknown) {
+      this.logger.error(`Failed to generate stock overview: ${(error as Error).message}`);
       throw error;
     }
   }
@@ -352,9 +352,9 @@ export class SyrianStockAnalyticsController {
         alertCount: gov.alertCount,
         topPerformingProducts: gov.topPerformingProducts,
       }));
-    } catch (error) {
+    } catch (error: unknown) {
       this.logger.error(
-        `Failed to generate governorates performance: ${error.message}`,
+        `Failed to generate governorates performance: ${(error as Error).message}`,
       );
       throw error;
     }
@@ -425,9 +425,9 @@ export class SyrianStockAnalyticsController {
         );
 
       return performance;
-    } catch (error) {
+    } catch (error: unknown) {
       this.logger.error(
-        `Failed to generate governorate ${governorateId} performance: ${error.message}`,
+        `Failed to generate governorate ${governorateId} performance: ${(error as Error).message}`,
       );
       throw error;
     }
@@ -501,8 +501,8 @@ export class SyrianStockAnalyticsController {
       );
 
       return forecasts;
-    } catch (error) {
-      this.logger.error(`Failed to generate stock forecast: ${error.message}`);
+    } catch (error: unknown) {
+      this.logger.error(`Failed to generate stock forecast: ${(error as Error).message}`);
       throw error;
     }
   }
@@ -575,8 +575,8 @@ export class SyrianStockAnalyticsController {
         totalItemsRequiringAction: 0,
         estimatedTotalCostSyp: 0,
       };
-    } catch (error) {
-      this.logger.error(`Failed to generate reorder alerts: ${error.message}`);
+    } catch (error: unknown) {
+      this.logger.error(`Failed to generate reorder alerts: ${(error as Error).message}`);
       throw error;
     }
   }
@@ -679,9 +679,9 @@ export class SyrianStockAnalyticsController {
         topPerformers: dashboard.topPerformers.slice(0, limit),
         bottomPerformers: dashboard.bottomPerformers.slice(0, limit),
       };
-    } catch (error) {
+    } catch (error: unknown) {
       this.logger.error(
-        `Failed to generate product performance: ${error.message}`,
+        `Failed to generate product performance: ${(error as Error).message}`,
       );
       throw error;
     }
@@ -742,9 +742,9 @@ export class SyrianStockAnalyticsController {
       // This would be implemented in the service to analyze warehouse performance
       // For now, returning placeholder data
       return [];
-    } catch (error) {
+    } catch (error: unknown) {
       this.logger.error(
-        `Failed to generate warehouse performance: ${error.message}`,
+        `Failed to generate warehouse performance: ${(error as Error).message}`,
       );
       throw error;
     }
@@ -855,8 +855,8 @@ export class SyrianStockAnalyticsController {
           infoAlerts: 0,
         },
       };
-    } catch (error) {
-      this.logger.error(`Failed to retrieve alerts: ${error.message}`);
+    } catch (error: unknown) {
+      this.logger.error(`Failed to retrieve alerts: ${(error as Error).message}`);
       throw error;
     }
   }
@@ -906,8 +906,8 @@ export class SyrianStockAnalyticsController {
     try {
       // This would be implemented to get governorates with stock data
       return [];
-    } catch (error) {
-      this.logger.error(`Failed to retrieve governorates: ${error.message}`);
+    } catch (error: unknown) {
+      this.logger.error(`Failed to retrieve governorates: ${(error as Error).message}`);
       throw error;
     }
   }

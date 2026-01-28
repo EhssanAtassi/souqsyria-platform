@@ -122,3 +122,26 @@
     }
   }
 }
+
+// RTL support
+[dir='rtl'] {
+  .admin-login {
+    &__badge {
+      flex-direction: row-reverse;
+    }
+
+    &__field {
+      text-align: right;
+    }
+
+    &__field input {
+      text-align: right;
+      direction: rtl;
+    }
+
+    &__submit {
+      // Flip gradient direction for RTL
+      background: linear-gradient(270deg, #1e3a8a 0%, #c41e3a 100%);
+    }
+  }
+}

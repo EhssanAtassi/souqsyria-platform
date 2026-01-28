@@ -114,10 +114,10 @@ export class OptionalAuthGuard implements CanActivate {
         // No JWT token - treat as guest
         this.handleGuestSession(request);
       }
-    } catch (error) {
+    } catch (error: unknown) {
       // Any error - still allow request as guest
       this.logger.warn(
-        `⚠️ Optional auth error: ${error.message}`,
+        `⚠️ Optional auth error: ${(error as Error).message}`,
       );
       this.handleGuestSession(request);
     }

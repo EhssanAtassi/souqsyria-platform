@@ -1,0 +1,142 @@
+<!--
+  Settings Hub Component Template
+  @description Main navigation page for system configuration
+-->
+
+<div class="settings-hub">
+  <!-- ===================================================================== -->
+  <!-- HEADER -->
+  <!-- ===================================================================== -->
+  <header class="settings-hub__header">
+    <div class="settings-hub__title">
+      <h1>System Configuration</h1>
+      <span class="settings-hub__subtitle">Manage platform settings, roles, and security</span>
+    </div>
+  </header>
+
+  <!-- ===================================================================== -->
+  <!-- PLATFORM STATUS -->
+  <!-- ===================================================================== -->
+  <section class="settings-hub__status">
+    <div class="status-card">
+      <div class="status-card__header">
+        <span class="material-icons">dns</span>
+        <h3>Platform Status</h3>
+      </div>
+      @if (isLoading()) {
+        <div class="status-card__loading">
+          <div class="loading-spinner loading-spinner--small"></div>
+          <span>Loading status...</span>
+        </div>
+      } @else if (generalSettings()) {
+        <div class="status-card__content">
+          <div class="status-item">
+            <span class="status-item__label">Platform</span>
+            <span class="status-item__value">{{ generalSettings()!.platformName }}</span>
+          </div>
+          <div class="status-item">
+            <span class="status-item__label">Status</span>
+            <span class="status-item__value" [class]="getMaintenanceStatusClass()">
+              <span class="material-icons">
+                {{ generalSettings()!.maintenanceMode ? 'engineering' : 'check_circle' }}
+              </span>
+              {{ getMaintenanceStatus() }}
+            </span>
+          </div>
+          <div class="status-item">
+            <span class="status-item__label">Default Currency</span>
+            <span class="status-item__value">{{ generalSettings()!.defaultCurrency }}</span>
+          </div>
+          <div class="status-item">
+            <span class="status-item__label">Default Language</span>
+            <span class="status-item__value">{{ generalSettings()!.defaultLanguage | uppercase }}</span>
+          </div>
+          <div class="status-item">
+            <span class="status-item__label">Timezone</span>
+            <span class="status-item__value">{{ generalSettings()!.timezone }}</span>
+          </div>
+        </div>
+      } @else {
+        <div class="status-card__error">
+          <span class="material-icons">error_outline</span>
+          <span>Unable to load platform status</span>
+        </div>
+      }
+    </div>
+  </section>
+
+  <!-- ===================================================================== -->
+  <!-- SETTINGS SECTIONS -->
+  <!-- ===================================================================== -->
+  <section class="settings-hub__sections">
+    <h2>Settings Sections</h2>
+    <div class="sections-grid">
+      @for (section of sections; track trackBySection($index, section)) {
+        <a
+          [routerLink]="section.route"
+          class="section-card"
+          [attr.data-color]="section.color"
+        >
+          <div class="section-card__icon">
+            <span class="material-icons">{{ section.icon }}</span>
+          </div>
+          <div class="section-card__content">
+            <h3>{{ section.title }}</h3>
+            <p>{{ section.description }}</p>
+          </div>
+          <div class="section-card__arrow">
+            <span class="material-icons">arrow_forward</span>
+          </div>
+          @if (section.requiredRole.length === 1 && section.requiredRole[0] === 'super_admin') {
+            <span class="section-card__badge">Super Admin Only</span>
+          }
+        </a>
+      }
+    </div>
+  </section>
+
+  <!-- ===================================================================== -->
+  <!-- QUICK ACTIONS -->
+  <!-- ===================================================================== -->
+  <section class="settings-hub__quick-actions">
+    <h2>Quick Actions</h2>
+    <div class="quick-actions-grid">
+      <button
+        class="quick-action"
+        [disabled]="generalSettings()?.maintenanceMode"
+        (click)="loadSettingsOverview()"
+      >
+        <span class="material-icons">refresh</span>
+        <span>Refresh Status</span>
+      </button>
+      <a routerLink="/admin/settings/audit-log" class="quick-action">
+        <span class="material-icons">history</span>
+        <span>View Recent Activity</span>
+      </a>
+      <a routerLink="/admin/analytics" class="quick-action">
+        <span class="material-icons">analytics</span>
+        <span>View Analytics</span>
+      </a>
+      <a routerLink="/admin/dashboard" class="quick-action">
+        <span class="material-icons">dashboard</span>
+        <span>Back to Dashboard</span>
+      </a>
+    </div>
+  </section>
+
+  <!-- ===================================================================== -->
+  <!-- INFO BANNER -->
+  <!-- ===================================================================== -->
+  <section class="settings-hub__info">
+    <div class="info-banner">
+      <span class="material-icons">info</span>
+      <div class="info-banner__content">
+        <strong>Configuration Changes</strong>
+        <p>
+          All changes to system settings are logged in the audit trail.
+          Major configuration changes may require platform restart to take effect.
+        </p>
+      </div>
+    </div>
+  </section>
+</div>

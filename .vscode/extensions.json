@@ -1,0 +1,21 @@
+{
+  "recommendations": [
+    "angular.ng-template",
+    "esbenp.prettier-vscode",
+    "dbaeumer.vscode-eslint",
+    "firsttris.vscode-jest-runner",
+    "orta.vscode-jest",
+    "ms-vscode.vscode-typescript-next",
+    "streetsidesoftware.code-spell-checker",
+    "eamodio.gitlens",
+    "usernamehw.errorlens",
+    "christian-kohler.path-intellisense",
+    "ms-azuretools.vscode-docker",
+    "redhat.vscode-yaml",
+    "mikestead.dotenv",
+    "aaron-bond.better-comments",
+    "naumovs.color-highlight",
+    "csstools.postcss",
+    "bradlc.vscode-tailwindcss"
+  ]
+}

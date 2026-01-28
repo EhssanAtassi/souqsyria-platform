@@ -1,59 +1,125 @@
-# Dependencies
-node_modules
+# ============================================================================
+# Docker Build Ignore File - Frontend
+# ============================================================================
+# Excludes files/directories from Docker COPY commands during build stage.
+# Final production image only contains compiled Angular assets.
+# ============================================================================
+
+# Node modules (will be reinstalled in builder stage)
+node_modules/
 npm-debug.log
 yarn-error.log
 
-# Build output
-dist
-.angular
-.cache
+# Build output (will be rebuilt)
+dist/
+
+# Development and test files
+src/
+angular.json
+tsconfig.*.json
+karma.conf.js
+protractor.conf.js
+.angular/
+
+# Coverage reports
+coverage/
+*.spec.ts
+*.spec.js
+test-coverage/
+reports/
 
 # Environment files
 .env
 .env.local
 .env.*.local
 
-# IDE
-.idea
-.vscode
+# Git
+.git/
+.gitignore
+
+# Documentation
+README.md
+CHANGELOG.md
+LICENSE
+
+# Version control
+.github/
+.gitlab-ci.yml
+azure-pipelines.yml
+
+# Editor and IDE
+.vscode/
+.idea/
+*.code-workspace
+.editorconfig
+.prettierignore
+.eslintignore
 *.swp
 *.swo
 *~
 
-# OS
+# OS files
 .DS_Store
+.AppleDouble
+.LSOverride
 Thumbs.db
 
-# Git
-.git
-.gitignore
-.gitattributes
+# Temporary and backup files
+*.tmp
+*.temp
+*.log
+*.bak
+*.backup
+*.old
 
-# Testing
-coverage
-.nyc_output
-*.spec.ts
-karma.conf.js
-test
+# Build and development files
+build/
+out/
+.angular/
+.ng/
 
-# Documentation
-*.md
-README.md
-docs
+# Package manager files (not needed, npm ci handles this)
+# package-lock.json  # Keep for reproducible builds
+# yarn.lock
 
-# Docker
+# Development scripts
+scripts/dev
+dev-server.sh
+
+# Docker files (not needed in final image)
 Dockerfile
 .dockerignore
-docker-compose*.yml
+docker-compose.yml
 
-# Logs
-logs
-*.log
+# Testing configuration and files
+e2e/
+cypress/
+playwright/
+.cypress/
 
-# Temporary files
-tmp
-temp
+# Storybook (if used)
+.storybook/
+storybook-static/
 
-# Angular specific
-.editorconfig
-.browserslistrc
+# Generated files (will be regenerated)
+*.bundle.js
+*.bundle.js.map
+*.chunk.js
+
+# Asset processing
+public/
+assets/
+
+# Linting
+.eslintrc.json
+.stylelintrc.json
+tslint.json
+
+# Dependency lock files (for production, use --production flag)
+# These are only needed in development
+
+# CI/CD related files (not needed in runtime)
+.circleci/
+.travis.yml
+.appveyor.yml
+Jenkinsfile

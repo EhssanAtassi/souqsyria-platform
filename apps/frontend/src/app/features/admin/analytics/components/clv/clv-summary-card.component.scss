@@ -1,0 +1,499 @@
+/**
+ * @file clv-summary-card.component.scss
+ * @description Styles for CLV Summary Card component with Material Design 3 theming
+ */
+
+@use '@angular/material' as mat;
+@use 'sass:map';
+
+.clv-summary-card {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+
+  // Compact mode reduces padding
+  &.compact {
+    .metrics-grid {
+      gap: 12px;
+    }
+
+    .segmentation-section {
+      margin-top: 16px;
+    }
+  }
+}
+
+// =========================================================================
+// CARD HEADER
+// =========================================================================
+
+.card-header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  width: 100%;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.header-icon {
+  font-size: 32px;
+  width: 32px;
+  height: 32px;
+
+  &.primary-icon {
+    color: mat.get-theme-color(mat.$azure-palette, primary);
+  }
+}
+
+.header-titles {
+  display: flex;
+  flex-direction: column;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+// Spinning refresh icon
+.spin {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+// =========================================================================
+// LOADING & ERROR STATES
+// =========================================================================
+
+.loading-container,
+.error-container,
+.empty-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 24px;
+  text-align: center;
+}
+
+.loading-text {
+  margin-top: 16px;
+  color: rgba(0, 0, 0, 0.6);
+  font-size: 14px;
+}
+
+.error-icon,
+.empty-icon {
+  font-size: 64px;
+  width: 64px;
+  height: 64px;
+  color: rgba(0, 0, 0, 0.38);
+}
+
+.error-icon {
+  color: #c41e3a;
+}
+
+.error-text,
+.empty-text {
+  margin: 16px 0 8px;
+  font-size: 16px;
+  font-weight: 500;
+  color: rgba(0, 0, 0, 0.87);
+}
+
+.empty-subtext {
+  margin: 0 0 24px;
+  font-size: 14px;
+  color: rgba(0, 0, 0, 0.6);
+}
+
+// =========================================================================
+// METRICS GRID
+// =========================================================================
+
+.metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.metric-card {
+  background: rgba(0, 0, 0, 0.02);
+  border-radius: 8px;
+  padding: 16px;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background: rgba(0, 0, 0, 0.04);
+    transform: translateY(-2px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+
+  &.primary-metric {
+    background: linear-gradient(135deg, rgba(30, 58, 138, 0.1) 0%, rgba(30, 58, 138, 0.05) 100%);
+    border-left: 4px solid #1e3a8a;
+
+    &:hover {
+      background: linear-gradient(135deg, rgba(30, 58, 138, 0.15) 0%, rgba(30, 58, 138, 0.08) 100%);
+    }
+  }
+}
+
+.metric-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+
+  mat-icon {
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+    color: rgba(0, 0, 0, 0.6);
+  }
+}
+
+.metric-label {
+  font-size: 13px;
+  font-weight: 500;
+  color: rgba(0, 0, 0, 0.7);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.metric-value {
+  font-size: 24px;
+  font-weight: 600;
+  color: rgba(0, 0, 0, 0.87);
+  line-height: 1.2;
+  margin-bottom: 8px;
+}
+
+.metric-trend {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 13px;
+  font-weight: 500;
+
+  mat-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+  }
+}
+
+.metric-sublabel {
+  font-size: 12px;
+  color: rgba(0, 0, 0, 0.54);
+  margin-top: 4px;
+}
+
+// =========================================================================
+// CONFIDENCE METER
+// =========================================================================
+
+.confidence-meter {
+  margin: 12px 0;
+}
+
+.confidence-label {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 8px;
+}
+
+.confidence-value {
+  font-size: 16px;
+  font-weight: 600;
+  color: rgba(0, 0, 0, 0.87);
+}
+
+.confidence-text {
+  font-size: 12px;
+  color: rgba(0, 0, 0, 0.6);
+  font-weight: 500;
+}
+
+// =========================================================================
+// SEGMENTATION SECTION
+// =========================================================================
+
+.segmentation-section {
+  margin-top: 24px;
+  padding-top: 24px;
+  border-top: 1px solid rgba(0, 0, 0, 0.12);
+}
+
+.section-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 16px;
+  font-weight: 500;
+  color: rgba(0, 0, 0, 0.87);
+  margin: 0 0 16px 0;
+
+  mat-icon {
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+    color: rgba(0, 0, 0, 0.6);
+  }
+}
+
+.segment-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.segment-chip {
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  }
+
+  mat-icon {
+    font-size: 18px;
+  }
+}
+
+.segment-name {
+  font-weight: 500;
+}
+
+.segment-count {
+  margin-left: 8px;
+  font-size: 12px;
+  color: rgba(0, 0, 0, 0.6);
+}
+
+// =========================================================================
+// SEGMENT BARS
+// =========================================================================
+
+.segment-bars {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.segment-bar-item {
+  width: 100%;
+}
+
+.segment-bar-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+}
+
+.segment-bar-label {
+  font-size: 13px;
+  font-weight: 500;
+  color: rgba(0, 0, 0, 0.7);
+}
+
+.segment-bar-value {
+  font-size: 12px;
+  font-weight: 600;
+  color: rgba(0, 0, 0, 0.87);
+}
+
+.segment-bar-track {
+  height: 8px;
+  background: rgba(0, 0, 0, 0.08);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.segment-bar-fill {
+  height: 100%;
+  transition: width 0.5s ease;
+  border-radius: 4px;
+
+  &.segment-vip {
+    background: linear-gradient(90deg, #e91e63 0%, #f06292 100%);
+  }
+
+  &.segment-high_value {
+    background: linear-gradient(90deg, #1e3a8a 0%, #3b82f6 100%);
+  }
+
+  &.segment-active {
+    background: linear-gradient(90deg, #047857 0%, #10b981 100%);
+  }
+
+  &.segment-at_risk {
+    background: linear-gradient(90deg, #f59e0b 0%, #fbbf24 100%);
+  }
+
+  &.segment-dormant {
+    background: linear-gradient(90deg, #dc2626 0%, #ef4444 100%);
+  }
+
+  &.segment-lost {
+    background: linear-gradient(90deg, #6b7280 0%, #9ca3af 100%);
+  }
+}
+
+// =========================================================================
+// FOOTER
+// =========================================================================
+
+.footer-info {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid rgba(0, 0, 0, 0.08);
+  font-size: 12px;
+  color: rgba(0, 0, 0, 0.54);
+
+  mat-icon {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+  }
+}
+
+// =========================================================================
+// DARK THEME
+// =========================================================================
+
+.dark-theme {
+  .clv-summary-card {
+    background: #1e1e1e;
+  }
+
+  .metric-card {
+    background: rgba(255, 255, 255, 0.05);
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.08);
+    }
+
+    &.primary-metric {
+      background: linear-gradient(135deg, rgba(59, 130, 246, 0.15) 0%, rgba(59, 130, 246, 0.08) 100%);
+      border-left-color: #3b82f6;
+
+      &:hover {
+        background: linear-gradient(135deg, rgba(59, 130, 246, 0.2) 0%, rgba(59, 130, 246, 0.12) 100%);
+      }
+    }
+  }
+
+  .metric-header mat-icon,
+  .section-title mat-icon {
+    color: rgba(255, 255, 255, 0.7);
+  }
+
+  .metric-label {
+    color: rgba(255, 255, 255, 0.7);
+  }
+
+  .metric-value {
+    color: rgba(255, 255, 255, 0.95);
+  }
+
+  .metric-sublabel,
+  .loading-text {
+    color: rgba(255, 255, 255, 0.6);
+  }
+
+  .error-text,
+  .empty-text {
+    color: rgba(255, 255, 255, 0.87);
+  }
+
+  .empty-subtext {
+    color: rgba(255, 255, 255, 0.6);
+  }
+
+  .segment-bar-track {
+    background: rgba(255, 255, 255, 0.1);
+  }
+
+  .footer-info {
+    border-top-color: rgba(255, 255, 255, 0.12);
+    color: rgba(255, 255, 255, 0.6);
+  }
+}
+
+// =========================================================================
+// RESPONSIVE
+// =========================================================================
+
+@media (max-width: 768px) {
+  .metrics-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .segment-chips {
+    justify-content: center;
+  }
+
+  .header-left {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .metric-value {
+    font-size: 20px;
+  }
+}
+
+// =========================================================================
+// RTL SUPPORT (Arabic)
+// =========================================================================
+
+[dir='rtl'] {
+  .header-left {
+    flex-direction: row-reverse;
+  }
+
+  .metric-header {
+    flex-direction: row-reverse;
+  }
+
+  .metric-trend {
+    flex-direction: row-reverse;
+  }
+
+  .segment-bar-header {
+    flex-direction: row-reverse;
+  }
+
+  .footer-info {
+    flex-direction: row-reverse;
+  }
+
+  .metric-card.primary-metric {
+    border-left: none;
+    border-right: 4px solid #1e3a8a;
+  }
+}

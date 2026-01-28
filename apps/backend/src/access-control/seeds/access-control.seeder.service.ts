@@ -13,13 +13,20 @@ import { Repository } from 'typeorm';
 import { Permission } from '../entities/permission.entity';
 import { Role } from '../../roles/entities/role.entity';
 import { RolePermission } from '../entities/role-permission.entity';
+import { Route } from '../entities/route.entity';
 import { PERMISSION_SEEDS, PermissionSeedData } from './permissions.seed';
 import { ALL_ROLES, RoleSeedData } from './roles.seed';
+import {
+  RouteDiscoveryService,
+  RouteDiscoveryResult,
+  DiscoveredRoute,
+} from './route-discovery.service';
 
 export interface AccessControlSeedingOptions {
   seedPermissions?: boolean;
   seedRoles?: boolean;
   seedRolePermissions?: boolean;
+  seedRoutes?: boolean;
   overwriteExisting?: boolean;
   logLevel?: 'debug' | 'info' | 'warn';
 }
@@ -30,6 +37,10 @@ export interface SeedingStats {
   rolesCreated: number;
   rolesUpdated: number;
   rolePermissionsCreated: number;
+  routesCreated: number;
+  routesUpdated: number;
+  routesMapped: number;
+  routesUnmapped: number;
   totalProcessingTime: number;
 }
 
@@ -44,6 +55,9 @@ export class AccessControlSeederService {
     private readonly roleRepository: Repository<Role>,
     @InjectRepository(RolePermission)
     private readonly rolePermissionRepository: Repository<RolePermission>,
+    @InjectRepository(Route)
+    private readonly routeRepository: Repository<Route>,
+    private readonly routeDiscoveryService: RouteDiscoveryService,
   ) {}
 
   /**
@@ -62,6 +76,7 @@ export class AccessControlSeederService {
       seedPermissions: true,
       seedRoles: true,
       seedRolePermissions: true,
+      seedRoutes: true,
       overwriteExisting: false,
       logLevel: 'info',
       ...options,
@@ -73,6 +88,10 @@ export class AccessControlSeederService {
       rolesCreated: 0,
       rolesUpdated: 0,
       rolePermissionsCreated: 0,
+      routesCreated: 0,
+      routesUpdated: 0,
+      routesMapped: 0,
+      routesUnmapped: 0,
       totalProcessingTime: 0,
     };
 
@@ -97,6 +116,15 @@ export class AccessControlSeederService {
           await this.seedRolePermissions(defaultOptions);
       }
 
+      // Step 4: Seed routes and route-permission mappings
+      if (defaultOptions.seedRoutes) {
+        const routeStats = await this.seedRoutes(defaultOptions);
+        stats.routesCreated = routeStats.created;
+        stats.routesUpdated = routeStats.updated;
+        stats.routesMapped = routeStats.mapped;
+        stats.routesUnmapped = routeStats.unmapped;
+      }
+
       stats.totalProcessingTime = Date.now() - startTime;
 
       this.logger.log(
@@ -105,12 +133,12 @@ export class AccessControlSeederService {
       this.logSeedingStats(stats);
 
       return stats;
-    } catch (error) {
+    } catch (error: unknown) {
       this.logger.error(
-        `❌ Access Control Seeding failed: ${error.message}`,
-        error.stack,
+        `❌ Access Control Seeding failed: ${(error as Error).message}`,
+        (error as Error).stack,
       );
-      throw new Error(`Access Control Seeding failed: ${error.message}`);
+      throw new Error(`Access Control Seeding failed: ${(error as Error).message}`);
     }
   }
 
@@ -157,9 +185,9 @@ export class AccessControlSeederService {
             this.logger.debug(`Created permission: ${permissionData.name}`);
           }
         }
-      } catch (error) {
+      } catch (error: unknown) {
         this.logger.error(
-          `Failed to process permission ${permissionData.name}: ${error.message}`,
+          `Failed to process permission ${permissionData.name}: ${(error as Error).message}`,
         );
         throw error;
       }
@@ -218,9 +246,9 @@ export class AccessControlSeederService {
             this.logger.debug(`Created role: ${roleData.name}`);
           }
         }
-      } catch (error) {
+      } catch (error: unknown) {
         this.logger.error(
-          `Failed to process role ${roleData.name}: ${error.message}`,
+          `Failed to process role ${roleData.name}: ${(error as Error).message}`,
         );
         throw error;
       }
@@ -294,9 +322,9 @@ export class AccessControlSeederService {
             }
           }
         }
-      } catch (error) {
+      } catch (error: unknown) {
         this.logger.error(
-          `Failed to process role permissions for ${roleData.name}: ${error.message}`,
+          `Failed to process role permissions for ${roleData.name}: ${(error as Error).message}`,
         );
         throw error;
       }
@@ -304,6 +332,343 @@ export class AccessControlSeederService {
 
     this.logger.log(`📊 Role-Permission relationships: ${created} created`);
     return created;
+  }
+
+  /**
+   * Seeds all routes discovered in the application and maps them to permissions
+   * 
+   * Process:
+   * 1. Discover all routes using reflection
+   * 2. Create/update route records in database
+   * 3. Map routes to permissions (explicit or auto-mapped)
+   * 4. Report unmapped routes that need manual attention
+   * 
+   * @param options - Seeding options
+   * @returns Promise<{created: number, updated: number, mapped: number, unmapped: number}>
+   */
+  async seedRoutes(
+    options: AccessControlSeedingOptions,
+  ): Promise<{ created: number; updated: number; mapped: number; unmapped: number }> {
+    this.logger.log('🛣️  Seeding routes and route-permission mappings...');
+
+    // Step 1: Discover all routes
+    const discoveryResult: RouteDiscoveryResult =
+      await this.routeDiscoveryService.discoverAllRoutes();
+
+    // Step 2: Create/update route records
+    let created = 0;
+    let updated = 0;
+    let mapped = 0;
+    let unmapped = 0;
+
+    for (const discoveredRoute of discoveryResult.routes) {
+      try {
+        // Skip public routes (they don't need permission mapping)
+        if (discoveredRoute.isPublic) {
+          const routeStats = await this.upsertRoute(
+            discoveredRoute,
+            null,
+            options,
+          );
+          created += routeStats.created;
+          updated += routeStats.updated;
+          continue;
+        }
+
+        // Determine which permission to use
+        let permissionName: string | null = null;
+
+        if (discoveredRoute.explicitPermissions.length > 0) {
+          // Use the first explicit permission (multi-permission routes need custom handling)
+          permissionName = discoveredRoute.explicitPermissions[0];
+        } else if (discoveredRoute.suggestedPermission) {
+          // Use auto-mapped permission
+          permissionName = discoveredRoute.suggestedPermission;
+        }
+
+        if (permissionName) {
+          // Find or create the permission
+          const permission = await this.findOrWarnPermission(permissionName);
+
+          const routeStats = await this.upsertRoute(
+            discoveredRoute,
+            permission,
+            options,
+          );
+          created += routeStats.created;
+          updated += routeStats.updated;
+
+          if (permission) {
+            mapped++;
+          } else {
+            unmapped++;
+          }
+        } else {
+          // Route couldn't be mapped
+          unmapped++;
+          this.logger.warn(
+            `⚠️  Route could not be auto-mapped: ${discoveredRoute.method} ${discoveredRoute.path}`,
+          );
+        }
+      } catch (error: unknown) {
+        this.logger.error(
+          `Failed to seed route ${discoveredRoute.path}: ${(error as Error).message}`,
+        );
+      }
+    }
+
+    this.logger.log(
+      `📊 Routes: ${created} created, ${updated} updated, ${mapped} mapped, ${unmapped} unmapped`,
+    );
+
+    return { created, updated, mapped, unmapped };
+  }
+
+  /**
+   * Creates or updates a route record in the database
+   * 
+   * @param discoveredRoute - Route metadata from discovery
+   * @param permission - Permission entity to link (or null for public routes)
+   * @param options - Seeding options
+   * @returns Promise<{created: number, updated: number}>
+   */
+  private async upsertRoute(
+    discoveredRoute: DiscoveredRoute,
+    permission: Permission | null,
+    options: AccessControlSeedingOptions,
+  ): Promise<{ created: number; updated: number }> {
+    // Check if route already exists
+    const existingRoute = await this.routeRepository.findOne({
+      where: {
+        path: discoveredRoute.path,
+        method: discoveredRoute.method,
+      },
+    });
+
+    if (existingRoute) {
+      // Update existing route if permission changed
+      if (options.overwriteExisting) {
+        existingRoute.permission = permission;
+        await this.routeRepository.save(existingRoute);
+
+        if (options.logLevel === 'debug') {
+          this.logger.debug(
+            `Updated route: ${discoveredRoute.method} ${discoveredRoute.path}`,
+          );
+        }
+
+        return { created: 0, updated: 1 };
+      }
+
+      return { created: 0, updated: 0 };
+    }
+
+    // Create new route
+    const newRoute = this.routeRepository.create({
+      path: discoveredRoute.path,
+      method: discoveredRoute.method,
+      permission: permission,
+    });
+
+    await this.routeRepository.save(newRoute);
+
+    if (options.logLevel === 'debug') {
+      const permissionLabel = permission
+        ? `→ ${permission.name}`
+        : discoveredRoute.isPublic
+          ? '(public)'
+          : '(unmapped)';
+
+      this.logger.debug(
+        `Created route: ${discoveredRoute.method} ${discoveredRoute.path} ${permissionLabel}`,
+      );
+    }
+
+    return { created: 1, updated: 0 };
+  }
+
+  /**
+   * Finds a permission by name or warns if it doesn't exist
+   * 
+   * @param permissionName - Name of the permission to find
+   * @returns Promise<Permission | null>
+   */
+  private async findOrWarnPermission(
+    permissionName: string,
+  ): Promise<Permission | null> {
+    const permission = await this.permissionRepository.findOne({
+      where: { name: permissionName },
+    });
+
+    if (!permission) {
+      this.logger.warn(
+        `⚠️  Permission '${permissionName}' not found. Add it to permissions.seed.ts`,
+      );
+    }
+
+    return permission;
+  }
+
+  /**
+   * Generates a detailed route mapping report for review
+   * 
+   * Shows:
+   * - All discovered routes grouped by resource
+   * - Which routes are mapped to permissions
+   * - Which routes are public
+   * - Which routes need manual permission mapping
+   * 
+   * @returns Promise<any> - Comprehensive route mapping report
+   */
+  async generateRouteMappingReport(): Promise<any> {
+    this.logger.log('📋 Generating route mapping report...');
+
+    const discoveryResult: RouteDiscoveryResult =
+      await this.routeDiscoveryService.discoverAllRoutes();
+
+    const grouped =
+      this.routeDiscoveryService.groupRoutesByResource(discoveryResult.routes);
+
+    const report: any = {
+      summary: {
+        totalRoutes: discoveryResult.totalRoutes,
+        publicRoutes: discoveryResult.publicRoutes,
+        explicitlyMapped: discoveryResult.explicitlyMapped,
+        autoMapped: discoveryResult.autoMapped,
+        unmapped: discoveryResult.unmapped,
+      },
+      byResource: {},
+      unmappedRoutes: discoveryResult.unmappedRoutes.map((route) => ({
+        method: route.method,
+        path: route.path,
+        controller: route.controllerName,
+        handler: route.handlerName,
+      })),
+    };
+
+    // Group routes by resource
+    for (const [resource, routes] of grouped.entries()) {
+      report.byResource[resource] = routes.map((route) => ({
+        method: route.method,
+        path: route.path,
+        handler: route.handlerName,
+        isPublic: route.isPublic,
+        permission: route.explicitPermissions[0] || route.suggestedPermission,
+        mappingType: route.isPublic
+          ? 'public'
+          : route.explicitPermissions.length > 0
+            ? 'explicit'
+            : route.suggestedPermission
+              ? 'auto'
+              : 'unmapped',
+      }));
+    }
+
+    this.logger.log('✅ Route mapping report generated');
+    return report;
+  }
+
+  /**
+   * Validates route-permission mappings for gaps and inconsistencies
+   * 
+   * Checks for:
+   * - Routes without permission mappings (excluding public routes)
+   * - Routes mapped to non-existent permissions
+   * - Duplicate route definitions
+   * - Permission coverage by resource
+   * 
+   * @returns Promise<{valid: boolean, issues: string[]}>
+   */
+  async validateRouteMappings(): Promise<{
+    valid: boolean;
+    issues: string[];
+  }> {
+    this.logger.log('🔍 Validating route-permission mappings...');
+
+    const issues: string[] = [];
+
+    try {
+      // Get all permissions
+      const allPermissions = await this.permissionRepository.find();
+      const permissionSet = new Set(allPermissions.map((p) => p.name));
+
+      // Discover routes
+      const discoveryResult =
+        await this.routeDiscoveryService.discoverAllRoutes();
+
+      // Check for unmapped routes
+      if (discoveryResult.unmapped > 0) {
+        issues.push(
+          `Found ${discoveryResult.unmapped} routes without permission mappings`,
+        );
+      }
+
+      // Validate that all required permissions exist
+      const missingPermissions =
+        this.routeDiscoveryService.validatePermissions(
+          discoveryResult.routes,
+          permissionSet,
+        );
+
+      if (missingPermissions.length > 0) {
+        issues.push(
+          `Found ${missingPermissions.length} missing permissions: ${missingPermissions.join(', ')}`,
+        );
+      }
+
+      // Check for duplicate routes in database
+      const duplicateRoutes = await this.routeRepository
+        .createQueryBuilder('route')
+        .select('route.path, route.method')
+        .addSelect('COUNT(*)', 'count')
+        .groupBy('route.path, route.method')
+        .having('COUNT(*) > 1')
+        .getRawMany();
+
+      if (duplicateRoutes.length > 0) {
+        issues.push(
+          `Found ${duplicateRoutes.length} duplicate route definitions in database`,
+        );
+      }
+
+      // Check for routes in DB that no longer exist in code
+      const dbRoutes = await this.routeRepository.find();
+      const discoveredPaths = new Set(
+        discoveryResult.routes.map((r) => `${r.method}:${r.path}`),
+      );
+
+      const orphanedRoutes = dbRoutes.filter(
+        (dbRoute) => !discoveredPaths.has(`${dbRoute.method}:${dbRoute.path}`),
+      );
+
+      if (orphanedRoutes.length > 0) {
+        issues.push(
+          `Found ${orphanedRoutes.length} routes in database that no longer exist in code`,
+        );
+      }
+
+      const valid = issues.length === 0;
+
+      if (valid) {
+        this.logger.log('✅ Route mapping validation passed');
+      } else {
+        this.logger.warn(
+          `⚠️  Route mapping validation issues found: ${issues.length}`,
+        );
+        issues.forEach((issue) => this.logger.warn(`  - ${issue}`));
+      }
+
+      return { valid, issues };
+    } catch (error: unknown) {
+      this.logger.error(
+        '❌ Route mapping validation failed:',
+        (error as Error).stack,
+      );
+      return {
+        valid: false,
+        issues: [`Validation failed due to error: ${(error as Error).message}`],
+      };
+    }
   }
 
   /**
@@ -329,6 +694,17 @@ export class AccessControlSeederService {
       },
       rolePermissions: {
         total: await this.rolePermissionRepository.count(),
+      },
+      routes: {
+        total: await this.routeRepository.count(),
+        mapped: await this.routeRepository
+          .createQueryBuilder('route')
+          .where('route.permission_id IS NOT NULL')
+          .getCount(),
+        unmapped: await this.routeRepository
+          .createQueryBuilder('route')
+          .where('route.permission_id IS NULL')
+          .getCount(),
       },
       timestamp: new Date().toISOString(),
     };
@@ -386,8 +762,8 @@ export class AccessControlSeederService {
       this.logger.log('Removed all roles');
 
       this.logger.log('✅ Access control data cleanup completed');
-    } catch (error) {
-      this.logger.error('❌ Access control cleanup failed:', error.stack);
+    } catch (error: unknown) {
+      this.logger.error('❌ Access control cleanup failed:', (error as Error).stack);
       throw error;
     }
   }
@@ -459,11 +835,11 @@ export class AccessControlSeederService {
       }
 
       return { valid, issues };
-    } catch (error) {
-      this.logger.error('❌ Access control validation failed:', error.stack);
+    } catch (error: unknown) {
+      this.logger.error('❌ Access control validation failed:', (error as Error).stack);
       return {
         valid: false,
-        issues: [`Validation failed due to error: ${error.message}`],
+        issues: [`Validation failed due to error: ${(error as Error).message}`],
       };
     }
   }
@@ -483,6 +859,9 @@ export class AccessControlSeederService {
     );
     this.logger.log(
       `   └── Role-Permissions: ${stats.rolePermissionsCreated} relationships created`,
+    );
+    this.logger.log(
+      `   └── Routes: ${stats.routesCreated} created, ${stats.routesUpdated} updated, ${stats.routesMapped} mapped, ${stats.routesUnmapped} unmapped`,
     );
     this.logger.log(`   └── Total time: ${stats.totalProcessingTime}ms`);
   }

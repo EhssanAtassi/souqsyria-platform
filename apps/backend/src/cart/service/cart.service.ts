@@ -273,10 +273,10 @@ export class CartService {
       const processingTime = Date.now() - startTime;
       this.logger.log(`✅ Cart item added successfully in ${processingTime}ms`);
       return updatedCart;
-    } catch (error) {
+    } catch (error: unknown) {
       this.logger.error(
-        `❌ Failed to add item to cart: ${error.message}`,
-        error.stack,
+        `❌ Failed to add item to cart: ${(error as Error).message}`,
+        (error as Error).stack,
       );
 
       // Audit log: Cart operation failed
@@ -287,7 +287,7 @@ export class CartService {
         actorType: 'user',
         entityType: 'cart',
         entityId: null,
-        description: `Failed to add variant ${dto.variant_id} to cart: ${error.message}`,
+        description: `Failed to add variant ${dto.variant_id} to cart: ${(error as Error).message}`,
       });
 
       throw error;
@@ -341,10 +341,10 @@ export class CartService {
         entityId: cart.id,
         description: `Cleared all ${itemCount} items from shopping cart`,
       });
-    } catch (error) {
+    } catch (error: unknown) {
       this.logger.error(
-        `❌ Failed to clear cart: ${error.message}`,
-        error.stack,
+        `❌ Failed to clear cart: ${(error as Error).message}`,
+        (error as Error).stack,
       );
 
       // Audit log: Clear cart failed
@@ -355,7 +355,7 @@ export class CartService {
         actorType: 'user',
         entityType: 'cart',
         entityId: null,
-        description: `Failed to clear cart: ${error.message}`,
+        description: `Failed to clear cart: ${(error as Error).message}`,
       });
 
       throw error;
@@ -414,10 +414,10 @@ export class CartService {
         entityId: itemId,
         description: `Removed ${removedQuantity}x variant ${variantId} from shopping cart`,
       });
-    } catch (error) {
+    } catch (error: unknown) {
       this.logger.error(
-        `❌ Failed to remove item from cart: ${error.message}`,
-        error.stack,
+        `❌ Failed to remove item from cart: ${(error as Error).message}`,
+        (error as Error).stack,
       );
 
       // Audit log: Remove item failed
@@ -428,7 +428,7 @@ export class CartService {
         actorType: 'user',
         entityType: 'cart',
         entityId: null,
-        description: `Failed to remove variant ${variantId} from cart: ${error.message}`,
+        description: `Failed to remove variant ${variantId} from cart: ${(error as Error).message}`,
       });
 
       throw error;
@@ -495,10 +495,10 @@ export class CartService {
       this.logger.debug(
         `📊 Updated cart ${cart.id} totals: ${totalItems} items, ${totalAmount} ${cart.currency || 'SYP'}`,
       );
-    } catch (error) {
+    } catch (error: unknown) {
       this.logger.error(
-        `❌ Failed to update cart totals: ${error.message}`,
-        error.stack,
+        `❌ Failed to update cart totals: ${(error as Error).message}`,
+        (error as Error).stack,
       );
       // Don't throw - this is a background operation
     }
@@ -539,8 +539,8 @@ export class CartService {
         averageCartValue: parseFloat(avgData?.avgValue || '0'),
         averageItemsPerCart: parseFloat(avgData?.avgItems || '0'),
       };
-    } catch (error) {
-      this.logger.error(`❌ Failed to get cart analytics: ${error.message}`);
+    } catch (error: unknown) {
+      this.logger.error(`❌ Failed to get cart analytics: ${(error as Error).message}`);
       throw error;
     }
   }
@@ -579,10 +579,10 @@ export class CartService {
 
       this.logger.log(`✅ Found cart ID ${cart.id} with ${cart.items?.length || 0} items`);
       return cart;
-    } catch (error) {
+    } catch (error: unknown) {
       this.logger.error(
-        `❌ Error finding cart by session ID: ${error.message}`,
-        error.stack,
+        `❌ Error finding cart by session ID: ${(error as Error).message}`,
+        (error as Error).stack,
       );
       throw error;
     }
@@ -613,10 +613,10 @@ export class CartService {
 
       this.logger.log(`✅ Found cart ID ${cart.id} with ${cart.items?.length || 0} items`);
       return cart;
-    } catch (error) {
+    } catch (error: unknown) {
       this.logger.error(
-        `❌ Error finding cart by user ID: ${error.message}`,
-        error.stack,
+        `❌ Error finding cart by user ID: ${(error as Error).message}`,
+        (error as Error).stack,
       );
       throw error;
     }
@@ -691,10 +691,10 @@ export class CartService {
       );
 
       return savedCart;
-    } catch (error) {
+    } catch (error: unknown) {
       this.logger.error(
-        `❌ Failed to create guest cart: ${error.message}`,
-        error.stack,
+        `❌ Failed to create guest cart: ${(error as Error).message}`,
+        (error as Error).stack,
       );
       throw error;
     }
@@ -747,10 +747,10 @@ export class CartService {
       );
 
       return updatedCart;
-    } catch (error) {
+    } catch (error: unknown) {
       this.logger.error(
-        `❌ Failed to update guest cart: ${error.message}`,
-        error.stack,
+        `❌ Failed to update guest cart: ${(error as Error).message}`,
+        (error as Error).stack,
       );
       throw error;
     }
@@ -813,10 +813,10 @@ export class CartService {
       );
 
       return updatedItem;
-    } catch (error) {
+    } catch (error: unknown) {
       this.logger.error(
-        `❌ Failed to update cart item: ${error.message}`,
-        error.stack,
+        `❌ Failed to update cart item: ${(error as Error).message}`,
+        (error as Error).stack,
       );
       throw error;
     }

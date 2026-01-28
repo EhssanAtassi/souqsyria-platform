@@ -1,0 +1,353 @@
+<!--
+  Commission Reports Component Template
+  @description Commission analytics with vendor breakdowns and trends
+-->
+
+<div class="commission-reports">
+  <!-- ===================================================================== -->
+  <!-- HEADER -->
+  <!-- ===================================================================== -->
+  <header class="commission-reports__header">
+    <div class="commission-reports__title">
+      <h1>Commission Reports</h1>
+      <span class="commission-reports__subtitle">Track vendor commissions and earnings</span>
+    </div>
+
+    <div class="commission-reports__header-actions">
+      <!-- Date Range Selector -->
+      <div class="date-selector">
+        <select
+          class="date-selector__select"
+          [ngModel]="selectedPreset()"
+          (ngModelChange)="applyDatePreset($event)"
+        >
+          @for (preset of datePresets; track preset.value) {
+            <option [value]="preset.value">{{ preset.label }}</option>
+          }
+        </select>
+
+        @if (selectedPreset() === 'custom') {
+          <div class="date-selector__custom">
+            <input
+              type="date"
+              [value]="dateRange().startDate"
+              (change)="updateStartDate($event)"
+            />
+            <span>to</span>
+            <input
+              type="date"
+              [value]="dateRange().endDate"
+              (change)="updateEndDate($event)"
+            />
+            <button class="btn btn--primary btn--small" (click)="applyCustomRange()">Apply</button>
+          </div>
+        }
+      </div>
+
+      <!-- Export Menu -->
+      <button class="btn btn--secondary" [matMenuTriggerFor]="exportMenu">
+        <span class="material-icons">download</span>
+        Export
+      </button>
+      <mat-menu #exportMenu="matMenu">
+        <button mat-menu-item (click)="exportReport('csv')">
+          <span class="material-icons">description</span>
+          Export as CSV
+        </button>
+        <button mat-menu-item (click)="exportReport('xlsx')">
+          <span class="material-icons">table_chart</span>
+          Export as Excel
+        </button>
+        <button mat-menu-item (click)="exportReport('pdf')">
+          <span class="material-icons">picture_as_pdf</span>
+          Export as PDF
+        </button>
+      </mat-menu>
+
+      <button class="btn btn--secondary" (click)="refresh()">
+        <span class="material-icons">refresh</span>
+      </button>
+    </div>
+  </header>
+
+  @if (isLoading()) {
+    <div class="loading-state">
+      <div class="loading-spinner"></div>
+      <p>Loading commission data...</p>
+    </div>
+  } @else {
+    <!-- Error Banner -->
+    @if (errorMessage()) {
+      <div class="error-banner">
+        <span class="material-icons">warning</span>
+        <span>{{ errorMessage() }} (Showing demo data)</span>
+        <button (click)="errorMessage.set(null)">
+          <span class="material-icons">close</span>
+        </button>
+      </div>
+    }
+
+    <!-- ===================================================================== -->
+    <!-- KPI CARDS -->
+    <!-- ===================================================================== -->
+    <section class="commission-reports__kpis">
+      @for (metric of kpiMetrics(); track trackByKPI($index, metric)) {
+        <div class="kpi-card" [attr.data-color]="metric.color">
+          <div class="kpi-card__icon">
+            <span class="material-icons">{{ metric.icon }}</span>
+          </div>
+          <div class="kpi-card__content">
+            <span class="kpi-card__value">{{ formatKPIValue(metric) }}</span>
+            <span class="kpi-card__label">{{ metric.label }}</span>
+            @if (metric.change !== undefined) {
+              <span
+                class="kpi-card__change"
+                [class.kpi-card__change--positive]="metric.change > 0"
+                [class.kpi-card__change--negative]="metric.change < 0"
+              >
+                <span class="material-icons">
+                  {{ metric.change > 0 ? 'trending_up' : metric.change < 0 ? 'trending_down' : 'trending_flat' }}
+                </span>
+                {{ metric.change > 0 ? '+' : '' }}{{ metric.change.toFixed(1) }}%
+              </span>
+            }
+          </div>
+        </div>
+      }
+    </section>
+
+    <!-- ===================================================================== -->
+    <!-- COMMISSION TREND CHART -->
+    <!-- ===================================================================== -->
+    <section class="commission-reports__chart">
+      <div class="chart-card">
+        <div class="chart-card__header">
+          <h3>
+            <span class="material-icons">show_chart</span>
+            Commission Trends
+          </h3>
+          <div class="chart-card__controls">
+            <div class="period-selector">
+              <button
+                class="period-btn"
+                [class.period-btn--active]="chartPeriod() === 'daily'"
+                (click)="changeChartPeriod('daily')"
+              >
+                Daily
+              </button>
+              <button
+                class="period-btn"
+                [class.period-btn--active]="chartPeriod() === 'weekly'"
+                (click)="changeChartPeriod('weekly')"
+              >
+                Weekly
+              </button>
+              <button
+                class="period-btn"
+                [class.period-btn--active]="chartPeriod() === 'monthly'"
+                (click)="changeChartPeriod('monthly')"
+              >
+                Monthly
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="chart-card__summary">
+          <div class="summary-item">
+            <span class="summary-item__value">{{ formatCurrency(commissionTrends()?.summary.totalCommissions ?? 0) }}</span>
+            <span class="summary-item__label">Total Commissions</span>
+          </div>
+          <div class="summary-item">
+            <span class="summary-item__value">{{ (commissionTrends()?.summary.averageCommissionRate ?? 0).toFixed(1) }}%</span>
+            <span class="summary-item__label">Avg. Rate</span>
+          </div>
+          @if (commissionTrends()?.summary.highestCommissionVendor) {
+            <div class="summary-item summary-item--highlight">
+              <span class="summary-item__value">{{ commissionTrends()!.summary.highestCommissionVendor.vendorName }}</span>
+              <span class="summary-item__label">Top Vendor</span>
+            </div>
+          }
+        </div>
+
+        <div class="chart-card__body">
+          <div class="bar-chart">
+            <div class="bar-chart__y-axis">
+              <span>{{ formatCurrency(maxChartValue()) }}</span>
+              <span>{{ formatCurrency(maxChartValue() * 0.75) }}</span>
+              <span>{{ formatCurrency(maxChartValue() * 0.5) }}</span>
+              <span>{{ formatCurrency(maxChartValue() * 0.25) }}</span>
+              <span>0</span>
+            </div>
+            <div class="bar-chart__bars">
+              @for (item of chartData(); track trackByDate($index, item); let i = $index) {
+                @if (i % Math.ceil(chartData().length / 20) === 0 || chartData().length <= 20) {
+                  <div
+                    class="bar-chart__bar-wrapper"
+                    [matTooltip]="formatDate(item.date) + ': ' + formatCurrency(item.amount)"
+                  >
+                    <div
+                      class="bar-chart__bar"
+                      [style.height]="getBarHeight(item.amount, maxChartValue())"
+                    ></div>
+                    <span class="bar-chart__label">{{ formatDate(item.date, 'short') }}</span>
+                  </div>
+                }
+              }
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================================================================== -->
+    <!-- BREAKDOWNS -->
+    <!-- ===================================================================== -->
+    <section class="commission-reports__breakdowns">
+      <!-- Commissions by Vendor -->
+      <div class="breakdown-card">
+        <div class="breakdown-card__header">
+          <h3>
+            <span class="material-icons">store</span>
+            Commissions by Vendor
+          </h3>
+          <div class="view-toggle">
+            <button
+              class="view-toggle__btn"
+              [class.view-toggle__btn--active]="vendorViewMode() === 'top10'"
+              (click)="setVendorViewMode('top10')"
+            >
+              Top 10
+            </button>
+            <button
+              class="view-toggle__btn"
+              [class.view-toggle__btn--active]="vendorViewMode() === 'all'"
+              (click)="setVendorViewMode('all')"
+            >
+              All
+            </button>
+          </div>
+        </div>
+        <div class="breakdown-card__body">
+          @if (vendorsByCommission().length === 0) {
+            <div class="empty-state-small">
+              <span class="material-icons">inbox</span>
+              <p>No vendor data available</p>
+            </div>
+          } @else {
+            <div class="breakdown-list">
+              @for (vendor of vendorsByCommission(); track trackByVendor($index, vendor); let i = $index) {
+                <div class="breakdown-item">
+                  <div class="breakdown-item__rank">{{ i + 1 }}</div>
+                  <div class="breakdown-item__info">
+                    <span class="breakdown-item__name">{{ vendor.vendorName }}</span>
+                  </div>
+                  <div class="breakdown-item__stats">
+                    <span class="breakdown-item__value">{{ formatCurrency(vendor.amount) }}</span>
+                    <span class="breakdown-item__percent">
+                      {{ (getBarWidth(vendor.amount, totalVendorCommission()) | number:'1.1-1') }}%
+                    </span>
+                  </div>
+                  <div class="breakdown-item__bar">
+                    <div
+                      class="breakdown-item__bar-fill breakdown-item__bar-fill--vendor"
+                      [style.width.%]="getBarWidth(vendor.amount, totalVendorCommission())"
+                    ></div>
+                  </div>
+                </div>
+              }
+            </div>
+          }
+        </div>
+      </div>
+
+      <!-- Commissions by Category -->
+      <div class="breakdown-card">
+        <div class="breakdown-card__header">
+          <h3>
+            <span class="material-icons">category</span>
+            Commissions by Category
+          </h3>
+        </div>
+        <div class="breakdown-card__body">
+          @if (categoriesByCommission().length === 0) {
+            <div class="empty-state-small">
+              <span class="material-icons">inbox</span>
+              <p>No category data available</p>
+            </div>
+          } @else {
+            <div class="breakdown-list">
+              @for (category of categoriesByCommission(); track trackByCategory($index, category); let i = $index) {
+                <div class="breakdown-item">
+                  <div class="breakdown-item__rank">{{ i + 1 }}</div>
+                  <div class="breakdown-item__info">
+                    <span class="breakdown-item__name">{{ category.categoryName }}</span>
+                  </div>
+                  <div class="breakdown-item__stats">
+                    <span class="breakdown-item__value">{{ formatCurrency(category.amount) }}</span>
+                    <span class="breakdown-item__percent">
+                      {{ (getBarWidth(category.amount, totalCategoryCommission()) | number:'1.1-1') }}%
+                    </span>
+                  </div>
+                  <div class="breakdown-item__bar">
+                    <div
+                      class="breakdown-item__bar-fill breakdown-item__bar-fill--category"
+                      [style.width.%]="getBarWidth(category.amount, totalCategoryCommission())"
+                    ></div>
+                  </div>
+                </div>
+              }
+            </div>
+          }
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================================================================== -->
+    <!-- TOP VENDOR HIGHLIGHT -->
+    <!-- ===================================================================== -->
+    @if (commissionTrends()?.summary.highestCommissionVendor) {
+      <section class="commission-reports__highlight">
+        <div class="highlight-card">
+          <div class="highlight-card__icon">
+            <span class="material-icons">emoji_events</span>
+          </div>
+          <div class="highlight-card__content">
+            <span class="highlight-card__title">Top Earning Vendor This Period</span>
+            <span class="highlight-card__vendor">{{ commissionTrends()!.summary.highestCommissionVendor.vendorName }}</span>
+            <span class="highlight-card__amount">{{ formatCurrency(commissionTrends()!.summary.highestCommissionVendor.amount) }} in commissions</span>
+          </div>
+          <a
+            [routerLink]="'/admin/vendors/' + commissionTrends()!.summary.highestCommissionVendor.vendorId"
+            class="highlight-card__link"
+          >
+            <span class="material-icons">arrow_forward</span>
+            View Vendor
+          </a>
+        </div>
+      </section>
+    }
+
+    <!-- ===================================================================== -->
+    <!-- QUICK LINKS -->
+    <!-- ===================================================================== -->
+    <section class="commission-reports__quick-links">
+      <a routerLink="/admin/analytics" class="quick-link">
+        <span class="material-icons">analytics</span>
+        <span>Sales Analytics</span>
+      </a>
+      <a routerLink="/admin/analytics/users" class="quick-link">
+        <span class="material-icons">people</span>
+        <span>User Analytics</span>
+      </a>
+      <a routerLink="/admin/vendors" class="quick-link">
+        <span class="material-icons">store</span>
+        <span>Vendor Management</span>
+      </a>
+      <a routerLink="/admin/analytics/exports" class="quick-link">
+        <span class="material-icons">cloud_download</span>
+        <span>Export Manager</span>
+      </a>
+    </section>
+  }
+</div>

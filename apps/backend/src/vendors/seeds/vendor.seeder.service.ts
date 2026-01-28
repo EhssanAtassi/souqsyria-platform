@@ -80,8 +80,8 @@ export class VendorSeederService {
         vendors,
         statistics,
       };
-    } catch (error) {
-      this.logger.error(`❌ Vendor seeding failed: ${error.message}`, error.stack);
+    } catch (error: unknown) {
+      this.logger.error(`❌ Vendor seeding failed: ${(error as Error).message}`, (error as Error).stack);
       throw error;
     }
   }

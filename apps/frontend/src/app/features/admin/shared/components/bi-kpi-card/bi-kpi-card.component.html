@@ -1,0 +1,89 @@
+<!--
+  BI KPI Card Template
+  @description Enhanced KPI display card for business intelligence dashboards
+-->
+
+<article [ngClass]="containerClasses()">
+  <!-- Loading State -->
+  @if (loading()) {
+    <div class="kpi-card__skeleton">
+      <div class="kpi-card__skeleton-icon"></div>
+      <div class="kpi-card__skeleton-content">
+        <div class="kpi-card__skeleton-title"></div>
+        <div class="kpi-card__skeleton-value"></div>
+        <div class="kpi-card__skeleton-change"></div>
+      </div>
+    </div>
+  } @else {
+    <!-- Card Content -->
+    <div class="kpi-card__main">
+      <!-- Icon -->
+      @if (icon()) {
+        <div class="kpi-card__icon">
+          <span class="material-icons">{{ icon() }}</span>
+        </div>
+      }
+
+      <!-- Content -->
+      <div class="kpi-card__content">
+        <!-- Title -->
+        <h4 class="kpi-card__title">{{ title() }}</h4>
+
+        <!-- Value -->
+        <div class="kpi-card__value">{{ displayValue() }}</div>
+
+        <!-- Change & Trend -->
+        @if (change() !== null) {
+          <div class="kpi-card__change" [ngClass]="trendClass()">
+            <span class="material-icons kpi-card__trend-icon">{{ trendIcon() }}</span>
+            <span class="kpi-card__change-value">{{ displayChange() }}</span>
+            @if (subtitle()) {
+              <span class="kpi-card__subtitle">{{ subtitle() }}</span>
+            }
+          </div>
+        } @else if (subtitle()) {
+          <div class="kpi-card__subtitle-only">{{ subtitle() }}</div>
+        }
+
+        <!-- Comparison with previous value -->
+        @if (showComparison() && previousValue() !== null) {
+          <div class="kpi-card__comparison">
+            <span class="kpi-card__comparison-label">Previous:</span>
+            <span class="kpi-card__comparison-value">{{ displayPreviousValue() }}</span>
+          </div>
+        }
+
+        <!-- Progress toward target -->
+        @if (showProgress() && target() !== null) {
+          <div class="kpi-card__progress">
+            <div class="kpi-card__progress-bar">
+              <div
+                class="kpi-card__progress-fill"
+                [style.width.%]="progressPercent()"
+              ></div>
+            </div>
+            <span class="kpi-card__progress-label">
+              {{ progressPercent() | number:'1.0-0' }}% of target
+            </span>
+          </div>
+        }
+      </div>
+
+      <!-- Sparkline -->
+      @if (sparkline().length > 1) {
+        <div class="kpi-card__sparkline">
+          <svg viewBox="0 0 100 30" preserveAspectRatio="none">
+            <path
+              class="kpi-card__sparkline-path"
+              [attr.d]="sparklinePath()"
+              fill="none"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+          </svg>
+        </div>
+      }
+    </div>
+  }
+</article>

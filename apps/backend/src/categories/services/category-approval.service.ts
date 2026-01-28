@@ -118,10 +118,10 @@ export class CategoryApprovalService {
       this.logger.log(
         `✅ Status change completed: ${category.nameEn} is now "${newStatus}" (${processingTime}ms)`,
       );
-    } catch (error) {
+    } catch (error: unknown) {
       this.logger.error(
-        `❌ Status change failed for category ${category.id}: ${error.message}`,
-        error.stack,
+        `❌ Status change failed for category ${category.id}: ${(error as Error).message}`,
+        (error as Error).stack,
       );
       throw error;
     }
@@ -162,9 +162,9 @@ export class CategoryApprovalService {
       await this.handleStatusChange(category, 'pending', submittingUser);
 
       this.logger.log(`✅ Category ${categoryId} submitted for approval`);
-    } catch (error) {
+    } catch (error: unknown) {
       this.logger.error(
-        `❌ Failed to submit category ${categoryId} for approval: ${error.message}`,
+        `❌ Failed to submit category ${categoryId} for approval: ${(error as Error).message}`,
       );
       throw error;
     }
@@ -209,9 +209,9 @@ export class CategoryApprovalService {
       );
 
       this.logger.log(`✅ Category ${categoryId} approved successfully`);
-    } catch (error) {
+    } catch (error: unknown) {
       this.logger.error(
-        `❌ Failed to approve category ${categoryId}: ${error.message}`,
+        `❌ Failed to approve category ${categoryId}: ${(error as Error).message}`,
       );
       throw error;
     }
@@ -258,9 +258,9 @@ export class CategoryApprovalService {
       });
 
       this.logger.log(`❌ Category ${categoryId} rejected: ${rejectionReason}`);
-    } catch (error) {
+    } catch (error: unknown) {
       this.logger.error(
-        `❌ Failed to reject category ${categoryId}: ${error.message}`,
+        `❌ Failed to reject category ${categoryId}: ${(error as Error).message}`,
       );
       throw error;
     }
@@ -602,10 +602,10 @@ export class CategoryApprovalService {
       }
 
       this.logger.debug(`✅ Post-approval actions completed for ${newStatus}`);
-    } catch (error) {
+    } catch (error: unknown) {
       this.logger.error(
-        `❌ Post-approval actions failed: ${error.message}`,
-        error.stack,
+        `❌ Post-approval actions failed: ${(error as Error).message}`,
+        (error as Error).stack,
       );
       // Don't throw - main operation succeeded
     }
@@ -841,9 +841,9 @@ export class CategoryApprovalService {
         },
         summary,
       };
-    } catch (error) {
+    } catch (error: unknown) {
       this.logger.error(
-        `❌ Failed to fetch pending categories: ${error.message}`,
+        `❌ Failed to fetch pending categories: ${(error as Error).message}`,
       );
       throw error;
     }
@@ -931,12 +931,12 @@ export class CategoryApprovalService {
 
           results.successful++;
           results.successfulIds.push(categoryId);
-        } catch (error) {
+        } catch (error: unknown) {
           results.failed++;
           results.failedIds.push(categoryId);
           results.errors.push({
             categoryId,
-            error: error.message,
+            error: (error as Error).message,
           });
         }
       }
@@ -946,8 +946,8 @@ export class CategoryApprovalService {
       );
 
       return results;
-    } catch (error) {
-      this.logger.error(`❌ Bulk status change failed: ${error.message}`);
+    } catch (error: unknown) {
+      this.logger.error(`❌ Bulk status change failed: ${(error as Error).message}`);
       throw error;
     }
   }

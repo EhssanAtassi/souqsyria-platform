@@ -1,0 +1,576 @@
+<!--
+  Payout List Component Template
+  @description Manages vendor payout requests with approve, process, reject actions
+-->
+
+<div class="payout-list">
+  <!-- ===================================================================== -->
+  <!-- HEADER -->
+  <!-- ===================================================================== -->
+  <header class="payout-list__header">
+    <div class="payout-list__title">
+      <button class="btn btn--icon btn--text" (click)="goToVendorList()" matTooltip="Back to Vendors">
+        <span class="material-icons">arrow_back</span>
+      </button>
+      <div>
+        <h1>Vendor Payouts</h1>
+        <span class="payout-list__subtitle">Process and manage vendor earnings payouts</span>
+      </div>
+    </div>
+
+    <div class="payout-list__header-actions">
+      <button class="btn btn--secondary" [matMenuTriggerFor]="exportMenu">
+        <span class="material-icons">download</span>
+        Export
+      </button>
+      <mat-menu #exportMenu="matMenu">
+        <button mat-menu-item (click)="exportPayouts('csv')">
+          <span class="material-icons">description</span>
+          Export as CSV
+        </button>
+        <button mat-menu-item (click)="exportPayouts('xlsx')">
+          <span class="material-icons">table_chart</span>
+          Export as Excel
+        </button>
+      </mat-menu>
+      <button class="btn btn--secondary" (click)="refresh()">
+        <span class="material-icons">refresh</span>
+        Refresh
+      </button>
+    </div>
+  </header>
+
+  <!-- ===================================================================== -->
+  <!-- STATISTICS CARDS -->
+  <!-- ===================================================================== -->
+  <section class="payout-list__stats">
+    <div class="stat-card" (click)="applyStatusFilter('pending')">
+      <div class="stat-card__icon stat-card__icon--warning">
+        <span class="material-icons">schedule</span>
+      </div>
+      <div class="stat-card__content">
+        <span class="stat-card__value">{{ stats().pendingCount }}</span>
+        <span class="stat-card__label">Pending Payouts</span>
+      </div>
+    </div>
+
+    <div class="stat-card stat-card--highlight">
+      <div class="stat-card__icon stat-card__icon--primary">
+        <span class="material-icons">payments</span>
+      </div>
+      <div class="stat-card__content">
+        <span class="stat-card__value">{{ stats().pendingAmount | currencyFormat }}</span>
+        <span class="stat-card__label">Pending Amount</span>
+      </div>
+    </div>
+
+    <div class="stat-card" (click)="applyStatusFilter('processing')">
+      <div class="stat-card__icon stat-card__icon--info">
+        <span class="material-icons">sync</span>
+      </div>
+      <div class="stat-card__content">
+        <span class="stat-card__value">{{ stats().processingCount }}</span>
+        <span class="stat-card__label">Processing</span>
+      </div>
+    </div>
+
+    <div class="stat-card" (click)="applyStatusFilter('completed')">
+      <div class="stat-card__icon stat-card__icon--success">
+        <span class="material-icons">check_circle</span>
+      </div>
+      <div class="stat-card__content">
+        <span class="stat-card__value">{{ stats().completedThisMonth }}</span>
+        <span class="stat-card__label">Completed (Month)</span>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-card__icon stat-card__icon--success">
+        <span class="material-icons">account_balance</span>
+      </div>
+      <div class="stat-card__content">
+        <span class="stat-card__value">{{ stats().completedAmountThisMonth | currencyFormat }}</span>
+        <span class="stat-card__label">Paid (Month)</span>
+      </div>
+    </div>
+
+    <div class="stat-card" (click)="applyStatusFilter('failed')">
+      <div class="stat-card__icon stat-card__icon--danger">
+        <span class="material-icons">warning</span>
+      </div>
+      <div class="stat-card__content">
+        <span class="stat-card__value">{{ stats().issuesCount }}</span>
+        <span class="stat-card__label">Issues</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================================================================== -->
+  <!-- TOOLBAR -->
+  <!-- ===================================================================== -->
+  <section class="payout-list__toolbar">
+    <!-- Search -->
+    <div class="search-box">
+      <span class="material-icons search-box__icon">search</span>
+      <input
+        type="text"
+        class="search-box__input"
+        placeholder="Search by shop name or payout ID..."
+        [value]="searchTerm()"
+        (input)="onSearchInput($event)"
+      />
+      @if (searchTerm()) {
+        <button class="search-box__clear" (click)="clearSearch()">
+          <span class="material-icons">close</span>
+        </button>
+      }
+    </div>
+
+    <!-- Status Filter -->
+    <div class="filter-group">
+      <label class="filter-group__label">Status</label>
+      <select
+        class="filter-group__select"
+        [ngModel]="statusFilter()"
+        (ngModelChange)="applyStatusFilter($event)"
+      >
+        @for (option of statusOptions; track option.value) {
+          <option [value]="option.value">{{ option.label }}</option>
+        }
+      </select>
+    </div>
+
+    <!-- Sort -->
+    <div class="filter-group">
+      <label class="filter-group__label">Sort By</label>
+      <select
+        class="filter-group__select"
+        [ngModel]="sortBy()"
+        (ngModelChange)="applySort($event)"
+      >
+        @for (option of sortOptions; track option.value) {
+          <option [value]="option.value">{{ option.label }}</option>
+        }
+      </select>
+    </div>
+
+    <!-- Spacer -->
+    <div class="payout-list__toolbar-spacer"></div>
+
+    <!-- Clear Filters -->
+    @if (activeFiltersCount() > 0) {
+      <button class="btn btn--text" (click)="clearFilters()">
+        <span class="material-icons">filter_alt_off</span>
+        Clear ({{ activeFiltersCount() }})
+      </button>
+    }
+
+    <!-- Results Info -->
+    <div class="payout-list__results-info">
+      {{ filteredPayouts().length }} payout requests
+    </div>
+  </section>
+
+  <!-- ===================================================================== -->
+  <!-- PAYOUT TABLE -->
+  <!-- ===================================================================== -->
+  <section class="payout-list__content">
+    @if (isLoading()) {
+      <div class="loading-state">
+        <div class="loading-spinner"></div>
+        <p>Loading payout requests...</p>
+      </div>
+    } @else if (filteredPayouts().length === 0) {
+      <div class="empty-state">
+        <span class="material-icons">payments</span>
+        <h3>No Payout Requests</h3>
+        <p>
+          @if (activeFiltersCount() > 0) {
+            No payouts match your current filters.
+          } @else {
+            There are no payout requests at this time.
+          }
+        </p>
+        @if (activeFiltersCount() > 0) {
+          <button class="btn btn--secondary" (click)="clearFilters()">Clear Filters</button>
+        }
+      </div>
+    } @else {
+      <div class="payout-table-container">
+        <table class="payout-table">
+          <thead>
+            <tr>
+              <th class="payout-table__th--id">ID</th>
+              <th class="payout-table__th--vendor">Vendor</th>
+              <th class="payout-table__th--amount">Amount</th>
+              <th class="payout-table__th--method">Payment Method</th>
+              <th class="payout-table__th--status">Status</th>
+              <th class="payout-table__th--date">Requested</th>
+              <th class="payout-table__th--processed">Processed</th>
+              <th class="payout-table__th--actions">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (payout of filteredPayouts(); track trackByPayoutId($index, payout)) {
+              <tr
+                class="payout-table__row"
+                [class.payout-table__row--pending]="payout.status === 'pending'"
+                [class.payout-table__row--issue]="payout.status === 'failed' || payout.status === 'on_hold'"
+              >
+                <!-- ID -->
+                <td class="payout-table__td--id">
+                  <span class="payout-id">#{{ payout.id }}</span>
+                </td>
+
+                <!-- Vendor -->
+                <td class="payout-table__td--vendor">
+                  <a
+                    class="vendor-link"
+                    (click)="goToVendorDetail(payout.vendorId)"
+                  >
+                    {{ payout.shopName }}
+                  </a>
+                </td>
+
+                <!-- Amount -->
+                <td class="payout-table__td--amount">
+                  <span class="amount">{{ payout.amount | currencyFormat }}</span>
+                </td>
+
+                <!-- Payment Method -->
+                <td class="payout-table__td--method">
+                  <span class="payment-method">
+                    <span class="material-icons">
+                      @switch (payout.paymentMethod) {
+                        @case ('bank_transfer') { account_balance }
+                        @case ('paypal') { payment }
+                        @case ('crypto') { currency_bitcoin }
+                        @default { payments }
+                      }
+                    </span>
+                    {{ payout.paymentMethod | titlecase }}
+                  </span>
+                </td>
+
+                <!-- Status -->
+                <td class="payout-table__td--status">
+                  <span
+                    class="status-badge"
+                    [attr.data-status]="payout.status"
+                  >
+                    <span class="material-icons">{{ getStatusIcon(payout.status) }}</span>
+                    {{ getStatusLabel(payout.status) }}
+                  </span>
+                </td>
+
+                <!-- Requested Date -->
+                <td class="payout-table__td--date">
+                  {{ formatDate(payout.requestedAt) }}
+                </td>
+
+                <!-- Processed Date -->
+                <td class="payout-table__td--processed">
+                  @if (payout.processedAt) {
+                    {{ formatDate(payout.processedAt) }}
+                  } @else {
+                    <span class="text-muted">-</span>
+                  }
+                </td>
+
+                <!-- Actions -->
+                <td class="payout-table__td--actions">
+                  <div class="action-buttons">
+                    @if (canProcess(payout)) {
+                      <button
+                        class="btn btn--success btn--icon btn--small"
+                        (click)="quickProcess(payout)"
+                        [disabled]="isProcessing()"
+                        matTooltip="Quick Process"
+                      >
+                        <span class="material-icons">check</span>
+                      </button>
+                      <button
+                        class="btn btn--primary btn--icon btn--small"
+                        (click)="openProcessDialog(payout)"
+                        [disabled]="isProcessing()"
+                        matTooltip="Process with Details"
+                      >
+                        <span class="material-icons">payment</span>
+                      </button>
+                      <button
+                        class="btn btn--warning btn--icon btn--small"
+                        (click)="putOnHold(payout)"
+                        [disabled]="isProcessing()"
+                        matTooltip="Put on Hold"
+                      >
+                        <span class="material-icons">pause</span>
+                      </button>
+                      <button
+                        class="btn btn--danger btn--icon btn--small"
+                        (click)="openRejectDialog(payout)"
+                        [disabled]="isProcessing()"
+                        matTooltip="Reject"
+                      >
+                        <span class="material-icons">close</span>
+                      </button>
+                    } @else {
+                      <button
+                        class="btn btn--text btn--icon btn--small"
+                        (click)="goToVendorDetail(payout.vendorId)"
+                        matTooltip="View Vendor"
+                      >
+                        <span class="material-icons">visibility</span>
+                      </button>
+                    }
+                  </div>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Pagination -->
+      @if (pagination().totalPages > 1) {
+        <div class="payout-list__pagination">
+          <div class="pagination-info">
+            Page {{ pagination().page }} of {{ pagination().totalPages }}
+            ({{ pagination().total }} total)
+          </div>
+
+          <div class="pagination-controls">
+            <button
+              class="btn btn--icon btn--small"
+              [disabled]="pagination().page === 1"
+              (click)="goToPage(1)"
+              matTooltip="First Page"
+            >
+              <span class="material-icons">first_page</span>
+            </button>
+            <button
+              class="btn btn--icon btn--small"
+              [disabled]="pagination().page === 1"
+              (click)="goToPage(pagination().page - 1)"
+              matTooltip="Previous Page"
+            >
+              <span class="material-icons">chevron_left</span>
+            </button>
+
+            @for (page of pagesArray(); track page) {
+              @if (page === pagination().page ||
+                   page === 1 ||
+                   page === pagination().totalPages ||
+                   (page >= pagination().page - 1 && page <= pagination().page + 1)) {
+                <button
+                  class="btn btn--small"
+                  [class.btn--primary]="page === pagination().page"
+                  (click)="goToPage(page)"
+                >
+                  {{ page }}
+                </button>
+              } @else if (page === pagination().page - 2 || page === pagination().page + 2) {
+                <span class="pagination-ellipsis">...</span>
+              }
+            }
+
+            <button
+              class="btn btn--icon btn--small"
+              [disabled]="pagination().page === pagination().totalPages"
+              (click)="goToPage(pagination().page + 1)"
+              matTooltip="Next Page"
+            >
+              <span class="material-icons">chevron_right</span>
+            </button>
+            <button
+              class="btn btn--icon btn--small"
+              [disabled]="pagination().page === pagination().totalPages"
+              (click)="goToPage(pagination().totalPages)"
+              matTooltip="Last Page"
+            >
+              <span class="material-icons">last_page</span>
+            </button>
+          </div>
+
+          <div class="page-size-selector">
+            <label>Show:</label>
+            <select [ngModel]="pagination().limit" (ngModelChange)="changePageSize($event)">
+              <option [value]="10">10</option>
+              <option [value]="25">25</option>
+              <option [value]="50">50</option>
+            </select>
+          </div>
+        </div>
+      }
+    }
+  </section>
+</div>
+
+<!-- ======================================================================= -->
+<!-- PROCESS DIALOG -->
+<!-- ======================================================================= -->
+@if (showProcessDialog() && selectedPayout()) {
+  <div class="dialog-backdrop" (click)="closeProcessDialog()">
+    <div class="dialog" (click)="$event.stopPropagation()">
+      <div class="dialog__header">
+        <h3>Process Payout</h3>
+        <button class="btn btn--icon btn--text" (click)="closeProcessDialog()">
+          <span class="material-icons">close</span>
+        </button>
+      </div>
+
+      <div class="dialog__body">
+        <!-- Payout Summary -->
+        <div class="payout-summary">
+          <div class="payout-summary__row">
+            <span class="label">Vendor</span>
+            <span class="value">{{ selectedPayout()!.shopName }}</span>
+          </div>
+          <div class="payout-summary__row payout-summary__row--highlight">
+            <span class="label">Amount</span>
+            <span class="value amount">{{ selectedPayout()!.amount | currencyFormat }}</span>
+          </div>
+          <div class="payout-summary__row">
+            <span class="label">Payment Method</span>
+            <span class="value">{{ selectedPayout()!.paymentMethod | titlecase }}</span>
+          </div>
+          <div class="payout-summary__row">
+            <span class="label">Requested</span>
+            <span class="value">{{ formatDateTime(selectedPayout()!.requestedAt) }}</span>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Transaction Reference</label>
+          <input
+            type="text"
+            placeholder="Enter bank transaction reference or ID..."
+            [ngModel]="processFormData().transactionReference"
+            (ngModelChange)="updateProcessTransactionRef($event)"
+          />
+          <span class="input-hint">Optional - for tracking purposes</span>
+        </div>
+
+        <div class="form-group">
+          <label>Notes</label>
+          <textarea
+            placeholder="Add any notes about this payout..."
+            [ngModel]="processFormData().notes"
+            (ngModelChange)="updateProcessNotes($event)"
+          ></textarea>
+        </div>
+
+        <label class="checkbox-item">
+          <input
+            type="checkbox"
+            [checked]="processFormData().notifyVendor"
+            (change)="toggleProcessNotify()"
+          />
+          <span class="checkbox-label">Notify vendor via email</span>
+        </label>
+      </div>
+
+      <div class="dialog__footer">
+        <button class="btn btn--secondary" (click)="closeProcessDialog()">Cancel</button>
+        <button
+          class="btn btn--success"
+          [disabled]="isProcessing()"
+          (click)="submitProcess()"
+        >
+          @if (isProcessing()) {
+            <span class="material-icons spinning">sync</span>
+            Processing...
+          } @else {
+            <span class="material-icons">check_circle</span>
+            Confirm &amp; Process
+          }
+        </button>
+      </div>
+    </div>
+  </div>
+}
+
+<!-- ======================================================================= -->
+<!-- REJECT DIALOG -->
+<!-- ======================================================================= -->
+@if (showRejectDialog() && selectedPayout()) {
+  <div class="dialog-backdrop" (click)="closeRejectDialog()">
+    <div class="dialog" (click)="$event.stopPropagation()">
+      <div class="dialog__header">
+        <h3>Reject Payout</h3>
+        <button class="btn btn--icon btn--text" (click)="closeRejectDialog()">
+          <span class="material-icons">close</span>
+        </button>
+      </div>
+
+      <div class="dialog__body">
+        <!-- Payout Summary -->
+        <div class="payout-summary payout-summary--danger">
+          <div class="payout-summary__row">
+            <span class="label">Vendor</span>
+            <span class="value">{{ selectedPayout()!.shopName }}</span>
+          </div>
+          <div class="payout-summary__row">
+            <span class="label">Amount</span>
+            <span class="value">{{ selectedPayout()!.amount | currencyFormat }}</span>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Rejection Reason <span class="required">*</span></label>
+          <select
+            [ngModel]="rejectFormData().reason"
+            (ngModelChange)="updateRejectReason($event)"
+          >
+            <option value="">Select a reason...</option>
+            @for (reason of rejectionReasons; track reason.value) {
+              <option [value]="reason.value">{{ reason.label }}</option>
+            }
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Additional Notes</label>
+          <textarea
+            placeholder="Provide details about the rejection..."
+            [ngModel]="rejectFormData().notes"
+            (ngModelChange)="updateRejectNotes($event)"
+          ></textarea>
+        </div>
+
+        <label class="checkbox-item">
+          <input
+            type="checkbox"
+            [checked]="rejectFormData().notifyVendor"
+            (change)="toggleRejectNotify()"
+          />
+          <span class="checkbox-label">Notify vendor via email</span>
+        </label>
+
+        <div class="warning-notice">
+          <span class="material-icons">warning</span>
+          <p>
+            This action will reject the payout request. The vendor will need to
+            submit a new request if they wish to receive payment.
+          </p>
+        </div>
+      </div>
+
+      <div class="dialog__footer">
+        <button class="btn btn--secondary" (click)="closeRejectDialog()">Cancel</button>
+        <button
+          class="btn btn--danger"
+          [disabled]="isProcessing() || !rejectFormData().reason"
+          (click)="submitReject()"
+        >
+          @if (isProcessing()) {
+            <span class="material-icons spinning">sync</span>
+            Rejecting...
+          } @else {
+            <span class="material-icons">cancel</span>
+            Reject Payout
+          }
+        </button>
+      </div>
+    </div>
+  </div>
+}

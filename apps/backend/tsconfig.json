@@ -12,10 +12,33 @@
     "baseUrl": "./",
     "incremental": true,
     "skipLibCheck": true,
+
+    /* Strict Type-Checking Options - Relaxed for incremental migration */
+    "strict": false,
     "strictNullChecks": false,
     "noImplicitAny": false,
     "strictBindCallApply": false,
-    "forceConsistentCasingInFileNames": false,
-    "noFallthroughCasesInSwitch": false
-  }
+    "strictFunctionTypes": false,
+    "strictPropertyInitialization": false,
+    "noImplicitThis": false,
+    "alwaysStrict": true,
+
+    /* Additional Checks */
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
+    "noImplicitReturns": false,
+    "noFallthroughCasesInSwitch": true,
+    "forceConsistentCasingInFileNames": true,
+
+    /* Advanced Options */
+    "resolveJsonModule": true,
+    "esModuleInterop": true,
+    "allowJs": false
+  },
+  "exclude": [
+    "node_modules",
+    "dist",
+    "test",
+    "**/*spec.ts"
+  ]
 }

@@ -1,0 +1,145 @@
+<!--
+  BI Date Range Picker Template
+  @description Comprehensive date range selector for BI dashboards
+-->
+
+<div [ngClass]="containerClasses()">
+  <!-- Trigger Button -->
+  <button
+    type="button"
+    class="date-picker__trigger"
+    (click)="toggle()"
+    [attr.aria-expanded]="isOpen()"
+  >
+    <span class="material-icons date-picker__icon">date_range</span>
+    <span class="date-picker__text">{{ displayText() }}</span>
+    <span class="material-icons date-picker__caret">
+      {{ isOpen() ? 'expand_less' : 'expand_more' }}
+    </span>
+  </button>
+
+  <!-- Dropdown Panel -->
+  @if (isOpen()) {
+    <div class="date-picker__dropdown" (click)="$event.stopPropagation()">
+      <!-- Presets List -->
+      @if (!showCustomPanel()) {
+        <div class="date-picker__presets">
+          <div class="date-picker__section-title">Quick Select</div>
+          <div class="date-picker__preset-list">
+            @for (preset of presets; track trackByPreset($index, preset)) {
+              <button
+                type="button"
+                class="date-picker__preset"
+                [class.date-picker__preset--active]="currentPreset() === preset.id"
+                (click)="selectPreset(preset)"
+              >
+                {{ preset.label }}
+              </button>
+            }
+          </div>
+        </div>
+
+        <!-- Comparison Options -->
+        @if (showComparison()) {
+          <div class="date-picker__section">
+            <div class="date-picker__section-title">Compare To</div>
+            <div class="date-picker__options">
+              @for (option of comparisonOptions; track option.value) {
+                <label class="date-picker__radio">
+                  <input
+                    type="radio"
+                    name="comparison"
+                    [value]="option.value"
+                    [checked]="comparison() === option.value"
+                    (change)="onComparisonSelect(option.value)"
+                  />
+                  <span class="date-picker__radio-label">{{ option.label }}</span>
+                </label>
+              }
+            </div>
+          </div>
+        }
+
+        <!-- Granularity Options -->
+        @if (showGranularity()) {
+          <div class="date-picker__section">
+            <div class="date-picker__section-title">Granularity</div>
+            <div class="date-picker__options date-picker__options--inline">
+              @for (option of granularityOptions; track option.value) {
+                <button
+                  type="button"
+                  class="date-picker__granularity-btn"
+                  [class.date-picker__granularity-btn--active]="granularity() === option.value"
+                  (click)="onGranularitySelect(option.value)"
+                >
+                  {{ option.label }}
+                </button>
+              }
+            </div>
+          </div>
+        }
+      }
+
+      <!-- Custom Date Panel -->
+      @if (showCustomPanel()) {
+        <div class="date-picker__custom">
+          <div class="date-picker__custom-header">
+            <button
+              type="button"
+              class="date-picker__back-btn"
+              (click)="showCustomPanel.set(false)"
+            >
+              <span class="material-icons">arrow_back</span>
+              Back
+            </button>
+            <span class="date-picker__custom-title">Custom Range</span>
+          </div>
+
+          <div class="date-picker__custom-fields">
+            <div class="date-picker__field">
+              <label class="date-picker__field-label">Start Date</label>
+              <input
+                type="date"
+                class="date-picker__field-input"
+                [ngModel]="customStartDate()"
+                (ngModelChange)="customStartDate.set($event)"
+              />
+            </div>
+            <div class="date-picker__field">
+              <label class="date-picker__field-label">End Date</label>
+              <input
+                type="date"
+                class="date-picker__field-input"
+                [ngModel]="customEndDate()"
+                (ngModelChange)="customEndDate.set($event)"
+              />
+            </div>
+          </div>
+
+          <div class="date-picker__custom-actions">
+            <button
+              type="button"
+              class="date-picker__cancel-btn"
+              (click)="close()"
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              class="date-picker__apply-btn"
+              [disabled]="!customStartDate() || !customEndDate()"
+              (click)="applyCustomRange()"
+            >
+              Apply
+            </button>
+          </div>
+        </div>
+      }
+    </div>
+  }
+
+  <!-- Backdrop for closing -->
+  @if (isOpen()) {
+    <div class="date-picker__backdrop" (click)="close()"></div>
+  }
+</div>

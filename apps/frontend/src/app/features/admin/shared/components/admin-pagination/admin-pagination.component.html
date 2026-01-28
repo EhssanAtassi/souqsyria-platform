@@ -1,0 +1,118 @@
+<!-- Admin Pagination Template -->
+<!-- Comprehensive pagination controls with page navigation and size selection -->
+
+<nav
+  class="pagination"
+  [class.pagination--compact]="compact()"
+  [class.pagination--disabled]="disabled()"
+  role="navigation"
+  aria-label="Pagination"
+>
+  <!-- Page info: "Showing 1-20 of 500 items" -->
+  <div *ngIf="showPageInfo()" class="pagination__info">
+    <span class="pagination__info-text">
+      Showing
+      <strong>{{ firstItemIndex() }}</strong>
+      -
+      <strong>{{ lastItemIndex() }}</strong>
+      of
+      <strong>{{ totalItems() }}</strong>
+      items
+    </span>
+  </div>
+
+  <!-- Navigation controls -->
+  <div class="pagination__controls">
+    <!-- First page button -->
+    <button
+      *ngIf="showFirstLast()"
+      type="button"
+      class="pagination__btn pagination__btn--nav"
+      [disabled]="isFirstPage() || disabled()"
+      (click)="goToFirst()"
+      aria-label="Go to first page"
+      title="First page"
+    >
+      <span class="material-icons">first_page</span>
+    </button>
+
+    <!-- Previous page button -->
+    <button
+      type="button"
+      class="pagination__btn pagination__btn--nav"
+      [disabled]="isFirstPage() || disabled()"
+      (click)="goToPrevious()"
+      aria-label="Go to previous page"
+      title="Previous page"
+    >
+      <span class="material-icons">chevron_left</span>
+    </button>
+
+    <!-- Page number buttons -->
+    <div class="pagination__pages">
+      <ng-container *ngFor="let page of visiblePages(); trackBy: trackByPage">
+        <!-- Ellipsis -->
+        <span *ngIf="isEllipsis(page)" class="pagination__ellipsis">
+          ...
+        </span>
+
+        <!-- Page button -->
+        <button
+          *ngIf="!isEllipsis(page)"
+          type="button"
+          class="pagination__btn pagination__btn--page"
+          [class.pagination__btn--active]="page === currentPage()"
+          [disabled]="disabled()"
+          (click)="goToPage(page)"
+          [attr.aria-label]="'Go to page ' + page"
+          [attr.aria-current]="page === currentPage() ? 'page' : null"
+        >
+          {{ page }}
+        </button>
+      </ng-container>
+    </div>
+
+    <!-- Next page button -->
+    <button
+      type="button"
+      class="pagination__btn pagination__btn--nav"
+      [disabled]="isLastPage() || disabled()"
+      (click)="goToNext()"
+      aria-label="Go to next page"
+      title="Next page"
+    >
+      <span class="material-icons">chevron_right</span>
+    </button>
+
+    <!-- Last page button -->
+    <button
+      *ngIf="showFirstLast()"
+      type="button"
+      class="pagination__btn pagination__btn--nav"
+      [disabled]="isLastPage() || disabled()"
+      (click)="goToLast()"
+      aria-label="Go to last page"
+      title="Last page"
+    >
+      <span class="material-icons">last_page</span>
+    </button>
+  </div>
+
+  <!-- Page size selector -->
+  <div *ngIf="showPageSizeSelector()" class="pagination__size-selector">
+    <label for="pageSize" class="pagination__size-label">
+      Items per page:
+    </label>
+    <select
+      id="pageSize"
+      class="pagination__size-select"
+      [ngModel]="pageSize()"
+      (ngModelChange)="onPageSizeChange($event)"
+      [disabled]="disabled()"
+    >
+      <option *ngFor="let size of pageSizeOptions()" [value]="size">
+        {{ size }}
+      </option>
+    </select>
+  </div>
+</nav>

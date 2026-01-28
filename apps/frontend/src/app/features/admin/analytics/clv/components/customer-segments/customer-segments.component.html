@@ -1,0 +1,285 @@
+<!--
+  Customer Segments Template
+  @description Detailed customer segment analysis view
+-->
+
+<div class="customer-segments">
+  <!-- Loading State -->
+  @if (loading()) {
+    <div class="customer-segments__loading">
+      <div class="customer-segments__skeleton-row">
+        @for (i of [1,2]; track i) {
+          <div class="customer-segments__skeleton-chart"></div>
+        }
+      </div>
+      <div class="customer-segments__skeleton-cards">
+        @for (i of [1,2,3,4,5,6]; track i) {
+          <div class="customer-segments__skeleton-card"></div>
+        }
+      </div>
+    </div>
+  }
+
+  <!-- Error State -->
+  @if (error()) {
+    <div class="customer-segments__error">
+      <span class="material-icons">error_outline</span>
+      <p>{{ error() }}</p>
+      <button type="button" (click)="onRefresh()">
+        <span class="material-icons">refresh</span>
+        Retry
+      </button>
+    </div>
+  }
+
+  <!-- Content -->
+  @if (!loading() && !error() && segments().length > 0) {
+    <!-- Summary Cards -->
+    <div class="customer-segments__summary">
+      <div class="customer-segments__summary-card">
+        <div class="customer-segments__summary-icon">
+          <span class="material-icons">people</span>
+        </div>
+        <div class="customer-segments__summary-content">
+          <span class="customer-segments__summary-value">{{ totalCustomers() | number }}</span>
+          <span class="customer-segments__summary-label">Total Customers</span>
+        </div>
+      </div>
+
+      <div class="customer-segments__summary-card">
+        <div class="customer-segments__summary-icon">
+          <span class="material-icons">payments</span>
+        </div>
+        <div class="customer-segments__summary-content">
+          <span class="customer-segments__summary-value">{{ formatCurrency(totalRevenue()) }}</span>
+          <span class="customer-segments__summary-label">Total Revenue</span>
+        </div>
+      </div>
+
+      <div class="customer-segments__summary-card">
+        <div class="customer-segments__summary-icon">
+          <span class="material-icons">category</span>
+        </div>
+        <div class="customer-segments__summary-content">
+          <span class="customer-segments__summary-value">{{ segments().length }}</span>
+          <span class="customer-segments__summary-label">Active Segments</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Charts Row -->
+    <div class="customer-segments__charts">
+      <!-- Customer Distribution -->
+      <app-bi-chart-wrapper
+        title="Customer Distribution"
+        subtitle="Customers by value tier"
+        [loading]="false"
+        [showExport]="true"
+        (export)="onChartExport($event)"
+      >
+        <app-bi-segment-chart
+          [segments]="pieChartData()"
+          chartType="donut"
+          [showLegend]="true"
+          legendPosition="bottom"
+          [showPercentages]="true"
+          [showValues]="false"
+          [centerText]="totalCustomers().toLocaleString()"
+          centerSubtext="customers"
+          (segmentClick)="onSegmentClick($event)"
+        />
+      </app-bi-chart-wrapper>
+
+      <!-- Revenue Distribution -->
+      <app-bi-chart-wrapper
+        title="Revenue Distribution"
+        subtitle="Revenue contribution by segment"
+        [loading]="false"
+        [showExport]="true"
+        (export)="onChartExport($event)"
+      >
+        <app-bi-segment-chart
+          [segments]="revenueChartData()"
+          chartType="donut"
+          [showLegend]="true"
+          legendPosition="bottom"
+          [showPercentages]="true"
+          valueFormat="currency"
+          currencyCode="SYP"
+          [centerText]="formatCurrency(totalRevenue())"
+          centerSubtext="total"
+          (segmentClick)="onSegmentClick($event)"
+        />
+      </app-bi-chart-wrapper>
+    </div>
+
+    <!-- Segment Cards Grid -->
+    <div class="customer-segments__grid">
+      <h3 class="customer-segments__section-title">
+        <span class="material-icons">view_module</span>
+        Segment Details
+      </h3>
+
+      <div class="customer-segments__cards">
+        @for (segment of segments(); track trackBySegment($index, segment)) {
+          @let config = getSegmentConfig(segment.tier);
+          <div
+            class="customer-segments__card"
+            [class.customer-segments__card--selected]="selectedSegment() === segment.tier"
+            [style.borderTopColor]="config?.color"
+            (click)="onSegmentClick({ id: segment.tier, label: '', value: 0, percentage: 0, color: '' })"
+          >
+            <div class="customer-segments__card-header">
+              <span
+                class="customer-segments__card-icon"
+                [style.backgroundColor]="config?.color"
+              >
+                <span class="material-icons">{{ config?.icon || 'group' }}</span>
+              </span>
+              <div class="customer-segments__card-title">
+                <h4>{{ config?.name || segment.tier }}</h4>
+                <p>{{ config?.description }}</p>
+              </div>
+            </div>
+
+            <div class="customer-segments__card-metrics">
+              <div class="customer-segments__metric">
+                <span class="customer-segments__metric-value">
+                  {{ segment.customerCount | number }}
+                </span>
+                <span class="customer-segments__metric-label">Customers</span>
+              </div>
+
+              <div class="customer-segments__metric">
+                <span class="customer-segments__metric-value">
+                  {{ formatCurrency(segment.avgCLV) }}
+                </span>
+                <span class="customer-segments__metric-label">Avg CLV</span>
+              </div>
+
+              <div class="customer-segments__metric">
+                <span class="customer-segments__metric-value">
+                  {{ formatPercent(segment.retentionRate) }}
+                </span>
+                <span class="customer-segments__metric-label">Retention</span>
+              </div>
+            </div>
+
+            <div class="customer-segments__card-footer">
+              <div class="customer-segments__revenue-bar">
+                <div
+                  class="customer-segments__revenue-fill"
+                  [style.width.%]="segment.revenueShare * 100"
+                  [style.backgroundColor]="config?.color"
+                ></div>
+              </div>
+              <span class="customer-segments__revenue-label">
+                {{ formatPercent(segment.revenueShare) }} of revenue
+              </span>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+
+    <!-- Selected Segment Detail Panel -->
+    @if (selectedSegmentData()) {
+      @let detail = selectedSegmentData()!;
+      @let detailConfig = getSegmentConfig(detail.tier);
+
+      <div class="customer-segments__detail-panel">
+        <div class="customer-segments__detail-header">
+          <div class="customer-segments__detail-title">
+            <span
+              class="customer-segments__detail-icon"
+              [style.backgroundColor]="detailConfig?.color"
+            >
+              <span class="material-icons">{{ detailConfig?.icon }}</span>
+            </span>
+            <div>
+              <h3>{{ detailConfig?.name }} Segment</h3>
+              <p>{{ detailConfig?.description }}</p>
+            </div>
+          </div>
+          <button
+            type="button"
+            class="customer-segments__close-btn"
+            (click)="closeSegmentDetail()"
+          >
+            <span class="material-icons">close</span>
+          </button>
+        </div>
+
+        <div class="customer-segments__detail-content">
+          <div class="customer-segments__detail-grid">
+            <div class="customer-segments__detail-stat">
+              <span class="customer-segments__detail-stat-value">
+                {{ detail.customerCount | number }}
+              </span>
+              <span class="customer-segments__detail-stat-label">Customers</span>
+            </div>
+
+            <div class="customer-segments__detail-stat">
+              <span class="customer-segments__detail-stat-value">
+                {{ formatCurrency(detail.avgCLV) }}
+              </span>
+              <span class="customer-segments__detail-stat-label">Avg CLV</span>
+            </div>
+
+            <div class="customer-segments__detail-stat">
+              <span class="customer-segments__detail-stat-value">
+                {{ formatCurrency(detail.totalRevenue) }}
+              </span>
+              <span class="customer-segments__detail-stat-label">Total Revenue</span>
+            </div>
+
+            <div class="customer-segments__detail-stat">
+              <span class="customer-segments__detail-stat-value">
+                {{ formatPercent(detail.retentionRate) }}
+              </span>
+              <span class="customer-segments__detail-stat-label">Retention Rate</span>
+            </div>
+
+            <div class="customer-segments__detail-stat">
+              <span class="customer-segments__detail-stat-value">
+                {{ formatPercent(detail.revenueShare) }}
+              </span>
+              <span class="customer-segments__detail-stat-label">Revenue Share</span>
+            </div>
+
+            <div class="customer-segments__detail-stat">
+              <span class="customer-segments__detail-stat-value">
+                {{ detail.avgOrderFrequency | number:'1.1-1' }}
+              </span>
+              <span class="customer-segments__detail-stat-label">Avg Orders/Month</span>
+            </div>
+          </div>
+
+          <div class="customer-segments__detail-actions">
+            <button type="button" class="customer-segments__action-btn">
+              <span class="material-icons">people</span>
+              View Customers
+            </button>
+            <button type="button" class="customer-segments__action-btn">
+              <span class="material-icons">campaign</span>
+              Create Campaign
+            </button>
+            <button type="button" class="customer-segments__action-btn">
+              <span class="material-icons">download</span>
+              Export List
+            </button>
+          </div>
+        </div>
+      </div>
+    }
+  }
+
+  <!-- Empty State -->
+  @if (!loading() && !error() && segments().length === 0) {
+    <div class="customer-segments__empty">
+      <span class="material-icons">pie_chart</span>
+      <h3>No Segment Data</h3>
+      <p>Customer segments will appear here once data is available.</p>
+    </div>
+  }
+</div>

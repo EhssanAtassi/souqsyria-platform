@@ -14,16 +14,30 @@
     "frontend:test": "npm run test --workspace=apps/frontend",
     "backend:test": "npm run test --workspace=apps/backend",
     "test": "npm run frontend:test && npm run backend:test",
+    "test:quick": "npm run test -- --passWithNoTests",
     "build": "npm run frontend:build && npm run backend:build",
     "install:all": "npm install",
     "clean": "rm -rf node_modules apps/*/node_modules",
     "dev": "concurrently \"npm run backend\" \"npm run frontend\"",
     "docker:up": "docker-compose up -d",
     "docker:down": "docker-compose down",
-    "docker:logs": "docker-compose logs -f"
+    "docker:logs": "docker-compose logs -f",
+    "lint": "npm run lint --workspaces --if-present",
+    "lint:fix": "npm run lint -- --fix --workspaces --if-present",
+    "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md,yml,yaml,css,scss,html}\"",
+    "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,json,md,yml,yaml,css,scss,html}\"",
+    "type-check": "tsc --noEmit --project apps/backend/tsconfig.json && tsc --noEmit --project apps/frontend/tsconfig.json",
+    "prepare": "husky install",
+    "postinstall": "husky install"
   },
   "devDependencies": {
-    "concurrently": "^9.1.2"
+    "concurrently": "^9.1.2",
+    "husky": "^8.0.3",
+    "lint-staged": "^15.2.0",
+    "@commitlint/cli": "^18.4.3",
+    "@commitlint/config-conventional": "^18.4.3",
+    "prettier": "^3.1.1",
+    "typescript": "^5.5.2"
   },
   "engines": {
     "node": ">=18.0.0",

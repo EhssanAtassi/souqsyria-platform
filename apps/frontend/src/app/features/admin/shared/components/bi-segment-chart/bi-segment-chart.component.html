@@ -1,0 +1,113 @@
+<!--
+  BI Segment Chart Template
+  @description Donut/Pie chart for segment visualization
+-->
+
+<div [ngClass]="containerClasses()">
+  <!-- Title -->
+  @if (title()) {
+    <h4 class="segment-chart__title">{{ title() }}</h4>
+  }
+
+  <div class="segment-chart__container">
+    <!-- Chart -->
+    <div class="segment-chart__chart">
+      @if (loading()) {
+        <!-- Loading State -->
+        <div class="segment-chart__loading">
+          <svg [attr.viewBox]="viewBox()" class="segment-chart__svg">
+            <circle
+              class="segment-chart__skeleton-ring"
+              [attr.cx]="center()"
+              [attr.cy]="center()"
+              [attr.r]="outerRadius()"
+              fill="none"
+              stroke-width="40"
+            />
+          </svg>
+        </div>
+      } @else if (segments().length === 0) {
+        <!-- Empty State -->
+        <div class="segment-chart__empty">
+          <span class="material-icons">pie_chart</span>
+          <span>No data available</span>
+        </div>
+      } @else {
+        <!-- SVG Chart -->
+        <svg [attr.viewBox]="viewBox()" class="segment-chart__svg">
+          <!-- Segments -->
+          @for (item of segmentPaths(); track trackBySegment($index, item)) {
+            <path
+              class="segment-chart__segment"
+              [attr.d]="item.path"
+              [attr.fill]="item.segment.color"
+              [class.segment-chart__segment--hovered]="isHovered(item.segment.id)"
+              (mouseenter)="onSegmentHover(item.segment.id)"
+              (mouseleave)="onSegmentHover(null)"
+              (click)="onSegmentClick(item.segment)"
+            />
+          }
+
+          <!-- Center Content (for donut) -->
+          @if (chartType() === 'donut') {
+            <g class="segment-chart__center">
+              @if (centerText()) {
+                <text
+                  [attr.x]="center()"
+                  [attr.y]="center() - 5"
+                  text-anchor="middle"
+                  class="segment-chart__center-text"
+                >
+                  {{ centerText() }}
+                </text>
+              }
+              @if (centerSubtext()) {
+                <text
+                  [attr.x]="center()"
+                  [attr.y]="center() + 15"
+                  text-anchor="middle"
+                  class="segment-chart__center-subtext"
+                >
+                  {{ centerSubtext() }}
+                </text>
+              }
+            </g>
+          }
+        </svg>
+      }
+    </div>
+
+    <!-- Legend -->
+    @if (showLegend() && segments().length > 0 && !loading()) {
+      <div class="segment-chart__legend">
+        @for (segment of segments(); track trackByLegendItem($index, segment)) {
+          <div
+            class="segment-chart__legend-item"
+            [class.segment-chart__legend-item--hovered]="isHovered(segment.id)"
+            (mouseenter)="onSegmentHover(segment.id)"
+            (mouseleave)="onSegmentHover(null)"
+            (click)="onSegmentClick(segment)"
+          >
+            <span
+              class="segment-chart__legend-color"
+              [style.backgroundColor]="segment.color"
+            ></span>
+            <span class="segment-chart__legend-label">{{ segment.label }}</span>
+            <span class="segment-chart__legend-values">
+              @if (showPercentages()) {
+                <span class="segment-chart__legend-percent">
+                  {{ segment.percentage | number:'1.1-1' }}%
+                </span>
+              }
+              @if (showValues()) {
+                <span class="segment-chart__legend-value">
+                  {{ formatValue(segment.value) }}
+                </span>
+              }
+            </span>
+          </div>
+        }
+      </div>
+    }
+  </div>
+</div>

@@ -101,6 +101,30 @@ export class SeedingStatsResponseDto implements SeedingStats {
   rolePermissionsCreated: number;
 
   /**
+   * Number of routes created
+   * @example 45
+   */
+  routesCreated: number;
+
+  /**
+   * Number of routes updated
+   * @example 3
+   */
+  routesUpdated: number;
+
+  /**
+   * Number of routes mapped to permissions
+   * @example 42
+   */
+  routesMapped: number;
+
+  /**
+   * Number of routes without permission mapping
+   * @example 3
+   */
+  routesUnmapped: number;
+
+  /**
    * Total processing time in milliseconds
    * @example 1250
    */

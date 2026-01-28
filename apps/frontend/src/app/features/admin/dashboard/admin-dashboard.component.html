@@ -1,68 +1,335 @@
+<!-- Admin Dashboard Template -->
+<!-- Main dashboard view with metrics, charts, and operational overview -->
+
 <section class="dashboard" aria-label="Admin dashboard overview">
+  <!-- Dashboard Header -->
   <header class="dashboard__header">
-    <div>
-      <h2 class="dashboard__title">Marketplace pulse</h2>
+    <div class="dashboard__header-content">
+      <h2 class="dashboard__title">Marketplace Pulse</h2>
       <p class="dashboard__subtitle">
         Monitoring SouqSyria operations across Damascus, Aleppo, Lattakia, and beyond.
       </p>
     </div>
-    <div class="dashboard__badge">{{ totalOrdersInFlight() }} live orders</div>
-  </header>
 
-  <section class="dashboard__metrics" aria-label="Key performance metrics">
-    <article *ngFor="let metric of metrics()" class="metric-card">
-      <header class="metric-card__header">
-        <h3>{{ metric.title }}</h3>
-        <span class="metric-card__trend" [class.metric-card__trend--down]="metric.trend === 'down'">
-          {{ metric.delta }}
-        </span>
-      </header>
-      <p class="metric-card__value">{{ metric.value }}</p>
-      <p class="metric-card__hint">{{ metric.hint }}</p>
-    </article>
-  </section>
+    <div class="dashboard__header-actions">
+      <!-- Refresh Button -->
+      <button
+        type="button"
+        class="dashboard__refresh-btn"
+        (click)="refreshData()"
+        [disabled]="isLoading()"
+        title="Refresh dashboard data"
+      >
+        <span class="material-icons" [class.animate-spin]="isLoading()">refresh</span>
+        <span class="sr-only">Refresh</span>
+      </button>
 
-  <section class="dashboard__grid">
-    <div class="dashboard__orders" aria-label="Order status breakdown">
-      <header class="section-header">
-        <h3>Order flow</h3>
-        <p>Real-time mix of cash-on-delivery and prepaid orders.</p>
-      </header>
-      <div class="order-grid">
-        <article *ngFor="let status of orderStatuses()" class="order-card">
-          <span class="order-card__badge" [style.background]="status.badgeColor"></span>
-          <div>
-            <h4>{{ status.label }}</h4>
-            <p>{{ status.count }} orders</p>
-          </div>
-        </article>
+      <!-- Live Orders Badge -->
+      <div class="dashboard__badge">
+        <span class="dashboard__badge-icon material-icons">local_shipping</span>
+        <span>{{ totalOrdersInFlight() }} live orders</span>
       </div>
     </div>
+  </header>
 
-    <aside class="dashboard__highlights" aria-label="Operational highlights">
-      <header class="section-header">
-        <h3>Focus actions</h3>
-        <p>Priority items for the operations leads today.</p>
-      </header>
-      <article *ngFor="let highlight of highlights()" class="highlight-card">
-        <h4>{{ highlight.title }}</h4>
-        <p>{{ highlight.description }}</p>
-        <a class="highlight-card__action" [routerLink]="highlight.actionRoute">{{ highlight.actionLabel }}</a>
-      </article>
-    </aside>
+  <!-- Error Alert - Live region for screen readers -->
+  <div
+    *ngIf="errorMessage()"
+    class="dashboard__error"
+    role="alert"
+    aria-live="assertive"
+  >
+    <span class="material-icons" aria-hidden="true">error_outline</span>
+    <p>{{ errorMessage() }}</p>
+    <button type="button" class="dashboard__error-retry" (click)="refreshData()">
+      Try Again
+    </button>
+  </div>
+
+  <!-- Key Metrics Section - Live region for dynamic updates -->
+  <section
+    class="dashboard__metrics"
+    aria-label="Key performance metrics"
+    aria-live="polite"
+    aria-atomic="false"
+  >
+    <app-admin-stat-card
+      *ngFor="let card of statCardConfigs; trackBy: trackById"
+      [title]="card.title"
+      [value]="getMetricValue(card.id)"
+      [format]="card.format"
+      [trend]="getMetricTrend(card.id)"
+      [trendDirection]="getTrendDirection(card.id)"
+      [icon]="card.icon"
+      [color]="card.color"
+      [loading]="isLoadingMetrics()"
+      [clickable]="!!card.route"
+      [routerLink]="card.route"
+    />
   </section>
 
-  <section class="dashboard__activity" aria-label="Recent activity log">
-    <header class="section-header">
-      <h3>Live activity</h3>
-      <p>Enterprise events from orders, vendors, support, and system monitors.</p>
-    </header>
+  <!-- Main Content Grid -->
+  <div class="dashboard__main-grid">
+    <!-- Left Column: Chart & Recent Orders -->
+    <div class="dashboard__left-column">
+      <!-- Revenue Chart Section -->
+      <section class="dashboard__chart-section" aria-label="Revenue trends">
+        <header class="section-header">
+          <div class="section-header__text">
+            <h3>Revenue Trends</h3>
+            <p>Track revenue, commissions, and net earnings over time.</p>
+          </div>
+          <div class="section-header__actions">
+            <select
+              class="dashboard__period-select"
+              [value]="chartPeriod()"
+              (change)="onPeriodChange($any($event.target).value)"
+            >
+              <option *ngFor="let option of periodOptions" [value]="option.value">
+                {{ option.label }}
+              </option>
+            </select>
+          </div>
+        </header>
 
-    <ul class="activity-list">
-      <li *ngFor="let activity of activities()" class="activity-list__item" [attr.data-category]="activity.category">
-        <span class="activity-list__timestamp">{{ activity.timestamp }}</span>
-        <p>{{ activity.description }}</p>
-      </li>
-    </ul>
-  </section>
+        <div
+          class="dashboard__chart-container"
+          role="img"
+          aria-label="Revenue trends line chart"
+          aria-live="polite"
+        >
+          <!-- Loading State Announcement -->
+          <div *ngIf="isLoadingChart()" class="dashboard__chart-skeleton" role="status">
+            <span class="sr-only">Loading revenue chart data...</span>
+            <div class="skeleton-bar" *ngFor="let i of [1,2,3,4,5,6,7]" aria-hidden="true"></div>
+          </div>
+
+          <!-- ngx-charts Line Chart with accessibility wrapper -->
+          <div
+            *ngIf="!isLoadingChart() && chartData().length > 0"
+            role="figure"
+            [attr.aria-label]="'Revenue chart showing ' + chartData().length + ' data series for ' + chartPeriod()"
+          >
+            <ngx-charts-line-chart
+              [results]="chartData()"
+              [scheme]="chartColorScheme"
+              [xAxis]="true"
+              [yAxis]="true"
+              [legend]="true"
+              [showXAxisLabel]="false"
+              [showYAxisLabel]="true"
+              [yAxisLabel]="'Amount (SYP)'"
+              [autoScale]="true"
+              [legendPosition]="legendPosition"
+              [animations]="true"
+              [curve]="'curveMonotoneX' | json"
+            />
+            <!-- Hidden summary for screen readers -->
+            <p class="sr-only">
+              This chart displays revenue, commission, and net earnings trends.
+              Use the period selector above to change the time range.
+            </p>
+          </div>
+
+          <!-- No Data State -->
+          <div
+            *ngIf="!isLoadingChart() && chartData().length === 0"
+            class="dashboard__chart-empty"
+            role="status"
+          >
+            <span class="material-icons" aria-hidden="true">insert_chart</span>
+            <p>No chart data available</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Recent Orders Section -->
+      <section class="dashboard__recent-orders" aria-label="Recent orders">
+        <header class="section-header">
+          <div class="section-header__text">
+            <h3>Recent Orders</h3>
+            <p>Latest orders placed on the marketplace.</p>
+          </div>
+          <a class="section-header__link" routerLink="/admin/orders">
+            View all orders
+            <span class="material-icons">arrow_forward</span>
+          </a>
+        </header>
+
+        <!-- Loading Skeleton -->
+        <div *ngIf="isLoadingRecent()" class="dashboard__orders-skeleton">
+          <div *ngFor="let i of [1,2,3,4,5]" class="skeleton-row">
+            <div class="skeleton-text skeleton-text--sm"></div>
+            <div class="skeleton-text skeleton-text--md"></div>
+            <div class="skeleton-text skeleton-text--lg"></div>
+            <div class="skeleton-badge"></div>
+          </div>
+        </div>
+
+        <!-- Orders List - Polite updates for screen readers -->
+        <div
+          *ngIf="!isLoadingRecent()"
+          class="dashboard__orders-list"
+          aria-live="polite"
+          aria-label="Recent orders list"
+        >
+          <article
+            *ngFor="let order of recentOrders(); trackBy: trackById"
+            class="order-item"
+            [routerLink]="['/admin/orders', order.id]"
+            role="article"
+            [attr.aria-label]="'Order ' + order.orderNumber + ' from ' + order.customerName + ', ' + order.totalAmount + ' SYP, status ' + order.status"
+          >
+            <div class="order-item__info">
+              <span class="order-item__number">#{{ order.orderNumber }}</span>
+              <span class="order-item__customer">{{ order.customerName }}</span>
+            </div>
+            <div class="order-item__details">
+              <span class="order-item__amount">{{ order.totalAmount | currencyFormat }}</span>
+              <span class="order-item__items">{{ order.itemsCount }} items</span>
+            </div>
+            <div class="order-item__meta">
+              <app-admin-status-badge [status]="order.status" size="sm" />
+              <span class="order-item__date">{{ order.createdAt | date:'shortDate' }}</span>
+            </div>
+          </article>
+
+          <!-- Empty State -->
+          <div *ngIf="recentOrders().length === 0" class="dashboard__empty-state">
+            <span class="material-icons">inbox</span>
+            <p>No recent orders</p>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- Right Column: Quick Actions, Top Products, Activity -->
+    <div class="dashboard__right-column">
+      <!-- Quick Actions Section -->
+      <section *ngIf="quickActions().length > 0" class="dashboard__quick-actions" aria-label="Focus actions">
+        <header class="section-header">
+          <h3>Focus Actions</h3>
+          <p>Priority items requiring attention.</p>
+        </header>
+
+        <div class="quick-actions-list">
+          <article
+            *ngFor="let action of quickActions(); trackBy: trackById"
+            class="quick-action-card"
+          >
+            <div class="quick-action-card__icon-wrapper">
+              <span class="material-icons">{{ action.icon }}</span>
+              <span *ngIf="action.badgeCount" class="quick-action-card__badge">
+                {{ action.badgeCount }}
+              </span>
+            </div>
+            <div class="quick-action-card__content">
+              <h4>{{ action.title }}</h4>
+              <p>{{ action.description }}</p>
+            </div>
+            <a class="quick-action-card__link" [routerLink]="action.route">
+              {{ action.actionLabel }}
+              <span class="material-icons">arrow_forward</span>
+            </a>
+          </article>
+        </div>
+      </section>
+
+      <!-- Top Products Section -->
+      <section class="dashboard__top-products" aria-label="Top selling products">
+        <header class="section-header">
+          <h3>Top Products</h3>
+          <p>Best sellers this month.</p>
+        </header>
+
+        <!-- Loading Skeleton -->
+        <div *ngIf="isLoadingRecent()" class="dashboard__products-skeleton">
+          <div *ngFor="let i of [1,2,3,4,5]" class="skeleton-product">
+            <div class="skeleton-thumb"></div>
+            <div class="skeleton-text skeleton-text--md"></div>
+            <div class="skeleton-text skeleton-text--sm"></div>
+          </div>
+        </div>
+
+        <!-- Products List -->
+        <div *ngIf="!isLoadingRecent()" class="top-products-list">
+          <article
+            *ngFor="let product of topProducts(); let i = index; trackBy: trackById"
+            class="top-product-item"
+            [routerLink]="['/admin/products', product.id]"
+          >
+            <span class="top-product-item__rank">{{ i + 1 }}</span>
+            <img
+              *ngIf="product.thumbnail"
+              class="top-product-item__thumb"
+              [src]="product.thumbnail"
+              [alt]="product.nameEn"
+            />
+            <div *ngIf="!product.thumbnail" class="top-product-item__thumb-placeholder">
+              <span class="material-icons">inventory_2</span>
+            </div>
+            <div class="top-product-item__info">
+              <span class="top-product-item__name">{{ product.nameEn }}</span>
+              <span class="top-product-item__vendor">{{ product.vendorName }}</span>
+            </div>
+            <div class="top-product-item__stats">
+              <span class="top-product-item__sold">{{ product.totalSold | number }} sold</span>
+              <span class="top-product-item__revenue">{{ product.totalRevenue | currencyFormat:'SYP':'symbol':true }}</span>
+            </div>
+          </article>
+
+          <!-- Empty State -->
+          <div *ngIf="topProducts().length === 0" class="dashboard__empty-state">
+            <span class="material-icons">inventory_2</span>
+            <p>No product data available</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Activity Feed Section - Live region for real-time updates -->
+      <section
+        class="dashboard__activity"
+        aria-label="Recent activity log"
+        aria-live="polite"
+        aria-atomic="false"
+        aria-relevant="additions"
+      >
+        <header class="section-header">
+          <h3>Live Activity</h3>
+          <p>Real-time events across the platform.</p>
+        </header>
+
+        <ul class="activity-list" role="log" aria-label="Activity feed">
+          <li
+            *ngFor="let activity of activities(); trackBy: trackById"
+            class="activity-list__item"
+            [attr.data-category]="activity.category"
+          >
+            <span class="activity-list__icon material-icons" [ngClass]="getActivityColor(activity.category)">
+              {{ getActivityIcon(activity.category) }}
+            </span>
+            <div class="activity-list__content">
+              <p>{{ activity.description }}</p>
+              <span class="activity-list__timestamp">{{ activity.timestamp }}</span>
+            </div>
+            <a
+              *ngIf="activity.route"
+              class="activity-list__link"
+              [routerLink]="activity.route"
+              title="View details"
+            >
+              <span class="material-icons">open_in_new</span>
+            </a>
+          </li>
+        </ul>
+      </section>
+    </div>
+  </div>
+
+  <!-- Last Refresh Info -->
+  <footer class="dashboard__footer">
+    <p class="dashboard__last-refresh">
+      Last updated: {{ lastRefresh() | date:'mediumTime' }}
+    </p>
+  </footer>
 </section>

@@ -456,12 +456,12 @@ export class MembershipSeederController {
         result,
         timestamp: new Date().toISOString(),
       };
-    } catch (error) {
+    } catch (error: unknown) {
       const totalTime = Date.now() - startTime;
 
       this.logger.error(
-        `❌ Membership seeding failed after ${totalTime}ms: ${error.message}`,
-        error.stack,
+        `❌ Membership seeding failed after ${totalTime}ms: ${(error as Error).message}`,
+        (error as Error).stack,
       );
 
       throw error;

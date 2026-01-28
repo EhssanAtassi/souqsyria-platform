@@ -1,0 +1,168 @@
+/**
+ * Admin Stat Card Styles
+ * @description Styling for the reusable KPI/metric display card
+ */
+
+// Card container
+.stat-card {
+  @apply relative rounded-xl bg-white p-5 shadow-sm border border-gray-100;
+  @apply transition-all duration-200 ease-in-out;
+  @apply hover:shadow-md hover:border-gray-200;
+
+  // Color accent bar (left border)
+  &::before {
+    content: '';
+    @apply absolute left-0 top-0 bottom-0 w-1 rounded-l-xl;
+    background-color: var(--stat-card-accent, theme('colors.blue.500'));
+  }
+
+  // Color themes
+  &--primary {
+    --stat-card-accent: theme('colors.blue.500');
+  }
+
+  &--success {
+    --stat-card-accent: theme('colors.emerald.500');
+  }
+
+  &--warning {
+    --stat-card-accent: theme('colors.amber.500');
+  }
+
+  &--danger {
+    --stat-card-accent: theme('colors.red.500');
+  }
+
+  &--info {
+    --stat-card-accent: theme('colors.cyan.500');
+  }
+
+  // Loading state
+  &--loading {
+    @apply pointer-events-none;
+  }
+}
+
+// Header section
+.stat-card__header {
+  @apply flex items-start justify-between mb-3;
+}
+
+.stat-card__title-group {
+  @apply flex items-center gap-2;
+}
+
+.stat-card__icon {
+  @apply text-gray-400 text-xl;
+}
+
+.stat-card__title {
+  @apply text-sm font-medium text-gray-600 leading-tight;
+}
+
+// Trend indicator
+.stat-card__trend {
+  @apply inline-flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-full;
+
+  &--up {
+    @apply bg-emerald-50 text-emerald-600;
+  }
+
+  &--down {
+    @apply bg-red-50 text-red-600;
+  }
+
+  &--neutral {
+    @apply bg-gray-50 text-gray-500;
+  }
+}
+
+.stat-card__trend-icon {
+  @apply text-sm;
+}
+
+.stat-card__trend-text {
+  @apply whitespace-nowrap;
+}
+
+// Main value display
+.stat-card__value {
+  @apply text-2xl font-bold text-gray-900 mb-2 leading-tight;
+  @apply tracking-tight;
+}
+
+// Contextual hint
+.stat-card__hint {
+  @apply text-xs text-gray-500 leading-relaxed;
+  @apply line-clamp-2;
+}
+
+// Skeleton loading animation
+.stat-card__skeleton {
+  @apply space-y-3;
+
+  &-header,
+  &-value,
+  &-hint {
+    @apply bg-gray-200 rounded animate-pulse;
+  }
+
+  &-header {
+    @apply h-4 w-24;
+  }
+
+  &-value {
+    @apply h-8 w-32;
+  }
+
+  &-hint {
+    @apply h-3 w-full;
+  }
+}
+
+// RTL support
+[dir='rtl'] {
+  .stat-card {
+    &::before {
+      @apply left-auto right-0 rounded-l-none rounded-r-xl;
+    }
+  }
+
+  .stat-card__header {
+    @apply flex-row-reverse;
+  }
+
+  .stat-card__title-group {
+    @apply flex-row-reverse;
+  }
+
+  .stat-card__trend {
+    @apply flex-row-reverse;
+  }
+}
+
+// Responsive adjustments
+@media (max-width: 640px) {
+  .stat-card {
+    @apply p-4;
+  }
+
+  .stat-card__value {
+    @apply text-xl;
+  }
+
+  .stat-card__trend {
+    @apply text-[10px] px-1.5;
+  }
+}
+
+// Dark mode support (if enabled)
+@media (prefers-color-scheme: dark) {
+  .stat-card {
+    // Uncomment for dark mode support
+    // @apply bg-gray-800 border-gray-700;
+    // &:hover {
+    //   @apply border-gray-600;
+    // }
+  }
+}

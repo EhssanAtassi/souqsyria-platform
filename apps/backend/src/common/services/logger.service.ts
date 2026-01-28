@@ -98,8 +98,8 @@ export class ProductionLoggerService {
     this.winstonLogger.error(message, {
       error: error
         ? {
-            message: error.message,
-            stack: error.stack,
+            message: (error as Error).message,
+            stack: (error as Error).stack,
             name: error.name,
           }
         : undefined,

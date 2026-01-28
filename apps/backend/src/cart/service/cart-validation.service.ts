@@ -321,8 +321,8 @@ export class CartValidationService {
         summary,
       };
 
-    } catch (error) {
-      this.logger.error(`❌ Cart validation failed: ${error.message}`, error.stack);
+    } catch (error: unknown) {
+      this.logger.error(`❌ Cart validation failed: ${(error as Error).message}`, (error as Error).stack);
 
       await this.auditLogService.logSimple({
         action: 'CART_VALIDATION_FAILED',
@@ -331,7 +331,7 @@ export class CartValidationService {
         actorType: cart.userId ? 'user' : 'system',
         entityType: 'cart',
         entityId: cart.id,
-        description: `Cart validation failed: ${error.message}`,
+        description: `Cart validation failed: ${(error as Error).message}`,
       });
 
       throw error;

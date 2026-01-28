@@ -1,0 +1,440 @@
+<!--
+  Vendor List Component Template
+  @description Displays vendors with filtering, search, and statistics
+-->
+
+<div class="vendor-list">
+  <!-- ===================================================================== -->
+  <!-- HEADER -->
+  <!-- ===================================================================== -->
+  <header class="vendor-list__header">
+    <div class="vendor-list__title">
+      <h1>Vendor Management</h1>
+      <span class="vendor-list__subtitle">Manage marketplace vendors and their performance</span>
+    </div>
+
+    <div class="vendor-list__header-actions">
+      <button class="btn btn--secondary" (click)="goToVerifications()">
+        <span class="material-icons">fact_check</span>
+        Verifications
+        @if (stats().pendingVerification > 0) {
+          <span class="badge badge--warning">{{ stats().pendingVerification }}</span>
+        }
+      </button>
+      <button class="btn btn--secondary" (click)="goToPayouts()">
+        <span class="material-icons">payments</span>
+        Payouts
+      </button>
+      <button class="btn btn--secondary" [matMenuTriggerFor]="exportMenu">
+        <span class="material-icons">download</span>
+        Export
+      </button>
+      <mat-menu #exportMenu="matMenu">
+        <button mat-menu-item (click)="exportVendors('csv')">
+          <span class="material-icons">description</span>
+          Export as CSV
+        </button>
+        <button mat-menu-item (click)="exportVendors('xlsx')">
+          <span class="material-icons">table_chart</span>
+          Export as Excel
+        </button>
+      </mat-menu>
+      <button class="btn btn--secondary" (click)="refresh()">
+        <span class="material-icons">refresh</span>
+        Refresh
+      </button>
+    </div>
+  </header>
+
+  <!-- ===================================================================== -->
+  <!-- STATISTICS CARDS -->
+  <!-- ===================================================================== -->
+  <section class="vendor-list__stats">
+    <div class="stat-card" (click)="clearFilters()">
+      <div class="stat-card__icon stat-card__icon--primary">
+        <span class="material-icons">store</span>
+      </div>
+      <div class="stat-card__content">
+        <span class="stat-card__value">{{ stats().total }}</span>
+        <span class="stat-card__label">Total Vendors</span>
+      </div>
+    </div>
+
+    <div class="stat-card" (click)="applyAccountFilter('active')">
+      <div class="stat-card__icon stat-card__icon--success">
+        <span class="material-icons">check_circle</span>
+      </div>
+      <div class="stat-card__content">
+        <span class="stat-card__value">{{ stats().active }}</span>
+        <span class="stat-card__label">Active</span>
+      </div>
+    </div>
+
+    <div class="stat-card" (click)="applyVerificationFilter('pending')">
+      <div class="stat-card__icon stat-card__icon--warning">
+        <span class="material-icons">pending</span>
+      </div>
+      <div class="stat-card__content">
+        <span class="stat-card__value">{{ stats().pendingVerification }}</span>
+        <span class="stat-card__label">Pending Verification</span>
+      </div>
+    </div>
+
+    <div class="stat-card" (click)="applyAccountFilter('suspended')">
+      <div class="stat-card__icon stat-card__icon--danger">
+        <span class="material-icons">pause_circle</span>
+      </div>
+      <div class="stat-card__content">
+        <span class="stat-card__value">{{ stats().suspended }}</span>
+        <span class="stat-card__label">Suspended</span>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-card__icon stat-card__icon--info">
+        <span class="material-icons">star</span>
+      </div>
+      <div class="stat-card__content">
+        <span class="stat-card__value">{{ stats().averageRating | number:'1.1-1' }}</span>
+        <span class="stat-card__label">Avg. Rating</span>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-card__icon stat-card__icon--primary">
+        <span class="material-icons">trending_up</span>
+      </div>
+      <div class="stat-card__content">
+        <span class="stat-card__value">{{ stats().totalSales | currencyFormat }}</span>
+        <span class="stat-card__label">Total Sales</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================================================================== -->
+  <!-- TOOLBAR -->
+  <!-- ===================================================================== -->
+  <section class="vendor-list__toolbar">
+    <!-- Search -->
+    <div class="search-box">
+      <span class="material-icons search-box__icon">search</span>
+      <input
+        type="text"
+        class="search-box__input"
+        placeholder="Search by shop name or owner..."
+        [value]="searchTerm()"
+        (input)="onSearchInput($event)"
+      />
+      @if (searchTerm()) {
+        <button class="search-box__clear" (click)="clearSearch()">
+          <span class="material-icons">close</span>
+        </button>
+      }
+    </div>
+
+    <!-- Filters -->
+    <div class="filter-group">
+      <label class="filter-group__label">Verification</label>
+      <select
+        class="filter-group__select"
+        [ngModel]="verificationFilter()"
+        (ngModelChange)="applyVerificationFilter($event)"
+      >
+        @for (status of verificationStatuses; track status.value) {
+          <option [value]="status.value">{{ status.label }}</option>
+        }
+      </select>
+    </div>
+
+    <div class="filter-group">
+      <label class="filter-group__label">Account</label>
+      <select
+        class="filter-group__select"
+        [ngModel]="accountFilter()"
+        (ngModelChange)="applyAccountFilter($event)"
+      >
+        @for (status of accountStatuses; track status.value) {
+          <option [value]="status.value">{{ status.label }}</option>
+        }
+      </select>
+    </div>
+
+    <div class="filter-group">
+      <label class="filter-group__label">Sort By</label>
+      <select
+        class="filter-group__select"
+        [ngModel]="sortBy()"
+        (ngModelChange)="applySort($event)"
+      >
+        @for (option of sortOptions; track option.value) {
+          <option [value]="option.value">{{ option.label }}</option>
+        }
+      </select>
+    </div>
+
+    <!-- Spacer -->
+    <div class="vendor-list__toolbar-spacer"></div>
+
+    <!-- Active filters & Clear -->
+    @if (activeFiltersCount() > 0) {
+      <button class="btn btn--text" (click)="clearFilters()">
+        <span class="material-icons">filter_alt_off</span>
+        Clear Filters ({{ activeFiltersCount() }})
+      </button>
+    }
+
+    <!-- Results Info -->
+    <div class="vendor-list__results-info">
+      {{ pagination().total }} vendors found
+    </div>
+  </section>
+
+  <!-- ===================================================================== -->
+  <!-- VENDOR TABLE -->
+  <!-- ===================================================================== -->
+  <section class="vendor-list__content">
+    @if (isLoading()) {
+      <div class="loading-state">
+        <div class="loading-spinner"></div>
+        <p>Loading vendors...</p>
+      </div>
+    } @else if (vendors().length === 0) {
+      <div class="empty-state">
+        <span class="material-icons">store</span>
+        <h3>No Vendors Found</h3>
+        <p>
+          @if (activeFiltersCount() > 0) {
+            No vendors match your current filters. Try adjusting your criteria.
+          } @else {
+            There are no vendors registered yet.
+          }
+        </p>
+        @if (activeFiltersCount() > 0) {
+          <button class="btn btn--secondary" (click)="clearFilters()">Clear Filters</button>
+        }
+      </div>
+    } @else {
+      <div class="vendor-table-container">
+        <table class="vendor-table">
+          <thead>
+            <tr>
+              <th class="vendor-table__th--shop">Shop</th>
+              <th class="vendor-table__th--owner">Owner</th>
+              <th class="vendor-table__th--verification">Verification</th>
+              <th class="vendor-table__th--status">Account</th>
+              <th class="vendor-table__th--metrics">Performance</th>
+              <th class="vendor-table__th--joined">Joined</th>
+              <th class="vendor-table__th--actions">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (vendor of vendors(); track trackByVendorId($index, vendor)) {
+              <tr
+                class="vendor-table__row"
+                [class.vendor-table__row--suspended]="vendor.accountStatus === 'suspended' || vendor.accountStatus === 'banned'"
+              >
+                <!-- Shop Info -->
+                <td class="vendor-table__td--shop">
+                  <div class="shop-info">
+                    <div class="shop-info__logo">
+                      @if (vendor.logo) {
+                        <img [src]="vendor.logo" [alt]="vendor.shopNameEn" />
+                      } @else {
+                        <span class="material-icons">store</span>
+                      }
+                    </div>
+                    <div class="shop-info__details">
+                      <a
+                        class="shop-info__name"
+                        [routerLink]="['/admin/vendors', vendor.id]"
+                      >
+                        {{ vendor.shopNameEn }}
+                      </a>
+                      <span class="shop-info__products">
+                        {{ vendor.totalProducts }} products
+                      </span>
+                    </div>
+                  </div>
+                </td>
+
+                <!-- Owner -->
+                <td class="vendor-table__td--owner">
+                  <div class="owner-info">
+                    <span class="owner-info__name">{{ vendor.owner.fullName }}</span>
+                    <span class="owner-info__email">{{ vendor.owner.email }}</span>
+                  </div>
+                </td>
+
+                <!-- Verification Status -->
+                <td class="vendor-table__td--verification">
+                  <span
+                    class="status-badge"
+                    [attr.data-status]="vendor.verificationStatus"
+                  >
+                    {{ getVerificationLabel(vendor.verificationStatus) }}
+                  </span>
+                </td>
+
+                <!-- Account Status -->
+                <td class="vendor-table__td--status">
+                  <span
+                    class="account-badge"
+                    [attr.data-status]="vendor.accountStatus"
+                  >
+                    {{ getAccountLabel(vendor.accountStatus) }}
+                  </span>
+                </td>
+
+                <!-- Performance Metrics -->
+                <td class="vendor-table__td--metrics">
+                  <div class="metrics-info">
+                    <div class="metrics-info__row">
+                      <span class="material-icons">star</span>
+                      <span>{{ vendor.rating | number:'1.1-1' }} ({{ vendor.reviewCount }})</span>
+                    </div>
+                    <div class="metrics-info__row">
+                      <span class="material-icons">shopping_cart</span>
+                      <span>{{ vendor.totalOrders }} orders</span>
+                    </div>
+                  </div>
+                </td>
+
+                <!-- Joined Date -->
+                <td class="vendor-table__td--joined">
+                  {{ formatDate(vendor.createdAt) }}
+                </td>
+
+                <!-- Actions -->
+                <td class="vendor-table__td--actions">
+                  <div class="action-buttons">
+                    <button
+                      class="btn btn--icon btn--small"
+                      (click)="viewVendor(vendor.id)"
+                      matTooltip="View Details"
+                    >
+                      <span class="material-icons">visibility</span>
+                    </button>
+
+                    <button
+                      class="btn btn--icon btn--small"
+                      [matMenuTriggerFor]="vendorActionsMenu"
+                      matTooltip="More Actions"
+                    >
+                      <span class="material-icons">more_vert</span>
+                    </button>
+
+                    <mat-menu #vendorActionsMenu="matMenu">
+                      <button mat-menu-item [routerLink]="['/admin/vendors', vendor.id]">
+                        <span class="material-icons">store</span>
+                        View Shop Profile
+                      </button>
+                      <button mat-menu-item [routerLink]="['/admin/vendors', vendor.id]" [queryParams]="{ tab: 'products' }">
+                        <span class="material-icons">inventory_2</span>
+                        View Products
+                      </button>
+                      <button mat-menu-item [routerLink]="['/admin/vendors', vendor.id]" [queryParams]="{ tab: 'orders' }">
+                        <span class="material-icons">receipt_long</span>
+                        View Orders
+                      </button>
+                      <mat-divider></mat-divider>
+                      @if (vendor.accountStatus === 'active') {
+                        <button mat-menu-item (click)="suspendVendor(vendor)">
+                          <span class="material-icons">pause_circle</span>
+                          Suspend Vendor
+                        </button>
+                      }
+                      @if (vendor.accountStatus === 'suspended' || vendor.accountStatus === 'inactive') {
+                        <button mat-menu-item (click)="activateVendor(vendor)">
+                          <span class="material-icons">play_circle</span>
+                          Activate Vendor
+                        </button>
+                      }
+                      @if (vendor.accountStatus !== 'banned') {
+                        <button mat-menu-item class="menu-item--danger" (click)="banVendor(vendor)">
+                          <span class="material-icons">block</span>
+                          Ban Vendor
+                        </button>
+                      }
+                    </mat-menu>
+                  </div>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Pagination -->
+      @if (pagination().totalPages > 1) {
+        <div class="vendor-list__pagination">
+          <div class="pagination-info">
+            Page {{ pagination().page }} of {{ pagination().totalPages }}
+            ({{ pagination().total }} total)
+          </div>
+
+          <div class="pagination-controls">
+            <button
+              class="btn btn--icon btn--small"
+              [disabled]="pagination().page === 1"
+              (click)="goToPage(1)"
+              matTooltip="First Page"
+            >
+              <span class="material-icons">first_page</span>
+            </button>
+            <button
+              class="btn btn--icon btn--small"
+              [disabled]="pagination().page === 1"
+              (click)="goToPage(pagination().page - 1)"
+              matTooltip="Previous Page"
+            >
+              <span class="material-icons">chevron_left</span>
+            </button>
+
+            @for (page of pagesArray(); track page) {
+              @if (page === pagination().page ||
+                   page === 1 ||
+                   page === pagination().totalPages ||
+                   (page >= pagination().page - 1 && page <= pagination().page + 1)) {
+                <button
+                  class="btn btn--small"
+                  [class.btn--primary]="page === pagination().page"
+                  (click)="goToPage(page)"
+                >
+                  {{ page }}
+                </button>
+              } @else if (page === pagination().page - 2 || page === pagination().page + 2) {
+                <span class="pagination-ellipsis">...</span>
+              }
+            }
+
+            <button
+              class="btn btn--icon btn--small"
+              [disabled]="pagination().page === pagination().totalPages"
+              (click)="goToPage(pagination().page + 1)"
+              matTooltip="Next Page"
+            >
+              <span class="material-icons">chevron_right</span>
+            </button>
+            <button
+              class="btn btn--icon btn--small"
+              [disabled]="pagination().page === pagination().totalPages"
+              (click)="goToPage(pagination().totalPages)"
+              matTooltip="Last Page"
+            >
+              <span class="material-icons">last_page</span>
+            </button>
+          </div>
+
+          <div class="page-size-selector">
+            <label>Show:</label>
+            <select [ngModel]="pagination().limit" (ngModelChange)="changePageSize($event)">
+              <option [value]="10">10</option>
+              <option [value]="25">25</option>
+              <option [value]="50">50</option>
+            </select>
+          </div>
+        </div>
+      }
+    }
+  </section>
+</div>

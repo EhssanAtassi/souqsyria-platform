@@ -286,7 +286,7 @@ export class ProductSeederService {
       );
 
       return result;
-    } catch (error) {
+    } catch (error: unknown) {
       // Rollback transaction on error
       if (queryRunner && !dryRun) {
         await queryRunner.rollbackTransaction();
@@ -295,12 +295,12 @@ export class ProductSeederService {
 
       const processingTime = Date.now() - startTime;
       this.logger.error(
-        `❌ Product seeding failed after ${processingTime}ms: ${error.message}`,
-        error.stack,
+        `❌ Product seeding failed after ${processingTime}ms: ${(error as Error).message}`,
+        (error as Error).stack,
       );
 
       throw new InternalServerErrorException(
-        `Product seeding failed: ${error.message}`,
+        `Product seeding failed: ${(error as Error).message}`,
       );
     } finally {
       if (queryRunner) {
@@ -475,10 +475,10 @@ export class ProductSeederService {
           duplicatesInDb: duplicateCount,
         },
       };
-    } catch (error) {
+    } catch (error: unknown) {
       this.logger.error(
-        `❌ Failed to get seeding statistics: ${error.message}`,
-        error.stack,
+        `❌ Failed to get seeding statistics: ${(error as Error).message}`,
+        (error as Error).stack,
       );
       throw new InternalServerErrorException(
         'Failed to generate seeding statistics',
@@ -580,15 +580,15 @@ export class ProductSeederService {
         deletedCount,
         processingTimeMs: processingTime,
       };
-    } catch (error) {
+    } catch (error: unknown) {
       const processingTime = Date.now() - startTime;
       this.logger.error(
-        `❌ Product cleanup failed after ${processingTime}ms: ${error.message}`,
-        error.stack,
+        `❌ Product cleanup failed after ${processingTime}ms: ${(error as Error).message}`,
+        (error as Error).stack,
       );
 
       throw new InternalServerErrorException(
-        `Product cleanup failed: ${error.message}`,
+        `Product cleanup failed: ${(error as Error).message}`,
       );
     }
   }
@@ -640,8 +640,8 @@ export class ProductSeederService {
         },
         lastCheck: new Date(),
       };
-    } catch (error) {
-      this.logger.error(`❌ Health check failed: ${error.message}`);
+    } catch (error: unknown) {
+      this.logger.error(`❌ Health check failed: ${(error as Error).message}`);
 
       return {
         status: 'unhealthy',
@@ -878,18 +878,18 @@ export class ProductSeederService {
                 break;
             }
           }
-        } catch (error) {
+        } catch (error: unknown) {
           result.errors++;
           result.errorDetails.push({
             productName: productData.nameEn,
             sku: productData.sku,
             category: productData.categorySlug,
-            error: error.message,
-            details: error.stack,
+            error: (error as Error).message,
+            details: (error as Error).stack,
           });
 
           this.logger.error(
-            `❌ Failed to process product ${productData.nameEn} (${productData.sku}): ${error.message}`,
+            `❌ Failed to process product ${productData.nameEn} (${productData.sku}): ${(error as Error).message}`,
           );
         }
       }
@@ -1282,8 +1282,8 @@ export class ProductSeederService {
       }
 
       return true;
-    } catch (error) {
-      this.logger.error(`❌ Seed data validation failed: ${error.message}`);
+    } catch (error: unknown) {
+      this.logger.error(`❌ Seed data validation failed: ${(error as Error).message}`);
       return false;
     }
   }

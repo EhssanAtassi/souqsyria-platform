@@ -213,10 +213,10 @@ export class InventoryReservationService {
         );
 
         return reservations;
-      } catch (error) {
+      } catch (error: unknown) {
         this.logger.error(
           `Failed to reserve inventory for order ${orderId}`,
-          error.stack,
+          (error as Error).stack,
         );
         throw error;
       }
@@ -286,10 +286,10 @@ export class InventoryReservationService {
         );
 
         return allocationResults;
-      } catch (error) {
+      } catch (error: unknown) {
         this.logger.error(
           `Failed to allocate inventory for order ${orderId}`,
-          error.stack,
+          (error as Error).stack,
         );
         throw error;
       }
@@ -685,10 +685,10 @@ export class InventoryReservationService {
           conflictsResolved: 0,
         },
       };
-    } catch (error) {
+    } catch (error: unknown) {
       this.logger.error(
         `Failed to allocate reservation ${reservation.id}`,
-        error.stack,
+        (error as Error).stack,
       );
 
       return {

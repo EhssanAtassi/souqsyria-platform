@@ -239,7 +239,7 @@ export class MembershipSeederService {
       );
 
       return result;
-    } catch (error) {
+    } catch (error: unknown) {
       // Rollback transaction on error
       if (queryRunner && !dryRun) {
         await queryRunner.rollbackTransaction();
@@ -248,12 +248,12 @@ export class MembershipSeederService {
 
       const processingTime = Date.now() - startTime;
       this.logger.error(
-        `❌ Membership seeding failed after ${processingTime}ms: ${error.message}`,
-        error.stack,
+        `❌ Membership seeding failed after ${processingTime}ms: ${(error as Error).message}`,
+        (error as Error).stack,
       );
 
       throw new InternalServerErrorException(
-        `Membership seeding failed: ${error.message}`,
+        `Membership seeding failed: ${(error as Error).message}`,
       );
     } finally {
       if (queryRunner) {
@@ -418,10 +418,10 @@ export class MembershipSeederService {
           duplicatesInDb: duplicateCount,
         },
       };
-    } catch (error) {
+    } catch (error: unknown) {
       this.logger.error(
-        `❌ Failed to get seeding statistics: ${error.message}`,
-        error.stack,
+        `❌ Failed to get seeding statistics: ${(error as Error).message}`,
+        (error as Error).stack,
       );
       throw new InternalServerErrorException(
         'Failed to generate seeding statistics',
@@ -523,15 +523,15 @@ export class MembershipSeederService {
         deletedCount,
         processingTimeMs: processingTime,
       };
-    } catch (error) {
+    } catch (error: unknown) {
       const processingTime = Date.now() - startTime;
       this.logger.error(
-        `❌ Membership cleanup failed after ${processingTime}ms: ${error.message}`,
-        error.stack,
+        `❌ Membership cleanup failed after ${processingTime}ms: ${(error as Error).message}`,
+        (error as Error).stack,
       );
 
       throw new InternalServerErrorException(
-        `Membership cleanup failed: ${error.message}`,
+        `Membership cleanup failed: ${(error as Error).message}`,
       );
     }
   }
@@ -579,8 +579,8 @@ export class MembershipSeederService {
         },
         lastCheck: new Date(),
       };
-    } catch (error) {
-      this.logger.error(`❌ Health check failed: ${error.message}`);
+    } catch (error: unknown) {
+      this.logger.error(`❌ Health check failed: ${(error as Error).message}`);
 
       return {
         status: 'unhealthy',
@@ -771,17 +771,17 @@ export class MembershipSeederService {
                 break;
             }
           }
-        } catch (error) {
+        } catch (error: unknown) {
           result.errors++;
           result.errorDetails.push({
             membershipName: membershipData.name,
             businessType: membershipData.businessType,
-            error: error.message,
-            details: error.stack,
+            error: (error as Error).message,
+            details: (error as Error).stack,
           });
 
           this.logger.error(
-            `❌ Failed to process membership ${membershipData.name} (${membershipData.businessType}): ${error.message}`,
+            `❌ Failed to process membership ${membershipData.name} (${membershipData.businessType}): ${(error as Error).message}`,
           );
         }
       }
@@ -1082,8 +1082,8 @@ export class MembershipSeederService {
       }
 
       return true;
-    } catch (error) {
-      this.logger.error(`❌ Seed data validation failed: ${error.message}`);
+    } catch (error: unknown) {
+      this.logger.error(`❌ Seed data validation failed: ${(error as Error).message}`);
       return false;
     }
   }

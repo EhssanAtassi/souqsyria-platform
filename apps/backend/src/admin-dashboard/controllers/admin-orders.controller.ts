@@ -341,7 +341,7 @@ export class AdminOrdersController {
   async getOrderTimeline(@Param('id', ParseIntPipe) id: number): Promise<OrderTimelineEventDto[]> {
     // For now, return basic timeline based on order creation
     // TODO: Integrate with OrderStatusLog entity when available
-    const order = await this.orderRepository.findOne({ where: { id } });
+    const order = await this.orderRepository.findOne({ where: { id } })!;
 
     if (!order) {
       return [];

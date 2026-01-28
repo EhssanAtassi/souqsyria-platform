@@ -67,11 +67,11 @@ export class ProductCarouselsSeederService {
         message: `Successfully seeded ${createdCarousels.length} product carousels`,
         carouselsCreated: createdCarousels.length,
       };
-    } catch (error) {
-      this.logger.error(`Failed to seed product carousels: ${error.message}`, error.stack);
+    } catch (error: unknown) {
+      this.logger.error(`Failed to seed product carousels: ${(error as Error).message}`, (error as Error).stack);
       return {
         success: false,
-        message: `Failed to seed product carousels: ${error.message}`,
+        message: `Failed to seed product carousels: ${(error as Error).message}`,
         carouselsCreated: 0,
       };
     }
@@ -107,11 +107,11 @@ export class ProductCarouselsSeederService {
         carouselsDeleted: deletedCount,
         carouselsCreated: seedResult.carouselsCreated,
       };
-    } catch (error) {
-      this.logger.error(`Failed to clean and seed: ${error.message}`, error.stack);
+    } catch (error: unknown) {
+      this.logger.error(`Failed to clean and seed: ${(error as Error).message}`, (error as Error).stack);
       return {
         success: false,
-        message: `Failed to clean and seed: ${error.message}`,
+        message: `Failed to clean and seed: ${(error as Error).message}`,
         carouselsDeleted: 0,
         carouselsCreated: 0,
       };

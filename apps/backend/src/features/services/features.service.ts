@@ -156,7 +156,7 @@ export class FeaturesService {
   async getFeatureById(id: number): Promise<FeatureEntity> {
     this.logger.log(`Retrieving feature with ID: ${id}`);
 
-    const feature = await this.featureRepository.findOne({ where: { id } });
+    const feature = await this.featureRepository.findOne({ where: { id } })!;
 
     if (!feature) {
       throw new NotFoundException(`Feature with ID ${id} not found`);

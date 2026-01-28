@@ -72,7 +72,7 @@ export class MobileImageOptimizationService {
         large: `${baseUrl}/optimized/${baseName}_large_800x800.webp`,
         webp: `${baseUrl}/optimized/${baseName}_original.webp`,
       };
-    } catch (error) {
+    } catch (error: unknown) {
       this.logger.error(`Failed to optimize image: ${originalImageUrl}`, error);
       // Return fallback with original image for all sizes
       return {
@@ -105,7 +105,7 @@ export class MobileImageOptimizationService {
         `Successfully optimized ${optimizedImages.length} images for mobile`,
       );
       return optimizedImages;
-    } catch (error) {
+    } catch (error: unknown) {
       this.logger.error('Failed to optimize multiple images', error);
       // Return fallback images
       return imageUrls.map((url) => ({

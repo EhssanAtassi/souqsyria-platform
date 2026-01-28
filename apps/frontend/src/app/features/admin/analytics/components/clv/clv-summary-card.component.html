@@ -1,0 +1,218 @@
+<!-- CLV Summary Card -->
+<mat-card class="clv-summary-card" [class.compact]="compact()">
+  <mat-card-header>
+    <div class="card-header-content">
+      <div class="header-left">
+        <mat-icon class="header-icon primary-icon">account_balance_wallet</mat-icon>
+        <div class="header-titles">
+          <mat-card-title>Customer Lifetime Value</mat-card-title>
+          <mat-card-subtitle>CLV Analytics & Segmentation</mat-card-subtitle>
+        </div>
+      </div>
+      <div class="header-actions">
+        <button
+          mat-icon-button
+          (click)="onRefresh()"
+          [disabled]="loading()"
+          matTooltip="Refresh CLV data"
+          aria-label="Refresh CLV data"
+        >
+          <mat-icon [class.spin]="loading()">refresh</mat-icon>
+        </button>
+        <button
+          mat-icon-button
+          [matMenuTriggerFor]="menu"
+          aria-label="More options"
+        >
+          <mat-icon>more_vert</mat-icon>
+        </button>
+        <mat-menu #menu="matMenu">
+          <button mat-menu-item (click)="onViewDetails()">
+            <mat-icon>analytics</mat-icon>
+            <span>View Detailed Report</span>
+          </button>
+          <button mat-menu-item>
+            <mat-icon>download</mat-icon>
+            <span>Export CLV Data</span>
+          </button>
+          <button mat-menu-item>
+            <mat-icon>settings</mat-icon>
+            <span>Configure Segments</span>
+          </button>
+        </mat-menu>
+      </div>
+    </div>
+  </mat-card-header>
+
+  <mat-card-content>
+    <!-- Loading State -->
+    @if (loading()) {
+      <div class="loading-container">
+        <mat-spinner diameter="40"></mat-spinner>
+        <p class="loading-text">Loading CLV analytics...</p>
+      </div>
+    }
+
+    <!-- Error State -->
+    @else if (error()) {
+      <div class="error-container">
+        <mat-icon class="error-icon">error_outline</mat-icon>
+        <p class="error-text">{{ error() }}</p>
+        <button mat-raised-button color="primary" (click)="onRefresh()">
+          Retry
+        </button>
+      </div>
+    }
+
+    <!-- Data Display -->
+    @else if (data()) {
+      <div class="metrics-grid">
+        <!-- Average CLV Metric -->
+        <div class="metric-card primary-metric">
+          <div class="metric-header">
+            <mat-icon>person</mat-icon>
+            <span class="metric-label">Average CLV</span>
+          </div>
+          <div class="metric-value">
+            {{ data()!.averageCLV | currencyFormat:'SYP' }}
+          </div>
+          @if (data()!.trend !== 0) {
+            <div class="metric-trend" [class]="trendColorClass()">
+              <mat-icon [inline]="true">{{ trendIcon() }}</mat-icon>
+              <span>{{ data()!.trend | percent:'1.1-1' }} vs last period</span>
+            </div>
+          }
+        </div>
+
+        <!-- Total CLV Metric -->
+        <div class="metric-card">
+          <div class="metric-header">
+            <mat-icon>account_balance</mat-icon>
+            <span class="metric-label">Total CLV</span>
+          </div>
+          <div class="metric-value">
+            {{ formatLargeNumber(data()!.totalCLV) }} SYP
+          </div>
+          <div class="metric-sublabel">
+            Across {{ data()!.totalCustomers | number }} customers
+          </div>
+        </div>
+
+        <!-- Median CLV Metric -->
+        <div class="metric-card">
+          <div class="metric-header">
+            <mat-icon>show_chart</mat-icon>
+            <span class="metric-label">Median CLV</span>
+          </div>
+          <div class="metric-value">
+            {{ data()!.medianCLV | currencyFormat:'SYP' }}
+          </div>
+          <div class="metric-sublabel">
+            Less affected by outliers
+          </div>
+        </div>
+
+        <!-- Prediction Confidence -->
+        @if (showConfidence()) {
+          <div class="metric-card">
+            <div class="metric-header">
+              <mat-icon>psychology</mat-icon>
+              <span class="metric-label">ML Confidence</span>
+            </div>
+            <div class="confidence-meter">
+              <mat-progress-bar
+                mode="determinate"
+                [value]="confidencePercentage()"
+                [color]="confidenceColor()"
+              ></mat-progress-bar>
+              <div class="confidence-label">
+                <span class="confidence-value">{{ confidencePercentage() | number:'1.0-0' }}%</span>
+                <span class="confidence-text">{{ confidenceLabel() }}</span>
+              </div>
+            </div>
+            <div class="metric-sublabel">
+              Prediction accuracy
+            </div>
+          </div>
+        }
+      </div>
+
+      <!-- Customer Segmentation -->
+      <div class="segmentation-section">
+        <h3 class="section-title">
+          <mat-icon>group</mat-icon>
+          Customer Segments
+        </h3>
+
+        <div class="segment-chips">
+          @for (segmentData of sortedSegments(); track trackBySegment($index, segmentData)) {
+            <mat-chip
+              class="segment-chip"
+              [color]="getSegmentColor(segmentData.segment)"
+              (click)="onSegmentClick(segmentData.segment)"
+              [matTooltip]="getSegmentDisplayName(segmentData.segment) + ': ' + segmentData.count + ' customers'"
+            >
+              <mat-icon matChipAvatar>{{ getSegmentIcon(segmentData.segment) }}</mat-icon>
+              <span class="segment-name">{{ getSegmentDisplayName(segmentData.segment) }}</span>
+              <span class="segment-count" matBadge="{{ segmentData.count }}" matBadgeSize="small">
+                {{ segmentData.percentage | number:'1.0-1' }}%
+              </span>
+            </mat-chip>
+          }
+        </div>
+
+        <!-- Segment Distribution Visualization -->
+        <div class="segment-bars">
+          @for (segmentData of sortedSegments(); track trackBySegment($index, segmentData)) {
+            <div class="segment-bar-item">
+              <div class="segment-bar-header">
+                <span class="segment-bar-label">{{ getSegmentDisplayName(segmentData.segment) }}</span>
+                <span class="segment-bar-value">{{ segmentData.count | number }}</span>
+              </div>
+              <div class="segment-bar-track">
+                <div
+                  class="segment-bar-fill"
+                  [class]="'segment-' + segmentData.segment.toLowerCase()"
+                  [style.width.%]="segmentData.percentage"
+                ></div>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+
+      <!-- Last Updated Info -->
+      @if (data()!.lastCalculated) {
+        <div class="footer-info">
+          <mat-icon>schedule</mat-icon>
+          <span>Last calculated: {{ data()!.lastCalculated | date:'short' }}</span>
+        </div>
+      }
+    }
+
+    <!-- Empty State -->
+    @else {
+      <div class="empty-container">
+        <mat-icon class="empty-icon">insights</mat-icon>
+        <p class="empty-text">No CLV data available</p>
+        <p class="empty-subtext">Start analyzing customer lifetime value</p>
+        <button mat-raised-button color="primary" (click)="onRefresh()">
+          Load Data
+        </button>
+      </div>
+    }
+  </mat-card-content>
+
+  @if (data() && !loading()) {
+    <mat-card-actions>
+      <button mat-button (click)="onViewDetails()">
+        <mat-icon>analytics</mat-icon>
+        View Detailed Analysis
+      </button>
+      <button mat-button>
+        <mat-icon>download</mat-icon>
+        Export Report
+      </button>
+    </mat-card-actions>
+  }
+</mat-card>

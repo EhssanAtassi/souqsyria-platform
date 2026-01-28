@@ -155,15 +155,15 @@ export class StockSeederService {
           },
         },
       };
-    } catch (error) {
-      this.logger.error(`❌ Stock seeding failed: ${error.message}`, error.stack);
+    } catch (error: unknown) {
+      this.logger.error(`❌ Stock seeding failed: ${(error as Error).message}`, (error as Error).stack);
       return {
         success: false,
         message: {
           en: 'Failed to seed stock data',
           ar: 'فشل في إدراج بيانات المخزون',
         },
-        error: error.message,
+        error: (error as Error).message,
       };
     }
   }
@@ -245,15 +245,15 @@ export class StockSeederService {
           stockLevels: this.calculateStockLevels(savedStocks),
         },
       };
-    } catch (error) {
-      this.logger.error(`❌ Minimal stock seeding failed: ${error.message}`, error.stack);
+    } catch (error: unknown) {
+      this.logger.error(`❌ Minimal stock seeding failed: ${(error as Error).message}`, (error as Error).stack);
       return {
         success: false,
         message: {
           en: 'Failed to seed minimal stock data',
           ar: 'فشل في إدراج البيانات الأساسية للمخزون',
         },
-        error: error.message,
+        error: (error as Error).message,
       };
     }
   }
@@ -479,14 +479,14 @@ export class StockSeederService {
           },
         },
       };
-    } catch (error) {
+    } catch (error: unknown) {
       return {
         success: false,
         message: {
           en: 'Failed to clear stock seeding data',
           ar: 'فشل في مسح بيانات بذور المخزون',
         },
-        error: error.message,
+        error: (error as Error).message,
       };
     }
   }

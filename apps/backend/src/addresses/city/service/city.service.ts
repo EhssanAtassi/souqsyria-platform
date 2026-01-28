@@ -25,7 +25,7 @@ export class CityService {
     if (!country) throw new NotFoundException('Country not found');
     let region = null;
     if (dto.regionId) {
-      region = await this.regionRepo.findOne({ where: { id: dto.regionId } });
+      region = await this.regionRepo.findOne({ where: { id: dto.regionId } })!;
       if (!region) throw new NotFoundException('Region not found');
     }
     const city = this.cityRepo.create({

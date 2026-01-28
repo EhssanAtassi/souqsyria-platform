@@ -158,11 +158,11 @@ export class AttributesController {
         `✅ Attributes query completed: ${result.count}/${result.total} items returned in ${executionTime}ms`,
       );
       return result;
-    } catch (error) {
+    } catch (error: unknown) {
       const executionTime = Date.now() - startTime;
       this.logger.error(
-        `❌ Failed to fetch attributes after ${executionTime}ms: ${error.message}`,
-        error.stack,
+        `❌ Failed to fetch attributes after ${executionTime}ms: ${(error as Error).message}`,
+        (error as Error).stack,
       );
       throw error;
     }
@@ -221,10 +221,10 @@ export class AttributesController {
         `✅ Attribute ${id} retrieved successfully in ${executionTime}ms - values included: ${!!result.values}`,
       );
       return result;
-    } catch (error) {
+    } catch (error: unknown) {
       const executionTime = Date.now() - startTime;
       this.logger.error(
-        `❌ Failed to fetch attribute ${id} after ${executionTime}ms: ${error.message}`,
+        `❌ Failed to fetch attribute ${id} after ${executionTime}ms: ${(error as Error).message}`,
       );
       throw error;
     }
@@ -274,11 +274,11 @@ export class AttributesController {
         `✅ Attribute created successfully: ID=${result.id}, Name="${result.nameEn}", Values=${result.valuesCount || 0}, Time=${executionTime}ms`,
       );
       return result;
-    } catch (error) {
+    } catch (error: unknown) {
       const executionTime = Date.now() - startTime;
       this.logger.error(
-        `❌ Failed to create attribute "${createAttributeDto.nameEn}" after ${executionTime}ms: ${error.message}`,
-        error.stack,
+        `❌ Failed to create attribute "${createAttributeDto.nameEn}" after ${executionTime}ms: ${(error as Error).message}`,
+        (error as Error).stack,
       );
       throw error;
     }
@@ -336,11 +336,11 @@ export class AttributesController {
         `✅ Attribute ${id} updated successfully: "${result.nameEn}" in ${executionTime}ms`,
       );
       return result;
-    } catch (error) {
+    } catch (error: unknown) {
       const executionTime = Date.now() - startTime;
       this.logger.error(
-        `❌ Failed to update attribute ${id} after ${executionTime}ms: ${error.message}`,
-        error.stack,
+        `❌ Failed to update attribute ${id} after ${executionTime}ms: ${(error as Error).message}`,
+        (error as Error).stack,
       );
       throw error;
     }
@@ -397,11 +397,11 @@ export class AttributesController {
         `✅ Attribute ${id} soft deleted successfully in ${executionTime}ms: ${result.message}`,
       );
       return result;
-    } catch (error) {
+    } catch (error: unknown) {
       const executionTime = Date.now() - startTime;
       this.logger.error(
-        `❌ Failed to delete attribute ${id} after ${executionTime}ms: ${error.message}`,
-        error.stack,
+        `❌ Failed to delete attribute ${id} after ${executionTime}ms: ${(error as Error).message}`,
+        (error as Error).stack,
       );
       throw error;
     }
@@ -460,10 +460,10 @@ export class AttributesController {
         `✅ Found ${result.length} values for attribute ${attributeId} in ${executionTime}ms`,
       );
       return result;
-    } catch (error) {
+    } catch (error: unknown) {
       const executionTime = Date.now() - startTime;
       this.logger.error(
-        `❌ Failed to fetch values for attribute ${attributeId} after ${executionTime}ms: ${error.message}`,
+        `❌ Failed to fetch values for attribute ${attributeId} after ${executionTime}ms: ${(error as Error).message}`,
       );
       throw error;
     }
@@ -521,11 +521,11 @@ export class AttributesController {
         `✅ Value created for attribute ${attributeId}: ID=${result.id}, Value="${result.valueEn}" in ${executionTime}ms`,
       );
       return result;
-    } catch (error) {
+    } catch (error: unknown) {
       const executionTime = Date.now() - startTime;
       this.logger.error(
-        `❌ Failed to create value for attribute ${attributeId} after ${executionTime}ms: ${error.message}`,
-        error.stack,
+        `❌ Failed to create value for attribute ${attributeId} after ${executionTime}ms: ${(error as Error).message}`,
+        (error as Error).stack,
       );
       throw error;
     }
@@ -586,11 +586,11 @@ export class AttributesController {
         `✅ Value ${valueId} updated successfully: "${result.valueEn}" in ${executionTime}ms`,
       );
       return result;
-    } catch (error) {
+    } catch (error: unknown) {
       const executionTime = Date.now() - startTime;
       this.logger.error(
-        `❌ Failed to update value ${valueId} after ${executionTime}ms: ${error.message}`,
-        error.stack,
+        `❌ Failed to update value ${valueId} after ${executionTime}ms: ${(error as Error).message}`,
+        (error as Error).stack,
       );
       throw error;
     }
@@ -654,11 +654,11 @@ export class AttributesController {
         `✅ Value ${valueId} soft deleted successfully in ${executionTime}ms: ${result.message}`,
       );
       return result;
-    } catch (error) {
+    } catch (error: unknown) {
       const executionTime = Date.now() - startTime;
       this.logger.error(
-        `❌ Failed to delete value ${valueId} after ${executionTime}ms: ${error.message}`,
-        error.stack,
+        `❌ Failed to delete value ${valueId} after ${executionTime}ms: ${(error as Error).message}`,
+        (error as Error).stack,
       );
       throw error;
     }
@@ -727,11 +727,11 @@ export class AttributesController {
         `✅ Bulk created ${result.length} values for attribute ${attributeId} in ${executionTime}ms`,
       );
       return result;
-    } catch (error) {
+    } catch (error: unknown) {
       const executionTime = Date.now() - startTime;
       this.logger.error(
-        `❌ Failed to bulk create values for attribute ${attributeId} after ${executionTime}ms: ${error.message}`,
-        error.stack,
+        `❌ Failed to bulk create values for attribute ${attributeId} after ${executionTime}ms: ${(error as Error).message}`,
+        (error as Error).stack,
       );
       throw error;
     }
@@ -789,10 +789,10 @@ export class AttributesController {
         `✅ Value ${valueId} retrieved successfully: "${result.valueEn}" in ${executionTime}ms`,
       );
       return result;
-    } catch (error) {
+    } catch (error: unknown) {
       const executionTime = Date.now() - startTime;
       this.logger.error(
-        `❌ Failed to fetch value ${valueId} after ${executionTime}ms: ${error.message}`,
+        `❌ Failed to fetch value ${valueId} after ${executionTime}ms: ${(error as Error).message}`,
       );
       throw error;
     }
@@ -863,10 +863,10 @@ export class AttributesController {
       );
 
       return result;
-    } catch (error) {
+    } catch (error: unknown) {
       const executionTime = Date.now() - startTime;
       this.logger.error(
-        `❌ Health check failed after ${executionTime}ms: ${error.message}`,
+        `❌ Health check failed after ${executionTime}ms: ${(error as Error).message}`,
       );
 
       return {

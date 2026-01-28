@@ -100,11 +100,11 @@ export class FeaturedCategoriesSeederService {
         message: `Successfully seeded ${createdFeatured.length} featured categories`,
         featuredCategoriesCreated: createdFeatured.length,
       };
-    } catch (error) {
-      this.logger.error(`Failed to seed featured categories: ${error.message}`, error.stack);
+    } catch (error: unknown) {
+      this.logger.error(`Failed to seed featured categories: ${(error as Error).message}`, (error as Error).stack);
       return {
         success: false,
-        message: `Failed to seed featured categories: ${error.message}`,
+        message: `Failed to seed featured categories: ${(error as Error).message}`,
         featuredCategoriesCreated: 0,
       };
     }
@@ -140,11 +140,11 @@ export class FeaturedCategoriesSeederService {
         featuredCategoriesDeleted: deletedCount,
         featuredCategoriesCreated: seedResult.featuredCategoriesCreated,
       };
-    } catch (error) {
-      this.logger.error(`Failed to clean and seed: ${error.message}`, error.stack);
+    } catch (error: unknown) {
+      this.logger.error(`Failed to clean and seed: ${(error as Error).message}`, (error as Error).stack);
       return {
         success: false,
-        message: `Failed to clean and seed: ${error.message}`,
+        message: `Failed to clean and seed: ${(error as Error).message}`,
         featuredCategoriesDeleted: 0,
         featuredCategoriesCreated: 0,
       };

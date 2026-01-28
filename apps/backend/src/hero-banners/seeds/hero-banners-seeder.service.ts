@@ -103,8 +103,8 @@ export class HeroBannersSeederService {
             await queryRunner.manager.save(newBanner);
             createdCount++;
           }
-        } catch (error) {
-          this.logger.warn(`Failed to create banner ${bannerData.nameEn}: ${error.message}`);
+        } catch (error: unknown) {
+          this.logger.warn(`Failed to create banner ${bannerData.nameEn}: ${(error as Error).message}`);
         }
       }
 
@@ -118,13 +118,13 @@ export class HeroBannersSeederService {
         message: `Successfully seeded ${createdCount} hero banners`
       };
 
-    } catch (error) {
+    } catch (error: unknown) {
       await queryRunner.rollbackTransaction();
       this.logger.error('❌ Hero banners seeding failed:', error);
       return {
         success: false,
         count: 0,
-        message: `Hero banners seeding failed: ${error.message}`
+        message: `Hero banners seeding failed: ${(error as Error).message}`
       };
     } finally {
       await queryRunner.release();
@@ -162,8 +162,8 @@ export class HeroBannersSeederService {
             await queryRunner.manager.save(newBanner);
             createdCount++;
           }
-        } catch (error) {
-          this.logger.warn(`Failed to create banner: ${error.message}`);
+        } catch (error: unknown) {
+          this.logger.warn(`Failed to create banner: ${(error as Error).message}`);
         }
       }
 
@@ -177,13 +177,13 @@ export class HeroBannersSeederService {
         message: `Successfully seeded ${createdCount} random hero banners`
       };
 
-    } catch (error) {
+    } catch (error: unknown) {
       await queryRunner.rollbackTransaction();
       this.logger.error('❌ Random banners seeding failed:', error);
       return {
         success: false,
         count: 0,
-        message: `Random banners seeding failed: ${error.message}`
+        message: `Random banners seeding failed: ${(error as Error).message}`
       };
     } finally {
       await queryRunner.release();
@@ -237,8 +237,8 @@ export class HeroBannersSeederService {
             await queryRunner.manager.save(newBanner);
             createdCount++;
           }
-        } catch (error) {
-          this.logger.warn(`Failed to create banner: ${error.message}`);
+        } catch (error: unknown) {
+          this.logger.warn(`Failed to create banner: ${(error as Error).message}`);
         }
       }
 
@@ -252,13 +252,13 @@ export class HeroBannersSeederService {
         message: `Successfully seeded ${createdCount} ${type} hero banners`
       };
 
-    } catch (error) {
+    } catch (error: unknown) {
       await queryRunner.rollbackTransaction();
       this.logger.error(`❌ ${type} banners seeding failed:`, error);
       return {
         success: false,
         count: 0,
-        message: `${type} banners seeding failed: ${error.message}`
+        message: `${type} banners seeding failed: ${(error as Error).message}`
       };
     } finally {
       await queryRunner.release();
@@ -285,12 +285,12 @@ export class HeroBannersSeederService {
         message: `Successfully cleared ${totalDeleted} hero banners`
       };
 
-    } catch (error) {
+    } catch (error: unknown) {
       this.logger.error('❌ Failed to clear hero banners:', error);
       return {
         success: false,
         deletedCount: 0,
-        message: `Failed to clear hero banners: ${error.message}`
+        message: `Failed to clear hero banners: ${(error as Error).message}`
       };
     }
   }
@@ -403,9 +403,9 @@ export class HeroBannersSeederService {
         },
         approvalStatus,
       };
-    } catch (error) {
+    } catch (error: unknown) {
       this.logger.error('Failed to get hero banners analytics:', error);
-      return { error: error.message };
+      return { error: (error as Error).message };
     }
   }
 
@@ -437,8 +437,8 @@ export class HeroBannersSeederService {
             results.errors.push(`Unknown operation type: ${operation.type}`);
             results.failed++;
         }
-      } catch (error) {
-        results.errors.push(`${operation.type} failed: ${error.message}`);
+      } catch (error: unknown) {
+        results.errors.push(`${operation.type} failed: ${(error as Error).message}`);
         results.failed++;
       }
     }

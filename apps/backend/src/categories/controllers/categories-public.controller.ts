@@ -248,14 +248,14 @@ export class CategoriesPublicController {
           cached: false, // Will be true when caching is implemented
         },
       });
-    } catch (error) {
+    } catch (error: unknown) {
       const processingTime = Date.now() - startTime;
 
       this.logger.error(
-        `❌ Public categories failed: ${error.message} (${processingTime}ms)`,
+        `❌ Public categories failed: ${(error as Error).message} (${processingTime}ms)`,
         {
-          error: error.message,
-          stack: error.stack,
+          error: (error as Error).message,
+          stack: (error as Error).stack,
           clientIP,
           userAgent,
           params: { page, limit, language, featured, parentId },
@@ -267,7 +267,7 @@ export class CategoriesPublicController {
         return response.status(HttpStatus.BAD_REQUEST).json({
           success: false,
           error: 'Invalid request parameters',
-          message: error.message,
+          message: (error as Error).message,
           statusCode: HttpStatus.BAD_REQUEST,
         });
       }
@@ -493,13 +493,13 @@ export class CategoriesPublicController {
           processingTime,
         },
       });
-    } catch (error) {
+    } catch (error: unknown) {
       const processingTime = Date.now() - startTime;
 
       this.logger.error(
-        `❌ Category search failed: ${error.message} (${processingTime}ms)`,
+        `❌ Category search failed: ${(error as Error).message} (${processingTime}ms)`,
         {
-          error: error.message,
+          error: (error as Error).message,
           searchQuery,
           language,
           limit,
@@ -511,7 +511,7 @@ export class CategoriesPublicController {
         return response.status(HttpStatus.BAD_REQUEST).json({
           success: false,
           error: 'Invalid request parameters',
-          message: error.message,
+          message: (error as Error).message,
           statusCode: HttpStatus.BAD_REQUEST,
         });
       }
@@ -662,16 +662,16 @@ export class CategoriesPublicController {
           limit: sanitizedLimit,
         },
       });
-    } catch (error) {
+    } catch (error: unknown) {
       this.logger.error(
-        `❌ Featured categories failed: ${error.message}`,
-        error.stack,
+        `❌ Featured categories failed: ${(error as Error).message}`,
+        (error as Error).stack,
       );
 
       return response.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
         success: false,
         error: 'Failed to retrieve featured categories',
-        message: error.message || 'Please try again later',
+        message: (error as Error).message || 'Please try again later',
         statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
       });
     }
@@ -831,16 +831,16 @@ export class CategoriesPublicController {
           total: sections.length,
         },
       });
-    } catch (error) {
+    } catch (error: unknown) {
       this.logger.error(
-        `❌ Homepage sections failed: ${error.message}`,
-        error.stack,
+        `❌ Homepage sections failed: ${(error as Error).message}`,
+        (error as Error).stack,
       );
 
       return response.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
         success: false,
         error: 'Failed to retrieve homepage sections',
-        message: error.message || 'Please try again later',
+        message: (error as Error).message || 'Please try again later',
         statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
       });
     }

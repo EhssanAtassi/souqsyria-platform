@@ -60,3 +60,23 @@
     }
   }
 }
+
+// RTL support
+[dir='rtl'] {
+  .admin-settings {
+    &__header {
+      text-align: right;
+    }
+
+    article {
+      h3, p {
+        text-align: right;
+      }
+
+      a {
+        // Position link on the right for RTL
+        justify-self: end;
+      }
+    }
+  }
+}
