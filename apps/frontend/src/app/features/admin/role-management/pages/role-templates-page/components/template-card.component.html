@@ -1,0 +1,57 @@
+<mat-card class="template-card" [style.border-top-color]="template().color">
+  <mat-card-header>
+    <div class="template-icon" [style.background-color]="template().color">
+      <mat-icon>{{ template().icon }}</mat-icon>
+    </div>
+    <mat-card-title>{{ template().name }}</mat-card-title>
+    <mat-card-subtitle>
+      <mat-chip class="category-chip">{{ getCategoryDisplay() }}</mat-chip>
+    </mat-card-subtitle>
+  </mat-card-header>
+
+  <mat-card-content>
+    <p class="template-description">{{ getTruncatedDescription() }}</p>
+
+    <div class="template-stats">
+      <div class="stat-item">
+        <mat-icon class="stat-icon">security</mat-icon>
+        <span class="stat-value">{{ template().suggestedPermissions.length }}</span>
+        <span class="stat-label">Permissions</span>
+      </div>
+
+      <div class="stat-item">
+        <mat-icon class="stat-icon">priority_high</mat-icon>
+        <span class="stat-value">{{ template().priority }}</span>
+        <span class="stat-label">Priority</span>
+      </div>
+    </div>
+
+    @if (template().isCommon) {
+      <div class="common-badge">
+        <mat-icon>star</mat-icon>
+        <span>Popular</span>
+      </div>
+    }
+  </mat-card-content>
+
+  <mat-card-actions align="end">
+    <button
+      mat-button
+      color="primary"
+      (click)="onPreviewClick($event)"
+      matTooltip="View template details"
+      aria-label="Preview template">
+      <mat-icon>visibility</mat-icon>
+      Preview
+    </button>
+    <button
+      mat-raised-button
+      color="primary"
+      (click)="onUseClick($event)"
+      matTooltip="Create role from this template"
+      aria-label="Use template">
+      <mat-icon>add</mat-icon>
+      Use Template
+    </button>
+  </mat-card-actions>
+</mat-card>

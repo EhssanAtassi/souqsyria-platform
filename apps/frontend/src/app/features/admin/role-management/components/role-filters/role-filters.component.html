@@ -1,0 +1,83 @@
+<div class="filters-container" [formGroup]="filterForm">
+  <!-- Status Filters -->
+  <div class="filter-section">
+    <h3>Status</h3>
+    <mat-checkbox formControlName="isActive">
+      Active Only
+    </mat-checkbox>
+  </div>
+
+  <mat-divider></mat-divider>
+
+  <!-- Role Type -->
+  <div class="filter-section">
+    <h3>Role Type</h3>
+    <mat-radio-group formControlName="isSystem" class="radio-group">
+      <mat-radio-button [value]="null">All Roles</mat-radio-button>
+      <mat-radio-button [value]="false">Custom Only</mat-radio-button>
+      <mat-radio-button [value]="true">System Only</mat-radio-button>
+    </mat-radio-group>
+  </div>
+
+  <mat-divider></mat-divider>
+
+  <!-- Priority Range -->
+  <div class="filter-section">
+    <h3>Priority Range</h3>
+    <div class="priority-sliders">
+      <label>Min: {{ minPriority() }}</label>
+      <mat-slider min="1" max="100" step="1">
+        <input matSliderThumb
+               [value]="minPriority()"
+               (valueChange)="onMinPriorityChange($event)">
+      </mat-slider>
+
+      <label>Max: {{ maxPriority() }}</label>
+      <mat-slider min="1" max="100" step="1">
+        <input matSliderThumb
+               [value]="maxPriority()"
+               (valueChange)="onMaxPriorityChange($event)">
+      </mat-slider>
+    </div>
+  </div>
+
+  <mat-divider></mat-divider>
+
+  <!-- Sort Options -->
+  <div class="filter-section">
+    <h3>Sort By</h3>
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Field</mat-label>
+      <mat-select formControlName="sortBy">
+        <mat-option value="name">Name</mat-option>
+        <mat-option value="displayName">Display Name</mat-option>
+        <mat-option value="priority">Priority</mat-option>
+        <mat-option value="userCount">User Count</mat-option>
+        <mat-option value="createdAt">Created Date</mat-option>
+        <mat-option value="updatedAt">Updated Date</mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Order</mat-label>
+      <mat-select formControlName="sortOrder">
+        <mat-option value="ASC">Ascending</mat-option>
+        <mat-option value="DESC">Descending</mat-option>
+      </mat-select>
+    </mat-form-field>
+  </div>
+
+  <mat-divider></mat-divider>
+
+  <!-- Action Buttons -->
+  <div class="filter-actions">
+    <button mat-raised-button color="primary" (click)="applyFilters()">
+      <mat-icon>check</mat-icon>
+      Apply
+    </button>
+    <button mat-stroked-button (click)="resetFilters()">
+      <mat-icon>refresh</mat-icon>
+      Reset
+    </button>
+  </div>
+</div>

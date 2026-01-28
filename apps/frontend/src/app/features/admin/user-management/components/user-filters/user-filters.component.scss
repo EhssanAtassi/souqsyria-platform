@@ -1,0 +1,378 @@
+/**
+ * User Filters Component Styles
+ *
+ * Material Design compliant with 8px grid system.
+ * Responsive and accessible.
+ */
+
+@use '@angular/material' as mat;
+
+:host {
+  display: block;
+}
+
+.user-filters {
+  background: white;
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 16px;
+
+  // Dark mode support
+  @media (prefers-color-scheme: dark) {
+    background: #1e1e1e;
+    color: rgba(255, 255, 255, 0.87);
+  }
+}
+
+// ============================================================================
+// HEADER SECTION
+// ============================================================================
+
+.filters-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.12);
+
+  @media (prefers-color-scheme: dark) {
+    border-bottom-color: rgba(255, 255, 255, 0.12);
+  }
+}
+
+.header-content {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.header-icon {
+  color: rgba(0, 0, 0, 0.54);
+
+  @media (prefers-color-scheme: dark) {
+    color: rgba(255, 255, 255, 0.54);
+  }
+}
+
+.header-title {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 500;
+  line-height: 24px;
+}
+
+.active-count-chip {
+  background-color: #3f51b5;
+  color: white;
+  font-size: 12px;
+  font-weight: 500;
+  padding: 4px 8px;
+  border-radius: 12px;
+  min-width: 24px;
+  text-align: center;
+}
+
+.clear-all-btn {
+  .mat-icon {
+    margin-right: 4px;
+  }
+}
+
+// ============================================================================
+// ACTIVE FILTERS CHIPS
+// ============================================================================
+
+.active-filters {
+  margin-bottom: 16px;
+  padding: 12px;
+  background-color: rgba(63, 81, 181, 0.08);
+  border-radius: 4px;
+
+  @media (prefers-color-scheme: dark) {
+    background-color: rgba(144, 202, 249, 0.12);
+  }
+
+  mat-chip-set {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  mat-chip {
+    font-size: 13px;
+    min-height: 32px;
+  }
+}
+
+// ============================================================================
+// FILTER FORM
+// ============================================================================
+
+.filters-form {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.filter-panel {
+  box-shadow: none !important;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  border-radius: 4px;
+  margin-bottom: 8px;
+
+  @media (prefers-color-scheme: dark) {
+    border-color: rgba(255, 255, 255, 0.12);
+    background-color: #2a2a2a;
+  }
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+
+  ::ng-deep .mat-expansion-panel-header {
+    padding: 0 16px;
+    height: 56px;
+
+    &:hover {
+      background-color: rgba(0, 0, 0, 0.04);
+
+      @media (prefers-color-scheme: dark) {
+        background-color: rgba(255, 255, 255, 0.04);
+      }
+    }
+  }
+
+  ::ng-deep .mat-expansion-panel-body {
+    padding: 16px;
+  }
+}
+
+.panel-icon {
+  margin-right: 12px;
+  color: rgba(0, 0, 0, 0.54);
+
+  @media (prefers-color-scheme: dark) {
+    color: rgba(255, 255, 255, 0.54);
+  }
+}
+
+.filter-count {
+  font-size: 12px;
+  color: #3f51b5;
+  font-weight: 500;
+}
+
+// ============================================================================
+// FILTER CONTENT
+// ============================================================================
+
+.filter-content {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.full-width {
+  width: 100%;
+}
+
+.filter-label {
+  display: block;
+  font-size: 14px;
+  font-weight: 500;
+  color: rgba(0, 0, 0, 0.87);
+  margin-bottom: 8px;
+
+  @media (prefers-color-scheme: dark) {
+    color: rgba(255, 255, 255, 0.87);
+  }
+}
+
+// ============================================================================
+// OPTION CONTENT (Icons + Text)
+// ============================================================================
+
+.option-content {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  mat-icon {
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+  }
+
+  span {
+    flex: 1;
+    line-height: 20px;
+  }
+}
+
+// ============================================================================
+// ADMIN ROLE FILTER (Radio Buttons)
+// ============================================================================
+
+.admin-role-filter {
+  margin-top: 8px;
+}
+
+.admin-role-group {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.admin-role-option {
+  ::ng-deep .mat-radio-label-content {
+    width: 100%;
+    padding-left: 8px;
+  }
+}
+
+// ============================================================================
+// QUICK DATE RANGES
+// ============================================================================
+
+.quick-ranges {
+  margin-top: 8px;
+}
+
+.range-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.range-btn {
+  font-size: 13px;
+  min-width: auto;
+  padding: 0 12px;
+}
+
+// ============================================================================
+// FORM FIELD CUSTOMIZATION
+// ============================================================================
+
+::ng-deep {
+  .user-filters {
+    // Reduce form field density
+    .mat-mdc-form-field {
+      .mat-mdc-text-field-wrapper {
+        padding-bottom: 0;
+      }
+
+      .mat-mdc-form-field-subscript-wrapper {
+        margin-top: 4px;
+      }
+    }
+
+    // Mat-select dropdown styling
+    .mat-mdc-select-panel {
+      .mat-mdc-option {
+        min-height: 48px;
+        padding: 0 16px;
+      }
+    }
+
+    // Mat-datepicker clear button
+    .mat-datepicker-toggle-default-icon {
+      width: 24px;
+    }
+  }
+}
+
+// ============================================================================
+// RESPONSIVE DESIGN
+// ============================================================================
+
+// Mobile (< 600px)
+@media (max-width: 599px) {
+  .filters-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .clear-all-btn {
+    width: 100%;
+  }
+
+  .range-buttons {
+    flex-direction: column;
+
+    .range-btn {
+      width: 100%;
+    }
+  }
+
+  .admin-role-option {
+    margin-bottom: 8px;
+  }
+}
+
+// Tablet (600-960px)
+@media (min-width: 600px) and (max-width: 959px) {
+  .range-buttons {
+    .range-btn {
+      flex: 1;
+      min-width: 100px;
+    }
+  }
+}
+
+// Desktop (> 960px)
+@media (min-width: 960px) {
+  .user-filters {
+    padding: 24px;
+  }
+
+  .filters-header {
+    margin-bottom: 24px;
+    padding-bottom: 24px;
+  }
+
+  .active-filters {
+    padding: 16px;
+  }
+}
+
+// ============================================================================
+// ACCESSIBILITY
+// ============================================================================
+
+// Focus styles
+::ng-deep {
+  .user-filters {
+    button:focus-visible,
+    .mat-mdc-radio-button:focus-visible {
+      outline: 2px solid #3f51b5;
+      outline-offset: 2px;
+    }
+
+    .mat-mdc-chip:focus-visible {
+      box-shadow: 0 0 0 2px #3f51b5;
+    }
+  }
+}
+
+// High contrast mode
+@media (prefers-contrast: high) {
+  .filter-panel {
+    border-width: 2px;
+  }
+
+  .active-count-chip {
+    border: 2px solid currentColor;
+  }
+}
+
+// Reduced motion
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

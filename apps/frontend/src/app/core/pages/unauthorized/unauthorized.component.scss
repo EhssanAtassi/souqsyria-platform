@@ -1,0 +1,306 @@
+/**
+ * Unauthorized Component Styles
+ *
+ * @description
+ * Material Design styling for the unauthorized access page.
+ * Responsive layout with mobile-first approach.
+ */
+
+.unauthorized-page {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: calc(100vh - 200px);
+  padding: 24px;
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+
+  @media (max-width: 768px) {
+    padding: 16px;
+    min-height: calc(100vh - 100px);
+  }
+}
+
+.unauthorized-card {
+  max-width: 700px;
+  width: 100%;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  border-radius: 12px;
+  overflow: hidden;
+
+  mat-card-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 32px 24px;
+    margin-bottom: 0;
+
+    @media (max-width: 768px) {
+      padding: 24px 16px;
+    }
+
+    .unauthorized-icon {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 56px;
+      height: 56px;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 50%;
+      margin-right: 16px;
+
+      mat-icon {
+        font-size: 32px;
+        width: 32px;
+        height: 32px;
+        color: white;
+      }
+
+      @media (max-width: 768px) {
+        width: 48px;
+        height: 48px;
+
+        mat-icon {
+          font-size: 28px;
+          width: 28px;
+          height: 28px;
+        }
+      }
+    }
+
+    mat-card-title {
+      color: white;
+      font-size: 28px;
+      font-weight: 600;
+      margin: 0;
+
+      @media (max-width: 768px) {
+        font-size: 24px;
+      }
+    }
+
+    mat-card-subtitle {
+      color: rgba(255, 255, 255, 0.9);
+      font-size: 16px;
+      margin-top: 8px;
+
+      @media (max-width: 768px) {
+        font-size: 14px;
+      }
+    }
+  }
+
+  mat-card-content {
+    padding: 32px 24px;
+
+    @media (max-width: 768px) {
+      padding: 24px 16px;
+    }
+
+    .main-message {
+      font-size: 16px;
+      line-height: 1.6;
+      color: rgba(0, 0, 0, 0.87);
+      margin: 0 0 24px 0;
+
+      @media (max-width: 768px) {
+        font-size: 14px;
+      }
+    }
+
+    .info-section {
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+      padding: 16px;
+      margin-bottom: 16px;
+      background-color: rgba(103, 58, 183, 0.05);
+      border-left: 4px solid #673ab7;
+      border-radius: 4px;
+
+      mat-icon {
+        font-size: 24px;
+        width: 24px;
+        height: 24px;
+        color: #673ab7;
+        flex-shrink: 0;
+        margin-top: 2px;
+      }
+
+      .info-content {
+        flex: 1;
+
+        strong {
+          display: block;
+          font-weight: 600;
+          color: rgba(0, 0, 0, 0.87);
+          margin-bottom: 8px;
+        }
+
+        code {
+          display: inline-block;
+          font-family: 'Roboto Mono', 'Courier New', monospace;
+          font-size: 14px;
+          background-color: rgba(0, 0, 0, 0.05);
+          padding: 4px 8px;
+          border-radius: 4px;
+          color: #d32f2f;
+          margin-top: 4px;
+          word-break: break-all;
+
+          @media (max-width: 768px) {
+            font-size: 12px;
+          }
+        }
+      }
+
+      &.return-info {
+        border-left-color: #2196f3;
+
+        mat-icon {
+          color: #2196f3;
+        }
+      }
+
+      &.permissions-info {
+        border-left-color: #ff9800;
+
+        mat-icon {
+          color: #ff9800;
+        }
+
+        .permissions-list {
+          margin: 8px 0 0 0;
+          padding: 0 0 0 20px;
+          list-style: none;
+
+          li {
+            position: relative;
+            margin-bottom: 6px;
+
+            &::before {
+              content: '•';
+              position: absolute;
+              left: -15px;
+              color: #ff9800;
+              font-weight: bold;
+            }
+
+            code {
+              margin-top: 0;
+            }
+          }
+        }
+      }
+    }
+
+    .help-section {
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+      padding: 16px;
+      margin-top: 24px;
+      background-color: rgba(76, 175, 80, 0.05);
+      border-radius: 4px;
+      border: 1px solid rgba(76, 175, 80, 0.2);
+
+      mat-icon {
+        font-size: 24px;
+        width: 24px;
+        height: 24px;
+        color: #4caf50;
+        flex-shrink: 0;
+      }
+
+      p {
+        margin: 0;
+        font-size: 14px;
+        line-height: 1.5;
+        color: rgba(0, 0, 0, 0.7);
+      }
+    }
+  }
+
+  mat-card-actions {
+    padding: 16px 24px 24px;
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+
+    @media (max-width: 768px) {
+      padding: 16px;
+
+      button {
+        flex: 1 1 auto;
+        min-width: 120px;
+      }
+    }
+
+    button {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+
+      mat-icon {
+        font-size: 20px;
+        width: 20px;
+        height: 20px;
+      }
+    }
+  }
+}
+
+// Animations
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.unauthorized-card {
+  animation: slideInUp 0.4s ease-out;
+}
+
+// Dark mode support
+@media (prefers-color-scheme: dark) {
+  .unauthorized-page {
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+  }
+
+  .unauthorized-card {
+    background-color: #2a2a3e;
+
+    mat-card-content {
+      .main-message {
+        color: rgba(255, 255, 255, 0.87);
+      }
+
+      .info-section {
+        background-color: rgba(103, 58, 183, 0.15);
+
+        .info-content {
+          strong {
+            color: rgba(255, 255, 255, 0.87);
+          }
+
+          code {
+            background-color: rgba(255, 255, 255, 0.1);
+            color: #ff6b6b;
+          }
+        }
+      }
+
+      .help-section {
+        background-color: rgba(76, 175, 80, 0.15);
+        border-color: rgba(76, 175, 80, 0.3);
+
+        p {
+          color: rgba(255, 255, 255, 0.7);
+        }
+      }
+    }
+  }
+}

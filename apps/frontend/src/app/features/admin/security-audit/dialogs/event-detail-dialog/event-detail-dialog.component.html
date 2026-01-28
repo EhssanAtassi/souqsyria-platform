@@ -1,0 +1,121 @@
+<h2 mat-dialog-title>
+  <mat-icon class="title-icon">event</mat-icon>
+  Event Details
+</h2>
+
+<mat-dialog-content>
+  <div class="detail-section">
+    <h3>Action & Status</h3>
+    <div class="detail-row">
+      <span class="label">Action:</span>
+      <app-action-badge [action]="event.action" />
+    </div>
+    <div class="detail-row">
+      <span class="label">Status:</span>
+      <app-success-indicator [success]="event.success" />
+      <span>{{ event.success ? 'Success' : 'Failed' }}</span>
+    </div>
+    @if (event.failureReason) {
+      <div class="detail-row">
+        <span class="label">Failure Reason:</span>
+        <span class="failure-reason">{{ event.failureReason }}</span>
+      </div>
+    }
+  </div>
+
+  <mat-divider></mat-divider>
+
+  <div class="detail-section">
+    <h3>User Information</h3>
+    <div class="detail-row">
+      <span class="label">User:</span>
+      <span>{{ event.userEmail || 'Anonymous' }}</span>
+    </div>
+    @if (event.userName) {
+      <div class="detail-row">
+        <span class="label">Name:</span>
+        <span>{{ event.userName }}</span>
+      </div>
+    }
+    @if (event.userId) {
+      <div class="detail-row">
+        <span class="label">User ID:</span>
+        <code>{{ event.userId }}</code>
+      </div>
+    }
+  </div>
+
+  <mat-divider></mat-divider>
+
+  <div class="detail-section">
+    <h3>Request Information</h3>
+    <div class="detail-row">
+      <span class="label">IP Address:</span>
+      <code>{{ event.ipAddress }}</code>
+    </div>
+    <div class="detail-row">
+      <span class="label">Request Path:</span>
+      <code>{{ event.requestPath }}</code>
+    </div>
+    <div class="detail-row">
+      <span class="label">Method:</span>
+      <code>{{ event.requestMethod }}</code>
+    </div>
+    <div class="detail-row">
+      <span class="label">User Agent:</span>
+      <code class="user-agent">{{ event.userAgent }}</code>
+    </div>
+  </div>
+
+  @if (event.resourceType || event.resourceId) {
+    <mat-divider></mat-divider>
+    <div class="detail-section">
+      <h3>Resource</h3>
+      @if (event.resourceType) {
+        <div class="detail-row">
+          <span class="label">Type:</span>
+          <span>{{ event.resourceType }}</span>
+        </div>
+      }
+      @if (event.resourceId) {
+        <div class="detail-row">
+          <span class="label">ID:</span>
+          <code>{{ event.resourceId }}</code>
+        </div>
+      }
+      @if (event.permissionRequired) {
+        <div class="detail-row">
+          <span class="label">Permission:</span>
+          <code>{{ event.permissionRequired }}</code>
+        </div>
+      }
+    </div>
+  }
+
+  @if (getMetadataKeys().length > 0) {
+    <mat-divider></mat-divider>
+    <div class="detail-section">
+      <h3>Metadata</h3>
+      @for (key of getMetadataKeys(); track key) {
+        <div class="detail-row metadata-row">
+          <span class="label">{{ key }}:</span>
+          <pre class="metadata-value">{{ formatMetadataValue(event.metadata[key]) }}</pre>
+        </div>
+      }
+    </div>
+  }
+
+  <mat-divider></mat-divider>
+
+  <div class="detail-section">
+    <h3>Timestamp</h3>
+    <div class="detail-row">
+      <span class="label">Created:</span>
+      <span>{{ event.createdAt | date: 'full' }}</span>
+    </div>
+  </div>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button (click)="close()">Close</button>
+</mat-dialog-actions>

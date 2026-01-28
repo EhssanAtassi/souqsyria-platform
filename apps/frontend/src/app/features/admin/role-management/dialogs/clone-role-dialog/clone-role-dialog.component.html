@@ -1,0 +1,50 @@
+<h2 mat-dialog-title>
+  <mat-icon>content_copy</mat-icon>
+  Clone Role: {{ data.role.displayName }}
+</h2>
+
+<mat-dialog-content>
+  <p class="dialog-description">
+    Create a copy of this role with a new name. Permissions will be copied automatically.
+  </p>
+
+  <mat-form-field appearance="outline" class="full-width">
+    <mat-label>New Role Name</mat-label>
+    <input matInput [formControl]="nameControl" required placeholder="e.g., moderator_advanced">
+    @if (nameControl.hasError('required')) {
+      <mat-error>Name is required</mat-error>
+    }
+    @if (nameControl.hasError('minlength')) {
+      <mat-error>Name must be at least 3 characters</mat-error>
+    }
+  </mat-form-field>
+
+  <mat-form-field appearance="outline" class="full-width">
+    <mat-label>New Display Name</mat-label>
+    <input matInput [formControl]="displayNameControl" required placeholder="e.g., Advanced Moderator">
+    @if (displayNameControl.hasError('required')) {
+      <mat-error>Display name is required</mat-error>
+    }
+  </mat-form-field>
+
+  <mat-checkbox [formControl]="copyPermissionsControl" class="copy-permissions-checkbox">
+    Copy {{ data.role.permissionIds.length }} permissions from original role
+  </mat-checkbox>
+
+  <div class="preview-info">
+    <mat-icon>info</mat-icon>
+    <p>The cloned role will have the same permissions and priority as the original.</p>
+  </div>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button (click)="onCancel()">Cancel</button>
+  <button
+    mat-raised-button
+    color="primary"
+    (click)="onClone()"
+    [disabled]="!nameControl.valid || !displayNameControl.valid">
+    <mat-icon>content_copy</mat-icon>
+    Clone Role
+  </button>
+</mat-dialog-actions>

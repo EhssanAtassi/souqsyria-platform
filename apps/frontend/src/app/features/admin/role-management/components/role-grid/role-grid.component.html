@@ -1,0 +1,46 @@
+<!--
+  Role Grid Template
+
+  @description
+  Responsive grid layout for role cards with loading and empty states.
+
+  @states
+  - Loading: Shows skeleton cards
+  - Empty: Shows empty state message
+  - Normal: Shows role cards in grid
+-->
+
+<div class="role-grid-container">
+  <!-- Loading State -->
+  @if (loading()) {
+    <div class="loading-state">
+      <p>Loading roles...</p>
+    </div>
+  }
+
+  <!-- Empty State -->
+  @else if (!roles() || roles()!.length === 0) {
+    <div class="empty-state">
+      <mat-icon class="empty-icon">admin_panel_settings</mat-icon>
+      <h3>No Roles Found</h3>
+      <p>There are no roles matching your current filters.</p>
+      <p class="empty-hint">Try adjusting your filters or create a new role.</p>
+    </div>
+  }
+
+  <!-- Role Grid -->
+  @else {
+    <div class="role-grid">
+      @for (role of roles(); track trackByRoleId($index, role)) {
+        <app-role-card
+          [role]="role"
+          [selected]="role.id === selectedRoleId()"
+          (click)="onCardClick(role)"
+          (edit)="onEditClick(role)"
+          (clone)="onCloneClick(role)"
+          (delete)="onDeleteClick(role)">
+        </app-role-card>
+      }
+    </div>
+  }
+</div>

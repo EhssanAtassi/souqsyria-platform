@@ -10,9 +10,9 @@ export const typeOrmConfig: TypeOrmModuleOptions = {
   port: +process.env.DB_PORT,
   username: process.env.DB_USERNAME,
   password: process.env.DB_PASSWORD,
-  database: process.env.DB_NAME,
+  database: process.env.DB_DATABASE,
   entities: [__dirname + '/../**/*.entity{.ts,.js}'],
-  synchronize: false, // Disabled after initial schema creation to avoid duplicate index errors
+  synchronize: false, // Disabled - entities have duplicate index issues; use SQL migrations instead
   dropSchema: false, // Disable schema dropping to prevent duplicate index errors
   logging: ['error', 'warn'], // Reduce logging to only show errors and warnings
   cache: false,

@@ -1,0 +1,328 @@
+<!-- User Table with Material Design -->
+<div class="table-wrapper">
+  <table 
+    mat-table 
+    [dataSource]="dataSource" 
+    matSort
+    class="user-table"
+    [class.loading]="loading">
+
+    <!-- Checkbox Column -->
+    <ng-container matColumnDef="select">
+      <th mat-header-cell *matHeaderCellDef class="checkbox-column">
+        <mat-checkbox
+          (change)="$event ? toggleAll() : null"
+          [checked]="isAllSelected()"
+          [indeterminate]="isSomeSelected()"
+          [aria-label]="'Select all users'"
+          color="primary">
+        </mat-checkbox>
+      </th>
+      <td mat-cell *matCellDef="let user" class="checkbox-column">
+        <mat-checkbox
+          [checked]="selection.isSelected(user)"
+          (click)="toggleRow(user, $event)"
+          [aria-label]="'Select user ' + user.name"
+          color="primary">
+        </mat-checkbox>
+      </td>
+    </ng-container>
+
+    <!-- Avatar Column -->
+    <ng-container matColumnDef="avatar">
+      <th mat-header-cell *matHeaderCellDef class="avatar-column"></th>
+      <td mat-cell *matCellDef="let user" class="avatar-column">
+        <!-- TODO: Replace with UserAvatarComponent -->
+        <div 
+          class="user-avatar"
+          [style.background-color]="getAvatarColor(user)"
+          [matTooltip]="user.name">
+          {{ getUserInitials(user) }}
+        </div>
+      </td>
+    </ng-container>
+
+    <!-- Name Column -->
+    <ng-container matColumnDef="name">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header>
+        Name
+      </th>
+      <td mat-cell *matCellDef="let user" class="name-column">
+        <div class="user-info">
+          <span class="user-name">{{ user.name }}</span>
+          <span class="user-id" *ngIf="user.id">ID: {{ user.id }}</span>
+        </div>
+      </td>
+    </ng-container>
+
+    <!-- Email Column -->
+    <ng-container matColumnDef="email">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header>
+        Email
+      </th>
+      <td mat-cell *matCellDef="let user" class="email-column">
+        <a 
+          [href]="'mailto:' + user.email" 
+          class="email-link"
+          (click)="$event.stopPropagation()"
+          [matTooltip]="user.email">
+          {{ user.email }}
+        </a>
+        <mat-icon 
+          *ngIf="user.emailVerified" 
+          class="verified-icon"
+          matTooltip="Email verified"
+          aria-label="Email verified">
+          verified
+        </mat-icon>
+      </td>
+    </ng-container>
+
+    <!-- Business Role Column -->
+    <ng-container matColumnDef="businessRole">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header>
+        Business Role
+      </th>
+      <td mat-cell *matCellDef="let user" class="role-column">
+        <mat-chip class="business-role-chip">
+          {{ formatBusinessRole(user.role) }}
+        </mat-chip>
+      </td>
+    </ng-container>
+
+    <!-- Admin Role Column -->
+    <ng-container matColumnDef="adminRole">
+      <th mat-header-cell *matHeaderCellDef>
+        Admin Role
+      </th>
+      <td mat-cell *matCellDef="let user" class="role-column">
+        <mat-chip 
+          *ngIf="user.assignedRole" 
+          class="admin-role-chip"
+          [matTooltip]="'Role: ' + user.assignedRole.name">
+          {{ user.assignedRole.name }}
+        </mat-chip>
+        <span *ngIf="!user.assignedRole" class="no-role">None</span>
+      </td>
+    </ng-container>
+
+    <!-- Status Column -->
+    <ng-container matColumnDef="status">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header>
+        Status
+      </th>
+      <td mat-cell *matCellDef="let user" class="status-column">
+        <!-- TODO: Replace with StatusBadgeComponent -->
+        <mat-chip 
+          [class]="'status-chip status-' + user.status.toLowerCase()"
+          [color]="getStatusColor(user.status)">
+          {{ user.status }}
+        </mat-chip>
+      </td>
+    </ng-container>
+
+    <!-- Last Login Column -->
+    <ng-container matColumnDef="lastLogin">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header>
+        Last Login
+      </th>
+      <td mat-cell *matCellDef="let user" class="date-column">
+        <div class="date-info">
+          <span class="date-relative">{{ formatLastLogin(user.lastLoginAt) }}</span>
+          <span 
+            *ngIf="user.lastLoginAt" 
+            class="date-absolute"
+            [matTooltip]="user.lastLoginAt | date:'medium'">
+            {{ user.lastLoginAt | date:'short' }}
+          </span>
+        </div>
+      </td>
+    </ng-container>
+
+    <!-- Created At Column -->
+    <ng-container matColumnDef="createdAt">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header>
+        Created
+      </th>
+      <td mat-cell *matCellDef="let user" class="date-column">
+        <span [matTooltip]="user.createdAt | date:'medium'">
+          {{ formatCreatedAt(user.createdAt) }}
+        </span>
+      </td>
+    </ng-container>
+
+    <!-- Actions Column -->
+    <ng-container matColumnDef="actions">
+      <th mat-header-cell *matHeaderCellDef class="actions-column">
+        Actions
+      </th>
+      <td mat-cell *matCellDef="let user" class="actions-column">
+        <button 
+          mat-icon-button 
+          [matMenuTriggerFor]="menu"
+          (click)="$event.stopPropagation()"
+          aria-label="User actions"
+          [matTooltip]="'Actions for ' + user.name">
+          <mat-icon>more_vert</mat-icon>
+        </button>
+
+        <mat-menu #menu="matMenu">
+          <!-- View Details -->
+          <button 
+            mat-menu-item 
+            (click)="userSelect.emit(user)">
+            <mat-icon>visibility</mat-icon>
+            <span>View Details</span>
+          </button>
+
+          <!-- Edit -->
+          <button 
+            mat-menu-item 
+            (click)="onAction('edit', user, $event)"
+            *hasPermission="'update_users'">
+            <mat-icon>edit</mat-icon>
+            <span>Edit User</span>
+          </button>
+
+          <mat-divider></mat-divider>
+
+          <!-- Ban/Unban -->
+          <button 
+            mat-menu-item 
+            *ngIf="isActionAvailable('ban', user)"
+            (click)="onAction('ban', user, $event)"
+            *hasPermission="'ban_users'"
+            class="warn-action">
+            <mat-icon>block</mat-icon>
+            <span>Ban User</span>
+          </button>
+
+          <button 
+            mat-menu-item 
+            *ngIf="isActionAvailable('unban', user)"
+            (click)="onAction('unban', user, $event)"
+            *hasPermission="'ban_users'"
+            class="success-action">
+            <mat-icon>check_circle</mat-icon>
+            <span>Unban User</span>
+          </button>
+
+          <!-- Suspend/Unsuspend -->
+          <button 
+            mat-menu-item 
+            *ngIf="isActionAvailable('suspend', user)"
+            (click)="onAction('suspend', user, $event)"
+            *hasPermission="'suspend_users'"
+            class="warn-action">
+            <mat-icon>pause_circle</mat-icon>
+            <span>Suspend User</span>
+          </button>
+
+          <button 
+            mat-menu-item 
+            *ngIf="isActionAvailable('unsuspend', user)"
+            (click)="onAction('unsuspend', user, $event)"
+            *hasPermission="'suspend_users'"
+            class="success-action">
+            <mat-icon>play_circle</mat-icon>
+            <span>Unsuspend User</span>
+          </button>
+
+          <mat-divider></mat-divider>
+
+          <!-- Assign Roles -->
+          <button 
+            mat-menu-item 
+            (click)="onAction('assignRoles', user, $event)"
+            *hasPermission="'assign_roles'">
+            <mat-icon>admin_panel_settings</mat-icon>
+            <span>Assign Roles</span>
+          </button>
+
+          <!-- View Activity -->
+          <button 
+            mat-menu-item 
+            (click)="onAction('activity', user, $event)">
+            <mat-icon>history</mat-icon>
+            <span>View Activity</span>
+          </button>
+
+          <!-- View Permissions -->
+          <button 
+            mat-menu-item 
+            (click)="onAction('permissions', user, $event)">
+            <mat-icon>security</mat-icon>
+            <span>View Permissions</span>
+          </button>
+
+          <mat-divider></mat-divider>
+
+          <!-- Reset Password -->
+          <button 
+            mat-menu-item 
+            (click)="onAction('resetPassword', user, $event)"
+            *hasPermission="'reset_passwords'">
+            <mat-icon>lock_reset</mat-icon>
+            <span>Reset Password</span>
+          </button>
+
+          <!-- Delete User (Dangerous) -->
+          <button 
+            mat-menu-item 
+            (click)="onAction('delete', user, $event)"
+            *hasPermission="'delete_users'"
+            class="danger-action">
+            <mat-icon>delete</mat-icon>
+            <span>Delete User</span>
+          </button>
+        </mat-menu>
+      </td>
+    </ng-container>
+
+    <!-- Table Header -->
+    <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
+
+    <!-- Table Rows -->
+    <tr 
+      mat-row 
+      *matRowDef="let row; columns: displayedColumns;"
+      (click)="onRowClick(row, $event)"
+      [class.selected]="selection.isSelected(row)"
+      class="clickable-row"
+      [attr.aria-label]="'User row for ' + row.name"
+      tabindex="0"
+      (keydown.enter)="onRowClick(row, $event)"
+      (keydown.space)="onRowClick(row, $event)">
+    </tr>
+
+    <!-- Empty State -->
+    <tr class="mat-row" *matNoDataRow>
+      <td class="mat-cell empty-row" [attr.colspan]="displayedColumns.length">
+        <div class="empty-state">
+          <mat-icon class="empty-icon">search_off</mat-icon>
+          <p>No users found</p>
+        </div>
+      </td>
+    </tr>
+  </table>
+
+  <!-- Loading Overlay -->
+  <div class="loading-overlay" *ngIf="loading">
+    <mat-spinner diameter="40"></mat-spinner>
+    <p>Loading users...</p>
+  </div>
+</div>
+
+<!-- Selection Summary -->
+<div class="selection-summary" *ngIf="selection.hasValue()">
+  <span class="selection-count">
+    {{ selection.selected.length }} user{{ selection.selected.length !== 1 ? 's' : '' }} selected
+  </span>
+  <button 
+    mat-button 
+    (click)="selection.clear(); emitSelectionChange()"
+    class="clear-selection">
+    <mat-icon>clear</mat-icon>
+    Clear Selection
+  </button>
+</div>

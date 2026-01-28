@@ -1,0 +1,587 @@
+.dialog-title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 24px 24px 16px;
+  margin: 0;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.12);
+
+  mat-icon {
+    font-size: 32px;
+    width: 32px;
+    height: 32px;
+  }
+
+  span {
+    font-size: 24px;
+    font-weight: 500;
+    color: rgba(0, 0, 0, 0.87);
+  }
+}
+
+.dialog-content {
+  padding: 0;
+  max-height: 70vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.dialog-header {
+  padding: 24px 24px 16px;
+  background: rgba(63, 81, 181, 0.04);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.12);
+
+  .subtitle {
+    margin: 0 0 16px 0;
+    font-size: 14px;
+    color: rgba(0, 0, 0, 0.6);
+    line-height: 1.5;
+  }
+
+  .summary-stats {
+    mat-chip-set {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    mat-chip {
+      font-weight: 500;
+
+      mat-icon {
+        font-size: 18px;
+        width: 18px;
+        height: 18px;
+      }
+    }
+  }
+}
+
+.quick-actions {
+  display: flex;
+  gap: 12px;
+  padding: 16px 24px;
+  background: white;
+  flex-wrap: wrap;
+
+  button {
+    mat-icon {
+      margin-right: 4px;
+    }
+  }
+}
+
+.suggestions-container {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0;
+}
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 64px 24px;
+  text-align: center;
+  color: rgba(0, 0, 0, 0.5);
+
+  mat-icon {
+    font-size: 64px;
+    width: 64px;
+    height: 64px;
+    opacity: 0.3;
+    margin-bottom: 16px;
+  }
+
+  h3 {
+    margin: 0 0 8px 0;
+    font-size: 20px;
+    font-weight: 500;
+  }
+
+  p {
+    margin: 0;
+    font-size: 14px;
+    max-width: 400px;
+  }
+}
+
+.suggestions-list {
+  padding: 0;
+
+  mat-list-item {
+    height: auto;
+    min-height: unset;
+    padding: 0;
+    border-left: 4px solid transparent;
+    transition: all 0.2s ease;
+
+    &.approved {
+      background: rgba(76, 175, 80, 0.08);
+      border-left-color: #4caf50;
+
+      .approval-action mat-checkbox {
+        ::ng-deep .mdc-checkbox__background {
+          border-color: #4caf50;
+        }
+      }
+    }
+
+    &.high-confidence {
+      &::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        right: 0;
+        width: 0;
+        height: 0;
+        border-style: solid;
+        border-width: 0 32px 32px 0;
+        border-color: transparent #4caf50 transparent transparent;
+        opacity: 0.2;
+      }
+    }
+
+    &:hover {
+      background: rgba(0, 0, 0, 0.04);
+    }
+  }
+
+  .suggestion-content {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr auto;
+    gap: 24px;
+    padding: 24px;
+    width: 100%;
+    align-items: center;
+
+    @media (max-width: 960px) {
+      grid-template-columns: 1fr;
+      gap: 16px;
+    }
+  }
+
+  .route-info {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+
+    .route-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+
+      .route-path {
+        font-family: 'Roboto Mono', monospace;
+        font-size: 13px;
+        color: rgba(0, 0, 0, 0.87);
+        background: rgba(0, 0, 0, 0.05);
+        padding: 4px 8px;
+        border-radius: 4px;
+      }
+    }
+
+    .route-handler {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: rgba(0, 0, 0, 0.6);
+      font-size: 12px;
+
+      mat-icon {
+        font-size: 16px;
+        width: 16px;
+        height: 16px;
+      }
+    }
+  }
+
+  .mapping-arrow {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    mat-icon {
+      font-size: 32px;
+      width: 32px;
+      height: 32px;
+      color: var(--mdc-theme-primary, #3f51b5);
+      opacity: 0.5;
+    }
+
+    @media (max-width: 960px) {
+      transform: rotate(90deg);
+    }
+  }
+
+  .permission-info {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+
+    mat-chip {
+      width: fit-content;
+
+      mat-icon {
+        font-size: 18px;
+        width: 18px;
+        height: 18px;
+      }
+    }
+
+    .confidence-chip {
+      font-weight: 600;
+    }
+
+    .reason-type-chip {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+  }
+
+  .approval-action {
+    display: flex;
+    justify-content: center;
+
+    mat-checkbox {
+      ::ng-deep .mdc-label {
+        font-weight: 500;
+      }
+    }
+  }
+}
+
+// Expansion Panel Styling
+.reason-panel {
+  margin: 0 24px 16px;
+  box-shadow: none;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+
+  mat-expansion-panel-header {
+    background: rgba(0, 0, 0, 0.02);
+
+    mat-panel-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: rgba(0, 0, 0, 0.87);
+      font-weight: 500;
+
+      mat-icon {
+        font-size: 20px;
+        width: 20px;
+        height: 20px;
+      }
+    }
+
+    mat-panel-description {
+      color: rgba(0, 0, 0, 0.6);
+      font-size: 12px;
+    }
+  }
+
+  .reason-content {
+    padding: 16px;
+    background: white;
+  }
+
+  .reason-explanation {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 24px;
+
+    .reason-icon {
+      flex-shrink: 0;
+      color: #ff9800;
+      font-size: 24px;
+      width: 24px;
+      height: 24px;
+    }
+
+    p {
+      margin: 0;
+      color: rgba(0, 0, 0, 0.87);
+      line-height: 1.6;
+      font-size: 14px;
+    }
+  }
+
+  .metadata {
+    margin-bottom: 24px;
+    padding: 16px;
+    background: rgba(0, 0, 0, 0.02);
+    border-radius: 4px;
+
+    h4 {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin: 0 0 12px 0;
+      font-size: 13px;
+      font-weight: 500;
+      color: rgba(0, 0, 0, 0.6);
+
+      mat-icon {
+        font-size: 18px;
+        width: 18px;
+        height: 18px;
+      }
+    }
+
+    mat-list {
+      background: transparent;
+
+      mat-list-item {
+        height: auto;
+        min-height: 40px;
+        font-size: 12px;
+      }
+    }
+  }
+
+  .confidence-breakdown {
+    h4 {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin: 0 0 12px 0;
+      font-size: 14px;
+      font-weight: 500;
+      color: rgba(0, 0, 0, 0.87);
+
+      mat-icon {
+        font-size: 20px;
+        width: 20px;
+        height: 20px;
+      }
+    }
+
+    .confidence-bar {
+      width: 100%;
+      height: 8px;
+      background: rgba(0, 0, 0, 0.1);
+      border-radius: 4px;
+      overflow: hidden;
+      margin-bottom: 12px;
+
+      .confidence-fill {
+        height: 100%;
+        transition: width 0.3s ease;
+        border-radius: 4px;
+
+        &.high {
+          background: linear-gradient(90deg, #4caf50, #66bb6a);
+        }
+
+        &.medium {
+          background: linear-gradient(90deg, #ff9800, #ffb74d);
+        }
+
+        &.low {
+          background: linear-gradient(90deg, #f44336, #ef5350);
+        }
+      }
+    }
+
+    .confidence-description {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      margin: 0;
+      font-size: 12px;
+      color: rgba(0, 0, 0, 0.6);
+      line-height: 1.5;
+
+      mat-icon {
+        flex-shrink: 0;
+        font-size: 18px;
+        width: 18px;
+        height: 18px;
+        margin-top: 2px;
+      }
+    }
+  }
+}
+
+.dialog-actions {
+  padding: 16px 24px;
+  border-top: 1px solid rgba(0, 0, 0, 0.12);
+  background: white;
+
+  button {
+    mat-spinner {
+      display: inline-block;
+      margin-right: 8px;
+    }
+
+    mat-icon {
+      margin-right: 4px;
+    }
+
+    span {
+      vertical-align: middle;
+    }
+  }
+}
+
+// Dark theme support
+.dark-theme {
+  .dialog-title span {
+    color: rgba(255, 255, 255, 0.87);
+  }
+
+  .dialog-title,
+  .dialog-header,
+  .quick-actions {
+    border-color: rgba(255, 255, 255, 0.12);
+  }
+
+  .dialog-header {
+    background: rgba(63, 81, 181, 0.08);
+
+    .subtitle {
+      color: rgba(255, 255, 255, 0.6);
+    }
+  }
+
+  .quick-actions {
+    background: #424242;
+  }
+
+  .empty-state {
+    color: rgba(255, 255, 255, 0.5);
+  }
+
+  .suggestions-list {
+    mat-list-item {
+      &.approved {
+        background: rgba(76, 175, 80, 0.16);
+      }
+
+      &:hover {
+        background: rgba(255, 255, 255, 0.04);
+      }
+    }
+
+    .route-info {
+      .route-path {
+        color: rgba(255, 255, 255, 0.87);
+        background: rgba(255, 255, 255, 0.08);
+      }
+
+      .route-handler {
+        color: rgba(255, 255, 255, 0.6);
+      }
+    }
+  }
+
+  .reason-panel {
+    border-color: rgba(255, 255, 255, 0.12);
+
+    mat-expansion-panel-header {
+      background: rgba(255, 255, 255, 0.02);
+
+      mat-panel-title {
+        color: rgba(255, 255, 255, 0.87);
+      }
+
+      mat-panel-description {
+        color: rgba(255, 255, 255, 0.6);
+      }
+    }
+
+    .reason-content {
+      background: #424242;
+    }
+
+    .reason-explanation p {
+      color: rgba(255, 255, 255, 0.87);
+    }
+
+    .metadata {
+      background: rgba(255, 255, 255, 0.02);
+
+      h4 {
+        color: rgba(255, 255, 255, 0.6);
+      }
+    }
+
+    .confidence-breakdown {
+      h4 {
+        color: rgba(255, 255, 255, 0.87);
+      }
+
+      .confidence-bar {
+        background: rgba(255, 255, 255, 0.1);
+      }
+
+      .confidence-description {
+        color: rgba(255, 255, 255, 0.6);
+      }
+    }
+  }
+
+  .dialog-actions {
+    background: #424242;
+    border-color: rgba(255, 255, 255, 0.12);
+  }
+}
+
+// Responsive adjustments
+@media (max-width: 768px) {
+  .dialog-title {
+    padding: 16px;
+
+    mat-icon {
+      font-size: 28px;
+      width: 28px;
+      height: 28px;
+    }
+
+    span {
+      font-size: 20px;
+    }
+  }
+
+  .dialog-header {
+    padding: 16px;
+  }
+
+  .quick-actions {
+    padding: 12px 16px;
+    flex-direction: column;
+
+    button {
+      width: 100%;
+    }
+  }
+
+  .suggestions-list {
+    .suggestion-content {
+      padding: 16px;
+    }
+
+    .mapping-arrow mat-icon {
+      font-size: 24px;
+      width: 24px;
+      height: 24px;
+    }
+  }
+
+  .reason-panel {
+    margin: 0 16px 12px;
+  }
+
+  .dialog-actions {
+    flex-direction: column-reverse;
+    gap: 8px;
+
+    button {
+      width: 100%;
+      margin: 0;
+    }
+  }
+}

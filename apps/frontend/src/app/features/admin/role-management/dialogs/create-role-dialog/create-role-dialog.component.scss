@@ -1,0 +1,56 @@
+h2[mat-dialog-title] {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+mat-dialog-content {
+  min-height: 400px;
+  max-height: 70vh;
+  overflow-y: auto;
+}
+
+.step-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 16px 0;
+
+  .full-width {
+    width: 100%;
+  }
+}
+
+.stepper-actions {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 16px;
+}
+
+.review-section {
+  padding: 16px;
+
+  h3 {
+    margin: 0 0 16px 0;
+    font-size: 18px;
+  }
+
+  .review-item {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 12px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--mat-divider-color);
+
+    strong {
+      min-width: 140px;
+      color: var(--mat-text-secondary);
+    }
+
+    span {
+      flex: 1;
+      color: var(--mat-text-primary);
+    }
+  }
+}

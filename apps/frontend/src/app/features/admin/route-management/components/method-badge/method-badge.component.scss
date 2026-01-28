@@ -1,0 +1,213 @@
+// ============================================================================
+// Method Badge Component Styles
+// ============================================================================
+
+:host {
+  display: inline-block;
+  vertical-align: middle;
+}
+
+.method-badge {
+  font-weight: 700;
+  font-size: 11px;
+  letter-spacing: 0.5px;
+  min-width: 60px;
+  height: 24px;
+  line-height: 24px;
+  text-align: center;
+  border-radius: 12px;
+  cursor: default;
+  user-select: none;
+
+  // Override Material chip defaults
+  ::ng-deep {
+    .mdc-evolution-chip__cell {
+      padding: 0;
+    }
+
+    .mdc-evolution-chip__text-label {
+      font-weight: 700;
+      font-size: 11px;
+      letter-spacing: 0.5px;
+      padding: 0 12px;
+    }
+
+    .mdc-evolution-chip__action {
+      padding: 0;
+    }
+  }
+
+  // ============================================================================
+  // HTTP Method Colors (REST Semantics)
+  // ============================================================================
+
+  &.method-get {
+    background-color: #2196F3;
+    color: white;
+
+    &:hover {
+      background-color: #1976D2;
+    }
+  }
+
+  &.method-post {
+    background-color: #4CAF50;
+    color: white;
+
+    &:hover {
+      background-color: #388E3C;
+    }
+  }
+
+  &.method-put {
+    background-color: #FF9800;
+    color: white;
+
+    &:hover {
+      background-color: #F57C00;
+    }
+  }
+
+  &.method-delete {
+    background-color: #F44336;
+    color: white;
+
+    &:hover {
+      background-color: #D32F2F;
+    }
+  }
+
+  &.method-patch {
+    background-color: #9C27B0;
+    color: white;
+
+    &:hover {
+      background-color: #7B1FA2;
+    }
+  }
+
+  // ============================================================================
+  // Size Variants
+  // ============================================================================
+
+  &.size-small {
+    font-size: 10px;
+    min-width: 50px;
+    height: 20px;
+    line-height: 20px;
+    border-radius: 10px;
+
+    ::ng-deep {
+      .mdc-evolution-chip__text-label {
+        font-size: 10px;
+        padding: 0 10px;
+      }
+    }
+  }
+
+  &.size-large {
+    font-size: 12px;
+    min-width: 70px;
+    height: 28px;
+    line-height: 28px;
+    border-radius: 14px;
+
+    ::ng-deep {
+      .mdc-evolution-chip__text-label {
+        font-size: 12px;
+        padding: 0 14px;
+      }
+    }
+  }
+}
+
+// ============================================================================
+// Dark Theme
+// ============================================================================
+
+.dark-theme {
+  .method-badge {
+    // Slightly brighter colors for dark theme
+    &.method-get {
+      background-color: #42A5F5;
+
+      &:hover {
+        background-color: #2196F3;
+      }
+    }
+
+    &.method-post {
+      background-color: #66BB6A;
+
+      &:hover {
+        background-color: #4CAF50;
+      }
+    }
+
+    &.method-put {
+      background-color: #FFA726;
+
+      &:hover {
+        background-color: #FF9800;
+      }
+    }
+
+    &.method-delete {
+      background-color: #EF5350;
+
+      &:hover {
+        background-color: #F44336;
+      }
+    }
+
+    &.method-patch {
+      background-color: #AB47BC;
+
+      &:hover {
+        background-color: #9C27B0;
+      }
+    }
+  }
+}
+
+// ============================================================================
+// High Contrast Mode
+// ============================================================================
+
+@media (prefers-contrast: high) {
+  .method-badge {
+    border: 2px solid currentColor;
+    font-weight: 800;
+  }
+}
+
+// ============================================================================
+// Print Styles
+// ============================================================================
+
+@media print {
+  .method-badge {
+    border: 1px solid currentColor;
+    background-color: white !important;
+
+    &.method-get {
+      color: #2196F3;
+    }
+
+    &.method-post {
+      color: #4CAF50;
+    }
+
+    &.method-put {
+      color: #FF9800;
+    }
+
+    &.method-delete {
+      color: #F44336;
+    }
+
+    &.method-patch {
+      color: #9C27B0;
+    }
+  }
+}

@@ -17,6 +17,8 @@ import { RoutesController } from './routes/routes.controller';
 import { User } from '../users/entities/user.entity';
 import { AccessControlSeederService } from './seeds/access-control.seeder.service';
 import { AccessControlSeederController } from './seeds/access-control.seeder.controller';
+import { SecurityAuditModule } from './security-audit/security-audit.module';
+import { RouteManagementModule } from './route-management/route-management.module';
 
 @Module({
   imports: [
@@ -30,6 +32,8 @@ import { AccessControlSeederController } from './seeds/access-control.seeder.con
     ]),
     UsersModule,
     forwardRef(() => RolesModule),
+    SecurityAuditModule, // Import SecurityAuditModule for audit logging
+    RouteManagementModule, // Import Route Management Module for auto-discovery and mapping
   ],
   controllers: [
     PermissionsController,
@@ -49,6 +53,8 @@ import { AccessControlSeederController } from './seeds/access-control.seeder.con
     RolePermissionsService,
     RoutesService,
     AccessControlSeederService,
+    SecurityAuditModule, // Export for use in other modules
+    RouteManagementModule, // Export route management for other modules
   ],
 })
 export class AccessControlModule {}

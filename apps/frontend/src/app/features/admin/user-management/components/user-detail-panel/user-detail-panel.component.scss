@@ -1,0 +1,282 @@
+/**
+ * User Detail Panel Styles
+ *
+ * @description
+ * Right-side drawer styling with responsive design.
+ * Supports desktop (400px), tablet (350px), and mobile (100%) layouts.
+ */
+
+@use '@angular/material' as mat;
+
+// ============================================================================
+// DRAWER CONTAINER
+// ============================================================================
+
+.detail-panel-container {
+  width: 100%;
+  height: 100%;
+}
+
+.detail-panel-drawer {
+  width: 400px;
+  min-width: 400px;
+  max-width: 100vw;
+  border-left: 1px solid rgba(0, 0, 0, 0.12);
+  background-color: var(--mat-sidenav-container-background-color);
+
+  // Smooth slide-in animation
+  transition: transform 300ms cubic-bezier(0.4, 0, 0.2, 1);
+
+  // Dark theme support
+  @media (prefers-color-scheme: dark) {
+    border-left-color: rgba(255, 255, 255, 0.12);
+  }
+}
+
+// ============================================================================
+// PANEL CONTENT
+// ============================================================================
+
+.detail-panel-content {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+}
+
+// ============================================================================
+// HEADER SECTION
+// ============================================================================
+
+.panel-header {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 24px 16px;
+  background-color: var(--mat-sidenav-container-background-color);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+
+  // Dark theme support
+  @media (prefers-color-scheme: dark) {
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  }
+}
+
+.close-button {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  z-index: 10;
+}
+
+.user-avatar-large {
+  margin-bottom: 16px;
+}
+
+.user-name {
+  margin: 0 0 4px 0;
+  font-size: 20px;
+  font-weight: 500;
+  text-align: center;
+  color: var(--mat-toolbar-container-text-color);
+}
+
+.user-email {
+  margin: 0 0 12px 0;
+  font-size: 14px;
+  color: var(--mat-toolbar-container-text-color);
+  opacity: 0.7;
+  text-align: center;
+}
+
+.status-badge-container {
+  display: flex;
+  justify-content: center;
+}
+
+// ============================================================================
+// TABS SECTION
+// ============================================================================
+
+.detail-tabs {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+
+  ::ng-deep {
+    // Tab header
+    .mat-mdc-tab-header {
+      border-bottom: 1px solid rgba(0, 0, 0, 0.12);
+
+      @media (prefers-color-scheme: dark) {
+        border-bottom-color: rgba(255, 255, 255, 0.12);
+      }
+    }
+
+    // Tab labels
+    .mat-mdc-tab {
+      min-width: 80px;
+      padding: 0 16px;
+
+      .tab-icon {
+        margin-right: 8px;
+        font-size: 20px;
+        width: 20px;
+        height: 20px;
+      }
+
+      .tab-label {
+        font-size: 14px;
+      }
+    }
+
+    // Tab body wrapper
+    .mat-mdc-tab-body-wrapper {
+      flex: 1;
+      overflow: hidden;
+    }
+
+    // Individual tab body
+    .mat-mdc-tab-body {
+      overflow: hidden;
+    }
+
+    .mat-mdc-tab-body-content {
+      height: 100%;
+      overflow: auto;
+    }
+  }
+}
+
+.tab-content {
+  padding: 16px;
+  height: 100%;
+  overflow-y: auto;
+
+  // Custom scrollbar
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background-color: rgba(0, 0, 0, 0.2);
+    border-radius: 3px;
+
+    &:hover {
+      background-color: rgba(0, 0, 0, 0.3);
+    }
+  }
+
+  @media (prefers-color-scheme: dark) {
+    &::-webkit-scrollbar-thumb {
+      background-color: rgba(255, 255, 255, 0.2);
+
+      &:hover {
+        background-color: rgba(255, 255, 255, 0.3);
+      }
+    }
+  }
+}
+
+// ============================================================================
+// RESPONSIVE DESIGN
+// ============================================================================
+
+// Tablet (smaller drawer)
+@media (max-width: 768px) {
+  .detail-panel-drawer {
+    width: 350px;
+    min-width: 350px;
+  }
+
+  .panel-header {
+    padding: 20px 12px;
+  }
+
+  .tab-content {
+    padding: 12px;
+  }
+}
+
+// Mobile (full-screen drawer)
+@media (max-width: 600px) {
+  .detail-panel-drawer {
+    width: 100vw;
+    min-width: 100vw;
+    max-width: 100vw;
+  }
+
+  .panel-header {
+    padding: 16px;
+  }
+
+  .close-button {
+    top: 4px;
+    right: 4px;
+  }
+
+  .user-avatar-large {
+    margin-bottom: 12px;
+  }
+
+  .user-name {
+    font-size: 18px;
+  }
+
+  .detail-tabs ::ng-deep {
+    .mat-mdc-tab {
+      min-width: 60px;
+      padding: 0 12px;
+
+      .tab-label {
+        display: none; // Hide labels on mobile, show icons only
+      }
+
+      .tab-icon {
+        margin-right: 0;
+      }
+    }
+  }
+
+  .tab-content {
+    padding: 12px;
+  }
+}
+
+// ============================================================================
+// ACCESSIBILITY
+// ============================================================================
+
+// Focus indicators
+.close-button:focus-visible {
+  outline: 2px solid var(--mat-app-primary);
+  outline-offset: 2px;
+}
+
+// High contrast mode support
+@media (prefers-contrast: high) {
+  .detail-panel-drawer {
+    border-left-width: 2px;
+  }
+
+  .panel-header {
+    border-bottom: 2px solid currentColor;
+  }
+}
+
+// Reduced motion support
+@media (prefers-reduced-motion: reduce) {
+  .detail-panel-drawer {
+    transition: none;
+  }
+
+  .detail-tabs {
+    animation-duration: 0ms !important;
+  }
+}

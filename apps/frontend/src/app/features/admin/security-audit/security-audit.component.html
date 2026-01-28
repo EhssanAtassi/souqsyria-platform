@@ -1,0 +1,109 @@
+<div class="security-audit-container">
+  <!-- Toolbar -->
+  <mat-toolbar color="primary" class="audit-toolbar">
+    <mat-toolbar-row>
+      <h1 class="toolbar-title">
+        <mat-icon>security</mat-icon>
+        Security Audit
+      </h1>
+
+      <span class="toolbar-spacer"></span>
+
+      <!-- Live Mode Indicator and Toggle -->
+      <app-live-indicator [enabled]="liveMode$ | async" />
+
+      <mat-slide-toggle
+        [ngModel]="liveMode()"
+        (ngModelChange)="liveMode.set($event)"
+        (change)="onLiveModeToggle()"
+        color="accent"
+        class="live-toggle"
+        aria-label="Toggle live mode for real-time updates">
+        Live Mode
+      </mat-slide-toggle>
+
+      <!-- Refresh Button -->
+      <button
+        mat-raised-button
+        color="accent"
+        (click)="refresh()"
+        class="refresh-button"
+        aria-label="Refresh security audit data">
+        <mat-icon>refresh</mat-icon>
+        Refresh
+      </button>
+
+      <!-- Export Menu -->
+      <button
+        mat-button
+        [matMenuTriggerFor]="exportMenu"
+        aria-label="Export audit data">
+        <mat-icon>download</mat-icon>
+        Export
+      </button>
+      <mat-menu #exportMenu="matMenu">
+        <button mat-menu-item (click)="export('json')">
+          <mat-icon>code</mat-icon>
+          <span>Export JSON</span>
+        </button>
+        <button mat-menu-item (click)="export('csv')">
+          <mat-icon>table_chart</mat-icon>
+          <span>Export CSV</span>
+        </button>
+      </mat-menu>
+    </mat-toolbar-row>
+  </mat-toolbar>
+
+  <!-- Loading Progress Bar -->
+  @if (loading$ | async) {
+    <mat-progress-bar mode="indeterminate" color="accent"></mat-progress-bar>
+  }
+
+  <!-- Metrics Dashboard Widget -->
+  <app-security-metrics-dashboard
+    [metrics]="metrics$ | async"
+    class="metrics-section" />
+
+  <!-- Content Area with Tabs -->
+  <div class="content-area">
+    <mat-tab-group
+      [(selectedIndex)]="selectedTabIndex"
+      (selectedIndexChange)="onTabChange($event)"
+      animationDuration="300ms"
+      class="audit-tabs">
+      <!-- Audit Log Tab -->
+      <mat-tab>
+        <ng-template mat-tab-label>
+          <mat-icon class="tab-icon">list</mat-icon>
+          Audit Log
+        </ng-template>
+        <app-audit-log-view />
+      </mat-tab>
+
+      <!-- Failed Attempts Tab -->
+      <mat-tab>
+        <ng-template mat-tab-label>
+          <mat-icon class="tab-icon">error</mat-icon>
+          Failed Attempts
+        </ng-template>
+        <app-failed-attempts-view />
+      </mat-tab>
+
+      <!-- Suspicious Activity Tab with Badge -->
+      <mat-tab>
+        <ng-template mat-tab-label>
+          <mat-icon
+            class="tab-icon"
+            [matBadge]="unresolvedAlertCount$ | async"
+            [matBadgeHidden]="(unresolvedAlertCount$ | async) === 0"
+            matBadgeColor="warn"
+            matBadgeSize="small">
+            warning
+          </mat-icon>
+          Suspicious Activity
+        </ng-template>
+        <app-suspicious-activity-view />
+      </mat-tab>
+    </mat-tab-group>
+  </div>
+</div>

@@ -38,7 +38,9 @@
     "test:cart-security": "jest --config ./test/jest-integration.json cart-security.integration.spec.ts",
     "test:cart-guards": "jest --testPathPattern=guards.*spec.ts",
     "validate:cart-security-simple": "ts-node scripts/validate-cart-security-simple.ts",
-    "validate:cart-security": "ts-node scripts/validate-cart-security.ts"
+    "validate:cart-security": "ts-node scripts/validate-cart-security.ts",
+    "seed:admin-roles": "ts-node src/scripts/seed-owner-admin-roles.ts",
+    "seed:test-users": "ts-node src/scripts/seed-test-users.ts"
   },
   "dependencies": {
     "@nestjs-modules/ioredis": "^2.0.2",

@@ -1,0 +1,202 @@
+<!-- User Security Tab Content -->
+<div class="security-tab-container">
+  <!-- Security Actions Card -->
+  <mat-card class="actions-card">
+    <mat-card-header>
+      <mat-card-title>Security Actions</mat-card-title>
+    </mat-card-header>
+
+    <mat-card-content>
+      <div class="actions-grid">
+        <!-- Ban/Unban Button -->
+        <!-- TODO: Add permission directive *hasPermission="'ban_users'" -->
+        @if (isBanned) {
+          <button
+            mat-raised-button
+            color="accent"
+            class="action-button unban-button"
+            (click)="onUnban()"
+            aria-label="Unban user"
+          >
+            <mat-icon>check_circle</mat-icon>
+            Unban User
+          </button>
+        } @else {
+          <button
+            mat-raised-button
+            color="warn"
+            class="action-button ban-button"
+            (click)="onBan()"
+            [disabled]="isSuspended"
+            aria-label="Ban user"
+          >
+            <mat-icon>block</mat-icon>
+            Ban User
+          </button>
+        }
+
+        <!-- Suspend Button -->
+        <!-- TODO: Add permission directive *hasPermission="'suspend_users'" -->
+        <button
+          mat-raised-button
+          color="warn"
+          class="action-button suspend-button"
+          (click)="onSuspend()"
+          [disabled]="isBanned"
+          aria-label="Suspend user"
+        >
+          <mat-icon>pause_circle</mat-icon>
+          Suspend User
+        </button>
+
+        <!-- Reset Password Button -->
+        <!-- TODO: Add permission directive *hasPermission="'manage_users'" -->
+        <button
+          mat-raised-button
+          color="primary"
+          class="action-button reset-button"
+          (click)="onResetPassword()"
+          aria-label="Reset user password"
+        >
+          <mat-icon>lock_reset</mat-icon>
+          Reset Password
+        </button>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Security Metrics Card -->
+  <mat-card class="metrics-card">
+    <mat-card-header>
+      <mat-card-title>Security Metrics</mat-card-title>
+    </mat-card-header>
+
+    <mat-card-content>
+      <div class="metrics-grid">
+        <!-- Failed Login Attempts -->
+        <div class="metric-item">
+          <mat-icon class="metric-icon" [class.warn]="failedLoginCount > 0">
+            {{ failedLoginCount > 0 ? 'error' : 'check_circle' }}
+          </mat-icon>
+          <div class="metric-content">
+            <div class="metric-label">Failed Login Attempts</div>
+            <div class="metric-value" [class.warn-value]="failedLoginCount > 0">
+              {{ failedLoginCount }}
+            </div>
+          </div>
+        </div>
+
+        <!-- Last Password Change -->
+        <div class="metric-item">
+          <mat-icon class="metric-icon">lock</mat-icon>
+          <div class="metric-content">
+            <div class="metric-label">Last Password Change</div>
+            <div class="metric-value">{{ lastPasswordChange }}</div>
+          </div>
+        </div>
+
+        <!-- Account Age -->
+        <div class="metric-item">
+          <mat-icon class="metric-icon">event</mat-icon>
+          <div class="metric-content">
+            <div class="metric-label">Account Age</div>
+            <div class="metric-value">{{ accountAgeDays }} days</div>
+          </div>
+        </div>
+
+        <!-- Two-Factor Status -->
+        <div class="metric-item">
+          <mat-icon class="metric-icon" [class.success]="user.twoFactorEnabled">
+            {{ user.twoFactorEnabled ? 'verified_user' : 'shield' }}
+          </mat-icon>
+          <div class="metric-content">
+            <div class="metric-label">Two-Factor Authentication</div>
+            <mat-chip-set aria-label="2FA status">
+              <mat-chip [color]="twoFactorColor" highlighted>
+                {{ twoFactorStatus }}
+              </mat-chip>
+            </mat-chip-set>
+          </div>
+        </div>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  <mat-divider class="section-divider" />
+
+  <!-- Recent Security Events Section -->
+  <div class="events-section">
+    <h3 class="section-title">
+      Recent Security Events
+      <span class="event-count">(Last 10)</span>
+    </h3>
+
+    <!-- Loading State -->
+    @if (loading()) {
+      <div class="loading-container">
+        <mat-spinner diameter="40" />
+        <p class="loading-text">Loading security events...</p>
+      </div>
+    }
+
+    <!-- Events List -->
+    @if (!loading() && hasSecurityEvents()) {
+      <mat-list class="events-list">
+        @for (event of securityEvents(); track event.id) {
+          <mat-list-item class="event-item">
+            <mat-icon
+              matListItemIcon
+              [style.color]="getEventColor(event)"
+            >
+              {{ getEventIcon(event) }}
+            </mat-icon>
+
+            <div matListItemTitle class="event-title">
+              <mat-chip
+                class="event-chip"
+                [style.background-color]="getEventColor(event)"
+                [style.color]="'#fff'"
+              >
+                {{ event.type | titlecase }}
+              </mat-chip>
+            </div>
+
+            <div matListItemLine class="event-description">
+              {{ event.description }}
+            </div>
+
+            @if (event.ipAddress) {
+              <div matListItemLine class="event-metadata">
+                <mat-icon class="metadata-icon">location_on</mat-icon>
+                IP: {{ event.ipAddress }}
+                @if (event.location) {
+                  • {{ event.location.city }}, {{ event.location.country }}
+                }
+              </div>
+            }
+
+            <div matListItemLine class="event-timestamp">
+              {{ event.timestamp | date: 'medium' }}
+              <span class="relative-time">
+                ({{ event.timestamp | relativeTime }})
+              </span>
+            </div>
+          </mat-list-item>
+
+          <mat-divider />
+        }
+      </mat-list>
+    }
+
+    <!-- Empty State -->
+    @if (!loading() && !hasSecurityEvents()) {
+      <div class="empty-state">
+        <mat-icon class="empty-icon">verified_user</mat-icon>
+        <h4 class="empty-title">No Security Events</h4>
+        <p class="empty-text">
+          No security-related activities have been recorded for this user.
+        </p>
+      </div>
+    }
+  </div>
+</div>

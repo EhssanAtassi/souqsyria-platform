@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import { IsNotEmpty, IsOptional, IsString, IsNumber, Min, Max } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 /**
@@ -14,7 +14,15 @@ export class CreateRoleDto {
   @IsOptional()
   @IsString()
   description?: string;
-  @IsOptional()
+
   @ApiProperty({ example: false, required: false })
+  @IsOptional()
   isDefault?: boolean;
+
+  @ApiProperty({ example: 50, required: false, description: 'Role priority (0-100, higher = more important)' })
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
+  @Max(100)
+  priority?: number;
 }

@@ -16,6 +16,9 @@ import { Order } from '../orders/entities/order.entity';
 import { VendorEntity } from '../vendors/entities/vendor.entity';
 import { StockAlertEntity } from '../stock/entities/stock-alert.entity';
 
+// Import User Management Module
+import { UserManagementModule } from './user-management/user-management.module';
+
 @Module({
   imports: [
     ConfigModule,
@@ -35,6 +38,8 @@ import { StockAlertEntity } from '../stock/entities/stock-alert.entity';
         secret: config.get<string>('JWT_SECRET'),
       }),
     }),
+    // Add User Management Module
+    UserManagementModule,
   ],
   controllers: [AdminAuthController, AdminDashboardController],
   providers: [AdminAuthService, AdminDashboardService],

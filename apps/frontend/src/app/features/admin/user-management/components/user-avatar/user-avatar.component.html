@@ -1,0 +1,46 @@
+<!--
+  User Avatar Component Template
+
+  Displays user avatar with intelligent fallback to initials.
+-->
+
+<div
+  class="user-avatar"
+  [class.avatar-small]="size === 'small'"
+  [class.avatar-medium]="size === 'medium'"
+  [class.avatar-large]="size === 'large'"
+  [class]="customClass"
+  [matTooltip]="showTooltip ? tooltipText() : ''"
+  [attr.aria-label]="tooltipText() + ' avatar'"
+  role="img"
+>
+  <!-- Image Avatar -->
+  @if (shouldShowImage()) {
+    <img
+      [src]="user.avatarUrl"
+      [alt]="tooltipText() + ' avatar'"
+      class="avatar-image"
+      (load)="onImageLoad()"
+      (error)="onImageError()"
+      loading="lazy"
+    />
+  }
+
+  <!-- Initials Fallback -->
+  @if (shouldShowInitials()) {
+    <div
+      class="avatar-initials"
+      [style.background-color]="backgroundColor()"
+      [style.font-size.px]="getInitialsFontSize()"
+    >
+      <span class="initials-text">{{ initials() }}</span>
+    </div>
+  }
+
+  <!-- Loading State -->
+  @if (imageLoading() && user.avatarUrl) {
+    <div class="avatar-loading">
+      <div class="spinner"></div>
+    </div>
+  }
+</div>

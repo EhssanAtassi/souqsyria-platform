@@ -1,0 +1,249 @@
+<h2 mat-dialog-title>
+  <mat-icon>download</mat-icon>
+  Export Configuration
+</h2>
+
+<mat-dialog-content class="dialog-content">
+  <form [formGroup]="exportForm" class="export-form">
+    <!-- Format Selection -->
+    <section class="form-section">
+      <h3 class="section-title">
+        <mat-icon>description</mat-icon>
+        Export Format
+      </h3>
+
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>File Format</mat-label>
+        <mat-select formControlName="format">
+          <mat-option value="json">
+            <div class="format-option">
+              <mat-icon>code</mat-icon>
+              <div class="format-details">
+                <strong>JSON</strong>
+                <span>Machine-readable, preserves structure</span>
+              </div>
+            </div>
+          </mat-option>
+          <mat-option value="csv">
+            <div class="format-option">
+              <mat-icon>table_chart</mat-icon>
+              <div class="format-details">
+                <strong>CSV</strong>
+                <span>Spreadsheet format, easy to edit</span>
+              </div>
+            </div>
+          </mat-option>
+        </mat-select>
+        <mat-hint>Choose the file format for export</mat-hint>
+      </mat-form-field>
+    </section>
+
+    <!-- What to Include -->
+    <section class="form-section">
+      <h3 class="section-title">
+        <mat-icon>checklist</mat-icon>
+        Include Routes
+      </h3>
+
+      <div class="checkbox-group">
+        <mat-checkbox formControlName="includeMapped" color="primary">
+          <div class="checkbox-content">
+            <mat-icon class="checkbox-icon">check_circle</mat-icon>
+            <div class="checkbox-label">
+              <strong>Mapped Routes</strong>
+              <span>Routes with assigned permissions ({{ mockStats.mappedCount }})</span>
+            </div>
+          </div>
+        </mat-checkbox>
+
+        <mat-checkbox formControlName="includeUnmapped" color="primary">
+          <div class="checkbox-content">
+            <mat-icon class="checkbox-icon">cancel</mat-icon>
+            <div class="checkbox-label">
+              <strong>Unmapped Routes</strong>
+              <span>Routes without permissions ({{ mockStats.unmappedCount }})</span>
+            </div>
+          </div>
+        </mat-checkbox>
+
+        <mat-checkbox formControlName="includePublic" color="primary">
+          <div class="checkbox-content">
+            <mat-icon class="checkbox-icon">public</mat-icon>
+            <div class="checkbox-label">
+              <strong>Public Routes</strong>
+              <span>Publicly accessible routes ({{ mockStats.publicCount }})</span>
+            </div>
+          </div>
+        </mat-checkbox>
+      </div>
+
+      @if (!isExportValid()) {
+        <div class="validation-warning">
+          <mat-icon>warning</mat-icon>
+          <span>Please select at least one route type to export</span>
+        </div>
+      }
+    </section>
+
+    <!-- Additional Options -->
+    <section class="form-section">
+      <h3 class="section-title">
+        <mat-icon>tune</mat-icon>
+        Export Options
+      </h3>
+
+      <div class="checkbox-group">
+        <mat-checkbox formControlName="includeMetadata" color="primary">
+          <div class="checkbox-content">
+            <mat-icon class="checkbox-icon">info</mat-icon>
+            <div class="checkbox-label">
+              <strong>Include Metadata</strong>
+              <span>Timestamps, controller, handler details</span>
+            </div>
+          </div>
+        </mat-checkbox>
+
+        @if (isJsonFormat) {
+          <mat-checkbox formControlName="prettyPrint" color="primary">
+            <div class="checkbox-content">
+              <mat-icon class="checkbox-icon">auto_fix_high</mat-icon>
+              <div class="checkbox-label">
+                <strong>Pretty-Print JSON</strong>
+                <span>Human-readable formatting with indentation</span>
+              </div>
+            </div>
+          </mat-checkbox>
+        }
+      </div>
+    </section>
+
+    <!-- Export Preview -->
+    <section class="form-section preview-section">
+      <h3 class="section-title">
+        <mat-icon>preview</mat-icon>
+        Export Preview
+      </h3>
+
+      <mat-card appearance="outlined" class="preview-card">
+        <mat-card-content>
+          <div class="preview-stats">
+            <div class="stat-item">
+              <div class="stat-icon">
+                <mat-icon>description</mat-icon>
+              </div>
+              <div class="stat-content">
+                <span class="stat-label">Format</span>
+                <span class="stat-value">{{ exportForm.value.format?.toUpperCase() }}</span>
+              </div>
+            </div>
+
+            <mat-divider [vertical]="true"></mat-divider>
+
+            <div class="stat-item">
+              <div class="stat-icon">
+                <mat-icon>route</mat-icon>
+              </div>
+              <div class="stat-content">
+                <span class="stat-label">Routes</span>
+                <span class="stat-value" [class.zero]="getRouteCount() === 0">
+                  {{ getRouteCount() }}
+                </span>
+              </div>
+            </div>
+
+            <mat-divider [vertical]="true"></mat-divider>
+
+            <div class="stat-item">
+              <div class="stat-icon">
+                <mat-icon>data_usage</mat-icon>
+              </div>
+              <div class="stat-content">
+                <span class="stat-label">Estimated Size</span>
+                <span class="stat-value">{{ getEstimatedSize() }}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Export Breakdown -->
+          <div class="export-breakdown">
+            <h4>Export Contents:</h4>
+            <mat-chip-set aria-label="Export contents">
+              @if (exportForm.value.includeMapped) {
+                <mat-chip highlighted>
+                  <mat-icon matChipAvatar>check_circle</mat-icon>
+                  {{ mockStats.mappedCount }} Mapped
+                </mat-chip>
+              }
+              @if (exportForm.value.includeUnmapped) {
+                <mat-chip highlighted>
+                  <mat-icon matChipAvatar>cancel</mat-icon>
+                  {{ mockStats.unmappedCount }} Unmapped
+                </mat-chip>
+              }
+              @if (exportForm.value.includePublic) {
+                <mat-chip highlighted>
+                  <mat-icon matChipAvatar>public</mat-icon>
+                  {{ mockStats.publicCount }} Public
+                </mat-chip>
+              }
+              @if (exportForm.value.includeMetadata) {
+                <mat-chip>
+                  <mat-icon matChipAvatar>info</mat-icon>
+                  With Metadata
+                </mat-chip>
+              }
+              @if (isJsonFormat && exportForm.value.prettyPrint) {
+                <mat-chip>
+                  <mat-icon matChipAvatar>auto_fix_high</mat-icon>
+                  Pretty Print
+                </mat-chip>
+              }
+            </mat-chip-set>
+          </div>
+
+          <!-- Sample Output -->
+          <div class="sample-output">
+            <h4>Sample Output:</h4>
+            <pre class="code-preview">
+@if (exportForm.value.format === 'json') {
+  @if (exportForm.value.prettyPrint) {<code>{{'{'}}"exportDate": "2026-01-22T10:30:00.000Z",
+  "totalRoutes": {{ getRouteCount() }},
+  "routes": [
+    {{'{'}}"id": "route-1",
+      "path": "/api/users",
+      "method": "GET",
+      "permissionId": "perm-1",
+      ...
+    {{'}'}}
+  ]
+{{'}'}}</code>} @else {<code>{{"{"}}{{'"'}}exportDate{{'"'}}:{{'"'}}2026-01-22T10:30:00.000Z{{'"'}},{{'"'}}totalRoutes{{'"'}}:{{ getRouteCount() }},{{'"'}}routes{{'"'}}:[...]{{"}"}}</code>}
+} @else {<code>ID,Path,Method,Controller,Handler,Permission,Is Public
+route-1,/api/users,GET,UserController,findAll,user.read,false
+route-2,/api/products,GET,ProductController,findAll,,false</code>}
+            </pre>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </section>
+  </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end" class="dialog-actions">
+  <button mat-button (click)="onCancel()" [disabled]="loading()">
+    Cancel
+  </button>
+  <button
+    mat-raised-button
+    color="primary"
+    [disabled]="!isExportValid() || exportForm.invalid || loading()"
+    (click)="onExport()"
+  >
+    @if (loading()) {
+      <mat-spinner diameter="20"></mat-spinner>
+      <span>Exporting...</span>
+    } @else {
+      <mat-icon>download</mat-icon>
+      <span>Export</span>
+    }
+  </button>
+</mat-dialog-actions>

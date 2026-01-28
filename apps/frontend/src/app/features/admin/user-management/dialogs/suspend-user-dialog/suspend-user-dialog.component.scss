@@ -1,0 +1,508 @@
+/**
+ * Suspend User Dialog Styles
+ *
+ * Implements Material Design principles with:
+ * - 8px grid spacing system
+ * - Proper elevation and shadows
+ * - Responsive layout (mobile-first)
+ * - Accessible color contrast (WCAG AA)
+ * - Special styling for date preview and duration selection
+ */
+
+// Variables
+$dialog-width: 550px;
+$mobile-breakpoint: 600px;
+$spacing-unit: 8px;
+$border-radius: 4px;
+
+// Dialog Container
+.suspend-user-dialog {
+  display: flex;
+  flex-direction: column;
+  min-height: 500px;
+  max-height: 90vh;
+
+  // Dialog Header
+  .dialog-header {
+    display: flex;
+    align-items: center;
+    gap: $spacing-unit * 1.5;
+    padding: $spacing-unit * 2 $spacing-unit * 3;
+    background: rgba(0, 0, 0, 0.03);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.12);
+    margin: (-$spacing-unit * 3) (-$spacing-unit * 3) 0;
+
+    .dialog-icon {
+      font-size: 28px;
+      width: 28px;
+      height: 28px;
+      color: #f57c00; // Material Orange 700
+    }
+
+    h2 {
+      margin: 0;
+      font-size: 20px;
+      font-weight: 500;
+      color: rgba(0, 0, 0, 0.87);
+    }
+  }
+
+  // Dialog Content
+  .dialog-content {
+    padding: $spacing-unit * 3;
+    overflow-y: auto;
+    flex: 1;
+
+    // User Information Section
+    .user-info-section {
+      display: flex;
+      align-items: center;
+      gap: $spacing-unit * 2;
+      padding: $spacing-unit * 2;
+      background: rgba(0, 0, 0, 0.02);
+      border-radius: $border-radius;
+      margin-bottom: $spacing-unit * 3;
+
+      .user-avatar {
+        flex-shrink: 0;
+      }
+
+      .user-details {
+        flex: 1;
+        min-width: 0;
+
+        .user-name {
+          margin: 0 0 $spacing-unit * 0.5;
+          font-size: 16px;
+          font-weight: 500;
+          color: rgba(0, 0, 0, 0.87);
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
+
+        .user-email {
+          margin: 0;
+          font-size: 14px;
+          color: rgba(0, 0, 0, 0.6);
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
+      }
+    }
+
+    // Warning Banner
+    .warning-banner {
+      display: flex;
+      align-items: flex-start;
+      gap: $spacing-unit * 1.5;
+      padding: $spacing-unit * 2;
+      background: #fff3e0; // Material Orange 50
+      border-left: 4px solid #f57c00; // Material Orange 700
+      border-radius: $border-radius;
+      margin-bottom: $spacing-unit * 3;
+
+      .warning-icon {
+        flex-shrink: 0;
+        font-size: 24px;
+        width: 24px;
+        height: 24px;
+        color: #f57c00;
+        margin-top: 2px;
+      }
+
+      .warning-content {
+        flex: 1;
+        font-size: 14px;
+        line-height: 1.5;
+        color: rgba(0, 0, 0, 0.87);
+
+        strong {
+          font-weight: 600;
+          color: #f57c00;
+        }
+      }
+    }
+
+    // Suspend Form
+    .suspend-form {
+      display: flex;
+      flex-direction: column;
+      gap: $spacing-unit * 2.5;
+
+      .full-width {
+        width: 100%;
+      }
+
+      // Section Title
+      .section-title {
+        margin: 0 0 $spacing-unit * 1.5;
+        font-size: 15px;
+        font-weight: 500;
+        color: rgba(0, 0, 0, 0.87);
+      }
+
+      // Duration Section
+      .duration-section {
+        padding: $spacing-unit * 2;
+        background: rgba(0, 0, 0, 0.02);
+        border-radius: $border-radius;
+        border: 1px solid rgba(0, 0, 0, 0.12);
+
+        .duration-type-group {
+          display: flex;
+          flex-direction: column;
+          gap: $spacing-unit * 1.5;
+          margin-bottom: $spacing-unit * 2;
+
+          ::ng-deep .mat-mdc-radio-button {
+            .mdc-form-field {
+              font-size: 14px;
+            }
+          }
+        }
+
+        .duration-options,
+        .date-picker-options {
+          margin-top: $spacing-unit * 2;
+          animation: fadeIn 0.2s ease-in;
+        }
+
+        // Date Preview Box
+        .date-preview {
+          display: flex;
+          align-items: flex-start;
+          gap: $spacing-unit * 1.5;
+          padding: $spacing-unit * 2;
+          margin-top: $spacing-unit * 2;
+          background: #e3f2fd; // Material Blue 50
+          border: 2px solid #2196f3; // Material Blue 500
+          border-radius: $border-radius;
+          animation: slideIn 0.3s ease-out;
+
+          .preview-icon {
+            flex-shrink: 0;
+            font-size: 24px;
+            width: 24px;
+            height: 24px;
+            color: #1976d2; // Material Blue 700
+            margin-top: 2px;
+          }
+
+          .preview-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: $spacing-unit * 0.5;
+
+            strong {
+              font-size: 13px;
+              font-weight: 600;
+              color: rgba(0, 0, 0, 0.87);
+            }
+
+            .preview-date {
+              font-size: 16px;
+              font-weight: 500;
+              color: #1976d2;
+            }
+
+            .preview-time {
+              font-size: 13px;
+              color: rgba(0, 0, 0, 0.6);
+            }
+          }
+        }
+      }
+
+      // Checkbox Field
+      .checkbox-field {
+        margin: $spacing-unit 0;
+
+        .checkbox-label {
+          display: flex;
+          flex-direction: column;
+          gap: $spacing-unit * 0.5;
+
+          strong {
+            font-weight: 500;
+            color: rgba(0, 0, 0, 0.87);
+          }
+
+          .checkbox-hint {
+            font-size: 12px;
+            color: rgba(0, 0, 0, 0.6);
+            line-height: 1.4;
+          }
+        }
+      }
+
+      // Information Section
+      .info-section {
+        display: flex;
+        align-items: flex-start;
+        gap: $spacing-unit * 1.5;
+        padding: $spacing-unit * 1.5;
+        background: rgba(33, 150, 243, 0.08);
+        border-radius: $border-radius;
+        margin-top: $spacing-unit;
+
+        .info-icon {
+          flex-shrink: 0;
+          font-size: 20px;
+          width: 20px;
+          height: 20px;
+          color: #1976d2;
+        }
+
+        .info-text {
+          margin: 0;
+          font-size: 13px;
+          line-height: 1.5;
+          color: rgba(0, 0, 0, 0.7);
+        }
+      }
+    }
+  }
+
+  // Dialog Actions
+  .dialog-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: $spacing-unit * 2;
+    padding: $spacing-unit * 2 $spacing-unit * 3;
+    background: rgba(0, 0, 0, 0.03);
+    border-top: 1px solid rgba(0, 0, 0, 0.12);
+    margin: 0 (-$spacing-unit * 3) (-$spacing-unit * 3);
+
+    .cancel-button {
+      min-width: 80px;
+    }
+
+    .submit-button {
+      min-width: 140px;
+      display: flex;
+      align-items: center;
+      gap: $spacing-unit;
+
+      mat-icon {
+        font-size: 18px;
+        width: 18px;
+        height: 18px;
+        margin: 0;
+      }
+
+      &:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+      }
+    }
+  }
+}
+
+// Animations
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+// Material Form Field Customization
+::ng-deep {
+  .suspend-user-dialog {
+    .mat-mdc-form-field {
+      .mat-mdc-text-field-wrapper {
+        .mat-mdc-form-field-flex {
+          .mat-mdc-form-field-infix {
+            padding-top: 16px;
+            padding-bottom: 16px;
+          }
+        }
+      }
+
+      // Error message styling
+      .mat-mdc-form-field-error {
+        font-size: 12px;
+        margin-top: $spacing-unit * 0.5;
+      }
+
+      // Hint styling
+      .mat-mdc-form-field-hint {
+        font-size: 12px;
+        color: rgba(0, 0, 0, 0.6);
+      }
+    }
+
+    // Date picker styling
+    .mat-datepicker-toggle {
+      color: rgba(0, 0, 0, 0.54);
+    }
+  }
+}
+
+// Responsive Design
+@media (max-width: $mobile-breakpoint) {
+  .suspend-user-dialog {
+    max-height: 100vh;
+    width: 100vw;
+
+    .dialog-header {
+      padding: $spacing-unit * 2;
+      margin: (-$spacing-unit * 2) (-$spacing-unit * 2) 0;
+
+      h2 {
+        font-size: 18px;
+      }
+    }
+
+    .dialog-content {
+      padding: $spacing-unit * 2;
+
+      .user-info-section {
+        flex-direction: column;
+        align-items: flex-start;
+        text-align: center;
+
+        .user-details {
+          width: 100%;
+        }
+      }
+
+      .warning-banner {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+
+        .warning-icon {
+          margin-top: 0;
+        }
+      }
+
+      .suspend-form {
+        .duration-section {
+          padding: $spacing-unit * 1.5;
+
+          .duration-type-group {
+            gap: $spacing-unit;
+          }
+
+          .date-preview {
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+
+            .preview-icon {
+              margin-top: 0;
+            }
+          }
+        }
+      }
+    }
+
+    .dialog-actions {
+      flex-direction: column-reverse;
+      gap: $spacing-unit;
+      padding: $spacing-unit * 2;
+      margin: 0 (-$spacing-unit * 2) (-$spacing-unit * 2);
+
+      .cancel-button,
+      .submit-button {
+        width: 100%;
+        min-width: unset;
+      }
+    }
+  }
+}
+
+// Dark Theme Support
+@media (prefers-color-scheme: dark) {
+  .suspend-user-dialog {
+    .dialog-header {
+      background: rgba(255, 255, 255, 0.05);
+      border-bottom-color: rgba(255, 255, 255, 0.12);
+
+      h2 {
+        color: rgba(255, 255, 255, 0.87);
+      }
+    }
+
+    .user-info-section {
+      background: rgba(255, 255, 255, 0.03);
+
+      .user-name {
+        color: rgba(255, 255, 255, 0.87);
+      }
+
+      .user-email {
+        color: rgba(255, 255, 255, 0.6);
+      }
+    }
+
+    .warning-banner {
+      background: rgba(245, 124, 0, 0.15);
+
+      .warning-content {
+        color: rgba(255, 255, 255, 0.87);
+      }
+    }
+
+    .duration-section {
+      background: rgba(255, 255, 255, 0.03);
+      border-color: rgba(255, 255, 255, 0.12);
+
+      .date-preview {
+        background: rgba(33, 150, 243, 0.15);
+        border-color: #2196f3;
+
+        .preview-content {
+          strong,
+          .preview-date {
+            color: rgba(255, 255, 255, 0.87);
+          }
+
+          .preview-time {
+            color: rgba(255, 255, 255, 0.6);
+          }
+        }
+      }
+    }
+
+    .info-section {
+      background: rgba(33, 150, 243, 0.15);
+
+      .info-text {
+        color: rgba(255, 255, 255, 0.7);
+      }
+    }
+
+    .dialog-actions {
+      background: rgba(255, 255, 255, 0.05);
+      border-top-color: rgba(255, 255, 255, 0.12);
+    }
+  }
+}
+
+// Print Styles
+@media print {
+  .suspend-user-dialog {
+    .dialog-actions {
+      display: none;
+    }
+  }
+}

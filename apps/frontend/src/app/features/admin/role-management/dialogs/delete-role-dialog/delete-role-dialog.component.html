@@ -1,0 +1,56 @@
+<h2 mat-dialog-title class="warn-title">
+  <mat-icon color="warn">warning</mat-icon>
+  Delete Role?
+</h2>
+
+<mat-dialog-content>
+  @if (!canDelete) {
+    <div class="error-message">
+      <mat-icon color="warn">block</mat-icon>
+      <div>
+        <h3>Cannot Delete This Role</h3>
+        @if (data.role.isSystem) {
+          <p>This is a system role and cannot be deleted.</p>
+        } @else if (data.role.userCount && data.role.userCount > 0) {
+          <p>This role is currently assigned to {{ data.role.userCount }} user(s).</p>
+          <p>Remove all users from this role before deletion.</p>
+        }
+      </div>
+    </div>
+  } @else {
+    <div class="warning-message">
+      <mat-icon color="warn">warning_amber</mat-icon>
+      <div>
+        <p><strong>Warning:</strong> This action cannot be undone.</p>
+        <p>You are about to delete the role <strong>{{ data.role.displayName }}</strong> ({{ data.role.name }}).</p>
+        <p>This will remove {{ data.role.permissionIds.length }} permission(s) associated with this role.</p>
+      </div>
+    </div>
+
+    <mat-form-field appearance="outline" class="full-width confirmation-field">
+      <mat-label>Type role name to confirm</mat-label>
+      <input
+        matInput
+        [formControl]="confirmationControl"
+        required
+        placeholder="{{ data.role.name }}"
+        autocomplete="off">
+      <mat-hint>Type: <strong>{{ data.role.name }}</strong></mat-hint>
+      @if (confirmationControl.hasError('pattern') && confirmationControl.touched) {
+        <mat-error>Role name does not match</mat-error>
+      }
+    </mat-form-field>
+  }
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button (click)="onCancel()">Cancel</button>
+  <button
+    mat-raised-button
+    color="warn"
+    (click)="onDelete()"
+    [disabled]="!canDelete || !confirmationControl.valid">
+    <mat-icon>delete</mat-icon>
+    Delete Role
+  </button>
+</mat-dialog-actions>

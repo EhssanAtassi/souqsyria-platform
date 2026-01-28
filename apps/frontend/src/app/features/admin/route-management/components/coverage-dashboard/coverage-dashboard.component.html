@@ -1,0 +1,122 @@
+<mat-card class="coverage-dashboard">
+  <mat-card-header>
+    <mat-card-title>Coverage Statistics</mat-card-title>
+    <mat-card-subtitle>
+      Last updated: {{ formatRelativeTime(stats?.lastUpdated || null) }}
+    </mat-card-subtitle>
+  </mat-card-header>
+
+  <mat-card-content>
+    <!-- Stats Grid -->
+    <div class="stats-grid">
+      <!-- Total Routes -->
+      <div
+        class="stat-item"
+        [matTooltip]="getTooltip('total')"
+        matTooltipPosition="above"
+      >
+        <div class="stat-icon">
+          <mat-icon>route</mat-icon>
+        </div>
+        <div class="stat-content">
+          <div class="stat-value">{{ totalRoutes() }}</div>
+          <div class="stat-label">Total Routes</div>
+        </div>
+      </div>
+
+      <!-- Mapped Routes -->
+      <div
+        class="stat-item success"
+        [matTooltip]="getTooltip('mapped')"
+        matTooltipPosition="above"
+      >
+        <div class="stat-icon">
+          <mat-icon color="primary">check_circle</mat-icon>
+        </div>
+        <div class="stat-content">
+          <div class="stat-value">{{ mappedRoutes() }}</div>
+          <div class="stat-label">Mapped</div>
+        </div>
+      </div>
+
+      <!-- Unmapped Routes (Critical) -->
+      <div
+        class="stat-item"
+        [class.danger]="hasUnmappedRoutes()"
+        [matTooltip]="getTooltip('unmapped')"
+        matTooltipPosition="above"
+      >
+        <div class="stat-icon">
+          <mat-icon [color]="hasUnmappedRoutes() ? 'warn' : undefined">
+            cancel
+          </mat-icon>
+        </div>
+        <div class="stat-content">
+          <div class="stat-value" [class.warning]="hasUnmappedRoutes()">
+            {{ unmappedRoutes() }}
+          </div>
+          <div class="stat-label">Unmapped</div>
+          @if (hasUnmappedRoutes()) {
+            <div class="stat-alert">
+              <mat-icon>warning</mat-icon>
+              <span>Needs attention</span>
+            </div>
+          }
+        </div>
+      </div>
+
+      <!-- Public Routes -->
+      <div
+        class="stat-item"
+        [matTooltip]="getTooltip('public')"
+        matTooltipPosition="above"
+      >
+        <div class="stat-icon">
+          <mat-icon color="accent">public</mat-icon>
+        </div>
+        <div class="stat-content">
+          <div class="stat-value">{{ publicRoutes() }}</div>
+          <div class="stat-label">Public</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Coverage Progress Bar -->
+    <div class="coverage-section">
+      <div class="coverage-header">
+        <div class="coverage-label">
+          <mat-icon [color]="getCoverageColor()">analytics</mat-icon>
+          <span>Coverage</span>
+        </div>
+        <div class="coverage-percentage">
+          <span class="percentage-value">
+            {{ coveragePercentage() | number:'1.1-1' }}%
+          </span>
+          <span class="coverage-status" [class]="getCoverageColor()">
+            {{ getCoverageStatus() }}
+          </span>
+        </div>
+      </div>
+
+      <mat-progress-bar
+        mode="determinate"
+        [value]="coveragePercentage()"
+        [color]="getCoverageColor()"
+        class="coverage-bar"
+      >
+      </mat-progress-bar>
+
+      <div class="coverage-hint">
+        @if (coveragePercentage() < 100) {
+          <mat-icon>info</mat-icon>
+          <span>
+            {{ unmappedRoutes() }} route{{ unmappedRoutes() !== 1 ? 's' : '' }} remaining to map
+          </span>
+        } @else {
+          <mat-icon>check_circle</mat-icon>
+          <span>All routes are properly mapped!</span>
+        }
+      </div>
+    </div>
+  </mat-card-content>
+</mat-card>

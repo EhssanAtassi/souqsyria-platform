@@ -1,0 +1,234 @@
+/**
+ * Permission Search Component Styles
+ *
+ * @description
+ * Styles for the permission search input with keyboard hints,
+ * loading states, and results count display.
+ */
+
+// ============================================================================
+// COMPONENT HOST
+// ============================================================================
+
+:host {
+  display: block;
+  width: 100%;
+}
+
+// ============================================================================
+// SEARCH CONTAINER
+// ============================================================================
+
+.permission-search-container {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 16px;
+  background: white;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.12);
+  transition: all 0.2s ease;
+
+  &.focused {
+    background: rgba(63, 81, 181, 0.02);
+    border-bottom-color: rgba(63, 81, 181, 0.3);
+  }
+}
+
+// ============================================================================
+// SEARCH FIELD
+// ============================================================================
+
+.search-field {
+  width: 100%;
+  margin: 0;
+
+  ::ng-deep {
+    .mat-mdc-form-field-flex {
+      align-items: center;
+    }
+
+    .mat-mdc-form-field-icon-prefix {
+      margin-right: 8px;
+      color: rgba(0, 0, 0, 0.54);
+    }
+
+    .mat-mdc-form-field-icon-suffix {
+      margin-left: 8px;
+    }
+  }
+}
+
+// ============================================================================
+// SEARCH SPINNER
+// ============================================================================
+
+.search-spinner {
+  ::ng-deep circle {
+    stroke: rgba(63, 81, 181, 0.8);
+  }
+}
+
+// ============================================================================
+// KEYBOARD HINT
+// ============================================================================
+
+.keyboard-hint {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  color: rgba(0, 0, 0, 0.54);
+  white-space: nowrap;
+
+  kbd {
+    display: inline-block;
+    padding: 2px 6px;
+    font-family: 'Roboto Mono', monospace;
+    font-size: 11px;
+    font-weight: 600;
+    line-height: 1;
+    color: rgba(0, 0, 0, 0.87);
+    background: rgba(0, 0, 0, 0.06);
+    border: 1px solid rgba(0, 0, 0, 0.12);
+    border-radius: 3px;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  }
+}
+
+// ============================================================================
+// RESULTS COUNT
+// ============================================================================
+
+.results-count {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: rgba(63, 81, 181, 0.08);
+  border-radius: 4px;
+  transition: all 0.2s ease;
+
+  &.no-results {
+    background: rgba(244, 67, 54, 0.08);
+
+    .results-icon {
+      color: #f44336;
+    }
+
+    .results-text {
+      color: #f44336;
+    }
+  }
+}
+
+.results-icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+  color: rgba(63, 81, 181, 0.8);
+  transition: color 0.2s ease;
+}
+
+.results-text {
+  font-size: 13px;
+  font-weight: 500;
+  color: rgba(0, 0, 0, 0.87);
+  transition: color 0.2s ease;
+}
+
+// ============================================================================
+// DARK THEME
+// ============================================================================
+
+.dark-theme {
+  .permission-search-container {
+    background: #424242;
+    border-bottom-color: rgba(255, 255, 255, 0.12);
+
+    &.focused {
+      background: rgba(63, 81, 181, 0.1);
+      border-bottom-color: rgba(63, 81, 181, 0.5);
+    }
+  }
+
+  .keyboard-hint {
+    color: rgba(255, 255, 255, 0.7);
+
+    kbd {
+      color: rgba(255, 255, 255, 0.87);
+      background: rgba(255, 255, 255, 0.1);
+      border-color: rgba(255, 255, 255, 0.2);
+    }
+  }
+
+  .results-count {
+    background: rgba(63, 81, 181, 0.15);
+
+    &.no-results {
+      background: rgba(244, 67, 54, 0.15);
+    }
+  }
+
+  .results-text {
+    color: rgba(255, 255, 255, 0.87);
+  }
+
+  ::ng-deep {
+    .mat-mdc-form-field-icon-prefix {
+      color: rgba(255, 255, 255, 0.7);
+    }
+  }
+}
+
+// ============================================================================
+// RESPONSIVE ADJUSTMENTS
+// ============================================================================
+
+@media (max-width: 768px) {
+  .keyboard-hint {
+    display: none;
+  }
+
+  .results-count {
+    font-size: 12px;
+  }
+
+  .results-icon {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+  }
+}
+
+// ============================================================================
+// ACCESSIBILITY
+// ============================================================================
+
+// High contrast mode
+@media (prefers-contrast: high) {
+  .permission-search-container {
+    border-bottom-width: 2px;
+  }
+
+  .keyboard-hint kbd {
+    border-width: 2px;
+  }
+
+  .results-count {
+    border: 1px solid rgba(0, 0, 0, 0.3);
+
+    &.no-results {
+      border-color: #f44336;
+    }
+  }
+}
+
+// Reduced motion
+@media (prefers-reduced-motion: reduce) {
+  .permission-search-container,
+  .results-count,
+  .results-icon,
+  .results-text {
+    transition: none;
+  }
+}

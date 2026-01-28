@@ -1,0 +1,413 @@
+/**
+ * User Management Component Styles
+ * 
+ * Design System:
+ * - 8px grid system
+ * - Material Design elevation levels
+ * - Responsive breakpoints (mobile: 600px, tablet: 960px, desktop: 1280px)
+ * - Accessibility: Focus indicators, contrast ratios (WCAG 2.1 AA)
+ */
+
+// Variables
+$sidebar-width: 280px;
+$detail-panel-width: 400px;
+$toolbar-height: 64px;
+$spacing-unit: 8px;
+
+// Breakpoints
+$mobile: 600px;
+$tablet: 960px;
+$desktop: 1280px;
+
+// Container
+.user-management-container {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  width: 100%;
+  overflow: hidden;
+  background-color: #f5f5f5;
+}
+
+// Top Toolbar
+.dashboard-toolbar {
+  position: relative;
+  z-index: 10;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  
+  .toolbar-title {
+    font-size: 20px;
+    font-weight: 500;
+    margin: 0 $spacing-unit * 2;
+  }
+  
+  .spacer {
+    flex: 1 1 auto;
+  }
+  
+  // Active filters indicator
+  .active-filters {
+    display: flex;
+    align-items: center;
+    gap: $spacing-unit;
+    padding: $spacing-unit;
+    background-color: rgba(255, 255, 255, 0.15);
+    border-radius: 4px;
+    margin-left: $spacing-unit * 2;
+    
+    .filter-icon {
+      font-size: 18px;
+      width: 18px;
+      height: 18px;
+    }
+    
+    .filter-count {
+      font-size: 14px;
+      font-weight: 500;
+    }
+    
+    .clear-filters-btn {
+      margin-left: $spacing-unit;
+    }
+  }
+  
+  // Responsive
+  @media (max-width: $mobile) {
+    .toolbar-title {
+      font-size: 16px;
+      margin: 0 $spacing-unit;
+    }
+    
+    .active-filters {
+      .filter-count {
+        display: none;
+      }
+    }
+  }
+}
+
+// Loading Progress Bar
+.loading-bar {
+  position: absolute;
+  top: $toolbar-height;
+  left: 0;
+  right: 0;
+  z-index: 20;
+}
+
+// Main Content Container
+.content-container {
+  flex: 1 1 auto;
+  position: relative;
+  overflow: hidden;
+}
+
+// Filters Sidebar
+.filters-drawer {
+  width: $sidebar-width;
+  border-right: 1px solid rgba(0, 0, 0, 0.12);
+  
+  .drawer-content {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    overflow-y: auto;
+    background-color: #ffffff;
+  }
+  
+  .drawer-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: $spacing-unit * 2;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.12);
+    
+    h2 {
+      margin: 0;
+      font-size: 18px;
+      font-weight: 500;
+      color: rgba(0, 0, 0, 0.87);
+    }
+  }
+  
+  .filter-section {
+    padding: $spacing-unit * 2;
+    
+    h3 {
+      margin: 0 0 $spacing-unit * 2 0;
+      font-size: 14px;
+      font-weight: 500;
+      color: rgba(0, 0, 0, 0.6);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    
+    .placeholder-text {
+      color: rgba(0, 0, 0, 0.4);
+      font-size: 14px;
+      font-style: italic;
+      margin: $spacing-unit 0;
+    }
+  }
+  
+  .quick-actions {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-unit;
+    
+    .action-btn {
+      width: 100%;
+      justify-content: flex-start;
+      
+      mat-icon {
+        margin-right: $spacing-unit;
+      }
+    }
+  }
+  
+  // Responsive
+  @media (max-width: $tablet) {
+    width: $sidebar-width - 40px;
+  }
+  
+  @media (max-width: $mobile) {
+    width: 100%;
+  }
+}
+
+// Main Content Area
+.main-content {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+  background-color: #f5f5f5;
+  position: relative;
+}
+
+// Table Container
+.table-container {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  padding: $spacing-unit * 2;
+  overflow: hidden;
+  
+  // Temporary placeholder
+  .table-placeholder {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    
+    mat-card {
+      min-width: 300px;
+      text-align: center;
+      
+      .placeholder-text {
+        color: rgba(0, 0, 0, 0.4);
+        font-style: italic;
+      }
+    }
+  }
+}
+
+// Empty State
+.empty-state {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: $spacing-unit * 4;
+  text-align: center;
+  
+  .empty-icon {
+    font-size: 80px;
+    width: 80px;
+    height: 80px;
+    color: rgba(0, 0, 0, 0.26);
+    margin-bottom: $spacing-unit * 2;
+  }
+  
+  h2 {
+    margin: $spacing-unit * 2 0 $spacing-unit 0;
+    font-size: 24px;
+    font-weight: 400;
+    color: rgba(0, 0, 0, 0.54);
+  }
+  
+  p {
+    margin: $spacing-unit 0 $spacing-unit * 3 0;
+    font-size: 14px;
+    color: rgba(0, 0, 0, 0.54);
+    max-width: 400px;
+    line-height: 1.5;
+  }
+}
+
+// Pagination
+.user-paginator {
+  border-top: 1px solid rgba(0, 0, 0, 0.12);
+  background-color: #ffffff;
+  
+  @media (max-width: $mobile) {
+    ::ng-deep .mat-paginator-page-size {
+      display: none;
+    }
+  }
+}
+
+// Loading Overlay
+.loading-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(2px);
+  z-index: 100;
+  
+  p {
+    margin-top: $spacing-unit * 2;
+    font-size: 14px;
+    color: rgba(0, 0, 0, 0.54);
+  }
+}
+
+// Detail Panel Placeholder
+.detail-panel-placeholder {
+  position: fixed;
+  top: $toolbar-height;
+  right: 0;
+  bottom: 0;
+  width: $detail-panel-width;
+  background-color: #ffffff;
+  border-left: 1px solid rgba(0, 0, 0, 0.12);
+  box-shadow: -2px 0 8px rgba(0, 0, 0, 0.1);
+  z-index: 15;
+  display: flex;
+  flex-direction: column;
+  
+  .panel-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: $spacing-unit * 2;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.12);
+    
+    h2 {
+      margin: 0;
+      font-size: 18px;
+      font-weight: 500;
+    }
+  }
+  
+  .panel-content {
+    flex: 1;
+    padding: $spacing-unit * 2;
+    overflow-y: auto;
+    
+    .placeholder-text {
+      color: rgba(0, 0, 0, 0.4);
+      font-style: italic;
+    }
+  }
+  
+  // Responsive
+  @media (max-width: $tablet) {
+    width: 100%;
+    max-width: $detail-panel-width;
+  }
+  
+  @media (max-width: $mobile) {
+    width: 100%;
+  }
+}
+
+// Accessibility
+// Focus indicators
+button:focus-visible,
+a:focus-visible {
+  outline: 2px solid #3f51b5;
+  outline-offset: 2px;
+}
+
+// Reduced motion
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+// High contrast mode
+@media (prefers-contrast: high) {
+  .filters-drawer,
+  .main-content,
+  .detail-panel-placeholder {
+    border-width: 2px;
+  }
+}
+
+// Print styles
+@media print {
+  .dashboard-toolbar,
+  .filters-drawer,
+  .user-paginator,
+  .detail-panel-placeholder {
+    display: none !important;
+  }
+  
+  .main-content {
+    overflow: visible !important;
+  }
+}
+
+// Dark theme support (if Angular Material theme includes dark mode)
+@media (prefers-color-scheme: dark) {
+  .user-management-container {
+    background-color: #303030;
+  }
+  
+  .filters-drawer .drawer-content,
+  .main-content,
+  .detail-panel-placeholder {
+    background-color: #424242;
+    color: rgba(255, 255, 255, 0.87);
+  }
+  
+  .empty-state {
+    h2,
+    p {
+      color: rgba(255, 255, 255, 0.7);
+    }
+    
+    .empty-icon {
+      color: rgba(255, 255, 255, 0.3);
+    }
+  }
+}
+
+// Animation keyframes
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.table-container,
+.empty-state {
+  animation: fadeIn 0.3s ease-out;
+}

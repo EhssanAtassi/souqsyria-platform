@@ -1,0 +1,375 @@
+@use '@angular/material' as mat;
+
+.route-tree-view {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background-color: var(--surface-background, #fafafa);
+}
+
+// Tree Controls
+.tree-controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px;
+  background-color: white;
+  border-bottom: 1px solid var(--border-color, rgba(0, 0, 0, 0.12));
+
+  &__group {
+    display: flex;
+    gap: 8px;
+  }
+
+  &__button {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    font-weight: 500;
+
+    mat-icon {
+      font-size: 20px;
+      width: 20px;
+      height: 20px;
+    }
+  }
+}
+
+// Tree Container
+.tree-container {
+  position: relative;
+  flex: 1;
+  overflow: auto;
+  padding: 16px;
+  
+  // Custom scrollbar
+  &::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  
+  &::-webkit-scrollbar-track {
+    background: var(--scrollbar-track, #f1f1f1);
+  }
+  
+  &::-webkit-scrollbar-thumb {
+    background: var(--scrollbar-thumb, #888);
+    border-radius: 4px;
+    
+    &:hover {
+      background: var(--scrollbar-thumb-hover, #555);
+    }
+  }
+}
+
+// Route Tree
+.route-tree {
+  background: transparent;
+}
+
+// Tree Node Base
+.tree-node {
+  display: flex;
+  align-items: flex-start;
+  min-height: 56px;
+  padding: 8px 0;
+
+  &__toggle {
+    margin-right: 8px;
+    flex-shrink: 0;
+  }
+
+  &__toggle-icon {
+    transition: transform 200ms cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  &__spacer {
+    visibility: hidden;
+    margin-right: 8px;
+    flex-shrink: 0;
+  }
+
+  // Controller Node
+  &--controller {
+    margin-bottom: 8px;
+  }
+
+  // Route Node
+  &--route {
+    padding-left: 24px;
+    margin-bottom: 4px;
+  }
+}
+
+// Controller Node
+.controller-node {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 16px;
+  background-color: white;
+  border: 1px solid var(--border-color, rgba(0, 0, 0, 0.12));
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  transition: box-shadow 200ms cubic-bezier(0.4, 0, 0.2, 1);
+
+  &:hover {
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+  }
+
+  &__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  &__title {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  &__icon {
+    color: var(--primary-color, #3f51b5);
+    font-size: 24px;
+    width: 24px;
+    height: 24px;
+  }
+
+  &__name {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text-primary, rgba(0, 0, 0, 0.87));
+  }
+
+  &__chip {
+    font-size: 12px;
+    font-weight: 500;
+    height: 24px;
+    padding: 0 8px;
+  }
+
+  &__coverage {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  &__progress {
+    height: 8px;
+    border-radius: 4px;
+  }
+
+  &__coverage-text {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-secondary, rgba(0, 0, 0, 0.6));
+  }
+}
+
+// Route Node
+.route-node {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 12px 16px;
+  background-color: white;
+  border: 1px solid var(--border-color, rgba(0, 0, 0, 0.12));
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 200ms cubic-bezier(0.4, 0, 0.2, 1);
+
+  &:hover {
+    background-color: var(--hover-background, rgba(0, 0, 0, 0.04));
+    border-color: var(--primary-color, #3f51b5);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+
+  &__info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex: 1;
+    min-width: 0;
+  }
+
+  &__path {
+    display: inline-block;
+    padding: 4px 8px;
+    background-color: var(--code-background, #f5f5f5);
+    border: 1px solid var(--code-border, rgba(0, 0, 0, 0.12));
+    border-radius: 4px;
+    font-family: 'Roboto Mono', monospace;
+    font-size: 13px;
+    color: var(--code-text, #1976d2);
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    flex: 1;
+    min-width: 0;
+  }
+
+  &__permission {
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+  }
+
+  &__chip {
+    font-size: 12px;
+    font-weight: 500;
+    height: 28px;
+    padding: 0 8px;
+
+    mat-icon {
+      font-size: 16px;
+      width: 16px;
+      height: 16px;
+    }
+
+    &--mapped {
+      background-color: var(--success-light, #e8f5e9);
+      color: var(--success-dark, #2e7d32);
+    }
+
+    &--public {
+      // Uses Material accent color
+    }
+
+    &--unmapped {
+      // Uses Material warn color
+    }
+  }
+
+  &__menu-trigger {
+    flex-shrink: 0;
+    margin-left: 8px;
+  }
+}
+
+// Loading Overlay
+.loading-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  background-color: rgba(255, 255, 255, 0.9);
+  z-index: 100;
+  backdrop-filter: blur(2px);
+
+  &__text {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-secondary, rgba(0, 0, 0, 0.6));
+    margin: 0;
+  }
+}
+
+// Responsive Design
+@media (max-width: 1024px) {
+  .route-node {
+    flex-wrap: wrap;
+
+    &__info {
+      flex: 1 1 100%;
+    }
+
+    &__permission {
+      flex: 1 1 auto;
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .tree-controls {
+    &__button {
+      span {
+        display: none;
+      }
+    }
+  }
+
+  .controller-node {
+    padding: 12px;
+
+    &__name {
+      font-size: 14px;
+    }
+  }
+
+  .route-node {
+    padding: 8px 12px;
+
+    &__path {
+      font-size: 12px;
+    }
+
+    &__chip {
+      font-size: 11px;
+      height: 24px;
+    }
+  }
+}
+
+// Accessibility
+.tree-node--route:focus-within {
+  outline: 2px solid var(--primary-color, #3f51b5);
+  outline-offset: 2px;
+}
+
+// High Contrast Mode
+@media (prefers-contrast: high) {
+  .controller-node,
+  .route-node {
+    border-width: 2px;
+  }
+
+  .controller-node__progress {
+    height: 10px;
+  }
+}
+
+// Print Styles
+@media print {
+  .tree-controls,
+  .route-node__menu-trigger,
+  .loading-overlay {
+    display: none;
+  }
+
+  .tree-container {
+    overflow: visible;
+  }
+
+  .controller-node,
+  .route-node {
+    box-shadow: none;
+    page-break-inside: avoid;
+  }
+}
+
+// Animations
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.tree-node {
+  animation: fadeIn 300ms cubic-bezier(0.4, 0, 0.2, 1);
+}

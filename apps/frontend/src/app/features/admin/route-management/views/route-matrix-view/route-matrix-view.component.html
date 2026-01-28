@@ -1,0 +1,137 @@
+<div class="route-matrix-view">
+  <!-- Matrix Header -->
+  <div class="matrix-header">
+    <div class="matrix-header__content">
+      <div class="matrix-header__title">
+        <mat-icon class="matrix-header__icon">grid_view</mat-icon>
+        <h2 class="matrix-header__heading">Permission Coverage Matrix</h2>
+      </div>
+      <p class="matrix-header__subtitle">
+        Visual representation of permission-to-route mappings across the application
+      </p>
+    </div>
+  </div>
+
+  <!-- Matrix Container -->
+  <div class="matrix-container">
+    <!-- Permission Coverage Cards -->
+    @for (permissionGroup of permissionCoverage$ | async; track trackByPermissionId($index, permissionGroup)) {
+      <mat-card
+        class="permission-card"
+        [style.background-color]="getHeatMapColor(permissionGroup.routeCount)">
+        <mat-card-header class="permission-card__header">
+          <div class="permission-card__title-group">
+            <mat-icon class="permission-card__icon">shield</mat-icon>
+            <mat-card-title class="permission-card__title">
+              {{ permissionGroup.permissionName }}
+            </mat-card-title>
+          </div>
+          <mat-card-subtitle class="permission-card__subtitle">
+            Protects
+            <strong>{{ permissionGroup.routeCount }}</strong>
+            {{ permissionGroup.routeCount === 1 ? 'route' : 'routes' }}
+          </mat-card-subtitle>
+        </mat-card-header>
+
+        <mat-card-content class="permission-card__content">
+          @if (permissionGroup.routeCount > 0) {
+            <!-- Route Chips Grid -->
+            <mat-chip-set class="route-chips" aria-label="Routes protected by this permission">
+              @for (route of permissionGroup.routes; track trackByRouteId($index, route)) {
+                <mat-chip
+                  [highlighted]="isSelected(route.id)"
+                  (click)="selectRoute(route.id)"
+                  class="route-chip"
+                  [attr.aria-label]="route.method + ' ' + route.path">
+                  <app-method-badge [method]="route.method" />
+                  <span class="route-chip__path">{{ route.path }}</span>
+                </mat-chip>
+              }
+            </mat-chip-set>
+          } @else {
+            <!-- Empty State -->
+            <div class="empty-state">
+              <mat-icon class="empty-state__icon">info_outline</mat-icon>
+              <p class="empty-state__text">No routes mapped to this permission</p>
+            </div>
+          }
+        </mat-card-content>
+
+        <mat-card-actions class="permission-card__actions">
+          <button
+            mat-button
+            (click)="viewPermissionDetails(permissionGroup.permissionId)"
+            class="permission-card__action">
+            <mat-icon>visibility</mat-icon>
+            <span>View Permission</span>
+          </button>
+          <button
+            mat-button
+            color="primary"
+            (click)="addRoutes(permissionGroup.permissionId)"
+            class="permission-card__action">
+            <mat-icon>add</mat-icon>
+            <span>Add Routes</span>
+          </button>
+        </mat-card-actions>
+      </mat-card>
+    }
+
+    <!-- Unmapped Routes Section -->
+    @if ((unmappedRoutes$ | async)?.length ?? 0 > 0) {
+      <mat-card class="unmapped-card">
+        <mat-card-header class="unmapped-card__header">
+          <div class="unmapped-card__title-group">
+            <mat-icon color="warn" class="unmapped-card__icon">warning</mat-icon>
+            <mat-card-title class="unmapped-card__title">
+              Unmapped Routes
+            </mat-card-title>
+          </div>
+          <mat-card-subtitle class="unmapped-card__subtitle">
+            <strong>{{ (unmappedRoutes$ | async)?.length }}</strong>
+            {{ (unmappedRoutes$ | async)?.length === 1 ? 'route' : 'routes' }}
+            without permission protection
+          </mat-card-subtitle>
+        </mat-card-header>
+
+        <mat-card-content class="unmapped-card__content">
+          <mat-chip-set class="route-chips" aria-label="Unmapped routes">
+            @for (route of unmappedRoutes$ | async; track trackByRouteId($index, route)) {
+              <mat-chip
+                color="warn"
+                [highlighted]="isSelected(route.id)"
+                (click)="selectRoute(route.id)"
+                class="route-chip route-chip--unmapped"
+                [attr.aria-label]="route.method + ' ' + route.path">
+                <app-method-badge [method]="route.method" />
+                <span class="route-chip__path">{{ route.path }}</span>
+              </mat-chip>
+            }
+          </mat-chip-set>
+        </mat-card-content>
+
+        <mat-card-actions class="unmapped-card__actions">
+          <button
+            mat-raised-button
+            color="accent"
+            (click)="autoMapUnmapped()"
+            class="unmapped-card__action-primary">
+            <mat-icon>auto_fix_high</mat-icon>
+            <span>Auto-Map with AI</span>
+          </button>
+          <p class="unmapped-card__action-hint">
+            AI will analyze route patterns and suggest appropriate permissions
+          </p>
+        </mat-card-actions>
+      </mat-card>
+    }
+  </div>
+
+  <!-- Loading Overlay -->
+  @if (loading$ | async) {
+    <div class="loading-overlay">
+      <mat-spinner diameter="48"></mat-spinner>
+      <p class="loading-overlay__text">Loading permission coverage...</p>
+    </div>
+  }
+</div>

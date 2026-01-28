@@ -1,0 +1,145 @@
+<!-- User Profile Tab Content -->
+<div class="profile-tab-container">
+  <!-- Personal Information Card -->
+  <mat-card class="info-card">
+    <mat-card-header>
+      <mat-card-title>Personal Information</mat-card-title>
+    </mat-card-header>
+
+    <mat-card-content>
+      <mat-list role="list">
+        <!-- Full Name -->
+        <mat-list-item role="listitem">
+          <mat-icon matListItemIcon>person</mat-icon>
+          <div matListItemTitle>Full Name</div>
+          <div matListItemLine>{{ fullName }}</div>
+        </mat-list-item>
+
+        <mat-divider />
+
+        <!-- Email -->
+        <mat-list-item role="listitem">
+          <mat-icon matListItemIcon>email</mat-icon>
+          <div matListItemTitle>Email Address</div>
+          <div matListItemLine>{{ user.email }}</div>
+          @if (user.isEmailVerified) {
+            <mat-icon
+              matListItemMeta
+              class="verified-icon"
+              aria-label="Email verified"
+            >
+              verified
+            </mat-icon>
+          }
+        </mat-list-item>
+
+        <mat-divider />
+
+        <!-- Phone -->
+        <mat-list-item role="listitem">
+          <mat-icon matListItemIcon>phone</mat-icon>
+          <div matListItemTitle>Phone Number</div>
+          <div matListItemLine>{{ phone }}</div>
+          @if (user.isPhoneVerified && user.phone) {
+            <mat-icon
+              matListItemMeta
+              class="verified-icon"
+              aria-label="Phone verified"
+            >
+              verified
+            </mat-icon>
+          }
+        </mat-list-item>
+
+        <mat-divider />
+
+        <!-- Address -->
+        <mat-list-item role="listitem">
+          <mat-icon matListItemIcon>location_on</mat-icon>
+          <div matListItemTitle>Address</div>
+          <div matListItemLine>{{ address }}</div>
+        </mat-list-item>
+      </mat-list>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Account Information Card -->
+  <mat-card class="info-card">
+    <mat-card-header>
+      <mat-card-title>Account Information</mat-card-title>
+    </mat-card-header>
+
+    <mat-card-content>
+      <mat-list role="list">
+        <!-- Registration Date -->
+        <mat-list-item role="listitem">
+          <mat-icon matListItemIcon>event</mat-icon>
+          <div matListItemTitle>Registration Date</div>
+          <div matListItemLine>
+            {{ user.createdAt | date: 'medium' }}
+          </div>
+          <div matListItemLine class="subtitle">
+            {{ accountAgeDays }} days ago
+          </div>
+        </mat-list-item>
+
+        <mat-divider />
+
+        <!-- Last Login -->
+        <mat-list-item role="listitem">
+          <mat-icon matListItemIcon>access_time</mat-icon>
+          <div matListItemTitle>Last Login</div>
+          @if (user.lastLoginAt) {
+            <div matListItemLine>
+              {{ user.lastLoginAt | date: 'medium' }}
+            </div>
+            <div matListItemLine class="subtitle">
+              {{ user.lastLoginAt | relativeTime }}
+            </div>
+          } @else {
+            <div matListItemLine class="no-data">Never logged in</div>
+          }
+        </mat-list-item>
+
+        <mat-divider />
+
+        <!-- Last Active -->
+        <mat-list-item role="listitem">
+          <mat-icon matListItemIcon>update</mat-icon>
+          <div matListItemTitle>Last Active</div>
+          @if (user.lastActiveAt) {
+            <div matListItemLine>
+              {{ user.lastActiveAt | date: 'medium' }}
+            </div>
+            <div matListItemLine class="subtitle">
+              {{ user.lastActiveAt | relativeTime }}
+            </div>
+          } @else {
+            <div matListItemLine class="no-data">No activity recorded</div>
+          }
+        </mat-list-item>
+
+        <mat-divider />
+
+        <!-- Account ID -->
+        <mat-list-item role="listitem">
+          <mat-icon matListItemIcon>fingerprint</mat-icon>
+          <div matListItemTitle>Account ID</div>
+          <div matListItemLine class="account-id">{{ user.id }}</div>
+        </mat-list-item>
+      </mat-list>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Edit Button -->
+  <!-- <button
+    mat-raised-button
+    color="primary"
+    class="edit-button"
+    (click)="onEdit()"
+    aria-label="Edit user profile"
+  >
+    <mat-icon>edit</mat-icon>
+    Edit Profile
+  </button> -->
+</div>

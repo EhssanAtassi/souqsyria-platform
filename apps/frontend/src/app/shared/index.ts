@@ -25,6 +25,9 @@ export * from './interfaces';
 // Data
 export * from './data/syrian-categories.data';
 
+// Directives
+export * from './directives';
+
 /**
  * Enterprise-grade shared module utilities
  * Provides centralized access to all shared functionality

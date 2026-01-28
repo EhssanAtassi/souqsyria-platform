@@ -1,0 +1,67 @@
+<!-- Permission Search Input Container -->
+<div class="permission-search-container" [class.focused]="isFocused()">
+  <!-- Search Input -->
+  <mat-form-field appearance="outline" class="search-field">
+    <mat-label>{{ placeholder }}</mat-label>
+
+    <!-- Search Icon Prefix -->
+    <mat-icon matPrefix>search</mat-icon>
+
+    <!-- Input Field -->
+    <input
+      matInput
+      #searchInput
+      type="text"
+      [formControl]="searchControl"
+      [placeholder]="placeholder"
+      [attr.aria-label]="getSearchInputAriaLabel()"
+      autocomplete="off"
+      (focus)="onFocus()"
+      (blur)="onBlur()"
+    />
+
+    <!-- Loading Spinner -->
+    @if (loading) {
+      <mat-spinner matSuffix diameter="20" class="search-spinner"></mat-spinner>
+    }
+
+    <!-- Clear Button -->
+    @if (hasSearchTerm() && !loading) {
+      <button
+        mat-icon-button
+        matSuffix
+        type="button"
+        [attr.aria-label]="getClearButtonAriaLabel()"
+        [matTooltip]="'Clear search'"
+        (click)="onClear()"
+      >
+        <mat-icon>clear</mat-icon>
+      </button>
+    }
+
+    <!-- Keyboard Shortcut Hint -->
+    @if (!hasSearchTerm() && !loading && showKeyboardHint) {
+      <span matSuffix class="keyboard-hint">
+        <kbd>Ctrl</kbd>+<kbd>F</kbd>
+      </span>
+    }
+  </mat-form-field>
+
+  <!-- Results Count -->
+  @if (shouldShowResultsCount()) {
+    <div class="results-count" [class.no-results]="hasSearchTerm() && resultsCount === 0">
+      <mat-icon class="results-icon">
+        @if (hasSearchTerm()) {
+          @if (resultsCount === 0) {
+            search_off
+          } @else {
+            check_circle
+          }
+        } @else {
+          info
+        }
+      </mat-icon>
+      <span class="results-text">{{ getResultsText() }}</span>
+    </div>
+  }
+</div>

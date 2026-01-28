@@ -1,0 +1,229 @@
+<h2 mat-dialog-title class="dialog-title">
+  <mat-icon color="accent">auto_fix_high</mat-icon>
+  <span>AI-Powered Auto-Mapping</span>
+</h2>
+
+<mat-dialog-content class="dialog-content">
+  <!-- Header Section -->
+  <div class="dialog-header">
+    <p class="subtitle">
+      Review and approve {{ data.totalSuggestions }} AI-generated permission mapping{{
+        data.totalSuggestions !== 1 ? 's' : ''
+      }}
+    </p>
+
+    <!-- Summary Stats -->
+    <div class="summary-stats">
+      <mat-chip-set aria-label="Mapping statistics">
+        <mat-chip>
+          <mat-icon matChipAvatar>smart_toy</mat-icon>
+          {{ data.suggestions.length }} Suggestion{{ data.suggestions.length !== 1 ? 's' : '' }}
+        </mat-chip>
+        <mat-chip [highlighted]="approvedCount() > 0" [color]="approvedCount() > 0 ? 'primary' : undefined">
+          <mat-icon matChipAvatar>{{ approvedCount() > 0 ? 'check_circle' : 'radio_button_unchecked' }}</mat-icon>
+          {{ approvedCount() }} Approved
+        </mat-chip>
+        <mat-chip>
+          <mat-icon matChipAvatar>trending_up</mat-icon>
+          {{ highConfidenceCount() }} High Confidence
+        </mat-chip>
+      </mat-chip-set>
+    </div>
+  </div>
+
+  <!-- Quick Actions -->
+  <div class="quick-actions">
+    <button mat-stroked-button (click)="approveAll()" [disabled]="loading()">
+      <mat-icon>done_all</mat-icon>
+      Approve All
+    </button>
+    <button mat-stroked-button (click)="rejectAll()" [disabled]="loading()">
+      <mat-icon>close</mat-icon>
+      Reject All
+    </button>
+    <button
+      mat-stroked-button
+      color="primary"
+      (click)="approveHighConfidence()"
+      [disabled]="loading() || highConfidenceCount() === 0"
+    >
+      <mat-icon>auto_awesome</mat-icon>
+      Approve High Confidence (≥80%)
+    </button>
+  </div>
+
+  <mat-divider></mat-divider>
+
+  <!-- Suggestions List -->
+  <div class="suggestions-container">
+    @if (data.suggestions.length === 0) {
+      <div class="empty-state">
+        <mat-icon>search_off</mat-icon>
+        <h3>No Suggestions Available</h3>
+        <p>No AI-generated mapping suggestions were found for the selected routes.</p>
+      </div>
+    } @else {
+      <mat-list class="suggestions-list">
+        @for (suggestion of data.suggestions; track trackBySuggestion($index, suggestion)) {
+          <mat-list-item
+            [class.approved]="isApproved(suggestion)"
+            [class.high-confidence]="suggestion.suggestedPermission.confidence >= 0.8"
+          >
+            <!-- Route Info -->
+            <div class="suggestion-content">
+              <div class="route-info">
+                <div class="route-header">
+                  <app-method-badge [method]="suggestion.route.method" />
+                  <code class="route-path">{{ suggestion.route.path }}</code>
+                </div>
+                <div class="route-handler">
+                  <mat-icon>code</mat-icon>
+                  <span>{{ suggestion.route.controller }}.{{ suggestion.route.handler }}()</span>
+                </div>
+              </div>
+
+              <!-- Arrow Indicator -->
+              <div class="mapping-arrow">
+                <mat-icon>arrow_forward</mat-icon>
+              </div>
+
+              <!-- Suggested Permission -->
+              <div class="permission-info">
+                <mat-chip color="accent">
+                  <mat-icon matChipAvatar>auto_fix_high</mat-icon>
+                  {{ suggestion.suggestedPermission.name }}
+                </mat-chip>
+
+                <!-- Confidence Badge -->
+                <mat-chip
+                  [color]="getConfidenceColor(suggestion.suggestedPermission.confidence)"
+                  class="confidence-chip"
+                >
+                  <mat-icon matChipAvatar>
+                    @if (suggestion.suggestedPermission.confidence >= 0.8) {
+                      verified
+                    } @else if (suggestion.suggestedPermission.confidence >= 0.6) {
+                      check_circle_outline
+                    } @else {
+                      help_outline
+                    }
+                  </mat-icon>
+                  {{ (suggestion.suggestedPermission.confidence * 100) | number:'1.0-0' }}% Confidence
+                </mat-chip>
+
+                <!-- Reason Type Badge -->
+                <mat-chip outlined class="reason-type-chip">
+                  <mat-icon matChipAvatar>info</mat-icon>
+                  {{ suggestion.suggestedPermission.reasonType | titlecase }}
+                </mat-chip>
+              </div>
+
+              <!-- Approval Checkbox -->
+              <div class="approval-action">
+                <mat-checkbox
+                  [checked]="isApproved(suggestion)"
+                  (change)="toggleApproval(suggestion)"
+                  [disabled]="loading()"
+                  color="primary"
+                  [attr.aria-label]="'Approve mapping for ' + suggestion.route.path"
+                >
+                  Approve
+                </mat-checkbox>
+              </div>
+            </div>
+
+            <!-- Expandable Reason -->
+            <mat-expansion-panel class="reason-panel">
+              <mat-expansion-panel-header>
+                <mat-panel-title>
+                  <mat-icon>info</mat-icon>
+                  Why this suggestion?
+                </mat-panel-title>
+                <mat-panel-description>
+                  Click to see AI reasoning
+                </mat-panel-description>
+              </mat-expansion-panel-header>
+
+              <div class="reason-content">
+                <div class="reason-explanation">
+                  <mat-icon class="reason-icon">lightbulb</mat-icon>
+                  <p>{{ suggestion.suggestedPermission.reason }}</p>
+                </div>
+
+                @if (suggestion.suggestedPermission.metadata) {
+                  <div class="metadata">
+                    <h4>
+                      <mat-icon>data_object</mat-icon>
+                      Additional Metadata
+                    </h4>
+                    <mat-list dense>
+                      @for (item of suggestion.suggestedPermission.metadata | keyvalue; track item.key) {
+                        <mat-list-item>
+                          <span matListItemTitle>{{ item.key }}</span>
+                          <span matListItemLine>{{ item.value }}</span>
+                        </mat-list-item>
+                      }
+                    </mat-list>
+                  </div>
+                }
+
+                <!-- Confidence Breakdown -->
+                <div class="confidence-breakdown">
+                  <h4>
+                    <mat-icon>analytics</mat-icon>
+                    Confidence Level: {{ getConfidenceLevel(suggestion.suggestedPermission.confidence) | uppercase }}
+                  </h4>
+                  <div class="confidence-bar">
+                    <div
+                      class="confidence-fill"
+                      [style.width.%]="suggestion.suggestedPermission.confidence * 100"
+                      [class.high]="suggestion.suggestedPermission.confidence >= 0.8"
+                      [class.medium]="suggestion.suggestedPermission.confidence >= 0.6 && suggestion.suggestedPermission.confidence < 0.8"
+                      [class.low]="suggestion.suggestedPermission.confidence < 0.6"
+                    ></div>
+                  </div>
+                  <p class="confidence-description">
+                    @if (suggestion.suggestedPermission.confidence >= 0.8) {
+                      <mat-icon color="primary">check_circle</mat-icon>
+                      High confidence - Strong match based on naming conventions and patterns
+                    } @else if (suggestion.suggestedPermission.confidence >= 0.6) {
+                      <mat-icon color="accent">warning</mat-icon>
+                      Medium confidence - Reasonable match, manual review recommended
+                    } @else {
+                      <mat-icon color="warn">error_outline</mat-icon>
+                      Low confidence - Weak match, careful review required
+                    }
+                  </p>
+                </div>
+              </div>
+            </mat-expansion-panel>
+          </mat-list-item>
+
+          <mat-divider></mat-divider>
+        }
+      </mat-list>
+    }
+  </div>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end" class="dialog-actions">
+  <button mat-button (click)="onCancel()" [disabled]="loading()">
+    Cancel
+  </button>
+  <button
+    mat-raised-button
+    color="primary"
+    [disabled]="approvedCount() === 0 || loading()"
+    (click)="onApply()"
+  >
+    @if (loading()) {
+      <mat-spinner diameter="20"></mat-spinner>
+      <span>Applying...</span>
+    } @else {
+      <mat-icon>done_all</mat-icon>
+      <span>
+        Apply {{ approvedCount() }} Mapping{{ approvedCount() !== 1 ? 's' : '' }}
+      </span>
+    }
+  </button>
+</mat-dialog-actions>

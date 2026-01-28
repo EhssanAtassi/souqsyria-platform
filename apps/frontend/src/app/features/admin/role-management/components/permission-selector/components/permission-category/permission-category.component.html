@@ -1,0 +1,103 @@
+<!-- Permission Category Container -->
+<div
+  [ngClass]="getComponentClasses()"
+  [style.border-left-color]="categoryColor()"
+  [attr.role]="'treeitem'"
+  [attr.aria-expanded]="expanded"
+  [attr.aria-label]="categoryName"
+  [attr.tabindex]="0"
+  (click)="onCategoryClick($event)"
+  (keydown)="onKeyDown($event)"
+  (mouseenter)="onMouseEnter()"
+  (mouseleave)="onMouseLeave()"
+>
+  <!-- Expand/Collapse Button -->
+  <button
+    mat-icon-button
+    class="expand-button"
+    [attr.aria-label]="expanded ? 'Collapse category' : 'Expand category'"
+    (click)="onToggleExpand($event)"
+  >
+    <mat-icon class="expand-icon">{{ expandIcon() }}</mat-icon>
+  </button>
+
+  <!-- Checkbox (if not read-only) -->
+  @if (!readOnly) {
+    <mat-checkbox
+      [checked]="allSelected"
+      [indeterminate]="indeterminate"
+      [disabled]="disabled"
+      [attr.aria-label]="checkboxAriaLabel()"
+      (change)="onCheckboxChange($event)"
+      (click)="onCheckboxClick($event)"
+      class="category-checkbox"
+    ></mat-checkbox>
+  }
+
+  <!-- Category Content -->
+  <div class="category-content">
+    <!-- Category Header -->
+    <div class="category-header">
+      <!-- Category Icon -->
+      <div class="category-icon-wrapper" [style.background-color]="categoryColor() + '20'">
+        <mat-icon class="category-icon" [style.color]="categoryColor()">
+          {{ categoryIcon }}
+        </mat-icon>
+      </div>
+
+      <!-- Category Name -->
+      <span
+        class="category-name"
+        [matTooltip]="tooltipText()"
+        matTooltipPosition="above"
+      >
+        {{ categoryName }}
+      </span>
+
+      <!-- Count Badge -->
+      @if (showCountBadge) {
+        <span
+          class="count-badge"
+          [style.background-color]="categoryColor() + '20'"
+          [style.color]="categoryColor()"
+        >
+          {{ permissionCount }}
+        </span>
+      }
+    </div>
+
+    <!-- Selection Progress -->
+    @if (showSelectionProgress) {
+      <div class="selection-progress">
+        <!-- Progress Bar -->
+        <div class="progress-bar">
+          <div
+            class="progress-fill"
+            [style.width.%]="getProgressPercentage()"
+            [style.background-color]="categoryColor()"
+          ></div>
+        </div>
+
+        <!-- Progress Text -->
+        <span class="progress-text">
+          {{ selectionProgressText() }}
+        </span>
+      </div>
+    }
+  </div>
+
+  <!-- Selection Status Icon -->
+  @if (!readOnly) {
+    <div class="selection-status">
+      @if (allSelected) {
+        <mat-icon class="status-icon status-icon--selected">
+          check_circle
+        </mat-icon>
+      } @else if (indeterminate) {
+        <mat-icon class="status-icon status-icon--indeterminate">
+          remove_circle
+        </mat-icon>
+      }
+    </div>
+  }
+</div>

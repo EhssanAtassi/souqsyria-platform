@@ -1,0 +1,277 @@
+@use '@angular/material' as mat;
+
+.route-list-view {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background-color: var(--surface-background, #fafafa);
+}
+
+// Table Container
+.table-container {
+  position: relative;
+  flex: 1;
+  overflow: auto;
+  background-color: white;
+  border: 1px solid var(--border-color, rgba(0, 0, 0, 0.12));
+  border-radius: 8px;
+  margin: 0 16px;
+  
+  // Custom scrollbar
+  &::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  
+  &::-webkit-scrollbar-track {
+    background: var(--scrollbar-track, #f1f1f1);
+  }
+  
+  &::-webkit-scrollbar-thumb {
+    background: var(--scrollbar-thumb, #888);
+    border-radius: 4px;
+    
+    &:hover {
+      background: var(--scrollbar-thumb-hover, #555);
+    }
+  }
+}
+
+// Routes Table
+.routes-table {
+  width: 100%;
+  min-width: 1200px;
+  
+  // Sticky header
+  .mat-mdc-header-row {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background-color: var(--header-background, #f5f5f5);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  
+  // Header cells
+  .mat-mdc-header-cell {
+    font-weight: 600;
+    font-size: 14px;
+    color: var(--header-text, rgba(0, 0, 0, 0.87));
+    padding: 12px 16px;
+  }
+  
+  // Data cells
+  .mat-mdc-cell {
+    padding: 12px 16px;
+    font-size: 14px;
+    color: var(--text-primary, rgba(0, 0, 0, 0.87));
+  }
+  
+  // Column widths
+  .select-column {
+    width: 56px;
+    padding-left: 16px;
+    padding-right: 8px;
+  }
+  
+  .method-column {
+    width: 100px;
+  }
+  
+  .path-column {
+    min-width: 250px;
+    max-width: 350px;
+  }
+  
+  .controller-column {
+    width: 180px;
+  }
+  
+  .handler-column {
+    width: 150px;
+  }
+  
+  .status-column {
+    width: 120px;
+  }
+  
+  .permission-column {
+    min-width: 200px;
+  }
+  
+  .actions-column {
+    width: 80px;
+    text-align: right;
+    padding-right: 16px;
+  }
+}
+
+// Route Row Styles
+.route-row {
+  cursor: pointer;
+  transition: background-color 200ms cubic-bezier(0.4, 0, 0.2, 1);
+  
+  &:hover {
+    background-color: var(--row-hover, rgba(0, 0, 0, 0.04));
+  }
+  
+  &.selected-row {
+    background-color: var(--row-selected, rgba(63, 81, 181, 0.08));
+    
+    &:hover {
+      background-color: var(--row-selected-hover, rgba(63, 81, 181, 0.12));
+    }
+  }
+}
+
+// Route Path Code
+.route-path {
+  display: inline-block;
+  padding: 4px 8px;
+  background-color: var(--code-background, #f5f5f5);
+  border: 1px solid var(--code-border, rgba(0, 0, 0, 0.12));
+  border-radius: 4px;
+  font-family: 'Roboto Mono', monospace;
+  font-size: 13px;
+  color: var(--code-text, #1976d2);
+  font-weight: 500;
+  word-break: break-all;
+}
+
+// Controller & Handler Names
+.controller-name {
+  font-weight: 500;
+  color: var(--text-primary, rgba(0, 0, 0, 0.87));
+}
+
+.handler-name {
+  display: inline-block;
+  font-family: 'Roboto Mono', monospace;
+  font-size: 13px;
+  color: var(--text-secondary, rgba(0, 0, 0, 0.6));
+  font-weight: 400;
+}
+
+// No Data State
+.no-data-row {
+  height: 400px;
+  
+  .no-data-cell {
+    border: none;
+  }
+}
+
+.no-data {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  padding: 48px;
+  text-align: center;
+  
+  mat-icon {
+    font-size: 64px;
+    width: 64px;
+    height: 64px;
+    color: var(--icon-disabled, rgba(0, 0, 0, 0.26));
+    margin-bottom: 16px;
+  }
+  
+  &__title {
+    font-size: 18px;
+    font-weight: 500;
+    color: var(--text-primary, rgba(0, 0, 0, 0.87));
+    margin: 0 0 8px 0;
+  }
+  
+  &__subtitle {
+    font-size: 14px;
+    color: var(--text-secondary, rgba(0, 0, 0, 0.6));
+    margin: 0;
+  }
+}
+
+// Loading Overlay
+.loading-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(255, 255, 255, 0.8);
+  z-index: 100;
+  backdrop-filter: blur(2px);
+}
+
+// Paginator
+.routes-paginator {
+  border-top: 1px solid var(--border-color, rgba(0, 0, 0, 0.12));
+  background-color: white;
+  margin: 0 16px 16px 16px;
+  border-radius: 0 0 8px 8px;
+}
+
+// Responsive Design
+@media (max-width: 1440px) {
+  .routes-table {
+    min-width: 1000px;
+    
+    .path-column {
+      max-width: 250px;
+    }
+    
+    .controller-column {
+      width: 150px;
+    }
+  }
+}
+
+@media (max-width: 1200px) {
+  .routes-table {
+    min-width: 900px;
+    
+    .controller-column,
+    .handler-column {
+      display: none;
+    }
+  }
+}
+
+// Accessibility
+.route-row:focus {
+  outline: 2px solid var(--primary-color, #3f51b5);
+  outline-offset: -2px;
+}
+
+// High Contrast Mode
+@media (prefers-contrast: high) {
+  .route-path {
+    border-width: 2px;
+  }
+  
+  .selected-row {
+    outline: 2px solid var(--primary-color, #3f51b5);
+  }
+}
+
+// Print Styles
+@media print {
+  .loading-overlay,
+  .actions-column,
+  .select-column,
+  .routes-paginator {
+    display: none;
+  }
+  
+  .table-container {
+    border: none;
+    overflow: visible;
+  }
+  
+  .routes-table {
+    min-width: auto;
+  }
+}

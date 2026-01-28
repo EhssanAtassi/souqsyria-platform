@@ -1,0 +1,247 @@
+<!-- User Management Dashboard -->
+<div class="user-management-container">
+  <!-- Top Toolbar -->
+  <mat-toolbar color="primary" class="dashboard-toolbar">
+    <button 
+      mat-icon-button 
+      (click)="toggleFilters()"
+      matTooltip="Toggle Filters"
+      aria-label="Toggle filters sidebar">
+      <mat-icon>{{ filtersOpen ? 'filter_list_off' : 'filter_list' }}</mat-icon>
+    </button>
+
+    <h1 class="toolbar-title">User Management</h1>
+
+    <!-- Active Filters Indicator -->
+    <div class="active-filters" *ngIf="hasFilters$ | async">
+      <mat-icon class="filter-icon">filter_alt</mat-icon>
+      <span class="filter-count">{{ (totalFilteredCount$ | async) || 0 }} filtered</span>
+      <button 
+        mat-icon-button 
+        (click)="clearAllFilters()"
+        matTooltip="Clear all filters"
+        class="clear-filters-btn">
+        <mat-icon>clear</mat-icon>
+      </button>
+    </div>
+
+    <span class="spacer"></span>
+
+    <!-- Toolbar Actions -->
+    <button 
+      mat-icon-button 
+      (click)="refresh()"
+      matTooltip="Refresh"
+      aria-label="Refresh user list">
+      <mat-icon>refresh</mat-icon>
+    </button>
+
+    <button 
+      mat-icon-button 
+      (click)="exportUsers()"
+      matTooltip="Export to CSV"
+      aria-label="Export users to CSV"
+      *hasPermission="'export_users'">
+      <mat-icon>download</mat-icon>
+    </button>
+
+    <button 
+      mat-icon-button 
+      [matMenuTriggerFor]="settingsMenu"
+      matTooltip="Settings"
+      aria-label="Dashboard settings">
+      <mat-icon>more_vert</mat-icon>
+    </button>
+
+    <mat-menu #settingsMenu="matMenu">
+      <button mat-menu-item (click)="toggleFilters()">
+        <mat-icon>{{ filtersOpen ? 'visibility_off' : 'visibility' }}</mat-icon>
+        <span>{{ filtersOpen ? 'Hide' : 'Show' }} Filters</span>
+      </button>
+      <button mat-menu-item (click)="clearAllFilters()">
+        <mat-icon>clear_all</mat-icon>
+        <span>Clear Filters</span>
+      </button>
+      <mat-divider></mat-divider>
+      <button mat-menu-item>
+        <mat-icon>settings</mat-icon>
+        <span>Column Settings</span>
+      </button>
+      <button mat-menu-item>
+        <mat-icon>save_alt</mat-icon>
+        <span>Save View</span>
+      </button>
+    </mat-menu>
+  </mat-toolbar>
+
+  <!-- Loading Progress Bar -->
+  <mat-progress-bar 
+    mode="indeterminate" 
+    *ngIf="loading$ | async"
+    class="loading-bar">
+  </mat-progress-bar>
+
+  <!-- Main Content Layout -->
+  <mat-drawer-container class="content-container" [hasBackdrop]="false">
+    
+    <!-- Filters Sidebar -->
+    <mat-drawer 
+      mode="side" 
+      [opened]="filtersOpen" 
+      class="filters-drawer"
+      role="navigation"
+      aria-label="User filters">
+      <div class="drawer-content">
+        <div class="drawer-header">
+          <h2>Filters</h2>
+          <button 
+            mat-icon-button 
+            (click)="toggleFilters()"
+            matTooltip="Close"
+            aria-label="Close filters">
+            <mat-icon>close</mat-icon>
+          </button>
+        </div>
+
+        <!-- Search Component -->
+        <div class="filter-section">
+          <h3>Search</h3>
+          <!-- TODO: Add UserSearchComponent -->
+          <!-- <app-user-search 
+            (searchChange)="onSearchChange($event)">
+          </app-user-search> -->
+          <p class="placeholder-text">Search component coming soon...</p>
+        </div>
+
+        <mat-divider></mat-divider>
+
+        <!-- Filters Component -->
+        <div class="filter-section">
+          <h3>Filter By</h3>
+          <!-- TODO: Add UserFiltersComponent -->
+          <!-- <app-user-filters 
+            (filterChange)="onFilterChange($event)">
+          </app-user-filters> -->
+          <p class="placeholder-text">Filter component coming soon...</p>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="filter-section">
+          <h3>Quick Actions</h3>
+          <div class="quick-actions">
+            <button mat-stroked-button class="action-btn" (click)="clearAllFilters()">
+              <mat-icon>clear_all</mat-icon>
+              Clear Filters
+            </button>
+            <button mat-stroked-button class="action-btn" (click)="refresh()">
+              <mat-icon>refresh</mat-icon>
+              Refresh
+            </button>
+          </div>
+        </div>
+      </div>
+    </mat-drawer>
+
+    <!-- Main Content Area -->
+    <mat-drawer-content class="main-content">
+      
+      <!-- Bulk Actions Toolbar -->
+      <!-- TODO: Add BulkActionsToolbarComponent -->
+      <!-- <app-bulk-actions-toolbar
+        *ngIf="(bulkSelected$ | async)?.length"
+        [selectedUsers]="bulkSelected$ | async"
+        (bulkAction)="onBulkAction($event.action, $event.userIds)">
+      </app-bulk-actions-toolbar> -->
+
+      <!-- User Table Container -->
+      <div class="table-container">
+        
+        <!-- Empty State -->
+        <div class="empty-state" *ngIf="!(users$ | async)?.length && !(loading$ | async)">
+          <mat-icon class="empty-icon">people_outline</mat-icon>
+          <h2>No Users Found</h2>
+          <p>
+            <ng-container *ngIf="hasFilters$ | async; else noUsersMessage">
+              No users match your current filters. Try adjusting your search criteria.
+            </ng-container>
+            <ng-template #noUsersMessage>
+              There are no users in the system yet.
+            </ng-template>
+          </p>
+          <button 
+            mat-raised-button 
+            color="primary" 
+            (click)="clearAllFilters()"
+            *ngIf="hasFilters$ | async">
+            Clear Filters
+          </button>
+        </div>
+
+        <!-- User Table -->
+        <!-- TODO: Add UserTableComponent -->
+        <!-- <app-user-table
+          *ngIf="(users$ | async)?.length"
+          [users]="users$ | async"
+          [loading]="loading$ | async"
+          (userSelect)="onUserSelect($event)"
+          (actionClick)="onActionClick($event)">
+        </app-user-table> -->
+        
+        <!-- Temporary Table Placeholder -->
+        <div class="table-placeholder" *ngIf="(users$ | async)?.length">
+          <mat-card>
+            <mat-card-header>
+              <mat-card-title>User Table</mat-card-title>
+            </mat-card-header>
+            <mat-card-content>
+              <p>Found {{ (users$ | async)?.length }} users</p>
+              <p class="placeholder-text">Table component coming soon...</p>
+            </mat-card-content>
+          </mat-card>
+        </div>
+
+        <!-- Pagination -->
+        <mat-paginator
+          *ngIf="(pagination$ | async) as pagination"
+          [length]="pagination.totalCount"
+          [pageSize]="pagination.limit"
+          [pageIndex]="pagination.page - 1"
+          [pageSizeOptions]="[5, 10, 25, 50, 100]"
+          [showFirstLastButtons]="true"
+          (page)="onPageChange($event)"
+          aria-label="Select page of users"
+          class="user-paginator">
+        </mat-paginator>
+      </div>
+
+      <!-- Loading Overlay -->
+      <div class="loading-overlay" *ngIf="loading$ | async">
+        <mat-spinner diameter="50"></mat-spinner>
+        <p>Loading users...</p>
+      </div>
+
+    </mat-drawer-content>
+  </mat-drawer-container>
+
+  <!-- User Detail Panel (Right Side) -->
+  <!-- TODO: Add UserDetailPanelComponent -->
+  <!-- <app-user-detail-panel
+    *ngIf="detailPanelOpen"
+    [user]="selectedUser$ | async"
+    (close)="onDetailPanelClose()">
+  </app-user-detail-panel> -->
+  
+  <!-- Temporary Detail Panel Placeholder -->
+  <div class="detail-panel-placeholder" *ngIf="detailPanelOpen && (selectedUser$ | async)">
+    <div class="panel-header">
+      <h2>User Details</h2>
+      <button mat-icon-button (click)="onDetailPanelClose()">
+        <mat-icon>close</mat-icon>
+      </button>
+    </div>
+    <div class="panel-content">
+      <p>Selected User: {{ (selectedUser$ | async)?.fullName || (selectedUser$ | async)?.firstName }}</p>
+      <p class="placeholder-text">Detail panel component coming soon...</p>
+    </div>
+  </div>
+</div>

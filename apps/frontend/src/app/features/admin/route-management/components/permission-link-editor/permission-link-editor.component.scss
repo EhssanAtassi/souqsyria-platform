@@ -1,0 +1,265 @@
+// ============================================================================
+// Permission Link Editor Component Styles
+// ============================================================================
+
+:host {
+  display: block;
+  width: 100%;
+  position: relative;
+}
+
+.permission-link-editor {
+  position: relative;
+  min-height: 40px;
+}
+
+// ============================================================================
+// Linked State (Chip Display)
+// ============================================================================
+
+.linked-chip-set {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.permission-chip {
+  background-color: rgba(63, 81, 181, 0.12);
+  color: #3f51b5;
+  font-weight: 500;
+
+  ::ng-deep {
+    .mat-mdc-chip-action-label {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    mat-icon[matChipAvatar] {
+      background-color: #3f51b5;
+      color: white;
+      font-size: 18px;
+      width: 24px;
+      height: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    mat-icon[matChipRemove] {
+      font-size: 18px;
+      width: 18px;
+      height: 18px;
+      opacity: 0.7;
+      transition: opacity 150ms ease;
+
+      &:hover {
+        opacity: 1;
+      }
+    }
+  }
+}
+
+// ============================================================================
+// Unlinked State (Autocomplete Input)
+// ============================================================================
+
+.unlinked-state {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.link-field {
+  width: 100%;
+  margin: 0;
+
+  ::ng-deep {
+    .mat-mdc-text-field-wrapper {
+      padding-bottom: 0;
+    }
+
+    .mat-mdc-form-field-subscript-wrapper {
+      display: none;
+    }
+  }
+}
+
+.option-icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+  margin-right: 8px;
+  vertical-align: middle;
+  color: rgba(0, 0, 0, 0.6);
+}
+
+// ============================================================================
+// AI Suggestion Button
+// ============================================================================
+
+.suggestion-button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 8px 16px;
+  text-align: left;
+  border: 2px dashed currentColor;
+  background-color: rgba(255, 152, 0, 0.04);
+  transition: all 200ms ease;
+
+  &:hover:not(:disabled) {
+    background-color: rgba(255, 152, 0, 0.08);
+    border-style: solid;
+  }
+
+  mat-icon {
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+  }
+
+  .suggestion-text {
+    font-size: 13px;
+    line-height: 1.4;
+    flex: 1;
+
+    strong {
+      font-weight: 600;
+      display: block;
+      margin-bottom: 2px;
+    }
+  }
+}
+
+// ============================================================================
+// Loading Overlay
+// ============================================================================
+
+.loading-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(255, 255, 255, 0.8);
+  border-radius: 4px;
+  z-index: 10;
+
+  mat-spinner {
+    ::ng-deep {
+      circle {
+        stroke: #3f51b5;
+      }
+    }
+  }
+}
+
+// ============================================================================
+// Autocomplete Panel Overrides
+// ============================================================================
+
+::ng-deep {
+  .mat-mdc-autocomplete-panel {
+    .mat-mdc-option {
+      display: flex;
+      align-items: center;
+      padding: 0 16px;
+      min-height: 48px;
+
+      em {
+        color: rgba(0, 0, 0, 0.4);
+      }
+    }
+  }
+}
+
+// ============================================================================
+// Dark Theme
+// ============================================================================
+
+.dark-theme {
+  .permission-chip {
+    background-color: rgba(63, 81, 181, 0.24);
+    color: #7986cb;
+
+    ::ng-deep {
+      mat-icon[matChipAvatar] {
+        background-color: #7986cb;
+      }
+    }
+  }
+
+  .option-icon {
+    color: rgba(255, 255, 255, 0.6);
+  }
+
+  .suggestion-button {
+    background-color: rgba(255, 152, 0, 0.08);
+
+    &:hover:not(:disabled) {
+      background-color: rgba(255, 152, 0, 0.12);
+    }
+  }
+
+  .loading-overlay {
+    background-color: rgba(66, 66, 66, 0.8);
+
+    mat-spinner {
+      ::ng-deep {
+        circle {
+          stroke: #7986cb;
+        }
+      }
+    }
+  }
+
+  ::ng-deep {
+    .mat-mdc-autocomplete-panel {
+      .mat-mdc-option {
+        em {
+          color: rgba(255, 255, 255, 0.4);
+        }
+      }
+    }
+  }
+}
+
+// ============================================================================
+// Responsive Design
+// ============================================================================
+
+@media (max-width: 768px) {
+  .suggestion-button {
+    padding: 8px 12px;
+
+    .suggestion-text {
+      font-size: 12px;
+    }
+  }
+}
+
+// ============================================================================
+// Print Styles
+// ============================================================================
+
+@media print {
+  .permission-link-editor {
+    .unlinked-state {
+      display: none;
+    }
+
+    .permission-chip {
+      border: 1px solid currentColor;
+    }
+
+    button[matChipRemove] {
+      display: none;
+    }
+  }
+}

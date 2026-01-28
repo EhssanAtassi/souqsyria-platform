@@ -1,0 +1,148 @@
+<mat-drawer-container class="detail-panel-container">
+  <mat-drawer
+    #detailDrawer
+    class="detail-panel"
+    [opened]="open()"
+    position="end"
+    mode="over"
+    (closed)="onClose()">
+
+    @if (role()) {
+      <div class="panel-wrapper">
+        <!-- Header -->
+        <div class="panel-header">
+          <div class="header-content">
+            <div class="role-title-section">
+              <h2>{{ role()!.displayName }}</h2>
+              @if (role()!.isSystem) {
+                <app-system-role-badge></app-system-role-badge>
+              }
+            </div>
+            <p class="role-name">{{ role()!.name }}</p>
+          </div>
+          <button mat-icon-button (click)="onClose()" aria-label="Close panel">
+            <mat-icon>close</mat-icon>
+          </button>
+        </div>
+
+        <mat-divider></mat-divider>
+
+        <!-- Content -->
+        <div class="panel-content">
+          <!-- Basic Info Section -->
+          <section class="info-section">
+            <h3>
+              <mat-icon>info</mat-icon>
+              Basic Information
+            </h3>
+            <div class="info-grid">
+              <div class="info-item">
+                <span class="info-label">Priority</span>
+                <app-priority-badge [priority]="role()!.priority"></app-priority-badge>
+              </div>
+              <div class="info-item">
+                <span class="info-label">Status</span>
+                <mat-chip [class.active]="role()!.isActive" [class.inactive]="!role()!.isActive">
+                  {{ role()!.isActive ? 'Active' : 'Inactive' }}
+                </mat-chip>
+              </div>
+              <div class="info-item full-width">
+                <span class="info-label">Description</span>
+                <p>{{ role()!.description || 'No description' }}</p>
+              </div>
+            </div>
+          </section>
+
+          <mat-divider></mat-divider>
+
+          <!-- Statistics Section -->
+          <section class="info-section">
+            <h3>
+              <mat-icon>bar_chart</mat-icon>
+              Statistics
+            </h3>
+            <div class="stats-grid">
+              <div class="stat-card">
+                <mat-icon>vpn_key</mat-icon>
+                <div class="stat-content">
+                  <span class="stat-value">{{ role()!.permissionIds.length }}</span>
+                  <span class="stat-label">Permissions</span>
+                </div>
+              </div>
+              <div class="stat-card">
+                <mat-icon>group</mat-icon>
+                <div class="stat-content">
+                  <span class="stat-value">{{ role()!.userCount || 0 }}</span>
+                  <span class="stat-label">Users</span>
+                </div>
+              </div>
+            </div>
+            <div class="metadata">
+              <div class="metadata-item">
+                <mat-icon>event</mat-icon>
+                <span>Created: {{ role()!.createdAt | date:'short' }}</span>
+              </div>
+              <div class="metadata-item">
+                <mat-icon>update</mat-icon>
+                <span>Updated: {{ role()!.updatedAt | date:'short' }}</span>
+              </div>
+            </div>
+          </section>
+
+          <mat-divider></mat-divider>
+
+          <!-- Permissions Section -->
+          <section class="info-section">
+            <h3>
+              <mat-icon>vpn_key</mat-icon>
+              Permissions ({{ role()!.permissionIds.length }})
+            </h3>
+            <mat-expansion-panel>
+              <mat-expansion-panel-header>
+                <mat-panel-title>View all permissions</mat-panel-title>
+              </mat-expansion-panel-header>
+              <mat-list>
+                @for (permId of role()!.permissionIds; track permId) {
+                  <mat-list-item>
+                    <mat-icon matListItemIcon>check_circle</mat-icon>
+                    <span matListItemTitle>Permission ID: {{ permId }}</span>
+                  </mat-list-item>
+                }
+              </mat-list>
+            </mat-expansion-panel>
+          </section>
+        </div>
+
+        <!-- Actions Footer -->
+        <div class="panel-actions">
+          <button
+            mat-raised-button
+            color="primary"
+            [disabled]="role()!.isSystem"
+            (click)="onEdit()"
+            class="action-btn">
+            <mat-icon>edit</mat-icon>
+            Edit
+          </button>
+          <button
+            mat-stroked-button
+            color="accent"
+            (click)="onClone()"
+            class="action-btn">
+            <mat-icon>content_copy</mat-icon>
+            Clone
+          </button>
+          <button
+            mat-stroked-button
+            color="warn"
+            [disabled]="role()!.isSystem || ((role()!.userCount ?? 0) > 0)"
+            (click)="onDelete()"
+            class="action-btn">
+            <mat-icon>delete</mat-icon>
+            Delete
+          </button>
+        </div>
+      </div>
+    }
+  </mat-drawer>
+</mat-drawer-container>

@@ -1,0 +1,43 @@
+<div class="failed-attempts-view">
+  <mat-card>
+    <mat-card-header>
+      <mat-icon mat-card-avatar color="warn">error</mat-icon>
+      <mat-card-title>Failed Access Attempts</mat-card-title>
+      <mat-card-subtitle>Recent failed security events</mat-card-subtitle>
+    </mat-card-header>
+
+    <mat-card-content>
+      <mat-list>
+        @for (event of failedEvents$ | async; track event.id) {
+          <mat-list-item>
+            <mat-icon matListItemIcon color="warn">cancel</mat-icon>
+            <div matListItemTitle class="event-title">
+              <app-action-badge [action]="event.action" />
+              <span class="user-email">{{ event.userEmail || 'Anonymous' }}</span>
+            </div>
+            <div matListItemLine class="event-details">
+              @if (event.permissionRequired) {
+                <span class="permission">{{ event.permissionRequired }}</span>
+                <span class="separator">•</span>
+              }
+              <span class="timestamp">{{ event.createdAt | date: 'short' }}</span>
+              @if (event.failureReason) {
+                <span class="separator">•</span>
+                <span class="reason">{{ event.failureReason }}</span>
+              }
+            </div>
+            <div matListItemMeta class="event-meta">
+              <code class="ip-address">{{ event.ipAddress }}</code>
+            </div>
+          </mat-list-item>
+          <mat-divider></mat-divider>
+        } @empty {
+          <div class="empty-state">
+            <mat-icon class="empty-icon">check_circle</mat-icon>
+            <p>No failed attempts in the selected time range</p>
+          </div>
+        }
+      </mat-list>
+    </mat-card-content>
+  </mat-card>
+</div>

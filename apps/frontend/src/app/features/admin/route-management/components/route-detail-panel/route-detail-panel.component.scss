@@ -1,0 +1,532 @@
+// ============================================================================
+// Route Detail Panel Component Styles
+// ============================================================================
+
+:host {
+  display: block;
+  height: 100%;
+}
+
+.detail-panel {
+  width: 400px;
+  background: white;
+  border-left: 1px solid rgba(0, 0, 0, 0.12);
+  overflow-y: auto;
+
+  @media (max-width: 768px) {
+    width: 100%;
+    max-width: 400px;
+  }
+}
+
+// ============================================================================
+// Panel Container
+// ============================================================================
+
+.panel-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+// ============================================================================
+// Panel Header
+// ============================================================================
+
+.panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 24px;
+  background: #fafafa;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.12);
+
+  h2 {
+    margin: 0;
+    font-size: 20px;
+    font-weight: 600;
+    color: rgba(0, 0, 0, 0.87);
+  }
+
+  button {
+    mat-icon {
+      color: rgba(0, 0, 0, 0.6);
+    }
+  }
+}
+
+// ============================================================================
+// Panel Content
+// ============================================================================
+
+.panel-content {
+  flex: 1;
+  padding: 0;
+  overflow-y: auto;
+}
+
+.detail-section {
+  padding: 20px 24px;
+
+  &:last-child {
+    padding-bottom: 32px;
+  }
+}
+
+.section-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 16px 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: rgba(0, 0, 0, 0.87);
+
+  mat-icon {
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+    color: rgba(0, 0, 0, 0.6);
+  }
+}
+
+// ============================================================================
+// Endpoint Display
+// ============================================================================
+
+.endpoint-display {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  background: #f5f5f5;
+  border-radius: 8px;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.route-path {
+  flex: 1;
+  padding: 8px 12px;
+  background: white;
+  border-radius: 4px;
+  font-family: 'Roboto Mono', monospace;
+  font-size: 13px;
+  color: #1976d2;
+  word-break: break-all;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+}
+
+// ============================================================================
+// Info List
+// ============================================================================
+
+.info-list {
+  padding: 0;
+
+  ::ng-deep {
+    .mat-mdc-list-item {
+      padding: 12px 0;
+      min-height: auto;
+
+      .mat-mdc-list-item-icon {
+        margin-right: 12px;
+        color: rgba(0, 0, 0, 0.6);
+      }
+
+      .mdc-list-item__content {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+      }
+    }
+  }
+
+  .detail-value {
+    font-size: 14px;
+    color: rgba(0, 0, 0, 0.87);
+    font-weight: 500;
+    word-break: break-word;
+  }
+}
+
+// ============================================================================
+// Security Section
+// ============================================================================
+
+.security-content {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.status-row,
+.permission-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  background: #fafafa;
+  border-radius: 8px;
+
+  .label {
+    font-weight: 500;
+    color: rgba(0, 0, 0, 0.6);
+    font-size: 14px;
+  }
+}
+
+.permission-chip {
+  background-color: rgba(63, 81, 181, 0.12);
+  color: #3f51b5;
+  font-weight: 500;
+
+  ::ng-deep {
+    mat-icon[matChipAvatar] {
+      background-color: #3f51b5;
+      color: white;
+      font-size: 18px;
+    }
+  }
+}
+
+.public-notice {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px;
+  background: rgba(255, 152, 0, 0.08);
+  border-radius: 8px;
+  border: 1px solid rgba(255, 152, 0, 0.2);
+  font-size: 14px;
+  color: #e65100;
+  font-weight: 500;
+
+  mat-icon {
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+    color: #ff9800;
+  }
+}
+
+// ============================================================================
+// Suggestion Card
+// ============================================================================
+
+.suggestion-card {
+  background: linear-gradient(135deg, rgba(255, 152, 0, 0.05) 0%, rgba(255, 193, 7, 0.05) 100%);
+  border: 2px solid rgba(255, 152, 0, 0.3);
+
+  ::ng-deep {
+    .mat-mdc-card-content {
+      padding: 16px;
+    }
+  }
+}
+
+.suggestion-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 12px;
+
+  mat-icon {
+    font-size: 24px;
+    width: 24px;
+    height: 24px;
+    flex-shrink: 0;
+  }
+
+  .suggestion-text {
+    flex: 1;
+
+    strong {
+      display: block;
+      font-size: 14px;
+      font-weight: 600;
+      color: rgba(0, 0, 0, 0.87);
+      margin-bottom: 4px;
+    }
+
+    .suggestion-name {
+      margin: 0;
+      font-size: 16px;
+      font-weight: 700;
+      color: #f57c00;
+      font-family: 'Roboto Mono', monospace;
+    }
+  }
+}
+
+.suggestion-reason {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 12px 0;
+  padding: 8px;
+  background: rgba(255, 152, 0, 0.08);
+  border-radius: 4px;
+  font-size: 12px;
+  color: rgba(0, 0, 0, 0.6);
+
+  mat-icon {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+    color: #ff9800;
+  }
+
+  code {
+    padding: 2px 6px;
+    background: rgba(0, 0, 0, 0.1);
+    border-radius: 3px;
+    font-size: 11px;
+  }
+}
+
+.apply-suggestion-button {
+  width: 100%;
+  margin-top: 8px;
+
+  mat-icon {
+    margin-right: 8px;
+  }
+}
+
+// ============================================================================
+// Action Buttons
+// ============================================================================
+
+.action-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+
+  .action-button {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+
+    mat-icon {
+      font-size: 20px;
+      width: 20px;
+      height: 20px;
+    }
+  }
+}
+
+// ============================================================================
+// Empty State
+// ============================================================================
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  padding: 48px 24px;
+  text-align: center;
+  color: rgba(0, 0, 0, 0.6);
+
+  mat-icon {
+    font-size: 64px;
+    width: 64px;
+    height: 64px;
+    color: rgba(0, 0, 0, 0.3);
+    margin-bottom: 16px;
+  }
+
+  h3 {
+    font-size: 20px;
+    font-weight: 500;
+    margin: 0 0 8px 0;
+    color: rgba(0, 0, 0, 0.87);
+  }
+
+  p {
+    font-size: 14px;
+    margin: 0;
+    max-width: 250px;
+  }
+}
+
+// ============================================================================
+// Divider Overrides
+// ============================================================================
+
+mat-divider {
+  margin: 0 !important;
+}
+
+// ============================================================================
+// Dark Theme
+// ============================================================================
+
+.dark-theme {
+  .detail-panel {
+    background: #424242;
+    border-left-color: rgba(255, 255, 255, 0.12);
+  }
+
+  .panel-header {
+    background: #303030;
+    border-bottom-color: rgba(255, 255, 255, 0.12);
+
+    h2 {
+      color: rgba(255, 255, 255, 0.87);
+    }
+
+    button mat-icon {
+      color: rgba(255, 255, 255, 0.6);
+    }
+  }
+
+  .section-title {
+    color: rgba(255, 255, 255, 0.87);
+
+    mat-icon {
+      color: rgba(255, 255, 255, 0.6);
+    }
+  }
+
+  .endpoint-display {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.12);
+  }
+
+  .route-path {
+    background: rgba(0, 0, 0, 0.2);
+    color: #64b5f6;
+    border-color: rgba(255, 255, 255, 0.12);
+  }
+
+  .info-list {
+    ::ng-deep {
+      .mat-mdc-list-item-icon {
+        color: rgba(255, 255, 255, 0.6);
+      }
+    }
+
+    .detail-value {
+      color: rgba(255, 255, 255, 0.87);
+    }
+  }
+
+  .status-row,
+  .permission-row {
+    background: rgba(255, 255, 255, 0.05);
+
+    .label {
+      color: rgba(255, 255, 255, 0.6);
+    }
+  }
+
+  .permission-chip {
+    background-color: rgba(63, 81, 181, 0.24);
+    color: #7986cb;
+
+    ::ng-deep {
+      mat-icon[matChipAvatar] {
+        background-color: #7986cb;
+      }
+    }
+  }
+
+  .public-notice {
+    background: rgba(255, 152, 0, 0.12);
+    border-color: rgba(255, 152, 0, 0.3);
+    color: #ffb74d;
+
+    mat-icon {
+      color: #ffa726;
+    }
+  }
+
+  .suggestion-card {
+    background: linear-gradient(135deg, rgba(255, 152, 0, 0.1) 0%, rgba(255, 193, 7, 0.1) 100%);
+    border-color: rgba(255, 152, 0, 0.4);
+
+    .suggestion-header .suggestion-text strong {
+      color: rgba(255, 255, 255, 0.87);
+    }
+
+    .suggestion-reason {
+      background: rgba(255, 152, 0, 0.15);
+      color: rgba(255, 255, 255, 0.6);
+
+      code {
+        background: rgba(255, 255, 255, 0.1);
+      }
+    }
+  }
+
+  .empty-state {
+    color: rgba(255, 255, 255, 0.6);
+
+    mat-icon {
+      color: rgba(255, 255, 255, 0.3);
+    }
+
+    h3 {
+      color: rgba(255, 255, 255, 0.87);
+    }
+  }
+}
+
+// ============================================================================
+// Scrollbar Styling
+// ============================================================================
+
+.panel-content {
+  &::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.05);
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 4px;
+
+    &:hover {
+      background: rgba(0, 0, 0, 0.3);
+    }
+  }
+}
+
+.dark-theme .panel-content {
+  &::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.05);
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.2);
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.3);
+    }
+  }
+}
+
+// ============================================================================
+// Print Styles
+// ============================================================================
+
+@media print {
+  .panel-header button,
+  .action-buttons {
+    display: none;
+  }
+
+  .detail-panel {
+    border: none;
+  }
+}

@@ -172,11 +172,34 @@ export const routes: Routes = [
   },
 
 
-  // Admin panel (enterprise)
+  /**
+   * Admin Panel Routes (Enterprise)
+   *
+   * @description
+   * Lazy-loaded admin panel with comprehensive RBAC protection.
+   * Authentication and permission checks are handled within admin.routes.ts.
+   *
+   * Guard Layers:
+   * - AdminGuard: Session validation and authentication
+   * - permissionGuard: Route-specific permission checks
+   *
+   * Protected Features:
+   * - /admin/dashboard     -> Main overview (all admins)
+   * - /admin/users         -> User management (manage_users)
+   * - /admin/roles         -> Role management (manage_roles)
+   * - /admin/routes        -> Route mapping (manage_routes)
+   * - /admin/security      -> Security audit (view_audit_logs)
+   *
+   * @see admin.routes.ts for detailed route configuration
+   */
   {
     path: 'admin',
     loadChildren: () => import('./features/admin/admin.routes').then(m => m.adminRoutes),
-    title: 'SouqSyria Admin Panel'
+    title: 'SouqSyria Admin Panel',
+    data: {
+      breadcrumb: 'Admin',
+      preload: false, // Admin module loaded on-demand for better initial load
+    },
   },
 
 

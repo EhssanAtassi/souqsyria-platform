@@ -1,0 +1,550 @@
+/**
+ * User Security Tab Styles
+ *
+ * @description
+ * Security actions, metrics grid, and events list styling.
+ */
+
+// ============================================================================
+// CONTAINER
+// ============================================================================
+
+.security-tab-container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 0;
+}
+
+// ============================================================================
+// ACTIONS CARD
+// ============================================================================
+
+.actions-card {
+  margin: 0;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+
+  ::ng-deep {
+    .mat-mdc-card-header {
+      padding: 16px 16px 8px;
+    }
+
+    .mat-mdc-card-title {
+      font-size: 16px;
+      font-weight: 500;
+      margin: 0;
+    }
+
+    .mat-mdc-card-content {
+      padding: 16px;
+    }
+  }
+}
+
+.actions-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.action-button {
+  width: 100%;
+  height: 48px;
+  font-size: 14px;
+  font-weight: 500;
+
+  mat-icon {
+    margin-right: 8px;
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+.ban-button,
+.suspend-button {
+  &:not(:disabled):hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(244, 67, 54, 0.3);
+  }
+}
+
+.unban-button {
+  &:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(76, 175, 80, 0.3);
+  }
+}
+
+.reset-button {
+  &:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(33, 150, 243, 0.3);
+  }
+}
+
+// ============================================================================
+// METRICS CARD
+// ============================================================================
+
+.metrics-card {
+  margin: 0;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+
+  ::ng-deep {
+    .mat-mdc-card-header {
+      padding: 16px 16px 8px;
+    }
+
+    .mat-mdc-card-title {
+      font-size: 16px;
+      font-weight: 500;
+      margin: 0;
+    }
+
+    .mat-mdc-card-content {
+      padding: 16px;
+    }
+  }
+}
+
+.metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+}
+
+.metric-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px;
+  background-color: rgba(0, 0, 0, 0.02);
+  border-radius: 8px;
+  transition: background-color 0.2s;
+
+  &:hover {
+    background-color: rgba(0, 0, 0, 0.04);
+  }
+}
+
+.metric-icon {
+  font-size: 32px;
+  width: 32px;
+  height: 32px;
+  color: rgba(0, 0, 0, 0.6);
+
+  &.warn {
+    color: #f44336;
+  }
+
+  &.success {
+    color: #4caf50;
+  }
+}
+
+.metric-content {
+  flex: 1;
+}
+
+.metric-label {
+  font-size: 12px;
+  font-weight: 500;
+  color: rgba(0, 0, 0, 0.6);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 4px;
+}
+
+.metric-value {
+  font-size: 18px;
+  font-weight: 500;
+  color: rgba(0, 0, 0, 0.87);
+
+  &.warn-value {
+    color: #f44336;
+  }
+}
+
+// ============================================================================
+// SECTION DIVIDER
+// ============================================================================
+
+.section-divider {
+  margin: 8px 0;
+}
+
+// ============================================================================
+// EVENTS SECTION
+// ============================================================================
+
+.events-section {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.section-title {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 500;
+  color: rgba(0, 0, 0, 0.87);
+
+  .event-count {
+    font-size: 14px;
+    font-weight: 400;
+    color: rgba(0, 0, 0, 0.6);
+  }
+}
+
+// ============================================================================
+// LOADING STATE
+// ============================================================================
+
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 0;
+  gap: 16px;
+}
+
+.loading-text {
+  margin: 0;
+  font-size: 14px;
+  color: rgba(0, 0, 0, 0.6);
+}
+
+// ============================================================================
+// EVENTS LIST
+// ============================================================================
+
+.events-list {
+  padding: 0;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  border-radius: 8px;
+  overflow: hidden;
+
+  ::ng-deep .mat-mdc-list-item {
+    height: auto;
+    min-height: unset;
+    padding: 16px;
+
+    &:hover {
+      background-color: rgba(0, 0, 0, 0.02);
+    }
+  }
+}
+
+.event-item {
+  .mat-icon[matListItemIcon] {
+    margin-right: 16px;
+  }
+}
+
+.event-title {
+  display: flex;
+  align-items: center;
+  margin-bottom: 4px;
+}
+
+.event-chip {
+  font-size: 11px;
+  font-weight: 500;
+  height: 20px;
+  border-radius: 10px;
+  padding: 0 8px;
+  display: inline-flex;
+  align-items: center;
+}
+
+.event-description {
+  font-size: 14px;
+  line-height: 1.5;
+  color: rgba(0, 0, 0, 0.87);
+  margin-top: 4px;
+}
+
+.event-metadata {
+  font-size: 12px;
+  color: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 4px;
+
+  .metadata-icon {
+    font-size: 14px;
+    width: 14px;
+    height: 14px;
+  }
+}
+
+.event-timestamp {
+  font-size: 12px;
+  color: rgba(0, 0, 0, 0.6);
+  margin-top: 6px;
+
+  .relative-time {
+    font-style: italic;
+    color: rgba(0, 0, 0, 0.5);
+  }
+}
+
+// ============================================================================
+// EMPTY STATE
+// ============================================================================
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 16px;
+  text-align: center;
+  border: 1px dashed rgba(0, 0, 0, 0.2);
+  border-radius: 8px;
+}
+
+.empty-icon {
+  font-size: 64px;
+  width: 64px;
+  height: 64px;
+  color: rgba(0, 0, 0, 0.3);
+  margin-bottom: 16px;
+}
+
+.empty-title {
+  margin: 0 0 8px;
+  font-size: 16px;
+  font-weight: 500;
+  color: rgba(0, 0, 0, 0.87);
+}
+
+.empty-text {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.5;
+  color: rgba(0, 0, 0, 0.6);
+}
+
+// ============================================================================
+// DARK THEME
+// ============================================================================
+
+@media (prefers-color-scheme: dark) {
+  .actions-card,
+  .metrics-card {
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  }
+
+  .metric-item {
+    background-color: rgba(255, 255, 255, 0.05);
+
+    &:hover {
+      background-color: rgba(255, 255, 255, 0.08);
+    }
+  }
+
+  .metric-icon {
+    color: rgba(255, 255, 255, 0.7);
+  }
+
+  .metric-label {
+    color: rgba(255, 255, 255, 0.7);
+  }
+
+  .metric-value {
+    color: rgba(255, 255, 255, 0.87);
+  }
+
+  .section-title {
+    color: rgba(255, 255, 255, 0.87);
+
+    .event-count {
+      color: rgba(255, 255, 255, 0.6);
+    }
+  }
+
+  .loading-text {
+    color: rgba(255, 255, 255, 0.7);
+  }
+
+  .events-list {
+    border-color: rgba(255, 255, 255, 0.12);
+
+    ::ng-deep .mat-mdc-list-item:hover {
+      background-color: rgba(255, 255, 255, 0.05);
+    }
+  }
+
+  .event-description {
+    color: rgba(255, 255, 255, 0.87);
+  }
+
+  .event-metadata {
+    color: rgba(255, 255, 255, 0.6);
+  }
+
+  .event-timestamp {
+    color: rgba(255, 255, 255, 0.6);
+
+    .relative-time {
+      color: rgba(255, 255, 255, 0.5);
+    }
+  }
+
+  .empty-state {
+    border-color: rgba(255, 255, 255, 0.2);
+  }
+
+  .empty-icon {
+    color: rgba(255, 255, 255, 0.3);
+  }
+
+  .empty-title {
+    color: rgba(255, 255, 255, 0.87);
+  }
+
+  .empty-text {
+    color: rgba(255, 255, 255, 0.6);
+  }
+}
+
+// ============================================================================
+// RESPONSIVE DESIGN
+// ============================================================================
+
+// Tablet - Stack metrics
+@media (max-width: 768px) {
+  .metrics-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .actions-grid {
+    gap: 10px;
+  }
+
+  .action-button {
+    height: 44px;
+  }
+}
+
+// Mobile - Smaller spacing
+@media (max-width: 600px) {
+  .security-tab-container {
+    gap: 12px;
+  }
+
+  .actions-card ::ng-deep,
+  .metrics-card ::ng-deep {
+    .mat-mdc-card-header {
+      padding: 12px 12px 6px;
+    }
+
+    .mat-mdc-card-title {
+      font-size: 15px;
+    }
+
+    .mat-mdc-card-content {
+      padding: 12px;
+    }
+  }
+
+  .metric-item {
+    padding: 10px;
+    gap: 10px;
+  }
+
+  .metric-icon {
+    font-size: 28px;
+    width: 28px;
+    height: 28px;
+  }
+
+  .metric-label {
+    font-size: 11px;
+  }
+
+  .metric-value {
+    font-size: 16px;
+  }
+
+  .section-title {
+    font-size: 15px;
+
+    .event-count {
+      font-size: 13px;
+    }
+  }
+
+  .events-list ::ng-deep .mat-mdc-list-item {
+    padding: 12px;
+  }
+
+  .event-description {
+    font-size: 13px;
+  }
+
+  .event-metadata,
+  .event-timestamp {
+    font-size: 11px;
+  }
+
+  .empty-icon {
+    font-size: 48px;
+    width: 48px;
+    height: 48px;
+  }
+
+  .empty-title {
+    font-size: 15px;
+  }
+
+  .empty-text {
+    font-size: 13px;
+  }
+}
+
+// ============================================================================
+// ACCESSIBILITY
+// ============================================================================
+
+// High contrast mode
+@media (prefers-contrast: high) {
+  .actions-card,
+  .metrics-card,
+  .events-list,
+  .empty-state {
+    border: 2px solid currentColor;
+  }
+
+  .metric-item {
+    border: 1px solid currentColor;
+  }
+}
+
+// Focus indicators
+.action-button:focus-visible {
+  outline: 2px solid var(--mat-app-primary);
+  outline-offset: 2px;
+}
+
+// Reduced motion
+@media (prefers-reduced-motion: reduce) {
+  .action-button {
+    transition: none;
+
+    &:hover {
+      transform: none;
+    }
+  }
+
+  .metric-item {
+    transition: none;
+  }
+}

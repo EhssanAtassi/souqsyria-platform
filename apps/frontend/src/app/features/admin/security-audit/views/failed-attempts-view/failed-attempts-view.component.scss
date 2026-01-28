@@ -1,0 +1,86 @@
+.failed-attempts-view {
+  padding: 16px;
+}
+
+mat-card {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.event-title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.user-email {
+  font-weight: 500;
+}
+
+.event-details {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: rgba(0, 0, 0, 0.6);
+}
+
+.separator {
+  color: rgba(0, 0, 0, 0.3);
+}
+
+.permission {
+  font-family: monospace;
+  background: rgba(0, 0, 0, 0.05);
+  padding: 2px 6px;
+  border-radius: 3px;
+}
+
+.reason {
+  color: #f44336;
+}
+
+.ip-address {
+  font-size: 12px;
+  background: rgba(0, 0, 0, 0.05);
+  padding: 4px 8px;
+  border-radius: 4px;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 48px 24px;
+
+  .empty-icon {
+    font-size: 64px;
+    width: 64px;
+    height: 64px;
+    color: #4caf50;
+  }
+
+  p {
+    color: rgba(0, 0, 0, 0.6);
+  }
+}
+
+.dark-theme {
+  .event-details {
+    color: rgba(255, 255, 255, 0.6);
+  }
+
+  .separator {
+    color: rgba(255, 255, 255, 0.3);
+  }
+
+  .permission {
+    background: rgba(255, 255, 255, 0.1);
+  }
+
+  .ip-address {
+    background: rgba(255, 255, 255, 0.1);
+  }
+
+  .empty-state p {
+    color: rgba(255, 255, 255, 0.6);
+  }
+}

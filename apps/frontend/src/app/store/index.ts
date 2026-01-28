@@ -32,3 +32,9 @@ export * from './user/user.service';
 export * from './ui/ui.store';
 export * from './ui/ui.query';
 export * from './ui/ui.service';
+
+// Permission Store
+export * from './permissions/permission.store';
+export * from './permissions/permission.query';
+export * from './permissions/permission.service';
+export * from './permissions/permission.model';

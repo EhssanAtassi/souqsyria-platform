@@ -1,0 +1,128 @@
+<h2 mat-dialog-title>
+  <mat-icon>add_circle</mat-icon>
+  Create New Role
+</h2>
+
+<mat-dialog-content>
+  <mat-stepper [linear]="true" #stepper>
+    <!-- Step 1: Basic Information -->
+    <mat-step [stepControl]="basicInfoForm" label="Basic Information">
+      <form [formGroup]="basicInfoForm" class="step-form">
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Name</mat-label>
+          <input matInput formControlName="name" required placeholder="e.g., content_moderator">
+          <mat-hint>Unique identifier (lowercase, underscores)</mat-hint>
+          @if (basicInfoForm.get('name')?.hasError('required')) {
+            <mat-error>Name is required</mat-error>
+          }
+          @if (basicInfoForm.get('name')?.hasError('minlength')) {
+            <mat-error>Name must be at least 3 characters</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Display Name</mat-label>
+          <input matInput formControlName="displayName" required placeholder="e.g., Content Moderator">
+          @if (basicInfoForm.get('displayName')?.hasError('required')) {
+            <mat-error>Display name is required</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Description</mat-label>
+          <textarea matInput formControlName="description" rows="3" placeholder="Role description"></textarea>
+          <mat-hint>{{ basicInfoForm.get('description')?.value?.length || 0 }}/500</mat-hint>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Priority</mat-label>
+          <input matInput type="number" formControlName="priority" required min="1" max="100">
+          <mat-hint>1 (Low) - 100 (High)</mat-hint>
+          @if (basicInfoForm.get('priority')?.hasError('min') || basicInfoForm.get('priority')?.hasError('max')) {
+            <mat-error>Priority must be between 1 and 100</mat-error>
+          }
+        </mat-form-field>
+
+        <div class="stepper-actions">
+          <button mat-button matStepperNext [disabled]="!basicInfoForm.valid">
+            Next
+            <mat-icon>arrow_forward</mat-icon>
+          </button>
+        </div>
+      </form>
+    </mat-step>
+
+    <!-- Step 2: Permissions -->
+    <mat-step [stepControl]="permissionsForm" label="Permissions">
+      <form [formGroup]="permissionsForm" class="step-form">
+        <app-permission-selector
+          [permissions]="allPermissions"
+          [preSelectedIds]="selectedPermissions"
+          (selectionChange)="onPermissionsChange($event)">
+        </app-permission-selector>
+
+        <div class="stepper-actions">
+          <button mat-button matStepperPrevious>
+            <mat-icon>arrow_back</mat-icon>
+            Back
+          </button>
+          <button mat-button matStepperNext [disabled]="selectedPermissions.length === 0">
+            Next
+            <mat-icon>arrow_forward</mat-icon>
+          </button>
+        </div>
+      </form>
+    </mat-step>
+
+    <!-- Step 3: Review -->
+    <mat-step label="Review">
+      <div class="review-section">
+        <h3>Review Role Details</h3>
+
+        <div class="review-item">
+          <strong>Name:</strong>
+          <span>{{ basicInfoForm.get('name')?.value }}</span>
+        </div>
+
+        <div class="review-item">
+          <strong>Display Name:</strong>
+          <span>{{ basicInfoForm.get('displayName')?.value }}</span>
+        </div>
+
+        <div class="review-item">
+          <strong>Description:</strong>
+          <span>{{ basicInfoForm.get('description')?.value || 'N/A' }}</span>
+        </div>
+
+        <div class="review-item">
+          <strong>Priority:</strong>
+          <span>{{ basicInfoForm.get('priority')?.value }}</span>
+        </div>
+
+        <div class="review-item">
+          <strong>Permissions:</strong>
+          <span>{{ selectedPermissions.length }} selected</span>
+        </div>
+      </div>
+
+      <div class="stepper-actions">
+        <button mat-button matStepperPrevious>
+          <mat-icon>arrow_back</mat-icon>
+          Back
+        </button>
+      </div>
+    </mat-step>
+  </mat-stepper>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button (click)="onCancel()">Cancel</button>
+  <button
+    mat-raised-button
+    color="primary"
+    (click)="onCreate()"
+    [disabled]="!basicInfoForm.valid || selectedPermissions.length === 0">
+    <mat-icon>check</mat-icon>
+    Create Role
+  </button>
+</mat-dialog-actions>

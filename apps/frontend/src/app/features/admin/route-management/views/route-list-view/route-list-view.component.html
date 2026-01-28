@@ -1,0 +1,185 @@
+<div class="route-list-view">
+  <!-- Bulk Actions Bar (appears when routes selected) -->
+  @if (hasSelection()) {
+    <app-bulk-actions-bar
+      [selectedCount]="selectedCount()"
+      (bulkLink)="bulkLinkPermissions()"
+      (bulkUnlink)="bulkUnlinkPermissions()"
+      (deselectAll)="deselectAll()">
+    </app-bulk-actions-bar>
+  }
+
+  <!-- Material Table Container -->
+  <div class="table-container">
+    <table
+      mat-table
+      [dataSource]="(routes$ | async) || []"
+      matSort
+      (matSortChange)="onSort($event)"
+      [trackBy]="trackByRouteId"
+      class="routes-table">
+
+      <!-- Selection Column -->
+      <ng-container matColumnDef="select">
+        <th mat-header-cell *matHeaderCellDef class="select-column">
+          <mat-checkbox
+            (change)="$event ? toggleAllRows() : null"
+            [checked]="isAllSelected()"
+            [indeterminate]="hasPartialSelection()"
+            color="primary"
+            aria-label="Select all routes">
+          </mat-checkbox>
+        </th>
+        <td mat-cell *matCellDef="let route" class="select-column">
+          <mat-checkbox
+            (click)="$event.stopPropagation()"
+            (change)="toggleRow(route.id)"
+            [checked]="isSelected(route.id)"
+            color="primary"
+            [aria-label]="'Select route ' + route.path">
+          </mat-checkbox>
+        </td>
+      </ng-container>
+
+      <!-- Method Column -->
+      <ng-container matColumnDef="method">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header class="method-column">
+          Method
+        </th>
+        <td mat-cell *matCellDef="let route" class="method-column">
+          <app-method-badge [method]="route.method" />
+        </td>
+      </ng-container>
+
+      <!-- Path Column -->
+      <ng-container matColumnDef="path">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header class="path-column">
+          Path
+        </th>
+        <td mat-cell *matCellDef="let route" class="path-column">
+          <code class="route-path">{{ route.path }}</code>
+        </td>
+      </ng-container>
+
+      <!-- Controller Column -->
+      <ng-container matColumnDef="controller">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header class="controller-column">
+          Controller
+        </th>
+        <td mat-cell *matCellDef="let route" class="controller-column">
+          <span class="controller-name">{{ route.controller }}</span>
+        </td>
+      </ng-container>
+
+      <!-- Handler Column -->
+      <ng-container matColumnDef="handler">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header class="handler-column">
+          Handler
+        </th>
+        <td mat-cell *matCellDef="let route" class="handler-column">
+          <code class="handler-name">{{ route.handler }}()</code>
+        </td>
+      </ng-container>
+
+      <!-- Status Column -->
+      <ng-container matColumnDef="status">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header class="status-column">
+          Status
+        </th>
+        <td mat-cell *matCellDef="let route" class="status-column">
+          <app-status-indicator [status]="getStatus(route)" />
+        </td>
+      </ng-container>
+
+      <!-- Permission Column (Inline Editor) -->
+      <ng-container matColumnDef="permission">
+        <th mat-header-cell *matHeaderCellDef class="permission-column">
+          Permission
+        </th>
+        <td mat-cell *matCellDef="let route" class="permission-column">
+          <app-permission-link-editor
+            [route]="route"
+            (linked)="onPermissionLinked(route.id, $event)"
+            (unlinked)="onPermissionUnlinked(route.id)">
+          </app-permission-link-editor>
+        </td>
+      </ng-container>
+
+      <!-- Actions Column -->
+      <ng-container matColumnDef="actions">
+        <th mat-header-cell *matHeaderCellDef class="actions-column">
+          Actions
+        </th>
+        <td mat-cell *matCellDef="let route" class="actions-column">
+          <button
+            mat-icon-button
+            [matMenuTriggerFor]="actionMenu"
+            aria-label="Open actions menu"
+            (click)="$event.stopPropagation()">
+            <mat-icon>more_vert</mat-icon>
+          </button>
+          <mat-menu #actionMenu="matMenu">
+            <button mat-menu-item (click)="viewDetails(route)">
+              <mat-icon>info</mat-icon>
+              <span>View Details</span>
+            </button>
+            @if (!route.permissionId && route.suggestedPermissionId) {
+              <button mat-menu-item (click)="applySuggestion(route)">
+                <mat-icon>auto_fix_high</mat-icon>
+                <span>Apply AI Suggestion</span>
+              </button>
+            }
+            @if (route.permissionId) {
+              <mat-divider></mat-divider>
+              <button mat-menu-item (click)="unlinkPermission(route.id)">
+                <mat-icon>link_off</mat-icon>
+                <span>Unlink Permission</span>
+              </button>
+            }
+          </mat-menu>
+        </td>
+      </ng-container>
+
+      <!-- Header Row -->
+      <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
+
+      <!-- Data Rows -->
+      <tr
+        mat-row
+        *matRowDef="let route; columns: displayedColumns;"
+        [class.selected-row]="isSelected(route.id)"
+        (click)="selectRoute(route)"
+        class="route-row">
+      </tr>
+
+      <!-- No Data Row -->
+      <tr class="mat-row no-data-row" *matNoDataRow>
+        <td class="mat-cell no-data-cell" [attr.colspan]="displayedColumns.length">
+          <div class="no-data">
+            <mat-icon>search_off</mat-icon>
+            <p class="no-data-title">No routes found</p>
+            <p class="no-data-subtitle">Try adjusting your filters or search criteria</p>
+          </div>
+        </td>
+      </tr>
+    </table>
+
+    <!-- Loading Overlay -->
+    @if (loading$ | async) {
+      <div class="loading-overlay">
+        <mat-spinner diameter="48"></mat-spinner>
+      </div>
+    }
+  </div>
+
+  <!-- Paginator -->
+  <mat-paginator
+    [length]="(pagination$ | async)?.totalCount || 0"
+    [pageIndex]="(pagination$ | async)?.page || 0"
+    [pageSize]="(pagination$ | async)?.limit || 25"
+    [pageSizeOptions]="[10, 25, 50, 100]"
+    (page)="onPageChange($event)"
+    showFirstLastButtons
+    class="routes-paginator">
+  </mat-paginator>
+</div>

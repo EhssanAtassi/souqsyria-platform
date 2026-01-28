@@ -61,9 +61,8 @@ export class GuestSession {
     name: 'session_token',
     type: 'varchar',
     length: 64,
-    unique: true,
+    unique: true, // Creates unique index automatically, no separate @Index() needed
   })
-  @Index()
   sessionToken: string;
 
   /**
