@@ -1,0 +1,369 @@
+/**
+ * Permission Item Component Styles
+ *
+ * @description
+ * Styles for individual permission items with checkbox selection,
+ * badges, tooltips, and hover effects.
+ */
+
+// ============================================================================
+// COMPONENT HOST
+// ============================================================================
+
+:host {
+  display: block;
+  width: 100%;
+}
+
+// ============================================================================
+// PERMISSION ITEM CONTAINER
+// ============================================================================
+
+.permission-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px 16px 12px 20px;
+  background: white;
+  border-left: 3px solid transparent;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+
+  &:hover {
+    background: rgba(0, 0, 0, 0.02);
+  }
+
+  // Selected state
+  &--selected {
+    background: rgba(63, 81, 181, 0.08);
+
+    &:hover {
+      background: rgba(63, 81, 181, 0.12);
+    }
+  }
+
+  // Disabled state
+  &--disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+
+    &:hover {
+      background: white;
+    }
+  }
+
+  // Read-only state
+  &--read-only {
+    cursor: default;
+    padding-left: 16px;
+
+    &:hover {
+      background: transparent;
+    }
+  }
+
+  // System permission
+  &--system {
+    background: rgba(156, 39, 176, 0.03);
+  }
+}
+
+// ============================================================================
+// CHECKBOX
+// ============================================================================
+
+.permission-checkbox {
+  margin-top: 2px;
+  flex-shrink: 0;
+}
+
+// ============================================================================
+// PERMISSION CONTENT
+// ============================================================================
+
+.permission-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0; // Allow text truncation
+}
+
+// ============================================================================
+// PERMISSION HEADER
+// ============================================================================
+
+.permission-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.permission-icon {
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+}
+
+.permission-name {
+  flex: 1;
+  font-size: 14px;
+  font-weight: 500;
+  color: rgba(0, 0, 0, 0.87);
+  line-height: 1.4;
+
+  // Highlighted search term
+  ::ng-deep mark {
+    background: rgba(255, 235, 59, 0.5);
+    padding: 2px 4px;
+    border-radius: 2px;
+    font-weight: 600;
+  }
+}
+
+.system-badge {
+  height: 24px;
+  font-size: 11px;
+  background: rgba(156, 39, 176, 0.1);
+  color: #9c27b0;
+  border: 1px solid rgba(156, 39, 176, 0.3);
+
+  mat-icon {
+    font-size: 14px;
+    width: 14px;
+    height: 14px;
+    margin-right: 4px;
+  }
+}
+
+// ============================================================================
+// PERMISSION DETAILS
+// ============================================================================
+
+.permission-details {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.permission-key {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  font-family: 'Roboto Mono', monospace;
+  font-size: 11px;
+  font-weight: 600;
+  color: rgba(0, 0, 0, 0.87);
+  border-radius: 4px;
+  white-space: nowrap;
+
+  mat-icon {
+    font-size: 14px;
+    width: 14px;
+    height: 14px;
+  }
+}
+
+.permission-metadata {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.metadata-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  color: rgba(0, 0, 0, 0.6);
+
+  mat-icon {
+    font-size: 14px;
+    width: 14px;
+    height: 14px;
+    color: rgba(0, 0, 0, 0.54);
+  }
+}
+
+// ============================================================================
+// PERMISSION DESCRIPTION
+// ============================================================================
+
+.permission-description {
+  font-size: 12px;
+  line-height: 1.5;
+  color: rgba(0, 0, 0, 0.6);
+  display: none; // Hidden by default, shown on mobile
+}
+
+// ============================================================================
+// SELECTION INDICATOR
+// ============================================================================
+
+.selection-indicator {
+  position: absolute;
+  top: 12px;
+  right: 16px;
+  opacity: 0;
+  transform: scale(0.8);
+  transition: all 0.2s ease;
+
+  mat-icon {
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+    color: #4caf50;
+  }
+
+  .permission-item--selected & {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+// ============================================================================
+// DARK THEME
+// ============================================================================
+
+.dark-theme {
+  .permission-item {
+    background: #424242;
+    border-bottom-color: rgba(255, 255, 255, 0.06);
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    &--selected {
+      background: rgba(63, 81, 181, 0.15);
+
+      &:hover {
+        background: rgba(63, 81, 181, 0.2);
+      }
+    }
+
+    &--disabled:hover {
+      background: #424242;
+    }
+
+    &--system {
+      background: rgba(156, 39, 176, 0.1);
+    }
+  }
+
+  .permission-name {
+    color: rgba(255, 255, 255, 0.87);
+
+    ::ng-deep mark {
+      background: rgba(255, 235, 59, 0.3);
+      color: rgba(255, 255, 255, 0.87);
+    }
+  }
+
+  .permission-key {
+    color: rgba(255, 255, 255, 0.87);
+  }
+
+  .metadata-item {
+    color: rgba(255, 255, 255, 0.7);
+
+    mat-icon {
+      color: rgba(255, 255, 255, 0.6);
+    }
+  }
+
+  .permission-description {
+    color: rgba(255, 255, 255, 0.7);
+  }
+}
+
+// ============================================================================
+// RESPONSIVE ADJUSTMENTS
+// ============================================================================
+
+@media (max-width: 768px) {
+  .permission-item {
+    flex-direction: column;
+    gap: 8px;
+    padding: 12px;
+  }
+
+  .permission-header {
+    width: 100%;
+  }
+
+  .permission-description {
+    display: block; // Show description on mobile
+  }
+
+  .permission-details {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .selection-indicator {
+    top: 8px;
+    right: 8px;
+
+    mat-icon {
+      font-size: 18px;
+      width: 18px;
+      height: 18px;
+    }
+  }
+}
+
+// ============================================================================
+// ACCESSIBILITY
+// ============================================================================
+
+// Focus visible
+.permission-item:focus-visible {
+  outline: 2px solid #3f51b5;
+  outline-offset: -2px;
+}
+
+// High contrast mode
+@media (prefers-contrast: high) {
+  .permission-item {
+    border-bottom-width: 2px;
+
+    &--selected {
+      border: 2px solid #3f51b5;
+    }
+  }
+
+  .permission-key,
+  .system-badge {
+    border-width: 2px;
+  }
+}
+
+// Reduced motion
+@media (prefers-reduced-motion: reduce) {
+  .permission-item,
+  .selection-indicator,
+  .permission-icon {
+    transition: none;
+  }
+}
+
+// Touch targets (minimum 48px)
+@media (hover: none) and (pointer: coarse) {
+  .permission-item {
+    min-height: 48px;
+    padding: 16px;
+  }
+
+  .permission-checkbox {
+    ::ng-deep .mat-mdc-checkbox-touch-target {
+      width: 48px;
+      height: 48px;
+    }
+  }
+}

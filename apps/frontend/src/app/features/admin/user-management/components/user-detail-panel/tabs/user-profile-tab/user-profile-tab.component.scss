@@ -1,0 +1,229 @@
+/**
+ * User Profile Tab Styles
+ *
+ * @description
+ * Card-based layout for displaying user profile information.
+ */
+
+// ============================================================================
+// CONTAINER
+// ============================================================================
+
+.profile-tab-container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 0;
+}
+
+// ============================================================================
+// INFORMATION CARDS
+// ============================================================================
+
+.info-card {
+  margin: 0;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+
+  ::ng-deep {
+    .mat-mdc-card-header {
+      padding: 16px 16px 8px;
+    }
+
+    .mat-mdc-card-title {
+      font-size: 16px;
+      font-weight: 500;
+      margin: 0;
+    }
+
+    .mat-mdc-card-content {
+      padding: 0;
+    }
+  }
+}
+
+// ============================================================================
+// LIST ITEMS
+// ============================================================================
+
+::ng-deep {
+  .mat-mdc-list {
+    padding: 0;
+  }
+
+  .mat-mdc-list-item {
+    height: auto;
+    min-height: 56px;
+    padding: 12px 16px;
+
+    &:hover {
+      background-color: rgba(0, 0, 0, 0.04);
+    }
+
+    .mat-icon {
+      &[matListItemIcon] {
+        color: var(--mat-app-primary);
+        margin-right: 16px;
+      }
+
+      &[matListItemMeta] {
+        margin-left: 8px;
+      }
+    }
+
+    [matListItemTitle] {
+      font-size: 12px;
+      font-weight: 500;
+      color: rgba(0, 0, 0, 0.6);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 4px;
+    }
+
+    [matListItemLine] {
+      font-size: 14px;
+      line-height: 1.5;
+      color: rgba(0, 0, 0, 0.87);
+
+      &.subtitle {
+        font-size: 12px;
+        color: rgba(0, 0, 0, 0.6);
+        margin-top: 2px;
+      }
+
+      &.no-data {
+        font-style: italic;
+        color: rgba(0, 0, 0, 0.4);
+      }
+
+      &.account-id {
+        font-family: 'Roboto Mono', monospace;
+        font-size: 13px;
+      }
+    }
+  }
+
+  .mat-divider {
+    margin: 0;
+  }
+}
+
+// ============================================================================
+// SPECIAL ICONS
+// ============================================================================
+
+.verified-icon {
+  color: #4caf50;
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
+}
+
+// ============================================================================
+// EDIT BUTTON
+// ============================================================================
+
+.edit-button {
+  width: 100%;
+  height: 48px;
+  margin-top: 8px;
+
+  mat-icon {
+    margin-right: 8px;
+  }
+}
+
+// ============================================================================
+// DARK THEME
+// ============================================================================
+
+@media (prefers-color-scheme: dark) {
+  .info-card {
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  }
+
+  ::ng-deep {
+    .mat-mdc-list-item {
+      &:hover {
+        background-color: rgba(255, 255, 255, 0.04);
+      }
+
+      [matListItemTitle] {
+        color: rgba(255, 255, 255, 0.7);
+      }
+
+      [matListItemLine] {
+        color: rgba(255, 255, 255, 0.87);
+
+        &.subtitle {
+          color: rgba(255, 255, 255, 0.6);
+        }
+
+        &.no-data {
+          color: rgba(255, 255, 255, 0.4);
+        }
+      }
+    }
+  }
+}
+
+// ============================================================================
+// RESPONSIVE DESIGN
+// ============================================================================
+
+@media (max-width: 600px) {
+  .profile-tab-container {
+    gap: 12px;
+  }
+
+  .info-card ::ng-deep {
+    .mat-mdc-card-header {
+      padding: 12px 12px 6px;
+    }
+
+    .mat-mdc-card-title {
+      font-size: 15px;
+    }
+  }
+
+  ::ng-deep .mat-mdc-list-item {
+    min-height: 48px;
+    padding: 10px 12px;
+
+    .mat-icon[matListItemIcon] {
+      margin-right: 12px;
+    }
+
+    [matListItemTitle] {
+      font-size: 11px;
+    }
+
+    [matListItemLine] {
+      font-size: 13px;
+
+      &.subtitle {
+        font-size: 11px;
+      }
+    }
+  }
+}
+
+// ============================================================================
+// ACCESSIBILITY
+// ============================================================================
+
+// High contrast mode
+@media (prefers-contrast: high) {
+  .info-card {
+    border: 2px solid currentColor;
+  }
+
+  ::ng-deep .mat-mdc-list-item {
+    border-bottom: 1px solid currentColor;
+  }
+}
+
+// Focus indicators
+.edit-button:focus-visible {
+  outline: 2px solid var(--mat-app-primary);
+  outline-offset: 2px;
+}

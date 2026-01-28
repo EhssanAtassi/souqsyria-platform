@@ -1,0 +1,155 @@
+<div class="filters-panel">
+  <!-- Clear All Button -->
+  <div class="filters-actions">
+    @if (hasActiveFilters$ | async) {
+      <button
+        mat-button
+        color="primary"
+        (click)="clearAll()"
+        class="clear-all-button"
+      >
+        <mat-icon>clear_all</mat-icon>
+        Clear All Filters
+      </button>
+    }
+  </div>
+
+  <!-- HTTP Method Filter -->
+  <mat-expansion-panel [expanded]="true" class="filter-panel">
+    <mat-expansion-panel-header>
+      <mat-panel-title>
+        <mat-icon>http</mat-icon>
+        <span>HTTP Method</span>
+      </mat-panel-title>
+    </mat-expansion-panel-header>
+
+    <mat-selection-list
+      [formControl]="methodControl"
+      [multiple]="false"
+      hideSingleSelectionIndicator
+      class="method-list"
+    >
+      @for (method of httpMethods; track method.value) {
+        <mat-list-option [value]="method.value">
+          @if (method.color) {
+            <mat-chip
+              [style.background-color]="method.color"
+              [style.color]="'white'"
+              class="method-chip"
+            >
+              {{ method.label }}
+            </mat-chip>
+          } @else {
+            <span class="method-label-all">{{ method.label }}</span>
+          }
+        </mat-list-option>
+      }
+    </mat-selection-list>
+  </mat-expansion-panel>
+
+  <!-- Mapping Status Filter -->
+  <mat-expansion-panel [expanded]="true" class="filter-panel">
+    <mat-expansion-panel-header>
+      <mat-panel-title>
+        <mat-icon>label</mat-icon>
+        <span>Mapping Status</span>
+      </mat-panel-title>
+    </mat-expansion-panel-header>
+
+    <mat-selection-list
+      [formControl]="statusControl"
+      [multiple]="false"
+      hideSingleSelectionIndicator
+      class="status-list"
+    >
+      @for (status of statusOptions; track status.value) {
+        <mat-list-option [value]="status.value">
+          <div class="status-option">
+            <mat-icon
+              [color]="status.value === 'mapped' ? 'primary' : 
+                      status.value === 'unmapped' ? 'warn' : 
+                      status.value === 'public' ? 'accent' : undefined"
+            >
+              {{ status.icon }}
+            </mat-icon>
+            <span>{{ status.label }}</span>
+          </div>
+        </mat-list-option>
+      }
+    </mat-selection-list>
+  </mat-expansion-panel>
+
+  <!-- Controller Filter -->
+  <mat-expansion-panel class="filter-panel">
+    <mat-expansion-panel-header>
+      <mat-panel-title>
+        <mat-icon>code</mat-icon>
+        <span>Controller</span>
+      </mat-panel-title>
+    </mat-expansion-panel-header>
+
+    <div class="filter-content">
+      <mat-form-field appearance="outline" subscriptSizing="dynamic">
+        <mat-label>Select Controller</mat-label>
+        <mat-select [formControl]="controllerControl">
+          <mat-option [value]="null">
+            <em>All Controllers</em>
+          </mat-option>
+          @for (controller of controllers$ | async; track controller) {
+            <mat-option [value]="controller">
+              {{ controller }}
+            </mat-option>
+          }
+        </mat-select>
+        <mat-icon matPrefix>folder</mat-icon>
+      </mat-form-field>
+    </div>
+  </mat-expansion-panel>
+
+  <!-- Permission Filter -->
+  <mat-expansion-panel class="filter-panel">
+    <mat-expansion-panel-header>
+      <mat-panel-title>
+        <mat-icon>shield</mat-icon>
+        <span>Permission</span>
+      </mat-panel-title>
+    </mat-expansion-panel-header>
+
+    <div class="filter-content">
+      <mat-form-field appearance="outline" subscriptSizing="dynamic">
+        <mat-label>Select Permission</mat-label>
+        <input
+          matInput
+          [matAutocomplete]="auto"
+          [formControl]="permissionControl"
+          placeholder="Type to search..."
+        />
+        <mat-icon matPrefix>search</mat-icon>
+        <mat-autocomplete
+          #auto="matAutocomplete"
+          (optionSelected)="onPermissionSelected($event.option.value)"
+        >
+          @for (perm of filteredPermissions$ | async; track perm.id) {
+            <mat-option [value]="perm.id">
+              <mat-icon class="permission-icon">verified_user</mat-icon>
+              <span>{{ perm.name }}</span>
+            </mat-option>
+          }
+          @if ((filteredPermissions$ | async)?.length === 0) {
+            <mat-option disabled>
+              <em>No permissions found</em>
+            </mat-option>
+          }
+        </mat-autocomplete>
+      </mat-form-field>
+    </div>
+  </mat-expansion-panel>
+
+  <!-- Filter Summary -->
+  <div class="filter-summary">
+    <mat-icon>info</mat-icon>
+    <span class="summary-text">
+      Filters update results automatically
+    </span>
+  </div>
+</div>

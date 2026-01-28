@@ -1,0 +1,454 @@
+.dialog-content {
+  padding: 24px;
+  max-height: 70vh;
+  overflow-y: auto;
+}
+
+.export-form {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.form-section {
+  .section-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0 0 16px 0;
+    font-size: 16px;
+    font-weight: 500;
+    color: rgba(0, 0, 0, 0.87);
+
+    mat-icon {
+      font-size: 20px;
+      width: 20px;
+      height: 20px;
+      color: var(--mdc-theme-primary, #3f51b5);
+    }
+  }
+}
+
+.full-width {
+  width: 100%;
+}
+
+// Format Option Styling
+.format-option {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 0;
+
+  mat-icon {
+    color: var(--mdc-theme-primary, #3f51b5);
+  }
+
+  .format-details {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+
+    strong {
+      font-size: 14px;
+      color: rgba(0, 0, 0, 0.87);
+    }
+
+    span {
+      font-size: 12px;
+      color: rgba(0, 0, 0, 0.6);
+    }
+  }
+}
+
+// Checkbox Group
+.checkbox-group {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+
+  mat-checkbox {
+    ::ng-deep .mdc-form-field {
+      width: 100%;
+    }
+
+    .checkbox-content {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 8px 0;
+
+      .checkbox-icon {
+        color: rgba(0, 0, 0, 0.54);
+        font-size: 24px;
+        width: 24px;
+        height: 24px;
+      }
+
+      .checkbox-label {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+
+        strong {
+          font-size: 14px;
+          color: rgba(0, 0, 0, 0.87);
+        }
+
+        span {
+          font-size: 12px;
+          color: rgba(0, 0, 0, 0.6);
+        }
+      }
+    }
+  }
+}
+
+.validation-warning {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  margin-top: 12px;
+  background: rgba(255, 152, 0, 0.1);
+  border-left: 4px solid #ff9800;
+  border-radius: 4px;
+  color: rgba(255, 152, 0, 0.87);
+  font-size: 13px;
+
+  mat-icon {
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+  }
+}
+
+// Preview Section
+.preview-section {
+  .preview-card {
+    border: 2px solid var(--mdc-theme-primary, #3f51b5);
+
+    mat-card-content {
+      padding: 0;
+    }
+
+    .preview-stats {
+      display: flex;
+      align-items: stretch;
+      gap: 0;
+      padding: 16px;
+
+      .stat-item {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 0 16px;
+
+        &:first-child {
+          padding-left: 0;
+        }
+
+        &:last-child {
+          padding-right: 0;
+        }
+
+        .stat-icon {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          width: 48px;
+          height: 48px;
+          background: rgba(63, 81, 181, 0.1);
+          border-radius: 50%;
+
+          mat-icon {
+            color: var(--mdc-theme-primary, #3f51b5);
+            font-size: 24px;
+            width: 24px;
+            height: 24px;
+          }
+        }
+
+        .stat-content {
+          display: flex;
+          flex-direction: column;
+          gap: 4px;
+
+          .stat-label {
+            font-size: 12px;
+            color: rgba(0, 0, 0, 0.6);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+          }
+
+          .stat-value {
+            font-size: 24px;
+            font-weight: 600;
+            color: rgba(0, 0, 0, 0.87);
+
+            &.zero {
+              color: rgba(244, 67, 54, 0.87);
+            }
+          }
+        }
+      }
+
+      mat-divider {
+        height: auto;
+        margin: 0 8px;
+        border-color: rgba(0, 0, 0, 0.12);
+      }
+    }
+
+    .export-breakdown {
+      padding: 16px;
+      background: rgba(0, 0, 0, 0.02);
+      border-top: 1px solid rgba(0, 0, 0, 0.12);
+
+      h4 {
+        margin: 0 0 12px 0;
+        font-size: 13px;
+        font-weight: 500;
+        color: rgba(0, 0, 0, 0.6);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+
+      mat-chip-set {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+
+      mat-chip {
+        mat-icon {
+          font-size: 18px;
+          width: 18px;
+          height: 18px;
+        }
+      }
+    }
+
+    .sample-output {
+      padding: 16px;
+      border-top: 1px solid rgba(0, 0, 0, 0.12);
+
+      h4 {
+        margin: 0 0 12px 0;
+        font-size: 13px;
+        font-weight: 500;
+        color: rgba(0, 0, 0, 0.6);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+
+      .code-preview {
+        margin: 0;
+        padding: 12px;
+        background: rgba(0, 0, 0, 0.05);
+        border: 1px solid rgba(0, 0, 0, 0.12);
+        border-radius: 4px;
+        overflow-x: auto;
+
+        code {
+          font-family: 'Roboto Mono', monospace;
+          font-size: 12px;
+          line-height: 1.6;
+          color: rgba(0, 0, 0, 0.87);
+          white-space: pre;
+        }
+      }
+    }
+  }
+}
+
+.dialog-actions {
+  padding: 16px 24px;
+  border-top: 1px solid rgba(0, 0, 0, 0.12);
+
+  button {
+    mat-spinner {
+      display: inline-block;
+      margin-right: 8px;
+    }
+
+    mat-icon {
+      margin-right: 4px;
+    }
+
+    span {
+      vertical-align: middle;
+    }
+  }
+}
+
+// Dark theme support
+.dark-theme {
+  .form-section .section-title {
+    color: rgba(255, 255, 255, 0.87);
+  }
+
+  .format-option {
+    .format-details {
+      strong {
+        color: rgba(255, 255, 255, 0.87);
+      }
+
+      span {
+        color: rgba(255, 255, 255, 0.6);
+      }
+    }
+  }
+
+  .checkbox-group {
+    mat-checkbox {
+      .checkbox-content {
+        .checkbox-icon {
+          color: rgba(255, 255, 255, 0.54);
+        }
+
+        .checkbox-label {
+          strong {
+            color: rgba(255, 255, 255, 0.87);
+          }
+
+          span {
+            color: rgba(255, 255, 255, 0.6);
+          }
+        }
+      }
+    }
+  }
+
+  .preview-card {
+    .preview-stats {
+      .stat-item {
+        .stat-icon {
+          background: rgba(63, 81, 181, 0.2);
+        }
+
+        .stat-content {
+          .stat-label {
+            color: rgba(255, 255, 255, 0.6);
+          }
+
+          .stat-value {
+            color: rgba(255, 255, 255, 0.87);
+          }
+        }
+      }
+
+      mat-divider {
+        border-color: rgba(255, 255, 255, 0.12);
+      }
+    }
+
+    .export-breakdown {
+      background: rgba(255, 255, 255, 0.02);
+      border-color: rgba(255, 255, 255, 0.12);
+
+      h4 {
+        color: rgba(255, 255, 255, 0.6);
+      }
+    }
+
+    .sample-output {
+      border-color: rgba(255, 255, 255, 0.12);
+
+      h4 {
+        color: rgba(255, 255, 255, 0.6);
+      }
+
+      .code-preview {
+        background: rgba(255, 255, 255, 0.05);
+        border-color: rgba(255, 255, 255, 0.12);
+
+        code {
+          color: rgba(255, 255, 255, 0.87);
+        }
+      }
+    }
+  }
+
+  .dialog-actions {
+    border-color: rgba(255, 255, 255, 0.12);
+  }
+}
+
+// Responsive adjustments
+@media (max-width: 768px) {
+  .dialog-content {
+    padding: 16px;
+  }
+
+  .preview-card {
+    .preview-stats {
+      flex-direction: column;
+      gap: 16px;
+
+      .stat-item {
+        padding: 0;
+      }
+
+      mat-divider {
+        display: none;
+      }
+    }
+  }
+
+  .dialog-actions {
+    flex-direction: column-reverse;
+    gap: 8px;
+
+    button {
+      width: 100%;
+      margin: 0;
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .checkbox-group {
+    mat-checkbox {
+      .checkbox-content {
+        .checkbox-label {
+          strong {
+            font-size: 13px;
+          }
+
+          span {
+            font-size: 11px;
+          }
+        }
+      }
+    }
+  }
+
+  .preview-card {
+    .preview-stats {
+      .stat-item {
+        .stat-icon {
+          width: 40px;
+          height: 40px;
+
+          mat-icon {
+            font-size: 20px;
+            width: 20px;
+            height: 20px;
+          }
+        }
+
+        .stat-content {
+          .stat-value {
+            font-size: 20px;
+          }
+        }
+      }
+    }
+
+    .sample-output .code-preview code {
+      font-size: 10px;
+    }
+  }
+}

@@ -1,0 +1,202 @@
+// ============================================================================
+// Status Indicator Component Styles
+// ============================================================================
+
+:host {
+  display: inline-block;
+  vertical-align: middle;
+}
+
+.status-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 13px;
+  font-weight: 500;
+  transition: all 150ms ease;
+
+  &.compact {
+    padding: 2px;
+    gap: 0;
+  }
+
+  // ============================================================================
+  // Status-Specific Styling
+  // ============================================================================
+
+  &.status-mapped {
+    background-color: rgba(63, 81, 181, 0.08);
+    color: #3f51b5;
+
+    &:hover {
+      background-color: rgba(63, 81, 181, 0.12);
+    }
+
+    .status-icon {
+      color: #3f51b5;
+    }
+  }
+
+  &.status-unmapped {
+    background-color: rgba(244, 67, 54, 0.08);
+    color: #f44336;
+
+    &:hover {
+      background-color: rgba(244, 67, 54, 0.12);
+    }
+
+    .status-icon {
+      color: #f44336;
+    }
+  }
+
+  &.status-public {
+    background-color: rgba(255, 152, 0, 0.08);
+    color: #ff9800;
+
+    &:hover {
+      background-color: rgba(255, 152, 0, 0.12);
+    }
+
+    .status-icon {
+      color: #ff9800;
+    }
+  }
+}
+
+// ============================================================================
+// Icon Styling
+// ============================================================================
+
+.status-icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+}
+
+// ============================================================================
+// Text Styling
+// ============================================================================
+
+.status-text {
+  line-height: 1;
+  white-space: nowrap;
+}
+
+// ============================================================================
+// Dark Theme
+// ============================================================================
+
+.dark-theme {
+  .status-indicator {
+    &.status-mapped {
+      background-color: rgba(63, 81, 181, 0.16);
+      color: #7986cb;
+
+      &:hover {
+        background-color: rgba(63, 81, 181, 0.24);
+      }
+
+      .status-icon {
+        color: #7986cb;
+      }
+    }
+
+    &.status-unmapped {
+      background-color: rgba(244, 67, 54, 0.16);
+      color: #ef5350;
+
+      &:hover {
+        background-color: rgba(244, 67, 54, 0.24);
+      }
+
+      .status-icon {
+        color: #ef5350;
+      }
+    }
+
+    &.status-public {
+      background-color: rgba(255, 152, 0, 0.16);
+      color: #ffa726;
+
+      &:hover {
+        background-color: rgba(255, 152, 0, 0.24);
+      }
+
+      .status-icon {
+        color: #ffa726;
+      }
+    }
+  }
+}
+
+// ============================================================================
+// High Contrast Mode
+// ============================================================================
+
+@media (prefers-contrast: high) {
+  .status-indicator {
+    border: 2px solid currentColor;
+    font-weight: 700;
+
+    .status-icon {
+      font-weight: bold;
+    }
+  }
+}
+
+// ============================================================================
+// Compact Variant Adjustments
+// ============================================================================
+
+:host-context(.table-cell) {
+  .status-indicator {
+    padding: 2px 6px;
+    font-size: 12px;
+
+    .status-icon {
+      font-size: 16px;
+      width: 16px;
+      height: 16px;
+    }
+  }
+}
+
+// ============================================================================
+// Print Styles
+// ============================================================================
+
+@media print {
+  .status-indicator {
+    border: 1px solid currentColor;
+    background-color: white !important;
+    padding: 4px 8px;
+
+    &.status-mapped {
+      color: #3f51b5 !important;
+
+      .status-icon {
+        color: #3f51b5 !important;
+      }
+    }
+
+    &.status-unmapped {
+      color: #f44336 !important;
+
+      .status-icon {
+        color: #f44336 !important;
+      }
+    }
+
+    &.status-public {
+      color: #ff9800 !important;
+
+      .status-icon {
+        color: #ff9800 !important;
+      }
+    }
+  }
+}

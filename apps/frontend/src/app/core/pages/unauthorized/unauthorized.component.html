@@ -1,0 +1,62 @@
+<div class="unauthorized-page">
+  <mat-card appearance="outlined" class="unauthorized-card">
+    <mat-card-header>
+      <div mat-card-avatar class="unauthorized-icon">
+        <mat-icon color="warn">block</mat-icon>
+      </div>
+      <mat-card-title>Access Denied</mat-card-title>
+      <mat-card-subtitle>{{ getReasonMessage() }}</mat-card-subtitle>
+    </mat-card-header>
+
+    <mat-card-content>
+      <p class="main-message">
+        The page you're trying to access requires additional permissions that you currently don't have.
+      </p>
+
+      @if (returnUrl()) {
+        <div class="info-section return-info">
+          <mat-icon>info</mat-icon>
+          <div class="info-content">
+            <strong>Attempted to access:</strong>
+            <code>{{ returnUrl() }}</code>
+          </div>
+        </div>
+      }
+
+      @if (requiredPermissions().length > 0) {
+        <div class="info-section permissions-info">
+          <mat-icon>security</mat-icon>
+          <div class="info-content">
+            <strong>Required permissions:</strong>
+            <ul class="permissions-list">
+              @for (permission of requiredPermissions(); track permission) {
+                <li>
+                  <code>{{ permission }}</code>
+                </li>
+              }
+            </ul>
+          </div>
+        </div>
+      }
+
+      <div class="help-section">
+        <mat-icon>help_outline</mat-icon>
+        <p>
+          If you believe this is an error or you need access to this resource,
+          please contact your system administrator or request the necessary permissions.
+        </p>
+      </div>
+    </mat-card-content>
+
+    <mat-card-actions align="start">
+      <button mat-raised-button color="primary" (click)="goBack()">
+        <mat-icon>arrow_back</mat-icon>
+        Go Back
+      </button>
+      <button mat-button (click)="goHome()">
+        <mat-icon>home</mat-icon>
+        Go to Home
+      </button>
+    </mat-card-actions>
+  </mat-card>
+</div>

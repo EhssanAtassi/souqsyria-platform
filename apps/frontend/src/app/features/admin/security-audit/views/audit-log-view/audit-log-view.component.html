@@ -1,0 +1,157 @@
+<div class="audit-log-view">
+  <!-- Filters Panel -->
+  <mat-expansion-panel
+    [(expanded)]="filtersExpanded"
+    class="filters-panel">
+    <mat-expansion-panel-header>
+      <mat-panel-title>
+        <mat-icon class="panel-icon">filter_list</mat-icon>
+        Filters
+      </mat-panel-title>
+      <mat-panel-description>
+        {{ filtersExpanded ? 'Hide filters' : 'Show filters' }}
+      </mat-panel-description>
+    </mat-expansion-panel-header>
+
+    <app-audit-filters />
+  </mat-expansion-panel>
+
+  <!-- Events Table Container -->
+  <div class="table-container">
+    @if (loading$ | async) {
+      <!-- Loading State -->
+      <div class="loading-overlay">
+        <mat-spinner diameter="48"></mat-spinner>
+        <p>Loading events...</p>
+      </div>
+    } @else {
+      <!-- Events Table -->
+      <div class="table-wrapper">
+        <table
+          mat-table
+          [dataSource]="dataSource"
+          matSort
+          class="events-table">
+          <!-- Timestamp Column -->
+          <ng-container matColumnDef="timestamp">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>
+              Time
+            </th>
+            <td mat-cell *matCellDef="let event">
+              <div class="timestamp-cell">
+                <span class="date">{{ event.createdAt | date: 'short' }}</span>
+              </div>
+            </td>
+          </ng-container>
+
+          <!-- Action Column -->
+          <ng-container matColumnDef="action">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>
+              Action
+            </th>
+            <td mat-cell *matCellDef="let event">
+              <app-action-badge [action]="event.action" />
+            </td>
+          </ng-container>
+
+          <!-- User Column -->
+          <ng-container matColumnDef="user">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>
+              User
+            </th>
+            <td mat-cell *matCellDef="let event">
+              <div class="user-cell">
+                <span class="user-email">{{ getUserDisplay(event) }}</span>
+                @if (event.userName) {
+                  <span class="user-name">{{ event.userName }}</span>
+                }
+              </div>
+            </td>
+          </ng-container>
+
+          <!-- Status Column -->
+          <ng-container matColumnDef="status">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>
+              Status
+            </th>
+            <td mat-cell *matCellDef="let event">
+              <app-success-indicator [success]="event.success" />
+            </td>
+          </ng-container>
+
+          <!-- Resource Column -->
+          <ng-container matColumnDef="resource">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>
+              Resource
+            </th>
+            <td mat-cell *matCellDef="let event">
+              <div class="resource-cell">
+                <span class="resource-type">{{ getResourceDisplay(event) }}</span>
+                @if (event.resourceId) {
+                  <code class="resource-id">{{ event.resourceId }}</code>
+                }
+              </div>
+            </td>
+          </ng-container>
+
+          <!-- IP Address Column -->
+          <ng-container matColumnDef="ip">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>
+              IP Address
+            </th>
+            <td mat-cell *matCellDef="let event">
+              <code class="ip-address">{{ event.ipAddress }}</code>
+            </td>
+          </ng-container>
+
+          <!-- Actions Column -->
+          <ng-container matColumnDef="actions">
+            <th mat-header-cell *matHeaderCellDef>
+              Actions
+            </th>
+            <td mat-cell *matCellDef="let event">
+              <button
+                mat-icon-button
+                (click)="viewDetails(event)"
+                matTooltip="View details"
+                aria-label="View event details">
+                <mat-icon>info</mat-icon>
+              </button>
+            </td>
+          </ng-container>
+
+          <!-- Header and Row Definitions -->
+          <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
+          <tr
+            mat-row
+            *matRowDef="let row; columns: displayedColumns"
+            class="event-row"></tr>
+
+          <!-- No Data Row -->
+          <tr class="mat-row no-data-row" *matNoDataRow>
+            <td class="mat-cell" [attr.colspan]="displayedColumns.length">
+              <div class="no-data">
+                <mat-icon class="no-data-icon">search_off</mat-icon>
+                <p class="no-data-text">No events found</p>
+                <p class="no-data-hint">Try adjusting your filters</p>
+              </div>
+            </td>
+          </tr>
+        </table>
+      </div>
+
+      <!-- Paginator -->
+      @if (pagination$ | async; as pagination) {
+        <mat-paginator
+          [length]="pagination.totalCount"
+          [pageSize]="pagination.limit"
+          [pageIndex]="pagination.page - 1"
+          [pageSizeOptions]="[25, 50, 100, 200]"
+          (page)="onPageChange($event)"
+          showFirstLastButtons
+          aria-label="Select page of audit events">
+        </mat-paginator>
+      }
+    }
+  </div>
+</div>

@@ -1,0 +1,241 @@
+<div class="assign-role-dialog" role="dialog" aria-labelledby="dialog-title" aria-describedby="dialog-description">
+  <!-- Dialog Header -->
+  <div class="dialog-header" mat-dialog-title id="dialog-title">
+    <mat-icon class="dialog-icon">admin_panel_settings</mat-icon>
+    <h2>Assign Role</h2>
+  </div>
+
+  <!-- Dialog Content -->
+  <mat-dialog-content class="dialog-content">
+    <!-- User Information Section -->
+    <div class="user-info-section">
+      <app-user-avatar
+        [user]="data.user"
+        [size]="56"
+        class="user-avatar"
+      />
+      <div class="user-details">
+        <h3 class="user-name">{{ data.user.name }}</h3>
+        <p class="user-email">{{ data.user.email }}</p>
+      </div>
+    </div>
+
+    <!-- Current Roles Section -->
+    <div class="current-roles-section">
+      <h4 class="section-title">
+        <mat-icon>visibility</mat-icon>
+        Current Roles
+      </h4>
+      <div class="roles-display">
+        <div class="role-chip-container">
+          <mat-chip-set aria-label="Current roles">
+            <mat-chip class="role-chip business-role">
+              <mat-icon>business_center</mat-icon>
+              {{ currentBusinessRoleLabel }}
+            </mat-chip>
+            <mat-chip class="role-chip admin-role">
+              <mat-icon>shield</mat-icon>
+              {{ currentAdminRoleLabel }}
+            </mat-chip>
+          </mat-chip-set>
+        </div>
+      </div>
+    </div>
+
+    <mat-divider class="section-divider"></mat-divider>
+
+    <!-- Role Assignment Form -->
+    <form [formGroup]="roleForm" class="role-form" (ngSubmit)="onSubmit()">
+      <h4 class="section-title" id="dialog-description">
+        <mat-icon>edit</mat-icon>
+        Assign New Roles
+      </h4>
+
+      <div class="form-fields">
+        <!-- Business Role Selection -->
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Business Role</mat-label>
+          <mat-select
+            formControlName="businessRole"
+            aria-label="Select business role"
+            aria-required="true"
+          >
+            <mat-option *ngFor="let role of businessRoles" [value]="role.value">
+              <div class="role-option">
+                <mat-icon class="role-option-icon">{{ role.icon }}</mat-icon>
+                <div class="role-option-content">
+                  <span class="role-option-label">{{ role.label }}</span>
+                  <span class="role-option-description">{{ role.description }}</span>
+                </div>
+              </div>
+            </mat-option>
+          </mat-select>
+          <mat-hint>Defines the user's primary business function</mat-hint>
+        </mat-form-field>
+
+        <!-- Admin Role Selection -->
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Administrative Role</mat-label>
+          <mat-select
+            formControlName="adminRole"
+            aria-label="Select administrative role"
+          >
+            <mat-option *ngFor="let role of adminRoles" [value]="role.value">
+              <div class="role-option">
+                <mat-icon class="role-option-icon">
+                  {{ role.value ? 'verified_user' : 'person' }}
+                </mat-icon>
+                <div class="role-option-content">
+                  <span class="role-option-label">{{ role.label }}</span>
+                  <span class="role-option-description" *ngIf="role.description">
+                    {{ role.description }}
+                  </span>
+                </div>
+              </div>
+            </mat-option>
+          </mat-select>
+          <mat-hint>Optional: Grants administrative privileges</mat-hint>
+        </mat-form-field>
+      </div>
+    </form>
+
+    <mat-divider class="section-divider"></mat-divider>
+
+    <!-- Permission Preview Section -->
+    <div class="permission-preview-section">
+      <div class="preview-header">
+        <h4 class="section-title">
+          <mat-icon>security</mat-icon>
+          Permission Preview
+        </h4>
+        <div class="permission-summary" *ngIf="rolesModified">
+          <span class="summary-badge added" *ngIf="addedPermissionsCount > 0">
+            <mat-icon>add</mat-icon>
+            +{{ addedPermissionsCount }}
+          </span>
+          <span class="summary-badge removed" *ngIf="removedPermissionsCount > 0">
+            <mat-icon>remove</mat-icon>
+            -{{ removedPermissionsCount }}
+          </span>
+        </div>
+      </div>
+
+      <!-- Loading State -->
+      <div class="loading-container" *ngIf="loadingPermissions()">
+        <mat-spinner diameter="40"></mat-spinner>
+        <p class="loading-text">Loading permissions...</p>
+      </div>
+
+      <!-- Error State -->
+      <div class="error-container" *ngIf="permissionError()" role="alert">
+        <mat-icon class="error-icon">error</mat-icon>
+        <p class="error-text">{{ permissionError() }}</p>
+      </div>
+
+      <!-- Permissions Grid -->
+      <div class="permissions-grid" *ngIf="!loadingPermissions() && !permissionError()">
+        <!-- Current Permissions Column -->
+        <div class="permissions-column">
+          <h5 class="column-title">
+            <mat-icon>history</mat-icon>
+            Current Permissions
+          </h5>
+          <div class="permissions-list" *ngIf="currentPermissions.length > 0">
+            <mat-chip-set aria-label="Current permissions">
+              <mat-chip
+                *ngFor="let permission of currentPermissions"
+                class="permission-chip chip-current"
+              >
+                <mat-icon class="chip-icon">check_circle</mat-icon>
+                {{ permission.displayName }}
+              </mat-chip>
+            </mat-chip-set>
+          </div>
+          <p class="empty-state" *ngIf="currentPermissions.length === 0">
+            No permissions assigned
+          </p>
+        </div>
+
+        <!-- Arrow Divider -->
+        <div class="arrow-divider">
+          <mat-icon>arrow_forward</mat-icon>
+        </div>
+
+        <!-- New Permissions Column -->
+        <div class="permissions-column">
+          <h5 class="column-title">
+            <mat-icon>new_releases</mat-icon>
+            New Permissions
+          </h5>
+          <div class="permissions-list" *ngIf="newPermissions.length > 0">
+            <mat-chip-set aria-label="New permissions">
+              <mat-chip
+                *ngFor="let permission of newPermissions"
+                [class]="'permission-chip ' + getChipColorClass(permission.changeType)"
+                [attr.aria-label]="permission.displayName + ' - ' + permission.changeType"
+              >
+                <mat-icon class="chip-icon">{{ getChipIcon(permission.changeType) }}</mat-icon>
+                <span [class.strikethrough]="permission.changeType === 'removed'">
+                  {{ permission.displayName }}
+                </span>
+              </mat-chip>
+            </mat-chip-set>
+          </div>
+          <p class="empty-state" *ngIf="newPermissions.length === 0">
+            No permissions will be assigned
+          </p>
+        </div>
+      </div>
+
+      <!-- Permission Legend -->
+      <div class="permission-legend" *ngIf="!loadingPermissions() && !permissionError()">
+        <div class="legend-item">
+          <mat-icon class="legend-icon added">add_circle</mat-icon>
+          <span>Added</span>
+        </div>
+        <div class="legend-item">
+          <mat-icon class="legend-icon removed">remove_circle</mat-icon>
+          <span>Removed</span>
+        </div>
+        <div class="legend-item">
+          <mat-icon class="legend-icon unchanged">check_circle</mat-icon>
+          <span>Unchanged</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Information Note -->
+    <div class="info-section" *ngIf="rolesModified">
+      <mat-icon class="info-icon">info</mat-icon>
+      <p class="info-text">
+        Changing roles will immediately update the user's permissions.
+        The user may need to log out and log back in for changes to take full effect.
+      </p>
+    </div>
+  </mat-dialog-content>
+
+  <!-- Dialog Actions -->
+  <mat-dialog-actions class="dialog-actions">
+    <button
+      mat-button
+      type="button"
+      (click)="onCancel()"
+      class="cancel-button"
+      aria-label="Cancel role assignment"
+    >
+      Cancel
+    </button>
+    <button
+      mat-raised-button
+      color="primary"
+      type="submit"
+      (click)="onSubmit()"
+      [disabled]="roleForm.invalid || !rolesModified"
+      class="submit-button"
+      aria-label="Save role changes"
+    >
+      <mat-icon>save</mat-icon>
+      Save Changes
+    </button>
+  </mat-dialog-actions>
+</div>

@@ -1,0 +1,90 @@
+/**
+ * Status Badge Component Styles
+ *
+ * Material Design chips with custom color coding.
+ */
+
+:host {
+  display: inline-block;
+}
+
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 16px;
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1;
+  min-height: 28px;
+  cursor: default;
+  user-select: none;
+  transition: all 0.2s ease-in-out;
+
+  &:hover {
+    filter: brightness(0.95);
+  }
+}
+
+.status-icon {
+  font-size: 16px;
+  width: 16px;
+  height: 16px;
+  margin: 0;
+}
+
+.status-label {
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+}
+
+// ============================================================================
+// STATUS-SPECIFIC STYLES (fallback if inline styles don't work)
+// ============================================================================
+
+.status-active {
+  // Handled by inline styles, but kept as fallback
+}
+
+.status-banned {
+  // Handled by inline styles
+}
+
+.status-suspended {
+  // Handled by inline styles
+}
+
+.status-inactive {
+  // Handled by inline styles
+}
+
+.status-pending {
+  // Handled by inline styles
+}
+
+// ============================================================================
+// ACCESSIBILITY
+// ============================================================================
+
+// High contrast mode
+@media (prefers-contrast: high) {
+  .status-badge {
+    border: 2px solid currentColor;
+    font-weight: 600;
+  }
+}
+
+// Reduced motion
+@media (prefers-reduced-motion: reduce) {
+  .status-badge {
+    transition: none;
+  }
+}
+
+// Focus state
+.status-badge:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 2px;
+}

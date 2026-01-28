@@ -195,6 +195,8 @@ export class AccessControlSeederService {
               description: roleData.description,
               isDefault: roleData.isDefault,
               type: roleData.type,
+              priority: roleData.priority ?? 0,
+              isSystem: roleData.isSystem ?? false,
             });
             updated++;
             if (options.logLevel === 'debug') {
@@ -207,6 +209,8 @@ export class AccessControlSeederService {
             description: roleData.description,
             isDefault: roleData.isDefault,
             type: roleData.type,
+            priority: roleData.priority ?? 0,
+            isSystem: roleData.isSystem ?? false,
           });
           await this.roleRepository.save(role);
           created++;

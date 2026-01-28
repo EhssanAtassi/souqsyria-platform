@@ -1,0 +1,20 @@
+<!--
+  Status Badge Component Template
+
+  Colored badge with icon showing user status.
+-->
+
+<mat-chip
+  class="status-badge"
+  [class]="getStatusClass() + ' ' + customClass"
+  [style.color]="color()"
+  [style.background-color]="backgroundColor()"
+  [matTooltip]="showTooltip ? tooltipText() : ''"
+  [attr.aria-label]="'Status: ' + label()"
+  role="status"
+>
+  @if (showIcon) {
+    <mat-icon [style.color]="color()" class="status-icon">{{ icon() }}</mat-icon>
+  }
+  <span class="status-label">{{ label() }}</span>
+</mat-chip>

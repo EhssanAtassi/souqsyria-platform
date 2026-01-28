@@ -1,0 +1,354 @@
+// ============================================================================
+// Route Management Container Styles
+// ============================================================================
+
+:host {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+}
+
+.route-management-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background-color: #fafafa;
+}
+
+// ============================================================================
+// Header Toolbar
+// ============================================================================
+
+.main-toolbar {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+
+  .toolbar-content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 0 16px;
+    min-height: 64px;
+  }
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+
+  .filter-toggle {
+    margin-right: 8px;
+  }
+
+  .page-title {
+    margin: 0;
+    font-size: 20px;
+    font-weight: 500;
+    white-space: nowrap;
+  }
+}
+
+.header-center {
+  flex: 1;
+  max-width: 600px;
+  min-width: 0; // Allow flex shrinking
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+}
+
+.view-toggle {
+  .toggle-label {
+    margin-left: 4px;
+    font-size: 12px;
+  }
+
+  mat-button-toggle {
+    padding: 0 12px;
+  }
+}
+
+.discover-button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 20px;
+
+  mat-icon {
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+  }
+
+  span {
+    font-weight: 500;
+  }
+}
+
+// ============================================================================
+// Coverage Section
+// ============================================================================
+
+.coverage-section {
+  padding: 16px;
+  background: white;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.12);
+}
+
+.filter-status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 12px;
+  padding: 8px 16px;
+  background: rgba(63, 81, 181, 0.08);
+  border-radius: 4px;
+  font-size: 14px;
+  color: rgba(0, 0, 0, 0.87);
+
+  mat-icon {
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+    color: #3f51b5;
+  }
+
+  span {
+    flex: 1;
+  }
+
+  button {
+    margin-left: auto;
+  }
+}
+
+// ============================================================================
+// Content Wrapper & Drawer
+// ============================================================================
+
+.content-wrapper {
+  flex: 1;
+  min-height: 0; // Allow flex shrinking
+  overflow: hidden;
+}
+
+.drawer-container {
+  height: 100%;
+  width: 100%;
+}
+
+.filters-drawer {
+  width: 320px;
+  background: white;
+  border-right: 1px solid rgba(0, 0, 0, 0.12);
+  overflow-y: auto;
+
+  .drawer-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.12);
+    position: sticky;
+    top: 0;
+    background: white;
+    z-index: 10;
+
+    h2 {
+      margin: 0;
+      font-size: 18px;
+      font-weight: 500;
+      color: rgba(0, 0, 0, 0.87);
+    }
+  }
+}
+
+.main-content {
+  padding: 24px;
+  overflow-y: auto;
+  background: #fafafa;
+}
+
+// ============================================================================
+// Responsive Design
+// ============================================================================
+
+// Tablet (768px - 1024px)
+@media (max-width: 1024px) {
+  .header-center {
+    max-width: 400px;
+  }
+
+  .view-toggle .toggle-label {
+    display: none;
+  }
+
+  .discover-button {
+    padding: 0 16px;
+
+    span {
+      display: none;
+    }
+  }
+
+  .filters-drawer {
+    width: 280px;
+  }
+}
+
+// Mobile (< 768px)
+@media (max-width: 768px) {
+  .main-toolbar {
+    .toolbar-content {
+      flex-wrap: wrap;
+      padding: 8px;
+      min-height: auto;
+    }
+  }
+
+  .header-left {
+    flex-basis: 100%;
+    margin-bottom: 8px;
+
+    .page-title {
+      font-size: 18px;
+    }
+  }
+
+  .header-center {
+    flex-basis: 100%;
+    max-width: 100%;
+    order: 3;
+    margin-top: 8px;
+  }
+
+  .header-right {
+    flex-basis: auto;
+    margin-left: auto;
+  }
+
+  .view-toggle {
+    mat-button-toggle {
+      padding: 0 8px;
+    }
+  }
+
+  .discover-button {
+    display: none; // Hide on mobile, accessible via menu
+  }
+
+  .coverage-section {
+    padding: 12px;
+  }
+
+  .filter-status {
+    flex-direction: column;
+    align-items: flex-start;
+
+    button {
+      align-self: stretch;
+      margin-top: 8px;
+    }
+  }
+
+  .filters-drawer {
+    width: 100%;
+    max-width: 320px;
+  }
+
+  .main-content {
+    padding: 16px;
+  }
+}
+
+// Small mobile (< 480px)
+@media (max-width: 480px) {
+  .header-left {
+    .page-title {
+      font-size: 16px;
+    }
+  }
+
+  .header-right {
+    gap: 4px;
+  }
+
+  .view-toggle {
+    mat-button-toggle {
+      padding: 0 4px;
+    }
+
+    mat-icon {
+      font-size: 20px;
+    }
+  }
+
+  .main-content {
+    padding: 12px;
+  }
+}
+
+// ============================================================================
+// Dark Theme Support
+// ============================================================================
+
+.dark-theme {
+  .route-management-container {
+    background-color: #303030;
+  }
+
+  .coverage-section {
+    background: #424242;
+    border-bottom-color: rgba(255, 255, 255, 0.12);
+  }
+
+  .filter-status {
+    background: rgba(63, 81, 181, 0.2);
+    color: rgba(255, 255, 255, 0.87);
+  }
+
+  .filters-drawer {
+    background: #424242;
+    border-right-color: rgba(255, 255, 255, 0.12);
+
+    .drawer-header {
+      background: #424242;
+      border-bottom-color: rgba(255, 255, 255, 0.12);
+
+      h2 {
+        color: rgba(255, 255, 255, 0.87);
+      }
+    }
+  }
+
+  .main-content {
+    background: #303030;
+  }
+}
+
+// ============================================================================
+// Print Styles
+// ============================================================================
+
+@media print {
+  .main-toolbar,
+  .filter-status,
+  .filters-drawer {
+    display: none;
+  }
+
+  .main-content {
+    padding: 0;
+    overflow: visible;
+  }
+}

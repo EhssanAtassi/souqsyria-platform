@@ -1,0 +1,88 @@
+<!-- Permission Item Container -->
+<div
+  [ngClass]="getComponentClasses()"
+  [style.border-left-color]="categoryColor()"
+  (click)="onPermissionClick($event)"
+  (mouseenter)="onMouseEnter()"
+  (mouseleave)="onMouseLeave()"
+>
+  <!-- Checkbox (if not read-only) -->
+  @if (!readOnly) {
+    <mat-checkbox
+      [checked]="selected"
+      [disabled]="disabled"
+      [attr.aria-label]="checkboxAriaLabel()"
+      (change)="onCheckboxChange($event.checked)"
+      class="permission-checkbox"
+    ></mat-checkbox>
+  }
+
+  <!-- Permission Content -->
+  <div class="permission-content">
+    <!-- Permission Name and Icon -->
+    <div class="permission-header">
+      <mat-icon class="permission-icon" [style.color]="categoryColor()">
+        {{ getActionIcon() }}
+      </mat-icon>
+
+      <span
+        class="permission-name"
+        [matTooltip]="tooltipText()"
+        [matTooltipDisabled]="!showDescriptionTooltip"
+        matTooltipPosition="above"
+        [innerHTML]="getHighlightedName()"
+      ></span>
+
+      <!-- System Badge -->
+      @if (showSystemBadge && permission.isSystem) {
+        <mat-chip class="system-badge" selected>
+          <mat-icon>verified_user</mat-icon>
+          System
+        </mat-chip>
+      }
+    </div>
+
+    <!-- Permission Details -->
+    <div class="permission-details">
+      <!-- Permission Key Badge -->
+      @if (showKeyBadge) {
+        <span class="permission-key" [style.background-color]="categoryColor() + '20'">
+          <mat-icon>key</mat-icon>
+          {{ permission.name }}
+        </span>
+      }
+
+      <!-- Resource and Action Info -->
+      @if (permission.resource || permission.action) {
+        <span class="permission-metadata">
+          @if (permission.resource) {
+            <span class="metadata-item">
+              <mat-icon>source</mat-icon>
+              {{ permission.resource }}
+            </span>
+          }
+          @if (permission.action) {
+            <span class="metadata-item">
+              <mat-icon>bolt</mat-icon>
+              {{ permission.action }}
+            </span>
+          }
+        </span>
+      }
+    </div>
+
+    <!-- Permission Description (always visible on mobile) -->
+    @if (permission.description) {
+      <div class="permission-description">
+        {{ permission.description }}
+      </div>
+    }
+  </div>
+
+  <!-- Selection Indicator -->
+  @if (selected && !readOnly) {
+    <div class="selection-indicator">
+      <mat-icon>check_circle</mat-icon>
+    </div>
+  }
+</div>

@@ -1,0 +1,125 @@
+<div class="route-management-container">
+  <!-- Header Toolbar -->
+  <mat-toolbar color="primary" class="main-toolbar">
+    <mat-toolbar-row class="toolbar-content">
+      <!-- Title & Filter Toggle -->
+      <div class="header-left">
+        <button
+          mat-icon-button
+          (click)="toggleFilters()"
+          aria-label="Toggle filters sidebar"
+          class="filter-toggle"
+        >
+          <mat-icon>{{ filtersOpen() ? 'filter_list_off' : 'filter_list' }}</mat-icon>
+        </button>
+        <h1 class="page-title">Route-Permission Mapping</h1>
+      </div>
+
+      <!-- Search Bar -->
+      <div class="header-center">
+        <app-route-search />
+      </div>
+
+      <!-- Actions & View Switcher -->
+      <div class="header-right">
+        <!-- View Mode Toggle -->
+        <mat-button-toggle-group
+          [value]="viewMode()"
+          (change)="onViewModeChange($event.value)"
+          aria-label="View mode"
+          class="view-toggle"
+        >
+          <mat-button-toggle value="list" aria-label="List view">
+            <mat-icon>view_list</mat-icon>
+            <span class="toggle-label">List</span>
+          </mat-button-toggle>
+          <mat-button-toggle value="tree" aria-label="Tree view">
+            <mat-icon>account_tree</mat-icon>
+            <span class="toggle-label">Tree</span>
+          </mat-button-toggle>
+          <mat-button-toggle value="matrix" aria-label="Matrix view">
+            <mat-icon>grid_on</mat-icon>
+            <span class="toggle-label">Matrix</span>
+          </mat-button-toggle>
+        </mat-button-toggle-group>
+
+        <!-- Action Buttons -->
+        <button
+          mat-icon-button
+          (click)="refresh()"
+          [disabled]="loading$ | async"
+          aria-label="Refresh routes"
+          matTooltip="Refresh data"
+        >
+          <mat-icon>refresh</mat-icon>
+        </button>
+
+        <button
+          mat-raised-button
+          color="accent"
+          (click)="discover()"
+          [disabled]="discovering()"
+          class="discover-button"
+        >
+          @if (discovering()) {
+            <mat-icon>hourglass_empty</mat-icon>
+            <span>Discovering...</span>
+          } @else {
+            <mat-icon>explore</mat-icon>
+            <span>Discover Routes</span>
+          }
+        </button>
+      </div>
+    </mat-toolbar-row>
+
+    <!-- Loading Progress Bar -->
+    @if (loading$ | async) {
+      <mat-progress-bar mode="indeterminate" color="accent"></mat-progress-bar>
+    }
+  </mat-toolbar>
+
+  <!-- Coverage Dashboard Widget -->
+  <div class="coverage-section">
+    <app-coverage-dashboard [stats]="coverage$ | async" />
+
+    @if (hasActiveFilters$ | async) {
+      <div class="filter-status">
+        <mat-icon>filter_alt</mat-icon>
+        <span>Filters active</span>
+        <button mat-button color="primary" (click)="clearAllFilters()">
+          Clear All
+        </button>
+      </div>
+    }
+  </div>
+
+  <!-- Main Content Area with Drawer -->
+  <div class="content-wrapper">
+    <mat-drawer-container class="drawer-container" autosize>
+      <!-- Filters Sidebar -->
+      <mat-drawer
+        #drawer
+        mode="side"
+        [opened]="filtersOpen()"
+        class="filters-drawer"
+      >
+        <div class="drawer-header">
+          <h2>Filters</h2>
+          <button
+            mat-icon-button
+            (click)="toggleFilters()"
+            aria-label="Close filters"
+          >
+            <mat-icon>close</mat-icon>
+          </button>
+        </div>
+        <app-route-filters />
+      </mat-drawer>
+
+      <!-- Main Content (Router Outlet) -->
+      <mat-drawer-content class="main-content">
+        <router-outlet></router-outlet>
+      </mat-drawer-content>
+    </mat-drawer-container>
+  </div>
+</div>

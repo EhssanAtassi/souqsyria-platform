@@ -1,0 +1,434 @@
+.dialog-content {
+  padding: 24px;
+  min-height: 400px;
+  max-height: 70vh;
+  overflow-y: auto;
+}
+
+.step-content {
+  padding: 24px 0;
+  min-height: 300px;
+}
+
+.step-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+
+  mat-icon {
+    font-size: 32px;
+    width: 32px;
+    height: 32px;
+    color: var(--mdc-theme-primary, #3f51b5);
+  }
+
+  h3 {
+    margin: 0;
+    font-size: 20px;
+    font-weight: 500;
+    color: rgba(0, 0, 0, 0.87);
+  }
+}
+
+.step-description {
+  margin: 0 0 24px 0;
+  color: rgba(0, 0, 0, 0.6);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.step-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 24px;
+  padding-top: 16px;
+  border-top: 1px solid rgba(0, 0, 0, 0.12);
+
+  button {
+    mat-icon {
+      margin-right: 4px;
+    }
+  }
+}
+
+// Step 1: Routes List
+.routes-list {
+  max-height: 400px;
+  overflow-y: auto;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  border-radius: 4px;
+
+  mat-list-item {
+    height: auto;
+    min-height: 64px;
+    padding: 12px 16px;
+
+    &:hover {
+      background-color: rgba(0, 0, 0, 0.04);
+    }
+  }
+
+  .route-path {
+    font-family: 'Roboto Mono', monospace;
+    font-size: 13px;
+    color: rgba(0, 0, 0, 0.87);
+    background: rgba(0, 0, 0, 0.05);
+    padding: 2px 6px;
+    border-radius: 3px;
+  }
+
+  .route-handler {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: rgba(0, 0, 0, 0.6);
+    font-size: 12px;
+    margin-top: 4px;
+
+    .handler-icon {
+      font-size: 16px;
+      width: 16px;
+      height: 16px;
+    }
+  }
+}
+
+// Step 2: Permission Selection
+.full-width {
+  width: 100%;
+}
+
+.permission-option {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 8px 0;
+
+  .permission-icon {
+    flex-shrink: 0;
+    color: var(--mdc-theme-primary, #3f51b5);
+    margin-top: 2px;
+  }
+
+  .permission-info {
+    flex: 1;
+    min-width: 0;
+
+    .permission-name {
+      font-weight: 500;
+      font-size: 14px;
+      color: rgba(0, 0, 0, 0.87);
+      margin-bottom: 4px;
+    }
+
+    .permission-description {
+      font-size: 12px;
+      color: rgba(0, 0, 0, 0.6);
+      line-height: 1.4;
+      margin-bottom: 4px;
+    }
+
+    .permission-resource {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 11px;
+      color: rgba(0, 0, 0, 0.5);
+
+      mat-icon {
+        font-size: 14px;
+        width: 14px;
+        height: 14px;
+      }
+    }
+  }
+}
+
+.no-results {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 16px;
+  color: rgba(0, 0, 0, 0.5);
+
+  mat-icon {
+    opacity: 0.5;
+  }
+}
+
+.selection-preview {
+  margin-top: 24px;
+  border: 2px solid var(--mdc-theme-primary, #3f51b5);
+
+  mat-card-header {
+    background: rgba(63, 81, 181, 0.08);
+    padding: 16px;
+    margin: -16px -16px 16px -16px;
+
+    mat-card-title {
+      font-size: 16px;
+      font-weight: 500;
+    }
+
+    mat-card-subtitle {
+      font-size: 12px;
+      margin-top: 4px;
+    }
+  }
+
+  .permission-details {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+
+    .detail-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+
+      mat-icon {
+        flex-shrink: 0;
+        color: rgba(0, 0, 0, 0.6);
+        margin-top: 2px;
+      }
+
+      strong {
+        color: rgba(0, 0, 0, 0.87);
+      }
+
+      &.description {
+        span {
+          color: rgba(0, 0, 0, 0.6);
+          line-height: 1.5;
+        }
+      }
+    }
+  }
+}
+
+// Step 3: Confirmation
+.confirm-card {
+  margin-bottom: 24px;
+
+  mat-card-content {
+    padding: 0;
+  }
+
+  .confirm-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    padding: 16px;
+
+    .confirm-icon {
+      flex-shrink: 0;
+      font-size: 24px;
+      width: 24px;
+      height: 24px;
+      color: var(--mdc-theme-primary, #3f51b5);
+    }
+
+    .confirm-label {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+
+      strong {
+        font-size: 14px;
+        color: rgba(0, 0, 0, 0.87);
+      }
+
+      .confirm-value {
+        font-size: 16px;
+        color: rgba(0, 0, 0, 0.87);
+        font-weight: 500;
+      }
+    }
+
+    &.warning {
+      background: rgba(244, 67, 54, 0.08);
+
+      .confirm-label .confirm-value {
+        color: rgba(244, 67, 54, 0.87);
+        font-weight: 400;
+      }
+    }
+  }
+
+  mat-divider {
+    margin: 0;
+  }
+}
+
+.sample-preview {
+  background: rgba(0, 0, 0, 0.02);
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  border-radius: 4px;
+  padding: 16px;
+
+  h4 {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0 0 12px 0;
+    font-size: 14px;
+    font-weight: 500;
+    color: rgba(0, 0, 0, 0.6);
+
+    mat-icon {
+      font-size: 18px;
+      width: 18px;
+      height: 18px;
+    }
+  }
+
+  mat-list {
+    background: white;
+    border-radius: 4px;
+
+    mat-list-item {
+      height: 48px;
+
+      code {
+        font-family: 'Roboto Mono', monospace;
+        font-size: 12px;
+      }
+    }
+
+    .more-text {
+      font-style: italic;
+      color: rgba(0, 0, 0, 0.5);
+    }
+  }
+}
+
+.dialog-actions {
+  padding: 16px 24px;
+  border-top: 1px solid rgba(0, 0, 0, 0.12);
+}
+
+// Loading state
+button {
+  mat-spinner {
+    display: inline-block;
+    margin-right: 8px;
+  }
+
+  span {
+    vertical-align: middle;
+  }
+}
+
+// Dark theme support
+.dark-theme {
+  .step-header h3 {
+    color: rgba(255, 255, 255, 0.87);
+  }
+
+  .step-description {
+    color: rgba(255, 255, 255, 0.6);
+  }
+
+  .routes-list {
+    border-color: rgba(255, 255, 255, 0.12);
+
+    mat-list-item:hover {
+      background-color: rgba(255, 255, 255, 0.04);
+    }
+
+    .route-path {
+      color: rgba(255, 255, 255, 0.87);
+      background: rgba(255, 255, 255, 0.08);
+    }
+
+    .route-handler {
+      color: rgba(255, 255, 255, 0.6);
+    }
+  }
+
+  .permission-option {
+    .permission-name {
+      color: rgba(255, 255, 255, 0.87);
+    }
+
+    .permission-description {
+      color: rgba(255, 255, 255, 0.6);
+    }
+
+    .permission-resource {
+      color: rgba(255, 255, 255, 0.5);
+    }
+  }
+
+  .selection-preview {
+    mat-card-header {
+      background: rgba(63, 81, 181, 0.16);
+    }
+
+    .permission-details .detail-row {
+      mat-icon {
+        color: rgba(255, 255, 255, 0.6);
+      }
+
+      strong {
+        color: rgba(255, 255, 255, 0.87);
+      }
+
+      &.description span {
+        color: rgba(255, 255, 255, 0.6);
+      }
+    }
+  }
+
+  .confirm-card {
+    .confirm-row {
+      .confirm-label strong {
+        color: rgba(255, 255, 255, 0.87);
+      }
+
+      .confirm-label .confirm-value {
+        color: rgba(255, 255, 255, 0.87);
+      }
+    }
+  }
+
+  .sample-preview {
+    background: rgba(255, 255, 255, 0.02);
+    border-color: rgba(255, 255, 255, 0.12);
+
+    h4 {
+      color: rgba(255, 255, 255, 0.6);
+    }
+  }
+}
+
+// Responsive adjustments
+@media (max-width: 768px) {
+  .dialog-content {
+    padding: 16px;
+  }
+
+  .step-content {
+    min-height: 250px;
+  }
+
+  .routes-list {
+    max-height: 300px;
+  }
+
+  .step-header {
+    mat-icon {
+      font-size: 28px;
+      width: 28px;
+      height: 28px;
+    }
+
+    h3 {
+      font-size: 18px;
+    }
+  }
+}

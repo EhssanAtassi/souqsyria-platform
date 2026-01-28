@@ -1,0 +1,52 @@
+<!-- User Search Input -->
+<div class="search-container">
+  <mat-form-field appearance="outline" class="search-field">
+    <mat-label>Search Users</mat-label>
+    
+    <!-- Search Icon -->
+    <mat-icon matPrefix class="search-icon">search</mat-icon>
+    
+    <!-- Input Field -->
+    <input 
+      matInput 
+      type="text"
+      [formControl]="searchControl"
+      [placeholder]="placeholder"
+      (keydown)="onKeydown($event)"
+      aria-label="Search users"
+      autocomplete="off">
+    
+    <!-- Loading Spinner -->
+    <mat-spinner 
+      *ngIf="isSearching || loading" 
+      matSuffix 
+      diameter="20"
+      class="search-spinner">
+    </mat-spinner>
+    
+    <!-- Clear Button -->
+    <button 
+      *ngIf="hasValue() && !isSearching && !loading"
+      mat-icon-button 
+      matSuffix
+      (click)="clearSearch()"
+      aria-label="Clear search"
+      type="button"
+      class="clear-button">
+      <mat-icon>clear</mat-icon>
+    </button>
+    
+    <!-- Hint Text -->
+    <mat-hint *ngIf="hasValue()">
+      Press ESC to clear
+    </mat-hint>
+  </mat-form-field>
+
+  <!-- Search Info -->
+  <div class="search-info" *ngIf="hasValue()">
+    <mat-icon class="info-icon">info</mat-icon>
+    <span class="info-text">
+      Searching across name, email, and phone number
+    </span>
+  </div>
+</div>

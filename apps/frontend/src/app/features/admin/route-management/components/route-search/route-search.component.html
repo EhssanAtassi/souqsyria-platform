@@ -1,0 +1,23 @@
+<mat-form-field appearance="outline" class="search-field" subscriptSizing="dynamic">
+  <mat-label>Search routes...</mat-label>
+  <input
+    matInput
+    [formControl]="searchControl"
+    placeholder="Path, controller, handler..."
+    autocomplete="off"
+    type="search"
+    aria-label="Search routes by path, controller, or handler"
+  />
+  <mat-icon matPrefix>search</mat-icon>
+  @if (hasValue()) {
+    <button
+      mat-icon-button
+      matSuffix
+      (click)="clear()"
+      aria-label="Clear search"
+      type="button"
+    >
+      <mat-icon>close</mat-icon>
+    </button>
+  }
+</mat-form-field>

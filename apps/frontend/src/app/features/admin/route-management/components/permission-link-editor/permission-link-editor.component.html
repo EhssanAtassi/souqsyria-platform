@@ -1,0 +1,73 @@
+<div class="permission-link-editor">
+  @if (route.permissionId) {
+    <!-- Linked State: Show removable chip -->
+    <mat-chip-set class="linked-chip-set">
+      <mat-chip [highlighted]="true" class="permission-chip">
+        <mat-icon matChipAvatar>verified_user</mat-icon>
+        <span>{{ getPermissionName(route.permissionId) }}</span>
+        <button
+          matChipRemove
+          (click)="unlink()"
+          [disabled]="loading()"
+          aria-label="Unlink permission"
+        >
+          <mat-icon>cancel</mat-icon>
+        </button>
+      </mat-chip>
+    </mat-chip-set>
+  } @else {
+    <!-- Unlinked State: Show autocomplete input -->
+    <div class="unlinked-state">
+      <mat-form-field appearance="outline" class="link-field" subscriptSizing="dynamic">
+        <mat-label>Link Permission</mat-label>
+        <input
+          matInput
+          [matAutocomplete]="auto"
+          [formControl]="searchControl"
+          placeholder="Search permissions..."
+          [disabled]="loading()"
+        />
+        <mat-icon matPrefix>link</mat-icon>
+        <mat-autocomplete
+          #auto="matAutocomplete"
+          (optionSelected)="link($event.option.value)"
+        >
+          @for (perm of filteredPermissions$ | async; track perm.id) {
+            <mat-option [value]="perm.id">
+              <mat-icon class="option-icon">{{ perm.icon || 'shield' }}</mat-icon>
+              <span>{{ perm.name }}</span>
+            </mat-option>
+          }
+          @if ((filteredPermissions$ | async)?.length === 0) {
+            <mat-option disabled>
+              <em>No permissions found</em>
+            </mat-option>
+          }
+        </mat-autocomplete>
+      </mat-form-field>
+
+      <!-- AI Suggestion (if available) -->
+      @if (route.suggestedPermission && !loading()) {
+        <button
+          mat-stroked-button
+          color="accent"
+          (click)="applySuggestion()"
+          class="suggestion-button"
+          [disabled]="loading()"
+        >
+          <mat-icon>auto_fix_high</mat-icon>
+          <span class="suggestion-text">
+            <strong>Suggested:</strong> {{ getSuggestedName() }}
+          </span>
+        </button>
+      }
+    </div>
+  }
+
+  <!-- Loading Indicator -->
+  @if (loading()) {
+    <div class="loading-overlay">
+      <mat-spinner diameter="20"></mat-spinner>
+    </div>
+  }
+</div>

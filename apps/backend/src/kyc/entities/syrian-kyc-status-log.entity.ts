@@ -225,7 +225,7 @@ export class SyrianKycStatusLog {
    * Timestamp
    */
   @CreateDateColumn({ name: 'created_at' })
-  @Index()
+  // Index defined at class level: @Index(['createdAt'])
   @ApiProperty({ description: 'When this status change occurred' })
   createdAt: Date;
 

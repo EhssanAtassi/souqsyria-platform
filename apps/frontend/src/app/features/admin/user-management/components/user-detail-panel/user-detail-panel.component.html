@@ -1,0 +1,113 @@
+<!-- User Detail Panel Drawer -->
+<mat-drawer-container class="detail-panel-container" autosize>
+  <mat-drawer
+    #drawer
+    mode="side"
+    position="end"
+    [opened]="!!user"
+    class="detail-panel-drawer"
+  >
+    @if (user) {
+      <div class="detail-panel-content">
+        <!-- Header Section -->
+        <div class="panel-header">
+          <!-- Close Button -->
+          <button
+            mat-icon-button
+            class="close-button"
+            (click)="onClose()"
+            aria-label="Close user detail panel"
+          >
+            <mat-icon>close</mat-icon>
+          </button>
+
+          <!-- User Avatar -->
+          <div class="user-avatar-large">
+            <app-user-avatar
+              [user]="user"
+              [size]="80"
+              [showOnlineStatus]="false"
+            />
+          </div>
+
+          <!-- User Name -->
+          <h2 class="user-name">
+            {{ user.fullName || (user.firstName + ' ' + user.lastName) }}
+          </h2>
+
+          <!-- User Email -->
+          <p class="user-email">
+            {{ user.email }}
+          </p>
+
+          <!-- Status Badge -->
+          <div class="status-badge-container">
+            <app-status-badge [status]="user.status" />
+          </div>
+        </div>
+
+        <mat-divider />
+
+        <!-- Tabs Section -->
+        <mat-tab-group
+          class="detail-tabs"
+          [selectedIndex]="selectedTabIndex()"
+          (selectedIndexChange)="onTabChange($event)"
+          animationDuration="300ms"
+        >
+          <!-- Profile Tab -->
+          <mat-tab>
+            <ng-template mat-tab-label>
+              <mat-icon class="tab-icon">person</mat-icon>
+              <span class="tab-label">Profile</span>
+            </ng-template>
+            <div class="tab-content">
+              <app-user-profile-tab [user]="user" />
+            </div>
+          </mat-tab>
+
+          <!-- Roles Tab -->
+          <mat-tab>
+            <ng-template mat-tab-label>
+              <mat-icon class="tab-icon">admin_panel_settings</mat-icon>
+              <span class="tab-label">Roles</span>
+            </ng-template>
+            <div class="tab-content">
+              <app-user-roles-tab
+                [user]="user"
+                (changeRole)="onAssignRole($event)"
+              />
+            </div>
+          </mat-tab>
+
+          <!-- Activity Tab -->
+          <mat-tab>
+            <ng-template mat-tab-label>
+              <mat-icon class="tab-icon">history</mat-icon>
+              <span class="tab-label">Activity</span>
+            </ng-template>
+            <div class="tab-content">
+              <app-user-activity-tab [user]="user" />
+            </div>
+          </mat-tab>
+
+          <!-- Security Tab -->
+          <mat-tab>
+            <ng-template mat-tab-label>
+              <mat-icon class="tab-icon">security</mat-icon>
+              <span class="tab-label">Security</span>
+            </ng-template>
+            <div class="tab-content">
+              <app-user-security-tab
+                [user]="user"
+                (ban)="onBan($event)"
+                (suspend)="onSuspend($event)"
+                (resetPassword)="onResetPassword($event)"
+              />
+            </div>
+          </mat-tab>
+        </mat-tab-group>
+      </div>
+    }
+  </mat-drawer>
+</mat-drawer-container>

@@ -1,0 +1,575 @@
+/**
+ * Role Editor Page Styles
+ *
+ * @description
+ * Styles for full-page role editor.
+ * Features form layout, sticky action bar, and validation states.
+ */
+
+.editor-page {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  background-color: #fafafa;
+}
+
+.page-header {
+  background-color: white;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.12);
+  padding: 16px 24px;
+
+  .breadcrumbs {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    .breadcrumb-link {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      transition: background-color 0.2s;
+
+      &:hover {
+        background-color: rgba(0, 0, 0, 0.04);
+      }
+
+      mat-icon {
+        font-size: 20px;
+        width: 20px;
+        height: 20px;
+      }
+    }
+
+    .breadcrumb-separator {
+      font-size: 20px;
+      width: 20px;
+      height: 20px;
+      color: rgba(0, 0, 0, 0.38);
+    }
+
+    .breadcrumb-current {
+      font-weight: 600;
+      color: rgba(0, 0, 0, 0.87);
+      padding: 8px 0;
+    }
+  }
+}
+
+.editor-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 24px;
+  padding-bottom: 100px; // Space for sticky action bar
+
+  form {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+}
+
+// Basic Information Card
+.info-card {
+  mat-card-header {
+    mat-card-title {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 20px;
+
+      mat-icon {
+        color: var(--primary-color);
+      }
+    }
+
+    mat-card-subtitle {
+      margin-top: 8px;
+      font-size: 14px;
+    }
+  }
+
+  mat-card-content {
+    padding-top: 24px;
+
+    .form-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+
+      .full-width {
+        width: 100%;
+      }
+
+      .priority-field {
+        .field-label {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          font-size: 14px;
+          color: rgba(0, 0, 0, 0.87);
+          margin-bottom: 16px;
+
+          mat-icon {
+            font-size: 20px;
+            width: 20px;
+            height: 20px;
+            color: var(--primary-color);
+          }
+
+          strong {
+            color: var(--primary-color);
+            font-weight: 600;
+          }
+        }
+
+        .full-width {
+          width: 100%;
+        }
+
+        .field-hint {
+          font-size: 12px;
+          color: rgba(0, 0, 0, 0.6);
+          margin: 8px 0 0;
+        }
+      }
+
+      .system-toggle {
+        padding: 16px;
+        background-color: rgba(0, 0, 0, 0.02);
+        border-radius: 8px;
+        border: 1px solid rgba(0, 0, 0, 0.08);
+
+        mat-slide-toggle {
+          margin-bottom: 8px;
+        }
+
+        .toggle-description {
+          font-size: 13px;
+          color: rgba(0, 0, 0, 0.6);
+          margin: 8px 0 0;
+          line-height: 1.5;
+        }
+      }
+    }
+  }
+}
+
+// Permissions Card
+.permissions-card {
+  mat-card-header {
+    mat-card-title {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 20px;
+
+      mat-icon {
+        color: var(--primary-color);
+      }
+
+      .permission-count {
+        margin-left: auto;
+        font-size: 14px;
+        font-weight: 500;
+        color: var(--primary-color);
+        background-color: rgba(var(--primary-color-rgb), 0.1);
+        padding: 4px 12px;
+        border-radius: 12px;
+      }
+    }
+
+    mat-card-subtitle {
+      margin-top: 8px;
+      font-size: 14px;
+    }
+  }
+
+  mat-card-content {
+    padding-top: 24px;
+
+    .loading-permissions {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+      padding: 40px;
+
+      p {
+        font-size: 14px;
+        color: rgba(0, 0, 0, 0.6);
+        margin: 0;
+      }
+    }
+
+    .permission-warning {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 16px;
+      background-color: #fff3cd;
+      border: 1px solid #ffc107;
+      border-radius: 8px;
+      margin-top: 16px;
+
+      mat-icon {
+        color: #ff9800;
+        font-size: 24px;
+        width: 24px;
+        height: 24px;
+      }
+
+      p {
+        margin: 0;
+        color: #856404;
+        font-weight: 500;
+      }
+    }
+  }
+}
+
+// Summary Panel
+.summary-panel {
+  margin-bottom: 0;
+
+  mat-expansion-panel-header {
+    mat-panel-title {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+
+      mat-icon {
+        color: var(--primary-color);
+      }
+    }
+  }
+
+  .summary-content {
+    padding: 16px;
+
+    .summary-section {
+      padding: 16px 0;
+
+      h4 {
+        font-size: 16px;
+        font-weight: 600;
+        margin: 0 0 16px;
+        color: rgba(0, 0, 0, 0.87);
+      }
+
+      .summary-item {
+        display: flex;
+        justify-content: space-between;
+        padding: 8px 0;
+        font-size: 14px;
+
+        .label {
+          color: rgba(0, 0, 0, 0.6);
+          font-weight: 500;
+        }
+
+        .value {
+          color: rgba(0, 0, 0, 0.87);
+          font-weight: 400;
+        }
+      }
+
+      .validation-item {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 8px 0;
+        font-size: 14px;
+
+        mat-icon {
+          font-size: 20px;
+          width: 20px;
+          height: 20px;
+        }
+
+        &.valid {
+          mat-icon {
+            color: #4caf50;
+          }
+          span {
+            color: rgba(0, 0, 0, 0.87);
+          }
+        }
+
+        &.invalid {
+          mat-icon {
+            color: #f44336;
+          }
+          span {
+            color: rgba(0, 0, 0, 0.54);
+          }
+        }
+      }
+    }
+
+    mat-divider {
+      margin: 16px 0;
+    }
+  }
+}
+
+// Sticky Action Bar
+.action-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background-color: white;
+  border-top: 1px solid rgba(0, 0, 0, 0.12);
+  box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.1);
+  z-index: 100;
+  transition: all 0.3s;
+
+  &.saving {
+    pointer-events: none;
+    opacity: 0.9;
+  }
+
+  mat-progress-bar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+  }
+
+  .action-bar-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 16px 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 24px;
+
+    .form-status {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+
+      .status-icon {
+        font-size: 24px;
+        width: 24px;
+        height: 24px;
+
+        &.valid {
+          color: #4caf50;
+        }
+
+        &.invalid {
+          color: #f44336;
+        }
+      }
+
+      span {
+        font-size: 14px;
+        color: rgba(0, 0, 0, 0.87);
+      }
+    }
+
+    .action-buttons {
+      display: flex;
+      gap: 12px;
+
+      button {
+        mat-icon {
+          margin-right: 8px;
+        }
+      }
+    }
+  }
+}
+
+// Dark mode support
+@media (prefers-color-scheme: dark) {
+  .editor-page {
+    background-color: #303030;
+  }
+
+  .page-header {
+    background-color: #424242;
+    border-bottom-color: rgba(255, 255, 255, 0.12);
+
+    .breadcrumbs {
+      .breadcrumb-link {
+        &:hover {
+          background-color: rgba(255, 255, 255, 0.08);
+        }
+      }
+
+      .breadcrumb-separator {
+        color: rgba(255, 255, 255, 0.5);
+      }
+
+      .breadcrumb-current {
+        color: rgba(255, 255, 255, 0.87);
+      }
+    }
+  }
+
+  .info-card,
+  .permissions-card {
+    .form-grid {
+      .priority-field {
+        .field-label {
+          color: rgba(255, 255, 255, 0.87);
+        }
+
+        .field-hint {
+          color: rgba(255, 255, 255, 0.7);
+        }
+      }
+
+      .system-toggle {
+        background-color: rgba(255, 255, 255, 0.05);
+        border-color: rgba(255, 255, 255, 0.12);
+
+        .toggle-description {
+          color: rgba(255, 255, 255, 0.7);
+        }
+      }
+    }
+  }
+
+  .permissions-card {
+    mat-card-content {
+      .loading-permissions {
+        p {
+          color: rgba(255, 255, 255, 0.7);
+        }
+      }
+    }
+  }
+
+  .summary-panel {
+    .summary-content {
+      .summary-section {
+        h4 {
+          color: rgba(255, 255, 255, 0.87);
+        }
+
+        .summary-item {
+          .label {
+            color: rgba(255, 255, 255, 0.7);
+          }
+
+          .value {
+            color: rgba(255, 255, 255, 0.87);
+          }
+        }
+
+        .validation-item {
+          &.valid span {
+            color: rgba(255, 255, 255, 0.87);
+          }
+
+          &.invalid span {
+            color: rgba(255, 255, 255, 0.54);
+          }
+        }
+      }
+    }
+  }
+
+  .action-bar {
+    background-color: #424242;
+    border-top-color: rgba(255, 255, 255, 0.12);
+
+    .action-bar-content {
+      .form-status {
+        span {
+          color: rgba(255, 255, 255, 0.87);
+        }
+      }
+    }
+  }
+}
+
+// Responsive adjustments
+@media (max-width: 959px) {
+  .editor-content {
+    padding: 16px;
+  }
+
+  .action-bar {
+    .action-bar-content {
+      flex-direction: column;
+      align-items: stretch;
+
+      .form-status {
+        justify-content: center;
+      }
+
+      .action-buttons {
+        width: 100%;
+
+        button {
+          flex: 1;
+        }
+      }
+    }
+  }
+}
+
+@media (max-width: 599px) {
+  .page-header {
+    padding: 12px 16px;
+
+    .breadcrumbs {
+      .breadcrumb-link {
+        padding: 6px 8px;
+      }
+    }
+  }
+
+  .editor-content {
+    padding: 12px;
+    padding-bottom: 120px;
+  }
+
+  .info-card,
+  .permissions-card {
+    mat-card-header {
+      mat-card-title {
+        font-size: 18px;
+        flex-wrap: wrap;
+
+        .permission-count {
+          width: 100%;
+          margin-top: 8px;
+          text-align: center;
+        }
+      }
+    }
+  }
+
+  .action-bar {
+    .action-bar-content {
+      padding: 12px 16px;
+
+      .form-status {
+        font-size: 13px;
+
+        .status-icon {
+          font-size: 20px;
+          width: 20px;
+          height: 20px;
+        }
+      }
+
+      .action-buttons {
+        flex-direction: column;
+
+        button {
+          width: 100%;
+        }
+      }
+    }
+  }
+}

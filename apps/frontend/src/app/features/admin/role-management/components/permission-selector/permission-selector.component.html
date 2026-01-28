@@ -1,0 +1,236 @@
+<!-- Permission Selector Container -->
+<div class="permission-selector" [class.loading]="loading" [class.read-only]="readOnly">
+  <!-- Search Bar -->
+  @if (showSearch) {
+    <app-permission-search
+      [resultsCount]="filteredCount()"
+      [totalCount]="totalCount()"
+      [loading]="loading"
+      [showKeyboardHint]="true"
+      (searchChange)="onSearchChange($event)"
+      (clear)="onSearchClear()"
+    ></app-permission-search>
+  }
+
+  <!-- Action Bar -->
+  @if (showSelectAll && !readOnly && mode === 'multiple') {
+    <div class="action-bar">
+      <!-- Selection Summary -->
+      <div class="selection-summary">
+        <span class="summary-text">
+          @if (selectedCount() > 0) {
+            <strong>{{ selectedCount() }}</strong> of {{ totalCount() }} selected
+          } @else {
+            No permissions selected
+          }
+        </span>
+      </div>
+
+      <!-- Actions -->
+      <div class="actions">
+        <button
+          mat-button
+          [disabled]="allSelected() || loading"
+          (click)="onSelectAll()"
+          aria-label="Select all permissions"
+        >
+          <mat-icon>done_all</mat-icon>
+          Select All
+        </button>
+
+        <button
+          mat-button
+          [disabled]="selectedCount() === 0 || loading"
+          (click)="onClearAll()"
+          aria-label="Clear all selections"
+        >
+          <mat-icon>clear_all</mat-icon>
+          Clear All
+        </button>
+
+        <button
+          mat-icon-button
+          [matTooltip]="allNodesExpanded() ? 'Collapse all' : 'Expand all'"
+          (click)="allNodesExpanded() ? collapseAll() : expandAll()"
+          aria-label="Toggle expand all"
+        >
+          <mat-icon>
+            {{ allNodesExpanded() ? 'unfold_less' : 'unfold_more' }}
+          </mat-icon>
+        </button>
+      </div>
+    </div>
+  }
+
+  <!-- Loading State -->
+  @if (loading) {
+    <div class="loading-overlay">
+      <mat-spinner diameter="48"></mat-spinner>
+      <p>Loading permissions...</p>
+    </div>
+  }
+
+  <!-- Tree Container -->
+  <div
+    class="tree-container"
+    [style.max-height.px]="maxHeight"
+    [class.has-search]="hasSearchTerm()"
+  >
+    @if (!loading) {
+      @if (filteredCount() > 0) {
+        <!-- With Virtual Scrolling -->
+        @if (enableVirtualScroll) {
+          <cdk-virtual-scroll-viewport
+            [itemSize]="virtualScrollItemSize"
+            class="tree-viewport"
+          >
+            <mat-tree
+              [dataSource]="dataSource"
+              [treeControl]="treeControl"
+              class="permission-tree"
+              role="tree"
+              aria-label="Permission tree"
+            >
+              <!-- Category Node Template -->
+              <mat-tree-node
+                *matTreeNodeDef="let node; when: isCategoryNode"
+                matTreeNodePadding
+                [matTreeNodePaddingIndent]="20"
+                class="tree-node tree-node--category"
+              >
+                <app-permission-category
+                  [categoryKey]="node.id"
+                  [categoryName]="node.name"
+                  [categoryIcon]="node.icon || 'lock'"
+                  [permissionCount]="node.count || 0"
+                  [selectedCount]="getCategorySelectedCount(node.id)"
+                  [expanded]="isCategoryExpanded(node.id)"
+                  [allSelected]="getCategorySelectionState(node.id).checked"
+                  [indeterminate]="getCategorySelectionState(node.id).indeterminate"
+                  [disabled]="readOnly || loading"
+                  [readOnly]="readOnly"
+                  [showCountBadge]="showCategoryCount"
+                  [showSelectionProgress]="true"
+                  (toggleExpand)="onToggleExpand(node.id, $event)"
+                  (selectionChange)="onCategorySelectionChange(node.id, $event)"
+                  (categoryClick)="onCategoryClick($event)"
+                ></app-permission-category>
+              </mat-tree-node>
+
+              <!-- Permission Node Template -->
+              <mat-tree-node
+                *matTreeNodeDef="let node; when: isPermissionNode"
+                matTreeNodePadding
+                [matTreeNodePaddingIndent]="20"
+                class="tree-node tree-node--permission"
+              >
+                <app-permission-item
+                  [permission]="node.permission!"
+                  [selected]="isPermissionSelected(node.id)"
+                  [disabled]="isPermissionDisabled(node.id) || readOnly || loading"
+                  [readOnly]="readOnly"
+                  [showKeyBadge]="true"
+                  [showDescriptionTooltip]="true"
+                  [showSystemBadge]="true"
+                  [highlightTerm]="searchTerm()"
+                  (selectionChange)="onPermissionSelectionChange(node.id, $event)"
+                  (permissionClick)="onPermissionClick($event)"
+                ></app-permission-item>
+              </mat-tree-node>
+            </mat-tree>
+          </cdk-virtual-scroll-viewport>
+        } @else {
+          <!-- Without Virtual Scrolling -->
+          <mat-tree
+            [dataSource]="dataSource"
+            [treeControl]="treeControl"
+            class="permission-tree"
+            role="tree"
+            aria-label="Permission tree"
+          >
+            <!-- Category Node Template -->
+            <mat-tree-node
+              *matTreeNodeDef="let node; when: isCategoryNode"
+              matTreeNodePadding
+              [matTreeNodePaddingIndent]="20"
+              class="tree-node tree-node--category"
+            >
+              <app-permission-category
+                [categoryKey]="node.id"
+                [categoryName]="node.name"
+                [categoryIcon]="node.icon || 'lock'"
+                [permissionCount]="node.count || 0"
+                [selectedCount]="getCategorySelectedCount(node.id)"
+                [expanded]="isCategoryExpanded(node.id)"
+                [allSelected]="getCategorySelectionState(node.id).checked"
+                [indeterminate]="getCategorySelectionState(node.id).indeterminate"
+                [disabled]="readOnly || loading"
+                [readOnly]="readOnly"
+                [showCountBadge]="showCategoryCount"
+                [showSelectionProgress]="true"
+                (toggleExpand)="onToggleExpand(node.id, $event)"
+                (selectionChange)="onCategorySelectionChange(node.id, $event)"
+                (categoryClick)="onCategoryClick($event)"
+              ></app-permission-category>
+            </mat-tree-node>
+
+            <!-- Permission Node Template -->
+            <mat-tree-node
+              *matTreeNodeDef="let node; when: isPermissionNode"
+              matTreeNodePadding
+              [matTreeNodePaddingIndent]="20"
+              class="tree-node tree-node--permission"
+            >
+              <app-permission-item
+                [permission]="node.permission!"
+                [selected]="isPermissionSelected(node.id)"
+                [disabled]="isPermissionDisabled(node.id) || readOnly || loading"
+                [readOnly]="readOnly"
+                [showKeyBadge]="true"
+                [showDescriptionTooltip]="true"
+                [showSystemBadge]="true"
+                [highlightTerm]="searchTerm()"
+                (selectionChange)="onPermissionSelectionChange(node.id, $event)"
+                (permissionClick)="onPermissionClick($event)"
+              ></app-permission-item>
+            </mat-tree-node>
+          </mat-tree>
+        }
+      } @else {
+        <!-- Empty State -->
+        <div class="empty-state">
+          @if (hasSearchTerm()) {
+            <mat-icon class="empty-icon">search_off</mat-icon>
+            <h3>No permissions found</h3>
+            <p>Try adjusting your search terms</p>
+            <button mat-stroked-button (click)="onSearchClear()">
+              Clear Search
+            </button>
+          } @else {
+            <mat-icon class="empty-icon">lock</mat-icon>
+            <h3>No permissions available</h3>
+            <p>There are no permissions to display</p>
+          }
+        </div>
+      }
+    }
+  </div>
+
+  <!-- Footer Summary (if selections exist) -->
+  @if (selectedCount() > 0 && !readOnly) {
+    <div class="footer-summary">
+      <div class="summary-content">
+        <mat-icon>info</mat-icon>
+        <span>
+          <strong>{{ selectedCount() }}</strong> permission{{ selectedCount() === 1 ? '' : 's' }} selected
+        </span>
+      </div>
+
+      @if (mode === 'multiple') {
+        <button mat-button color="primary" (click)="onClearAll()">
+          Clear Selection
+        </button>
+      }
+    </div>
+  }
+</div>

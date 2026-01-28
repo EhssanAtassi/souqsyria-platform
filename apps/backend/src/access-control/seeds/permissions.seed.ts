@@ -4,10 +4,30 @@
  * Defines all permissions needed for the e-commerce platform
  */
 
+/**
+ * Enhanced Permission Seed Data Interface
+ *
+ * Supports both legacy category field and new resource/action/isSystem fields
+ * for improved categorization and system-level protection.
+ */
 export interface PermissionSeedData {
+  /** Unique permission name (e.g., "view_products") */
   name: string;
+
+  /** Human-readable description of what the permission allows */
   description: string;
+
+  /** Legacy category field for backward compatibility */
   category: string;
+
+  /** Resource/entity type (e.g., "products", "orders", "users") */
+  resource?: string;
+
+  /** Action/operation type (e.g., "view", "create", "edit", "delete", "manage") */
+  action?: string;
+
+  /** System-level permission that cannot be deleted */
+  isSystem?: boolean;
 }
 
 /**
@@ -478,6 +498,55 @@ export const PERMISSION_SEEDS: PermissionSeedData[] = [
     name: 'view_system_logs',
     description: 'View system logs and audit trails',
     category: 'admin',
+    isSystem: true,
+  },
+  {
+    name: 'view_audit_logs',
+    description: 'View security audit logs and access attempts',
+    category: 'admin',
+    resource: 'audit_logs',
+    action: 'view',
+    isSystem: true,
+  },
+  {
+    name: 'export_audit_logs',
+    description: 'Export security audit logs to CSV/JSON',
+    category: 'admin',
+    resource: 'audit_logs',
+    action: 'export',
+    isSystem: true,
+  },
+  {
+    name: 'manage_routes',
+    description: 'Manage route-permission mappings',
+    category: 'admin',
+    resource: 'routes',
+    action: 'manage',
+    isSystem: true,
+  },
+  {
+    name: 'access_admin_panel',
+    description: 'Access the admin dashboard panel',
+    category: 'admin',
+    resource: 'admin_panel',
+    action: 'access',
+    isSystem: true,
+  },
+  {
+    name: 'manage_system_roles',
+    description: 'Manage system-critical roles (owner, super_admin)',
+    category: 'admin',
+    resource: 'system_roles',
+    action: 'manage',
+    isSystem: true,
+  },
+  {
+    name: 'delete_system_data',
+    description: 'Delete system-critical data (use with extreme caution)',
+    category: 'admin',
+    resource: 'system',
+    action: 'delete',
+    isSystem: true,
   },
   {
     name: 'backup_system',
@@ -723,4 +792,125 @@ export function getPermissionByName(
   name: string,
 ): PermissionSeedData | undefined {
   return PERMISSION_SEEDS.find((permission) => permission.name === name);
+}
+
+/**
+ * Parse permission name to extract action and resource
+ *
+ * Follows the naming convention: {action}_{resource}
+ * Examples:
+ * - "view_products" -> { action: "view", resource: "products" }
+ * - "create_orders" -> { action: "create", resource: "orders" }
+ * - "manage_users" -> { action: "manage", resource: "users" }
+ *
+ * @param name - The permission name to parse
+ * @returns Object containing extracted action and resource, or null if parsing fails
+ */
+export function parsePermissionName(name: string): {
+  action: string;
+  resource: string;
+} | null {
+  const parts = name.split('_');
+
+  if (parts.length < 2) {
+    return null; // Cannot parse: insufficient parts
+  }
+
+  // First part is the action, remaining parts form the resource
+  const action = parts[0];
+  const resource = parts.slice(1).join('_');
+
+  return { action, resource };
+}
+
+/**
+ * Enhance permission seed data with resource and action fields
+ *
+ * Automatically populates resource and action by parsing the permission name.
+ * Preserves existing resource/action values if already set.
+ *
+ * @param permissions - Array of permission seed data to enhance
+ * @returns Enhanced permission seed data with resource and action populated
+ */
+export function enhancePermissionsWithResourceAction(
+  permissions: PermissionSeedData[],
+): PermissionSeedData[] {
+  return permissions.map((permission) => {
+    // Skip if resource and action are already set
+    if (permission.resource && permission.action) {
+      return permission;
+    }
+
+    // Parse the permission name
+    const parsed = parsePermissionName(permission.name);
+
+    if (!parsed) {
+      console.warn(
+        `Cannot parse permission name: ${permission.name}. Skipping enhancement.`,
+      );
+      return permission;
+    }
+
+    // Return enhanced permission with parsed resource and action
+    return {
+      ...permission,
+      resource: permission.resource || parsed.resource,
+      action: permission.action || parsed.action,
+    };
+  });
+}
+
+/**
+ * Mark critical system permissions that cannot be deleted
+ *
+ * System permissions are essential for core functionality and should never be removed.
+ * This function marks the following permissions as system-level:
+ * - manage_permissions
+ * - manage_roles
+ * - assign_roles
+ * - system_configuration
+ * - view_system_logs
+ *
+ * @param permissions - Array of permission seed data
+ * @param systemPermissionNames - Array of permission names to mark as system-level
+ * @returns Permission seed data with isSystem flag set for critical permissions
+ */
+export function markSystemPermissions(
+  permissions: PermissionSeedData[],
+  systemPermissionNames: string[] = [
+    'manage_permissions',
+    'manage_roles',
+    'assign_roles',
+    'system_configuration',
+    'view_system_logs',
+    'backup_system',
+    'restore_system',
+  ],
+): PermissionSeedData[] {
+  return permissions.map((permission) => ({
+    ...permission,
+    isSystem: systemPermissionNames.includes(permission.name),
+  }));
+}
+
+/**
+ * Get fully enhanced permissions ready for seeding
+ *
+ * Applies all enhancements:
+ * 1. Parses permission names to extract resource and action
+ * 2. Marks critical system permissions
+ * 3. Preserves existing values
+ *
+ * Usage in seeder:
+ * ```typescript
+ * const enhancedPermissions = getEnhancedPermissions();
+ * await permissionRepository.save(enhancedPermissions);
+ * ```
+ *
+ * @returns Fully enhanced permission seed data
+ */
+export function getEnhancedPermissions(): PermissionSeedData[] {
+  let enhanced = enhancePermissionsWithResourceAction(PERMISSION_SEEDS);
+  enhanced = markSystemPermissions(enhanced);
+  return enhanced;
 }

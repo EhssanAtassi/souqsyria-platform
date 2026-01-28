@@ -1,0 +1,192 @@
+<!--
+  Role Management Dashboard Template
+
+  @description
+  Main dashboard layout with filters sidebar, role grid, pagination, and detail panel.
+
+  @features
+  - Responsive layout with collapsible sidebars
+  - Filter sidebar with role filters
+  - Role grid with cards
+  - Pagination controls
+  - Sliding detail panel for role information
+
+  @layout
+  - Toolbar: Title, search, action buttons
+  - Main content: Filters sidebar + Role grid
+  - Detail panel: Sliding panel from right
+-->
+
+<div class="role-management-container">
+  <!-- Loading Progress Bar -->
+  @if (loading$ | async) {
+    <mat-progress-bar mode="indeterminate" class="loading-bar"></mat-progress-bar>
+  }
+
+  <!-- Toolbar -->
+  <mat-toolbar class="dashboard-toolbar" color="primary">
+    <!-- Toggle Filters Button (Mobile) -->
+    <button
+      mat-icon-button
+      class="filter-toggle-btn"
+      (click)="toggleFilters()"
+      matTooltip="Toggle filters"
+      aria-label="Toggle filter sidebar">
+      <mat-icon>filter_list</mat-icon>
+    </button>
+
+    <!-- Title -->
+    <h1 class="toolbar-title">
+      <mat-icon class="title-icon">admin_panel_settings</mat-icon>
+      Role Management
+    </h1>
+
+    <span class="toolbar-spacer"></span>
+
+    <!-- Search Component -->
+    <app-role-search
+      class="toolbar-search"
+      (search)="onSearch($event)">
+    </app-role-search>
+
+    <!-- Navigation Buttons -->
+    <button
+      mat-button
+      class="nav-button"
+      (click)="navigateToTemplates()"
+      matTooltip="Browse role templates"
+      aria-label="View role templates">
+      <mat-icon>library_books</mat-icon>
+      Templates
+    </button>
+
+    <!-- Refresh Button -->
+    <button
+      mat-icon-button
+      class="toolbar-action"
+      (click)="refresh()"
+      matTooltip="Refresh"
+      aria-label="Refresh role list">
+      <mat-icon>refresh</mat-icon>
+    </button>
+
+    <!-- Export Button -->
+    <button
+      mat-icon-button
+      class="toolbar-action"
+      (click)="exportRoles()"
+      matTooltip="Export to CSV"
+      aria-label="Export roles to CSV">
+      <mat-icon>file_download</mat-icon>
+    </button>
+
+    <!-- Clear Filters Button -->
+    @if (hasFilters$ | async) {
+      <button
+        mat-icon-button
+        class="toolbar-action"
+        (click)="clearFilters()"
+        matTooltip="Clear filters"
+        aria-label="Clear all filters">
+        <mat-icon>filter_list_off</mat-icon>
+      </button>
+    }
+
+    <!-- Create Role Button -->
+    <button
+      mat-raised-button
+      color="accent"
+      class="create-btn"
+      (click)="onCreate()"
+      aria-label="Create new role">
+      <mat-icon>add</mat-icon>
+      Create Role
+    </button>
+  </mat-toolbar>
+
+  <!-- Main Content Container -->
+  <div class="content-wrapper">
+    <mat-drawer-container class="drawer-container" autosize>
+      <!-- Filters Sidebar -->
+      <mat-drawer
+        #filterDrawer
+        class="filters-drawer"
+        mode="side"
+        [opened]="filtersOpen"
+        position="start">
+        <div class="drawer-header">
+          <h2>
+            <mat-icon>tune</mat-icon>
+            Filters
+          </h2>
+          <button
+            mat-icon-button
+            (click)="clearFilters()"
+            matTooltip="Clear all filters"
+            aria-label="Clear all filters">
+            <mat-icon>clear</mat-icon>
+          </button>
+        </div>
+
+        <div class="drawer-content">
+          <app-role-filters
+            (filterChange)="onFilterChange($event)">
+          </app-role-filters>
+        </div>
+      </mat-drawer>
+
+      <!-- Main Content Area -->
+      <mat-drawer-content class="main-content">
+        <!-- Role Count Summary -->
+        <div class="summary-bar">
+          <div class="summary-info">
+            <mat-icon>info</mat-icon>
+            <span>
+              Showing
+              <strong>{{ (roles$ | async)?.length || 0 }}</strong>
+              of
+              <strong>{{ (totalCount$ | async) || 0 }}</strong>
+              roles
+            </span>
+          </div>
+        </div>
+
+        <!-- Role Grid -->
+        <div class="grid-container">
+          <app-role-grid
+            [roles]="roles$ | async"
+            [loading]="loading$ | async"
+            [selectedRoleId]="selectedRoleId$ | async"
+            (roleSelect)="onRoleSelect($event)"
+            (roleEdit)="onEdit($event)"
+            (roleClone)="onClone($event)"
+            (roleDelete)="onDelete($event)">
+          </app-role-grid>
+        </div>
+
+        <!-- Pagination -->
+        <div class="pagination-container">
+          <mat-paginator
+            [length]="totalCount$ | async"
+            [pageSize]="pageSize$ | async"
+            [pageIndex]="(currentPage$ | async)! - 1"
+            [pageSizeOptions]="[10, 25, 50, 100]"
+            [showFirstLastButtons]="true"
+            (page)="onPageChange($event)"
+            aria-label="Select page">
+          </mat-paginator>
+        </div>
+      </mat-drawer-content>
+    </mat-drawer-container>
+  </div>
+
+  <!-- Role Detail Panel -->
+  <app-role-detail-panel
+    [role]="selectedRole$ | async"
+    [open]="detailPanelOpen"
+    (close)="onDetailPanelClose()"
+    (edit)="onEdit($event)"
+    (clone)="onClone($event)"
+    (delete)="onDelete($event)">
+  </app-role-detail-panel>
+</div>

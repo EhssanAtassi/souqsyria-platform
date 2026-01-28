@@ -1,0 +1,150 @@
+<div class="dialog-container">
+  <div class="dialog-header" [style.border-top-color]="template.color">
+    <div class="header-content">
+      <div class="template-icon" [style.background-color]="template.color">
+        <mat-icon>{{ template.icon }}</mat-icon>
+      </div>
+      <div class="header-text">
+        <h2 mat-dialog-title>{{ template.name }}</h2>
+        <p class="template-category">{{ getCategoryDisplay(template.category) }}</p>
+      </div>
+    </div>
+    <button mat-icon-button mat-dialog-close aria-label="Close dialog">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+
+  <mat-dialog-content>
+    <div class="template-info">
+      <p class="template-description">{{ template.description }}</p>
+
+      <div class="template-stats">
+        <div class="stat-item">
+          <mat-icon>security</mat-icon>
+          <div class="stat-content">
+            <span class="stat-value">{{ template.suggestedPermissions.length }}</span>
+            <span class="stat-label">Permissions</span>
+          </div>
+        </div>
+        <div class="stat-item">
+          <mat-icon>priority_high</mat-icon>
+          <div class="stat-content">
+            <span class="stat-value">{{ template.priority }}</span>
+            <span class="stat-label">Priority Level</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <mat-divider></mat-divider>
+
+    <div class="permissions-section">
+      <h3>Included Permissions</h3>
+      <p class="section-description">
+        This template includes {{ templatePermissions().length }} permissions organized by category.
+      </p>
+
+      <div class="permissions-list">
+        @for (group of groupedPermissions(); track group.category) {
+          <div class="permission-group">
+            <h4 class="group-title">
+              <mat-icon>folder</mat-icon>
+              {{ group.category }}
+              <span class="group-count">({{ group.permissions.length }})</span>
+            </h4>
+            <mat-list class="permission-items">
+              @for (permission of group.permissions; track permission.id) {
+                <mat-list-item>
+                  <mat-icon matListItemIcon>check_circle</mat-icon>
+                  <div matListItemTitle>{{ permission.displayName }}</div>
+                  <div matListItemLine class="permission-description">
+                    {{ permission.description }}
+                  </div>
+                </mat-list-item>
+              }
+            </mat-list>
+          </div>
+        }
+      </div>
+    </div>
+
+    <mat-divider></mat-divider>
+
+    <div class="customize-section">
+      <div class="customize-header">
+        <h3>Customize Template</h3>
+        <mat-slide-toggle [checked]="customizeMode()" (change)="toggleCustomize()">
+          Enable Customization
+        </mat-slide-toggle>
+      </div>
+
+      @if (customizeMode()) {
+        <div class="customize-form">
+          <form [formGroup]="customizeForm">
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Role Name (slug)</mat-label>
+              <input
+                matInput
+                formControlName="name"
+                placeholder="e.g., content_moderator"
+                required
+              />
+              <mat-hint>Unique identifier (lowercase, underscores)</mat-hint>
+              @if (customizeForm.get('name')?.invalid && customizeForm.get('name')?.touched) {
+                <mat-error>{{ getErrorMessage('name') }}</mat-error>
+              }
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Display Name</mat-label>
+              <input
+                matInput
+                formControlName="displayName"
+                placeholder="e.g., Content Moderator"
+                required
+              />
+              <mat-hint>Human-readable name shown in UI</mat-hint>
+              @if (customizeForm.get('displayName')?.invalid && customizeForm.get('displayName')?.touched) {
+                <mat-error>{{ getErrorMessage('displayName') }}</mat-error>
+              }
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Description</mat-label>
+              <textarea
+                matInput
+                formControlName="description"
+                rows="3"
+                placeholder="Describe the role's responsibilities..."
+                maxlength="500"
+              ></textarea>
+              <mat-hint align="end">
+                {{ customizeForm.get('description')?.value?.length || 0 }}/500
+              </mat-hint>
+            </mat-form-field>
+          </form>
+        </div>
+      }
+    </div>
+  </mat-dialog-content>
+
+  <mat-dialog-actions align="end">
+    <button mat-button (click)="cancel()">Cancel</button>
+    @if (customizeMode()) {
+      <button
+        mat-raised-button
+        color="primary"
+        (click)="useWithCustomization()"
+        [disabled]="customizeForm.invalid"
+      >
+        <mat-icon>check</mat-icon>
+        Create Custom Role
+      </button>
+    } @else {
+      <button mat-raised-button color="primary" (click)="useTemplate()">
+        <mat-icon>add</mat-icon>
+        Use Template
+      </button>
+    }
+  </mat-dialog-actions>
+</div>

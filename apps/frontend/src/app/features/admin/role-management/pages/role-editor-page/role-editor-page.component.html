@@ -1,0 +1,268 @@
+<div class="editor-page">
+  <!-- Header with Breadcrumbs -->
+  <div class="page-header">
+    <div class="breadcrumbs">
+      <button mat-button (click)="goBack()" class="breadcrumb-link">
+        <mat-icon>home</mat-icon>
+        Roles
+      </button>
+      <mat-icon class="breadcrumb-separator">chevron_right</mat-icon>
+      <span class="breadcrumb-current">{{ breadcrumbTitle() }}</span>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  @if (loading()) {
+    <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+  }
+
+  <!-- Form Container -->
+  <div class="editor-content">
+    <form [formGroup]="roleForm" (ngSubmit)="onSubmit()">
+      <!-- Basic Information Card -->
+      <mat-card class="info-card">
+        <mat-card-header>
+          <mat-card-title>
+            <mat-icon>info</mat-icon>
+            Basic Information
+          </mat-card-title>
+          <mat-card-subtitle>
+            Define the role's identity and configuration
+          </mat-card-subtitle>
+        </mat-card-header>
+
+        <mat-card-content>
+          <div class="form-grid">
+            <!-- Role Name (slug) -->
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Role Name (slug)</mat-label>
+              <input
+                matInput
+                formControlName="name"
+                placeholder="e.g., content_moderator"
+                [readonly]="mode() === 'edit'"
+                required
+              />
+              <mat-icon matPrefix>badge</mat-icon>
+              <mat-hint>Unique identifier (lowercase, underscores only). Cannot be changed after creation.</mat-hint>
+              @if (roleForm.get('name')?.invalid && roleForm.get('name')?.touched) {
+                <mat-error>{{ getErrorMessage('name') }}</mat-error>
+              }
+            </mat-form-field>
+
+            <!-- Display Name -->
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Display Name</mat-label>
+              <input
+                matInput
+                formControlName="displayName"
+                placeholder="e.g., Content Moderator"
+                required
+              />
+              <mat-icon matPrefix>label</mat-icon>
+              <mat-hint>Human-readable name shown in the UI</mat-hint>
+              @if (roleForm.get('displayName')?.invalid && roleForm.get('displayName')?.touched) {
+                <mat-error>{{ getErrorMessage('displayName') }}</mat-error>
+              }
+            </mat-form-field>
+
+            <!-- Description -->
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Description</mat-label>
+              <textarea
+                matInput
+                formControlName="description"
+                rows="3"
+                placeholder="Describe the role's responsibilities and purpose..."
+                maxlength="500"
+              ></textarea>
+              <mat-icon matPrefix>description</mat-icon>
+              <mat-hint align="end">
+                {{ roleForm.get('description')?.value?.length || 0 }}/500
+              </mat-hint>
+            </mat-form-field>
+
+            <!-- Priority Slider -->
+            <div class="priority-field">
+              <label class="field-label">
+                <mat-icon>priority_high</mat-icon>
+                Priority Level: <strong>{{ roleForm.get('priority')?.value }}</strong>
+              </label>
+              <mat-slider
+                min="1"
+                max="100"
+                step="1"
+                showTickMarks
+                discrete
+                [displayWith]="formatPriorityLabel"
+                class="full-width"
+              >
+                <input matSliderThumb formControlName="priority" />
+              </mat-slider>
+              <p class="field-hint">
+                Higher priority roles take precedence. Range: 1 (lowest) to 100 (highest)
+              </p>
+            </div>
+
+            <!-- System Role Toggle -->
+            <div class="system-toggle">
+              <mat-slide-toggle
+                formControlName="isSystem"
+                color="warn"
+                [disabled]="mode() === 'edit' && (roleData()?.isSystem || false)"
+              >
+                System Role
+              </mat-slide-toggle>
+              <p class="toggle-description">
+                System roles are protected and cannot be deleted. This setting cannot be changed after creation for existing system roles.
+              </p>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <!-- Permissions Card -->
+      <mat-card class="permissions-card">
+        <mat-card-header>
+          <mat-card-title>
+            <mat-icon>security</mat-icon>
+            Permissions
+            <span class="permission-count">{{ permissionCount() }} selected</span>
+          </mat-card-title>
+          <mat-card-subtitle>
+            Select permissions to grant to this role
+          </mat-card-subtitle>
+        </mat-card-header>
+
+        <mat-card-content>
+          @if (permissions$ | async; as permissions) {
+            <app-permission-selector
+              [permissions]="permissions"
+              [preSelectedIds]="selectedPermissions()"
+              (selectionChange)="onPermissionsChange($event)"
+            />
+          } @else {
+            <div class="loading-permissions">
+              <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+              <p>Loading permissions...</p>
+            </div>
+          }
+
+          @if (permissionCount() === 0) {
+            <div class="permission-warning">
+              <mat-icon>warning</mat-icon>
+              <p>At least one permission must be selected</p>
+            </div>
+          }
+        </mat-card-content>
+      </mat-card>
+
+      <!-- Summary Card (Collapsible) -->
+      <mat-expansion-panel class="summary-panel" [(expanded)]="summaryExpanded">
+        <mat-expansion-panel-header>
+          <mat-panel-title>
+            <mat-icon>summarize</mat-icon>
+            Summary & Validation
+          </mat-panel-title>
+          <mat-panel-description>
+            Review your role configuration
+          </mat-panel-description>
+        </mat-expansion-panel-header>
+
+        <div class="summary-content">
+          <div class="summary-section">
+            <h4>Basic Information</h4>
+            <div class="summary-item">
+              <span class="label">Name:</span>
+              <span class="value">{{ roleForm.get('name')?.value || '(not set)' }}</span>
+            </div>
+            <div class="summary-item">
+              <span class="label">Display Name:</span>
+              <span class="value">{{ roleForm.get('displayName')?.value || '(not set)' }}</span>
+            </div>
+            <div class="summary-item">
+              <span class="label">Priority:</span>
+              <span class="value">{{ roleForm.get('priority')?.value }}</span>
+            </div>
+            <div class="summary-item">
+              <span class="label">System Role:</span>
+              <span class="value">{{ roleForm.get('isSystem')?.value ? 'Yes' : 'No' }}</span>
+            </div>
+          </div>
+
+          <mat-divider></mat-divider>
+
+          <div class="summary-section">
+            <h4>Permissions</h4>
+            <div class="summary-item">
+              <span class="label">Total Selected:</span>
+              <span class="value">{{ permissionCount() }}</span>
+            </div>
+          </div>
+
+          <mat-divider></mat-divider>
+
+          <div class="summary-section">
+            <h4>Validation Status</h4>
+            <div class="validation-item" [class.valid]="roleForm.get('name')?.valid" [class.invalid]="roleForm.get('name')?.invalid && roleForm.get('name')?.touched">
+              <mat-icon>{{ roleForm.get('name')?.valid ? 'check_circle' : 'error' }}</mat-icon>
+              <span>Role name is valid</span>
+            </div>
+            <div class="validation-item" [class.valid]="roleForm.get('displayName')?.valid" [class.invalid]="roleForm.get('displayName')?.invalid && roleForm.get('displayName')?.touched">
+              <mat-icon>{{ roleForm.get('displayName')?.valid ? 'check_circle' : 'error' }}</mat-icon>
+              <span>Display name is valid</span>
+            </div>
+            <div class="validation-item" [class.valid]="permissionCount() > 0" [class.invalid]="permissionCount() === 0">
+              <mat-icon>{{ permissionCount() > 0 ? 'check_circle' : 'error' }}</mat-icon>
+              <span>At least one permission selected</span>
+            </div>
+          </div>
+        </div>
+      </mat-expansion-panel>
+    </form>
+  </div>
+
+  <!-- Sticky Action Bar -->
+  <div class="action-bar" [class.saving]="saving()">
+    @if (saving()) {
+      <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+    }
+    <div class="action-bar-content">
+      <div class="form-status">
+        @if (isFormValid()) {
+          <mat-icon class="status-icon valid">check_circle</mat-icon>
+          <span>Form is valid and ready to submit</span>
+        } @else {
+          <mat-icon class="status-icon invalid">error</mat-icon>
+          <span>Please fix errors before submitting</span>
+        }
+      </div>
+
+      <div class="action-buttons">
+        <button
+          mat-button
+          type="button"
+          (click)="cancel()"
+          [disabled]="saving()"
+        >
+          Cancel
+        </button>
+        <button
+          mat-raised-button
+          color="primary"
+          type="submit"
+          (click)="onSubmit()"
+          [disabled]="!isFormValid() || saving()"
+        >
+          @if (saving()) {
+            <mat-icon>hourglass_empty</mat-icon>
+            Saving...
+          } @else {
+            <mat-icon>{{ mode() === 'create' ? 'add' : 'save' }}</mat-icon>
+            {{ mode() === 'create' ? 'Create Role' : 'Update Role' }}
+          }
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

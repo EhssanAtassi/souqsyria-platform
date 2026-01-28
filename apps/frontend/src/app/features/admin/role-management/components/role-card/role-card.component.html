@@ -1,0 +1,145 @@
+<!--
+  Role Card Template
+
+  @description
+  Material card displaying role information with actions.
+
+  @sections
+  - Header: Role name and system badge
+  - Content: Description, stats
+  - Actions: Edit, clone, delete buttons
+-->
+
+<mat-card class="role-card" [class.selected]="selected()">
+  <!-- Card Header -->
+  <mat-card-header>
+    <div class="card-header-content">
+      <!-- Role Icon (if available) -->
+      @if (role().icon) {
+        <mat-icon class="role-icon">{{ role().icon }}</mat-icon>
+      }
+
+      <!-- Role Name -->
+      <div class="role-title">
+        <mat-card-title>{{ role().displayName }}</mat-card-title>
+        <mat-card-subtitle>{{ role().name }}</mat-card-subtitle>
+      </div>
+
+      <!-- System Role Badge -->
+      @if (role().isSystem) {
+        <app-system-role-badge></app-system-role-badge>
+      }
+    </div>
+
+    <!-- Priority Badge -->
+    <app-priority-badge [priority]="role().priority"></app-priority-badge>
+  </mat-card-header>
+
+  <!-- Card Content -->
+  <mat-card-content>
+    <!-- Description -->
+    <p class="role-description" [matTooltip]="role().description">
+      {{ getTruncatedDescription() }}
+    </p>
+
+    <!-- Stats Row -->
+    <div class="stats-row">
+      <!-- Permission Count -->
+      <div class="stat-item">
+        <mat-icon class="stat-icon">vpn_key</mat-icon>
+        <span class="stat-value">{{ role().permissionIds?.length || 0 }}</span>
+        <span class="stat-label">Permissions</span>
+      </div>
+
+      <!-- User Count -->
+      <div class="stat-item">
+        <mat-icon class="stat-icon">group</mat-icon>
+        <span class="stat-value">{{ role().userCount || 0 }}</span>
+        <span class="stat-label">Users</span>
+      </div>
+    </div>
+
+    <!-- Active Status Chip -->
+    <div class="status-chips">
+      @if (role().isActive) {
+        <mat-chip class="status-chip active">
+          <mat-icon>check_circle</mat-icon>
+          Active
+        </mat-chip>
+      } @else {
+        <mat-chip class="status-chip inactive">
+          <mat-icon>cancel</mat-icon>
+          Inactive
+        </mat-chip>
+      }
+    </div>
+  </mat-card-content>
+
+  <!-- Card Actions -->
+  <mat-card-actions>
+    <div class="action-buttons">
+      <!-- Edit Button -->
+      <button
+        mat-icon-button
+        color="primary"
+        [disabled]="role().isSystem"
+        (click)="onEditClick($event)"
+        matTooltip="Edit role"
+        [matTooltipDisabled]="role().isSystem"
+        [matTooltip]="role().isSystem ? 'System roles cannot be edited' : 'Edit role'"
+        aria-label="Edit role">
+        <mat-icon>edit</mat-icon>
+      </button>
+
+      <!-- Clone Button -->
+      <button
+        mat-icon-button
+        color="accent"
+        (click)="onCloneClick($event)"
+        matTooltip="Clone role"
+        aria-label="Clone role">
+        <mat-icon>content_copy</mat-icon>
+      </button>
+
+      <!-- Delete Button -->
+      <button
+        mat-icon-button
+        color="warn"
+        [disabled]="!canDelete()"
+        (click)="onDeleteClick($event)"
+        [matTooltip]="!canDelete() ? 'Cannot delete system roles or roles with users' : 'Delete role'"
+        aria-label="Delete role">
+        <mat-icon>delete</mat-icon>
+      </button>
+
+      <span class="action-spacer"></span>
+
+      <!-- More Options Menu -->
+      <button
+        mat-icon-button
+        [matMenuTriggerFor]="moreMenu"
+        (click)="$event.stopPropagation()"
+        matTooltip="More options"
+        aria-label="More options">
+        <mat-icon>more_vert</mat-icon>
+      </button>
+    </div>
+  </mat-card-actions>
+</mat-card>
+
+<!-- More Options Menu -->
+<mat-menu #moreMenu="matMenu">
+  <button mat-menu-item (click)="onEditClick($event)" [disabled]="role().isSystem">
+    <mat-icon>edit</mat-icon>
+    <span>Edit</span>
+  </button>
+  <button mat-menu-item (click)="onCloneClick($event)">
+    <mat-icon>content_copy</mat-icon>
+    <span>Clone</span>
+  </button>
+  <mat-divider></mat-divider>
+  <button mat-menu-item (click)="onDeleteClick($event)" [disabled]="!canDelete()">
+    <mat-icon color="warn">delete</mat-icon>
+    <span>Delete</span>
+  </button>
+</mat-menu>

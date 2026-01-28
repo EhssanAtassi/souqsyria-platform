@@ -1,0 +1,428 @@
+/**
+ * Permission Category Component Styles
+ *
+ * @description
+ * Styles for category nodes in the permission tree with expand/collapse animations,
+ * selection indicators, and progress visualization.
+ */
+
+// ============================================================================
+// COMPONENT HOST
+// ============================================================================
+
+:host {
+  display: block;
+  width: 100%;
+}
+
+// ============================================================================
+// CATEGORY ITEM CONTAINER
+// ============================================================================
+
+.category-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  background: white;
+  border-left: 4px solid transparent;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.12);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+
+  &:hover {
+    background: rgba(0, 0, 0, 0.03);
+  }
+
+  // Expanded state
+  &--expanded {
+    background: rgba(0, 0, 0, 0.02);
+
+    .expand-icon {
+      transform: rotate(0deg);
+    }
+  }
+
+  // Collapsed state
+  &--collapsed {
+    .expand-icon {
+      transform: rotate(-90deg);
+    }
+  }
+
+  // Selected state
+  &--selected {
+    background: rgba(63, 81, 181, 0.1);
+
+    &:hover {
+      background: rgba(63, 81, 181, 0.15);
+    }
+  }
+
+  // Indeterminate state
+  &--indeterminate {
+    background: rgba(255, 152, 0, 0.08);
+
+    &:hover {
+      background: rgba(255, 152, 0, 0.12);
+    }
+  }
+
+  // Disabled state
+  &--disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+
+    &:hover {
+      background: white;
+    }
+  }
+
+  // Read-only state
+  &--read-only {
+    cursor: default;
+
+    &:hover {
+      background: transparent;
+    }
+  }
+
+  // Animating state
+  &--animating {
+    .expand-icon {
+      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+  }
+}
+
+// ============================================================================
+// EXPAND BUTTON
+// ============================================================================
+
+.expand-button {
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  margin-left: -8px;
+
+  ::ng-deep .mat-mdc-button-touch-target {
+    width: 48px;
+    height: 48px;
+  }
+}
+
+.expand-icon {
+  font-size: 24px;
+  width: 24px;
+  height: 24px;
+  color: rgba(0, 0, 0, 0.54);
+  transition: transform 0.2s ease;
+}
+
+// ============================================================================
+// CHECKBOX
+// ============================================================================
+
+.category-checkbox {
+  flex-shrink: 0;
+}
+
+// ============================================================================
+// CATEGORY CONTENT
+// ============================================================================
+
+.category-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0; // Allow text truncation
+}
+
+// ============================================================================
+// CATEGORY HEADER
+// ============================================================================
+
+.category-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.category-icon-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  flex-shrink: 0;
+  transition: all 0.2s ease;
+
+  .category-item--hovered & {
+    transform: scale(1.05);
+  }
+}
+
+.category-icon {
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
+}
+
+.category-name {
+  flex: 1;
+  font-size: 15px;
+  font-weight: 600;
+  color: rgba(0, 0, 0, 0.87);
+  line-height: 1.4;
+  letter-spacing: 0.1px;
+}
+
+.count-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 32px;
+  height: 24px;
+  padding: 0 8px;
+  font-size: 12px;
+  font-weight: 600;
+  border-radius: 12px;
+  white-space: nowrap;
+}
+
+// ============================================================================
+// SELECTION PROGRESS
+// ============================================================================
+
+.selection-progress {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.progress-bar {
+  height: 4px;
+  background: rgba(0, 0, 0, 0.08);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background: #3f51b5;
+  border-radius: 2px;
+  transition: width 0.3s ease;
+}
+
+.progress-text {
+  font-size: 11px;
+  font-weight: 500;
+  color: rgba(0, 0, 0, 0.6);
+  line-height: 1;
+}
+
+// ============================================================================
+// SELECTION STATUS
+// ============================================================================
+
+.selection-status {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+}
+
+.status-icon {
+  font-size: 24px;
+  width: 24px;
+  height: 24px;
+  opacity: 0;
+  transform: scale(0.8);
+  transition: all 0.2s ease;
+
+  &--selected {
+    color: #4caf50;
+
+    .category-item--selected & {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  &--indeterminate {
+    color: #ff9800;
+
+    .category-item--indeterminate & {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+}
+
+// ============================================================================
+// DARK THEME
+// ============================================================================
+
+.dark-theme {
+  .category-item {
+    background: #424242;
+    border-bottom-color: rgba(255, 255, 255, 0.12);
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    &--expanded {
+      background: rgba(255, 255, 255, 0.03);
+    }
+
+    &--selected {
+      background: rgba(63, 81, 181, 0.2);
+
+      &:hover {
+        background: rgba(63, 81, 181, 0.25);
+      }
+    }
+
+    &--indeterminate {
+      background: rgba(255, 152, 0, 0.15);
+
+      &:hover {
+        background: rgba(255, 152, 0, 0.2);
+      }
+    }
+
+    &--disabled:hover {
+      background: #424242;
+    }
+  }
+
+  .expand-icon {
+    color: rgba(255, 255, 255, 0.7);
+  }
+
+  .category-name {
+    color: rgba(255, 255, 255, 0.87);
+  }
+
+  .progress-bar {
+    background: rgba(255, 255, 255, 0.1);
+  }
+
+  .progress-text {
+    color: rgba(255, 255, 255, 0.7);
+  }
+}
+
+// ============================================================================
+// RESPONSIVE ADJUSTMENTS
+// ============================================================================
+
+@media (max-width: 768px) {
+  .category-item {
+    padding: 12px;
+  }
+
+  .category-icon-wrapper {
+    width: 32px;
+    height: 32px;
+  }
+
+  .category-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+  }
+
+  .category-name {
+    font-size: 14px;
+  }
+
+  .count-badge {
+    min-width: 28px;
+    height: 20px;
+    font-size: 11px;
+  }
+
+  .selection-status {
+    width: 20px;
+    height: 20px;
+  }
+
+  .status-icon {
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+  }
+}
+
+// ============================================================================
+// ACCESSIBILITY
+// ============================================================================
+
+// Focus visible
+.category-item:focus-visible {
+  outline: 2px solid #3f51b5;
+  outline-offset: -2px;
+  z-index: 1;
+}
+
+// High contrast mode
+@media (prefers-contrast: high) {
+  .category-item {
+    border-bottom-width: 2px;
+
+    &--selected {
+      border: 2px solid #3f51b5;
+    }
+
+    &--indeterminate {
+      border: 2px solid #ff9800;
+    }
+  }
+
+  .category-icon-wrapper {
+    border: 2px solid currentColor;
+  }
+
+  .count-badge {
+    border: 1px solid currentColor;
+  }
+
+  .progress-bar {
+    border: 1px solid rgba(0, 0, 0, 0.3);
+  }
+}
+
+// Reduced motion
+@media (prefers-reduced-motion: reduce) {
+  .category-item,
+  .expand-icon,
+  .category-icon-wrapper,
+  .progress-fill,
+  .status-icon {
+    transition: none;
+  }
+}
+
+// Touch targets (minimum 48px)
+@media (hover: none) and (pointer: coarse) {
+  .category-item {
+    min-height: 56px;
+    padding: 16px;
+  }
+
+  .expand-button,
+  .category-checkbox {
+    ::ng-deep .mat-mdc-button-touch-target,
+    ::ng-deep .mat-mdc-checkbox-touch-target {
+      width: 48px;
+      height: 48px;
+    }
+  }
+}

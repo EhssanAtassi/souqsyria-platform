@@ -1,0 +1,76 @@
+<h2 mat-dialog-title>
+  <mat-icon>edit</mat-icon>
+  Edit Role: {{ data.role.displayName }}
+</h2>
+
+<mat-dialog-content>
+  <mat-stepper [linear]="true" #stepper>
+    <mat-step [stepControl]="basicInfoForm" label="Basic Information">
+      <form [formGroup]="basicInfoForm" class="step-form">
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Display Name</mat-label>
+          <input matInput formControlName="displayName" required>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Description</mat-label>
+          <textarea matInput formControlName="description" rows="3"></textarea>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Priority</mat-label>
+          <input matInput type="number" formControlName="priority" required min="1" max="100">
+        </mat-form-field>
+
+        <div class="stepper-actions">
+          <button mat-button matStepperNext [disabled]="!basicInfoForm.valid">Next</button>
+        </div>
+      </form>
+    </mat-step>
+
+    <mat-step [stepControl]="permissionsForm" label="Permissions">
+      <form [formGroup]="permissionsForm" class="step-form">
+        <app-permission-selector
+          [permissions]="allPermissions"
+          [preSelectedIds]="selectedPermissions"
+          (selectionChange)="onPermissionsChange($event)">
+        </app-permission-selector>
+
+        <div class="stepper-actions">
+          <button mat-button matStepperPrevious>Back</button>
+          <button mat-button matStepperNext>Next</button>
+        </div>
+      </form>
+    </mat-step>
+
+    <mat-step label="Review">
+      <div class="review-section">
+        <h3>Review Changes</h3>
+        <div class="review-item">
+          <strong>Display Name:</strong>
+          <span>{{ basicInfoForm.get('displayName')?.value }}</span>
+        </div>
+        <div class="review-item">
+          <strong>Priority:</strong>
+          <span>{{ basicInfoForm.get('priority')?.value }}</span>
+        </div>
+        <div class="review-item">
+          <strong>Permissions:</strong>
+          <span>{{ selectedPermissions.length }} selected</span>
+        </div>
+      </div>
+
+      <div class="stepper-actions">
+        <button mat-button matStepperPrevious>Back</button>
+      </div>
+    </mat-step>
+  </mat-stepper>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button (click)="onCancel()">Cancel</button>
+  <button mat-raised-button color="primary" (click)="onUpdate()" [disabled]="!basicInfoForm.valid">
+    <mat-icon>save</mat-icon>
+    Update Role
+  </button>
+</mat-dialog-actions>

@@ -1,0 +1,14 @@
+<div
+  class="status-indicator"
+  [class]="getStatusClass()"
+  [class.compact]="compact"
+  [attr.aria-label]="getAriaLabel()"
+  role="status"
+>
+  <mat-icon [color]="getColor()" class="status-icon">
+    {{ getIcon() }}
+  </mat-icon>
+  @if (!compact) {
+    <span class="status-text">{{ getLabel() }}</span>
+  }
+</div>

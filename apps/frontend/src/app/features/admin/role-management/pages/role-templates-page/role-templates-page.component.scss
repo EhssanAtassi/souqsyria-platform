@@ -1,0 +1,256 @@
+/**
+ * Role Templates Page Styles
+ *
+ * @description
+ * Styles for role templates gallery page.
+ * Features responsive grid, filters, and loading states.
+ */
+
+.templates-page {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background-color: #fafafa;
+}
+
+.page-toolbar {
+  background-color: white;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.12);
+  padding: 0 24px;
+  min-height: 64px;
+
+  h1 {
+    font-size: 20px;
+    font-weight: 500;
+    margin: 0;
+  }
+
+  .spacer {
+    flex: 1;
+  }
+
+  button[mat-raised-button] {
+    mat-icon {
+      margin-right: 8px;
+    }
+  }
+}
+
+.filters-section {
+  display: flex;
+  gap: 16px;
+  padding: 24px;
+  background-color: white;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.12);
+  flex-wrap: wrap;
+  align-items: flex-start;
+
+  .search-field {
+    flex: 1;
+    min-width: 300px;
+  }
+
+  .category-field {
+    width: 250px;
+  }
+
+  button[mat-stroked-button] {
+    margin-top: 8px;
+
+    mat-icon {
+      margin-right: 8px;
+    }
+  }
+}
+
+.results-info {
+  padding: 16px 24px;
+  background-color: white;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+
+  p {
+    margin: 0;
+    font-size: 14px;
+    color: rgba(0, 0, 0, 0.6);
+
+    strong {
+      color: rgba(0, 0, 0, 0.87);
+      font-weight: 600;
+    }
+  }
+}
+
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 80px 24px;
+  gap: 24px;
+
+  p {
+    font-size: 16px;
+    color: rgba(0, 0, 0, 0.6);
+    margin: 0;
+  }
+}
+
+.templates-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  gap: 24px;
+  padding: 24px;
+  flex: 1;
+  align-content: flex-start;
+}
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 80px 24px;
+  text-align: center;
+  flex: 1;
+
+  mat-icon {
+    font-size: 80px;
+    width: 80px;
+    height: 80px;
+    color: rgba(0, 0, 0, 0.26);
+    margin-bottom: 24px;
+  }
+
+  h2 {
+    font-size: 24px;
+    font-weight: 500;
+    margin: 0 0 12px;
+    color: rgba(0, 0, 0, 0.87);
+  }
+
+  p {
+    font-size: 16px;
+    color: rgba(0, 0, 0, 0.6);
+    margin: 0 0 32px;
+    max-width: 400px;
+  }
+}
+
+// Dark mode support
+@media (prefers-color-scheme: dark) {
+  .templates-page {
+    background-color: #303030;
+  }
+
+  .page-toolbar {
+    background-color: #424242;
+    border-bottom-color: rgba(255, 255, 255, 0.12);
+  }
+
+  .filters-section {
+    background-color: #424242;
+    border-bottom-color: rgba(255, 255, 255, 0.12);
+  }
+
+  .results-info {
+    background-color: #424242;
+    border-bottom-color: rgba(255, 255, 255, 0.08);
+
+    p {
+      color: rgba(255, 255, 255, 0.7);
+
+      strong {
+        color: rgba(255, 255, 255, 0.87);
+      }
+    }
+  }
+
+  .loading-container {
+    p {
+      color: rgba(255, 255, 255, 0.7);
+    }
+  }
+
+  .empty-state {
+    mat-icon {
+      color: rgba(255, 255, 255, 0.3);
+    }
+
+    h2 {
+      color: rgba(255, 255, 255, 0.87);
+    }
+
+    p {
+      color: rgba(255, 255, 255, 0.7);
+    }
+  }
+}
+
+// Responsive adjustments
+@media (max-width: 959px) {
+  .templates-grid {
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 16px;
+    padding: 16px;
+  }
+}
+
+@media (max-width: 599px) {
+  .page-toolbar {
+    padding: 0 16px;
+    min-height: 56px;
+
+    h1 {
+      font-size: 18px;
+    }
+
+    button[mat-raised-button] {
+      span {
+        display: none;
+      }
+
+      mat-icon {
+        margin: 0;
+      }
+    }
+  }
+
+  .filters-section {
+    padding: 16px;
+    flex-direction: column;
+
+    .search-field,
+    .category-field {
+      width: 100%;
+      min-width: 0;
+    }
+
+    button[mat-stroked-button] {
+      width: 100%;
+    }
+  }
+
+  .templates-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+    padding: 16px;
+  }
+
+  .empty-state {
+    padding: 48px 16px;
+
+    mat-icon {
+      font-size: 64px;
+      width: 64px;
+      height: 64px;
+    }
+
+    h2 {
+      font-size: 20px;
+    }
+
+    p {
+      font-size: 14px;
+    }
+  }
+}

@@ -1,0 +1,99 @@
+<h2 mat-dialog-title>
+  <mat-icon class="title-icon">warning</mat-icon>
+  Alert Details
+</h2>
+
+<mat-dialog-content>
+  <div class="detail-section">
+    <h3>Alert Information</h3>
+    <div class="detail-row">
+      <span class="label">Title:</span>
+      <span class="alert-title">{{ alert.title }}</span>
+    </div>
+    <div class="detail-row">
+      <span class="label">Severity:</span>
+      <app-severity-badge [severity]="alert.severity" />
+    </div>
+    <div class="detail-row">
+      <span class="label">Type:</span>
+      <span>{{ alert.type }}</span>
+    </div>
+    <div class="detail-row">
+      <span class="label">Description:</span>
+      <p class="alert-description">{{ alert.description }}</p>
+    </div>
+  </div>
+
+  <mat-divider></mat-divider>
+
+  <div class="detail-section">
+    <h3>Event Information</h3>
+    <div class="detail-row">
+      <span class="label">Event Count:</span>
+      <span class="event-count">{{ alert.eventCount }} events</span>
+    </div>
+    <div class="detail-row">
+      <span class="label">First Event:</span>
+      <span>{{ alert.firstEventAt | date: 'medium' }}</span>
+    </div>
+    <div class="detail-row">
+      <span class="label">Last Event:</span>
+      <span>{{ alert.lastEventAt | date: 'medium' }}</span>
+    </div>
+  </div>
+
+  @if (alert.userEmail) {
+    <mat-divider></mat-divider>
+    <div class="detail-section">
+      <h3>User Information</h3>
+      <div class="detail-row">
+        <span class="label">User:</span>
+        <span>{{ alert.userEmail }}</span>
+      </div>
+    </div>
+  }
+
+  <mat-divider></mat-divider>
+
+  <div class="detail-section">
+    <h3>Related Events</h3>
+    <div class="detail-row">
+      <span class="label">Event IDs:</span>
+      <div class="event-ids">
+        @for (eventId of alert.relatedEventIds; track eventId) {
+          <code class="event-id">{{ eventId }}</code>
+        }
+      </div>
+    </div>
+  </div>
+
+  @if (alert.resolved) {
+    <mat-divider></mat-divider>
+    <div class="detail-section resolution-section">
+      <h3>Resolution</h3>
+      <div class="detail-row">
+        <span class="label">Status:</span>
+        <span class="resolved-badge">
+          <mat-icon>check_circle</mat-icon>
+          Resolved
+        </span>
+      </div>
+      @if (alert.resolvedAt) {
+        <div class="detail-row">
+          <span class="label">Resolved At:</span>
+          <span>{{ alert.resolvedAt | date: 'medium' }}</span>
+        </div>
+      }
+      @if (alert.notes) {
+        <div class="detail-row">
+          <span class="label">Notes:</span>
+          <p class="resolution-notes">{{ alert.notes }}</p>
+        </div>
+      }
+    </div>
+  }
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button (click)="close()">Close</button>
+</mat-dialog-actions>

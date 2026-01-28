@@ -1,0 +1,211 @@
+/**
+ * Security Audit Component Styles
+ * Material Design 3 compliant styling with responsive layout
+ */
+
+.security-audit-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: var(--mat-app-background-color, #fafafa);
+}
+
+// ==================== Toolbar ====================
+
+.audit-toolbar {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+
+  mat-toolbar-row {
+    gap: 16px;
+  }
+}
+
+.toolbar-title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 0;
+  font-size: 20px;
+  font-weight: 500;
+
+  mat-icon {
+    font-size: 28px;
+    width: 28px;
+    height: 28px;
+  }
+}
+
+.toolbar-spacer {
+  flex: 1 1 auto;
+}
+
+.live-toggle {
+  margin-left: 16px;
+}
+
+.refresh-button {
+  mat-icon {
+    margin-right: 8px;
+  }
+}
+
+// ==================== Metrics Section ====================
+
+.metrics-section {
+  padding: 24px;
+  background: var(--mat-app-background-color, #fafafa);
+}
+
+// ==================== Content Area ====================
+
+.content-area {
+  flex: 1 1 auto;
+  overflow: hidden;
+  padding: 16px 24px 24px;
+}
+
+.audit-tabs {
+  height: 100%;
+
+  ::ng-deep {
+    .mat-mdc-tab-body-wrapper {
+      flex: 1 1 auto;
+      overflow: auto;
+    }
+
+    .mat-mdc-tab-body-content {
+      overflow: auto;
+    }
+  }
+}
+
+.tab-icon {
+  margin-right: 8px;
+}
+
+// ==================== Responsive Design ====================
+
+@media (max-width: 959px) {
+  .toolbar-title {
+    font-size: 18px;
+
+    mat-icon {
+      font-size: 24px;
+      width: 24px;
+      height: 24px;
+    }
+  }
+
+  .live-toggle {
+    margin-left: 8px;
+    font-size: 14px;
+  }
+
+  .refresh-button {
+    min-width: auto;
+    padding: 0 12px;
+
+    mat-icon {
+      margin-right: 4px;
+    }
+  }
+
+  .metrics-section {
+    padding: 16px;
+  }
+
+  .content-area {
+    padding: 12px 16px 16px;
+  }
+}
+
+@media (max-width: 599px) {
+  .audit-toolbar {
+    mat-toolbar-row {
+      gap: 8px;
+    }
+  }
+
+  .toolbar-title {
+    font-size: 16px;
+
+    mat-icon {
+      display: none; // Hide icon on small screens
+    }
+  }
+
+  .live-toggle {
+    ::ng-deep .mdc-label {
+      display: none; // Hide label, show only toggle
+    }
+  }
+
+  .refresh-button {
+    span {
+      display: none; // Hide text, show only icon
+    }
+
+    mat-icon {
+      margin-right: 0;
+    }
+  }
+
+  .metrics-section {
+    padding: 12px;
+  }
+
+  .content-area {
+    padding: 8px 12px 12px;
+  }
+
+  .tab-icon {
+    margin-right: 4px;
+  }
+}
+
+// ==================== Dark Theme ====================
+
+.dark-theme {
+  .security-audit-container {
+    background: var(--mat-app-background-color, #303030);
+  }
+
+  .audit-toolbar {
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  }
+
+  .metrics-section {
+    background: var(--mat-app-background-color, #303030);
+  }
+}
+
+// ==================== Print Styles ====================
+
+@media print {
+  .audit-toolbar {
+    position: static;
+    box-shadow: none;
+
+    mat-toolbar-row {
+      justify-content: center;
+    }
+
+    .toolbar-spacer,
+    .live-toggle,
+    .refresh-button,
+    button[mat-button] {
+      display: none;
+    }
+  }
+
+  .metrics-section {
+    page-break-inside: avoid;
+  }
+
+  .content-area {
+    overflow: visible;
+  }
+}

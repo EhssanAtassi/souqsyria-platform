@@ -1,0 +1,190 @@
+<div class="suspend-user-dialog" role="dialog" aria-labelledby="dialog-title" aria-describedby="dialog-description">
+  <!-- Dialog Header -->
+  <div class="dialog-header" mat-dialog-title id="dialog-title">
+    <mat-icon class="dialog-icon">schedule</mat-icon>
+    <h2>Suspend User</h2>
+  </div>
+
+  <!-- Dialog Content -->
+  <mat-dialog-content class="dialog-content">
+    <!-- User Information Section -->
+    <div class="user-info-section">
+      <app-user-avatar
+        [user]="data.user"
+        [size]="48"
+        class="user-avatar"
+      />
+      <div class="user-details">
+        <h3 class="user-name">{{ data.user.name }}</h3>
+        <p class="user-email">{{ data.user.email }}</p>
+      </div>
+    </div>
+
+    <!-- Warning Banner -->
+    <div class="warning-banner" id="dialog-description" role="alert">
+      <mat-icon class="warning-icon">info</mat-icon>
+      <div class="warning-content">
+        <strong>Note:</strong> The user will be temporarily blocked until the specified date.
+        Active sessions will be terminated and login will be disabled during suspension.
+      </div>
+    </div>
+
+    <!-- Suspend Form -->
+    <form [formGroup]="suspendForm" class="suspend-form" (ngSubmit)="onSubmit()">
+      <!-- Reason Field -->
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Reason for Suspension</mat-label>
+        <textarea
+          matInput
+          formControlName="reason"
+          rows="4"
+          placeholder="Provide a clear reason for suspending this user..."
+          [maxlength]="REASON_MAX_LENGTH"
+          aria-required="true"
+          aria-describedby="reason-error reason-hint"
+        ></textarea>
+        <mat-hint id="reason-hint" align="end">
+          {{ reasonRemainingChars }} characters remaining
+        </mat-hint>
+        <mat-error id="reason-error" *ngIf="reason?.invalid && reason?.touched">
+          {{ getReasonErrorMessage() }}
+        </mat-error>
+      </mat-form-field>
+
+      <!-- Duration Type Selection -->
+      <div class="duration-section">
+        <h4 class="section-title">Suspension Duration</h4>
+
+        <mat-radio-group
+          formControlName="durationType"
+          aria-label="Select duration type"
+          class="duration-type-group"
+        >
+          <mat-radio-button value="preset" color="primary">
+            Preset Duration
+          </mat-radio-button>
+          <mat-radio-button value="custom" color="primary">
+            Custom End Date
+          </mat-radio-button>
+        </mat-radio-group>
+
+        <!-- Preset Duration Selection -->
+        <div class="duration-options" *ngIf="suspendForm.get('durationType')?.value === 'preset'">
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Select Duration</mat-label>
+            <mat-select
+              formControlName="durationDays"
+              aria-label="Select suspension duration in days"
+            >
+              <mat-option *ngFor="let option of durationOptions" [value]="option.value">
+                {{ option.label }}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+
+        <!-- Custom Date Selection -->
+        <div class="date-picker-options" *ngIf="suspendForm.get('durationType')?.value === 'custom'">
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Suspension End Date</mat-label>
+            <input
+              matInput
+              [matDatepicker]="picker"
+              formControlName="customDate"
+              [min]="minDate"
+              [max]="maxDate"
+              placeholder="Select end date"
+              aria-required="true"
+              aria-describedby="custom-date-error"
+            />
+            <mat-hint>Select the date when suspension should end</mat-hint>
+            <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+            <mat-datepicker #picker></mat-datepicker>
+            <mat-error id="custom-date-error" *ngIf="customDate?.invalid && customDate?.touched">
+              {{ getCustomDateErrorMessage() }}
+            </mat-error>
+          </mat-form-field>
+        </div>
+
+        <!-- Suspension Date Preview -->
+        <div class="date-preview" *ngIf="suspendUntilDate">
+          <mat-icon class="preview-icon">event</mat-icon>
+          <div class="preview-content">
+            <strong>Suspension will end on:</strong>
+            <span class="preview-date">{{ suspendUntilDate | date:'fullDate' }}</span>
+            <span class="preview-time">at {{ suspendUntilDate | date:'shortTime' }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Auto-Unsuspend Checkbox -->
+      <div class="checkbox-field">
+        <mat-checkbox
+          formControlName="autoUnsuspend"
+          color="primary"
+          aria-label="Automatically reactivate user when suspension ends"
+        >
+          <span class="checkbox-label">
+            <strong>Automatic Reactivation</strong>
+            <span class="checkbox-hint">
+              Automatically restore user access when the suspension period ends
+            </span>
+          </span>
+        </mat-checkbox>
+      </div>
+
+      <!-- Internal Notes Field -->
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Internal Notes (Optional)</mat-label>
+        <textarea
+          matInput
+          formControlName="internalNotes"
+          rows="3"
+          placeholder="Add internal notes for record keeping (not visible to user)..."
+          [maxlength]="NOTES_MAX_LENGTH"
+          aria-describedby="notes-error notes-hint"
+        ></textarea>
+        <mat-hint id="notes-hint" align="end">
+          {{ notesRemainingChars }} characters remaining
+        </mat-hint>
+        <mat-error id="notes-error" *ngIf="internalNotes?.invalid && internalNotes?.touched">
+          {{ getNotesErrorMessage() }}
+        </mat-error>
+      </mat-form-field>
+
+      <!-- Additional Information -->
+      <div class="info-section">
+        <mat-icon class="info-icon">info</mat-icon>
+        <p class="info-text">
+          The user will be notified of this suspension. They can view the suspension reason
+          and end date in their account settings.
+        </p>
+      </div>
+    </form>
+  </mat-dialog-content>
+
+  <!-- Dialog Actions -->
+  <mat-dialog-actions class="dialog-actions">
+    <button
+      mat-button
+      type="button"
+      (click)="onCancel()"
+      class="cancel-button"
+      aria-label="Cancel suspension action"
+    >
+      Cancel
+    </button>
+    <button
+      mat-raised-button
+      color="warn"
+      type="submit"
+      (click)="onSubmit()"
+      [disabled]="suspendForm.invalid"
+      class="submit-button"
+      aria-label="Confirm suspend user"
+    >
+      <mat-icon>schedule</mat-icon>
+      Suspend User
+    </button>
+  </mat-dialog-actions>
+</div>

@@ -1,0 +1,123 @@
+<div class="metrics-dashboard">
+  @if (metrics) {
+    <!-- Metrics Grid -->
+    <div class="metrics-grid">
+      <!-- Total Events Card -->
+      <mat-card class="metric-card">
+        <mat-card-header>
+          <mat-icon mat-card-avatar color="primary" class="metric-icon">
+            insert_chart
+          </mat-icon>
+          <mat-card-title class="metric-value">
+            {{ formatNumber(metrics.totalEvents24h) }}
+          </mat-card-title>
+          <mat-card-subtitle class="metric-label">
+            Total Events (24h)
+          </mat-card-subtitle>
+        </mat-card-header>
+      </mat-card>
+
+      <!-- Failed Attempts Card -->
+      <mat-card
+        class="metric-card"
+        [class.card-warn]="hasFailedAttempts()"
+        matTooltip="Number of access denials in the last 24 hours"
+        matTooltipPosition="above">
+        <mat-card-header>
+          <mat-icon
+            mat-card-avatar
+            [color]="hasFailedAttempts() ? 'warn' : 'primary'"
+            class="metric-icon">
+            error
+          </mat-icon>
+          <mat-card-title class="metric-value">
+            {{ formatNumber(metrics.failedAttempts24h) }}
+          </mat-card-title>
+          <mat-card-subtitle class="metric-label">
+            Failed Attempts (24h)
+          </mat-card-subtitle>
+        </mat-card-header>
+      </mat-card>
+
+      <!-- Suspicious Activity Card -->
+      <mat-card
+        class="metric-card"
+        [class.card-critical]="hasSuspiciousActivity()"
+        matTooltip="Number of unresolved suspicious activity alerts"
+        matTooltipPosition="above">
+        <mat-card-header>
+          <mat-icon
+            mat-card-avatar
+            [color]="hasSuspiciousActivity() ? 'accent' : 'primary'"
+            class="metric-icon pulse-icon">
+            warning
+          </mat-icon>
+          <mat-card-title class="metric-value">
+            {{ formatNumber(metrics.suspiciousActivityCount) }}
+          </mat-card-title>
+          <mat-card-subtitle class="metric-label">
+            Suspicious Alerts
+          </mat-card-subtitle>
+        </mat-card-header>
+      </mat-card>
+
+      <!-- Unique Users Card -->
+      <mat-card class="metric-card">
+        <mat-card-header>
+          <mat-icon mat-card-avatar color="primary" class="metric-icon">
+            people
+          </mat-icon>
+          <mat-card-title class="metric-value">
+            {{ formatNumber(metrics.uniqueUsers24h) }}
+          </mat-card-title>
+          <mat-card-subtitle class="metric-label">
+            Unique Users (24h)
+          </mat-card-subtitle>
+        </mat-card-header>
+      </mat-card>
+    </div>
+
+    <!-- Failure Rate Indicator -->
+    <mat-card class="failure-rate-card" [class]="getFailureRateClass()">
+      <mat-card-header>
+        <mat-card-title class="failure-rate-title">
+          Failure Rate
+          <mat-icon
+            class="info-icon"
+            [matTooltip]="getFailureRateTooltip()"
+            matTooltipPosition="right">
+            info
+          </mat-icon>
+        </mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="rate-display">
+          <span class="rate-value">
+            {{ metrics.failureRate24h | number: '1.1-1' }}%
+          </span>
+          <span class="rate-description">
+            {{ metrics.failedAttempts24h }} failed out of {{ metrics.totalEvents24h }} total
+          </span>
+        </div>
+        <mat-progress-bar
+          mode="determinate"
+          [value]="metrics.failureRate24h"
+          [color]="getFailureRateColor()"
+          class="failure-rate-bar">
+        </mat-progress-bar>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Last Updated Timestamp -->
+    <div class="last-updated">
+      Last updated: {{ metrics.lastUpdated | date: 'short' }}
+    </div>
+  } @else {
+    <!-- Empty State -->
+    <div class="empty-state">
+      <mat-icon class="empty-icon">bar_chart</mat-icon>
+      <h3>No Metrics Available</h3>
+      <p>Security metrics will appear here once data is loaded.</p>
+    </div>
+  }
+</div>

@@ -1,0 +1,207 @@
+<mat-drawer
+  #drawer
+  mode="side"
+  position="end"
+  class="detail-panel"
+  [opened]="false"
+>
+  @if (route) {
+    <div class="panel-container">
+      <!-- Panel Header -->
+      <div class="panel-header">
+        <h2>Route Details</h2>
+        <button
+          mat-icon-button
+          (click)="close()"
+          aria-label="Close detail panel"
+        >
+          <mat-icon>close</mat-icon>
+        </button>
+      </div>
+
+      <mat-divider></mat-divider>
+
+      <!-- Panel Content -->
+      <div class="panel-content">
+        <!-- Endpoint Section -->
+        <section class="detail-section">
+          <h3 class="section-title">
+            <mat-icon>api</mat-icon>
+            <span>Endpoint</span>
+          </h3>
+          <div class="endpoint-display">
+            <app-method-badge [method]="route.method" size="medium" />
+            <code class="route-path">{{ route.path }}</code>
+          </div>
+        </section>
+
+        <mat-divider></mat-divider>
+
+        <!-- Implementation Section -->
+        <section class="detail-section">
+          <h3 class="section-title">
+            <mat-icon>code</mat-icon>
+            <span>Implementation</span>
+          </h3>
+          <mat-list dense class="info-list">
+            <mat-list-item>
+              <mat-icon matListItemIcon>folder</mat-icon>
+              <div matListItemTitle>Controller</div>
+              <div matListItemLine class="detail-value">
+                {{ route.controller }}
+              </div>
+            </mat-list-item>
+            <mat-list-item>
+              <mat-icon matListItemIcon>function</mat-icon>
+              <div matListItemTitle>Handler</div>
+              <div matListItemLine class="detail-value">
+                {{ route.handler }}
+              </div>
+            </mat-list-item>
+          </mat-list>
+        </section>
+
+        <mat-divider></mat-divider>
+
+        <!-- Security Section -->
+        <section class="detail-section">
+          <h3 class="section-title">
+            <mat-icon>security</mat-icon>
+            <span>Security</span>
+          </h3>
+
+          <div class="security-content">
+            <div class="status-row">
+              <span class="label">Status:</span>
+              <app-status-indicator [status]="getStatus(route)" />
+            </div>
+
+            @if (route.permissionId) {
+              <div class="permission-row">
+                <span class="label">Permission:</span>
+                <mat-chip-set>
+                  <mat-chip [highlighted]="true" class="permission-chip">
+                    <mat-icon matChipAvatar>shield</mat-icon>
+                    {{ getPermissionName(route.permissionId) }}
+                  </mat-chip>
+                </mat-chip-set>
+              </div>
+            }
+
+            @if (isPublic()) {
+              <div class="public-notice">
+                <mat-icon>public</mat-icon>
+                <span>This route is publicly accessible</span>
+              </div>
+            }
+          </div>
+        </section>
+
+        <!-- AI Suggestion Section (if unmapped) -->
+        @if (hasSuggestion()) {
+          <mat-divider></mat-divider>
+
+          <section class="detail-section">
+            <h3 class="section-title">
+              <mat-icon color="accent">auto_fix_high</mat-icon>
+              <span>AI Suggestion</span>
+            </h3>
+
+            <mat-card appearance="outlined" class="suggestion-card">
+              <mat-card-content>
+                <div class="suggestion-header">
+                  <mat-icon color="accent">lightbulb</mat-icon>
+                  <div class="suggestion-text">
+                    <strong>Suggested Permission</strong>
+                    <p class="suggestion-name">{{ getSuggestedName() }}</p>
+                  </div>
+                </div>
+
+                <p class="suggestion-reason">
+                  <mat-icon>info</mat-icon>
+                  Based on <code>{{ route.handler }}</code> handler name
+                </p>
+
+                <button
+                  mat-raised-button
+                  color="accent"
+                  (click)="onApplySuggestion()"
+                  class="apply-suggestion-button"
+                >
+                  <mat-icon>check</mat-icon>
+                  Apply Suggestion
+                </button>
+              </mat-card-content>
+            </mat-card>
+          </section>
+        }
+
+        <mat-divider></mat-divider>
+
+        <!-- Metadata Section -->
+        <section class="detail-section">
+          <h3 class="section-title">
+            <mat-icon>info</mat-icon>
+            <span>Metadata</span>
+          </h3>
+          <mat-list dense class="info-list">
+            <mat-list-item>
+              <mat-icon matListItemIcon>schedule</mat-icon>
+              <div matListItemTitle>Created</div>
+              <div matListItemLine class="detail-value">
+                {{ route.createdAt | date:'medium' }}
+              </div>
+            </mat-list-item>
+            <mat-list-item>
+              <mat-icon matListItemIcon>update</mat-icon>
+              <div matListItemTitle>Last Updated</div>
+              <div matListItemLine class="detail-value">
+                {{ route.updatedAt | date:'medium' }}
+              </div>
+            </mat-list-item>
+          </mat-list>
+        </section>
+
+        <mat-divider></mat-divider>
+
+        <!-- Actions Section -->
+        <section class="detail-section">
+          <h3 class="section-title">
+            <mat-icon>settings</mat-icon>
+            <span>Actions</span>
+          </h3>
+          <div class="action-buttons">
+            <button
+              mat-raised-button
+              color="primary"
+              (click)="onEditMapping()"
+              class="action-button"
+            >
+              <mat-icon>edit</mat-icon>
+              Edit Mapping
+            </button>
+
+            @if (hasPermission()) {
+              <button
+                mat-stroked-button
+                color="warn"
+                (click)="onUnlinkPermission()"
+                class="action-button"
+              >
+                <mat-icon>link_off</mat-icon>
+                Unlink Permission
+              </button>
+            }
+          </div>
+        </section>
+      </div>
+    </div>
+  } @else {
+    <!-- Empty State -->
+    <div class="empty-state">
+      <mat-icon>info_outline</mat-icon>
+      <h3>No Route Selected</h3>
+      <p>Select a route from the list to view details</p>
+    </div>
+  }
+</mat-drawer>

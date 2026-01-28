@@ -1,0 +1,145 @@
+<!-- User Roles Tab Content -->
+<div class="roles-tab-container">
+  <!-- Role Cards Section -->
+  <div class="role-cards-grid">
+    <!-- Business Role Card -->
+    <mat-card class="role-card business-role-card">
+      <mat-card-header>
+        <mat-icon mat-card-avatar [class]="'role-avatar ' + user.businessRole">
+          {{ businessRoleIcon }}
+        </mat-icon>
+        <mat-card-title>Business Role</mat-card-title>
+      </mat-card-header>
+
+      <mat-card-content>
+        <mat-chip-set aria-label="Business role">
+          <mat-chip highlighted>
+            {{ user.businessRole | roleDisplay }}
+          </mat-chip>
+        </mat-chip-set>
+
+        <p class="role-description">
+          {{ businessRoleDescription }}
+        </p>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Admin Role Card -->
+    <mat-card class="role-card admin-role-card">
+      <mat-card-header>
+        <mat-icon mat-card-avatar class="role-avatar admin">
+          admin_panel_settings
+        </mat-icon>
+        <mat-card-title>Admin Role</mat-card-title>
+      </mat-card-header>
+
+      <mat-card-content>
+        @if (user.adminRole) {
+          <mat-chip-set aria-label="Admin role">
+            <mat-chip highlighted color="accent">
+              {{ user.adminRole | roleDisplay }}
+            </mat-chip>
+          </mat-chip-set>
+
+          <p class="role-description">
+            {{ adminRoleDescription }}
+          </p>
+        } @else {
+          <mat-chip-set aria-label="No admin role">
+            <mat-chip disabled>No Admin Role</mat-chip>
+          </mat-chip-set>
+
+          <p class="role-description no-role">
+            This user does not have administrative privileges.
+          </p>
+        }
+      </mat-card-content>
+    </mat-card>
+  </div>
+
+  <!-- Change Role Button -->
+  <!-- TODO: Add permission directive when available -->
+  <!-- <button
+    mat-raised-button
+    color="primary"
+    class="change-role-button"
+    (click)="onChangeRole()"
+    aria-label="Change user role"
+  >
+    <mat-icon>edit</mat-icon>
+    Change Role
+  </button> -->
+
+  <mat-divider class="section-divider" />
+
+  <!-- Effective Permissions Section -->
+  <div class="permissions-section">
+    <div class="section-header">
+      <h3 class="section-title">
+        Effective Permissions
+        <span class="permission-count">({{ permissionCount() }})</span>
+      </h3>
+    </div>
+
+    <!-- Search Input -->
+    <mat-form-field appearance="outline" class="search-field">
+      <mat-label>Search permissions</mat-label>
+      <input
+        matInput
+        type="text"
+        [ngModel]="searchTerm()"
+        (ngModelChange)="onSearch($event)"
+        placeholder="e.g., manage users"
+        aria-label="Search permissions"
+      />
+      <mat-icon matPrefix>search</mat-icon>
+      @if (searchTerm()) {
+        <button
+          matSuffix
+          mat-icon-button
+          aria-label="Clear search"
+          (click)="onSearch('')"
+        >
+          <mat-icon>close</mat-icon>
+        </button>
+      }
+    </mat-form-field>
+
+    <!-- Loading Spinner -->
+    @if (loading()) {
+      <div class="loading-container">
+        <mat-spinner diameter="40" />
+        <p class="loading-text">Loading permissions...</p>
+      </div>
+    }
+
+    <!-- Permissions Grid -->
+    @if (!loading()) {
+      @if (filteredPermissions().length > 0) {
+        <div class="permissions-grid">
+          @for (permission of filteredPermissions(); track permission) {
+            <mat-chip-option
+              [selected]="true"
+              [color]="getPermissionColor(permission)"
+              class="permission-chip"
+            >
+              {{ permission | titlecase }}
+            </mat-chip-option>
+          }
+        </div>
+      } @else {
+        <!-- Empty State -->
+        <div class="empty-state">
+          <mat-icon class="empty-icon">search_off</mat-icon>
+          <p class="empty-text">
+            @if (searchTerm()) {
+              No permissions match "{{ searchTerm() }}"
+            } @else {
+              No permissions assigned
+            }
+          </p>
+        </div>
+      }
+    }
+  </div>
+</div>

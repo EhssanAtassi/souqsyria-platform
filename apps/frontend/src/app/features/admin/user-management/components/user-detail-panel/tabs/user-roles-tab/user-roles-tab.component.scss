@@ -1,0 +1,382 @@
+/**
+ * User Roles Tab Styles
+ *
+ * @description
+ * Two-column role cards with searchable permissions grid.
+ */
+
+// ============================================================================
+// CONTAINER
+// ============================================================================
+
+.roles-tab-container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 0;
+}
+
+// ============================================================================
+// ROLE CARDS GRID
+// ============================================================================
+
+.role-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+}
+
+.role-card {
+  margin: 0;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+
+  ::ng-deep {
+    .mat-mdc-card-header {
+      padding: 16px 16px 8px;
+    }
+
+    .mat-mdc-card-title {
+      font-size: 14px;
+      font-weight: 500;
+      margin: 0;
+    }
+
+    .mat-mdc-card-content {
+      padding: 0 16px 16px;
+    }
+  }
+}
+
+// ============================================================================
+// ROLE AVATARS
+// ============================================================================
+
+.role-avatar {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  font-size: 24px;
+
+  &.customer {
+    background-color: #e3f2fd;
+    color: #1976d2;
+  }
+
+  &.seller {
+    background-color: #f3e5f5;
+    color: #7b1fa2;
+  }
+
+  &.admin {
+    background-color: #fff3e0;
+    color: #f57c00;
+  }
+}
+
+// ============================================================================
+// ROLE DESCRIPTION
+// ============================================================================
+
+.role-description {
+  margin: 12px 0 0;
+  font-size: 13px;
+  line-height: 1.5;
+  color: rgba(0, 0, 0, 0.6);
+
+  &.no-role {
+    font-style: italic;
+    color: rgba(0, 0, 0, 0.4);
+  }
+}
+
+// ============================================================================
+// CHANGE ROLE BUTTON
+// ============================================================================
+
+.change-role-button {
+  width: 100%;
+  height: 44px;
+
+  mat-icon {
+    margin-right: 8px;
+  }
+}
+
+// ============================================================================
+// SECTION DIVIDER
+// ============================================================================
+
+.section-divider {
+  margin: 8px 0;
+}
+
+// ============================================================================
+// PERMISSIONS SECTION
+// ============================================================================
+
+.permissions-section {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.section-title {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 500;
+  color: rgba(0, 0, 0, 0.87);
+
+  .permission-count {
+    font-size: 14px;
+    font-weight: 400;
+    color: rgba(0, 0, 0, 0.6);
+  }
+}
+
+// ============================================================================
+// SEARCH FIELD
+// ============================================================================
+
+.search-field {
+  width: 100%;
+  margin: 0;
+
+  ::ng-deep {
+    .mat-mdc-form-field-infix {
+      min-height: 48px;
+    }
+
+    .mat-mdc-text-field-wrapper {
+      padding-bottom: 0;
+    }
+  }
+}
+
+// ============================================================================
+// LOADING STATE
+// ============================================================================
+
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 0;
+  gap: 16px;
+}
+
+.loading-text {
+  margin: 0;
+  font-size: 14px;
+  color: rgba(0, 0, 0, 0.6);
+}
+
+// ============================================================================
+// PERMISSIONS GRID
+// ============================================================================
+
+.permissions-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.permission-chip {
+  font-size: 12px;
+  height: 32px;
+  border-radius: 16px;
+
+  ::ng-deep {
+    .mat-mdc-chip-action-label {
+      font-size: 12px;
+      font-weight: 500;
+    }
+  }
+}
+
+// ============================================================================
+// EMPTY STATE
+// ============================================================================
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 16px;
+  text-align: center;
+}
+
+.empty-icon {
+  font-size: 64px;
+  width: 64px;
+  height: 64px;
+  color: rgba(0, 0, 0, 0.3);
+  margin-bottom: 16px;
+}
+
+.empty-text {
+  margin: 0;
+  font-size: 14px;
+  color: rgba(0, 0, 0, 0.6);
+}
+
+// ============================================================================
+// DARK THEME
+// ============================================================================
+
+@media (prefers-color-scheme: dark) {
+  .role-card {
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  }
+
+  .role-avatar {
+    &.customer {
+      background-color: #1565c0;
+      color: #e3f2fd;
+    }
+
+    &.seller {
+      background-color: #6a1b9a;
+      color: #f3e5f5;
+    }
+
+    &.admin {
+      background-color: #e65100;
+      color: #fff3e0;
+    }
+  }
+
+  .role-description {
+    color: rgba(255, 255, 255, 0.7);
+
+    &.no-role {
+      color: rgba(255, 255, 255, 0.5);
+    }
+  }
+
+  .section-title {
+    color: rgba(255, 255, 255, 0.87);
+
+    .permission-count {
+      color: rgba(255, 255, 255, 0.6);
+    }
+  }
+
+  .loading-text {
+    color: rgba(255, 255, 255, 0.7);
+  }
+
+  .empty-icon {
+    color: rgba(255, 255, 255, 0.3);
+  }
+
+  .empty-text {
+    color: rgba(255, 255, 255, 0.6);
+  }
+}
+
+// ============================================================================
+// RESPONSIVE DESIGN
+// ============================================================================
+
+// Tablet - Stack role cards
+@media (max-width: 768px) {
+  .role-cards-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .permissions-grid {
+    gap: 6px;
+  }
+}
+
+// Mobile - Smaller spacing
+@media (max-width: 600px) {
+  .roles-tab-container {
+    gap: 12px;
+  }
+
+  .role-card ::ng-deep {
+    .mat-mdc-card-header {
+      padding: 12px 12px 6px;
+    }
+
+    .mat-mdc-card-title {
+      font-size: 13px;
+    }
+
+    .mat-mdc-card-content {
+      padding: 0 12px 12px;
+    }
+  }
+
+  .role-avatar {
+    width: 36px;
+    height: 36px;
+    font-size: 20px;
+  }
+
+  .role-description {
+    font-size: 12px;
+  }
+
+  .section-title {
+    font-size: 15px;
+
+    .permission-count {
+      font-size: 13px;
+    }
+  }
+
+  .permission-chip {
+    font-size: 11px;
+    height: 28px;
+
+    ::ng-deep .mat-mdc-chip-action-label {
+      font-size: 11px;
+    }
+  }
+
+  .empty-icon {
+    font-size: 48px;
+    width: 48px;
+    height: 48px;
+  }
+
+  .empty-text {
+    font-size: 13px;
+  }
+}
+
+// ============================================================================
+// ACCESSIBILITY
+// ============================================================================
+
+// High contrast mode
+@media (prefers-contrast: high) {
+  .role-card {
+    border: 2px solid currentColor;
+  }
+
+  .permission-chip {
+    border: 1px solid currentColor;
+  }
+}
+
+// Focus indicators
+.change-role-button:focus-visible,
+.search-field input:focus-visible {
+  outline: 2px solid var(--mat-app-primary);
+  outline-offset: 2px;
+}

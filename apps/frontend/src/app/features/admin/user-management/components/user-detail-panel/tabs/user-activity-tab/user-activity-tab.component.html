@@ -1,0 +1,141 @@
+<!-- User Activity Tab Content -->
+<div class="activity-tab-container">
+  <!-- Filter Section -->
+  <div class="filter-section">
+    <mat-form-field appearance="outline" class="filter-field">
+      <mat-label>Action Type</mat-label>
+      <mat-select
+        [ngModel]="actionTypeFilter()"
+        (ngModelChange)="onFilterChange($event)"
+        aria-label="Filter by action type"
+      >
+        @for (option of actionTypes; track option.value) {
+          <mat-option [value]="option.value">
+            {{ option.label }}
+          </mat-option>
+        }
+      </mat-select>
+      <mat-icon matPrefix>filter_list</mat-icon>
+    </mat-form-field>
+  </div>
+
+  <!-- Loading State -->
+  @if (loading()) {
+    <div class="loading-container">
+      <mat-spinner diameter="40" />
+      <p class="loading-text">Loading activity history...</p>
+    </div>
+  }
+
+  <!-- Activity Timeline -->
+  @if (!loading() && hasActivities()) {
+    <div class="timeline-container">
+      <mat-list class="activity-timeline">
+        @for (activity of activities(); track activity.id; let isLast = $last) {
+          <mat-list-item class="timeline-item">
+            <!-- Timeline Line -->
+            <div class="timeline-line" [class.last-item]="isLast"></div>
+
+            <!-- Timeline Dot -->
+            <div
+              class="timeline-dot"
+              [style.background-color]="getActionColor(activity.type)"
+            ></div>
+
+            <!-- Activity Icon -->
+            <mat-icon
+              class="activity-icon"
+              [style.color]="getActionColor(activity.type)"
+            >
+              {{ getActionIcon(activity.type) }}
+            </mat-icon>
+
+            <!-- Activity Content -->
+            <div class="activity-content">
+              <!-- Action Chip -->
+              <mat-chip-set aria-label="Activity type">
+                <mat-chip
+                  class="action-chip"
+                  [style.background-color]="getActionColor(activity.type)"
+                  [style.color]="'#fff'"
+                >
+                  {{ getActionLabel(activity.type) }}
+                </mat-chip>
+              </mat-chip-set>
+
+              <!-- Description -->
+              <p class="activity-description">
+                {{ activity.description }}
+              </p>
+
+              <!-- Metadata -->
+              @if (formatMetadata(activity); as metadata) {
+                <p class="activity-metadata">
+                  <mat-icon class="metadata-icon">info</mat-icon>
+                  {{ metadata }}
+                </p>
+              }
+
+              <!-- IP Address -->
+              @if (activity.ipAddress) {
+                <p class="activity-metadata">
+                  <mat-icon class="metadata-icon">location_on</mat-icon>
+                  IP: {{ activity.ipAddress }}
+                </p>
+              }
+
+              <!-- Timestamp -->
+              <p class="activity-timestamp">
+                <mat-icon class="timestamp-icon">schedule</mat-icon>
+                {{ activity.timestamp | date: 'medium' }}
+                <span class="relative-time">
+                  ({{ activity.timestamp | relativeTime }})
+                </span>
+              </p>
+
+              <!-- Performed By (for admin actions) -->
+              @if (activity.performedBy && activity.performedByName) {
+                <p class="performed-by">
+                  <mat-icon class="metadata-icon">admin_panel_settings</mat-icon>
+                  Performed by: {{ activity.performedByName }}
+                </p>
+              }
+            </div>
+          </mat-list-item>
+
+          @if (!isLast) {
+            <mat-divider class="item-divider" />
+          }
+        }
+      </mat-list>
+    </div>
+
+    <!-- Pagination -->
+    <mat-paginator
+      [length]="totalCount()"
+      [pageSize]="pageSize"
+      [pageIndex]="page() - 1"
+      [pageSizeOptions]="[10, 25, 50]"
+      (page)="onPageChange($event)"
+      aria-label="Activity pagination"
+      class="activity-paginator"
+    />
+  }
+
+  <!-- Empty State -->
+  @if (!loading() && !hasActivities()) {
+    <div class="empty-state">
+      <mat-icon class="empty-icon">history</mat-icon>
+      <h3 class="empty-title">No Activity Recorded</h3>
+      <p class="empty-text">
+        @if (actionTypeFilter() !== 'all') {
+          No activities found for the selected filter.
+          <br />
+          Try selecting a different action type.
+        } @else {
+          This user hasn't performed any activities yet.
+        }
+      </p>
+    </div>
+  }
+</div>

@@ -1,0 +1,340 @@
+/**
+ * Role Management Dashboard Styles
+ *
+ * @description
+ * Styles for the main role management dashboard container.
+ * Implements Material Design principles with responsive layout.
+ *
+ * @features
+ * - Responsive grid layout
+ * - Mobile-first design
+ * - Material elevation and spacing
+ * - Smooth transitions
+ * - Accessible focus states
+ */
+
+// ============================================================================
+// VARIABLES
+// ============================================================================
+
+$toolbar-height: 64px;
+$drawer-width: 280px;
+$spacing-unit: 8px;
+$border-radius: 4px;
+$transition-speed: 300ms;
+
+// ============================================================================
+// MAIN CONTAINER
+// ============================================================================
+
+.role-management-container {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  overflow: hidden;
+  background-color: var(--mat-app-background-color, #fafafa);
+}
+
+// ============================================================================
+// LOADING BAR
+// ============================================================================
+
+.loading-bar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+}
+
+// ============================================================================
+// TOOLBAR
+// ============================================================================
+
+.dashboard-toolbar {
+  display: flex;
+  align-items: center;
+  gap: $spacing-unit * 2;
+  padding: 0 $spacing-unit * 3;
+  height: $toolbar-height;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  z-index: 10;
+
+  .filter-toggle-btn {
+    display: none;
+
+    @media (max-width: 960px) {
+      display: inline-flex;
+    }
+  }
+
+  .toolbar-title {
+    display: flex;
+    align-items: center;
+    gap: $spacing-unit;
+    margin: 0;
+    font-size: 20px;
+    font-weight: 500;
+    white-space: nowrap;
+
+    .title-icon {
+      font-size: 24px;
+      width: 24px;
+      height: 24px;
+    }
+
+    @media (max-width: 600px) {
+      font-size: 18px;
+
+      .title-icon {
+        font-size: 20px;
+        width: 20px;
+        height: 20px;
+      }
+    }
+  }
+
+  .toolbar-spacer {
+    flex: 1 1 auto;
+  }
+
+  .toolbar-search {
+    min-width: 200px;
+    max-width: 400px;
+    flex: 1 1 auto;
+
+    @media (max-width: 600px) {
+      min-width: 150px;
+    }
+  }
+
+  .toolbar-action {
+    // Styles inherited from mat-icon-button
+  }
+
+  .create-btn {
+    display: flex;
+    align-items: center;
+    gap: $spacing-unit;
+    font-weight: 500;
+
+    mat-icon {
+      margin-right: -4px;
+    }
+
+    @media (max-width: 600px) {
+      // Hide text, show only icon
+      span {
+        display: none;
+      }
+
+      mat-icon {
+        margin-right: 0;
+      }
+    }
+  }
+}
+
+// ============================================================================
+// CONTENT WRAPPER
+// ============================================================================
+
+.content-wrapper {
+  flex: 1 1 auto;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+// ============================================================================
+// DRAWER CONTAINER
+// ============================================================================
+
+.drawer-container {
+  flex: 1 1 auto;
+  overflow: hidden;
+}
+
+// ============================================================================
+// FILTERS DRAWER
+// ============================================================================
+
+.filters-drawer {
+  width: $drawer-width;
+  border-right: 1px solid var(--mat-divider-color, rgba(0, 0, 0, 0.12));
+  background-color: var(--mat-card-background-color, #fff);
+
+  @media (max-width: 960px) {
+    box-shadow: 2px 0 8px rgba(0, 0, 0, 0.15);
+  }
+
+  .drawer-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: $spacing-unit * 2 $spacing-unit * 3;
+    border-bottom: 1px solid var(--mat-divider-color, rgba(0, 0, 0, 0.12));
+
+    h2 {
+      display: flex;
+      align-items: center;
+      gap: $spacing-unit;
+      margin: 0;
+      font-size: 18px;
+      font-weight: 500;
+      color: var(--mat-text-primary, rgba(0, 0, 0, 0.87));
+
+      mat-icon {
+        font-size: 20px;
+        width: 20px;
+        height: 20px;
+      }
+    }
+  }
+
+  .drawer-content {
+    padding: $spacing-unit * 2;
+    overflow-y: auto;
+    height: calc(100% - 64px); // Subtract header height
+  }
+}
+
+// ============================================================================
+// MAIN CONTENT
+// ============================================================================
+
+.main-content {
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  padding: $spacing-unit * 3;
+  gap: $spacing-unit * 3;
+
+  @media (max-width: 600px) {
+    padding: $spacing-unit * 2;
+    gap: $spacing-unit * 2;
+  }
+}
+
+// ============================================================================
+// SUMMARY BAR
+// ============================================================================
+
+.summary-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: $spacing-unit * 2;
+  background-color: var(--mat-card-background-color, #fff);
+  border-radius: $border-radius;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+
+  .summary-info {
+    display: flex;
+    align-items: center;
+    gap: $spacing-unit;
+    color: var(--mat-text-secondary, rgba(0, 0, 0, 0.6));
+    font-size: 14px;
+
+    mat-icon {
+      font-size: 18px;
+      width: 18px;
+      height: 18px;
+      color: var(--mat-primary, #3f51b5);
+    }
+
+    strong {
+      color: var(--mat-text-primary, rgba(0, 0, 0, 0.87));
+      font-weight: 600;
+    }
+  }
+}
+
+// ============================================================================
+// GRID CONTAINER
+// ============================================================================
+
+.grid-container {
+  flex: 1 1 auto;
+  overflow-y: auto;
+}
+
+// ============================================================================
+// PAGINATION CONTAINER
+// ============================================================================
+
+.pagination-container {
+  display: flex;
+  justify-content: center;
+  padding: $spacing-unit * 2 0;
+  background-color: var(--mat-card-background-color, #fff);
+  border-radius: $border-radius;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+
+  mat-paginator {
+    background-color: transparent;
+  }
+}
+
+// ============================================================================
+// RESPONSIVE ADJUSTMENTS
+// ============================================================================
+
+@media (max-width: 960px) {
+  .dashboard-toolbar {
+    padding: 0 $spacing-unit * 2;
+    height: 56px;
+  }
+
+  .filters-drawer {
+    width: 260px;
+  }
+}
+
+@media (max-width: 600px) {
+  .dashboard-toolbar {
+    padding: 0 $spacing-unit;
+
+    .toolbar-title {
+      font-size: 16px;
+    }
+  }
+
+  .summary-bar {
+    padding: $spacing-unit;
+
+    .summary-info {
+      font-size: 12px;
+    }
+  }
+}
+
+// ============================================================================
+// ACCESSIBILITY
+// ============================================================================
+
+// Focus states for keyboard navigation
+button:focus-visible {
+  outline: 2px solid var(--mat-primary, #3f51b5);
+  outline-offset: 2px;
+}
+
+// High contrast mode support
+@media (prefers-contrast: high) {
+  .summary-bar,
+  .pagination-container {
+    border: 1px solid currentColor;
+  }
+
+  .filters-drawer {
+    border-right-width: 2px;
+  }
+}
+
+// Reduced motion support
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}

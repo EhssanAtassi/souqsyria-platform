@@ -1,0 +1,365 @@
+/**
+ * Ban User Dialog Styles
+ *
+ * Implements Material Design principles with:
+ * - 8px grid spacing system
+ * - Proper elevation and shadows
+ * - Responsive layout (mobile-first)
+ * - Accessible color contrast (WCAG AA)
+ */
+
+// Variables
+$dialog-width: 500px;
+$mobile-breakpoint: 600px;
+$spacing-unit: 8px;
+$border-radius: 4px;
+
+// Dialog Container
+.ban-user-dialog {
+  display: flex;
+  flex-direction: column;
+  min-height: 400px;
+  max-height: 90vh;
+
+  // Dialog Header
+  .dialog-header {
+    display: flex;
+    align-items: center;
+    gap: $spacing-unit * 1.5;
+    padding: $spacing-unit * 2 $spacing-unit * 3;
+    background: rgba(0, 0, 0, 0.03);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.12);
+    margin: (-$spacing-unit * 3) (-$spacing-unit * 3) 0;
+
+    .dialog-icon {
+      font-size: 28px;
+      width: 28px;
+      height: 28px;
+      color: #d32f2f; // Material Red 700
+    }
+
+    h2 {
+      margin: 0;
+      font-size: 20px;
+      font-weight: 500;
+      color: rgba(0, 0, 0, 0.87);
+    }
+  }
+
+  // Dialog Content
+  .dialog-content {
+    padding: $spacing-unit * 3;
+    overflow-y: auto;
+    flex: 1;
+
+    // User Information Section
+    .user-info-section {
+      display: flex;
+      align-items: center;
+      gap: $spacing-unit * 2;
+      padding: $spacing-unit * 2;
+      background: rgba(0, 0, 0, 0.02);
+      border-radius: $border-radius;
+      margin-bottom: $spacing-unit * 3;
+
+      .user-avatar {
+        flex-shrink: 0;
+      }
+
+      .user-details {
+        flex: 1;
+        min-width: 0; // Enable text truncation
+
+        .user-name {
+          margin: 0 0 $spacing-unit * 0.5;
+          font-size: 16px;
+          font-weight: 500;
+          color: rgba(0, 0, 0, 0.87);
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
+
+        .user-email {
+          margin: 0;
+          font-size: 14px;
+          color: rgba(0, 0, 0, 0.6);
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
+      }
+    }
+
+    // Warning Banner
+    .warning-banner {
+      display: flex;
+      align-items: flex-start;
+      gap: $spacing-unit * 1.5;
+      padding: $spacing-unit * 2;
+      background: #ffebee; // Material Red 50
+      border-left: 4px solid #d32f2f; // Material Red 700
+      border-radius: $border-radius;
+      margin-bottom: $spacing-unit * 3;
+
+      .warning-icon {
+        flex-shrink: 0;
+        font-size: 24px;
+        width: 24px;
+        height: 24px;
+        color: #d32f2f;
+        margin-top: 2px;
+      }
+
+      .warning-content {
+        flex: 1;
+        font-size: 14px;
+        line-height: 1.5;
+        color: rgba(0, 0, 0, 0.87);
+
+        strong {
+          font-weight: 600;
+          color: #d32f2f;
+        }
+      }
+    }
+
+    // Ban Form
+    .ban-form {
+      display: flex;
+      flex-direction: column;
+      gap: $spacing-unit * 2.5;
+
+      .full-width {
+        width: 100%;
+      }
+
+      // Textarea Styling
+      textarea {
+        font-family: inherit;
+        line-height: 1.5;
+      }
+
+      // Checkbox Field
+      .checkbox-field {
+        margin: $spacing-unit 0;
+
+        .checkbox-label {
+          display: flex;
+          flex-direction: column;
+          gap: $spacing-unit * 0.5;
+
+          strong {
+            font-weight: 500;
+            color: rgba(0, 0, 0, 0.87);
+          }
+
+          .checkbox-hint {
+            font-size: 12px;
+            color: rgba(0, 0, 0, 0.6);
+            line-height: 1.4;
+          }
+        }
+      }
+
+      // Information Section
+      .info-section {
+        display: flex;
+        align-items: flex-start;
+        gap: $spacing-unit * 1.5;
+        padding: $spacing-unit * 1.5;
+        background: rgba(33, 150, 243, 0.08); // Material Blue with opacity
+        border-radius: $border-radius;
+        margin-top: $spacing-unit;
+
+        .info-icon {
+          flex-shrink: 0;
+          font-size: 20px;
+          width: 20px;
+          height: 20px;
+          color: #1976d2; // Material Blue 700
+        }
+
+        .info-text {
+          margin: 0;
+          font-size: 13px;
+          line-height: 1.5;
+          color: rgba(0, 0, 0, 0.7);
+        }
+      }
+    }
+  }
+
+  // Dialog Actions
+  .dialog-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: $spacing-unit * 2;
+    padding: $spacing-unit * 2 $spacing-unit * 3;
+    background: rgba(0, 0, 0, 0.03);
+    border-top: 1px solid rgba(0, 0, 0, 0.12);
+    margin: 0 (-$spacing-unit * 3) (-$spacing-unit * 3);
+
+    .cancel-button {
+      min-width: 80px;
+    }
+
+    .submit-button {
+      min-width: 120px;
+      display: flex;
+      align-items: center;
+      gap: $spacing-unit;
+
+      mat-icon {
+        font-size: 18px;
+        width: 18px;
+        height: 18px;
+        margin: 0;
+      }
+
+      &:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+      }
+    }
+  }
+}
+
+// Material Form Field Customization
+::ng-deep {
+  .ban-user-dialog {
+    .mat-mdc-form-field {
+      .mat-mdc-text-field-wrapper {
+        .mat-mdc-form-field-flex {
+          .mat-mdc-form-field-infix {
+            padding-top: 16px;
+            padding-bottom: 16px;
+          }
+        }
+      }
+
+      // Error message styling
+      .mat-mdc-form-field-error {
+        font-size: 12px;
+        margin-top: $spacing-unit * 0.5;
+      }
+
+      // Hint styling
+      .mat-mdc-form-field-hint {
+        font-size: 12px;
+        color: rgba(0, 0, 0, 0.6);
+      }
+    }
+  }
+}
+
+// Responsive Design
+@media (max-width: $mobile-breakpoint) {
+  .ban-user-dialog {
+    max-height: 100vh;
+    width: 100vw;
+
+    .dialog-header {
+      padding: $spacing-unit * 2;
+      margin: (-$spacing-unit * 2) (-$spacing-unit * 2) 0;
+
+      h2 {
+        font-size: 18px;
+      }
+    }
+
+    .dialog-content {
+      padding: $spacing-unit * 2;
+
+      .user-info-section {
+        flex-direction: column;
+        align-items: flex-start;
+        text-align: center;
+
+        .user-details {
+          width: 100%;
+        }
+      }
+
+      .warning-banner {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+
+        .warning-icon {
+          margin-top: 0;
+        }
+      }
+    }
+
+    .dialog-actions {
+      flex-direction: column-reverse;
+      gap: $spacing-unit;
+      padding: $spacing-unit * 2;
+      margin: 0 (-$spacing-unit * 2) (-$spacing-unit * 2);
+
+      .cancel-button,
+      .submit-button {
+        width: 100%;
+        min-width: unset;
+      }
+    }
+  }
+}
+
+// Dark Theme Support (Optional)
+@media (prefers-color-scheme: dark) {
+  .ban-user-dialog {
+    .dialog-header {
+      background: rgba(255, 255, 255, 0.05);
+      border-bottom-color: rgba(255, 255, 255, 0.12);
+
+      h2 {
+        color: rgba(255, 255, 255, 0.87);
+      }
+    }
+
+    .user-info-section {
+      background: rgba(255, 255, 255, 0.03);
+
+      .user-name {
+        color: rgba(255, 255, 255, 0.87);
+      }
+
+      .user-email {
+        color: rgba(255, 255, 255, 0.6);
+      }
+    }
+
+    .warning-banner {
+      background: rgba(211, 47, 47, 0.15);
+
+      .warning-content {
+        color: rgba(255, 255, 255, 0.87);
+      }
+    }
+
+    .info-section {
+      background: rgba(33, 150, 243, 0.15);
+
+      .info-text {
+        color: rgba(255, 255, 255, 0.7);
+      }
+    }
+
+    .dialog-actions {
+      background: rgba(255, 255, 255, 0.05);
+      border-top-color: rgba(255, 255, 255, 0.12);
+    }
+  }
+}
+
+// Print Styles
+@media print {
+  .ban-user-dialog {
+    .dialog-actions {
+      display: none;
+    }
+  }
+}

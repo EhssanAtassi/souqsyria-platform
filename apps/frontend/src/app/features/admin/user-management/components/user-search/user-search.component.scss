@@ -1,0 +1,105 @@
+/**
+ * User Search Component Styles
+ * 
+ * Design: Material Design 3
+ * Grid: 8px spacing unit
+ */
+
+$spacing-unit: 8px;
+
+.search-container {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-unit;
+  width: 100%;
+}
+
+.search-field {
+  width: 100%;
+  
+  .search-icon {
+    color: rgba(0, 0, 0, 0.54);
+    margin-right: $spacing-unit;
+  }
+  
+  .search-spinner {
+    margin-right: $spacing-unit;
+  }
+  
+  .clear-button {
+    mat-icon {
+      color: rgba(0, 0, 0, 0.54);
+      font-size: 20px;
+      width: 20px;
+      height: 20px;
+    }
+    
+    &:hover mat-icon {
+      color: rgba(0, 0, 0, 0.87);
+    }
+  }
+  
+  // Hint styling
+  ::ng-deep .mat-hint {
+    font-size: 11px;
+    color: rgba(0, 0, 0, 0.4);
+  }
+}
+
+.search-info {
+  display: flex;
+  align-items: center;
+  gap: $spacing-unit;
+  padding: $spacing-unit;
+  background-color: #e3f2fd;
+  border-radius: 4px;
+  
+  .info-icon {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+    color: #1976d2;
+    flex-shrink: 0;
+  }
+  
+  .info-text {
+    font-size: 12px;
+    color: #1565c0;
+    line-height: 1.4;
+  }
+}
+
+// Dark theme
+@media (prefers-color-scheme: dark) {
+  .search-field {
+    .search-icon {
+      color: rgba(255, 255, 255, 0.54);
+    }
+    
+    .clear-button mat-icon {
+      color: rgba(255, 255, 255, 0.54);
+      
+      &:hover {
+        color: rgba(255, 255, 255, 0.87);
+      }
+    }
+  }
+  
+  .search-info {
+    background-color: rgba(33, 150, 243, 0.16);
+    
+    .info-icon {
+      color: #90caf9;
+    }
+    
+    .info-text {
+      color: #90caf9;
+    }
+  }
+}
+
+// Accessibility
+button:focus-visible {
+  outline: 2px solid #3f51b5;
+  outline-offset: 2px;
+}

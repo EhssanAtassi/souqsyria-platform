@@ -1,0 +1,134 @@
+/**
+ * Role Grid Styles
+ *
+ * @description
+ * Responsive grid layout for role cards.
+ * Adapts column count based on viewport width.
+ *
+ * @breakpoints
+ * - Desktop (>1280px): 3 columns
+ * - Tablet (600-1280px): 2 columns
+ * - Mobile (<600px): 1 column
+ */
+
+// ============================================================================
+// VARIABLES
+// ============================================================================
+
+$grid-gap: 20px;
+$grid-gap-mobile: 16px;
+$card-min-width: 280px;
+
+// ============================================================================
+// CONTAINER
+// ============================================================================
+
+.role-grid-container {
+  width: 100%;
+  min-height: 300px;
+}
+
+// ============================================================================
+// ROLE GRID
+// ============================================================================
+
+.role-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax($card-min-width, 1fr));
+  gap: $grid-gap;
+  padding: 0;
+
+  // Desktop: 3 columns
+  @media (min-width: 1280px) {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  // Tablet: 2 columns
+  @media (min-width: 600px) and (max-width: 1279px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  // Mobile: 1 column
+  @media (max-width: 599px) {
+    grid-template-columns: 1fr;
+    gap: $grid-gap-mobile;
+  }
+}
+
+// ============================================================================
+// LOADING STATE
+// ============================================================================
+
+.loading-state {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+  color: var(--mat-text-secondary, rgba(0, 0, 0, 0.6));
+  font-size: 16px;
+
+  p {
+    margin: 0;
+  }
+}
+
+// ============================================================================
+// EMPTY STATE
+// ============================================================================
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+  padding: 40px 20px;
+  text-align: center;
+  color: var(--mat-text-secondary, rgba(0, 0, 0, 0.6));
+
+  .empty-icon {
+    font-size: 80px;
+    width: 80px;
+    height: 80px;
+    color: var(--mat-text-disabled, rgba(0, 0, 0, 0.38));
+    margin-bottom: 16px;
+  }
+
+  h3 {
+    margin: 0 0 8px 0;
+    font-size: 24px;
+    font-weight: 500;
+    color: var(--mat-text-primary, rgba(0, 0, 0, 0.87));
+  }
+
+  p {
+    margin: 0 0 4px 0;
+    font-size: 16px;
+    line-height: 1.5;
+  }
+
+  .empty-hint {
+    font-size: 14px;
+    font-style: italic;
+    color: var(--mat-text-disabled, rgba(0, 0, 0, 0.38));
+  }
+}
+
+// ============================================================================
+// ACCESSIBILITY
+// ============================================================================
+
+// Focus states for keyboard navigation
+.role-grid app-role-card:focus-visible {
+  outline: 2px solid var(--mat-primary, #3f51b5);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+// High contrast mode support
+@media (prefers-contrast: high) {
+  .empty-state {
+    border: 1px solid currentColor;
+    border-radius: 4px;
+  }
+}

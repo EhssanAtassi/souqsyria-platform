@@ -1,0 +1,121 @@
+<div class="ban-user-dialog" role="dialog" aria-labelledby="dialog-title" aria-describedby="dialog-description">
+  <!-- Dialog Header -->
+  <div class="dialog-header" mat-dialog-title id="dialog-title">
+    <mat-icon class="dialog-icon">block</mat-icon>
+    <h2>Ban User</h2>
+  </div>
+
+  <!-- Dialog Content -->
+  <mat-dialog-content class="dialog-content">
+    <!-- User Information Section -->
+    <div class="user-info-section">
+      <app-user-avatar
+        [user]="data.user"
+        [size]="48"
+        class="user-avatar"
+      />
+      <div class="user-details">
+        <h3 class="user-name">{{ data.user.name }}</h3>
+        <p class="user-email">{{ data.user.email }}</p>
+      </div>
+    </div>
+
+    <!-- Warning Banner -->
+    <div class="warning-banner" id="dialog-description" role="alert">
+      <mat-icon class="warning-icon">warning</mat-icon>
+      <div class="warning-content">
+        <strong>Warning:</strong> This action will immediately block the user from accessing the system.
+        The user will not be able to login or perform any actions.
+      </div>
+    </div>
+
+    <!-- Ban Form -->
+    <form [formGroup]="banForm" class="ban-form" (ngSubmit)="onSubmit()">
+      <!-- Reason Field -->
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Reason for Ban</mat-label>
+        <textarea
+          matInput
+          formControlName="reason"
+          rows="4"
+          placeholder="Provide a clear reason for banning this user..."
+          [maxlength]="REASON_MAX_LENGTH"
+          aria-required="true"
+          aria-describedby="reason-error reason-hint"
+        ></textarea>
+        <mat-hint id="reason-hint" align="end">
+          {{ reasonRemainingChars }} characters remaining
+        </mat-hint>
+        <mat-error id="reason-error" *ngIf="reason?.invalid && reason?.touched">
+          {{ getReasonErrorMessage() }}
+        </mat-error>
+      </mat-form-field>
+
+      <!-- Permanent Ban Checkbox -->
+      <div class="checkbox-field">
+        <mat-checkbox
+          formControlName="isPermanent"
+          color="warn"
+          aria-label="Mark this ban as permanent"
+        >
+          <span class="checkbox-label">
+            <strong>Permanent Ban</strong>
+            <span class="checkbox-hint">This ban will not expire automatically</span>
+          </span>
+        </mat-checkbox>
+      </div>
+
+      <!-- Internal Notes Field -->
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Internal Notes (Optional)</mat-label>
+        <textarea
+          matInput
+          formControlName="internalNotes"
+          rows="3"
+          placeholder="Add internal notes for record keeping (not visible to user)..."
+          [maxlength]="NOTES_MAX_LENGTH"
+          aria-describedby="notes-error notes-hint"
+        ></textarea>
+        <mat-hint id="notes-hint" align="end">
+          {{ notesRemainingChars }} characters remaining
+        </mat-hint>
+        <mat-error id="notes-error" *ngIf="internalNotes?.invalid && internalNotes?.touched">
+          {{ getNotesErrorMessage() }}
+        </mat-error>
+      </mat-form-field>
+
+      <!-- Additional Information -->
+      <div class="info-section">
+        <mat-icon class="info-icon">info</mat-icon>
+        <p class="info-text">
+          The user will be notified of this action. All active sessions will be terminated immediately.
+        </p>
+      </div>
+    </form>
+  </mat-dialog-content>
+
+  <!-- Dialog Actions -->
+  <mat-dialog-actions class="dialog-actions">
+    <button
+      mat-button
+      type="button"
+      (click)="onCancel()"
+      class="cancel-button"
+      aria-label="Cancel ban action"
+    >
+      Cancel
+    </button>
+    <button
+      mat-raised-button
+      color="warn"
+      type="submit"
+      (click)="onSubmit()"
+      [disabled]="banForm.invalid"
+      class="submit-button"
+      aria-label="Confirm ban user"
+    >
+      <mat-icon>block</mat-icon>
+      Ban User
+    </button>
+  </mat-dialog-actions>
+</div>

@@ -1,0 +1,312 @@
+<!--
+  User Filters Component Template
+
+  Material Design filter panel with collapsible sections.
+  Provides multi-criteria filtering for user list.
+-->
+
+<div class="user-filters mat-elevation-z2">
+  <!-- Header Section -->
+  <div class="filters-header">
+    <div class="header-content">
+      <mat-icon class="header-icon">filter_list</mat-icon>
+      <h3 class="header-title">Filters</h3>
+      @if (hasActiveFilters()) {
+        <mat-chip class="active-count-chip">
+          {{ getActiveFilterCount() }}
+        </mat-chip>
+      }
+    </div>
+
+    @if (hasActiveFilters()) {
+      <button
+        mat-button
+        type="button"
+        color="warn"
+        class="clear-all-btn"
+        (click)="clearAll()"
+        aria-label="Clear all filters"
+      >
+        <mat-icon>clear</mat-icon>
+        Clear All
+      </button>
+    }
+  </div>
+
+  <!-- Active Filters Chips -->
+  @if (hasActiveFilters()) {
+    <div class="active-filters">
+      <mat-chip-set aria-label="Active filters">
+        @if (filterForm.value.status?.length > 0) {
+          <mat-chip
+            (removed)="removeFilter('status')"
+            [removable]="true"
+            aria-label="Remove status filter"
+          >
+            Status: {{ getFilterDisplayText('status') }}
+            <mat-icon matChipRemove>cancel</mat-icon>
+          </mat-chip>
+        }
+
+        @if (filterForm.value.roles?.length > 0) {
+          <mat-chip
+            (removed)="removeFilter('roles')"
+            [removable]="true"
+            aria-label="Remove roles filter"
+          >
+            Roles: {{ getFilterDisplayText('roles') }}
+            <mat-icon matChipRemove>cancel</mat-icon>
+          </mat-chip>
+        }
+
+        @if (filterForm.value.hasAdminRole !== undefined) {
+          <mat-chip
+            (removed)="removeFilter('hasAdminRole')"
+            [removable]="true"
+            aria-label="Remove admin role filter"
+          >
+            {{ getFilterDisplayText('hasAdminRole') }}
+            <mat-icon matChipRemove>cancel</mat-icon>
+          </mat-chip>
+        }
+
+        @if (filterForm.value.createdAfter) {
+          <mat-chip
+            (removed)="removeFilter('createdAfter')"
+            [removable]="true"
+            aria-label="Remove created after filter"
+          >
+            {{ getFilterDisplayText('createdAfter') }}
+            <mat-icon matChipRemove>cancel</mat-icon>
+          </mat-chip>
+        }
+
+        @if (filterForm.value.createdBefore) {
+          <mat-chip
+            (removed)="removeFilter('createdBefore')"
+            [removable]="true"
+            aria-label="Remove created before filter"
+          >
+            {{ getFilterDisplayText('createdBefore') }}
+            <mat-icon matChipRemove>cancel</mat-icon>
+          </mat-chip>
+        }
+      </mat-chip-set>
+    </div>
+  }
+
+  <!-- Filter Form -->
+  <form [formGroup]="filterForm" class="filters-form">
+    <!-- Status Filter Section -->
+    <mat-expansion-panel
+      [(expanded)]="statusExpanded"
+      class="filter-panel"
+    >
+      <mat-expansion-panel-header>
+        <mat-panel-title>
+          <mat-icon class="panel-icon">info</mat-icon>
+          <span>Account Status</span>
+        </mat-panel-title>
+        <mat-panel-description>
+          @if (filterForm.value.status?.length > 0) {
+            <span class="filter-count">{{ filterForm.value.status.length }} selected</span>
+          }
+        </mat-panel-description>
+      </mat-expansion-panel-header>
+
+      <div class="filter-content">
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Status</mat-label>
+          <mat-select
+            formControlName="status"
+            multiple
+            placeholder="Select statuses"
+            aria-label="Select account statuses"
+          >
+            @for (option of statusOptions; track option.value) {
+              <mat-option [value]="option.value">
+                <div class="option-content">
+                  <mat-icon [style.color]="option.color">{{ option.icon }}</mat-icon>
+                  <span>{{ option.label }}</span>
+                </div>
+              </mat-option>
+            }
+          </mat-select>
+          <mat-hint>Filter by account status</mat-hint>
+        </mat-form-field>
+      </div>
+    </mat-expansion-panel>
+
+    <!-- Roles Filter Section -->
+    <mat-expansion-panel
+      [(expanded)]="rolesExpanded"
+      class="filter-panel"
+    >
+      <mat-expansion-panel-header>
+        <mat-panel-title>
+          <mat-icon class="panel-icon">badge</mat-icon>
+          <span>Roles</span>
+        </mat-panel-title>
+        <mat-panel-description>
+          @if (filterForm.value.roles?.length > 0 || filterForm.value.hasAdminRole !== undefined) {
+            <span class="filter-count">
+              {{ (filterForm.value.roles?.length || 0) + (filterForm.value.hasAdminRole !== undefined ? 1 : 0) }} active
+            </span>
+          }
+        </mat-panel-description>
+      </mat-expansion-panel-header>
+
+      <div class="filter-content">
+        <!-- Business Roles -->
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Business Roles</mat-label>
+          <mat-select
+            formControlName="roles"
+            multiple
+            placeholder="Select business roles"
+            aria-label="Select business roles"
+          >
+            @for (option of businessRoleOptions; track option.value) {
+              <mat-option [value]="option.value">
+                <div class="option-content">
+                  <mat-icon>{{ option.icon }}</mat-icon>
+                  <span>{{ option.label }}</span>
+                </div>
+              </mat-option>
+            }
+          </mat-select>
+          <mat-hint>Filter by business role (buyer, vendor, etc.)</mat-hint>
+        </mat-form-field>
+
+        <!-- Admin Role Filter -->
+        <div class="admin-role-filter">
+          <label class="filter-label">Admin Role</label>
+          <mat-radio-group
+            formControlName="hasAdminRole"
+            aria-label="Admin role filter"
+            class="admin-role-group"
+          >
+            @for (option of adminRoleOptions; track option.value) {
+              <mat-radio-button [value]="option.value" class="admin-role-option">
+                <div class="option-content">
+                  <mat-icon>{{ option.icon }}</mat-icon>
+                  <span>{{ option.label }}</span>
+                </div>
+              </mat-radio-button>
+            }
+          </mat-radio-group>
+        </div>
+      </div>
+    </mat-expansion-panel>
+
+    <!-- Date Range Filter Section -->
+    <mat-expansion-panel
+      [(expanded)]="datesExpanded"
+      class="filter-panel"
+    >
+      <mat-expansion-panel-header>
+        <mat-panel-title>
+          <mat-icon class="panel-icon">calendar_today</mat-icon>
+          <span>Registration Date</span>
+        </mat-panel-title>
+        <mat-panel-description>
+          @if (filterForm.value.createdAfter || filterForm.value.createdBefore) {
+            <span class="filter-count">Date range set</span>
+          }
+        </mat-panel-description>
+      </mat-expansion-panel-header>
+
+      <div class="filter-content">
+        <!-- Created After -->
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Created After</mat-label>
+          <input
+            matInput
+            [matDatepicker]="pickerAfter"
+            formControlName="createdAfter"
+            placeholder="Select start date"
+            aria-label="Created after date"
+          />
+          <mat-datepicker-toggle matIconSuffix [for]="pickerAfter">
+            <mat-icon matDatepickerToggleIcon>event</mat-icon>
+          </mat-datepicker-toggle>
+          <mat-datepicker #pickerAfter></mat-datepicker>
+          @if (filterForm.value.createdAfter) {
+            <button
+              matSuffix
+              mat-icon-button
+              type="button"
+              aria-label="Clear created after date"
+              (click)="$event.stopPropagation(); filterForm.patchValue({ createdAfter: null })"
+            >
+              <mat-icon>clear</mat-icon>
+            </button>
+          }
+          <mat-hint>Show users registered after this date</mat-hint>
+        </mat-form-field>
+
+        <!-- Created Before -->
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Created Before</mat-label>
+          <input
+            matInput
+            [matDatepicker]="pickerBefore"
+            formControlName="createdBefore"
+            placeholder="Select end date"
+            aria-label="Created before date"
+          />
+          <mat-datepicker-toggle matIconSuffix [for]="pickerBefore">
+            <mat-icon matDatepickerToggleIcon>event</mat-icon>
+          </mat-datepicker-toggle>
+          <mat-datepicker #pickerBefore></mat-datepicker>
+          @if (filterForm.value.createdBefore) {
+            <button
+              matSuffix
+              mat-icon-button
+              type="button"
+              aria-label="Clear created before date"
+              (click)="$event.stopPropagation(); filterForm.patchValue({ createdBefore: null })"
+            >
+              <mat-icon>clear</mat-icon>
+            </button>
+          }
+          <mat-hint>Show users registered before this date</mat-hint>
+        </mat-form-field>
+
+        <!-- Quick Date Ranges -->
+        <div class="quick-ranges">
+          <label class="filter-label">Quick Ranges</label>
+          <div class="range-buttons">
+            <button
+              mat-button
+              type="button"
+              class="range-btn"
+              (click)="filterForm.patchValue({ createdAfter: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000), createdBefore: null })"
+              aria-label="Last 7 days"
+            >
+              Last 7 days
+            </button>
+            <button
+              mat-button
+              type="button"
+              class="range-btn"
+              (click)="filterForm.patchValue({ createdAfter: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000), createdBefore: null })"
+              aria-label="Last 30 days"
+            >
+              Last 30 days
+            </button>
+            <button
+              mat-button
+              type="button"
+              class="range-btn"
+              (click)="filterForm.patchValue({ createdAfter: new Date(Date.now() - 90 * 24 * 60 * 60 * 1000), createdBefore: null })"
+              aria-label="Last 90 days"
+            >
+              Last 90 days
+            </button>
+          </div>
+        </div>
+      </div>
+    </mat-expansion-panel>
+  </form>
+</div>

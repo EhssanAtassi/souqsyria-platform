@@ -1,0 +1,129 @@
+<div class="templates-page">
+  <!-- Header -->
+  <mat-toolbar class="page-toolbar">
+    <button mat-icon-button (click)="goBack()" matTooltip="Back to roles" aria-label="Go back">
+      <mat-icon>arrow_back</mat-icon>
+    </button>
+    <h1>Role Templates</h1>
+    <span class="spacer"></span>
+    <button
+      mat-raised-button
+      color="primary"
+      (click)="createCustomRole()"
+      matTooltip="Create custom role from scratch"
+      aria-label="Create custom role">
+      <mat-icon>add</mat-icon>
+      Create Custom Role
+    </button>
+  </mat-toolbar>
+
+  <!-- Filters -->
+  <div class="filters-section">
+    <mat-form-field appearance="outline" class="search-field">
+      <mat-label>Search templates</mat-label>
+      <input
+        matInput
+        [value]="searchQuery()"
+        (input)="onSearchChange($any($event.target).value)"
+        placeholder="Search by name, description, or category"
+        aria-label="Search templates"
+      />
+      <mat-icon matPrefix>search</mat-icon>
+      @if (searchQuery()) {
+        <button
+          matSuffix
+          mat-icon-button
+          (click)="onSearchChange('')"
+          matTooltip="Clear search"
+          aria-label="Clear search">
+          <mat-icon>close</mat-icon>
+        </button>
+      }
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="category-field">
+      <mat-label>Category</mat-label>
+      <mat-select
+        [value]="categoryFilter()"
+        (valueChange)="onCategoryChange($event)"
+        aria-label="Filter by category">
+        @for (category of categories; track category.value) {
+          <mat-option [value]="category.value">
+            {{ category.label }}
+          </mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    @if (searchQuery() || categoryFilter() !== 'all') {
+      <button
+        mat-stroked-button
+        (click)="clearFilters()"
+        matTooltip="Clear all filters"
+        aria-label="Clear filters">
+        <mat-icon>filter_list_off</mat-icon>
+        Clear Filters
+      </button>
+    }
+  </div>
+
+  <!-- Results Info -->
+  <div class="results-info">
+    <p>
+      Showing <strong>{{ filteredTemplates().length }}</strong>
+      @if (filteredTemplates().length === 1) {
+        template
+      } @else {
+        templates
+      }
+      @if (categoryFilter() !== 'all') {
+        in <strong>{{ getCategoryLabel(categoryFilter()) }}</strong>
+      }
+    </p>
+  </div>
+
+  <!-- Loading State -->
+  @if (loading()) {
+    <div class="loading-container">
+      <mat-spinner diameter="48"></mat-spinner>
+      <p>Loading templates...</p>
+    </div>
+  }
+
+  <!-- Templates Grid -->
+  @else if (filteredTemplates().length > 0) {
+    <div class="templates-grid">
+      @for (template of filteredTemplates(); track template.id) {
+        <app-template-card
+          [template]="template"
+          (preview)="onPreview(template)"
+          (use)="onUseTemplate(template)"
+        />
+      }
+    </div>
+  }
+
+  <!-- Empty State -->
+  @else {
+    <div class="empty-state">
+      <mat-icon>search_off</mat-icon>
+      <h2>No templates found</h2>
+      <p>
+        @if (searchQuery() || categoryFilter() !== 'all') {
+          Try adjusting your search or filters
+        } @else {
+          No role templates are currently available
+        }
+      </p>
+      @if (searchQuery() || categoryFilter() !== 'all') {
+        <button mat-raised-button color="primary" (click)="clearFilters()">
+          Clear Filters
+        </button>
+      } @else {
+        <button mat-raised-button color="primary" (click)="createCustomRole()">
+          Create Custom Role
+        </button>
+      }
+    </div>
+  }
+</div>

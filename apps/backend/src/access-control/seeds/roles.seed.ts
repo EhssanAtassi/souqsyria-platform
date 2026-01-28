@@ -10,6 +10,8 @@ export interface RoleSeedData {
   isDefault: boolean;
   type: 'business' | 'admin';
   permissions: string[];
+  priority?: number;
+  isSystem?: boolean;
 }
 
 /**
@@ -193,10 +195,184 @@ export const BUSINESS_ROLES: RoleSeedData[] = [
  */
 export const ADMIN_ROLES: RoleSeedData[] = [
   {
-    name: 'super_admin',
-    description: 'Full system administrator with all permissions',
+    name: 'owner',
+    description: 'System owner with ultimate authority over all platform operations and data',
     isDefault: false,
     type: 'admin',
+    priority: 100,
+    isSystem: true,
+    permissions: [
+      // ==========================================
+      // ALL PERMISSIONS - SYSTEM OWNER
+      // ==========================================
+
+      // User management - Complete control
+      'view_users',
+      'view_user_details',
+      'edit_users',
+      'create_users',
+      'delete_users',
+      'ban_users',
+      'unban_users',
+      'suspend_users',
+      'verify_users',
+      'reset_user_passwords',
+      'view_user_analytics',
+      'export_users',
+
+      // Role and permission management - Full system control
+      'manage_permissions',
+      'manage_roles',
+      'assign_roles',
+      'manage_system_roles',
+
+      // Product management - Complete oversight
+      'view_products',
+      'view_product_details',
+      'search_products',
+      'create_products',
+      'edit_own_products',
+      'edit_all_products',
+      'delete_own_products',
+      'delete_all_products',
+      'approve_products',
+      'reject_products',
+      'manage_product_categories',
+      'manage_product_attributes',
+      'bulk_edit_products',
+      'import_products',
+      'export_products',
+
+      // Order management - Complete control
+      'view_own_orders',
+      'view_all_orders',
+      'create_orders',
+      'cancel_own_orders',
+      'cancel_all_orders',
+      'update_order_status',
+      'process_orders',
+      'ship_orders',
+      'process_returns',
+      'process_refunds',
+      'view_order_analytics',
+      'export_orders',
+
+      // Vendor management - Full oversight
+      'view_vendors',
+      'approve_vendors',
+      'reject_vendors',
+      'manage_vendor_verification',
+      'view_vendor_analytics',
+      'manage_vendor_commissions',
+      'process_vendor_payouts',
+      'view_vendor_dashboard',
+      'manage_vendor_profile',
+      'view_vendor_orders',
+      'manage_vendor_products',
+      'view_vendor_financial_reports',
+      'view_vendor_reviews',
+      'manage_vendor_shipping',
+      'view_vendor_performance_insights',
+
+      // Financial management - Complete control
+      'view_payments',
+      'process_payments',
+      'refund_payments',
+      'view_financial_reports',
+      'manage_payment_methods',
+      'configure_payment_gateways',
+
+      // Shipping & logistics - Full control
+      'view_shipments',
+      'manage_shipments',
+      'track_shipments',
+      'manage_shipping_methods',
+      'configure_shipping_zones',
+
+      // Inventory management - Complete oversight
+      'view_inventory',
+      'manage_inventory',
+      'adjust_inventory',
+      'view_inventory_reports',
+      'transfer_inventory',
+      'manage_warehouses',
+
+      // Analytics & reporting - Full access
+      'view_analytics',
+      'view_sales_analytics',
+      'view_customer_analytics',
+      'view_inventory_analytics',
+      'export_analytics',
+      'create_custom_reports',
+
+      // Moderation - Complete control
+      'moderate_content',
+      'approve_reviews',
+      'remove_reviews',
+      'handle_disputes',
+      'manage_complaints',
+      'moderate_listings',
+
+      // System administration - FULL SYSTEM CONTROL
+      'system_configuration',
+      'manage_currencies',
+      'manage_taxes',
+      'view_system_logs',
+      'view_audit_logs',
+      'export_audit_logs',
+      'backup_system',
+      'restore_system',
+      'manage_routes',
+      'access_admin_panel',
+      'delete_system_data',
+
+      // Communication - Full control
+      'send_notifications',
+      'manage_email_templates',
+      'send_marketing_emails',
+      'manage_announcements',
+
+      // API management - Complete control
+      'access_mobile_api',
+      'access_vendor_api',
+      'access_admin_api',
+      'manage_api_keys',
+
+      // Marketing - Full control
+      'create_promotions',
+      'manage_coupons',
+      'manage_loyalty_programs',
+      'view_marketing_analytics',
+
+      // Syrian platform features - Complete control
+      'manage_syrian_features',
+      'manage_governorates',
+      'manage_syrian_payments',
+      'manage_syrian_shipping',
+      'view_syrian_analytics',
+      'manage_syrian_kyc',
+      'approve_syrian_kyc',
+      'reject_syrian_kyc',
+      'view_syrian_kyc_analytics',
+      'manage_syrian_manufacturers',
+      'approve_syrian_manufacturers',
+      'view_syrian_manufacturer_analytics',
+      'manage_syrian_refunds',
+      'process_syrian_bank_transfers',
+      'view_syrian_refund_analytics',
+      'manage_syrian_currencies',
+      'configure_syrian_tax_settings',
+      'manage_arabic_localization',
+      'view_diaspora_analytics',
+    ],
+  },
+  {
+    name: 'super_admin',
+    description: 'Full system administrator with comprehensive permissions',
+    isDefault: false,
+    type: 'admin',
+    priority: 90,
+    isSystem: true,
     permissions: [
       // User management
       'view_users',
@@ -256,8 +432,12 @@ export const ADMIN_ROLES: RoleSeedData[] = [
       'manage_currencies',
       'manage_taxes',
       'view_system_logs',
+      'view_audit_logs',
+      'export_audit_logs',
       'backup_system',
       'restore_system',
+      'manage_routes',
+      'access_admin_panel',
 
       // Analytics and reporting
       'view_analytics',

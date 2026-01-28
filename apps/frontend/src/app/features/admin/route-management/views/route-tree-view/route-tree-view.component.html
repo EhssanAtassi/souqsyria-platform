@@ -1,0 +1,141 @@
+<div class="route-tree-view">
+  <!-- Tree Controls -->
+  <div class="tree-controls">
+    <div class="tree-controls__group">
+      <button
+        mat-button
+        (click)="expandAll()"
+        class="tree-controls__button"
+        aria-label="Expand all controllers">
+        <mat-icon>unfold_more</mat-icon>
+        <span>Expand All</span>
+      </button>
+      <button
+        mat-button
+        (click)="collapseAll()"
+        class="tree-controls__button"
+        aria-label="Collapse all controllers">
+        <mat-icon>unfold_less</mat-icon>
+        <span>Collapse All</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Material Tree -->
+  <div class="tree-container">
+    <mat-tree
+      [dataSource]="dataSource"
+      [treeControl]="treeControl"
+      [trackBy]="trackByNode"
+      class="route-tree">
+
+      <!-- Controller Node (Parent) -->
+      <mat-tree-node
+        *matTreeNodeDef="let node; when: isControllerNode"
+        matTreeNodeToggle
+        class="tree-node tree-node--controller">
+        <button
+          mat-icon-button
+          [attr.aria-label]="'Toggle ' + node.name"
+          class="tree-node__toggle">
+          <mat-icon class="mat-icon-rtl-mirror tree-node__toggle-icon">
+            {{ treeControl.isExpanded(node) ? 'expand_more' : 'chevron_right' }}
+          </mat-icon>
+        </button>
+
+        <div class="controller-node">
+          <div class="controller-node__header">
+            <div class="controller-node__title">
+              <mat-icon class="controller-node__icon">folder</mat-icon>
+              <span class="controller-node__name">{{ getControllerData(node).controller }}</span>
+              <mat-chip class="controller-node__chip">
+                {{ getControllerData(node).routeCount }}
+                {{ getControllerData(node).routeCount === 1 ? 'route' : 'routes' }}
+              </mat-chip>
+            </div>
+          </div>
+
+          <div class="controller-node__coverage">
+            <mat-progress-bar
+              mode="determinate"
+              [value]="getControllerData(node).coveragePercentage"
+              [color]="getCoverageColor(getControllerData(node).coveragePercentage)"
+              class="controller-node__progress">
+            </mat-progress-bar>
+            <span class="controller-node__coverage-text">
+              {{ getControllerData(node).mappedCount }}/{{ getControllerData(node).routeCount }} mapped
+              ({{ getControllerData(node).coveragePercentage | number:'1.0-0' }}%)
+            </span>
+          </div>
+        </div>
+      </mat-tree-node>
+
+      <!-- Route Node (Child) -->
+      <mat-tree-node
+        *matTreeNodeDef="let node; when: isRouteNode"
+        matTreeNodePadding
+        class="tree-node tree-node--route">
+        <button mat-icon-button disabled class="tree-node__spacer"></button>
+
+        <div class="route-node" (click)="selectRoute(getRouteData(node).route)">
+          <div class="route-node__info">
+            <app-method-badge [method]="getRouteData(node).route.method" />
+            <code class="route-node__path">{{ getRouteData(node).route.path }}</code>
+            <app-status-indicator [status]="getStatus(getRouteData(node).route)" />
+          </div>
+
+          <div class="route-node__permission">
+            @if (getRouteData(node).route.permissionId) {
+              <mat-chip class="route-node__chip route-node__chip--mapped">
+                <mat-icon matChipAvatar>shield</mat-icon>
+                {{ getPermissionName(getRouteData(node).route.permissionId) }}
+              </mat-chip>
+            } @else if (getRouteData(node).route.isPublic) {
+              <mat-chip
+                color="accent"
+                class="route-node__chip route-node__chip--public">
+                <mat-icon matChipAvatar>public</mat-icon>
+                Public
+              </mat-chip>
+            } @else {
+              <mat-chip
+                color="warn"
+                class="route-node__chip route-node__chip--unmapped">
+                <mat-icon matChipAvatar>warning</mat-icon>
+                Unmapped
+              </mat-chip>
+            }
+          </div>
+
+          <button
+            mat-icon-button
+            [matMenuTriggerFor]="menu"
+            (click)="$event.stopPropagation()"
+            class="route-node__menu-trigger"
+            aria-label="Open route menu">
+            <mat-icon>more_vert</mat-icon>
+          </button>
+
+          <mat-menu #menu="matMenu">
+            <button mat-menu-item (click)="viewDetails(getRouteData(node).route)">
+              <mat-icon>info</mat-icon>
+              <span>View Details</span>
+            </button>
+            <button mat-menu-item (click)="editMapping(getRouteData(node).route)">
+              <mat-icon>edit</mat-icon>
+              <span>Edit Mapping</span>
+            </button>
+          </mat-menu>
+        </div>
+      </mat-tree-node>
+    </mat-tree>
+
+    <!-- Loading Overlay -->
+    @if (loading$ | async) {
+      <div class="loading-overlay">
+        <mat-spinner diameter="48"></mat-spinner>
+        <p class="loading-overlay__text">Building tree structure...</p>
+      </div>
+    }
+  </div>
+</div>

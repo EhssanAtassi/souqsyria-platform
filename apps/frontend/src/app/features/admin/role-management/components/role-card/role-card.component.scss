@@ -1,0 +1,315 @@
+/**
+ * Role Card Styles
+ *
+ * @description
+ * Material card styling for individual role display.
+ * Includes hover effects, selected state, and responsive design.
+ *
+ * @features
+ * - Material elevation effects
+ * - Selected state highlighting
+ * - Smooth transitions
+ * - Responsive layout
+ */
+
+// ============================================================================
+// VARIABLES
+// ============================================================================
+
+$card-border-radius: 8px;
+$selected-border-color: var(--mat-primary, #3f51b5);
+$selected-border-width: 2px;
+$transition-speed: 200ms;
+$spacing-unit: 8px;
+
+// ============================================================================
+// HOST COMPONENT
+// ============================================================================
+
+:host {
+  display: block;
+  cursor: pointer;
+  transition: transform $transition-speed ease;
+
+  &:hover:not(.system-role) {
+    transform: translateY(-2px);
+  }
+
+  &.selected {
+    .role-card {
+      border: $selected-border-width solid $selected-border-color;
+      box-shadow: 0 4px 12px rgba(63, 81, 181, 0.2);
+    }
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--mat-primary, #3f51b5);
+    outline-offset: 2px;
+    border-radius: $card-border-radius;
+  }
+}
+
+// ============================================================================
+// ROLE CARD
+// ============================================================================
+
+.role-card {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  border-radius: $card-border-radius;
+  transition: box-shadow $transition-speed ease,
+              border $transition-speed ease;
+  border: 1px solid transparent;
+
+  &:hover {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  }
+
+  ::ng-deep .mat-mdc-card-header {
+    padding: $spacing-unit * 2;
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-unit;
+  }
+
+  ::ng-deep .mat-mdc-card-content {
+    flex: 1;
+    padding: 0 $spacing-unit * 2;
+  }
+
+  ::ng-deep .mat-mdc-card-actions {
+    padding: $spacing-unit;
+    margin: 0;
+    border-top: 1px solid var(--mat-divider-color, rgba(0, 0, 0, 0.12));
+  }
+}
+
+// ============================================================================
+// CARD HEADER
+// ============================================================================
+
+.card-header-content {
+  display: flex;
+  align-items: flex-start;
+  gap: $spacing-unit;
+  flex: 1;
+
+  .role-icon {
+    font-size: 32px;
+    width: 32px;
+    height: 32px;
+    color: var(--mat-primary, #3f51b5);
+    flex-shrink: 0;
+  }
+
+  .role-title {
+    flex: 1;
+    min-width: 0; // Allow text truncation
+
+    ::ng-deep .mat-mdc-card-title {
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 4px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    ::ng-deep .mat-mdc-card-subtitle {
+      font-size: 12px;
+      color: var(--mat-text-secondary, rgba(0, 0, 0, 0.6));
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+  }
+}
+
+// ============================================================================
+// CARD CONTENT
+// ============================================================================
+
+.role-description {
+  margin: 0 0 $spacing-unit * 2 0;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--mat-text-secondary, rgba(0, 0, 0, 0.6));
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  min-height: 42px; // 2 lines minimum
+}
+
+// ============================================================================
+// STATS ROW
+// ============================================================================
+
+.stats-row {
+  display: flex;
+  gap: $spacing-unit * 3;
+  margin-bottom: $spacing-unit * 2;
+  padding: $spacing-unit * 2 0;
+  border-top: 1px solid var(--mat-divider-color, rgba(0, 0, 0, 0.12));
+  border-bottom: 1px solid var(--mat-divider-color, rgba(0, 0, 0, 0.12));
+
+  .stat-item {
+    display: flex;
+    align-items: center;
+    gap: $spacing-unit;
+    flex: 1;
+
+    .stat-icon {
+      font-size: 20px;
+      width: 20px;
+      height: 20px;
+      color: var(--mat-primary, #3f51b5);
+    }
+
+    .stat-value {
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--mat-text-primary, rgba(0, 0, 0, 0.87));
+    }
+
+    .stat-label {
+      font-size: 12px;
+      color: var(--mat-text-secondary, rgba(0, 0, 0, 0.6));
+    }
+  }
+}
+
+// ============================================================================
+// STATUS CHIPS
+// ============================================================================
+
+.status-chips {
+  display: flex;
+  gap: $spacing-unit;
+  flex-wrap: wrap;
+
+  .status-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 12px;
+    height: 28px;
+    padding: 0 $spacing-unit;
+
+    mat-icon {
+      font-size: 16px;
+      width: 16px;
+      height: 16px;
+    }
+
+    &.active {
+      background-color: rgba(76, 175, 80, 0.1);
+      color: #4caf50;
+    }
+
+    &.inactive {
+      background-color: rgba(158, 158, 158, 0.1);
+      color: #9e9e9e;
+    }
+  }
+}
+
+// ============================================================================
+// CARD ACTIONS
+// ============================================================================
+
+.action-buttons {
+  display: flex;
+  align-items: center;
+  gap: $spacing-unit;
+
+  .action-spacer {
+    flex: 1;
+  }
+
+  button {
+    &:disabled {
+      opacity: 0.38;
+      cursor: not-allowed;
+    }
+  }
+}
+
+// ============================================================================
+// RESPONSIVE ADJUSTMENTS
+// ============================================================================
+
+@media (max-width: 600px) {
+  .role-card {
+    ::ng-deep .mat-mdc-card-header {
+      padding: $spacing-unit * 1.5;
+    }
+
+    ::ng-deep .mat-mdc-card-content {
+      padding: 0 $spacing-unit * 1.5;
+    }
+  }
+
+  .card-header-content {
+    .role-icon {
+      font-size: 28px;
+      width: 28px;
+      height: 28px;
+    }
+
+    .role-title {
+      ::ng-deep .mat-mdc-card-title {
+        font-size: 16px;
+      }
+    }
+  }
+
+  .stats-row {
+    gap: $spacing-unit * 2;
+
+    .stat-item {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 4px;
+
+      .stat-value {
+        font-size: 16px;
+      }
+
+      .stat-label {
+        font-size: 11px;
+      }
+    }
+  }
+}
+
+// ============================================================================
+// ACCESSIBILITY
+// ============================================================================
+
+// High contrast mode support
+@media (prefers-contrast: high) {
+  .role-card {
+    border: 2px solid currentColor;
+  }
+
+  :host.selected .role-card {
+    border-width: 3px;
+  }
+}
+
+// Reduced motion support
+@media (prefers-reduced-motion: reduce) {
+  :host {
+    transition: none;
+
+    &:hover {
+      transform: none;
+    }
+  }
+
+  .role-card {
+    transition: none;
+  }
+}

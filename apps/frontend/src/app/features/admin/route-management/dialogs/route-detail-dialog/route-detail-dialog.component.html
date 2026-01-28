@@ -1,0 +1,242 @@
+<h2 mat-dialog-title class="dialog-title">
+  <div class="title-content">
+    <app-method-badge [method]="data.route.method" />
+    <code class="route-path">{{ data.route.path }}</code>
+  </div>
+  <button mat-icon-button (click)="onClose()" class="close-button" aria-label="Close dialog">
+    <mat-icon>close</mat-icon>
+  </button>
+</h2>
+
+<mat-dialog-content class="dialog-content">
+  <!-- Status Overview -->
+  <section class="detail-section status-section">
+    <div class="section-header">
+      <mat-icon>info</mat-icon>
+      <h3>Status Overview</h3>
+    </div>
+
+    <div class="status-overview">
+      <app-status-indicator [status]="getStatus(data.route)" />
+
+      <mat-chip-set aria-label="Route status">
+        <mat-chip [color]="getStatusColor(getStatus(data.route))">
+          <mat-icon matChipAvatar>
+            @if (getStatus(data.route) === 'mapped') {
+              check_circle
+            } @else if (getStatus(data.route) === 'public') {
+              public
+            } @else {
+              cancel
+            }
+          </mat-icon>
+          {{ getStatusLabel(getStatus(data.route)) }}
+        </mat-chip>
+
+        @if (isPublic()) {
+          <mat-chip color="accent">
+            <mat-icon matChipAvatar>lock_open</mat-icon>
+            Public Access
+          </mat-chip>
+        }
+      </mat-chip-set>
+    </div>
+  </section>
+
+  <mat-divider></mat-divider>
+
+  <!-- Endpoint Information -->
+  <section class="detail-section">
+    <div class="section-header">
+      <mat-icon>http</mat-icon>
+      <h3>Endpoint</h3>
+    </div>
+
+    <mat-list dense class="detail-list">
+      <mat-list-item>
+        <mat-icon matListItemIcon>route</mat-icon>
+        <div matListItemTitle>Path</div>
+        <code matListItemLine class="value-code">{{ data.route.path }}</code>
+      </mat-list-item>
+
+      <mat-list-item>
+        <mat-icon matListItemIcon>http</mat-icon>
+        <div matListItemTitle>HTTP Method</div>
+        <div matListItemLine class="value-text">
+          <app-method-badge [method]="data.route.method" [size]="'small'" />
+        </div>
+      </mat-list-item>
+    </mat-list>
+  </section>
+
+  <mat-divider></mat-divider>
+
+  <!-- Implementation Details -->
+  <section class="detail-section">
+    <div class="section-header">
+      <mat-icon>code</mat-icon>
+      <h3>Implementation</h3>
+    </div>
+
+    <mat-list dense class="detail-list">
+      <mat-list-item>
+        <mat-icon matListItemIcon>folder</mat-icon>
+        <div matListItemTitle>Controller</div>
+        <code matListItemLine class="value-code">{{ data.route.controller }}</code>
+      </mat-list-item>
+
+      <mat-list-item>
+        <mat-icon matListItemIcon>functions</mat-icon>
+        <div matListItemTitle>Handler Method</div>
+        <code matListItemLine class="value-code">{{ data.route.handler }}()</code>
+      </mat-list-item>
+    </mat-list>
+  </section>
+
+  <mat-divider></mat-divider>
+
+  <!-- Security Configuration -->
+  <section class="detail-section">
+    <div class="section-header">
+      <mat-icon>shield</mat-icon>
+      <h3>Security</h3>
+    </div>
+
+    @if (hasPermission()) {
+      <mat-card appearance="outlined" class="security-card mapped">
+        <mat-card-header>
+          <mat-icon mat-card-avatar color="primary">verified_user</mat-icon>
+          <mat-card-title>Permission Assigned</mat-card-title>
+          <mat-card-subtitle>This route is protected</mat-card-subtitle>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="permission-display">
+            <mat-chip highlighted color="primary">
+              <mat-icon matChipAvatar>shield</mat-icon>
+              {{ getPermissionName(data.route.permissionId) }}
+            </mat-chip>
+          </div>
+
+          <div class="permission-actions">
+            <button mat-button color="warn" (click)="unlinkPermission()">
+              <mat-icon>link_off</mat-icon>
+              Unlink Permission
+            </button>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    } @else if (isPublic()) {
+      <mat-card appearance="outlined" class="security-card public">
+        <mat-card-header>
+          <mat-icon mat-card-avatar color="accent">public</mat-icon>
+          <mat-card-title>Public Route</mat-card-title>
+          <mat-card-subtitle>No authentication required</mat-card-subtitle>
+        </mat-card-header>
+        <mat-card-content>
+          <p class="info-text">
+            <mat-icon>info</mat-icon>
+            This route is publicly accessible and does not require any permissions.
+          </p>
+        </mat-card-content>
+      </mat-card>
+    } @else {
+      <mat-card appearance="outlined" class="security-card unmapped">
+        <mat-card-header>
+          <mat-icon mat-card-avatar color="warn">warning</mat-icon>
+          <mat-card-title>No Permission Assigned</mat-card-title>
+          <mat-card-subtitle>Security mapping required</mat-card-subtitle>
+        </mat-card-header>
+        <mat-card-content>
+          <p class="warning-text">
+            <mat-icon>error_outline</mat-icon>
+            This route has no permission mapping and may be vulnerable.
+          </p>
+        </mat-card-content>
+      </mat-card>
+    }
+  </section>
+
+  <!-- AI Suggestion (if available and unmapped) -->
+  @if (hasSuggestion()) {
+    <mat-divider></mat-divider>
+
+    <section class="detail-section">
+      <div class="section-header">
+        <mat-icon color="accent">auto_fix_high</mat-icon>
+        <h3>AI Suggestion</h3>
+      </div>
+
+      <mat-card appearance="outlined" class="suggestion-card">
+        <mat-card-header>
+          <mat-icon mat-card-avatar color="accent">smart_toy</mat-icon>
+          <mat-card-title>Recommended Permission</mat-card-title>
+          <mat-card-subtitle>AI-powered suggestion based on route analysis</mat-card-subtitle>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="suggestion-display">
+            <mat-chip color="accent">
+              <mat-icon matChipAvatar>auto_fix_high</mat-icon>
+              {{ getSuggestedName() }}
+            </mat-chip>
+          </div>
+
+          <p class="suggestion-reason">
+            <mat-icon>lightbulb</mat-icon>
+            Based on the <strong>{{ data.route.handler }}</strong> handler name and route pattern
+          </p>
+
+          <div class="suggestion-actions">
+            <button mat-raised-button color="accent" (click)="applySuggestion()">
+              <mat-icon>done</mat-icon>
+              Apply Suggestion
+            </button>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </section>
+  }
+
+  <mat-divider></mat-divider>
+
+  <!-- Metadata / Timestamps -->
+  <section class="detail-section">
+    <div class="section-header">
+      <mat-icon>schedule</mat-icon>
+      <h3>Metadata</h3>
+    </div>
+
+    <mat-list dense class="detail-list">
+      <mat-list-item>
+        <mat-icon matListItemIcon>fingerprint</mat-icon>
+        <div matListItemTitle>Route ID</div>
+        <code matListItemLine class="value-code">{{ data.route.id }}</code>
+      </mat-list-item>
+
+      <mat-list-item>
+        <mat-icon matListItemIcon>add</mat-icon>
+        <div matListItemTitle>Created</div>
+        <div matListItemLine class="value-text">
+          {{ data.route.createdAt | date:'medium' }}
+        </div>
+      </mat-list-item>
+
+      <mat-list-item>
+        <mat-icon matListItemIcon>update</mat-icon>
+        <div matListItemTitle>Last Modified</div>
+        <div matListItemLine class="value-text">
+          {{ data.route.updatedAt | date:'medium' }}
+        </div>
+      </mat-list-item>
+    </mat-list>
+  </section>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end" class="dialog-actions">
+  <button mat-button (click)="onClose()">
+    Close
+  </button>
+  <button mat-raised-button color="primary" (click)="editMapping()">
+    <mat-icon>edit</mat-icon>
+    Edit Mapping
+  </button>
+</mat-dialog-actions>

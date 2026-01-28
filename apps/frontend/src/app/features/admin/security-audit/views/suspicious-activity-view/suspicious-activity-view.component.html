@@ -1,0 +1,53 @@
+<div class="suspicious-activity-view">
+  @for (alert of unresolvedAlerts$ | async; track alert.id) {
+    <mat-card [class]="'alert-card severity-' + alert.severity">
+      <mat-card-header>
+        <mat-icon
+          mat-card-avatar
+          [color]="getSeverityColor(alert.severity)"
+          class="alert-icon">
+          {{ getSeverityIcon(alert.severity) }}
+        </mat-icon>
+        <mat-card-title>{{ alert.title }}</mat-card-title>
+        <mat-card-subtitle class="alert-subtitle">
+          <app-severity-badge [severity]="alert.severity" />
+          <span class="event-count">{{ alert.eventCount }} events</span>
+        </mat-card-subtitle>
+      </mat-card-header>
+
+      <mat-card-content>
+        <p class="alert-description">{{ alert.description }}</p>
+
+        <div class="alert-metadata">
+          <div class="metadata-item">
+            <mat-icon>schedule</mat-icon>
+            <span>{{ alert.lastEventAt | date: 'short' }}</span>
+          </div>
+          @if (alert.userEmail) {
+            <div class="metadata-item">
+              <mat-icon>person</mat-icon>
+              <span>{{ alert.userEmail }}</span>
+            </div>
+          }
+        </div>
+      </mat-card-content>
+
+      <mat-card-actions>
+        <button mat-button (click)="viewAlertDetails(alert)">
+          <mat-icon>info</mat-icon>
+          Details
+        </button>
+        <button mat-raised-button color="primary" (click)="resolveAlert(alert.id)">
+          <mat-icon>check</mat-icon>
+          Resolve
+        </button>
+      </mat-card-actions>
+    </mat-card>
+  } @empty {
+    <div class="empty-state">
+      <mat-icon class="empty-icon">verified_user</mat-icon>
+      <h3>No Suspicious Activity</h3>
+      <p>All security alerts have been resolved</p>
+    </div>
+  }
+</div>

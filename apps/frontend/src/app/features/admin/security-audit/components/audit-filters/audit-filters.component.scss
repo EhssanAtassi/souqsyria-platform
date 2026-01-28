@@ -1,0 +1,29 @@
+.filters-form {
+  width: 100%;
+}
+
+.filters-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  align-items: start;
+}
+
+.search-field {
+  grid-column: span 2;
+}
+
+.clear-button {
+  align-self: center;
+  height: 56px;
+}
+
+@media (max-width: 959px) {
+  .filters-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .search-field {
+    grid-column: span 1;
+  }
+}

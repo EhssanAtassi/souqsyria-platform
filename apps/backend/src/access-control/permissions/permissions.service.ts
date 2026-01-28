@@ -2,7 +2,12 @@
  * @file permissions.service.ts
  * @description Business logic for managing permissions dynamically.
  */
-import { Injectable, Logger, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  Logger,
+  NotFoundException,
+  BadRequestException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Permission } from '../entities/permission.entity';
@@ -75,8 +80,33 @@ export class PermissionsService {
     return updatedPermission;
   }
 
+  /**
+   * Remove a permission from the system
+   * 
+   * Validates that system-level permissions cannot be deleted to protect
+   * critical system functionality. System permissions (isSystem = true) are
+   * essential for core operations and should never be removed.
+   * 
+   * @param id - The ID of the permission to delete
+   * @param adminUser - The admin user performing the deletion (for audit logging)
+   * @throws {NotFoundException} If the permission does not exist
+   * @throws {BadRequestException} If attempting to delete a system permission
+   * 
+   * @example
+   * await permissionsService.remove(5, adminUser);
+   */
   async remove(id: number, adminUser: User): Promise<void> {
     const permission = await this.findOne(id);
+
+    // Validate that system permissions cannot be deleted
+    if (permission.isSystem) {
+      const errorMessage = `Cannot delete system permission: ${permission.name}. System permissions are critical for core functionality and cannot be removed.`;
+      this.logger.warn(
+        `Attempted to delete system permission: ${permission.name} by user: ${adminUser.email}`,
+      );
+      throw new BadRequestException(errorMessage);
+    }
+
     await this.permissionRepository.remove(permission);
 
     await this.activityLogRepository.save({
