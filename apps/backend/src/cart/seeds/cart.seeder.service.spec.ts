@@ -207,6 +207,17 @@ describe('CartSeederService', () => {
         version: 1,
         items: [],
       },
+      {
+        id: 3,
+        user: mockUsers[2],
+        userId: 3,
+        currency: 'USD',
+        status: 'active',
+        totalItems: 1,
+        totalAmount: 500,
+        version: 1,
+        items: [],
+      },
     ] as Cart[];
 
     mockCartItems = [
@@ -228,6 +239,15 @@ describe('CartSeederService', () => {
         price_discounted: null,
         valid: true,
       },
+      {
+        id: 3,
+        cart: mockCarts[2],
+        variant: mockVariants[1],
+        quantity: 1,
+        price_at_add: 8500000,
+        price_discounted: null,
+        valid: true,
+      },
     ] as CartItem[];
   }
 
@@ -237,7 +257,14 @@ describe('CartSeederService', () => {
 
   describe('🌱 Cart Seeding Process', () => {
     it('should seed comprehensive cart data successfully', async () => {
-      // Generate 15+ mock variants to skip product creation
+      // Generate 10+ users and 15+ variants to skip creation logic
+      const manyMockUsers = Array.from({ length: 12 }, (_, i) => ({
+        id: i + 1,
+        email: `user${i + 1}@souqsyria.com`,
+        fullName: `User ${i + 1}`,
+        phone: `+9639800000${i}`,
+        isVerified: true,
+      }));
       const manyMockVariants = Array.from({ length: 20 }, (_, i) => ({
         id: i + 1,
         sku: `VARIANT-${i + 1}`,
@@ -247,7 +274,7 @@ describe('CartSeederService', () => {
       }));
 
       // Mock repository responses - use existing data
-      userRepository.find.mockResolvedValue(mockUsers);
+      userRepository.find.mockResolvedValue(manyMockUsers as any);
       variantRepository.find.mockResolvedValue(manyMockVariants as any);
 
       cartRepository.create.mockImplementation(
@@ -275,6 +302,9 @@ describe('CartSeederService', () => {
         mockQueryBuilder as any,
       );
 
+      // Mock items query for total calculation
+      cartItemRepository.find.mockResolvedValue(mockCartItems);
+
       // Mock data cleanup
       cartItemRepository.delete.mockResolvedValue({ affected: 0 } as any);
       cartRepository.delete.mockResolvedValue({ affected: 0 } as any);
@@ -300,9 +330,25 @@ describe('CartSeederService', () => {
     });
 
     it('should use existing users and products if available', async () => {
-      // Mock existing data
-      userRepository.find.mockResolvedValue(mockUsers);
-      variantRepository.find.mockResolvedValue(mockVariants);
+      // Generate 10+ users and 15+ variants to skip creation logic
+      // This test verifies that existing data is used instead of creating new
+      const manyMockUsers = Array.from({ length: 12 }, (_, i) => ({
+        id: i + 1,
+        email: `existing${i + 1}@souqsyria.com`,
+        fullName: `Existing User ${i + 1}`,
+        phone: `+9639800000${i}`,
+        isVerified: true,
+      }));
+      const manyMockVariants = Array.from({ length: 20 }, (_, i) => ({
+        id: i + 1,
+        sku: `EXISTING-VARIANT-${i + 1}`,
+        price: 500000 + i * 100000,
+        isActive: true,
+        product: mockProducts[i % mockProducts.length],
+      }));
+
+      userRepository.find.mockResolvedValue(manyMockUsers as any);
+      variantRepository.find.mockResolvedValue(manyMockVariants as any);
 
       cartRepository.create.mockImplementation(
         (data) => ({ ...data, id: Math.random() }) as any,
@@ -312,6 +358,9 @@ describe('CartSeederService', () => {
         (data) => ({ ...data, id: Math.random() }) as any,
       );
       cartItemRepository.save.mockResolvedValue(mockCartItems as any);
+
+      // Mock items query for total calculation
+      cartItemRepository.find.mockResolvedValue(mockCartItems);
 
       // Mock cleanup and statistics
       cartItemRepository.delete.mockResolvedValue({ affected: 0 } as any);
@@ -331,7 +380,7 @@ describe('CartSeederService', () => {
 
       await service.seedCarts();
 
-      // Should not create new users/products since they exist
+      // Should not create new users/products since they exist (10+ users, 15+ variants)
       expect(userRepository.create).not.toHaveBeenCalled();
       expect(productRepository.create).not.toHaveBeenCalled();
       expect(variantRepository.create).not.toHaveBeenCalled();
@@ -355,8 +404,24 @@ describe('CartSeederService', () => {
 
   describe('🛒 Syrian Market Cart Scenarios', () => {
     it('should generate diverse Syrian market cart scenarios', async () => {
-      userRepository.find.mockResolvedValue(mockUsers);
-      variantRepository.find.mockResolvedValue(mockVariants);
+      // Generate 10+ users and 15+ variants to skip creation logic
+      const manyUsers = Array.from({ length: 12 }, (_, i) => ({
+        id: i + 1,
+        email: `user${i + 1}@souqsyria.com`,
+        fullName: `User ${i + 1}`,
+        phone: `+9639800000${i}`,
+        isVerified: true,
+      }));
+      const manyVariants = Array.from({ length: 20 }, (_, i) => ({
+        id: i + 1,
+        sku: `VARIANT-${i + 1}`,
+        price: 500000 + i * 100000,
+        isActive: true,
+        product: mockProducts[i % mockProducts.length],
+      }));
+
+      userRepository.find.mockResolvedValue(manyUsers as any);
+      variantRepository.find.mockResolvedValue(manyVariants as any);
 
       const cartCreateCalls: any[] = [];
       cartRepository.create.mockImplementation((data) => {
@@ -373,12 +438,15 @@ describe('CartSeederService', () => {
       cartRepository.save.mockResolvedValue(mockCarts as any as any);
       cartItemRepository.save.mockResolvedValue(mockCartItems as any);
 
+      // Mock items query for total calculation
+      cartItemRepository.find.mockResolvedValue(mockCartItems);
+
       // Mock cleanup and statistics
       cartItemRepository.delete.mockResolvedValue({ affected: 0 } as any);
       cartRepository.delete.mockResolvedValue({ affected: 0 } as any);
       cartRepository.update.mockResolvedValue({ affected: 1 } as any);
-      cartRepository.count.mockResolvedValue(3);
-      cartItemRepository.count.mockResolvedValue(10);
+      cartRepository.count.mockResolvedValue(10);
+      cartItemRepository.count.mockResolvedValue(25);
 
       const mockQueryBuilder = {
         select: jest.fn().mockReturnThis(),
@@ -391,8 +459,8 @@ describe('CartSeederService', () => {
 
       await service.seedCarts();
 
-      // Verify different cart scenarios were created
-      expect(cartCreateCalls.length).toBe(3); // One cart per user
+      // Verify different cart scenarios were created (service uses 10 scenarios cycled for users)
+      expect(cartCreateCalls.length).toBe(10); // Service has 10 cart scenarios
 
       // Check for SYP currency (Syrian market default)
       const sypCarts = cartCreateCalls.filter(
@@ -418,8 +486,24 @@ describe('CartSeederService', () => {
     });
 
     it('should include campaign and discount scenarios', async () => {
-      userRepository.find.mockResolvedValue(mockUsers);
-      variantRepository.find.mockResolvedValue(mockVariants);
+      // Generate 10+ users and 15+ variants to skip creation logic
+      const manyUsers = Array.from({ length: 12 }, (_, i) => ({
+        id: i + 1,
+        email: `user${i + 1}@souqsyria.com`,
+        fullName: `User ${i + 1}`,
+        phone: `+9639800000${i}`,
+        isVerified: true,
+      }));
+      const manyVariants = Array.from({ length: 20 }, (_, i) => ({
+        id: i + 1,
+        sku: `VARIANT-${i + 1}`,
+        price: 500000 + i * 100000,
+        isActive: true,
+        product: mockProducts[i % mockProducts.length],
+      }));
+
+      userRepository.find.mockResolvedValue(manyUsers as any);
+      variantRepository.find.mockResolvedValue(manyVariants as any);
 
       const itemCreateCalls: any[] = [];
       cartItemRepository.create.mockImplementation((data) => {
@@ -433,12 +517,15 @@ describe('CartSeederService', () => {
       cartRepository.save.mockResolvedValue(mockCarts as any as any);
       cartItemRepository.save.mockResolvedValue(mockCartItems as any);
 
+      // Mock items query for total calculation
+      cartItemRepository.find.mockResolvedValue(mockCartItems);
+
       // Mock cleanup and statistics
       cartItemRepository.delete.mockResolvedValue({ affected: 0 } as any);
       cartRepository.delete.mockResolvedValue({ affected: 0 } as any);
       cartRepository.update.mockResolvedValue({ affected: 1 } as any);
-      cartRepository.count.mockResolvedValue(3);
-      cartItemRepository.count.mockResolvedValue(10);
+      cartRepository.count.mockResolvedValue(10);
+      cartItemRepository.count.mockResolvedValue(25);
 
       const mockQueryBuilder = {
         select: jest.fn().mockReturnThis(),
@@ -473,8 +560,24 @@ describe('CartSeederService', () => {
     });
 
     it('should handle large SYP amounts correctly', async () => {
-      userRepository.find.mockResolvedValue(mockUsers);
-      variantRepository.find.mockResolvedValue(mockVariants);
+      // Generate 10+ users and 15+ variants to skip creation logic
+      const manyUsers = Array.from({ length: 12 }, (_, i) => ({
+        id: i + 1,
+        email: `user${i + 1}@souqsyria.com`,
+        fullName: `User ${i + 1}`,
+        phone: `+9639800000${i}`,
+        isVerified: true,
+      }));
+      const manyVariants = Array.from({ length: 20 }, (_, i) => ({
+        id: i + 1,
+        sku: `VARIANT-${i + 1}`,
+        price: 500000 + i * 100000, // SYP prices
+        isActive: true,
+        product: mockProducts[i % mockProducts.length],
+      }));
+
+      userRepository.find.mockResolvedValue(manyUsers as any);
+      variantRepository.find.mockResolvedValue(manyVariants as any);
 
       const itemCreateCalls: any[] = [];
       cartItemRepository.create.mockImplementation((data) => {
@@ -487,6 +590,9 @@ describe('CartSeederService', () => {
       );
       cartRepository.save.mockResolvedValue(mockCarts as any as any);
       cartItemRepository.save.mockResolvedValue(mockCartItems as any);
+
+      // Mock items query for total calculation
+      cartItemRepository.find.mockResolvedValue(mockCartItems);
 
       // Mock cleanup and statistics
       cartItemRepository.delete.mockResolvedValue({ affected: 0 } as any);
@@ -518,9 +624,24 @@ describe('CartSeederService', () => {
 
   describe('📊 Cart Statistics', () => {
     it('should calculate accurate cart statistics', async () => {
-      // Mock minimal setup to test statistics
-      userRepository.find.mockResolvedValue(mockUsers.slice(0, 1));
-      variantRepository.find.mockResolvedValue(mockVariants.slice(0, 1));
+      // Generate 10+ users and 15+ variants to skip creation logic
+      const manyUsers = Array.from({ length: 12 }, (_, i) => ({
+        id: i + 1,
+        email: `user${i + 1}@souqsyria.com`,
+        fullName: `User ${i + 1}`,
+        phone: `+9639800000${i}`,
+        isVerified: true,
+      }));
+      const manyVariants = Array.from({ length: 20 }, (_, i) => ({
+        id: i + 1,
+        sku: `VARIANT-${i + 1}`,
+        price: 500000 + i * 100000,
+        isActive: true,
+        product: mockProducts[i % mockProducts.length],
+      }));
+
+      userRepository.find.mockResolvedValue(manyUsers as any);
+      variantRepository.find.mockResolvedValue(manyVariants as any);
 
       cartRepository.create.mockImplementation(
         (data) => ({ ...data, id: 1 }) as any,
@@ -530,6 +651,9 @@ describe('CartSeederService', () => {
         (data) => ({ ...data, id: 1 }) as any,
       );
       cartItemRepository.save.mockResolvedValue([mockCartItems[0]] as any);
+
+      // Mock items query for total calculation
+      cartItemRepository.find.mockResolvedValue(mockCartItems);
 
       // Mock cleanup
       cartItemRepository.delete.mockResolvedValue({ affected: 0 } as any);
@@ -564,8 +688,24 @@ describe('CartSeederService', () => {
     });
 
     it('should handle null statistics gracefully', async () => {
-      userRepository.find.mockResolvedValue(mockUsers.slice(0, 1));
-      variantRepository.find.mockResolvedValue(mockVariants.slice(0, 1));
+      // Generate 10+ users and 15+ variants to skip creation logic
+      const manyUsers = Array.from({ length: 12 }, (_, i) => ({
+        id: i + 1,
+        email: `user${i + 1}@souqsyria.com`,
+        fullName: `User ${i + 1}`,
+        phone: `+9639800000${i}`,
+        isVerified: true,
+      }));
+      const manyVariants = Array.from({ length: 20 }, (_, i) => ({
+        id: i + 1,
+        sku: `VARIANT-${i + 1}`,
+        price: 500000 + i * 100000,
+        isActive: true,
+        product: mockProducts[i % mockProducts.length],
+      }));
+
+      userRepository.find.mockResolvedValue(manyUsers as any);
+      variantRepository.find.mockResolvedValue(manyVariants as any);
 
       cartRepository.create.mockImplementation(
         (data) => ({ ...data, id: 1 }) as any,
@@ -575,6 +715,9 @@ describe('CartSeederService', () => {
         (data) => ({ ...data, id: 1 }) as any,
       );
       cartItemRepository.save.mockResolvedValue([mockCartItems[0]] as any);
+
+      // Mock items query for total calculation
+      cartItemRepository.find.mockResolvedValue(mockCartItems);
 
       // Mock cleanup
       cartItemRepository.delete.mockResolvedValue({ affected: 0 } as any);
@@ -602,8 +745,24 @@ describe('CartSeederService', () => {
 
   describe('🧹 Data Management', () => {
     it('should clear existing data before seeding', async () => {
-      userRepository.find.mockResolvedValue(mockUsers);
-      variantRepository.find.mockResolvedValue(mockVariants);
+      // Generate 10+ users and 15+ variants to skip creation logic
+      const manyUsers = Array.from({ length: 12 }, (_, i) => ({
+        id: i + 1,
+        email: `user${i + 1}@souqsyria.com`,
+        fullName: `User ${i + 1}`,
+        phone: `+9639800000${i}`,
+        isVerified: true,
+      }));
+      const manyVariants = Array.from({ length: 20 }, (_, i) => ({
+        id: i + 1,
+        sku: `VARIANT-${i + 1}`,
+        price: 500000 + i * 100000,
+        isActive: true,
+        product: mockProducts[i % mockProducts.length],
+      }));
+
+      userRepository.find.mockResolvedValue(manyUsers as any);
+      variantRepository.find.mockResolvedValue(manyVariants as any);
 
       cartRepository.create.mockImplementation(
         (data) => ({ ...data, id: Math.random() }) as any,
@@ -613,6 +772,9 @@ describe('CartSeederService', () => {
         (data) => ({ ...data, id: Math.random() }) as any,
       );
       cartItemRepository.save.mockResolvedValue(mockCartItems as any);
+
+      // Mock items query for total calculation
+      cartItemRepository.find.mockResolvedValue(mockCartItems);
 
       // Mock cleanup
       cartItemRepository.delete.mockResolvedValue({ affected: 5 } as any);
@@ -644,8 +806,24 @@ describe('CartSeederService', () => {
     });
 
     it('should update cart totals after creating items', async () => {
-      userRepository.find.mockResolvedValue(mockUsers.slice(0, 1));
-      variantRepository.find.mockResolvedValue(mockVariants.slice(0, 1));
+      // Generate 10+ users and 15+ variants to skip creation logic
+      const manyUsers = Array.from({ length: 12 }, (_, i) => ({
+        id: i + 1,
+        email: `user${i + 1}@souqsyria.com`,
+        fullName: `User ${i + 1}`,
+        phone: `+9639800000${i}`,
+        isVerified: true,
+      }));
+      const manyVariants = Array.from({ length: 20 }, (_, i) => ({
+        id: i + 1,
+        sku: `VARIANT-${i + 1}`,
+        price: 500000 + i * 100000,
+        isActive: true,
+        product: mockProducts[i % mockProducts.length],
+      }));
+
+      userRepository.find.mockResolvedValue(manyUsers as any);
+      variantRepository.find.mockResolvedValue(manyVariants as any);
 
       cartRepository.create.mockImplementation(
         (data) => ({ ...data, id: 1 }) as any,
@@ -754,8 +932,24 @@ describe('CartSeederService', () => {
 
   describe('🌍 Multi-Currency Support', () => {
     it('should generate carts with different currencies for diaspora customers', async () => {
-      userRepository.find.mockResolvedValue(mockUsers);
-      variantRepository.find.mockResolvedValue(mockVariants);
+      // Generate 10+ users and 15+ variants to skip creation logic
+      const manyMockUsers = Array.from({ length: 12 }, (_, i) => ({
+        id: i + 1,
+        email: `user${i + 1}@souqsyria.com`,
+        fullName: `User ${i + 1}`,
+        phone: i === 5 ? '+1234567890' : `+9639800000${i}`, // One diaspora user
+        isVerified: true,
+      }));
+      const manyMockVariants = Array.from({ length: 20 }, (_, i) => ({
+        id: i + 1,
+        sku: `VARIANT-${i + 1}`,
+        price: 500000 + i * 100000,
+        isActive: true,
+        product: mockProducts[i % mockProducts.length],
+      }));
+
+      userRepository.find.mockResolvedValue(manyMockUsers as any);
+      variantRepository.find.mockResolvedValue(manyMockVariants as any);
 
       const cartCreateCalls: any[] = [];
       cartRepository.create.mockImplementation((data) => {
@@ -768,6 +962,9 @@ describe('CartSeederService', () => {
         (data) => ({ ...data, id: Math.random() }) as any,
       );
       cartItemRepository.save.mockResolvedValue(mockCartItems as any);
+
+      // Mock items query for total calculation
+      cartItemRepository.find.mockResolvedValue(mockCartItems);
 
       // Mock cleanup and statistics
       cartItemRepository.delete.mockResolvedValue({ affected: 0 } as any);

@@ -369,7 +369,7 @@ describe('CommissionSeederService', () => {
       membershipDiscountRepository.find.mockResolvedValue([
         {
           percentage: 25.0,
-          valid_to: new Date('2025-12-31'),
+          valid_to: new Date('2027-12-31'), // Future date - not expired
           valid_from: new Date(),
           note: '',
           createdBy: null,
