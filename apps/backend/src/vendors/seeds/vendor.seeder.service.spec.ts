@@ -100,53 +100,37 @@ describe('VendorSeederService', () => {
   });
 
   function setupTestData() {
-    mockUsers = [
-      {
-        id: 1,
-        email: 'ahmad.damascus@souqsyria.com',
-        fullName: 'أحمد التاجر الدمشقي',
-        phone: '+963987654321',
-        isVerified: true,
-      },
-      {
-        id: 2,
-        email: 'fatima.aleppo@souqsyria.com',
-        fullName: 'فاطمة الحرفية الحلبية',
-        phone: '+963988123456',
-        isVerified: true,
-      },
-      {
-        id: 3,
-        email: 'omar.homs@souqsyria.com',
-        fullName: 'عمر تاجر حمص',
-        phone: '+963989987654',
-        isVerified: true,
-      },
-    ] as User[];
+    // Generate 20+ mock users to satisfy createTestUsers() requirement
+    mockUsers = Array.from({ length: 25 }, (_, i) => ({
+      id: i + 1,
+      email: `vendor${i + 1}@souqsyria.com`,
+      fullName: `تاجر رقم ${i + 1}`,
+      phone: `+96398${String(i + 1).padStart(7, '0')}`,
+      isVerified: true,
+    })) as User[];
 
-    mockGovernorates = [
-      {
-        id: 1,
-        nameEn: 'Damascus',
-        nameAr: 'دمشق',
-        code: 'DM',
-        isActive: true,
-      },
-      {
-        id: 2,
-        nameEn: 'Aleppo',
-        nameAr: 'حلب',
-        code: 'AL',
-        isActive: true,
-      },
-      {
-        id: 3,
-        nameEn: 'Homs',
-        nameAr: 'حمص',
-        code: 'HO',
-        isActive: true,
-      },
-    ] as SyrianGovernorateEntity[];
+    // Generate 14+ mock governorates to satisfy createTestGovernorates() requirement
+    const governorateNames = [
+      { nameEn: 'Damascus', nameAr: 'دمشق', code: 'DM' },
+      { nameEn: 'Aleppo', nameAr: 'حلب', code: 'AL' },
+      { nameEn: 'Homs', nameAr: 'حمص', code: 'HO' },
+      { nameEn: 'Hama', nameAr: 'حماة', code: 'HA' },
+      { nameEn: 'Lattakia', nameAr: 'اللاذقية', code: 'LA' },
+      { nameEn: 'Tartous', nameAr: 'طرطوس', code: 'TA' },
+      { nameEn: 'Daraa', nameAr: 'درعا', code: 'DA' },
+      { nameEn: 'As-Suwayda', nameAr: 'السويداء', code: 'SW' },
+      { nameEn: 'Quneitra', nameAr: 'القنيطرة', code: 'QU' },
+      { nameEn: 'Idlib', nameAr: 'إدلب', code: 'ID' },
+      { nameEn: 'Al-Hasakah', nameAr: 'الحسكة', code: 'HS' },
+      { nameEn: 'Ar-Raqqa', nameAr: 'الرقة', code: 'RA' },
+      { nameEn: 'Deir ez-Zor', nameAr: 'دير الزور', code: 'DE' },
+      { nameEn: 'Damascus Countryside', nameAr: 'ريف دمشق', code: 'RD' },
+    ];
+    mockGovernorates = governorateNames.map((g, i) => ({
+      id: i + 1,
+      ...g,
+      isActive: true,
+    })) as SyrianGovernorateEntity[];
 
     mockVendors = [
       {
@@ -648,12 +632,14 @@ describe('VendorSeederService', () => {
 
   describe('🏪 Minimal Vendor Seeding', () => {
     it('should seed minimal vendor data successfully', async () => {
-      userRepository.find.mockResolvedValue(mockUsers);
-      governorateRepository.find.mockResolvedValue(mockGovernorates);
+      // seedMinimalVendors uses find({ take: 3 }) and find({ take: 2 })
+      userRepository.find.mockResolvedValue(mockUsers.slice(0, 3));
+      governorateRepository.find.mockResolvedValue(mockGovernorates.slice(0, 2));
       vendorRepository.create.mockImplementation(
         (data) => ({ ...data, id: Math.random() }) as any,
       );
-      vendorRepository.save.mockResolvedValue(mockVendors.slice(0, 3) as any);
+      // save should return what's passed to it
+      vendorRepository.save.mockImplementation((vendors) => Promise.resolve(vendors as any));
 
       const result = await service.seedMinimalVendors();
 
@@ -683,11 +669,12 @@ describe('VendorSeederService', () => {
     it('should limit minimal vendors to available users', async () => {
       const limitedUsers = mockUsers.slice(0, 2);
       userRepository.find.mockResolvedValue(limitedUsers);
-      governorateRepository.find.mockResolvedValue(mockGovernorates);
+      governorateRepository.find.mockResolvedValue(mockGovernorates.slice(0, 2));
       vendorRepository.create.mockImplementation(
         (data) => ({ ...data, id: Math.random() }) as any,
       );
-      vendorRepository.save.mockResolvedValue(mockVendors.slice(0, 2) as any);
+      // save should return what's passed to it
+      vendorRepository.save.mockImplementation((vendors) => Promise.resolve(vendors as any));
 
       const result = await service.seedMinimalVendors();
 
@@ -740,11 +727,11 @@ describe('VendorSeederService', () => {
       expect(businessTypes).toContain(SyrianBusinessType.JOINT_STOCK);
       expect(businessTypes).toContain(SyrianBusinessType.PARTNERSHIP);
 
-      // Verify diverse vendor categories
+      // Verify diverse vendor categories (matching actual getSyrianVendorProfiles)
       const vendorCategories = createdVendors.map((v) => v.vendorCategory);
       expect(vendorCategories).toContain(SyrianVendorCategory.MANUFACTURER);
       expect(vendorCategories).toContain(SyrianVendorCategory.RETAILER);
-      expect(vendorCategories).toContain(SyrianVendorCategory.DISTRIBUTOR);
+      expect(vendorCategories).toContain(SyrianVendorCategory.SERVICE_PROVIDER);
       expect(vendorCategories).toContain(SyrianVendorCategory.WHOLESALER);
 
       // Verify Arabic names are included

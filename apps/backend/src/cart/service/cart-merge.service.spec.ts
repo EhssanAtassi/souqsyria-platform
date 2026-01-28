@@ -60,6 +60,11 @@ describe('CartMergeService (TASK-056)', () => {
 
   describe('TEST-1: Simple Merge (2 guest + 3 user, 1 dup)', () => {
     it('should merge carts correctly', async () => {
+      const userCartItems = [
+        { id: 101, variant: { id: 2 }, quantity: 1, added_at: new Date() },
+        { id: 102, variant: { id: 3 }, quantity: 3, added_at: new Date() },
+      ];
+
       const mockEntityManager = {
         findOne: jest.fn()
           .mockResolvedValueOnce({
@@ -77,15 +82,12 @@ describe('CartMergeService (TASK-056)', () => {
           .mockResolvedValueOnce({
             id: 20,
             userId: 100,
-            items: [
-              { id: 101, variant: { id: 2 }, quantity: 1, added_at: new Date() },
-              { id: 102, variant: { id: 3 }, quantity: 3, added_at: new Date() },
-            ],
+            items: userCartItems,
           })
-          .mockResolvedValueOnce({ id: 20, userId: 100, items: [] }),
-        create: jest.fn(),
-        save: jest.fn(),
-        remove: jest.fn(),
+          .mockResolvedValueOnce({ id: 20, userId: 100, items: userCartItems }),
+        create: jest.fn().mockImplementation((entity, data) => ({ ...data, id: Math.random() })),
+        save: jest.fn().mockImplementation((entity, data) => Promise.resolve(data || entity)),
+        remove: jest.fn().mockResolvedValue(undefined),
       };
 
       (dataSource.transaction as jest.Mock).mockImplementation(
@@ -124,9 +126,9 @@ describe('CartMergeService (TASK-056)', () => {
           .mockResolvedValueOnce({ items: guestItems })
           .mockResolvedValueOnce({ userId: 100, items: userItems })
           .mockResolvedValueOnce({ userId: 100, items: userItems }),
-        create: jest.fn(),
-        save: jest.fn(),
-        remove: jest.fn(),
+        create: jest.fn().mockImplementation((entity, data) => ({ ...data, id: Math.random() })),
+        save: jest.fn().mockImplementation((entity, data) => Promise.resolve(data || entity)),
+        remove: jest.fn().mockResolvedValue(undefined),
       };
 
       (dataSource.transaction as jest.Mock).mockImplementation(
@@ -163,9 +165,9 @@ describe('CartMergeService (TASK-056)', () => {
             userId: 100,
             items: [{ variant: { id: 1 }, quantity: 40 }],
           }),
-        create: jest.fn(),
-        save: jest.fn(),
-        remove: jest.fn(),
+        create: jest.fn().mockImplementation((entity, data) => ({ ...data, id: Math.random() })),
+        save: jest.fn().mockImplementation((entity, data) => Promise.resolve(data || entity)),
+        remove: jest.fn().mockResolvedValue(undefined),
       };
 
       (dataSource.transaction as jest.Mock).mockImplementation(
@@ -185,15 +187,24 @@ describe('CartMergeService (TASK-056)', () => {
   describe('TEST-4: Guest Session Invalidation', () => {
     it('should mark guest session as converted', async () => {
       const guestSession = { id: 'session-4', status: 'active' };
+      // Guest cart with items so that remove gets called
+      const guestCart = {
+        id: 10,
+        sessionId: 'session-4',
+        items: [
+          { variant: { id: 1 }, quantity: 1, added_at: new Date() },
+        ],
+      };
+      const userCart = { id: 20, userId: 100, items: [] };
       const mockEntityManager = {
         findOne: jest.fn()
           .mockResolvedValueOnce(guestSession)
-          .mockResolvedValueOnce({ items: [] })
-          .mockResolvedValueOnce({ userId: 100, items: [] })
-          .mockResolvedValueOnce({ userId: 100, items: [] }),
-        create: jest.fn(),
-        save: jest.fn((entity) => Promise.resolve(entity)),
-        remove: jest.fn(),
+          .mockResolvedValueOnce(guestCart)
+          .mockResolvedValueOnce(userCart)
+          .mockResolvedValueOnce(userCart),
+        create: jest.fn().mockImplementation((entity, data) => ({ ...data, id: Math.random() })),
+        save: jest.fn().mockImplementation((entity, data) => Promise.resolve(data || entity)),
+        remove: jest.fn().mockResolvedValue(undefined),
       };
 
       (dataSource.transaction as jest.Mock).mockImplementation(
@@ -219,9 +230,9 @@ describe('CartMergeService (TASK-056)', () => {
           .mockResolvedValueOnce({ items: [] })
           .mockResolvedValueOnce({ userId: 100, items: [] })
           .mockResolvedValueOnce({ userId: 100, items: [] }),
-        create: jest.fn(),
-        save: jest.fn(),
-        remove: jest.fn(),
+        create: jest.fn().mockImplementation((entity, data) => ({ ...data, id: Math.random() })),
+        save: jest.fn().mockImplementation((entity, data) => Promise.resolve(data || entity)),
+        remove: jest.fn().mockResolvedValue(undefined),
       };
 
       (dataSource.transaction as jest.Mock).mockImplementation(
@@ -242,9 +253,9 @@ describe('CartMergeService (TASK-056)', () => {
     it('should reject non-existent guest session', async () => {
       const mockEntityManager = {
         findOne: jest.fn().mockResolvedValueOnce(null),
-        create: jest.fn(),
-        save: jest.fn(),
-        remove: jest.fn(),
+        create: jest.fn().mockImplementation((entity, data) => ({ ...data, id: Math.random() })),
+        save: jest.fn().mockImplementation((entity, data) => Promise.resolve(data || entity)),
+        remove: jest.fn().mockResolvedValue(undefined),
       };
 
       (dataSource.transaction as jest.Mock).mockImplementation(
@@ -259,9 +270,9 @@ describe('CartMergeService (TASK-056)', () => {
     it('should reject expired session', async () => {
       const mockEntityManager = {
         findOne: jest.fn().mockResolvedValueOnce({ status: 'expired' }),
-        create: jest.fn(),
-        save: jest.fn(),
-        remove: jest.fn(),
+        create: jest.fn().mockImplementation((entity, data) => ({ ...data, id: Math.random() })),
+        save: jest.fn().mockImplementation((entity, data) => Promise.resolve(data || entity)),
+        remove: jest.fn().mockResolvedValue(undefined),
       };
 
       (dataSource.transaction as jest.Mock).mockImplementation(
@@ -283,9 +294,9 @@ describe('CartMergeService (TASK-056)', () => {
           .mockResolvedValueOnce({ items: [] })
           .mockResolvedValueOnce({ userId: 100, items: [] })
           .mockResolvedValueOnce({ userId: 100, items: [] }),
-        create: jest.fn(),
-        save: jest.fn(),
-        remove: jest.fn(),
+        create: jest.fn().mockImplementation((entity, data) => ({ ...data, id: Math.random() })),
+        save: jest.fn().mockImplementation((entity, data) => Promise.resolve(data || entity)),
+        remove: jest.fn().mockResolvedValue(undefined),
       };
 
       (dataSource.transaction as jest.Mock).mockImplementation(

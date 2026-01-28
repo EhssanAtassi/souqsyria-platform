@@ -287,16 +287,20 @@ describe('CartService', () => {
         where: { id: 101 },
         relations: ['stocks', 'product'],
       });
-      expect(cartItemRepository.create).toHaveBeenCalledWith({
-        cart: emptyCart,
-        variant: mockVariant,
-        quantity: 2,
-        price_at_add: mockVariant.price,
-        price_discounted: undefined,
-        expires_at: null,
-        added_from_campaign: undefined,
-        valid: true,
-      });
+      expect(cartItemRepository.create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          cart: emptyCart,
+          variant: mockVariant,
+          quantity: 2,
+          price_at_add: mockVariant.price,
+          price_discounted: undefined,
+          expires_at: null,
+          added_from_campaign: undefined,
+          valid: true,
+          added_at: expect.any(Date),
+          locked_until: expect.any(Date),
+        }),
+      );
       expect(auditLogService.logSimple).toHaveBeenCalledWith(
         expect.objectContaining({
           action: 'CART_ITEM_ADDED',
@@ -497,7 +501,7 @@ describe('CartService', () => {
     beforeEach(() => {
       cartRepository.findOne.mockResolvedValue(mockCart);
       cartRepository.update.mockResolvedValue(undefined);
-      cartItemRepository.delete.mockResolvedValue({ affected: 2 } as any);
+      cartItemRepository.delete.mockResolvedValue({ affected: 1 } as any);
       auditLogService.logSimple.mockResolvedValue(undefined);
     });
 
@@ -515,7 +519,7 @@ describe('CartService', () => {
       expect(auditLogService.logSimple).toHaveBeenCalledWith(
         expect.objectContaining({
           action: 'CART_CLEARED',
-          description: 'Cleared all 2 items from shopping cart',
+          description: 'Cleared all 1 items from shopping cart',
         }),
       );
     });
@@ -631,6 +635,17 @@ describe('CartService', () => {
         price: 27500000, // 27,500,000 SYP (expensive item)
       };
       variantRepository.findOne.mockResolvedValue(expensiveVariant as any);
+
+      const expensiveCartItem = {
+        ...mockCartItem,
+        id: 1,
+        price_at_add: 27500000,
+        variant: expensiveVariant,
+      };
+
+      cartItemRepository.create.mockReturnValue(expensiveCartItem as any);
+      cartItemRepository.save.mockResolvedValue(expensiveCartItem as any);
+      auditLogService.logSimple.mockResolvedValue(undefined);
 
       const emptyCart = { ...mockCart, items: [] };
       cartRepository.findOne

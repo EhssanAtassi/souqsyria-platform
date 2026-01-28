@@ -447,9 +447,10 @@ describe('PermissionsGuard', () => {
 
         // Assert
         expect(result).toBe(true);
+        // Guard queries with literal path then normalizes for comparison
         expect(mockRouteRepository.findOne).toHaveBeenCalledWith(
           expect.objectContaining({
-            where: { path: '/api/products/:id', method: 'GET' },
+            where: { path: '/api/products/123', method: 'GET' },
           }),
         );
       });

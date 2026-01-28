@@ -124,7 +124,7 @@ describe('WishlistService', () => {
   let productRepo: MockRepository<ProductEntity>;
   let variantRepo: MockRepository<ProductVariant>;
   let userRepo: MockRepository<User>;
-  let cartService: Partial<CartService>;
+  let cartService: any;
 
   beforeEach(async () => {
     wishlistRepo = createMockRepository<Wishlist>();
@@ -134,8 +134,7 @@ describe('WishlistService', () => {
 
     cartService = {
       addItemToCart: jest.fn().mockResolvedValue({ success: true }),
-      getCart: jest.fn().mockResolvedValue({ items: [] }),
-    };
+    } as any;
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [

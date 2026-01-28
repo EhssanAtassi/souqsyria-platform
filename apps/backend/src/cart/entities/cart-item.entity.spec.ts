@@ -467,8 +467,8 @@ describe('CartItem Entity - Unit Tests (TASK-081)', () => {
       expect(cartItem.isLockExpired()).toBe(false);
       expect(cartItem.effectivePrice()).toBe(70000);
 
-      // 4. After 8 days, lock expired
-      cartItem.locked_until = new Date(sevenDaysLater.getTime());
+      // 4. After 8 days, lock expired - simulate by setting locked_until to past
+      cartItem.locked_until = new Date(Date.now() - 1000); // 1 second ago
       mockVariant.price = 120000; // Price increased further
 
       expect(cartItem.isLockExpired()).toBe(true);

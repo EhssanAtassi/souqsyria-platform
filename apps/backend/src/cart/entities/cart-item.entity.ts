@@ -107,7 +107,7 @@ export class CartItem {
    */
   isLockExpired(): boolean {
     if (!this.locked_until) return true;
-    return new Date() > this.locked_until;
+    return new Date() >= this.locked_until;
   }
 
   /**
@@ -119,7 +119,7 @@ export class CartItem {
    * @returns number - Effective price to charge customer
    */
   effectivePrice(): number {
-    const currentPrice = this.variant?.price || this.price_at_add;
+    const currentPrice = this.variant?.price ?? this.price_at_add;
 
     // If lock expired, use current price
     if (this.isLockExpired()) {
@@ -139,7 +139,7 @@ export class CartItem {
   priceSavings(): number {
     if (this.isLockExpired()) return 0;
 
-    const currentPrice = this.variant?.price || this.price_at_add;
+    const currentPrice = this.variant?.price ?? this.price_at_add;
     const savings = this.price_at_add - currentPrice;
 
     return savings > 0 ? savings : 0;

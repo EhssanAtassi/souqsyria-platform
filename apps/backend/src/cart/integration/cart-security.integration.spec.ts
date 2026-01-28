@@ -43,11 +43,10 @@ const testDbConfig = {
   dropSchema: true,
 };
 
-// Test Redis configuration
-const testRedisConfig = {
-  host: process.env.TEST_REDIS_HOST || 'localhost',
-  port: parseInt(process.env.TEST_REDIS_PORT) || 6380,
-  db: 1, // Use different DB for tests
+// Test Redis configuration (cast to any to avoid type issues with library)
+const testRedisConfig: any = {
+  type: 'single',
+  url: `redis://${process.env.TEST_REDIS_HOST || 'localhost'}:${parseInt(process.env.TEST_REDIS_PORT) || 6380}/1`,
 };
 
 describe('Cart Security Integration Tests', () => {
@@ -55,7 +54,7 @@ describe('Cart Security Integration Tests', () => {
   let cartRepository: Repository<Cart>;
   let guestSessionRepository: Repository<GuestSession>;
   let auditLogRepository: Repository<AuditLog>;
-  let testUserId: string;
+  let testUserId: number;
   let testGuestSessionId: string;
   let testVariantId: string;
 

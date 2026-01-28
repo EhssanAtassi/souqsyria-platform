@@ -285,7 +285,8 @@ describe('StockService', () => {
       variantRepo.findOne.mockResolvedValue(mockVariant);
       warehouseRepo.findOne.mockResolvedValue(mockWarehouse);
       stockRepo.save.mockResolvedValue(mockStock);
-      movementRepo.save.mockResolvedValue(mockMovement);
+      movementRepo.create.mockImplementation((data: any) => data);
+      movementRepo.save.mockImplementation((data: any) => Promise.resolve(data));
       alertRepo.save.mockResolvedValue(mockAlert);
     });
 
@@ -415,7 +416,8 @@ describe('StockService', () => {
       variantRepo.findOne.mockResolvedValue(mockVariant);
       warehouseRepo.findOne.mockResolvedValue(mockWarehouse);
       stockRepo.save.mockResolvedValue(mockStock);
-      movementRepo.save.mockResolvedValue(mockMovement);
+      movementRepo.create.mockImplementation((data: any) => data);
+      movementRepo.save.mockImplementation((data: any) => Promise.resolve(data));
     });
 
     it('should transfer stock between warehouses successfully', async () => {
@@ -635,7 +637,8 @@ describe('StockService', () => {
       variantRepo.findOne.mockResolvedValue(mockVariant);
       stockRepo.findOne.mockResolvedValue(mockStock);
       stockRepo.save.mockResolvedValue(mockStock);
-      movementRepo.save.mockResolvedValue(mockMovement);
+      movementRepo.create.mockImplementation((data: any) => data);
+      movementRepo.save.mockImplementation((data: any) => Promise.resolve(data));
 
       const result = await service.adjustStock(
         101,
@@ -666,7 +669,8 @@ describe('StockService', () => {
       warehouseRepo.findOne.mockResolvedValue(mockWarehouse);
       stockRepo.findOne.mockResolvedValue(mockStock);
       stockRepo.save.mockResolvedValue(mockStock);
-      movementRepo.save.mockResolvedValue(mockMovement);
+      movementRepo.create.mockImplementation((data: any) => data);
+      movementRepo.save.mockImplementation((data: any) => Promise.resolve(data));
 
       const result = await service.adjustStock(
         101,
@@ -704,7 +708,8 @@ describe('StockService', () => {
       warehouseRepo.findOne.mockResolvedValue(arabicWarehouse);
 
       stockRepo.save.mockResolvedValue(mockStock);
-      movementRepo.save.mockResolvedValue(mockMovement);
+      movementRepo.create.mockImplementation((data: any) => data);
+      movementRepo.save.mockImplementation((data: any) => Promise.resolve(data));
       alertRepo.create.mockReturnValue(mockAlert);
       alertRepo.save.mockResolvedValue(mockAlert);
 
@@ -764,7 +769,8 @@ describe('StockService', () => {
       warehouseRepo.findOne.mockResolvedValue(mockWarehouse);
       stockRepo.findOne.mockResolvedValue(mockStock);
       stockRepo.save.mockResolvedValue(mockStock);
-      movementRepo.save.mockResolvedValue(mockMovement);
+      movementRepo.create.mockImplementation((data: any) => data);
+      movementRepo.save.mockImplementation((data: any) => Promise.resolve(data));
 
       // Simulate concurrent adjustments
       const operations = [
@@ -790,7 +796,8 @@ describe('StockService', () => {
       variantRepo.findOne.mockResolvedValue(mockVariant);
       warehouseRepo.findOne.mockResolvedValue(mockWarehouse);
       stockRepo.save.mockResolvedValue(largeStock);
-      movementRepo.save.mockResolvedValue(mockMovement);
+      movementRepo.create.mockImplementation((data: any) => data);
+      movementRepo.save.mockImplementation((data: any) => Promise.resolve(data));
 
       const result = await service.adjustStock(
         101,
@@ -819,7 +826,8 @@ describe('StockService', () => {
       warehouseRepo.findOne.mockResolvedValue(mockWarehouse);
       stockRepo.findOne.mockResolvedValue(mockStock);
       stockRepo.save.mockResolvedValue(mockStock);
-      movementRepo.save.mockResolvedValue(mockMovement);
+      movementRepo.create.mockImplementation((data: any) => data);
+      movementRepo.save.mockImplementation((data: any) => Promise.resolve(data));
 
       const result = await service.adjustStock(101, 1, 10, 'in'); // No note provided
 
@@ -852,6 +860,7 @@ describe('StockService', () => {
       warehouseRepo.findOne.mockResolvedValue(mockWarehouse);
       stockRepo.findOne.mockResolvedValue(mockStock);
       stockRepo.save.mockResolvedValue(mockStock);
+      movementRepo.create.mockImplementation((data: any) => data);
 
       const movementCalls: any[] = [];
       movementRepo.save.mockImplementation((movement: any) => {
