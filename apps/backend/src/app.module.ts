@@ -24,7 +24,7 @@ import { AccessControlModule } from './access-control/access-control.module';
 import { StaffManagementModule } from './staff-management/staff-management.module';
 import { ProductsModule } from './products/products.module';
 import { VendorsModule } from './vendors/vendors.module';
-import { VendorDashboardModule } from './vendor-dashboard/vendor-dashboard.module'; // ✅ Enabled: Week 1 Day 1-2 Foundation Complete
+// import { VendorDashboardModule } from './vendor-dashboard/vendor-dashboard.module'; // ⚠️ TEMPORARILY DISABLED - Missing dependencies (28 compilation errors)
 import { MembershipsModule } from './memberships/memberships.module';
 import { ManufacturersModule } from './manufacturers/manufacturers.module';
 // import { ManufacturersService } from './manufacturers.service';
@@ -78,7 +78,7 @@ import { AdminDashboardModule } from './admin-dashboard/admin-dashboard.module';
     StaffManagementModule,
     ProductsModule,
     VendorsModule,
-    VendorDashboardModule, // ✅ Enabled: Week 1 Day 1-2 Foundation Complete
+    // VendorDashboardModule, // ⚠️ TEMPORARILY DISABLED - Missing dependencies (28 compilation errors)
     MembershipsModule,
     ManufacturersModule,
     StockModule,

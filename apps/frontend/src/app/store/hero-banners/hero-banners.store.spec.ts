@@ -150,7 +150,7 @@ describe('HeroBannersStore', () => {
 
     it('should set error and disable loading', () => {
       store.setLoading(true);
-      store.setError('Error occurred');
+      store.updateError('Error occurred');
 
       const state = store.getValue();
       expect(state.error).toBe('Error occurred');
@@ -250,7 +250,7 @@ describe('HeroBannersStore', () => {
 
       // IDs should be sorted by priority descending
       const state = store.getValue();
-      const priorities = state.ids.map(id => state.entities[id]?.priority || 0);
+      const priorities = state.ids!.map(id => state.entities![id]?.priority || 0);
 
       // Verify descending order
       for (let i = 0; i < priorities.length - 1; i++) {
@@ -298,9 +298,9 @@ describe('HeroBannersStore', () => {
       // Simulate API loading
       store.setLoading(true);
 
-      // Simulate API error
+      // Simulate API error - use updateError() which also disables loading
       const errorMsg = 'Network error';
-      store.setError(errorMsg);
+      store.updateError(errorMsg);
 
       const state = store.getValue();
       expect(state.loading).toBe(false);

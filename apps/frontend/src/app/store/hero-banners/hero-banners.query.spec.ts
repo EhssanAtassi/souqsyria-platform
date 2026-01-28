@@ -10,7 +10,6 @@
  * Following TDD: These tests will FAIL until implementation is complete
  */
 
-import { TestBed } from '@angular/core/testing';
 import { HeroBannersStore } from './hero-banners.store';
 import { HeroBannersQuery } from './hero-banners.query';
 import { HeroBanner, BannerStatus } from '../../features/hero-banners/interfaces/hero-banner.interface';
@@ -87,12 +86,12 @@ describe('HeroBannersQuery', () => {
   });
 
   beforeEach(() => {
-    TestBed.configureTestingModule({
-      providers: [HeroBannersStore, HeroBannersQuery]
-    });
-
-    store = TestBed.inject(HeroBannersStore);
-    query = TestBed.inject(HeroBannersQuery);
+    // Instantiate manually to avoid Angular DI timing issues with Akita.
+    // Akita QueryEntity field initializers (selectLoading$, etc.) call
+    // this.select() which requires the store to be set via super(store).
+    // Angular DI can wire the store too late, causing '_select' undefined errors.
+    store = new HeroBannersStore();
+    query = new HeroBannersQuery(store);
   });
 
   afterEach(() => {

@@ -513,6 +513,9 @@ describe('HomepageSectionsService', () => {
         },
         error: done.fail
       });
+
+      const req = httpMock.expectOne(`${apiUrl}/categories/homepage-sections?limit=10`);
+      req.flush(mockBackendResponse);
     });
 
     it('should include both visible and hidden sections', (done) => {
@@ -527,6 +530,9 @@ describe('HomepageSectionsService', () => {
         },
         error: done.fail
       });
+
+      const req = httpMock.expectOne(`${apiUrl}/categories/homepage-sections?limit=10`);
+      req.flush(mockBackendResponse);
     });
 
     it('should have valid metadata', (done) => {
@@ -538,6 +544,9 @@ describe('HomepageSectionsService', () => {
         },
         error: done.fail
       });
+
+      const req = httpMock.expectOne(`${apiUrl}/categories/homepage-sections?limit=10`);
+      req.flush(mockBackendResponse);
     });
   });
 
@@ -582,7 +591,7 @@ describe('HomepageSectionsService', () => {
    * Verifies observables emit values correctly
    */
   describe('Observable Behavior', () => {
-    it('should emit values asynchronously', (done) => {
+    it('should emit values when using mock data', (done) => {
       let emitted = false;
 
       service.getVisibleSections(3, true).subscribe({
@@ -591,14 +600,9 @@ describe('HomepageSectionsService', () => {
         }
       });
 
-      // Should not have emitted synchronously
-      expect(emitted).toBe(false);
-
-      // Wait for async emission
-      setTimeout(() => {
-        expect(emitted).toBe(true);
-        done();
-      }, 100);
+      // Mock data uses of() which emits synchronously
+      expect(emitted).toBe(true);
+      done();
     });
 
     it('should complete after emitting', (done) => {

@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, ChangeDetectionStrategy, signal, computed } from '@angular/core';
+import { Component, Input, Output, EventEmitter, ChangeDetectionStrategy, signal, computed, WritableSignal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
@@ -96,10 +96,14 @@ import { MatRippleModule } from '@angular/material/core';
 export class FeaturedProductShowcaseComponent {
 
   /**
-   * Product data to showcase
+   * Product data to showcase - backed by a signal for computed reactivity
    * @description Complete product object with all necessary display information
    */
-  @Input() product: any = null;
+  private _product: WritableSignal<any> = signal(null);
+
+  @Input()
+  set product(value: any) { this._product.set(value); }
+  get product(): any { return this._product(); }
 
   /**
    * Whether to show the "Today's Pick" badge

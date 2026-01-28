@@ -26,50 +26,55 @@ describe('HeroBannersService', () => {
   let query: HeroBannersQuery;
   let heroBannerApiService: jasmine.SpyObj<HeroBannerService>;
 
-  // Mock API response (matches backend DTO structure)
+  // Mock API response in HeroBanner format (already transformed by API service)
   const mockApiResponse: any[] = [
     {
       id: 'test-banner-001',
-      nameEn: 'Damascus Steel Collection',
-      nameAr: 'مجموعة الفولاذ الدمشقي',
-      headlineEn: 'Authentic Damascus Steel',
-      headlineAr: 'فولاذ دمشقي أصيل',
-      subheadlineEn: 'Handcrafted by Syrian artisans',
-      subheadlineAr: 'صنع يدوياً من قبل الحرفيين السوريين',
-      imageUrlDesktop: '/assets/damascus-steel.jpg',
-      imageUrlTablet: '/assets/damascus-steel-tablet.jpg',
-      imageUrlMobile: '/assets/damascus-steel-mobile.jpg',
-      imageAltEn: 'Damascus Steel',
-      imageAltAr: 'فولاذ دمشقي',
-      ctaTextEn: 'Shop Now',
-      ctaTextAr: 'تسوق الآن',
-      ctaVariant: 'primary',
-      ctaSize: 'large',
-      ctaColor: 'golden-wheat',
-      ctaIcon: 'arrow_forward',
-      ctaIconPosition: 'right',
-      ctaVisible: true,
-      targetType: 'category',
-      targetUrl: '/category/damascus-steel',
-      trackingSource: 'hero-banner',
-      trackingMedium: 'homepage',
-      trackingCampaign: 'damascus-steel-2025',
-      scheduleStart: '2025-01-01T00:00:00.000Z',
-      scheduleEnd: '2025-12-31T23:59:59.999Z',
-      timezone: 'Asia/Damascus',
-      type: 'product_spotlight',
-      approvalStatus: 'approved',
-      isActive: true,
+      name: { english: 'Damascus Steel Collection', arabic: 'مجموعة الفولاذ الدمشقي' },
+      headline: { english: 'Authentic Damascus Steel', arabic: 'فولاذ دمشقي أصيل' },
+      subheadline: { english: 'Handcrafted by Syrian artisans', arabic: 'صنع يدوياً من قبل الحرفيين السوريين' },
+      image: {
+        url: '/assets/damascus-steel.jpg',
+        tabletUrl: '/assets/damascus-steel-tablet.jpg',
+        mobileUrl: '/assets/damascus-steel-mobile.jpg',
+        alt: { english: 'Damascus Steel', arabic: 'فولاذ دمشقي' }
+      },
+      cta: {
+        text: { english: 'Shop Now', arabic: 'تسوق الآن' },
+        variant: 'primary',
+        size: 'large',
+        color: 'golden-wheat',
+        icon: 'arrow_forward',
+        iconPosition: 'right',
+        visible: true,
+        action: { type: 'category', url: '/category/damascus-steel' }
+      },
+      tracking: {
+        source: 'hero-banner',
+        medium: 'homepage',
+        campaign: 'damascus-steel-2025'
+      },
+      schedule: {
+        startDate: new Date('2025-01-01T00:00:00.000Z'),
+        endDate: new Date('2025-12-31T23:59:59.999Z'),
+        timezone: 'Asia/Damascus'
+      },
+      type: 'main',
+      status: 'active',
       priority: 100,
-      impressions: 1500,
-      clicks: 85,
-      clickThroughRate: 5.67,
-      conversions: 12,
-      conversionRate: 14.12,
-      revenue: 1800,
-      analyticsUpdatedAt: '2025-01-10T12:00:00.000Z',
-      createdAt: '2025-01-01T00:00:00.000Z',
-      updatedAt: '2025-01-10T12:00:00.000Z'
+      analytics: {
+        impressions: 1500,
+        clicks: 85,
+        clickThroughRate: 5.67,
+        conversions: 12,
+        conversionRate: 14.12,
+        revenue: 1800,
+        lastUpdated: new Date('2025-01-10T12:00:00.000Z')
+      },
+      metadata: {
+        createdAt: new Date('2025-01-01T00:00:00.000Z'),
+        updatedAt: new Date('2025-01-10T12:00:00.000Z')
+      }
     }
   ];
 
@@ -79,19 +84,21 @@ describe('HeroBannersService', () => {
       'getActiveHeroBanners'
     ]);
 
+    // Create store manually first so HeroBannersQuery field initializers can access it
+    store = new HeroBannersStore();
+    query = new HeroBannersQuery(store);
+
     TestBed.configureTestingModule({
       imports: [HttpClientTestingModule],
       providers: [
+        { provide: HeroBannersStore, useValue: store },
+        { provide: HeroBannersQuery, useValue: query },
         HeroBannersService,
-        HeroBannersStore,
-        HeroBannersQuery,
         { provide: HeroBannerService, useValue: heroBannerApiServiceSpy }
       ]
     });
 
     service = TestBed.inject(HeroBannersService);
-    store = TestBed.inject(HeroBannersStore);
-    query = TestBed.inject(HeroBannersQuery);
     heroBannerApiService = TestBed.inject(HeroBannerService) as jasmine.SpyObj<HeroBannerService>;
   });
 
@@ -261,28 +268,26 @@ describe('HeroBannersService', () => {
   });
 
   describe('Data Transformation', () => {
-    it('should map backend type to frontend type correctly', (done) => {
+    it('should store banner type correctly', (done) => {
       heroBannerApiService.getActiveHeroBanners.and.returnValue(of(mockApiResponse as any));
 
       service.loadActiveBanners();
 
       setTimeout(() => {
         query.selectEntity('test-banner-001').subscribe(banner => {
-          // Backend: product_spotlight → Frontend: main
           expect(banner?.type).toBe('main');
           done();
         });
       }, 100);
     });
 
-    it('should map backend status to frontend status correctly', (done) => {
+    it('should store banner status correctly', (done) => {
       heroBannerApiService.getActiveHeroBanners.and.returnValue(of(mockApiResponse as any));
 
       service.loadActiveBanners();
 
       setTimeout(() => {
         query.selectEntity('test-banner-001').subscribe(banner => {
-          // Backend: approved + isActive + in schedule → Frontend: active
           expect(banner?.status).toBe('active');
           done();
         });

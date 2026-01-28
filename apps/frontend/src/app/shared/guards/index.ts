@@ -19,16 +19,16 @@ export {
 } from './auth.guard';
 
 // Admin Guards
-export { adminGuard } from './admin.guard';
+export { AdminGuard, SuperAdminGuard } from './admin.guard';
 
 // Form Guards
 export {
   unsavedChangesGuard,
-  ComponentCanDeactivate,
   createBeforeunloadHandler,
   DirtyFormTracker,
   AsyncDataTracker
 } from './unsaved-changes.guard';
+export type { ComponentCanDeactivate } from './unsaved-changes.guard';
 
 /**
  * Guard provider array for easier imports and injection

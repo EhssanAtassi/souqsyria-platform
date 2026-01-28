@@ -4,4 +4,4 @@
  */
 
 export { ProductGridComponent } from './product-grid.component';
-export type { ProductFilters, SortOption } from './product-grid.component';
+export type { SortOption } from './product-grid.component';

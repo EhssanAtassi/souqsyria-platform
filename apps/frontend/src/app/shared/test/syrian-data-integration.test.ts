@@ -61,9 +61,9 @@ describe('Syrian Data Integration', () => {
       syrianDataService.getSyrianGovernorates().subscribe(governorates => {
         expect(governorates).toBeDefined();
         expect(governorates.length).toBeGreaterThan(0);
-        expect(governorates[0]).toHaveProperty('nameEn');
-        expect(governorates[0]).toHaveProperty('nameAr');
-        expect(governorates[0]).toHaveProperty('shippingZone');
+        expect(governorates[0].nameEn).toBeDefined();
+        expect(governorates[0].nameAr).toBeDefined();
+        expect(governorates[0].shippingZone).toBeDefined();
         done();
       });
     });
@@ -72,9 +72,9 @@ describe('Syrian Data Integration', () => {
       syrianDataService.getShippingZones().subscribe(zones => {
         expect(zones).toBeDefined();
         expect(zones.length).toBeGreaterThan(0);
-        expect(zones[0]).toHaveProperty('name');
-        expect(zones[0]).toHaveProperty('baseRate');
-        expect(zones[0]).toHaveProperty('deliveryTime');
+        expect(zones[0].name).toBeDefined();
+        expect(zones[0].baseRate).toBeDefined();
+        expect(zones[0].deliveryTime).toBeDefined();
         done();
       });
     });
@@ -330,7 +330,7 @@ describe('Syrian Data Integration', () => {
         expect(damascus).toBeDefined();
 
         syrianDataService.getShippingZoneByGovernorate('damascus').subscribe(zone => {
-          expect(zone).toBe(damascus?.shippingZone);
+          expect(zone).toBe(damascus!.shippingZone);
           done();
         });
       });

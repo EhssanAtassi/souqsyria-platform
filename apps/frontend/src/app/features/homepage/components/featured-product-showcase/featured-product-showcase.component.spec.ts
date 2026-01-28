@@ -455,8 +455,8 @@ describe('FeaturedProductShowcaseComponent', () => {
       const badges = compiled.querySelectorAll('.authenticity-badge');
 
       expect(badges.length).toBe(2); // Only first 2 badges should be shown
-      expect(badges[0].textContent.trim()).toBe('UNESCO HERITAGE');
-      expect(badges[1].textContent.trim()).toBe('HANDCRAFTED');
+      expect(badges[0].textContent.trim()).toBe('UNESCO Heritage');
+      expect(badges[1].textContent.trim()).toBe('Handcrafted');
     });
   });
 

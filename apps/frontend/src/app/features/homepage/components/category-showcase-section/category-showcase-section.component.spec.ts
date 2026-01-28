@@ -111,10 +111,10 @@ describe('CategoryShowcaseSectionComponent', () => {
     });
   });
 
-  it('should have responsive grid layout', () => {
+  it('should have responsive flex layout', () => {
     const content = compiled.querySelector('.showcase-content');
-    expect(content?.classList.contains('grid')).toBe(true);
-    expect(content?.classList.contains('lg:grid-cols-12')).toBe(true);
+    expect(content?.classList.contains('flex')).toBe(true);
+    expect(content?.classList.contains('lg:flex-row')).toBe(true);
   });
 
   it('should display navigation links', () => {

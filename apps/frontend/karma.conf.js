@@ -252,10 +252,10 @@ module.exports = function(config) {
     },
 
     // Browser timeout configurations
-    browserDisconnectTimeout: 10000,
-    browserDisconnectTolerance: 3,
-    browserNoActivityTimeout: 60000,
-    captureTimeout: 60000,
+    browserDisconnectTimeout: 30000,
+    browserDisconnectTolerance: 5,
+    browserNoActivityTimeout: 120000,
+    captureTimeout: 120000,
 
     // Continuous Integration mode
     // If true, Karma captures browsers, runs the tests and exits

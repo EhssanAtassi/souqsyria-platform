@@ -91,21 +91,19 @@ export class HeroBannersQuery extends QueryEntity<HeroBannersState, HeroBanner> 
    * Observable of loading state
    * Emits true when banners are being loaded from API
    */
-  selectLoading$ = this.select('loading');
+  selectLoading$!: Observable<boolean>;
 
   /**
    * Observable of error state
    * Emits error message string or null if no error
    */
-  selectError$ = this.select('error');
+  selectError$!: Observable<string | null>;
 
   /**
    * Observable of error existence
    * Emits true if there is an error, false otherwise
    */
-  selectHasError$ = this.selectError$.pipe(
-    map(error => error !== null && error !== undefined)
-  );
+  selectHasError$!: Observable<boolean>;
 
   /**
    * Observable of active banners only
@@ -117,10 +115,7 @@ export class HeroBannersQuery extends QueryEntity<HeroBannersState, HeroBanner> 
    *
    * @returns Observable<HeroBanner[]> Active banners
    */
-  selectActiveBanners$: Observable<HeroBanner[]> = this.selectAll({
-    filterBy: (banner) => banner.status === 'active',
-    sortBy: (a, b) => b.priority - a.priority
-  });
+  selectActiveBanners$!: Observable<HeroBanner[]>;
 
   /**
    * Observable of featured banner (highest priority active banner)
@@ -133,9 +128,7 @@ export class HeroBannersQuery extends QueryEntity<HeroBannersState, HeroBanner> 
    *
    * @returns Observable<HeroBanner | undefined> Featured banner or undefined
    */
-  selectFeaturedBanner$: Observable<HeroBanner | undefined> = this.selectActiveBanners$.pipe(
-    map(banners => banners.length > 0 ? banners[0] : undefined)
-  );
+  selectFeaturedBanner$!: Observable<HeroBanner | undefined>;
 
   /**
    * Observable of active banner count
@@ -143,12 +136,28 @@ export class HeroBannersQuery extends QueryEntity<HeroBannersState, HeroBanner> 
    *
    * @returns Observable<number> Count of active banners
    */
-  selectActiveCount$: Observable<number> = this.selectActiveBanners$.pipe(
-    map(banners => banners.length)
-  );
+  selectActiveCount$!: Observable<number>;
 
   constructor(protected override store: HeroBannersStore) {
     super(store);
+
+    // Initialize observables in constructor to ensure store is available
+    // (ES2022 class field initializers can conflict with Akita's store injection)
+    this.selectLoading$ = this.select('loading');
+    this.selectError$ = this.select('error');
+    this.selectHasError$ = this.selectError$.pipe(
+      map(error => error !== null && error !== undefined)
+    );
+    this.selectActiveBanners$ = this.selectAll({
+      filterBy: (banner) => banner.status === 'active',
+      sortBy: (a, b) => b.priority - a.priority
+    });
+    this.selectFeaturedBanner$ = this.selectActiveBanners$.pipe(
+      map(banners => banners.length > 0 ? banners[0] : undefined)
+    );
+    this.selectActiveCount$ = this.selectActiveBanners$.pipe(
+      map(banners => banners.length)
+    );
   }
 
   /**

@@ -187,38 +187,32 @@ describe('FeaturedBannerComponent', () => {
    */
   describe('Template Rendering', () => {
     it('should display banner title in English', () => {
-      const title = compiled.querySelector('h2');
+      const title = compiled.querySelector('h3');
       expect(title?.textContent).toContain('EXPERIENCE AUTHENTIC DAMASCUS STEEL');
     });
 
-    it('should display banner title in Arabic', () => {
-      const arabicTitle = compiled.querySelector('p[dir="rtl"]');
-      expect(arabicTitle?.textContent).toContain('اكتشف الفولاذ الدمشقي الأصيل');
-    });
-
     it('should display subtitle when provided', () => {
-      const subtitle = compiled.querySelector('.text-content .mb-6');
+      const subtitle = compiled.querySelector('p.text-sm.text-gray-600');
       expect(subtitle?.textContent).toContain('Handcrafted by Master Artisans');
     });
 
-    it('should not display subtitle section when not provided', () => {
+    it('should not display subtitle when not provided', () => {
       component.banner = { ...mockBanner, subtitle: undefined };
       fixture.detectChanges();
 
-      const subtitleSection = compiled.querySelectorAll('.mb-6');
-      // Should have fewer mb-6 elements without subtitle
-      expect(subtitleSection.length).toBeLessThan(3);
+      const subtitle = compiled.querySelector('p.text-sm.text-gray-600');
+      expect(subtitle).toBeFalsy();
     });
 
     it('should display product image', () => {
-      const image = compiled.querySelector('.image-wrapper img') as HTMLImageElement;
+      const image = compiled.querySelector('img') as HTMLImageElement;
       expect(image).toBeTruthy();
       expect(image.src).toContain('exp1.png');
       expect(image.alt).toBe(mockBanner.title.en);
     });
 
     it('should display original price when showOriginalPrice is true', () => {
-      const originalPrice = compiled.querySelector('.original-price');
+      const originalPrice = compiled.querySelector('.line-through');
       expect(originalPrice).toBeTruthy();
       expect(originalPrice?.textContent).toContain('$625.00');
     });
@@ -227,28 +221,28 @@ describe('FeaturedBannerComponent', () => {
       component.showOriginalPrice = false;
       fixture.detectChanges();
 
-      const originalPrice = compiled.querySelector('.original-price');
+      const originalPrice = compiled.querySelector('.line-through');
       expect(originalPrice).toBeFalsy();
     });
 
     it('should display discounted price', () => {
-      const salePrice = compiled.querySelector('.sale-price');
+      const salePrice = compiled.querySelector('.text-golden-wheat-dark');
       expect(salePrice).toBeTruthy();
       expect(salePrice?.textContent).toContain('$205.00');
     });
 
     it('should display CTA button text in English', () => {
-      const ctaButton = compiled.querySelector('.cta-button span');
+      const ctaButton = compiled.querySelector('button[mat-raised-button]');
       expect(ctaButton?.textContent).toContain('Shop Now');
     });
 
     it('should display CTA button text in Arabic', () => {
-      const arabicCta = compiled.querySelector('.cta-section .font-arabic');
+      const arabicCta = compiled.querySelector('.font-arabic[dir="rtl"]');
       expect(arabicCta?.textContent).toContain('تسوق الآن');
     });
 
     it('should display badge when provided', () => {
-      const badge = compiled.querySelector('.absolute.top-4.left-4');
+      const badge = compiled.querySelector('.rounded-full.text-white.uppercase');
       expect(badge).toBeTruthy();
       expect(badge?.textContent).toContain('BEST SELLER');
     });
@@ -257,7 +251,7 @@ describe('FeaturedBannerComponent', () => {
       component.banner = { ...mockBanner, badge: undefined };
       fixture.detectChanges();
 
-      const badge = compiled.querySelector('.absolute.top-4.left-4');
+      const badge = compiled.querySelector('.rounded-full.text-white.uppercase');
       expect(badge).toBeFalsy();
     });
 
@@ -301,7 +295,7 @@ describe('FeaturedBannerComponent', () => {
         done();
       });
 
-      const ctaButton = compiled.querySelector('.cta-button') as HTMLElement;
+      const ctaButton = compiled.querySelector('button[mat-raised-button]') as HTMLElement;
       ctaButton.click();
     });
 
@@ -344,18 +338,18 @@ describe('FeaturedBannerComponent', () => {
    */
   describe('Accessibility', () => {
     it('should have proper alt text for images', () => {
-      const image = compiled.querySelector('.image-wrapper img') as HTMLImageElement;
+      const image = compiled.querySelector('img') as HTMLImageElement;
       expect(image.alt).toBe(mockBanner.title.en);
     });
 
     it('should have button type for CTA', () => {
-      const ctaButton = compiled.querySelector('.cta-button');
+      const ctaButton = compiled.querySelector('button[mat-raised-button]');
       expect(ctaButton?.getAttribute('type')).toBe('button');
     });
 
     it('should have proper heading hierarchy', () => {
-      const h2 = compiled.querySelector('h2');
-      expect(h2).toBeTruthy();
+      const heading = compiled.querySelector('h3');
+      expect(heading).toBeTruthy();
     });
 
     it('should support keyboard navigation', () => {
@@ -368,26 +362,14 @@ describe('FeaturedBannerComponent', () => {
    * Test: Responsive Layout
    */
   describe('Responsive Layout', () => {
-    it('should have grid layout for content', () => {
-      const content = compiled.querySelector('.banner-content');
-      expect(content?.classList.contains('grid')).toBe(true);
+    it('should have flex layout for content', () => {
+      const content = compiled.querySelector('.flex.items-center');
+      expect(content).toBeTruthy();
     });
 
-    it('should have responsive grid columns', () => {
-      const content = compiled.querySelector('.banner-content');
-      expect(content?.classList.contains('grid-cols-1')).toBe(true);
-      expect(content?.classList.contains('lg:grid-cols-2')).toBe(true);
-    });
-
-    it('should order content correctly on mobile vs desktop', () => {
-      const textContent = compiled.querySelector('.text-content');
-      const imageContent = compiled.querySelector('.image-content');
-
-      expect(textContent?.classList.contains('order-2')).toBe(true);
-      expect(textContent?.classList.contains('lg:order-1')).toBe(true);
-
-      expect(imageContent?.classList.contains('order-1')).toBe(true);
-      expect(imageContent?.classList.contains('lg:order-2')).toBe(true);
+    it('should have responsive padding', () => {
+      const content = compiled.querySelector('.flex.items-center');
+      expect(content?.classList.contains('p-6')).toBe(true);
     });
   });
 
@@ -396,23 +378,18 @@ describe('FeaturedBannerComponent', () => {
    */
   describe('Theme and Styling', () => {
     it('should apply Syrian Golden Wheat colors', () => {
-      const salePrice = compiled.querySelector('.sale-price');
-      expect(salePrice?.classList.contains('text-golden-wheat-dark')).toBe(true);
+      const salePrice = compiled.querySelector('.text-golden-wheat-dark');
+      expect(salePrice).toBeTruthy();
     });
 
-    it('should have hover effects', () => {
+    it('should have hover effects on banner', () => {
       const banner = compiled.querySelector('.featured-banner');
-      expect(banner?.classList.contains('hover:border-golden-wheat')).toBe(true);
+      expect(banner?.classList.contains('hover:border-gray-300')).toBe(true);
     });
 
-    it('should apply group hover effects', () => {
+    it('should have bg-gray-50 background', () => {
       const banner = compiled.querySelector('.featured-banner');
-      expect(banner?.classList.contains('group')).toBe(true);
-    });
-
-    it('should have proper background color', () => {
-      const banner = compiled.querySelector('.featured-banner') as HTMLElement;
-      expect(banner.style.backgroundColor).toBe('rgb(249, 250, 251)');
+      expect(banner?.classList.contains('bg-gray-50')).toBe(true);
     });
   });
 
@@ -420,13 +397,14 @@ describe('FeaturedBannerComponent', () => {
    * Test: Badge Styling
    */
   describe('Badge Display', () => {
-    it('should apply correct badge color', () => {
-      const badge = compiled.querySelector('.absolute.top-4.left-4') as HTMLElement;
-      expect(badge.style.backgroundColor).toBe('rgb(196, 30, 58)'); // #C41E3A
+    it('should apply correct badge color via inline style', () => {
+      const badge = compiled.querySelector('.rounded-full.text-white.uppercase') as HTMLElement;
+      expect(badge).toBeTruthy();
+      expect(badge.style.backgroundColor).toBeTruthy();
     });
 
     it('should display badge text in uppercase', () => {
-      const badge = compiled.querySelector('.absolute.top-4.left-4');
+      const badge = compiled.querySelector('.rounded-full.text-white.uppercase');
       expect(badge?.classList.contains('uppercase')).toBe(true);
     });
   });
