@@ -50,6 +50,8 @@ describe('PermissionsService', () => {
     name: 'manage_products',
     description: 'Manage product catalog',
     createdAt: new Date(),
+    updatedAt: new Date(),
+    isSystem: false,
   };
 
   beforeEach(async () => {

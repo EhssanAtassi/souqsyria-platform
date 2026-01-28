@@ -15,6 +15,7 @@ import { User } from '../../users/entities/user.entity';
 import { RolePermission } from '../entities/role-permission.entity';
 import { Permission } from '../entities/permission.entity';
 import { Role } from '../../roles/entities/role.entity';
+import { SecurityAuditService } from '../security-audit/security-audit.service';
 
 describe('PermissionsGuard', () => {
   let guard: PermissionsGuard;
@@ -33,6 +34,12 @@ describe('PermissionsGuard', () => {
 
   const mockReflector = {
     get: jest.fn(),
+  };
+
+  const mockSecurityAuditService = {
+    logPermissionCheck: jest.fn().mockResolvedValue(undefined),
+    logAccessDenied: jest.fn().mockResolvedValue(undefined),
+    logSuspiciousActivity: jest.fn().mockResolvedValue(undefined),
   };
 
   // Test data setup
@@ -182,6 +189,10 @@ describe('PermissionsGuard', () => {
         {
           provide: getRepositoryToken(User),
           useValue: mockUserRepository,
+        },
+        {
+          provide: SecurityAuditService,
+          useValue: mockSecurityAuditService,
         },
       ],
     }).compile();

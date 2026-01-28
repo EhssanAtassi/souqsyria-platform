@@ -296,10 +296,13 @@ describe('RolesService', () => {
 
   describe('createFromTemplate', () => {
     it('should create a role from a template', async () => {
+      // All permissions required by customer-support template
       const mockPermissions = [
         { id: 1, name: 'view_users' },
         { id: 2, name: 'view_orders' },
         { id: 3, name: 'manage_tickets' },
+        { id: 4, name: 'view_products' },
+        { id: 5, name: 'view_reviews' },
       ];
 
       const mockRole = {
@@ -320,6 +323,8 @@ describe('RolesService', () => {
           { id: 1, permission: mockPermissions[0] },
           { id: 2, permission: mockPermissions[1] },
           { id: 3, permission: mockPermissions[2] },
+          { id: 4, permission: mockPermissions[3] },
+          { id: 5, permission: mockPermissions[4] },
         ],
       });
 
@@ -347,7 +352,14 @@ describe('RolesService', () => {
     });
 
     it('should create role with custom name', async () => {
-      const mockPermissions = [{ id: 1, name: 'view_users' }];
+      // All permissions required by customer-support template
+      const mockPermissions = [
+        { id: 1, name: 'view_users' },
+        { id: 2, name: 'view_orders' },
+        { id: 3, name: 'manage_tickets' },
+        { id: 4, name: 'view_products' },
+        { id: 5, name: 'view_reviews' },
+      ];
 
       mockPermissionRepository.find.mockResolvedValue(mockPermissions);
       mockRoleRepository.create.mockReturnValue({

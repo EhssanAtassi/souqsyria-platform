@@ -79,6 +79,7 @@ const createMockRole = (overrides: Partial<Role> = {}): Role => ({
   name: 'vendor',
   description: 'Vendor role',
   isDefault: false,
+  isSystem: false,
   type: 'business',
   priority: 0,
   rolePermissions: [],

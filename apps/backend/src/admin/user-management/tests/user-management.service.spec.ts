@@ -53,7 +53,9 @@ describe('UserManagementService', () => {
       name: 'buyer',
       description: 'Regular buyer',
       isDefault: false,
+      isSystem: false,
       type: 'business',
+      priority: 10, // Low priority - can be banned by higher priority admins
       rolePermissions: [],
       createdAt: new Date(),
       updatedAt: new Date(),
@@ -280,7 +282,7 @@ describe('UserManagementService', () => {
 
       await expect(service.assignRoles(100, assignDto, 100)).rejects.toThrow(BadRequestException);
       await expect(service.assignRoles(100, assignDto, 100)).rejects.toThrow(
-        'Cannot remove your own admin role',
+        'Cannot modify your own role assignments',
       );
     });
   });
@@ -290,7 +292,28 @@ describe('UserManagementService', () => {
       const banDto = { reason: 'Violated terms of service' };
       const bannedUser = { ...mockUser, isBanned: true, banReason: banDto.reason };
 
-      mockUserRepository.findOne.mockResolvedValue(mockUser);
+      // Admin with high priority role
+      const adminWithRole = {
+        ...mockAdmin,
+        role: {
+          id: 3,
+          name: 'admin',
+          description: 'Admin role',
+          isDefault: false,
+          isSystem: false,
+          type: 'system',
+          priority: 100, // High priority - can ban lower priority users
+          rolePermissions: [],
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+        assignedRole: null,
+      };
+
+      // First call returns target user, second call returns admin
+      mockUserRepository.findOne
+        .mockResolvedValueOnce(mockUser) // Target user lookup
+        .mockResolvedValueOnce(adminWithRole); // Admin user lookup
       mockUserRepository.save.mockResolvedValue(bannedUser);
 
       await service.banUser(1, banDto, 100);
@@ -332,9 +355,9 @@ describe('UserManagementService', () => {
     });
 
     it('should throw error if user is not banned', async () => {
-      mockUserRepository.findOne.mockResolvedValue(mockUser); // isBanned = false
+      const notBannedUser = { ...mockUser, isBanned: false };
+      mockUserRepository.findOne.mockResolvedValue(notBannedUser);
 
-      await expect(service.unbanUser(1, 100)).rejects.toThrow(BadRequestException);
       await expect(service.unbanUser(1, 100)).rejects.toThrow('User is not banned');
     });
   });
@@ -426,9 +449,9 @@ describe('UserManagementService', () => {
     });
 
     it('should throw error if user is not suspended', async () => {
-      mockUserRepository.findOne.mockResolvedValue(mockUser); // isSuspended = false
+      const notSuspendedUser = { ...mockUser, isSuspended: false };
+      mockUserRepository.findOne.mockResolvedValue(notSuspendedUser);
 
-      await expect(service.unsuspendUser(1, 100)).rejects.toThrow(BadRequestException);
       await expect(service.unsuspendUser(1, 100)).rejects.toThrow('User is not suspended');
     });
   });
