@@ -34,14 +34,47 @@ import { Role } from '../../../roles/entities/role.entity';
 import { SecurityAuditService } from '../../../access-control/security-audit/security-audit.service';
 import { SecurityAuditLog } from '../../../access-control/entities/security-audit-log.entity';
 
+// Mock bcrypt module for password hashing tests
+jest.mock('bcrypt', () => ({
+  hash: jest.fn().mockResolvedValue('hashed_password_here'),
+  compare: jest.fn().mockResolvedValue(true),
+}));
+
 describe('UserManagementService', () => {
   let service: UserManagementService;
   let userRepository: Repository<User>;
   let roleRepository: Repository<Role>;
   let securityAuditService: SecurityAuditService;
 
+  /**
+   * Helper to create a mock User with all required methods
+   * User entity has security methods that need to be mocked for TypeScript
+   */
+  const createMockUser = (partial: Partial<User>): User => ({
+    id: 0,
+    email: '',
+    fullName: '',
+    passwordHash: '',
+    isVerified: false,
+    isBanned: false,
+    isSuspended: false,
+    role: null,
+    assignedRole: null,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    // Security methods required by User entity
+    isAccountLocked: () => false,
+    isTemporarilyBanned: () => false,
+    isResetTokenValid: () => false,
+    resetFailedAttempts: () => {},
+    incrementFailedAttempts: () => {},
+    isPasswordExpired: () => false,
+    isInactive: () => false,
+    ...partial,
+  } as User);
+
   // Mock data
-  const mockUser: Partial<User> = {
+  const mockUser = createMockUser({
     id: 1,
     email: 'test@example.com',
     fullName: 'Test User',
@@ -63,7 +96,7 @@ describe('UserManagementService', () => {
     assignedRole: null,
     createdAt: new Date(),
     updatedAt: new Date(),
-  };
+  });
 
   const mockRole: Partial<Role> = {
     id: 2,
@@ -76,14 +109,14 @@ describe('UserManagementService', () => {
     updatedAt: new Date(),
   };
 
-  const mockAdmin: Partial<User> = {
+  const mockAdmin = createMockUser({
     id: 100,
     email: 'admin@example.com',
     fullName: 'Admin User',
     isVerified: true,
     isBanned: false,
     isSuspended: false,
-  };
+  });
 
   // Mock repositories
   const mockUserRepository = {
@@ -461,9 +494,7 @@ describe('UserManagementService', () => {
       const resetDto = { newPassword: 'NewP@ssw0rd123!' };
       const hashedPassword = 'hashed_password_here';
 
-      // Mock bcrypt.hash
-      jest.spyOn(bcrypt, 'hash').mockImplementation(() => Promise.resolve(hashedPassword) as any);
-
+      // bcrypt.hash is mocked at module level
       mockUserRepository.findOne.mockResolvedValue(mockUser);
       mockUserRepository.save.mockResolvedValue({
         ...mockUser,

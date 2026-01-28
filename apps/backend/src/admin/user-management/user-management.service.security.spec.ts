@@ -29,8 +29,35 @@ describe('UserManagementService - Security Tests', () => {
   let roleRepository: Repository<Role>;
   let securityAuditService: SecurityAuditService;
 
+  /**
+   * Helper to create a mock User with all required methods
+   * User entity has security methods that need to be mocked for TypeScript
+   */
+  const createMockUser = (partial: Partial<User>): User => ({
+    id: 0,
+    email: '',
+    fullName: '',
+    passwordHash: '',
+    isVerified: false,
+    isBanned: false,
+    isSuspended: false,
+    role: null,
+    assignedRole: null,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    // Security methods required by User entity
+    isAccountLocked: () => false,
+    isTemporarilyBanned: () => false,
+    isResetTokenValid: () => false,
+    resetFailedAttempts: () => {},
+    incrementFailedAttempts: () => {},
+    isPasswordExpired: () => false,
+    isInactive: () => false,
+    ...partial,
+  } as User);
+
   // Mock users with different privilege levels
-  const mockSuperAdmin: User = {
+  const mockSuperAdmin: User = createMockUser({
     id: 1,
     email: 'superadmin@souq.sy',
     fullName: 'Super Admin',
@@ -48,9 +75,9 @@ describe('UserManagementService - Security Tests', () => {
       rolePermissions: [],
     } as Role,
     assignedRole: null,
-  } as User;
+  });
 
-  const mockAdmin: User = {
+  const mockAdmin: User = createMockUser({
     id: 2,
     email: 'admin@souq.sy',
     fullName: 'Regular Admin',
@@ -68,9 +95,9 @@ describe('UserManagementService - Security Tests', () => {
       isSystem: false,
       rolePermissions: [],
     } as Role,
-  } as User;
+  });
 
-  const mockSupport: User = {
+  const mockSupport: User = createMockUser({
     id: 3,
     email: 'support@souq.sy',
     fullName: 'Support Agent',
@@ -88,9 +115,9 @@ describe('UserManagementService - Security Tests', () => {
       isSystem: false,
       rolePermissions: [],
     } as Role,
-  } as User;
+  });
 
-  const mockTargetUser: User = {
+  const mockTargetUser: User = createMockUser({
     id: 42,
     email: 'user@souq.sy',
     fullName: 'Target User',
@@ -108,7 +135,7 @@ describe('UserManagementService - Security Tests', () => {
       rolePermissions: [],
     } as Role,
     assignedRole: null,
-  } as User;
+  });
 
   // Mock roles
   const mockSuperAdminRole: Role = {

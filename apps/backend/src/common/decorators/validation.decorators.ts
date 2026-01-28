@@ -31,7 +31,6 @@ import {
 import { applyDecorators } from '@nestjs/common';
 import { Transform } from 'class-transformer';
 import { ApiProperty } from '@nestjs/swagger';
-import { applyDecorators } from '@nestjs/common';
 
 // =============================================================================
 // SYRIAN PHONE NUMBER VALIDATION
