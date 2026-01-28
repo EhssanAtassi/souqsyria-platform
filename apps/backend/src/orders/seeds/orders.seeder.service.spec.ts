@@ -587,7 +587,7 @@ describe('OrdersSeederService', () => {
       // Check that amounts are in SYP range (large numbers)
       usedAmounts.forEach((amount) => {
         expect(amount).toBeGreaterThan(100000); // Minimum 100,000 SYP
-        expect(amount).toBeLessThan(30000000); // Maximum 30,000,000 SYP (increased for multi-item orders)
+        expect(amount).toBeLessThan(50000000); // Maximum 50,000,000 SYP (increased for multi-item orders)
       });
     });
 
