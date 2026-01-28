@@ -18,7 +18,7 @@ import { Repository } from 'typeorm';
 import { User } from '../../users/entities/user.entity';
 import { Role } from '../../roles/entities/role.entity';
 import { ActivityLog } from '../../access-control/entities/activity-log.entity';
-import * as bcrypt from 'bcrypt';
+import * as bcrypt from 'bcryptjs';
 
 /**
  * Interface for staff analytics data

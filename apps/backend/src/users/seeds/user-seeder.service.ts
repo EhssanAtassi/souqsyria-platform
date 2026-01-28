@@ -30,7 +30,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, DataSource, QueryRunner } from 'typeorm';
 import { User } from '../entities/user.entity';
 import { Role } from '../../roles/entities/role.entity';
-import * as bcrypt from 'bcrypt';
+import * as bcrypt from 'bcryptjs';
 import {
   ALL_USER_SEEDS,
   ADMIN_USERS,

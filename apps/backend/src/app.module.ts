@@ -3,8 +3,9 @@
  * @description Main entry point of SouqSyria backend. Sets up global modules, TypeORM, and security guards.
  */
 import { Module, NestModule, MiddlewareConsumer, RequestMethod } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { CacheModule } from '@nestjs/cache-manager';
+import { RedisModule } from '@nestjs-modules/ioredis';
 import { GuestSessionMiddleware } from './common/middleware/guest-session.middleware';
 import { IdempotencyMiddleware } from './common/middleware/idempotency.middleware';
 import { GuestSession } from './cart/entities/guest-session.entity';
@@ -70,6 +71,27 @@ import { HealthModule } from './health';
     ConfigModule.forRoot({
       isGlobal: true, // Make ConfigService available globally
       envFilePath: ['.env.development', '.env'], // Support development and production env files
+    }),
+    // ✅ Redis Module - Required for rate limiting, caching, and session management
+    RedisModule.forRootAsync({
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService) => ({
+        type: 'single',
+        url: configService.get<string>('REDIS_URL') || undefined,
+        host: configService.get<string>('REDIS_HOST', 'localhost'),
+        port: configService.get<number>('REDIS_PORT', 6379),
+        password: configService.get<string>('REDIS_PASSWORD') || undefined,
+        db: configService.get<number>('REDIS_DB', 0),
+        // Graceful connection handling
+        lazyConnect: true, // Don't fail immediately if Redis is unavailable
+        retryStrategy: (times: number) => {
+          // Retry with exponential backoff, max 3 attempts
+          if (times > 3) {
+            return null; // Stop retrying
+          }
+          return Math.min(times * 1000, 3000);
+        },
+      }),
     }),
     // ✅ Shared Domain Module - Event-driven architecture for breaking circular dependencies
     SharedDomainModule,

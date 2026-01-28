@@ -9,7 +9,7 @@ import { LoginLog } from './entity/login-log.entity';
 import { TokenBlacklist } from './entity/token-blacklist.entity';
 import { RefreshToken } from './entity/refresh-token.entity';
 import { EmailService } from './service/email.service';
-import * as bcrypt from 'bcrypt';
+import * as bcrypt from 'bcryptjs';
 
 /**
  * AuthService Unit Tests

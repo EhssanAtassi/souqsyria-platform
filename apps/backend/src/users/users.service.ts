@@ -11,7 +11,7 @@ import { Role } from '../roles/entities/role.entity';
 import { Address } from '../addresses/entities/address.entity';
 import { UpdateProfileDto } from './dto/update-profile.dto';
 import { ChangePasswordDto } from './dto/change-password.dto';
-import * as bcrypt from 'bcrypt';
+import * as bcrypt from 'bcryptjs';
 
 @Injectable()
 export class UsersService {
