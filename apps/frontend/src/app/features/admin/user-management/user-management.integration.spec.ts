@@ -387,7 +387,7 @@ describe('User Management Integration Tests', () => {
       };
       dataService.getUsers.and.returnValue(of(filteredResponse));
 
-      service.applyFilters({ status: 'active' as any }).subscribe({
+      service.applyFilters({ status: 'active', role: null, businessRole: null, adminRole: null, dateRange: null, isVerified: null }).subscribe({
         next: () => {
           expect(dataService.getUsers).toHaveBeenCalledWith(
             jasmine.objectContaining({ status: 'active', page: 1 })
@@ -403,7 +403,7 @@ describe('User Management Integration Tests', () => {
      */
     it('should clear all filters and refetch users', (done) => {
       // Set some filters first
-      store.updateFilters({ status: 'active' as any });
+      store.updateFilters({ status: 'active', role: null, businessRole: null, adminRole: null, dateRange: null, isVerified: null });
       store.updateSearch('test');
 
       dataService.getUsers.and.returnValue(of(MOCK_USERS_RESPONSE));
@@ -424,7 +424,7 @@ describe('User Management Integration Tests', () => {
      */
     it('should refresh users with current pagination and filters', () => {
       store.updatePagination({ page: 3, limit: 25 });
-      store.updateFilters({ status: 'suspended' as any });
+      store.updateFilters({ status: 'suspended', role: null, businessRole: null, adminRole: null, dateRange: null, isVerified: null });
       store.updateSearch('محمد');
 
       dataService.getUsers.and.returnValue(of(MOCK_USERS_RESPONSE));
@@ -514,12 +514,12 @@ describe('User Management Integration Tests', () => {
       const originalUser = query.getEntity(1);
       const originalRole = originalUser?.adminRole;
 
-      const dto = { businessRole: 'seller' as any, adminRole: 'super_admin' };
+      const dto = { businessRole: 'seller' as any, adminRole: 'super_admin' as any };
       dataService.assignRoles.and.returnValue(
         throwError(() => ({ error: { message: 'لا تملك الصلاحية' } }))
       );
 
-      service.assignRoles(1, dto).subscribe();
+      service.assignRoles(1, dto as any).subscribe();
 
       // Should be rolled back to original
       const user = query.getEntity(1);
@@ -530,9 +530,9 @@ describe('User Management Integration Tests', () => {
      * Verifies that assigning roles to non-existent user is handled.
      */
     it('should handle role assignment for non-existent user', () => {
-      const dto = { businessRole: 'seller' as any, adminRole: 'admin' };
+      const dto = { businessRole: 'seller' as any, adminRole: 'admin' as any };
 
-      service.assignRoles(999, dto).subscribe();
+      service.assignRoles(999, dto as any).subscribe();
 
       expect(snackBar.open).toHaveBeenCalledWith(
         jasmine.stringContaining('not found'),

@@ -147,19 +147,23 @@ describe('Role Management Integration Tests', () => {
   const MOCK_TEMPLATES: RoleTemplate[] = [
     {
       id: 't1',
-      name: 'seller_basic',
-      displayName: 'قالب البائع الأساسي',
+      name: 'قالب البائع الأساسي',
       description: 'Basic seller template - قالب بائع أساسي',
-      permissionIds: [5, 6, 8],
-      category: 'seller'
+      suggestedPermissions: ['manage_products', 'view_products', 'view_orders'],
+      priority: 40,
+      category: 'vendor_management',
+      icon: 'store',
+      color: '#4CAF50'
     },
     {
       id: 't2',
-      name: 'support_agent',
-      displayName: 'قالب وكيل الدعم',
+      name: 'قالب وكيل الدعم',
       description: 'Support agent template - قالب دعم فني',
-      permissionIds: [2, 6, 8],
-      category: 'support'
+      suggestedPermissions: ['view_users', 'view_products', 'view_orders'],
+      priority: 30,
+      category: 'customer_service',
+      icon: 'support_agent',
+      color: '#2196F3'
     }
   ];
 
@@ -597,7 +601,7 @@ describe('Role Management Integration Tests', () => {
      */
     it('should delete role from API and remove from store', (done) => {
       dataService.deleteRole.and.returnValue(
-        of({ message: 'تم حذف الدور بنجاح - Role deleted successfully' })
+        of({ success: true, message: 'تم حذف الدور بنجاح - Role deleted successfully' })
       );
 
       service.deleteRole(5).subscribe({
@@ -623,7 +627,7 @@ describe('Role Management Integration Tests', () => {
      * Verifies optimistic deletion is applied before API response.
      */
     it('should optimistically remove role before API response', () => {
-      dataService.deleteRole.and.returnValue(of({ message: 'Deleted' }));
+      dataService.deleteRole.and.returnValue(of({ success: true, message: 'Deleted' }));
 
       service.deleteRole(5).subscribe();
 
@@ -704,7 +708,7 @@ describe('Role Management Integration Tests', () => {
         newDisplayName: 'مراقب محتوى أول'
       };
 
-      const clonedRole: Role = {
+      const clonedRole = {
         id: 6,
         name: 'senior_moderator',
         displayName: 'مراقب محتوى أول',
@@ -715,10 +719,11 @@ describe('Role Management Integration Tests', () => {
         permissionIds: [...MOCK_ROLES[2].permissionIds],
         userCount: 0,
         createdAt: new Date(),
-        updatedAt: new Date()
+        updatedAt: new Date(),
+        originalRoleId: 3
       };
 
-      dataService.cloneRole.and.returnValue(of(clonedRole));
+      dataService.cloneRole.and.returnValue(of(clonedRole as any));
 
       service.cloneRole(3, cloneDto).subscribe({
         next: () => {
@@ -831,8 +836,8 @@ describe('Role Management Integration Tests', () => {
         next: () => {
           const templates = query.getCachedTemplates();
           expect(templates.length).toBe(2);
-          expect(templates[0].name).toBe('seller_basic');
-          expect(templates[0].displayName).toBe('قالب البائع الأساسي');
+          expect(templates[0].id).toBe('t1');
+          expect(templates[0].name).toBe('قالب البائع الأساسي');
           done();
         },
         error: done.fail
