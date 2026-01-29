@@ -15,6 +15,7 @@
 import { Global, Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { PermissionsGuard } from '../../access-control/guards/permissions.guard';
+import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 import { SecurityAuditService } from '../../access-control/security-audit/security-audit.service';
 import { User } from '../../users/entities/user.entity';
 import { Route } from '../../access-control/entities/route.entity';
@@ -58,9 +59,11 @@ import { SecurityAuditLog } from '../../access-control/entities/security-audit-l
   ],
   providers: [
     SecurityAuditService,
+    JwtAuthGuard,
     PermissionsGuard,
   ],
   exports: [
+    JwtAuthGuard,
     PermissionsGuard,
     SecurityAuditService,
   ],

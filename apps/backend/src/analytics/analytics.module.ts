@@ -73,16 +73,7 @@ import { EventTrackingController } from './controllers/event-tracking.controller
       UserSession,
       UserEvent,
     ]),
-    // Event emitter for real-time analytics processing
-    EventEmitterModule.forRoot({
-      wildcard: false,
-      delimiter: '.',
-      newListener: false,
-      removeListener: false,
-      maxListeners: 10,
-      verboseMemoryLeak: false,
-      ignoreErrors: false,
-    }),
+    // Event emitter for real-time analytics processing (forRoot called in AppModule)
   ],
   controllers: [
     AnalyticsController, // Legacy analytics

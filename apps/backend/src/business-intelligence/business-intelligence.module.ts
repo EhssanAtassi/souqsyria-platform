@@ -84,17 +84,7 @@ import { ProductEventListener } from './listeners/product-event.listener';
       UserSession,
     ]),
     
-    // Event system for real-time processing
-    EventEmitterModule.forRoot({
-      // Use wildcards for business events
-      wildcard: true,
-      // Maximum listeners per event
-      maxListeners: 20,
-      // Enable event listener validation
-      verboseMemoryLeak: true,
-      // Delimiter for wildcard events
-      delimiter: '.',
-    }),
+    // Event system for real-time processing (forRoot called in AppModule)
     
     // Scheduler for background tasks
     ScheduleModule.forRoot(),

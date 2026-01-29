@@ -30,15 +30,18 @@ import {
 import { HealthService } from '../services/health.service';
 import { DatabaseHealthIndicator } from '../indicators/database.health';
 import { BusinessHealthIndicator } from '../indicators/business.health';
+import { Public } from '../../common/decorators/public.decorator';
 
 /**
  * HealthController
  * @description Provides health check endpoints for monitoring and orchestration
+ * @note Marked @Public() to bypass authentication - essential for k8s probes
  *
  * @swagger
  * @ApiTags('Health')
  */
 @ApiTags('Health')
+@Public() // Health endpoints must be accessible without authentication
 @Controller('health')
 export class HealthController {
   constructor(

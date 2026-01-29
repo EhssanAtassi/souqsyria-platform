@@ -6,6 +6,7 @@ import { Module, NestModule, MiddlewareConsumer, RequestMethod } from '@nestjs/c
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { CacheModule } from '@nestjs/cache-manager';
 import { RedisModule } from '@nestjs-modules/ioredis';
+import { EventEmitterModule } from '@nestjs/event-emitter';
 import { GuestSessionMiddleware } from './common/middleware/guest-session.middleware';
 import { IdempotencyMiddleware } from './common/middleware/idempotency.middleware';
 import { GuestSession } from './cart/entities/guest-session.entity';
@@ -71,6 +72,17 @@ import { HealthModule } from './health';
     ConfigModule.forRoot({
       isGlobal: true, // Make ConfigService available globally
       envFilePath: ['.env.development', '.env'], // Support development and production env files
+    }),
+    // ✅ Event Emitter Module - Global event-driven architecture (must be forRoot only ONCE)
+    EventEmitterModule.forRoot({
+      global: true, // Make EventEmitter2 available globally without imports
+      wildcard: false,
+      delimiter: '.',
+      newListener: false,
+      removeListener: false,
+      maxListeners: 20,
+      verboseMemoryLeak: false,
+      ignoreErrors: false,
     }),
     // ✅ Redis Module - Required for rate limiting, caching, and session management
     RedisModule.forRootAsync({
@@ -204,7 +216,7 @@ import { HealthModule } from './health';
      */
     {
       provide: APP_GUARD,
-      useClass: JwtAuthGuard, // 🔐 1st: Authentication
+      useExisting: JwtAuthGuard, // 🔐 1st: Authentication - Uses instance from GuardsModule with Reflector
     },
     {
       provide: APP_GUARD,

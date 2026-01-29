@@ -18,7 +18,7 @@
  */
 
 import { Global, Module } from '@nestjs/common';
-import { EventEmitterModule } from '@nestjs/event-emitter';
+// EventEmitterModule.forRoot() is called in AppModule (only once)
 
 // Shared Services
 import { TransactionEventService } from './services/transaction-event.service';
@@ -39,30 +39,14 @@ import { DomainEventPublisher } from './services/domain-event-publisher.service'
 @Global()
 @Module({
   imports: [
-    // Event Emitter for decoupled cross-module communication
-    EventEmitterModule.forRoot({
-      // Use wildcard for flexible event listening
-      wildcard: true,
-      // Delimiter for namespaced events (e.g., 'order.created', 'payment.completed')
-      delimiter: '.',
-      // Allow new listeners after max listeners reached
-      newListener: false,
-      // Remove listeners on cleanup
-      removeListener: false,
-      // Max listeners per event (prevents memory leaks)
-      maxListeners: 20,
-      // Emit warnings when exceeding limits
-      verboseMemoryLeak: true,
-      // Ignore errors in listeners (production resilience)
-      ignoreErrors: false,
-    }),
+    // Event Emitter (forRoot called in AppModule - this module just re-exports)
   ],
   providers: [
     TransactionEventService,
     DomainEventPublisher,
   ],
   exports: [
-    EventEmitterModule,
+    // EventEmitterModule is now global via AppModule forRoot()
     TransactionEventService,
     DomainEventPublisher,
   ],

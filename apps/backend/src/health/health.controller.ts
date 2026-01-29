@@ -63,6 +63,7 @@ interface HealthStatus {
  * - GET /health/detailed - Full health report with all checks
  */
 @ApiTags('Health')
+@Public() // Entire controller is public - no auth required for health checks
 @Controller('health')
 export class HealthController {
   // Application startup time for uptime calculation
