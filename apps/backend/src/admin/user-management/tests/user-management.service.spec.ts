@@ -25,7 +25,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { NotFoundException, BadRequestException } from '@nestjs/common';
+import { NotFoundException, BadRequestException, ForbiddenException } from '@nestjs/common';
 import * as bcrypt from 'bcryptjs';
 
 import { UserManagementService } from '../user-management.service';
@@ -34,8 +34,8 @@ import { Role } from '../../../roles/entities/role.entity';
 import { SecurityAuditService } from '../../../access-control/security-audit/security-audit.service';
 import { SecurityAuditLog } from '../../../access-control/entities/security-audit-log.entity';
 
-// Mock bcrypt module for password hashing tests
-jest.mock('bcrypt', () => ({
+// Mock bcryptjs module for password hashing tests
+jest.mock('bcryptjs', () => ({
   hash: jest.fn().mockResolvedValue('hashed_password_here'),
   compare: jest.fn().mockResolvedValue(true),
 }));
@@ -313,7 +313,7 @@ describe('UserManagementService', () => {
 
       mockUserRepository.findOne.mockResolvedValue(adminUser);
 
-      await expect(service.assignRoles(100, assignDto, 100)).rejects.toThrow(BadRequestException);
+      await expect(service.assignRoles(100, assignDto, 100)).rejects.toThrow(ForbiddenException);
       await expect(service.assignRoles(100, assignDto, 100)).rejects.toThrow(
         'Cannot modify your own role assignments',
       );

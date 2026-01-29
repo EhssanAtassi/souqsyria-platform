@@ -96,6 +96,12 @@ describe('OrdersService', () => {
           provide: StockService,
           useFactory: () => ({
             getStock: jest.fn(),
+            getStockBatch: jest.fn().mockResolvedValue(
+              new Map([
+                [1, 100], // variant_id: 1, quantity: 100
+                [2, 50],  // variant_id: 2, quantity: 50
+              ]),
+            ),
           }),
         },
         {
@@ -183,7 +189,10 @@ describe('OrdersService', () => {
       const mockVariant = { id: 1, price: 50000 };
 
       variantRepository.find.mockResolvedValue([mockVariant] as any);
-      stockService.getStock.mockResolvedValue(5); // Insufficient stock
+      // Mock getStockBatch to return insufficient stock (5 available, 10 requested)
+      stockService.getStockBatch.mockResolvedValueOnce(
+        new Map([[1, 5]]), // Only 5 available for variant_id 1
+      );
 
       await expect(
         service.createOrder(mockUser as any, createOrderDto as any),

@@ -30,6 +30,7 @@ import { CommissionPayoutEntity, PayoutStatus } from '../../commissions/entites/
 import { KycDocument } from '../../kyc/entites/kyc-document.entity';
 import { RefundStatus } from '../../refund/enums/refund-status.enum';
 import { PeriodType } from '../dto';
+import { DashboardCacheService } from '../services/dashboard-cache.service';
 
 // =============================================================================
 // MOCK FACTORIES
@@ -152,6 +153,18 @@ describe('AdminDashboardService', () => {
         { provide: getRepositoryToken(RefundTransaction), useFactory: createMockRepository },
         { provide: getRepositoryToken(CommissionPayoutEntity), useFactory: createMockRepository },
         { provide: getRepositoryToken(KycDocument), useFactory: createMockRepository },
+        {
+          provide: DashboardCacheService,
+          useValue: {
+            get: jest.fn().mockResolvedValue(null),
+            set: jest.fn().mockResolvedValue(undefined),
+            delete: jest.fn().mockResolvedValue(undefined),
+            invalidateMetrics: jest.fn().mockResolvedValue(undefined),
+            invalidateAll: jest.fn().mockResolvedValue(undefined),
+            // getOrSet executes the factory function and returns its result
+            getOrSet: jest.fn().mockImplementation(async (_key, factory) => factory()),
+          },
+        },
       ],
     }).compile();
 

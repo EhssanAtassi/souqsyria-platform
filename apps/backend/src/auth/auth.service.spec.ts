@@ -9,7 +9,16 @@ import { LoginLog } from './entity/login-log.entity';
 import { TokenBlacklist } from './entity/token-blacklist.entity';
 import { RefreshToken } from './entity/refresh-token.entity';
 import { EmailService } from './service/email.service';
+import { EncryptionService } from '../common/utils/encryption.util';
+import { RateLimiterService } from '../common/services/rate-limiter.service';
 import * as bcrypt from 'bcryptjs';
+
+// Mock bcryptjs at module level
+jest.mock('bcryptjs', () => ({
+  hash: jest.fn().mockResolvedValue('$2b$10$hashedpassword123456'),
+  compare: jest.fn().mockResolvedValue(true),
+  genSalt: jest.fn().mockResolvedValue('$2b$10$salt'),
+}));
 
 /**
  * AuthService Unit Tests
@@ -59,9 +68,11 @@ describe('AuthService', () => {
     resetPasswordToken: null,
     resetPasswordExpires: null,
     metadata: {},
+    // User entity methods for security and account management
     isResetTokenValid: jest.fn().mockReturnValue(true),
     resetFailedAttempts: jest.fn(),
     isAccountLocked: jest.fn().mockReturnValue(false),
+    incrementFailedAttempts: jest.fn(), // SEC-H06: Track failed login attempts
   };
 
   // Factory for creating mock repositories
@@ -91,6 +102,33 @@ describe('AuthService', () => {
     emailService = {
       sendVerificationEmail: jest.fn().mockResolvedValue(true),
       sendPasswordResetEmail: jest.fn().mockResolvedValue(true),
+    };
+
+    const encryptionService = {
+      // Core encryption methods
+      encrypt: jest.fn().mockImplementation((text) => `encrypted_${text}`),
+      decrypt: jest.fn().mockImplementation((text) => text.replace('encrypted_', '')),
+      hash: jest.fn().mockImplementation((text) => `hashed_${text}`),
+      compare: jest.fn().mockResolvedValue(true),
+      // String-based encryption for OAuth tokens
+      encryptToString: jest.fn().mockImplementation((text) => `enc_${text}`),
+      decryptFromString: jest.fn().mockImplementation((text) => text.replace('enc_', '')),
+      // Token generation for password reset
+      generateSecureToken: jest.fn().mockReturnValue('secure_random_token_32bytes'),
+      hashToken: jest.fn().mockImplementation((token) => `hashed_${token}`),
+    };
+
+    const rateLimiterService = {
+      // Check if rate limit exceeded
+      checkLimit: jest.fn().mockResolvedValue({ allowed: true, remaining: 10, retryAfter: null }),
+      // Record failed/successful attempts
+      recordFailedAttempt: jest.fn().mockResolvedValue(undefined),
+      recordSuccess: jest.fn().mockResolvedValue(undefined),
+      // Legacy methods (may be used elsewhere)
+      checkRateLimit: jest.fn().mockResolvedValue({ allowed: true, remaining: 10 }),
+      isRateLimited: jest.fn().mockResolvedValue(false),
+      consume: jest.fn().mockResolvedValue(true),
+      reset: jest.fn().mockResolvedValue(true),
     };
 
     const module: TestingModule = await Test.createTestingModule({
@@ -123,6 +161,14 @@ describe('AuthService', () => {
         {
           provide: EmailService,
           useValue: emailService,
+        },
+        {
+          provide: EncryptionService,
+          useValue: encryptionService,
+        },
+        {
+          provide: RateLimiterService,
+          useValue: rateLimiterService,
         },
       ],
     }).compile();
@@ -215,10 +261,8 @@ describe('AuthService', () => {
     } as any;
 
     beforeEach(() => {
-      // Mock bcrypt.compare
-      jest.spyOn(bcrypt, 'compare').mockImplementation((password: string) => {
-        return Promise.resolve(password === 'correctPassword123');
-      });
+      // Reset bcrypt.compare mock for each test
+      (bcrypt.compare as jest.Mock).mockResolvedValue(true);
     });
 
     it('should successfully login with valid credentials', async () => {
@@ -283,6 +327,8 @@ describe('AuthService', () => {
       // Arrange
       userRepository.findOne.mockResolvedValue(mockUser);
       const wrongPasswordDto = { ...loginDto, password: 'wrongPassword' };
+      // Mock bcrypt.compare to return false for wrong password
+      (bcrypt.compare as jest.Mock).mockResolvedValueOnce(false);
 
       // Act & Assert
       await expect(service.login(wrongPasswordDto, mockRequest)).rejects.toThrow(
@@ -355,9 +401,11 @@ describe('AuthService', () => {
       const result = await service.forgotPassword({ email: 'test@souqsyria.com' });
 
       // Assert
+      // The service now uses encryptionService.generateSecureToken() instead of jwtService.sign()
+      // for generating password reset tokens (more secure approach)
       expect(result.message).toContain('reset instructions');
       expect(emailService.sendPasswordResetEmail).toHaveBeenCalled();
-      expect(jwtService.sign).toHaveBeenCalled();
+      expect(userRepository.save).toHaveBeenCalled(); // Token is saved to user record
     });
 
     it('should return generic message for non-existent email (security)', async () => {

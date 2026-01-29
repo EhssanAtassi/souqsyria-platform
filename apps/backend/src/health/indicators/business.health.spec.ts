@@ -141,12 +141,15 @@ describe('BusinessHealthIndicator', () => {
     it('should include entity counts', async () => {
       setIsInitialized(true);
 
+      // Query order: 3 table checks + recent users + totalUsers + totalProducts + totalOrders
       (mockDataSource.query as jest.Mock)
-        .mockResolvedValueOnce([{ '1': 1 }])
-        .mockResolvedValueOnce([{ count: '5' }])
-        .mockResolvedValueOnce([{ count: '100' }])
-        .mockResolvedValueOnce([{ count: '500' }])
-        .mockResolvedValueOnce([{ count: '50' }]);
+        .mockResolvedValueOnce([{ '1': 1 }]) // users table check
+        .mockResolvedValueOnce([{ '1': 1 }]) // products table check
+        .mockResolvedValueOnce([{ '1': 1 }]) // orders table check
+        .mockResolvedValueOnce([{ count: '5' }]) // recent users
+        .mockResolvedValueOnce([{ count: '100' }]) // total users
+        .mockResolvedValueOnce([{ count: '500' }]) // total products
+        .mockResolvedValueOnce([{ count: '50' }]); // total orders
 
       const result = await indicator.isHealthy('business_metrics');
 
@@ -221,20 +224,27 @@ describe('BusinessHealthIndicator', () => {
     });
 
     /**
-     * Test: Should not re-throw HealthCheckError
-     * Description: Should wrap errors in HealthCheckError properly
+     * Test: Should handle query errors gracefully
+     * Description: Service should handle individual query failures without throwing
      */
     it('should handle HealthCheckError appropriately', async () => {
       setIsInitialized(true);
 
+      // Service handles individual query errors gracefully
+      // 2 of 3 table checks pass, so criticalTablesExist = true
       (mockDataSource.query as jest.Mock)
-        .mockResolvedValueOnce([{ '1': 1 }])
-        .mockResolvedValueOnce([{ count: '5' }])
-        .mockRejectedValueOnce(new Error('Query failed'));
+        .mockResolvedValueOnce([{ '1': 1 }]) // users table check passes
+        .mockResolvedValueOnce([{ '1': 1 }]) // products table check passes
+        .mockRejectedValueOnce(new Error('Query failed')) // orders table check fails
+        .mockResolvedValueOnce([{ count: '5' }]) // recent users
+        .mockResolvedValueOnce([{ count: '100' }])
+        .mockResolvedValueOnce([{ count: '500' }])
+        .mockResolvedValueOnce([{ count: '50' }]);
 
-      await expect(indicator.isHealthy('business_metrics')).rejects.toThrow(
-        HealthCheckError,
-      );
+      // Should succeed since 2 of 3 critical tables exist
+      const result = await indicator.isHealthy('business_metrics');
+      expect(result['business_metrics'].status).toBe('up');
+      expect(result['business_metrics'].existingTables).toContain('users');
     });
 
     /**
@@ -244,9 +254,12 @@ describe('BusinessHealthIndicator', () => {
     it('should include timestamp in result', async () => {
       setIsInitialized(true);
 
+      // 3 table checks + recent users + 3 entity counts
       (mockDataSource.query as jest.Mock)
-        .mockResolvedValueOnce([{ '1': 1 }])
-        .mockResolvedValueOnce([{ count: '5' }])
+        .mockResolvedValueOnce([{ '1': 1 }]) // users table check
+        .mockResolvedValueOnce([{ '1': 1 }]) // products table check
+        .mockResolvedValueOnce([{ '1': 1 }]) // orders table check
+        .mockResolvedValueOnce([{ count: '5' }]) // recent users
         .mockResolvedValueOnce([{ count: '100' }])
         .mockResolvedValueOnce([{ count: '500' }])
         .mockResolvedValueOnce([{ count: '50' }]);
@@ -266,9 +279,11 @@ describe('BusinessHealthIndicator', () => {
     it('should return early when database not connected', async () => {
       setIsInitialized(false);
 
-      const metrics = await indicator.isHealthy('business_metrics');
-
-      // Will fail due to unhealthy status
+      // Should throw HealthCheckError when database not connected
+      await expect(indicator.isHealthy('business_metrics')).rejects.toThrow(
+        HealthCheckError,
+      );
+      // No queries should be made since database is not connected
       expect(mockDataSource.query).not.toHaveBeenCalled();
     });
 
@@ -308,9 +323,12 @@ describe('BusinessHealthIndicator', () => {
     it('should check for recent users', async () => {
       setIsInitialized(true);
 
+      // 3 table checks + recent users + 3 entity counts
       (mockDataSource.query as jest.Mock)
-        .mockResolvedValueOnce([{ '1': 1 }])
-        .mockResolvedValueOnce([{ count: '5' }])
+        .mockResolvedValueOnce([{ '1': 1 }]) // users table check
+        .mockResolvedValueOnce([{ '1': 1 }]) // products table check
+        .mockResolvedValueOnce([{ '1': 1 }]) // orders table check
+        .mockResolvedValueOnce([{ count: '5' }]) // recent users
         .mockResolvedValueOnce([{ count: '100' }])
         .mockResolvedValueOnce([{ count: '500' }])
         .mockResolvedValueOnce([{ count: '50' }]);
@@ -329,12 +347,15 @@ describe('BusinessHealthIndicator', () => {
     it('should count total users', async () => {
       setIsInitialized(true);
 
+      // 3 table checks + recent users + 3 entity counts
       (mockDataSource.query as jest.Mock)
-        .mockResolvedValueOnce([{ '1': 1 }])
-        .mockResolvedValueOnce([{ count: '5' }])
-        .mockResolvedValueOnce([{ count: '42' }])
-        .mockResolvedValueOnce([{ count: '500' }])
-        .mockResolvedValueOnce([{ count: '50' }]);
+        .mockResolvedValueOnce([{ '1': 1 }]) // users table check
+        .mockResolvedValueOnce([{ '1': 1 }]) // products table check
+        .mockResolvedValueOnce([{ '1': 1 }]) // orders table check
+        .mockResolvedValueOnce([{ count: '5' }]) // recent users
+        .mockResolvedValueOnce([{ count: '42' }]) // total users
+        .mockResolvedValueOnce([{ count: '500' }]) // total products
+        .mockResolvedValueOnce([{ count: '50' }]); // total orders
 
       const result = await indicator.isHealthy('business_metrics');
 
@@ -348,12 +369,15 @@ describe('BusinessHealthIndicator', () => {
     it('should count total products', async () => {
       setIsInitialized(true);
 
+      // 3 table checks + recent users + 3 entity counts
       (mockDataSource.query as jest.Mock)
-        .mockResolvedValueOnce([{ '1': 1 }])
-        .mockResolvedValueOnce([{ count: '5' }])
-        .mockResolvedValueOnce([{ count: '100' }])
-        .mockResolvedValueOnce([{ count: '234' }])
-        .mockResolvedValueOnce([{ count: '50' }]);
+        .mockResolvedValueOnce([{ '1': 1 }]) // users table check
+        .mockResolvedValueOnce([{ '1': 1 }]) // products table check
+        .mockResolvedValueOnce([{ '1': 1 }]) // orders table check
+        .mockResolvedValueOnce([{ count: '5' }]) // recent users
+        .mockResolvedValueOnce([{ count: '100' }]) // total users
+        .mockResolvedValueOnce([{ count: '234' }]) // total products
+        .mockResolvedValueOnce([{ count: '50' }]); // total orders
 
       const result = await indicator.isHealthy('business_metrics');
 
@@ -367,12 +391,15 @@ describe('BusinessHealthIndicator', () => {
     it('should count total orders', async () => {
       setIsInitialized(true);
 
+      // 3 table checks + recent users + 3 entity counts
       (mockDataSource.query as jest.Mock)
-        .mockResolvedValueOnce([{ '1': 1 }])
-        .mockResolvedValueOnce([{ count: '5' }])
-        .mockResolvedValueOnce([{ count: '100' }])
-        .mockResolvedValueOnce([{ count: '500' }])
-        .mockResolvedValueOnce([{ count: '67' }]);
+        .mockResolvedValueOnce([{ '1': 1 }]) // users table check
+        .mockResolvedValueOnce([{ '1': 1 }]) // products table check
+        .mockResolvedValueOnce([{ '1': 1 }]) // orders table check
+        .mockResolvedValueOnce([{ count: '5' }]) // recent users
+        .mockResolvedValueOnce([{ count: '100' }]) // total users
+        .mockResolvedValueOnce([{ count: '500' }]) // total products
+        .mockResolvedValueOnce([{ count: '67' }]); // total orders
 
       const result = await indicator.isHealthy('business_metrics');
 
@@ -386,9 +413,12 @@ describe('BusinessHealthIndicator', () => {
     it('should handle missing count data', async () => {
       setIsInitialized(true);
 
+      // 3 table checks + recent users (empty) + 3 entity counts
       (mockDataSource.query as jest.Mock)
-        .mockResolvedValueOnce([{ '1': 1 }])
-        .mockResolvedValueOnce([]) // Empty result
+        .mockResolvedValueOnce([{ '1': 1 }]) // users table check
+        .mockResolvedValueOnce([{ '1': 1 }]) // products table check
+        .mockResolvedValueOnce([{ '1': 1 }]) // orders table check
+        .mockResolvedValueOnce([]) // Empty recent users result
         .mockResolvedValueOnce([{ count: '100' }])
         .mockResolvedValueOnce([{ count: '500' }])
         .mockResolvedValueOnce([{ count: '50' }]);
@@ -430,9 +460,12 @@ describe('BusinessHealthIndicator', () => {
     it('should return business statistics', async () => {
       setIsInitialized(true);
 
+      // 3 table checks + recent users + 3 entity counts
       (mockDataSource.query as jest.Mock)
-        .mockResolvedValueOnce([{ '1': 1 }])
-        .mockResolvedValueOnce([{ count: '5' }])
+        .mockResolvedValueOnce([{ '1': 1 }]) // users table check
+        .mockResolvedValueOnce([{ '1': 1 }]) // products table check
+        .mockResolvedValueOnce([{ '1': 1 }]) // orders table check
+        .mockResolvedValueOnce([{ count: '5' }]) // recent users
         .mockResolvedValueOnce([{ count: '100' }])
         .mockResolvedValueOnce([{ count: '500' }])
         .mockResolvedValueOnce([{ count: '50' }]);
@@ -451,12 +484,15 @@ describe('BusinessHealthIndicator', () => {
     it('statistics should include entity counts', async () => {
       setIsInitialized(true);
 
+      // 3 table checks + recent users + 3 entity counts
       (mockDataSource.query as jest.Mock)
-        .mockResolvedValueOnce([{ '1': 1 }])
-        .mockResolvedValueOnce([{ count: '5' }])
-        .mockResolvedValueOnce([{ count: '100' }])
-        .mockResolvedValueOnce([{ count: '500' }])
-        .mockResolvedValueOnce([{ count: '50' }]);
+        .mockResolvedValueOnce([{ '1': 1 }]) // users table check
+        .mockResolvedValueOnce([{ '1': 1 }]) // products table check
+        .mockResolvedValueOnce([{ '1': 1 }]) // orders table check
+        .mockResolvedValueOnce([{ count: '5' }]) // recent users
+        .mockResolvedValueOnce([{ count: '100' }]) // total users
+        .mockResolvedValueOnce([{ count: '500' }]) // total products
+        .mockResolvedValueOnce([{ count: '50' }]); // total orders
 
       const stats = await indicator.getStatistics();
 
@@ -487,12 +523,15 @@ describe('BusinessHealthIndicator', () => {
     it('should handle individual query errors', async () => {
       setIsInitialized(true);
 
+      // 3 table checks (2 success, 1 fail) + recent users + 3 entity counts (with fallback)
       (mockDataSource.query as jest.Mock)
-        .mockResolvedValueOnce([{ '1': 1 }])
-        .mockResolvedValueOnce([{ count: '5' }])
-        .mockRejectedValueOnce(new Error('Query error'))
-        .mockResolvedValueOnce([{ count: '500' }])
-        .mockResolvedValueOnce([{ count: '50' }]);
+        .mockResolvedValueOnce([{ '1': 1 }]) // users table check
+        .mockRejectedValueOnce(new Error('Table not found')) // products table check fails
+        .mockResolvedValueOnce([{ '1': 1 }]) // orders table check
+        .mockResolvedValueOnce([{ count: '5' }]) // recent users
+        .mockResolvedValueOnce([{ count: '100' }]) // total users
+        .mockRejectedValueOnce(new Error('Query error')) // total products fails
+        .mockResolvedValueOnce([{ count: '50' }]); // total orders
 
       const result = await indicator.isHealthy('business_metrics');
 
@@ -518,14 +557,19 @@ describe('BusinessHealthIndicator', () => {
     it('should include error message when exception occurs', async () => {
       setIsInitialized(true);
 
-      (mockDataSource.query as jest.Mock).mockRejectedValue(
-        new Error('Connection failed'),
-      );
+      // Make all queries fail to trigger the generic exception handler
+      (mockDataSource.query as jest.Mock).mockImplementation(() => {
+        throw new Error('Connection failed');
+      });
 
       try {
         await indicator.isHealthy('business_metrics');
+        fail('Expected HealthCheckError to be thrown');
       } catch (err: any) {
-        expect(err.cause['business_metrics']).toHaveProperty('message');
+        expect(err).toBeInstanceOf(HealthCheckError);
+        // The error should contain the business_metrics key with status info
+        expect(err.causes['business_metrics']).toHaveProperty('status');
+        expect(err.causes['business_metrics'].status).toBe('down');
       }
     });
   });
@@ -538,9 +582,12 @@ describe('BusinessHealthIndicator', () => {
     it('should return valid HealthIndicatorResult format', async () => {
       setIsInitialized(true);
 
+      // 3 table checks + recent users + 3 entity counts
       (mockDataSource.query as jest.Mock)
-        .mockResolvedValueOnce([{ '1': 1 }])
-        .mockResolvedValueOnce([{ count: '5' }])
+        .mockResolvedValueOnce([{ '1': 1 }]) // users table check
+        .mockResolvedValueOnce([{ '1': 1 }]) // products table check
+        .mockResolvedValueOnce([{ '1': 1 }]) // orders table check
+        .mockResolvedValueOnce([{ count: '5' }]) // recent users
         .mockResolvedValueOnce([{ count: '100' }])
         .mockResolvedValueOnce([{ count: '500' }])
         .mockResolvedValueOnce([{ count: '50' }]);

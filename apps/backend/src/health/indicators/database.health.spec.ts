@@ -177,7 +177,7 @@ describe('DatabaseHealthIndicator', () => {
       } catch (err: any) {
         expect(err).toBeInstanceOf(HealthCheckError);
         expect((err as Error).message).toBe('Database health check failed');
-        expect(err.cause['database_query']).toHaveProperty('message');
+        expect(err.causes['database_query']).toHaveProperty('message');
       }
     });
 
@@ -193,7 +193,7 @@ describe('DatabaseHealthIndicator', () => {
       try {
         await indicator.isHealthy('database_query');
       } catch (err: any) {
-        expect(err.cause['database_query'].connected).toBe(false);
+        expect(err.causes['database_query'].connected).toBe(false);
       }
     });
 
@@ -227,7 +227,7 @@ describe('DatabaseHealthIndicator', () => {
 
       const result = await indicator.checkConnectionPool('connection_pool');
 
-      expect(result['database_query'].status).toBe('up');
+      expect(result['connection_pool'].status).toBe('up');
       expect(mockQueryRunner.connect).toHaveBeenCalled();
       expect(mockQueryRunner.release).toHaveBeenCalled();
     });
@@ -307,7 +307,7 @@ describe('DatabaseHealthIndicator', () => {
       try {
         await indicator.checkConnectionPool('connection_pool');
       } catch (err: any) {
-        expect(err.cause['database_query'].poolStatus).toBe('unhealthy');
+        expect(err.causes['connection_pool'].poolStatus).toBe('unhealthy');
       }
     });
 
@@ -421,8 +421,10 @@ describe('DatabaseHealthIndicator', () => {
 
       const stats = await indicator.getStatistics();
 
+      // When an error occurs, getStatistics returns error state
       expect(stats).toBeDefined();
-      expect(stats.isConnected).toBe(true);
+      expect(stats.isConnected).toBe(false);
+      expect(stats).toHaveProperty('error');
     });
   });
 
@@ -450,7 +452,7 @@ describe('DatabaseHealthIndicator', () => {
       try {
         await indicator.isHealthy('database_query');
       } catch (err: any) {
-        expect(err.cause['database_query'].message).toBe('MySQL server has gone away');
+        expect(err.causes['database_query'].message).toBe('MySQL server has gone away');
       }
     });
 

@@ -34,6 +34,7 @@ describe('PermissionsGuard', () => {
 
   const mockReflector = {
     get: jest.fn(),
+    getAllAndOverride: jest.fn().mockReturnValue(false), // Default: not public route
   };
 
   const mockSecurityAuditService = {
@@ -499,6 +500,8 @@ describe('PermissionsGuard', () => {
           switchToHttp: () => ({
             getRequest: () => mockRequestWithRoute,
           }),
+          getHandler: () => ({}),
+          getClass: () => ({}),
         } as ExecutionContext;
 
         mockUserRepository.findOne.mockResolvedValue(mockUser);
@@ -681,6 +684,8 @@ describe('PermissionsGuard', () => {
           switchToHttp: () => ({
             getRequest: () => mockRequestWithoutIP,
           }),
+          getHandler: () => ({}),
+          getClass: () => ({}),
         } as ExecutionContext;
 
         mockUserRepository.findOne.mockResolvedValue(mockUser);
@@ -711,6 +716,8 @@ describe('PermissionsGuard', () => {
           switchToHttp: () => ({
             getRequest: () => mockRequestWithoutUA,
           }),
+          getHandler: () => ({}),
+          getClass: () => ({}),
         } as ExecutionContext;
 
         mockUserRepository.findOne.mockResolvedValue(mockUser);

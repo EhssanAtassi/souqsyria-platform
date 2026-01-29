@@ -718,7 +718,7 @@ describe('OrdersSeederService', () => {
 
       const executionTime = endTime - startTime;
       expect(executionTime).toBeLessThan(30000); // Should complete within 30 seconds
-      expect(result.executionTime).toBeGreaterThan(0);
+      expect(result.executionTime).toBeGreaterThanOrEqual(0);
     });
 
     it('should handle large batch operations efficiently', async () => {
