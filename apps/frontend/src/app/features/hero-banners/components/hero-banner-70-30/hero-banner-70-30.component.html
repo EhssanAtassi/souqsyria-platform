@@ -1,0 +1,92 @@
+<!--
+  HeroBanner70/30 Component Template
+  70% carousel + 30% promo cards split layout
+  Responsive: stacks vertically on mobile/tablet
+-->
+
+<section class="hero-banner-7030-container w-full" aria-label="Hero Banner Section">
+
+  <!-- Loading Skeleton -->
+  @if (shouldShowLoading()) {
+    <app-hero-skeleton />
+  }
+
+  <!-- Main Content (70/30 Split) -->
+  @if (shouldShowContent()) {
+    <div class="hero-7030-layout flex flex-col lg:flex-row gap-4 w-full">
+
+      <!-- 70% Hero Carousel Area (Left Side) -->
+      <div class="hero-carousel-area flex-[7]">
+        @if (hasHeroBanners()) {
+          <app-hero-container
+            [heroBanners]="heroBanners()"
+            [autoplay]="true"
+            [autoplayInterval]="5000"
+            [pauseOnHover]="true"
+            [showNavigation]="true"
+            [showDots]="true"
+            [showProgress]="true"
+            [enableKeyboardNav]="true"
+            [enableSwipe]="true"
+          />
+        } @else {
+          <!-- Fallback: No hero banners available -->
+          <div class="hero-fallback bg-gray-200 rounded-lg flex items-center justify-center min-h-[400px]">
+            <p class="text-gray-500 text-lg">No hero banners available</p>
+          </div>
+        }
+      </div>
+
+      <!-- 30% Promo Cards Sidebar (Right Side) -->
+      <div class="promo-cards-sidebar flex-[3] flex flex-col gap-4">
+
+        <!-- Top Promo Card -->
+        @if (topPromoCard()) {
+          <div class="top-promo-card flex-1">
+            <app-promo-card
+              [promoCard]="topPromoCard()!"
+              [position]="0"
+              (cardClick)="onPromoCardClick($event)"
+            />
+          </div>
+        } @else {
+          <!-- Fallback: No top promo card -->
+          <div class="promo-fallback flex-1 bg-gray-200 rounded-lg flex items-center justify-center min-h-[180px]">
+            <p class="text-gray-500 text-sm">Promo card unavailable</p>
+          </div>
+        }
+
+        <!-- Bottom Promo Card -->
+        @if (bottomPromoCard()) {
+          <div class="bottom-promo-card flex-1">
+            <app-promo-card
+              [promoCard]="bottomPromoCard()!"
+              [position]="1"
+              (cardClick)="onPromoCardClick($event)"
+            />
+          </div>
+        } @else {
+          <!-- Fallback: No bottom promo card -->
+          <div class="promo-fallback flex-1 bg-gray-200 rounded-lg flex items-center justify-center min-h-[180px]">
+            <p class="text-gray-500 text-sm">Promo card unavailable</p>
+          </div>
+        }
+      </div>
+    </div>
+  }
+
+  <!-- Error State -->
+  @if (shouldShowError()) {
+    <div class="hero-error-state bg-red-50 border border-red-200 rounded-lg p-8 text-center">
+      <div class="error-icon text-red-500 text-5xl mb-4">⚠️</div>
+      <h2 class="text-xl font-bold text-red-700 mb-2">Failed to Load Hero Banners</h2>
+      <p class="text-red-600 mb-4">{{ loadError()?.message || 'An unknown error occurred' }}</p>
+      <button
+        (click)="reloadHeroData()"
+        class="px-6 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors"
+      >
+        Retry
+      </button>
+    </div>
+  }
+</section>

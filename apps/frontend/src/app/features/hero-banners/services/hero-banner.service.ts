@@ -36,6 +36,11 @@ import {
   HeroBannerType,
   BannerStatus,
 } from '../interfaces/hero-banner.interface';
+import {
+  PromoCard,
+  PromoCardQueryFilters,
+  PromoCardClickEvent
+} from '../../../shared/interfaces/promo-card.interface';
 
 /**
  * Hero Banner Service
@@ -58,6 +63,7 @@ import {
 export class HeroBannerService {
   private readonly http = inject(HttpClient);
   private readonly baseUrl = `${environment.apiUrl}/hero-banners`;
+  private readonly promoCardsBaseUrl = `${environment.apiUrl}/promo-cards`;
 
   /**
    * Cache for active hero banners
@@ -66,6 +72,13 @@ export class HeroBannerService {
   private activeBannersCache$?: Observable<HeroBanner[]>;
   private cacheTimestamp = 0;
   private readonly CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
+
+  /**
+   * Cache for active promo cards
+   * Uses shareReplay to prevent multiple API calls
+   */
+  private promoCardsCache$?: Observable<PromoCard[]>;
+  private promoCardsCacheTimestamp = 0;
 
   /**
    * Get all active hero banners
@@ -84,7 +97,10 @@ export class HeroBannerService {
     if (environment.enableMockData || environment.forceOfflineMode) {
       return this.getMockHeroBanners().pipe(
         delay(500), // Simulate network delay
-        tap(() => console.log('✅ Loaded hero banners from mock data'))
+        tap(() => {
+          console.log('✅ Loaded hero banners from mock data');
+          console.warn('⚠️ OFFLINE MODE: Serving mock data (enableMockData or forceOfflineMode enabled)');
+        })
       );
     }
 
@@ -292,12 +308,170 @@ export class HeroBannerService {
   }
 
   /**
-   * Clear cached banners (force refresh)
+   * Get Active Promo Cards
+   * Fetches active promo cards for hero banner sidebar (30% area)
+   * Implements caching to reduce API calls
+   *
+   * Promo cards are displayed in the 30% sidebar area alongside the 70% hero carousel.
+   * Typically shows 2 stacked promo cards (top and bottom).
+   *
+   * @param limit - Maximum number of promo cards to load (default: 2)
+   * @returns Observable<PromoCard[]> Active promo cards sorted by priority
+   *
+   * @example
+   * // In component
+   * this.heroBannerService.getPromoCards(2).subscribe(cards => {
+   *   this.topPromoCard.set(cards[0]);
+   *   this.bottomPromoCard.set(cards[1]);
+   * });
+   */
+  getPromoCards(limit: number = 2): Observable<PromoCard[]> {
+    // Check if cache is still valid
+    const now = Date.now();
+    if (
+      this.promoCardsCache$ &&
+      now - this.promoCardsCacheTimestamp < this.CACHE_DURATION
+    ) {
+      return this.promoCardsCache$.pipe(
+        map((cards) => cards.slice(0, limit))
+      );
+    }
+
+    // Use mock data if backend is not available or enableMockData is true
+    if (environment.enableMockData || environment.forceOfflineMode) {
+      return this.getMockPromoCards().pipe(
+        map((cards) => cards.slice(0, limit)),
+        delay(500), // Simulate network delay
+        tap(() => {
+          console.log(`✅ Loaded ${limit} promo cards from mock data`);
+          console.warn('⚠️ OFFLINE MODE: Serving mock promo cards (enableMockData or forceOfflineMode enabled)');
+        })
+      );
+    }
+
+    // Fetch from backend API using /promo-cards/active endpoint (public endpoint)
+    this.promoCardsCache$ = this.http
+      .get<any[]>(`${this.promoCardsBaseUrl}/active`)
+      .pipe(
+        map((cards) => this.mapResponseToPromoCards(cards)),
+        tap((cards) => {
+          console.log(`✅ Loaded ${cards.length} active promo cards from backend API`);
+          this.promoCardsCacheTimestamp = Date.now();
+        }),
+        catchError((error) => {
+          console.error('❌ Failed to load promo cards from backend API:', error);
+          console.error('❌ Error details:', {
+            endpoint: `${this.promoCardsBaseUrl}/active`,
+            error: error.message,
+            status: error.status
+          });
+          console.log('⚠️ FALLBACK MODE: Falling back to mock promo cards');
+          // Fallback to mock data on error
+          return this.getMockPromoCards();
+        }),
+        shareReplay(1)
+      );
+
+    return this.promoCardsCache$.pipe(
+      map((cards) => cards.slice(0, limit))
+    );
+  }
+
+  /**
+   * Track Promo Card Impression
+   * Records when a promo card is viewed by a user
+   *
+   * @param promoCardId - The ID of the promo card that was viewed
+   * @param metadata - Additional tracking metadata (position, method, etc.)
+   * @returns Observable<void> - Silent analytics tracking (errors logged but not thrown)
+   *
+   * @example
+   * // Track impression when promo card is displayed
+   * this.heroBannerService.trackPromoCardImpression('promo-001', { position: 0 });
+   */
+  trackPromoCardImpression(promoCardId: string, metadata?: any): Observable<void> {
+    if (environment.enableMockData || environment.forceOfflineMode) {
+      console.log(`📊 Mock: Tracked promo card impression: ${promoCardId}`, metadata);
+      return of(void 0);
+    }
+
+    const payload = {
+      cardId: promoCardId,
+      position: metadata?.position || 0,
+      timestamp: new Date().toISOString(),
+    };
+
+    return this.http
+      .post<void>(`${this.promoCardsBaseUrl}/track/impression`, payload)
+      .pipe(
+        tap(() => console.log(`📊 Tracked promo card impression: ${promoCardId}`)),
+        catchError((error) => {
+          console.error('❌ Failed to track promo card impression:', error);
+          console.error('❌ Error details:', {
+            promoCardId,
+            endpoint: `${this.promoCardsBaseUrl}/track/impression`,
+            payload,
+            error: error.message
+          });
+          return of(void 0); // Don't fail on tracking errors
+        })
+      );
+  }
+
+  /**
+   * Track Promo Card Click
+   * Records when a promo card is clicked by a user
+   *
+   * @param promoCardId - The ID of the promo card that was clicked
+   * @param metadata - Additional tracking metadata (position, targetUrl, etc.)
+   * @returns Observable<void> - Silent analytics tracking (errors logged but not thrown)
+   *
+   * @example
+   * // Track click when user clicks promo card
+   * this.heroBannerService.trackPromoCardClick('promo-001', {
+   *   position: 0,
+   *   targetUrl: '/category/damascus-steel'
+   * });
+   */
+  trackPromoCardClick(promoCardId: string, metadata?: any): Observable<void> {
+    if (environment.enableMockData || environment.forceOfflineMode) {
+      console.log(`📊 Mock: Tracked promo card click: ${promoCardId}`, metadata);
+      return of(void 0);
+    }
+
+    const payload = {
+      cardId: promoCardId,
+      position: metadata?.position || 0,
+      targetUrl: metadata?.targetUrl || '',
+      timestamp: new Date().toISOString(),
+    };
+
+    return this.http
+      .post<void>(`${this.promoCardsBaseUrl}/track/click`, payload)
+      .pipe(
+        tap(() => console.log(`📊 Tracked promo card click: ${promoCardId}`)),
+        catchError((error) => {
+          console.error('❌ Failed to track promo card click:', error);
+          console.error('❌ Error details:', {
+            promoCardId,
+            endpoint: `${this.promoCardsBaseUrl}/track/click`,
+            payload,
+            error: error.message
+          });
+          return of(void 0); // Don't fail on tracking errors
+        })
+      );
+  }
+
+  /**
+   * Clear cached banners and promo cards (force refresh)
    */
   clearCache(): void {
     this.activeBannersCache$ = undefined;
     this.cacheTimestamp = 0;
-    console.log('🗑️ Hero banner cache cleared');
+    this.promoCardsCache$ = undefined;
+    this.promoCardsCacheTimestamp = 0;
+    console.log('🗑️ Hero banner and promo card cache cleared');
   }
 
   /**
@@ -799,6 +973,75 @@ export class HeroBannerService {
   }
 
   /**
+   * Map flat backend promo card DTO to nested frontend PromoCard interface
+   *
+   * Backend returns: titleEn, titleAr, descriptionEn, descriptionAr, imageUrl, linkUrl,
+   *                  badgeTextEn, badgeTextAr, badgeClass, position, backgroundColor, textColor
+   * Frontend expects: headline.english, description.arabic, image.url, badge.text.english,
+   *                  targetRoute.target, etc.
+   *
+   * @description Transforms flat backend DTO structure to nested frontend interface structure
+   * @param response Backend promo card DTO from API
+   * @returns PromoCard Mapped promo card with nested structure
+   */
+  private mapResponseToPromoCard(response: any): PromoCard {
+    return {
+      id: response.id,
+      name: { english: response.titleEn || '', arabic: response.titleAr || '' },
+      type: 'product',
+      status: 'active',
+      priority: response.position === 1 ? 100 : 90,
+      headline: { english: response.titleEn || '', arabic: response.titleAr || '' },
+      description: { english: response.descriptionEn || '', arabic: response.descriptionAr || '' },
+      image: {
+        url: response.imageUrl || '',
+        alt: { english: response.titleEn || '', arabic: response.titleAr || '' },
+      },
+      contentAlignment: 'left',
+      badge: response.badgeTextEn ? {
+        text: { english: response.badgeTextEn || '', arabic: response.badgeTextAr || '' },
+        backgroundColor: response.backgroundColor || (response.badgeClass?.includes('sale') ? '#DC2626' : '#E94E1B'),
+        textColor: response.textColor || '#FFFFFF',
+        position: 'top-right',
+        visible: true,
+      } : undefined,
+      targetRoute: {
+        type: response.linkUrl?.startsWith('http') ? 'external' : 'category',
+        target: response.linkUrl || '/',
+        tracking: { source: 'promo-card', medium: 'homepage-sidebar', campaign: 'promo-' + response.id },
+      },
+      schedule: {
+        startDate: response.startDate ? new Date(response.startDate) : new Date(),
+        endDate: response.endDate ? new Date(response.endDate) : new Date('2026-12-31'),
+        timezone: 'Asia/Damascus',
+      },
+      analytics: {
+        impressions: response.impressions || 0,
+        clicks: response.clicks || 0,
+        clickThroughRate: response.clickThroughRate || 0,
+        conversions: 0,
+        conversionRate: 0,
+        revenue: 0,
+        lastUpdated: response.updatedAt ? new Date(response.updatedAt) : new Date(),
+      },
+      themeColor: 'golden-wheat',
+      createdAt: response.createdAt ? new Date(response.createdAt) : new Date(),
+      updatedAt: response.updatedAt ? new Date(response.updatedAt) : new Date(),
+    };
+  }
+
+  /**
+   * Map array of backend promo card DTOs to PromoCard array
+   *
+   * @description Batch transformation of promo card DTOs
+   * @param responses Backend promo card DTO array
+   * @returns PromoCard[] Mapped promo cards
+   */
+  private mapResponseToPromoCards(responses: any[]): PromoCard[] {
+    return responses.map(r => this.mapResponseToPromoCard(r));
+  }
+
+  /**
    * Apply filters to mock banners (for offline development)
    *
    * @param banners Mock banners
@@ -885,5 +1128,156 @@ export class HeroBannerService {
       return 'mobile';
     }
     return 'desktop';
+  }
+
+  /**
+   * Get mock promo cards for offline development
+   * Uses authentic Syrian marketplace themes with Golden Wheat colors
+   *
+   * Provides 2 promo cards for the 30% sidebar area:
+   * - Top card: Damascus Steel Collection (product promotion)
+   * - Bottom card: Aleppo Soap Premium (category promotion)
+   *
+   * @returns Observable<PromoCard[]> Mock promo cards
+   */
+  private getMockPromoCards(): Observable<PromoCard[]> {
+    const mockPromoCards: PromoCard[] = [
+      {
+        id: 'promo-damascus-steel-001',
+        name: {
+          english: 'Damascus Steel Collection Promo',
+          arabic: 'عرض مجموعة الفولاذ الدمشقي',
+        },
+        type: 'product',
+        status: 'active',
+        priority: 100,
+        headline: {
+          english: 'Damascus Steel',
+          arabic: 'الفولاذ الدمشقي',
+        },
+        description: {
+          english: 'Authentic Handmade Craftsmanship',
+          arabic: 'حرفية يدوية أصيلة',
+        },
+        image: {
+          url: '/assets/images/products/exp1.png',
+          alt: {
+            english: 'Damascus Steel Collection',
+            arabic: 'مجموعة الفولاذ الدمشقي',
+          },
+          focalPoint: {
+            x: 0.5,
+            y: 0.5,
+          },
+        },
+        contentAlignment: 'left',
+        badge: {
+          text: {
+            english: '20% OFF',
+            arabic: '٪٢٠ خصم',
+          },
+          backgroundColor: '#E94E1B', // Orange
+          textColor: '#FFFFFF',
+          position: 'top-right',
+          visible: true,
+        },
+        targetRoute: {
+          type: 'category',
+          target: '/category/damascus-steel',
+          tracking: {
+            source: 'promo-card',
+            medium: 'homepage-sidebar',
+            campaign: 'damascus-steel-2025',
+            content: 'top-card',
+          },
+        },
+        schedule: {
+          startDate: new Date('2025-01-01'),
+          endDate: new Date('2025-12-31'),
+          timezone: 'Asia/Damascus',
+        },
+        analytics: {
+          impressions: 8420,
+          clicks: 512,
+          clickThroughRate: 6.08,
+          conversions: 67,
+          conversionRate: 13.09,
+          revenue: 8950,
+          lastUpdated: new Date(),
+        },
+        themeColor: 'golden-wheat',
+        createdAt: new Date('2025-01-01'),
+        updatedAt: new Date(),
+      },
+      {
+        id: 'promo-aleppo-soap-002',
+        name: {
+          english: 'Aleppo Soap Premium Promo',
+          arabic: 'عرض صابون حلب الفاخر',
+        },
+        type: 'category',
+        status: 'active',
+        priority: 90,
+        headline: {
+          english: 'Premium Aleppo Soap',
+          arabic: 'صابون حلب الفاخر',
+        },
+        description: {
+          english: 'UNESCO Heritage Quality',
+          arabic: 'جودة تراث اليونسكو',
+        },
+        image: {
+          url: '/assets/images/products/1.png',
+          alt: {
+            english: 'Aleppo Soap Collection',
+            arabic: 'مجموعة صابون حلب',
+          },
+          focalPoint: {
+            x: 0.5,
+            y: 0.5,
+          },
+        },
+        contentAlignment: 'left',
+        badge: {
+          text: {
+            english: '40% OFF',
+            arabic: '٪٤٠ خصم',
+          },
+          backgroundColor: '#DC2626', // Red
+          textColor: '#FFFFFF',
+          position: 'top-right',
+          visible: true,
+        },
+        targetRoute: {
+          type: 'category',
+          target: '/category/beauty-wellness',
+          tracking: {
+            source: 'promo-card',
+            medium: 'homepage-sidebar',
+            campaign: 'aleppo-soap-2025',
+            content: 'bottom-card',
+          },
+        },
+        schedule: {
+          startDate: new Date('2025-01-01'),
+          endDate: new Date('2025-12-31'),
+          timezone: 'Asia/Damascus',
+        },
+        analytics: {
+          impressions: 7140,
+          clicks: 428,
+          clickThroughRate: 5.99,
+          conversions: 54,
+          conversionRate: 12.62,
+          revenue: 6720,
+          lastUpdated: new Date(),
+        },
+        themeColor: 'forest',
+        createdAt: new Date('2025-01-01'),
+        updatedAt: new Date(),
+      },
+    ];
+
+    return of(mockPromoCards);
   }
 }

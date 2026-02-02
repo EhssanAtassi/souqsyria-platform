@@ -1,0 +1,218 @@
+/**
+ * HeroBanner70/30 Component Styles
+ * 70% carousel + 30% promo cards split layout with Golden Wheat theme
+ *
+ * Responsive Breakpoints:
+ * - Desktop (1024px+): Horizontal 70/30 split
+ * - Tablet (768px-1023px): Horizontal 70/30 split (smaller gaps)
+ * - Mobile (<768px): Vertical stack (carousel top, promo cards bottom)
+ */
+
+.hero-banner-7030-container {
+  /**
+   * Main container for hero banner section
+   * Full width with optional padding
+   */
+  width: 100%;
+  padding: 0;
+  margin: 0;
+}
+
+.hero-7030-layout {
+  /**
+   * Flex container for 70/30 split
+   * - Desktop: flex-row (horizontal split)
+   * - Mobile: flex-col (vertical stack)
+   */
+  display: flex;
+  width: 100%;
+  gap: 1rem; // 16px gap between carousel and promo cards
+
+  // Tablet: Reduce gap
+  @media (max-width: 1023px) {
+    gap: 0.75rem; // 12px
+  }
+
+  // Mobile: Stack vertically, increase gap
+  @media (max-width: 767px) {
+    flex-direction: column;
+    gap: 1rem; // 16px
+  }
+}
+
+.hero-carousel-area {
+  /**
+   * 70% carousel area (hero banners)
+   * - Flexible growth (flex-[7] = 70%)
+   * - Contains HeroContainerComponent
+   */
+  flex: 7;
+
+  // Mobile: Full width
+  @media (max-width: 767px) {
+    flex: 1;
+    width: 100%;
+  }
+}
+
+.promo-cards-sidebar {
+  /**
+   * 30% sidebar area (promo cards)
+   * - Flexible growth (flex-[3] = 30%)
+   * - Flex column for vertical stacking
+   * - Gap between top and bottom cards
+   */
+  flex: 3;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem; // 16px gap between top and bottom cards
+
+  // Tablet: Reduce gap
+  @media (max-width: 1023px) {
+    gap: 0.75rem; // 12px
+  }
+
+  // Mobile: Full width, horizontal scroll (optional)
+  @media (max-width: 767px) {
+    flex: 1;
+    width: 100%;
+    gap: 1rem; // 16px
+  }
+}
+
+.top-promo-card,
+.bottom-promo-card {
+  /**
+   * Individual promo card containers
+   * - Equal height (flex-1)
+   * - Minimum height for proper display
+   */
+  flex: 1;
+  min-height: 180px;
+
+  // Tablet: Smaller minimum height
+  @media (max-width: 1023px) {
+    min-height: 160px;
+  }
+
+  // Mobile: Smaller minimum height
+  @media (max-width: 767px) {
+    min-height: 150px;
+  }
+}
+
+/**
+ * Fallback States
+ * Displayed when data is not available
+ */
+.hero-fallback,
+.promo-fallback {
+  background-color: #e5e7eb; // gray-200
+  border-radius: 0.5rem; // 8px
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  p {
+    color: #6b7280; // gray-500
+    font-size: 1rem; // 16px
+    text-align: center;
+  }
+}
+
+.hero-fallback {
+  min-height: 400px;
+
+  // Mobile: Smaller height
+  @media (max-width: 767px) {
+    min-height: 250px;
+  }
+}
+
+.promo-fallback {
+  min-height: 180px;
+
+  // Mobile: Smaller height
+  @media (max-width: 767px) {
+    min-height: 150px;
+  }
+}
+
+/**
+ * Error State
+ * Displayed when data loading fails
+ */
+.hero-error-state {
+  background-color: #fef2f2; // red-50
+  border: 1px solid #fecaca; // red-200
+  border-radius: 0.5rem; // 8px
+  padding: 2rem; // 32px
+  text-align: center;
+
+  .error-icon {
+    font-size: 3rem; // 48px
+    margin-bottom: 1rem; // 16px
+    color: #ef4444; // red-500
+  }
+
+  h2 {
+    font-size: 1.25rem; // 20px
+    font-weight: 700;
+    color: #b91c1c; // red-700
+    margin-bottom: 0.5rem; // 8px
+  }
+
+  p {
+    color: #dc2626; // red-600
+    margin-bottom: 1rem; // 16px
+  }
+
+  button {
+    padding: 0.5rem 1.5rem; // 8px 24px
+    background-color: #dc2626; // red-600
+    color: #ffffff;
+    border-radius: 0.375rem; // 6px
+    transition: background-color 0.2s ease;
+
+    &:hover {
+      background-color: #b91c1c; // red-700
+    }
+
+    &:focus {
+      outline: 2px solid #dc2626;
+      outline-offset: 2px;
+    }
+  }
+}
+
+/**
+ * RTL Support
+ * Flip layout for Arabic language
+ */
+[dir="rtl"] {
+  .hero-7030-layout {
+    // RTL: Flip flex direction
+    @media (min-width: 768px) {
+      flex-direction: row-reverse;
+    }
+  }
+}
+
+/**
+ * Accessibility Enhancements
+ * - Focus visible for keyboard navigation
+ * - High contrast mode support
+ */
+@media (prefers-reduced-motion: reduce) {
+  .hero-7030-layout {
+    transition: none;
+  }
+}
+
+// High contrast mode
+@media (prefers-contrast: high) {
+  .hero-fallback,
+  .promo-fallback {
+    border: 2px solid currentColor;
+  }
+}

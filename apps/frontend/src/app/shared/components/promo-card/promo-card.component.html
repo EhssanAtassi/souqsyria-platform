@@ -1,0 +1,90 @@
+<!--
+  PromoCard Component Template
+  70/30 split layout: 70% content + 30% image
+  Responsive: stacks vertically on mobile
+-->
+
+<!-- Shared Card Content Template -->
+<ng-template #cardContent>
+  <div
+    class="promo-card-content flex h-full"
+    [ngClass]="contentOrderClass()"
+  >
+    <!-- 70% Content Area -->
+    <div class="content-area flex-[7] p-6 flex flex-col justify-center relative">
+      <!-- Headline -->
+      <h3
+        class="text-2xl md:text-3xl font-bold mb-2 text-charcoal group-hover:text-golden-wheat transition-colors duration-200"
+        [class.text-right]="currentLanguage === 'ar'"
+        [class.text-left]="currentLanguage !== 'ar'"
+      >
+        {{ headline() }}
+      </h3>
+
+      <!-- Description -->
+      <p
+        class="text-base md:text-lg text-gray-600 leading-relaxed"
+        [class.text-right]="currentLanguage === 'ar'"
+        [class.text-left]="currentLanguage !== 'ar'"
+      >
+        {{ description() }}
+      </p>
+
+      <!-- Theme Color Accent Bar -->
+      <div
+        class="mt-4 h-1 w-16 rounded-full transition-all duration-300 group-hover:w-24"
+        [ngClass]="themeColorClass()"
+      ></div>
+    </div>
+
+    <!-- 30% Image Area -->
+    <div class="image-area flex-[3] relative overflow-hidden">
+      <img
+        [src]="promoCard().image.url"
+        [alt]="imageAlt()"
+        class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+        loading="lazy"
+      />
+
+      <!-- Discount Badge Overlay -->
+      @if (badgeText()) {
+        <div
+          class="absolute px-4 py-2 rounded-full text-white font-bold text-sm shadow-lg z-10"
+          [ngClass]="badgePositionClass()"
+          [ngStyle]="getBadgeStyle()"
+        >
+          {{ badgeText() }}
+        </div>
+      }
+    </div>
+  </div>
+</ng-template>
+
+<div class="promo-card-wrapper h-full">
+  <!-- Internal Router Link -->
+  @if (!isExternalRoute()) {
+    <a
+      [routerLink]="getRouterLink()"
+      [queryParams]="promoCard().targetRoute.queryParams"
+      (click)="onCardClick($event)"
+      class="promo-card group block h-full overflow-hidden rounded-lg shadow-md hover:shadow-xl transition-all duration-300 bg-white"
+      [attr.aria-label]="headline() + ' - ' + description()"
+    >
+      <ng-container *ngTemplateOutlet="cardContent" />
+    </a>
+  }
+
+  <!-- External Link -->
+  @if (isExternalRoute()) {
+    <a
+      [href]="getExternalUrl()"
+      target="_blank"
+      rel="noopener noreferrer"
+      (click)="onCardClick($event)"
+      class="promo-card group block h-full overflow-hidden rounded-lg shadow-md hover:shadow-xl transition-all duration-300 bg-white"
+      [attr.aria-label]="headline() + ' - ' + description()"
+    >
+      <ng-container *ngTemplateOutlet="cardContent" />
+    </a>
+  }
+</div>

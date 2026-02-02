@@ -1,0 +1,245 @@
+/**
+ * PromoCard Component Styles
+ * 70/30 content/image split layout with Golden Wheat theme
+ *
+ * Responsive Breakpoints:
+ * - Desktop (1024px+): Horizontal 70/30 split
+ * - Tablet (768px-1023px): Horizontal 70/30 split
+ * - Mobile (<768px): Vertical stack (content top, image bottom)
+ */
+
+.promo-card-wrapper {
+  /**
+   * Container wrapper for promo card
+   * Full height to fill parent container
+   */
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.promo-card {
+  /**
+   * Main promo card container
+   * - Full height parent fill
+   * - Border radius for rounded corners
+   * - Shadow for depth
+   * - Hover effects for interactivity
+   */
+  display: block;
+  height: 100%;
+  width: 100%;
+  background: #ffffff;
+  border-radius: 0.5rem; // 8px
+  overflow: hidden;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  transition: all 0.3s ease;
+  cursor: pointer;
+
+  // Hover state
+  &:hover {
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    transform: translateY(-2px);
+  }
+
+  // Focus state for accessibility
+  &:focus {
+    outline: 2px solid var(--golden-wheat, #D4A574);
+    outline-offset: 2px;
+  }
+}
+
+.promo-card-content {
+  /**
+   * Flex container for 70/30 split
+   * - Desktop: flex-row (horizontal split)
+   * - Mobile: flex-col (vertical stack)
+   */
+  display: flex;
+  height: 100%;
+  width: 100%;
+
+  // Mobile: Stack vertically
+  @media (max-width: 767px) {
+    flex-direction: column !important;
+  }
+}
+
+.content-area {
+  /**
+   * 70% content area (headline, description, accent bar)
+   * - Flexible growth (flex-[7] = 70%)
+   * - Padding for spacing
+   * - Flex column for vertical layout
+   * - Center justification
+   */
+  flex: 7;
+  padding: 1.5rem; // 24px
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  position: relative;
+
+  // Tablet: Reduce padding
+  @media (max-width: 1023px) {
+    padding: 1.25rem; // 20px
+  }
+
+  // Mobile: Full width, reduce padding
+  @media (max-width: 767px) {
+    flex: 1;
+    padding: 1rem; // 16px
+    min-height: 150px;
+  }
+
+  h3 {
+    /**
+     * Headline typography
+     * - Bold weight
+     * - Larger size for prominence
+     * - Color transition on hover
+     */
+    font-size: 1.875rem; // 30px (text-3xl)
+    font-weight: 700;
+    margin-bottom: 0.5rem; // 8px
+    color: var(--charcoal, #36454F);
+    transition: color 0.2s ease;
+    line-height: 1.2;
+
+    // Tablet: Smaller font
+    @media (max-width: 1023px) {
+      font-size: 1.5rem; // 24px (text-2xl)
+    }
+
+    // Mobile: Even smaller
+    @media (max-width: 767px) {
+      font-size: 1.25rem; // 20px (text-xl)
+      margin-bottom: 0.25rem;
+    }
+  }
+
+  p {
+    /**
+     * Description typography
+     * - Medium size for readability
+     * - Gray color for hierarchy
+     * - Leading for line spacing
+     */
+    font-size: 1.125rem; // 18px (text-lg)
+    color: #6b7280; // text-gray-600
+    line-height: 1.75;
+
+    // Tablet: Smaller font
+    @media (max-width: 1023px) {
+      font-size: 1rem; // 16px (text-base)
+    }
+
+    // Mobile: Even smaller
+    @media (max-width: 767px) {
+      font-size: 0.875rem; // 14px (text-sm)
+      line-height: 1.5;
+    }
+  }
+}
+
+.image-area {
+  /**
+   * 30% image area (product/category image)
+   * - Flexible growth (flex-[3] = 30%)
+   * - Relative for badge positioning
+   * - Overflow hidden for image zoom effect
+   */
+  flex: 3;
+  position: relative;
+  overflow: hidden;
+
+  // Mobile: Full width, fixed height
+  @media (max-width: 767px) {
+    flex: 1;
+    min-height: 200px;
+    max-height: 250px;
+  }
+
+  img {
+    /**
+     * Product/category image
+     * - Object cover for aspect ratio
+     * - Full width/height fill
+     * - Scale transition on hover
+     */
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s ease;
+
+    // Mobile: Better fit
+    @media (max-width: 767px) {
+      object-position: center;
+    }
+  }
+}
+
+/**
+ * Golden Wheat Theme Color Classes
+ * Tailwind utilities for theme colors
+ */
+.bg-golden-wheat {
+  background-color: var(--golden-wheat, #D4A574);
+}
+
+.bg-forest {
+  background-color: var(--forest, #2C5F2D);
+}
+
+.bg-charcoal {
+  background-color: var(--charcoal, #36454F);
+}
+
+.bg-deep-umber {
+  background-color: var(--deep-umber, #6F4E37);
+}
+
+.bg-syrian-red {
+  background-color: var(--syrian-red, #CE1126);
+}
+
+.bg-syrian-gold {
+  background-color: var(--syrian-gold, #C9B037);
+}
+
+/**
+ * RTL Support
+ * Flip content for Arabic language
+ */
+[dir="rtl"] {
+  .promo-card-content {
+    // RTL already handled by contentOrderClass computed property
+  }
+
+  .content-area {
+    h3,
+    p {
+      text-align: right;
+    }
+  }
+}
+
+/**
+ * Accessibility Enhancements
+ * - Focus visible for keyboard navigation
+ * - High contrast mode support
+ */
+@media (prefers-reduced-motion: reduce) {
+  .promo-card,
+  .content-area h3,
+  .image-area img {
+    transition: none;
+  }
+}
+
+// High contrast mode
+@media (prefers-contrast: high) {
+  .promo-card {
+    border: 2px solid currentColor;
+  }
+}
