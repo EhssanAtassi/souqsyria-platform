@@ -64,6 +64,9 @@ import { AdminDashboardModule } from './admin-dashboard/admin-dashboard.module';
 import { SystemSettingsModule } from './system-settings/system-settings.module';
 import { SharedDomainModule } from './common/shared-domain';
 import { HealthModule } from './health';
+import { SearchModule } from './search/search.module';
+import { QuickAccessModule } from './quick-access/quick-access.module';
+import { PromoCardsModule } from './promo-cards/promo-cards.module';
 
 @Module({
   imports: [
@@ -143,13 +146,19 @@ import { HealthModule } from './health';
     HomepageModule,
     AdminDashboardModule,
     SystemSettingsModule,
+    // ✅ Search Module - Header autocomplete & recent searches
+    SearchModule,
+    // ✅ Quick Access Module - Header promotional cards management
+    QuickAccessModule,
+    // ✅ Promo Cards Module - Hero banner 70/30 promotional cards
+    PromoCardsModule,
     // ✅ Health Check Module - Kubernetes probes and monitoring
     HealthModule,
     ThrottlerModule.forRoot([
       {
         name: 'short',
         ttl: 1000, // 1 second
-        limit: 3, // 3 requests per second
+        limit: 10, // 10 requests per second
       },
       {
         name: 'medium',
