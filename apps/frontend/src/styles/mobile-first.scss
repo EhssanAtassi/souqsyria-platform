@@ -1,0 +1,1373 @@
+/**
+ * SouqSyria Mobile-First SCSS Framework
+ * ======================================
+ *
+ * Comprehensive mobile-first styles for Syrian marketplace
+ * Optimized for:
+ * - 3G networks (slow loading)
+ * - Mid-range Android devices
+ * - Arabic RTL support
+ * - Touch-first interactions
+ * - MENA e-commerce patterns
+ *
+ * @author Mobile UX Architect
+ * @version 1.0.0
+ * @date January 2026
+ */
+
+// ============================================
+// 1. CSS CUSTOM PROPERTIES (Design Tokens)
+// ============================================
+
+:root {
+  // Touch target minimums (WCAG 2.2)
+  --touch-target-min: 48px;
+  --touch-target-secondary: 44px;
+  --touch-target-icon: 44px;
+
+  // Mobile spacing scale
+  --mobile-spacing-xs: 4px;
+  --mobile-spacing-sm: 8px;
+  --mobile-spacing-md: 16px;
+  --mobile-spacing-lg: 24px;
+  --mobile-spacing-xl: 32px;
+
+  // Mobile typography
+  --mobile-font-size-xs: 12px;
+  --mobile-font-size-sm: 14px;
+  --mobile-font-size-base: 16px;
+  --mobile-font-size-lg: 18px;
+  --mobile-font-size-xl: 20px;
+  --mobile-font-size-2xl: 24px;
+
+  // Arabic typography adjustments
+  --arabic-line-height: 1.8;
+  --arabic-font-family: 'Cairo', 'Noto Sans Arabic', sans-serif;
+
+  // Mobile-specific colors
+  --mobile-overlay-bg: rgba(0, 0, 0, 0.5);
+  --mobile-sticky-bg: rgba(255, 255, 255, 0.95);
+  --mobile-skeleton-bg: #e5e7eb;
+
+  // Animation timings (reduced for performance)
+  --mobile-transition-fast: 150ms;
+  --mobile-transition-normal: 250ms;
+  --mobile-transition-slow: 350ms;
+
+  // Safe area insets (notch devices)
+  --safe-area-top: env(safe-area-inset-top, 0px);
+  --safe-area-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-area-left: env(safe-area-inset-left, 0px);
+  --safe-area-right: env(safe-area-inset-right, 0px);
+}
+
+// ============================================
+// 2. TOUCH TARGET UTILITIES
+// ============================================
+
+/**
+ * Touch target mixin
+ * Ensures minimum 48px touch area
+ */
+@mixin touch-target($size: 48px) {
+  min-width: $size;
+  min-height: $size;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  // Extend touch area with pseudo-element if needed
+  position: relative;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    min-width: $size;
+    min-height: $size;
+    pointer-events: auto;
+  }
+}
+
+/**
+ * Touch target classes
+ */
+.touch-target {
+  @include touch-target(48px);
+}
+
+.touch-target-sm {
+  @include touch-target(44px);
+}
+
+.touch-target-lg {
+  @include touch-target(56px);
+}
+
+/**
+ * Enhanced touch feedback
+ */
+@mixin touch-feedback {
+  -webkit-tap-highlight-color: rgba(152, 133, 97, 0.2);
+  touch-action: manipulation;
+
+  &:active {
+    transform: scale(0.97);
+    opacity: 0.9;
+  }
+}
+
+.touch-feedback {
+  @include touch-feedback;
+}
+
+// ============================================
+// 3. MOBILE-FIRST BUTTON STYLES
+// ============================================
+
+/**
+ * Primary mobile button
+ * Height: 48px minimum
+ * Full-width on mobile
+ */
+.btn-mobile-primary {
+  @include touch-target(48px);
+  @include touch-feedback;
+
+  width: 100%;
+  padding: 12px 24px;
+  font-size: var(--mobile-font-size-base);
+  font-weight: 600;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  transition: all var(--mobile-transition-fast) ease;
+
+  // Golden wheat gradient
+  background: linear-gradient(
+    135deg,
+    var(--golden-wheat-primary, #988561) 0%,
+    var(--golden-wheat-medium, #b9a779) 100%
+  );
+  color: white;
+
+  &:hover:not(:disabled) {
+    background: linear-gradient(
+      135deg,
+      var(--golden-wheat-medium, #b9a779) 0%,
+      var(--golden-wheat-primary, #988561) 100%
+    );
+    transform: translateY(-1px);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+  }
+
+  // Loading state
+  &.loading {
+    pointer-events: none;
+
+    .btn-icon {
+      animation: spin 1s linear infinite;
+    }
+  }
+}
+
+/**
+ * Secondary mobile button
+ */
+.btn-mobile-secondary {
+  @include touch-target(48px);
+  @include touch-feedback;
+
+  width: 100%;
+  padding: 12px 24px;
+  font-size: var(--mobile-font-size-base);
+  font-weight: 600;
+  border-radius: 8px;
+  border: 2px solid var(--golden-wheat-primary, #988561);
+  background: transparent;
+  color: var(--golden-wheat-primary, #988561);
+  cursor: pointer;
+  transition: all var(--mobile-transition-fast) ease;
+
+  &:hover:not(:disabled) {
+    background: rgba(152, 133, 97, 0.1);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+/**
+ * Icon button mobile
+ */
+.btn-mobile-icon {
+  @include touch-target(44px);
+  @include touch-feedback;
+
+  padding: 10px;
+  border-radius: 50%;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  transition: background var(--mobile-transition-fast) ease;
+
+  &:hover {
+    background: rgba(0, 0, 0, 0.05);
+  }
+
+  &:active {
+    background: rgba(0, 0, 0, 0.1);
+  }
+}
+
+// ============================================
+// 4. MOBILE FORM STYLES
+// ============================================
+
+/**
+ * Mobile form field
+ * Height: 48px minimum
+ */
+.form-field-mobile {
+  width: 100%;
+  margin-bottom: var(--mobile-spacing-md);
+
+  label {
+    display: block;
+    margin-bottom: var(--mobile-spacing-xs);
+    font-size: var(--mobile-font-size-sm);
+    font-weight: 500;
+    color: #374151;
+  }
+
+  input,
+  select,
+  textarea {
+    width: 100%;
+    min-height: var(--touch-target-min);
+    padding: 12px 16px;
+    font-size: var(--mobile-font-size-base);
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    background: white;
+    transition: border-color var(--mobile-transition-fast) ease;
+
+    // Prevent zoom on iOS
+    font-size: 16px;
+
+    &:focus {
+      outline: none;
+      border-color: var(--golden-wheat-primary, #988561);
+      box-shadow: 0 0 0 3px rgba(152, 133, 97, 0.2);
+    }
+
+    &::placeholder {
+      color: #9ca3af;
+    }
+  }
+
+  // Error state
+  &.error {
+    input,
+    select,
+    textarea {
+      border-color: #ef4444;
+    }
+
+    .error-message {
+      display: block;
+      margin-top: var(--mobile-spacing-xs);
+      font-size: var(--mobile-font-size-xs);
+      color: #ef4444;
+    }
+  }
+
+  // Success state
+  &.success {
+    input,
+    select,
+    textarea {
+      border-color: #10b981;
+    }
+
+    .success-icon {
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #10b981;
+    }
+  }
+}
+
+/**
+ * Mobile checkbox/radio
+ */
+.checkbox-mobile,
+.radio-mobile {
+  @include touch-target(44px);
+
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  user-select: none;
+
+  input {
+    width: 24px;
+    height: 24px;
+    margin-right: 12px;
+    cursor: pointer;
+
+    // RTL support
+    [dir='rtl'] & {
+      margin-right: 0;
+      margin-left: 12px;
+    }
+  }
+
+  label {
+    font-size: var(--mobile-font-size-base);
+  }
+}
+
+// ============================================
+// 5. MOBILE NAVIGATION STYLES
+// ============================================
+
+/**
+ * Sticky mobile header
+ */
+.mobile-header-sticky {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  background: var(--mobile-sticky-bg);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  padding-top: var(--safe-area-top);
+
+  // Shadow on scroll
+  &.scrolled {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+}
+
+/**
+ * Mobile bottom navigation
+ */
+.mobile-bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  background: white;
+  border-top: 1px solid #e5e7eb;
+  padding-bottom: var(--safe-area-bottom);
+
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+
+  .nav-item {
+    @include touch-target(56px);
+
+    flex-direction: column;
+    gap: 4px;
+    color: #6b7280;
+    text-decoration: none;
+
+    &.active {
+      color: var(--golden-wheat-primary, #988561);
+    }
+
+    .nav-icon {
+      font-size: 24px;
+    }
+
+    .nav-label {
+      font-size: 10px;
+      font-weight: 500;
+    }
+  }
+}
+
+/**
+ * Sticky CTA bar (checkout, cart)
+ */
+.mobile-sticky-cta {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 1001;
+  background: white;
+  padding: var(--mobile-spacing-md);
+  padding-bottom: calc(var(--mobile-spacing-md) + var(--safe-area-bottom));
+  box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.1);
+
+  .cta-summary {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--mobile-spacing-sm);
+
+    .item-count {
+      font-size: var(--mobile-font-size-sm);
+      color: #6b7280;
+    }
+
+    .total {
+      font-size: var(--mobile-font-size-lg);
+      font-weight: 700;
+      color: #111827;
+    }
+  }
+
+  .cta-button {
+    @extend .btn-mobile-primary;
+  }
+}
+
+// ============================================
+// 6. MOBILE PRODUCT CARD STYLES
+// ============================================
+
+/**
+ * Mobile-optimized product card
+ */
+.product-card-mobile {
+  background: white;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  transition: box-shadow var(--mobile-transition-normal) ease;
+
+  &:active {
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+  }
+
+  // Image container
+  .card-image {
+    position: relative;
+    aspect-ratio: 1;
+    overflow: hidden;
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform var(--mobile-transition-slow) ease;
+    }
+
+    // Lazy loading placeholder
+    &.loading {
+      background: var(--mobile-skeleton-bg);
+      animation: skeleton-pulse 1.5s ease-in-out infinite;
+    }
+  }
+
+  // Badges
+  .card-badges {
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+
+    [dir='rtl'] & {
+      left: auto;
+      right: 8px;
+    }
+  }
+
+  .badge {
+    padding: 4px 8px;
+    font-size: 10px;
+    font-weight: 600;
+    border-radius: 4px;
+    text-transform: uppercase;
+
+    &.badge-discount {
+      background: #ef4444;
+      color: white;
+    }
+
+    &.badge-unesco {
+      background: var(--golden-wheat-primary, #988561);
+      color: white;
+    }
+
+    &.badge-authentic {
+      background: #10b981;
+      color: white;
+    }
+  }
+
+  // Wishlist button (larger for mobile)
+  .wishlist-btn {
+    @include touch-target(44px);
+
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 50%;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+
+    [dir='rtl'] & {
+      right: auto;
+      left: 8px;
+    }
+  }
+
+  // Content area
+  .card-content {
+    padding: var(--mobile-spacing-md);
+  }
+
+  .card-title {
+    font-size: var(--mobile-font-size-sm);
+    font-weight: 600;
+    color: #111827;
+    margin-bottom: 4px;
+    line-height: 1.4;
+
+    // Clamp to 2 lines
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .card-title-arabic {
+    font-family: var(--arabic-font-family);
+    font-size: var(--mobile-font-size-xs);
+    color: #6b7280;
+    direction: rtl;
+    text-align: right;
+    margin-bottom: 8px;
+  }
+
+  .card-price {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    margin-bottom: 8px;
+
+    .current-price {
+      font-size: var(--mobile-font-size-lg);
+      font-weight: 700;
+      color: #111827;
+    }
+
+    .original-price {
+      font-size: var(--mobile-font-size-sm);
+      color: #9ca3af;
+      text-decoration: line-through;
+    }
+  }
+
+  // Add to cart button (LARGER)
+  .card-action {
+    width: 100%;
+    min-height: var(--touch-target-min);
+    margin-top: var(--mobile-spacing-sm);
+
+    button {
+      @extend .btn-mobile-primary;
+      padding: 10px 16px;
+
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+  }
+}
+
+// ============================================
+// 7. MOBILE GRID SYSTEM
+// ============================================
+
+/**
+ * Mobile-first product grid
+ * 2 columns on mobile, expanding on larger screens
+ */
+.product-grid-mobile {
+  display: grid;
+  gap: var(--mobile-spacing-md);
+  width: 100%;
+
+  // Mobile: 2 columns
+  grid-template-columns: repeat(2, 1fr);
+
+  // Tablet: 3 columns
+  @media (min-width: 640px) {
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--mobile-spacing-lg);
+  }
+
+  // Desktop: 4 columns
+  @media (min-width: 1024px) {
+    grid-template-columns: repeat(4, 1fr);
+  }
+
+  // Large desktop: 5 columns
+  @media (min-width: 1280px) {
+    grid-template-columns: repeat(5, 1fr);
+  }
+}
+
+/**
+ * Single column mobile layout
+ */
+.list-mobile {
+  display: flex;
+  flex-direction: column;
+  gap: var(--mobile-spacing-md);
+}
+
+// ============================================
+// 8. MOBILE CHECKOUT STYLES
+// ============================================
+
+/**
+ * 2-step mobile checkout
+ */
+.checkout-mobile {
+  padding-bottom: 100px; // Space for sticky CTA
+
+  .checkout-progress {
+    display: flex;
+    align-items: center;
+    padding: var(--mobile-spacing-md);
+    background: #f9fafb;
+
+    .step {
+      flex: 1;
+      text-align: center;
+      font-size: var(--mobile-font-size-sm);
+      color: #9ca3af;
+
+      &.active {
+        color: var(--golden-wheat-primary, #988561);
+        font-weight: 600;
+      }
+
+      &.completed {
+        color: #10b981;
+      }
+    }
+
+    .step-divider {
+      flex: 0 0 40px;
+      height: 2px;
+      background: #e5e7eb;
+
+      &.completed {
+        background: #10b981;
+      }
+    }
+  }
+
+  .checkout-section {
+    padding: var(--mobile-spacing-md);
+    border-bottom: 1px solid #e5e7eb;
+
+    .section-title {
+      font-size: var(--mobile-font-size-lg);
+      font-weight: 600;
+      margin-bottom: var(--mobile-spacing-md);
+      color: #111827;
+    }
+  }
+
+  // Collapsible order summary
+  .order-summary-collapsible {
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    overflow: hidden;
+
+    .summary-header {
+      @include touch-target(48px);
+
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: var(--mobile-spacing-md);
+      background: #f9fafb;
+      cursor: pointer;
+
+      .summary-title {
+        font-weight: 600;
+      }
+
+      .summary-total {
+        font-weight: 700;
+        color: var(--golden-wheat-primary, #988561);
+      }
+    }
+
+    .summary-content {
+      padding: var(--mobile-spacing-md);
+      display: none;
+
+      &.expanded {
+        display: block;
+      }
+    }
+  }
+
+  // Payment method selection
+  .payment-methods {
+    display: flex;
+    flex-direction: column;
+    gap: var(--mobile-spacing-sm);
+
+    .payment-option {
+      @include touch-target(56px);
+      @include touch-feedback;
+
+      display: flex;
+      align-items: center;
+      padding: var(--mobile-spacing-md);
+      border: 2px solid #e5e7eb;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all var(--mobile-transition-fast) ease;
+
+      &.selected {
+        border-color: var(--golden-wheat-primary, #988561);
+        background: rgba(152, 133, 97, 0.05);
+      }
+
+      // Cash on Delivery should be prominent
+      &.cod {
+        border-color: #10b981;
+
+        &.selected {
+          background: rgba(16, 185, 129, 0.05);
+        }
+      }
+
+      .payment-icon {
+        width: 32px;
+        height: 32px;
+        margin-right: var(--mobile-spacing-md);
+
+        [dir='rtl'] & {
+          margin-right: 0;
+          margin-left: var(--mobile-spacing-md);
+        }
+      }
+
+      .payment-info {
+        flex: 1;
+
+        .payment-name {
+          font-weight: 600;
+        }
+
+        .payment-desc {
+          font-size: var(--mobile-font-size-xs);
+          color: #6b7280;
+        }
+      }
+    }
+  }
+}
+
+// ============================================
+// 9. MOBILE FILTER STYLES
+// ============================================
+
+/**
+ * Bottom sheet filter panel
+ */
+.filter-bottom-sheet {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 1100;
+  background: white;
+  border-radius: 16px 16px 0 0;
+  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.15);
+  max-height: 80vh;
+  overflow: hidden;
+  transform: translateY(100%);
+  transition: transform var(--mobile-transition-normal) ease;
+
+  &.open {
+    transform: translateY(0);
+  }
+
+  .sheet-handle {
+    width: 40px;
+    height: 4px;
+    background: #d1d5db;
+    border-radius: 2px;
+    margin: 12px auto;
+  }
+
+  .sheet-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--mobile-spacing-md);
+    border-bottom: 1px solid #e5e7eb;
+
+    .sheet-title {
+      font-size: var(--mobile-font-size-lg);
+      font-weight: 600;
+    }
+
+    .clear-all {
+      color: var(--golden-wheat-primary, #988561);
+      font-weight: 500;
+    }
+  }
+
+  .sheet-content {
+    overflow-y: auto;
+    max-height: calc(80vh - 120px);
+    padding: var(--mobile-spacing-md);
+    padding-bottom: 100px;
+  }
+
+  .sheet-footer {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: var(--mobile-spacing-md);
+    padding-bottom: calc(var(--mobile-spacing-md) + var(--safe-area-bottom));
+    background: white;
+    border-top: 1px solid #e5e7eb;
+  }
+}
+
+/**
+ * Active filters bar
+ */
+.active-filters-bar {
+  display: flex;
+  gap: 8px;
+  padding: var(--mobile-spacing-sm) var(--mobile-spacing-md);
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+
+  .filter-chip {
+    @include touch-target(36px);
+
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    background: rgba(152, 133, 97, 0.1);
+    border: 1px solid var(--golden-wheat-primary, #988561);
+    border-radius: 20px;
+    font-size: var(--mobile-font-size-xs);
+    color: var(--golden-wheat-primary, #988561);
+
+    .remove-icon {
+      font-size: 14px;
+    }
+  }
+}
+
+// ============================================
+// 10. MOBILE LOADING STATES
+// ============================================
+
+/**
+ * Skeleton loading animation
+ */
+@keyframes skeleton-pulse {
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+.skeleton {
+  background: var(--mobile-skeleton-bg);
+  border-radius: 4px;
+  animation: skeleton-pulse 1.5s ease-in-out infinite;
+
+  &.skeleton-text {
+    height: 16px;
+    margin-bottom: 8px;
+  }
+
+  &.skeleton-title {
+    height: 24px;
+    width: 60%;
+    margin-bottom: 12px;
+  }
+
+  &.skeleton-image {
+    aspect-ratio: 1;
+    border-radius: 8px;
+  }
+
+  &.skeleton-button {
+    height: 48px;
+    border-radius: 8px;
+  }
+}
+
+/**
+ * Syrian cultural loading spinner
+ */
+.spinner-syrian {
+  width: 48px;
+  height: 48px;
+  border: 4px solid var(--golden-wheat-light, #edebe0);
+  border-top-color: var(--golden-wheat-primary, #988561);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+// ============================================
+// 11. ARABIC/RTL MOBILE STYLES
+// ============================================
+
+/**
+ * RTL-specific mobile adjustments
+ */
+[dir='rtl'] {
+  // Reverse flex layouts
+  .flex-row {
+    flex-direction: row-reverse;
+  }
+
+  // Swipe gestures reversed
+  .swipeable {
+    --swipe-direction: -1;
+  }
+
+  // Text alignment
+  .text-left {
+    text-align: right;
+  }
+
+  .text-right {
+    text-align: left;
+  }
+
+  // Margins and paddings
+  .ml-auto {
+    margin-left: 0;
+    margin-right: auto;
+  }
+
+  .mr-auto {
+    margin-right: 0;
+    margin-left: auto;
+  }
+
+  // Icons that should flip
+  .icon-flip {
+    transform: scaleX(-1);
+  }
+}
+
+/**
+ * Arabic typography mobile
+ */
+.arabic-text-mobile {
+  font-family: var(--arabic-font-family);
+  line-height: var(--arabic-line-height);
+  direction: rtl;
+  text-align: right;
+
+  // Prevent zooming on iOS for Arabic
+  font-size: max(16px, var(--mobile-font-size-base));
+}
+
+// ============================================
+// 12. WHATSAPP INTEGRATION STYLES
+// ============================================
+
+/**
+ * WhatsApp floating share button
+ */
+.whatsapp-fab {
+  @include touch-target(56px);
+
+  position: fixed;
+  bottom: calc(80px + var(--safe-area-bottom));
+  right: var(--mobile-spacing-md);
+  z-index: 999;
+
+  background: #25d366;
+  border-radius: 50%;
+  box-shadow: 0 4px 12px rgba(37, 211, 102, 0.4);
+  color: white;
+
+  [dir='rtl'] & {
+    right: auto;
+    left: var(--mobile-spacing-md);
+  }
+
+  &:active {
+    transform: scale(0.95);
+  }
+
+  // Hide on desktop
+  @media (min-width: 1024px) {
+    display: none;
+  }
+}
+
+/**
+ * Share button inline
+ */
+.whatsapp-share-inline {
+  @include touch-target(44px);
+  @include touch-feedback;
+
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  background: #25d366;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+
+  .whatsapp-icon {
+    width: 20px;
+    height: 20px;
+  }
+}
+
+// ============================================
+// 13. PERFORMANCE UTILITIES
+// ============================================
+
+/**
+ * Reduce motion for accessibility
+ */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/**
+ * GPU-accelerated animations
+ */
+.gpu-accelerated {
+  transform: translateZ(0);
+  will-change: transform;
+  backface-visibility: hidden;
+}
+
+/**
+ * Content visibility for performance
+ */
+.content-visibility-auto {
+  content-visibility: auto;
+  contain-intrinsic-size: 0 500px;
+}
+
+// ============================================
+// 14. BREAKPOINT UTILITIES
+// ============================================
+// P0 FIX: Aligned with Tailwind default breakpoints
+// sm: 640px, md: 768px, lg: 1024px, xl: 1280px, 2xl: 1536px
+// ============================================
+
+/**
+ * Mobile only (below sm breakpoint)
+ * @description Targets mobile devices up to 639px
+ * Aligns with Tailwind's sm:640px breakpoint
+ */
+@mixin mobile-only {
+  @media (max-width: 639px) {
+    @content;
+  }
+}
+
+/**
+ * Small devices and up (sm breakpoint)
+ * @description Targets devices 640px and wider
+ * Aligns with Tailwind's sm breakpoint
+ */
+@mixin small-up {
+  @media (min-width: 640px) {
+    @content;
+  }
+}
+
+/**
+ * Tablet and up (md breakpoint)
+ * @description Targets tablets and larger devices (768px+)
+ * Aligns with Tailwind's md breakpoint
+ */
+@mixin tablet-up {
+  @media (min-width: 768px) {
+    @content;
+  }
+}
+
+/**
+ * Tablet only (between sm and lg)
+ * @description Targets only tablet devices (640px - 1023px)
+ */
+@mixin tablet-only {
+  @media (min-width: 640px) and (max-width: 1023px) {
+    @content;
+  }
+}
+
+/**
+ * Desktop and up (lg breakpoint)
+ * @description Targets desktop and larger devices (1024px+)
+ * Aligns with Tailwind's lg breakpoint
+ */
+@mixin desktop-up {
+  @media (min-width: 1024px) {
+    @content;
+  }
+}
+
+/**
+ * Large desktop and up (xl breakpoint)
+ * @description Targets large desktop devices (1280px+)
+ * Aligns with Tailwind's xl breakpoint
+ */
+@mixin large-up {
+  @media (min-width: 1280px) {
+    @content;
+  }
+}
+
+/**
+ * Extra large desktop and up (2xl breakpoint)
+ * @description Targets extra large desktop devices (1536px+)
+ * Aligns with Tailwind's 2xl breakpoint
+ */
+@mixin xlarge-up {
+  @media (min-width: 1536px) {
+    @content;
+  }
+}
+
+// Deprecated mixins - will be removed in next major version
+// These use the old 767px breakpoint which creates gaps
+@mixin mobile-only-legacy {
+  @warn "mobile-only-legacy uses 767px breakpoint which doesn't align with Tailwind. Use mobile-only instead.";
+  @media (max-width: 767px) {
+    @content;
+  }
+}
+
+// Hide on mobile
+.hide-mobile {
+  @include mobile-only {
+    display: none !important;
+  }
+}
+
+// Show only on mobile
+.show-mobile-only {
+  @include tablet-up {
+    display: none !important;
+  }
+}
+
+// ============================================
+// 15. ACCESSIBILITY ENHANCEMENTS
+// ============================================
+
+/**
+ * Focus visible styles
+ */
+.focus-visible-ring {
+  &:focus-visible {
+    outline: 2px solid var(--golden-wheat-primary, #988561);
+    outline-offset: 2px;
+  }
+}
+
+/**
+ * Screen reader only
+ */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/**
+ * Skip to main content link
+ */
+.skip-link {
+  position: absolute;
+  top: -100px;
+  left: 0;
+  z-index: 9999;
+  padding: 16px;
+  background: var(--golden-wheat-primary, #988561);
+  color: white;
+  font-weight: 600;
+  transition: top 0.3s ease;
+
+  &:focus {
+    top: 0;
+  }
+}
+
+// ============================================
+// 16. OFFLINE MODE STYLES
+// ============================================
+
+/**
+ * Offline indicator banner
+ */
+.offline-banner {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 9999;
+  padding: 12px;
+  background: #f59e0b;
+  color: white;
+  text-align: center;
+  font-weight: 500;
+  transform: translateY(-100%);
+  transition: transform 0.3s ease;
+
+  &.visible {
+    transform: translateY(0);
+  }
+}
+
+/**
+ * Cached content indicator
+ */
+.cached-indicator {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: rgba(245, 158, 11, 0.1);
+  border-radius: 4px;
+  font-size: var(--mobile-font-size-xs);
+  color: #92400e;
+
+  .cached-icon {
+    width: 16px;
+    height: 16px;
+  }
+}
+
+// ============================================
+// 17. SWIPE GESTURE SUPPORT
+// ============================================
+
+/**
+ * Swipeable container
+ */
+.swipeable-container {
+  overflow: hidden;
+  touch-action: pan-y;
+
+  .swipeable-content {
+    display: flex;
+    transition: transform 0.3s ease;
+
+    &.swiping {
+      transition: none;
+    }
+  }
+}
+
+/**
+ * Swipe actions (like iOS mail)
+ */
+.swipe-actions {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+
+  &.left {
+    left: 0;
+    transform: translateX(-100%);
+  }
+
+  &.right {
+    right: 0;
+    transform: translateX(100%);
+  }
+
+  .action-btn {
+    @include touch-target(56px);
+
+    padding: 16px;
+    color: white;
+
+    &.delete {
+      background: #ef4444;
+    }
+
+    &.wishlist {
+      background: #ec4899;
+    }
+
+    &.cart {
+      background: var(--golden-wheat-primary, #988561);
+    }
+  }
+}
+
+// ============================================
+// END OF MOBILE-FIRST FRAMEWORK
+// ============================================

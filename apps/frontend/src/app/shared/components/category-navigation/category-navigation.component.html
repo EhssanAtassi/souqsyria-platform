@@ -1,122 +1,102 @@
 <!-- SouqSyria Category Navigation Component -->
-<!-- Desktop category navigation with mega menu integration -->
+<!-- Row 3: Desktop category navigation with mega menu integration -->
+<!-- Prototype match: bg-surface, border-outline/30, h-12, text-[14px] font-medium, px-5 links -->
 
-<nav 
-  class="sq-category-nav bg-primary-700 text-white hidden lg:block relative" 
+<nav
+  class="sq-category-nav bg-surface border-b border-outline/30 hidden lg:block relative"
   role="navigation"
   [attr.dir]="config.rtl ? 'rtl' : 'ltr'"
   [class.rtl]="config.rtl"
+  [attr.aria-label]="config.language === 'ar' ? 'التنقل بين الفئات' : 'Category Navigation'"
 >
-  <div class="sq-container">
-    <div class="flex items-center space-x-8 rtl:space-x-reverse">
-      
-      <!-- All Categories Button - COMMENTED OUT FOR THIS VERSION -->
-      <!--
-      <button
-        mat-button
-        class="sq-categories-btn bg-primary-800 hover:bg-primary-900 text-white font-medium px-4 py-2 rounded-lg transition-all duration-200"
-        [matMenuTriggerFor]="categoriesMenu"
-        [attr.aria-label]="config.language === 'ar' ? 'جميع الفئات' : 'All Categories'"
-        [attr.aria-expanded]="isAllCategoriesOpen"
-        (menuOpened)="onAllCategoriesMenuOpened()"
-        (menuClosed)="onAllCategoriesMenuClosed()"
-      >
-        <mat-icon
-          class="mr-2 rtl:mr-0 rtl:ml-2"
-          aria-hidden="true"
-        >
-          apps
-        </mat-icon>
-        {{ config.language === 'ar' ? 'جميع الفئات' : 'All Categories' }}
-        <mat-icon
-          class="ml-1 rtl:ml-0 rtl:mr-1 text-sm transition-transform duration-200"
-          [class.rotate-180]="isAllCategoriesOpen"
-          aria-hidden="true"
-        >
-          expand_more
-        </mat-icon>
-      </button>
-      -->
-      
-      <!-- Featured Categories Navigation -->
-      <div 
-        class="flex items-center space-x-6 rtl:space-x-reverse"
+  <div class="sq-container max-w-[1400px] mx-auto px-6">
+    <div class="flex items-center h-12">
+
+      <!-- Featured Categories Navigation (prototype: text-only with underline hover) -->
+      <div
+        class="flex items-center h-full"
         role="menubar"
         [attr.aria-label]="config.language === 'ar' ? 'الفئات المميزة' : 'Featured Categories'"
       >
-        <app-category-item
+        <!-- Category Items (prototype: text-[14px] font-medium text-on-surface, px-5) -->
+        <div
           *ngFor="let category of featuredCategories; trackBy: trackByCategory"
-          [category]="category"
-          [config]="config"
-          [isActive]="isMegaMenuActive(category.id)"
-          [displayMode]="'navigation'"
-          (categoryClick)="onCategoryClick($event)"
-          (mouseEnter)="onShowMegaMenu(category.id)"
-          (mouseLeave)="onHideMegaMenu()"
-          class="sq-nav-category-item"
-        ></app-category-item>
+          class="sq-category-trigger relative h-full flex items-center"
+          (mouseenter)="onShowMegaMenu(category.id)"
+          (mouseleave)="onHideMegaMenu()"
+        >
+          <a
+            [routerLink]="category.url"
+            class="sq-category-link flex items-center h-full px-5 text-[14px] font-medium text-on-surface hover:text-primary-400 transition-colors duration-200"
+            [class.text-primary-400]="isMegaMenuActive(category.id)"
+            (click)="onCategoryClick(category)"
+            role="menuitem"
+            [attr.aria-label]="getCategoryText(category)"
+            [attr.aria-expanded]="isMegaMenuActive(category.id)"
+          >
+            {{ getCategoryText(category) }}
+          </a>
+          <!-- Underline Indicator (prototype: h-[3px] bg-primary-400 rounded-t) -->
+          <div
+            class="sq-cat-underline absolute bottom-0 left-5 right-5 h-[3px] bg-primary-400 rounded-t transition-all duration-200"
+            [class.w-full]="isMegaMenuActive(category.id)"
+            [style.width]="isMegaMenuActive(category.id) ? 'calc(100% - 40px)' : '0'"
+          ></div>
+        </div>
       </div>
-      
-      <!-- Promotional Links Section -->
-      <div class="ml-auto rtl:ml-0 rtl:mr-auto flex items-center space-x-4 rtl:space-x-reverse">
-        
-        <!-- Special Offers Link -->
-        <a 
-          [routerLink]="promotionalLinks[0].url"
-          class="sq-promo-link text-primary-200 hover:text-white text-sm font-medium transition-colors duration-200 flex items-center"
-          (click)="onPromotionalLinkClick('special-offers')"
-          [attr.aria-label]="config.language === 'ar' ? 'عروض خاصة' : 'Special Offers'"
+
+      <!-- Spacer -->
+      <div class="flex-1"></div>
+
+      <!-- Promotional Links (Offers & Flash Sale) -->
+      <div class="flex items-center h-full gap-1">
+        <a
+          *ngFor="let link of promotionalLinks"
+          [routerLink]="link.url"
+          class="sq-promo-link flex items-center gap-1.5 h-full px-4 text-[13px] font-medium text-on-surface-variant hover:text-primary-400 transition-colors duration-200"
+          (click)="onPromotionalLinkClick(link.id)"
         >
-          <mat-icon 
-            class="mr-1 rtl:mr-0 rtl:ml-1 text-sm" 
-            aria-hidden="true"
-          >
-            {{ promotionalLinks[0].icon }}
-          </mat-icon>
-          {{ getPromotionalText(promotionalLinks[0]) }}
-        </a>
-        
-        <!-- Flash Sale Link -->
-        <a 
-          [routerLink]="promotionalLinks[1].url"
-          class="sq-promo-link text-primary-200 hover:text-white text-sm font-medium transition-colors duration-200 flex items-center animate-pulse"
-          (click)="onPromotionalLinkClick('flash-sale')"
-          [attr.aria-label]="config.language === 'ar' ? 'تخفيضات' : 'Flash Sale'"
-        >
-          <mat-icon 
-            class="mr-1 rtl:mr-0 rtl:ml-1 text-sm text-yellow-400" 
-            aria-hidden="true"
-          >
-            {{ promotionalLinks[1].icon }}
-          </mat-icon>
-          {{ getPromotionalText(promotionalLinks[1]) }}
+          <mat-icon class="text-[16px]" aria-hidden="true">{{ link.icon }}</mat-icon>
+          {{ getPromotionalText(link) }}
         </a>
       </div>
+
     </div>
   </div>
-  
-  <!-- Mega Menu Integration -->
-  <app-category-mega-menu
-    *ngIf="activeMegaMenu"
-    [categories]="categories"
-    [config]="config"
-    [activeCategory]="activeMegaMenu"
-    [currentCategory]="currentHoveredCategory"
-    [isVisible]="!!activeMegaMenu"
-    (categoryClick)="onCategoryClick($event)"
-    (menuClose)="onHideMegaMenu()"
-    (menuMouseEnter)="onMegaMenuMouseEnter()"
-    (menuMouseLeave)="onMegaMenuMouseLeave()"
-    class="sq-mega-menu-container"
-  ></app-category-mega-menu>
-  
-  <!-- All Categories Dropdown Menu - REMOVED FOR THIS VERSION -->
-  
+
+  <!-- Mega Menu Integration - Conditional by type -->
+
+  <!-- Sidebar Mega Menu (Damascus Steel, Food, Crafts, Jewelry, Nuts, Sweets) -->
+  <ng-container *ngIf="activeMegaMenu && currentHoveredCategory && getMegaMenuType(activeMegaMenu) === 'sidebar'">
+    <app-mega-menu-sidebar
+      [category]="currentHoveredCategory"
+      [config]="config"
+      (subcategoryClick)="onMegaMenuSubcategoryClick($event)"
+      (viewAllClick)="onMegaMenuViewAllClick($event)"
+      (menuMouseEnter)="onMegaMenuMouseEnter()"
+      (menuMouseLeave)="onMegaMenuMouseLeave()"
+      class="sq-mega-menu-container"
+    ></app-mega-menu-sidebar>
+  </ng-container>
+
+  <!-- Fullwidth Mega Menu (Beauty & Wellness, Textiles & Fabrics) -->
+  <ng-container *ngIf="activeMegaMenu && currentHoveredCategory && getMegaMenuType(activeMegaMenu) === 'fullwidth'">
+    <app-mega-menu-fullwidth
+      [category]="currentHoveredCategory"
+      [config]="config"
+      (subcategoryClick)="onMegaMenuSubcategoryClick($event)"
+      (viewAllClick)="onMegaMenuViewAllClick($event)"
+      (menuMouseEnter)="onMegaMenuMouseEnter()"
+      (menuMouseLeave)="onMegaMenuMouseLeave()"
+      class="sq-mega-menu-container"
+    ></app-mega-menu-fullwidth>
+  </ng-container>
+
 </nav>
 
 <!-- Accessibility Skip Link -->
-<a 
-  href="#main-content" 
+<a
+  href="#main-content"
   class="sr-only focus:not-sr-only focus:absolute focus:top-0 focus:left-0 bg-primary-600 text-white p-2 z-50"
 >
   {{ config.language === 'ar' ? 'انتقل إلى المحتوى الرئيسي' : 'Skip to main content' }}

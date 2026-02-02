@@ -1,0 +1,77 @@
+<!-- SouqSyria Fullwidth Mega Menu Component -->
+<!-- Prototype match: w-[1100px], bg-surface, shadow-menu, border-outline/30, rounded-b-2xl -->
+<!-- Multi-column layout with featured tiles and "Browse All" footer -->
+
+<div
+  class="sq-mega-menu-fullwidth w-[1100px] mx-auto bg-surface rounded-b-2xl shadow-menu border border-t-0 border-outline/30 p-6"
+  [attr.dir]="config.rtl ? 'rtl' : 'ltr'"
+  (mouseenter)="menuMouseEnter.emit()"
+  (mouseleave)="menuMouseLeave.emit()"
+  role="menu"
+  [attr.aria-label]="getCategoryName()"
+>
+  <!-- Columns Grid (prototype: grid-cols-4 gap-8) -->
+  <div
+    class="grid gap-8"
+    [ngClass]="getFeaturedTiles().length > 0 ? 'grid-cols-4' : 'grid-cols-3'"
+  >
+    <!-- Text Columns (prototype: text-[14px] headers, text-[13px] links) -->
+    <div
+      *ngFor="let column of getMenuColumns(); trackBy: trackByColumn"
+    >
+      <h4
+        class="text-[14px] font-medium text-primary-500 mb-2"
+      >
+        {{ getColumnTitle(column) }}
+      </h4>
+      <div class="space-y-1">
+        <a
+          *ngFor="let link of column.links; trackBy: trackByLink"
+          [routerLink]="link.url"
+          class="block text-[13px] text-on-surface-variant hover:text-primary-500 py-1 transition-colors"
+          (click)="onLinkClick(link)"
+          role="menuitem"
+        >
+          {{ getLinkName(link) }}
+        </a>
+      </div>
+    </div>
+
+    <!-- Featured Tiles Column -->
+    <div
+      *ngIf="getFeaturedTiles().length > 0"
+    >
+      <div class="grid grid-cols-2 gap-3">
+        <a
+          *ngFor="let tile of getFeaturedTiles(); trackBy: trackByTile"
+          [routerLink]="tile.url"
+          class="sq-featured-tile flex flex-col items-center justify-center p-4 rounded-xl transition-all duration-200 group"
+          [ngClass]="tile.bgColor"
+          role="menuitem"
+        >
+          <mat-icon
+            class="text-[28px] mb-2 transition-transform duration-200 group-hover:scale-110"
+            [ngClass]="tile.iconColor"
+            aria-hidden="true"
+          >
+            {{ tile.icon }}
+          </mat-icon>
+          <span class="text-[11px] font-medium text-on-surface text-center">
+            {{ getTileName(tile) }}
+          </span>
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- View All Footer (prototype: border-t border-outline/30, text-primary-500 font-medium) -->
+  <div class="mt-5 pt-4 border-t border-outline/30">
+    <a
+      [routerLink]="category.url"
+      class="flex items-center gap-2 text-[14px] font-medium text-primary-500 hover:text-primary-600 transition-colors"
+      (click)="onViewAllClick()"
+    >
+      <span>{{ getViewAllText() }} →</span>
+    </a>
+  </div>
+</div>

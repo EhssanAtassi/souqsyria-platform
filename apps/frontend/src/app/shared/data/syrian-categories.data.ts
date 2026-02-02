@@ -5,7 +5,7 @@
  * @version 2.0.0 - Syrian Heritage Edition
  */
 
-import { Category } from '../interfaces/navigation.interface';
+import { Category, MegaMenuFeaturedProduct, MenuColumn, FeaturedTile } from '../interfaces/navigation.interface';
 
 /**
  * Complete Syrian e-commerce category structure
@@ -37,6 +37,25 @@ export const SYRIAN_CATEGORIES: Category[] = [
     icon: 'carpenter',
     featured: true,
     url: '/category/damascus-steel',
+    megaMenuType: 'sidebar',
+    megaMenuFeaturedProducts: [
+      {
+        id: 'chef-knife-8',
+        name: 'Chef Knife 8"',
+        nameAr: 'سكين شيف 8 إنش',
+        image: 'https://images.unsplash.com/photo-1593618998160-e34014e67f23?w=200&h=200&fit=crop',
+        price: '$299',
+        url: '/product/damascus-steel-chef-knife'
+      },
+      {
+        id: 'santoku-knife',
+        name: 'Santoku Knife',
+        nameAr: 'سكين سانتوكو',
+        image: 'https://images.unsplash.com/photo-1566576912321-d58ddd7a6088?w=200&h=200&fit=crop',
+        price: '$249',
+        url: '/product/damascus-steel-santoku'
+      }
+    ],
     subcategories: [
       {
         id: 'knives-blades',
@@ -126,6 +145,39 @@ export const SYRIAN_CATEGORIES: Category[] = [
     icon: 'spa',
     featured: true,
     url: '/category/beauty-wellness',
+    megaMenuType: 'fullwidth',
+    menuColumns: [
+      {
+        title: 'Skincare',
+        titleAr: 'العناية بالبشرة',
+        links: [
+          { name: 'Aleppo Soap', nameAr: 'صابون حلبي', url: '/category/beauty-wellness/aleppo-soap', icon: 'soap' },
+          { name: 'Damascus Rose Water', nameAr: 'ماء ورد دمشقي', url: '/category/beauty-wellness/rose-water', icon: 'local_florist' },
+          { name: 'Natural Oils', nameAr: 'زيوت طبيعية', url: '/category/beauty-wellness/natural-oils', icon: 'oil_barrel' }
+        ]
+      },
+      {
+        title: 'Beauty',
+        titleAr: 'الجمال',
+        links: [
+          { name: 'Henna & Natural Dyes', nameAr: 'حناء وأصباغ طبيعية', url: '/category/beauty-wellness/henna-products', icon: 'brush' },
+          { name: 'Traditional Oud & Perfumes', nameAr: 'عود وعطور تراثية', url: '/category/beauty-wellness/traditional-perfumes', icon: 'fragrance' }
+        ]
+      },
+      {
+        title: 'Wellness',
+        titleAr: 'العافية',
+        links: [
+          { name: 'Herbal Remedies', nameAr: 'علاجات عشبية', url: '/category/beauty-wellness/herbal-remedies', icon: 'healing' }
+        ]
+      }
+    ],
+    featuredTiles: [
+      { name: 'Spa', nameAr: 'سبا', icon: 'spa', bgColor: 'bg-pink-50', iconColor: 'text-pink-500', url: '/category/beauty-wellness/aleppo-soap' },
+      { name: 'Natural', nameAr: 'طبيعي', icon: 'eco', bgColor: 'bg-green-50', iconColor: 'text-green-500', url: '/category/beauty-wellness/natural-oils' },
+      { name: 'Skincare', nameAr: 'بشرة', icon: 'face', bgColor: 'bg-purple-50', iconColor: 'text-purple-500', url: '/category/beauty-wellness/rose-water' },
+      { name: 'Floral', nameAr: 'زهور', icon: 'local_florist', bgColor: 'bg-rose-50', iconColor: 'text-rose-500', url: '/category/beauty-wellness/traditional-perfumes' }
+    ],
     subcategories: [
       {
         id: 'aleppo-soap',
@@ -206,6 +258,39 @@ export const SYRIAN_CATEGORIES: Category[] = [
     icon: 'texture',
     featured: true,
     url: '/category/textiles-fabrics',
+    megaMenuType: 'fullwidth',
+    menuColumns: [
+      {
+        title: 'Fabrics',
+        titleAr: 'الأقمشة',
+        links: [
+          { name: 'Damascus Brocade', nameAr: 'بروكار دمشقي', url: '/category/textiles-fabrics/damascus-brocade', icon: 'pattern' },
+          { name: 'Syrian Silk', nameAr: 'حرير سوري', url: '/category/textiles-fabrics/silk-fabrics', icon: 'fabric' }
+        ]
+      },
+      {
+        title: 'Home',
+        titleAr: 'المنزل',
+        links: [
+          { name: 'Traditional Carpets', nameAr: 'سجاد تراثي', url: '/category/textiles-fabrics/traditional-carpets', icon: 'carpet' },
+          { name: 'Home Textiles', nameAr: 'منسوجات منزلية', url: '/category/textiles-fabrics/home-textiles', icon: 'home' }
+        ]
+      },
+      {
+        title: 'Fashion',
+        titleAr: 'الأزياء',
+        links: [
+          { name: 'Embroidered Textiles', nameAr: 'منسوجات مطرزة', url: '/category/textiles-fabrics/embroidered-textiles', icon: 'design_services' },
+          { name: 'Traditional Abayas', nameAr: 'عباءات تراثية', url: '/category/textiles-fabrics/abayas-traditional', icon: 'checkroom' }
+        ]
+      }
+    ],
+    featuredTiles: [
+      { name: 'Brocade', nameAr: 'بروكار', icon: 'texture', bgColor: 'bg-amber-50', iconColor: 'text-amber-600', url: '/category/textiles-fabrics/damascus-brocade' },
+      { name: 'Silk', nameAr: 'حرير', icon: 'checkroom', bgColor: 'bg-sky-50', iconColor: 'text-sky-500', url: '/category/textiles-fabrics/silk-fabrics' },
+      { name: 'Carpets', nameAr: 'سجاد', icon: 'home', bgColor: 'bg-red-50', iconColor: 'text-red-500', url: '/category/textiles-fabrics/traditional-carpets' },
+      { name: 'Embroidery', nameAr: 'تطريز', icon: 'design_services', bgColor: 'bg-indigo-50', iconColor: 'text-indigo-500', url: '/category/textiles-fabrics/embroidered-textiles' }
+    ],
     subcategories: [
       {
         id: 'damascus-brocade',
@@ -259,6 +344,7 @@ export const SYRIAN_CATEGORIES: Category[] = [
     icon: 'restaurant_menu',
     featured: true,
     url: '/category/food-spices',
+    megaMenuType: 'sidebar',
     subcategories: [
       {
         id: 'damascus-seven-spice',
@@ -312,6 +398,7 @@ export const SYRIAN_CATEGORIES: Category[] = [
     icon: 'handyman',
     featured: true,
     url: '/category/traditional-crafts',
+    megaMenuType: 'sidebar',
     subcategories: [
       {
         id: 'chess-sets',
@@ -365,6 +452,7 @@ export const SYRIAN_CATEGORIES: Category[] = [
     icon: 'diamond',
     featured: true,
     url: '/category/jewelry-accessories',
+    megaMenuType: 'sidebar',
     subcategories: [
       {
         id: 'traditional-jewelry',
@@ -418,6 +506,7 @@ export const SYRIAN_CATEGORIES: Category[] = [
     icon: 'nutrition',
     featured: true,
     url: '/category/nuts-snacks',
+    megaMenuType: 'sidebar',
     subcategories: [
       {
         id: 'aleppo-pistachios',
@@ -471,6 +560,7 @@ export const SYRIAN_CATEGORIES: Category[] = [
     icon: 'cake',
     featured: true,
     url: '/category/sweets-desserts',
+    megaMenuType: 'sidebar',
     subcategories: [
       {
         id: 'baklava',
@@ -519,10 +609,189 @@ export const SYRIAN_CATEGORIES: Category[] = [
 ];
 
 /**
- * Featured categories for main navigation
- * @description Categories to display prominently in navigation
+ * Featured categories for main navigation (all Syrian heritage categories)
+ * @description All featured categories from the full Syrian heritage catalog
  */
 export const FEATURED_CATEGORIES: Category[] = SYRIAN_CATEGORIES.filter(category => category.featured);
+
+/**
+ * Header navigation bar categories
+ * @description Exactly 7 general e-commerce categories displayed in the category nav bar (Row 3).
+ * "All" button with hamburger icon is rendered separately in the template.
+ * These map to browsing-oriented categories for the main navigation.
+ *
+ * @swagger
+ * components:
+ *   examples:
+ *     HeaderNavCategories:
+ *       summary: Categories shown in the header navigation bar
+ *       value:
+ *         - id: damascus-steel
+ *           name: Damascus Steel
+ *         - id: electronics
+ *           name: Electronics
+ *         - id: fashion
+ *           name: Fashion
+ */
+export const HEADER_NAV_CATEGORIES: Category[] = [
+  // Damascus Steel - links to existing Syrian heritage category
+  SYRIAN_CATEGORIES.find(c => c.id === 'damascus-steel')!,
+  // Electronics - new general e-commerce category
+  {
+    id: 'electronics',
+    name: 'Electronics',
+    nameAr: 'إلكترونيات',
+    icon: 'devices',
+    featured: true,
+    url: '/category/electronics',
+    megaMenuType: 'sidebar',
+    subcategories: [
+      { id: 'smartphones', name: 'Smartphones', nameAr: 'هواتف ذكية', url: '/category/electronics/smartphones', icon: 'smartphone' },
+      { id: 'laptops', name: 'Laptops & Computers', nameAr: 'حواسيب محمولة', url: '/category/electronics/laptops', icon: 'laptop' },
+      { id: 'tablets', name: 'Tablets', nameAr: 'أجهزة لوحية', url: '/category/electronics/tablets', icon: 'tablet' },
+      { id: 'audio', name: 'Audio & Headphones', nameAr: 'سماعات وصوتيات', url: '/category/electronics/audio', icon: 'headphones' },
+      { id: 'cameras', name: 'Cameras & Photography', nameAr: 'كاميرات وتصوير', url: '/category/electronics/cameras', icon: 'photo_camera' },
+      { id: 'accessories', name: 'Accessories', nameAr: 'إكسسوارات', url: '/category/electronics/accessories', icon: 'cable' }
+    ]
+  },
+  // Fashion - new general e-commerce category
+  {
+    id: 'fashion',
+    name: 'Fashion',
+    nameAr: 'أزياء',
+    icon: 'checkroom',
+    featured: true,
+    url: '/category/fashion',
+    megaMenuType: 'fullwidth',
+    menuColumns: [
+      {
+        title: 'Women',
+        titleAr: 'نساء',
+        links: [
+          { name: 'Dresses', nameAr: 'فساتين', url: '/category/fashion/women-dresses', icon: 'woman' },
+          { name: 'Abayas & Modest', nameAr: 'عباءات ومحتشمات', url: '/category/fashion/abayas', icon: 'checkroom' },
+          { name: 'Accessories', nameAr: 'إكسسوارات', url: '/category/fashion/women-accessories', icon: 'diamond' }
+        ]
+      },
+      {
+        title: 'Men',
+        titleAr: 'رجال',
+        links: [
+          { name: 'Shirts & Tops', nameAr: 'قمصان', url: '/category/fashion/men-shirts', icon: 'dry_cleaning' },
+          { name: 'Traditional Wear', nameAr: 'ملابس تراثية', url: '/category/fashion/traditional-wear', icon: 'checkroom' }
+        ]
+      },
+      {
+        title: 'Kids',
+        titleAr: 'أطفال',
+        links: [
+          { name: 'Boys', nameAr: 'أولاد', url: '/category/fashion/boys', icon: 'boy' },
+          { name: 'Girls', nameAr: 'بنات', url: '/category/fashion/girls', icon: 'girl' }
+        ]
+      }
+    ],
+    featuredTiles: [
+      { name: 'Women', nameAr: 'نساء', icon: 'woman', bgColor: 'bg-pink-50', iconColor: 'text-pink-500', url: '/category/fashion/women-dresses' },
+      { name: 'Men', nameAr: 'رجال', icon: 'man', bgColor: 'bg-blue-50', iconColor: 'text-blue-500', url: '/category/fashion/men-shirts' },
+      { name: 'Kids', nameAr: 'أطفال', icon: 'child_care', bgColor: 'bg-green-50', iconColor: 'text-green-500', url: '/category/fashion/boys' },
+      { name: 'Traditional', nameAr: 'تراثي', icon: 'checkroom', bgColor: 'bg-amber-50', iconColor: 'text-amber-600', url: '/category/fashion/traditional-wear' }
+    ],
+    subcategories: [
+      { id: 'women-dresses', name: 'Women\'s Dresses', nameAr: 'فساتين نسائية', url: '/category/fashion/women-dresses', icon: 'woman' },
+      { id: 'abayas', name: 'Abayas & Modest', nameAr: 'عباءات ومحتشمات', url: '/category/fashion/abayas', icon: 'checkroom' },
+      { id: 'men-shirts', name: 'Men\'s Shirts', nameAr: 'قمصان رجالية', url: '/category/fashion/men-shirts', icon: 'dry_cleaning' },
+      { id: 'traditional-wear', name: 'Traditional Wear', nameAr: 'ملابس تراثية', url: '/category/fashion/traditional-wear', icon: 'checkroom' },
+      { id: 'shoes', name: 'Shoes & Footwear', nameAr: 'أحذية', url: '/category/fashion/shoes', icon: 'steps' }
+    ]
+  },
+  // Home & Living - new general e-commerce category
+  {
+    id: 'home-living',
+    name: 'Home & Living',
+    nameAr: 'المنزل والمعيشة',
+    icon: 'home',
+    featured: true,
+    url: '/category/home-living',
+    megaMenuType: 'fullwidth',
+    menuColumns: [
+      {
+        title: 'Furniture',
+        titleAr: 'أثاث',
+        links: [
+          { name: 'Living Room', nameAr: 'غرفة المعيشة', url: '/category/home-living/living-room', icon: 'weekend' },
+          { name: 'Bedroom', nameAr: 'غرفة النوم', url: '/category/home-living/bedroom', icon: 'bed' }
+        ]
+      },
+      {
+        title: 'Decor',
+        titleAr: 'ديكور',
+        links: [
+          { name: 'Syrian Mosaics', nameAr: 'فسيفساء سورية', url: '/category/home-living/syrian-mosaics', icon: 'dashboard' },
+          { name: 'Rugs & Carpets', nameAr: 'سجاد', url: '/category/home-living/rugs', icon: 'texture' }
+        ]
+      },
+      {
+        title: 'Kitchen',
+        titleAr: 'مطبخ',
+        links: [
+          { name: 'Cookware', nameAr: 'أواني طبخ', url: '/category/home-living/cookware', icon: 'soup_kitchen' },
+          { name: 'Tableware', nameAr: 'أدوات مائدة', url: '/category/home-living/tableware', icon: 'restaurant' }
+        ]
+      }
+    ],
+    featuredTiles: [
+      { name: 'Living', nameAr: 'معيشة', icon: 'weekend', bgColor: 'bg-amber-50', iconColor: 'text-amber-600', url: '/category/home-living/living-room' },
+      { name: 'Bedroom', nameAr: 'نوم', icon: 'bed', bgColor: 'bg-indigo-50', iconColor: 'text-indigo-500', url: '/category/home-living/bedroom' },
+      { name: 'Kitchen', nameAr: 'مطبخ', icon: 'soup_kitchen', bgColor: 'bg-orange-50', iconColor: 'text-orange-500', url: '/category/home-living/cookware' },
+      { name: 'Decor', nameAr: 'ديكور', icon: 'dashboard', bgColor: 'bg-teal-50', iconColor: 'text-teal-500', url: '/category/home-living/syrian-mosaics' }
+    ],
+    subcategories: [
+      { id: 'living-room', name: 'Living Room', nameAr: 'غرفة المعيشة', url: '/category/home-living/living-room', icon: 'weekend' },
+      { id: 'bedroom', name: 'Bedroom', nameAr: 'غرفة النوم', url: '/category/home-living/bedroom', icon: 'bed' },
+      { id: 'syrian-mosaics', name: 'Syrian Mosaics', nameAr: 'فسيفساء سورية', url: '/category/home-living/syrian-mosaics', icon: 'dashboard' },
+      { id: 'rugs', name: 'Rugs & Carpets', nameAr: 'سجاد', url: '/category/home-living/rugs', icon: 'texture' },
+      { id: 'cookware', name: 'Cookware', nameAr: 'أواني طبخ', url: '/category/home-living/cookware', icon: 'soup_kitchen' },
+      { id: 'tableware', name: 'Tableware', nameAr: 'أدوات مائدة', url: '/category/home-living/tableware', icon: 'restaurant' }
+    ]
+  },
+  // Food & Groceries - mapped from existing Food & Spices + Nuts & Snacks
+  {
+    id: 'food-groceries',
+    name: 'Food & Groceries',
+    nameAr: 'طعام وبقالة',
+    icon: 'shopping_basket',
+    featured: true,
+    url: '/category/food-groceries',
+    megaMenuType: 'sidebar',
+    subcategories: [
+      ...(SYRIAN_CATEGORIES.find(c => c.id === 'food-spices')?.subcategories || []),
+      ...(SYRIAN_CATEGORIES.find(c => c.id === 'nuts-snacks')?.subcategories || []),
+      ...(SYRIAN_CATEGORIES.find(c => c.id === 'sweets-desserts')?.subcategories?.slice(0, 3) || [])
+    ]
+  },
+  // Beauty - mapped from existing Beauty & Wellness
+  {
+    ...SYRIAN_CATEGORIES.find(c => c.id === 'beauty-wellness')!,
+    id: 'beauty',
+    name: 'Beauty',
+    nameAr: 'جمال',
+    url: '/category/beauty'
+  },
+  // Artisan Crafts - mapped from existing Traditional Crafts + Jewelry
+  {
+    id: 'artisan-crafts',
+    name: 'Artisan Crafts',
+    nameAr: 'حرف يدوية',
+    icon: 'palette',
+    featured: true,
+    url: '/category/artisan-crafts',
+    megaMenuType: 'sidebar',
+    subcategories: [
+      ...(SYRIAN_CATEGORIES.find(c => c.id === 'traditional-crafts')?.subcategories || []),
+      ...(SYRIAN_CATEGORIES.find(c => c.id === 'jewelry-accessories')?.subcategories?.slice(0, 3) || [])
+    ]
+  }
+];
 
 /**
  * Category mapping by ID for quick lookup

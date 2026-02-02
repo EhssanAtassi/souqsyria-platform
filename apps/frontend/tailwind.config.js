@@ -49,16 +49,16 @@ module.exports = {
         },
         // Semantic color mapping
         primary: {
-          50: '#f5f3f0',
-          100: '#edebe0',
-          200: '#ddd5c4',
-          300: '#c8bba1',
-          400: '#b9a779',
-          500: '#a89862',
-          600: '#988561',
-          700: '#7d6e52',
-          800: '#685a46',
-          900: '#564a3d'
+          50: '#FAF6EB',
+          100: '#F2E9D0',
+          200: '#E5D4A1',
+          300: '#D4BC6A',
+          400: '#C4A052',
+          500: '#B8943D',
+          600: '#9A7B32',
+          700: '#7D6329',
+          800: '#5F4B1F',
+          900: '#423518'
         },
         secondary: {
           50: '#f0f8f7',
@@ -153,7 +153,20 @@ module.exports = {
           700: '#44403C',
           800: '#292524',
           900: '#1C1917'
-        }
+        },
+        // Prototype design tokens for mega menus
+        'surface': '#FFFFFF',
+        'background': '#FAFAFA',
+        'on-surface': '#1F1F1F',
+        'on-surface-variant': '#5F6368',
+        'outline': '#DADCE0'
+      },
+      // Custom box shadows for mega menus
+      boxShadow: {
+        'menu': '0 8px 30px rgba(0, 0, 0, 0.12)',
+        'soft': '0 2px 8px rgba(0, 0, 0, 0.08)',
+        'medium': '0 4px 12px rgba(0, 0, 0, 0.12)',
+        'button': '0 2px 4px rgba(0, 0, 0, 0.1)'
       },
       // Custom spacing for consistent design
       spacing: {
@@ -162,9 +175,9 @@ module.exports = {
       },
       // Custom fonts including Arabic support
       fontFamily: {
-        sans: ['Inter', 'system-ui', 'sans-serif'],
+        sans: ['Roboto', 'Cairo', 'system-ui', 'sans-serif'],
         display: ['Poppins', 'system-ui', 'sans-serif'],
-        arabic: ['Amiri', 'Scheherazade New', 'Noto Sans Arabic', 'Arabic UI Display', 'system-ui', 'sans-serif']
+        arabic: ['Cairo', 'Amiri', 'Scheherazade New', 'Noto Sans Arabic', 'system-ui', 'sans-serif']
       },
       // RTL-specific utilities
       margin: {

@@ -124,9 +124,21 @@ export interface Category {
   
   /** Whether this category should be featured in main navigation */
   featured: boolean;
-  
+
   /** Navigation URL for the category page */
   url: string;
+
+  /** Mega menu display type for this category */
+  megaMenuType?: MegaMenuType;
+
+  /** Column layout data for fullwidth mega menus */
+  menuColumns?: MenuColumn[];
+
+  /** Featured image tiles for fullwidth mega menus */
+  featuredTiles?: FeaturedTile[];
+
+  /** Featured products for sidebar mega menus */
+  megaMenuFeaturedProducts?: MegaMenuFeaturedProduct[];
 }
 
 /**
@@ -268,6 +280,81 @@ export interface NavigationConfig {
   
   /** Featured categories to display in main navigation */
   featuredCategories: Category[];
+}
+
+/**
+ * Type for mega menu display styles
+ * @description Determines which mega menu component renders for a category
+ * - 'sidebar': Vertical list with nested submenus (280px), used for Damascus Steel, Food, Crafts, etc.
+ * - 'fullwidth': Multi-column grid with image tiles (900-1100px), used for Beauty, Textiles
+ * - 'none': No mega menu, direct link only
+ */
+export type MegaMenuType = 'sidebar' | 'fullwidth' | 'none';
+
+/**
+ * Interface for mega menu column layout
+ * @description Defines a column of links within a fullwidth mega menu
+ */
+export interface MenuColumn {
+  /** Column heading in English */
+  title: string;
+  /** Column heading in Arabic */
+  titleAr: string;
+  /** Links within this column */
+  links: MenuLink[];
+}
+
+/**
+ * Interface for individual menu link within a column
+ * @description Single navigation link in mega menu column
+ */
+export interface MenuLink {
+  /** Link text in English */
+  name: string;
+  /** Link text in Arabic */
+  nameAr: string;
+  /** Navigation URL */
+  url: string;
+  /** Optional Material icon */
+  icon?: string;
+}
+
+/**
+ * Interface for featured image tiles in fullwidth mega menu
+ * @description Colored icon tiles displayed alongside text columns
+ */
+export interface FeaturedTile {
+  /** Tile label in English */
+  name: string;
+  /** Tile label in Arabic */
+  nameAr: string;
+  /** Material icon name */
+  icon: string;
+  /** Tailwind background color class (e.g., 'bg-pink-50') */
+  bgColor: string;
+  /** Tailwind icon color class (e.g., 'text-pink-500') */
+  iconColor: string;
+  /** Navigation URL */
+  url: string;
+}
+
+/**
+ * Interface for featured product displayed in sidebar mega menu
+ * @description Product card shown in sidebar mega menu's featured area
+ */
+export interface MegaMenuFeaturedProduct {
+  /** Product ID */
+  id: string;
+  /** Product name in English */
+  name: string;
+  /** Product name in Arabic */
+  nameAr: string;
+  /** Product image URL */
+  image: string;
+  /** Product price display string */
+  price: string;
+  /** Navigation URL */
+  url: string;
 }
 
 /**

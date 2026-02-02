@@ -1,0 +1,283 @@
+/**
+ * Quick Access Row Component Styles
+ * @description Styles for the quick access row (Row 4) supporting both
+ * icon circles mode and promotional cards carousel mode
+ */
+
+// ═══════════════════════════════════════
+// SHARED STYLES
+// ═══════════════════════════════════════
+
+// Main container - NO z-index per STYLE_GUIDE.md (must stay below mega menus)
+.sq-quick-access-row {
+  position: relative;
+
+  // RTL support
+  &.rtl {
+    direction: rtl;
+
+    .sq-quick-access-scroll {
+      flex-direction: row-reverse;
+    }
+
+    .sq-cards-scroll {
+      flex-direction: row-reverse;
+    }
+  }
+}
+
+// Container utility
+.sq-container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+}
+
+// Hidden scrollbar utility
+.scroll-hidden {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+// ═══════════════════════════════════════
+// ICONS MODE STYLES
+// ═══════════════════════════════════════
+
+// Scrollable container
+.sq-quick-access-scroll {
+  scroll-snap-type: x mandatory;
+  scroll-behavior: smooth;
+}
+
+// Quick access item card (icon mode)
+.sq-quick-access-item {
+  scroll-snap-align: start;
+  text-decoration: none;
+
+  &:focus-visible {
+    outline: 2px solid theme('colors.primary.500');
+    outline-offset: 4px;
+    border-radius: 16px;
+  }
+
+  // Icon container base styles
+  .sq-icon-container {
+    position: relative;
+    overflow: hidden;
+
+    // Subtle shine effect on hover
+    &::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: linear-gradient(
+        45deg,
+        transparent 30%,
+        rgba(255, 255, 255, 0.3) 50%,
+        transparent 70%
+      );
+      transform: translateX(-100%);
+      transition: transform 0.6s ease;
+    }
+  }
+
+  &:hover .sq-icon-container::before {
+    transform: translateX(100%);
+  }
+
+  // Label styles
+  .sq-item-label {
+    max-width: 76px;
+    word-wrap: break-word;
+    hyphens: auto;
+  }
+}
+
+// Special items additional styling
+.sq-quick-access-item .sq-icon-container.bg-gradient-to-br {
+  box-shadow: 0 4px 12px rgba(184, 148, 61, 0.3);
+
+  &:hover {
+    box-shadow: 0 6px 16px rgba(184, 148, 61, 0.4);
+  }
+
+  mat-icon {
+    filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1));
+  }
+}
+
+// ═══════════════════════════════════════
+// CARDS MODE STYLES
+// ═══════════════════════════════════════
+
+// Cards scroll container
+.sq-cards-scroll {
+  scroll-behavior: smooth;
+}
+
+// Promotional card
+.sq-promo-card {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+  }
+
+  &:focus-visible {
+    outline: 2px solid theme('colors.primary.500');
+    outline-offset: 2px;
+    border-radius: 12px;
+  }
+}
+
+// Scroll arrow buttons - 48px touch target per WCAG 2.2
+.sq-scroll-btn {
+  min-width: 48px;
+  min-height: 48px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background-color: rgba(196, 160, 82, 0.1);
+  }
+
+  &:active {
+    transform: translateY(-50%) scale(0.95);
+  }
+
+  &:focus-visible {
+    outline: 2px solid theme('colors.primary.500');
+    outline-offset: 2px;
+  }
+}
+
+// ═══════════════════════════════════════
+// SCROLL FADE INDICATORS
+// ═══════════════════════════════════════
+
+.sq-quick-access-row {
+  .sq-container {
+    position: relative;
+
+    &::before,
+    &::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      width: 40px;
+      pointer-events: none;
+      z-index: 1;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    &::before {
+      left: 0;
+      background: linear-gradient(to right, theme('colors.gray.50'), transparent);
+    }
+
+    &::after {
+      right: 0;
+      background: linear-gradient(to left, theme('colors.gray.50'), transparent);
+    }
+  }
+
+  &.scrolled-start .sq-container::before {
+    opacity: 1;
+  }
+
+  &.scrolled-end .sq-container::after {
+    opacity: 1;
+  }
+
+  // RTL fade direction swap
+  &.rtl .sq-container {
+    &::before {
+      left: auto;
+      right: 0;
+      background: linear-gradient(to left, theme('colors.gray.50'), transparent);
+    }
+
+    &::after {
+      right: auto;
+      left: 0;
+      background: linear-gradient(to right, theme('colors.gray.50'), transparent);
+    }
+  }
+}
+
+// ═══════════════════════════════════════
+// ACCESSIBILITY & MOTION
+// ═══════════════════════════════════════
+
+// Reduced motion support
+@media (prefers-reduced-motion: reduce) {
+  .sq-quick-access-item {
+    .sq-icon-container {
+      transition: none;
+
+      &::before {
+        display: none;
+      }
+    }
+  }
+
+  .sq-quick-access-scroll,
+  .sq-cards-scroll {
+    scroll-behavior: auto;
+  }
+
+  .sq-promo-card {
+    transition: none;
+
+    &:hover {
+      transform: none;
+    }
+  }
+}
+
+// High contrast mode support
+@media (prefers-contrast: high) {
+  .sq-quick-access-item {
+    .sq-icon-container {
+      border-width: 2px;
+      border-color: theme('colors.gray.900');
+    }
+
+    &:focus-visible {
+      outline-width: 3px;
+    }
+  }
+
+  .sq-promo-card {
+    border-width: 2px;
+  }
+}
+
+// ═══════════════════════════════════════
+// RESPONSIVE
+// ═══════════════════════════════════════
+
+// Hide below desktop - aligned with Tailwind lg breakpoint (1024px)
+@media (max-width: 1023px) {
+  .sq-quick-access-row {
+    display: none;
+  }
+}
+
+@media print {
+  .sq-quick-access-row {
+    display: none;
+  }
+}

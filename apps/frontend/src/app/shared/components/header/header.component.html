@@ -1,20 +1,27 @@
 <!-- SouqSyria Header Navigation Component -->
-<!-- Responsive navigation header with search, user actions, and category navigation -->
+<!-- 4-Row Header Structure: TopBar (Row 1) + Main Header (Row 2) + Category Nav (Row 3) + Quick Access (Row 4) -->
 
 <header class="sq-header" [class.rtl]="config.rtl" [attr.dir]="config.rtl ? 'rtl' : 'ltr'">
-  
-  <!-- Main Header Bar -->
-  <mat-toolbar class="sq-main-header bg-white border-b border-gray-200 shadow-sm">
-    <div class="sq-container flex items-center justify-between w-full py-2">
-      
-      <!-- Mobile Menu Button & Logo Section -->
-      <div class="flex items-center space-x-4 rtl:space-x-reverse">
-        <!-- Mobile Menu Toggle -->
-        <button 
-          mat-icon-button 
-          class="lg:hidden text-neutral-700 hover:text-primary-600 w-10 h-10 flex items-center justify-center rounded-lg transition-all duration-200"
+
+  <!-- ====================== ROW 1: TOP BAR ====================== -->
+  <app-top-bar
+    [config]="config"
+    [user]="user"
+    (languageChange)="onLanguageChange($event)"
+    (linkClick)="onTopBarLinkClick($event)"
+  ></app-top-bar>
+
+  <!-- ====================== ROW 2: MAIN HEADER ====================== -->
+  <!-- Prototype match: bg-surface, border-outline/30, shadow-sm, h-[72px], gap-8 -->
+  <div class="sq-main-header bg-surface border-b border-outline/30 shadow-sm">
+    <div class="sq-container max-w-[1400px] mx-auto px-6">
+      <div class="flex items-center h-[72px] gap-8">
+
+        <!-- Mobile Menu Button (Mobile/Tablet only) - 48px touch target per WCAG 2.2 -->
+        <button
+          class="lg:hidden text-on-surface-variant hover:text-primary-400 w-12 h-12 min-w-[48px] min-h-[48px] flex items-center justify-center rounded-lg transition-all duration-200"
           [class.bg-primary-50]="mobileMenuOpen"
-          [class.text-primary-600]="mobileMenuOpen"
+          [class.text-primary-400]="mobileMenuOpen"
           (click)="toggleMobileMenu()"
           [attr.aria-label]="config.language === 'ar' ? (mobileMenuOpen ? 'إغلاق القائمة' : 'فتح القائمة') : (mobileMenuOpen ? 'Close menu' : 'Open menu')"
           [attr.aria-expanded]="mobileMenuOpen"
@@ -23,285 +30,82 @@
             {{ mobileMenuOpen ? 'close' : 'menu' }}
           </mat-icon>
         </button>
-        
-        <!-- Logo -->
-        <div class="sq-logo flex items-center cursor-pointer" routerLink="/">
-          <div class="flex items-center space-x-2 rtl:space-x-reverse">
-            <div class="w-10 h-10 bg-gradient-to-br from-primary-500 to-primary-600 rounded-lg flex items-center justify-center">
-              <mat-icon class="text-white text-xl">storefront</mat-icon>
-            </div>
-            <div class="hidden sm:block">
-              <h1 class="text-xl font-display font-bold text-primary-700">SouqSyria</h1>
-              <p class="text-xs text-neutral-500 -mt-1">
-                {{ config.language === 'ar' ? 'سوق سوريا' : 'Syrian Marketplace' }}
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
-      
-      <!-- Search Section -->
-      <div class="flex-1 max-w-3xl mx-4 lg:mx-8 hidden lg:block">
-        <form [formGroup]="searchForm" (ngSubmit)="onSearchSubmit($event)" class="sq-search-form">
-          <div class="flex bg-gray-50 rounded-lg border border-gray-200 focus-within:border-primary-500 focus-within:ring-2 focus-within:ring-primary-200">
-            
-            <!-- Category Selector -->
-            <div class="flex-shrink-0 w-40 border-r border-gray-300">
-              <mat-form-field appearance="fill" class="sq-category-select w-full bg-transparent border-none">
-                <mat-select 
-                  formControlName="category" 
-                  [placeholder]="config.language === 'ar' ? 'الفئة' : 'Category'"
-                  class="text-sm"
-                >
-                <mat-option value="all">
-                  {{ config.language === 'ar' ? 'جميع الفئات' : 'All Categories' }}
-                </mat-option>
-                <mat-option 
-                  *ngFor="let category of categories; trackBy: trackByCategory" 
-                  [value]="category.id"
-                >
-                  {{ getCategoryText(category) }}
-                </mat-option>
-                </mat-select>
-              </mat-form-field>
-            </div>
-            
-            <!-- Search Input -->
-            <div class="flex-1 relative">
-              <input
-                #searchInput
-                type="text"
-                formControlName="query"
-                [placeholder]="config.language === 'ar' ? 'ابحث عن المنتجات...' : 'Search for products...'"
-                class="w-full px-4 py-3 bg-transparent text-neutral-900 placeholder-neutral-500 focus:outline-none"
-                [attr.dir]="config.rtl ? 'rtl' : 'ltr'"
-              />
-              
-              <!-- Search Suggestions Dropdown -->
-              <div 
-                *ngIf="searchSuggestions.length > 0" 
-                class="absolute top-full left-0 right-0 bg-white shadow-lg rounded-b-lg border border-t-0 border-gray-200 z-50 max-h-64 overflow-y-auto"
-                role="listbox"
-                [attr.aria-label]="config.language === 'ar' ? 'اقتراحات البحث' : 'Search suggestions'"
-              >
-                <div 
-                  *ngFor="let suggestion of searchSuggestions; index as i; trackBy: trackBySuggestion"
-                  class="px-4 py-2 hover:bg-gray-50 focus:bg-primary-50 cursor-pointer text-sm text-neutral-700 focus:outline-none"
-                  (click)="selectSuggestion(suggestion, i)"
-                  (keydown)="handleSuggestionKeydown($event, suggestion, i)"
-                  [tabindex]="selectedSuggestionIndex === i ? 0 : -1"
-                  role="option"
-                  [attr.aria-selected]="selectedSuggestionIndex === i"
-                  [attr.id]="'suggestion-' + i"
-                  [class.bg-primary-50]="selectedSuggestionIndex === i"
-                >
-                  <mat-icon class="text-neutral-400 text-sm mr-2 rtl:mr-0 rtl:ml-2">search</mat-icon>
-                  {{ suggestion }}
-                </div>
-              </div>
-            </div>
-            
-            <!-- Search Button -->
-            <button 
-              type="submit"
-              mat-icon-button 
-              class="sq-search-btn text-white bg-primary-600 hover:bg-primary-700 rounded-r-lg px-4 min-w-[3rem]"
-              [attr.aria-label]="config.language === 'ar' ? 'بحث' : 'Search'"
-            >
-              <mat-icon>search</mat-icon>
-            </button>
-          </div>
-        </form>
-      </div>
-      
-      <!-- Right Actions -->
-      <div class="flex items-center space-x-4 rtl:space-x-reverse">
-        
-        <!-- Location Selector -->
-        <div class="hidden lg:flex items-center">
-          <button 
-            mat-button 
-            [matMenuTriggerFor]="locationMenu"
-            class="sq-location-btn text-neutral-700 hover:text-primary-600"
-          >
-            <mat-icon class="mr-1 rtl:mr-0 rtl:ml-1">location_on</mat-icon>
-            <span class="text-sm">{{ getCurrentLocationText() }}</span>
-            <mat-icon class="ml-1 rtl:ml-0 rtl:mr-1">expand_more</mat-icon>
-          </button>
-          
-          <!-- Location Menu -->
-          <mat-menu #locationMenu="matMenu" class="sq-location-menu">
-            <div class="px-4 py-2 border-b border-gray-200">
-              <h4 class="font-medium text-neutral-900">
-                {{ config.language === 'ar' ? 'اختر موقع التوصيل' : 'Select Delivery Location' }}
-              </h4>
-            </div>
-            <button 
-              mat-menu-item 
-              *ngFor="let location of filteredLocations; trackBy: trackByLocation"
-              (click)="onLocationSelect(location)"
-              [class.bg-primary-50]="selectedLocation?.id === location.id"
-            >
-              <mat-icon 
-                class="mr-2 rtl:mr-0 rtl:ml-2"
-                [class.text-primary-600]="selectedLocation?.id === location.id"
-              >
-                {{ selectedLocation?.id === location.id ? 'radio_button_checked' : 'radio_button_unchecked' }}
-              </mat-icon>
-              <span>{{ config.language === 'ar' ? location.nameAr : location.name }}</span>
-              <mat-icon 
-                *ngIf="!location.deliveryAvailable" 
-                class="ml-auto text-red-500 rtl:ml-0 rtl:mr-auto"
-              >
-                warning
-              </mat-icon>
-            </button>
-          </mat-menu>
-        </div>
-        
-        <!-- User Account Section -->
-        <div class="flex items-center">
-          <ng-container *ngIf="!user.isLoggedIn; else loggedInUser">
-            <!-- Login/Register Button -->
-            <button 
-              mat-button 
-              (click)="onLoginClick()"
-              class="sq-login-btn text-neutral-700 hover:text-primary-600"
-            >
-              <mat-icon class="mr-1 rtl:mr-0 rtl:ml-1">account_circle</mat-icon>
-              <span class="hidden sm:inline">
-                {{ config.language === 'ar' ? 'دخول / تسجيل' : 'Sign In / Register' }}
-              </span>
-            </button>
-          </ng-container>
-          
-          <!-- Logged In User Menu -->
-          <ng-template #loggedInUser>
-            <button 
-              mat-button 
-              [matMenuTriggerFor]="userMenu"
-              class="sq-user-btn flex items-center text-neutral-700 hover:text-primary-600"
-            >
-              <div class="w-8 h-8 bg-primary-600 rounded-full flex items-center justify-center mr-2 rtl:mr-0 rtl:ml-2">
-                <mat-icon class="text-white text-sm">person</mat-icon>
-              </div>
-              <div class="hidden lg:block text-left rtl:text-right">
-                <p class="text-sm font-medium">{{ user.name || 'User' }}</p>
-                <p class="text-xs text-neutral-500">
-                  {{ config.language === 'ar' ? 'مرحباً بك' : 'Welcome back' }}
-                </p>
-              </div>
-              <mat-icon class="ml-1 rtl:ml-0 rtl:mr-1">expand_more</mat-icon>
-            </button>
-            
-            <!-- User Menu -->
-            <mat-menu #userMenu="matMenu" class="sq-user-menu">
-              <button mat-menu-item>
-                <mat-icon class="mr-2 rtl:mr-0 rtl:ml-2">person</mat-icon>
-                {{ config.language === 'ar' ? 'الملف الشخصي' : 'My Profile' }}
-              </button>
-              <button mat-menu-item>
-                <mat-icon class="mr-2 rtl:mr-0 rtl:ml-2">shopping_bag</mat-icon>
-                {{ config.language === 'ar' ? 'طلباتي' : 'My Orders' }}
-              </button>
-              <button mat-menu-item>
-                <mat-icon class="mr-2 rtl:mr-0 rtl:ml-2">favorite</mat-icon>
-                {{ config.language === 'ar' ? 'المفضلة' : 'Wishlist' }}
-              </button>
-              <mat-divider></mat-divider>
-              <button mat-menu-item (click)="onLogoutClick()">
-                <mat-icon class="mr-2 rtl:mr-0 rtl:ml-2 text-red-600">logout</mat-icon>
-                <span class="text-red-600">{{ config.language === 'ar' ? 'تسجيل الخروج' : 'Sign Out' }}</span>
-              </button>
-            </mat-menu>
-          </ng-template>
-        </div>
-        
-        <!-- Shopping Cart -->
-        <button 
-          mat-icon-button 
+
+        <!-- Logo Component -->
+        <app-logo></app-logo>
+
+        <!-- Search Bar Component (Desktop) -->
+        <app-search-bar
+          class="sq-search--desktop flex-1 max-w-[640px]"
+          [language]="config.language"
+          [isRtl]="config.rtl"
+          (searchSubmit)="onSearchSubmit($event)"
+        ></app-search-bar>
+
+        <!-- Location Selector Component (Desktop) -->
+        <app-location-selector
+          class="hidden lg:block"
+          [selectedLocation]="selectedLocation"
+          [locations]="filteredLocations"
+          [language]="config.language"
+          (locationChange)="onLocationSelect($event)"
+        ></app-location-selector>
+
+        <!-- Account Menu Component (Desktop) -->
+        <app-account-menu
+          class="hidden lg:block"
+          [user]="user"
+          [language]="config.language"
+          (loginClick)="onLoginClick()"
+          (logoutClick)="onLogoutClick()"
+        ></app-account-menu>
+
+        <!-- Favorites Button Component (Desktop) -->
+        <app-favorites-button
+          class="hidden lg:block"
+          [count]="wishlistCount"
+          [language]="config.language"
+          (favoritesClick)="onWishlistClick()"
+        ></app-favorites-button>
+
+        <!-- Cart Button Component (Desktop) -->
+        <app-cart-button
+          class="hidden lg:block"
+          [itemCount]="cart.itemCount"
+          [language]="config.language"
+          (cartClick)="onCartClick()"
+        ></app-cart-button>
+
+        <!-- Mobile Cart Button -->
+        <button
           (click)="onCartClick()"
-          class="sq-cart-btn relative text-neutral-700 hover:text-primary-600"
+          class="lg:hidden sq-mobile-cart-btn relative text-on-surface-variant hover:text-primary-400"
           [attr.aria-label]="config.language === 'ar' ? 'سلة التسوق' : 'Shopping cart'"
+          routerLink="/cart"
         >
           <mat-icon
             [matBadge]="cart.itemCount > 0 ? cart.itemCount.toString() : ''"
             matBadgeColor="accent"
             [matBadgeHidden]="cart.itemCount === 0"
             matBadgeSize="small"
-            aria-hidden="false"
           >
             shopping_cart
           </mat-icon>
         </button>
-        
-        <!-- Language Toggle -->
-        <div 
-          *ngIf="config.showArabic"
-          class="sq-language-toggle hidden md:flex rounded-lg overflow-hidden border border-gray-300"
-          [attr.aria-label]="config.language === 'ar' ? 'اختر اللغة' : 'Select language'"
-        >
-          <button 
-            type="button"
-            (click)="onLanguageChange('en')"
-            class="sq-lang-btn px-3 py-2 text-xs font-medium transition-all duration-200 flex items-center gap-1"
-            [class]="config.language === 'en' ? 'bg-primary-600 text-white' : 'bg-white text-neutral-600 hover:bg-gray-50'"
-            [attr.aria-label]="config.language === 'ar' ? 'الانجليزية' : 'English'"
-            [attr.aria-pressed]="config.language === 'en'"
-          >
-            <span>🇺🇸</span>
-            EN
-          </button>
-          <button 
-            type="button"
-            (click)="onLanguageChange('ar')"
-            class="sq-lang-btn px-3 py-2 text-xs font-medium transition-all duration-200 flex items-center gap-1 border-l border-gray-300"
-            [class]="config.language === 'ar' ? 'bg-primary-600 text-white' : 'bg-white text-neutral-600 hover:bg-gray-50'"
-            [attr.aria-label]="config.language === 'ar' ? 'العربية' : 'Arabic'"
-            [attr.aria-pressed]="config.language === 'ar'"
-          >
-            <span>🇸🇾</span>
-            عر
-          </button>
-        </div>
+
       </div>
     </div>
-  </mat-toolbar>
-  
-  <!-- Mobile Search Bar (shown below main header on mobile and tablet) -->
-  <div class="lg:hidden bg-gray-50 border-b border-gray-200 px-4 py-3">
-    <form [formGroup]="searchForm" (ngSubmit)="onSearchSubmit($event)">
-      <div class="flex bg-white rounded-lg border border-gray-200 focus-within:border-primary-500">
-        <input
-          type="text"
-          formControlName="query"
-          [placeholder]="config.language === 'ar' ? 'ابحث عن المنتجات...' : 'Search products...'"
-          class="flex-1 px-4 py-2 bg-transparent text-neutral-900 placeholder-neutral-500 focus:outline-none rounded-l-lg"
-        />
-        <button 
-          type="submit"
-          mat-icon-button 
-          class="text-white bg-primary-600 rounded-r-lg"
-        >
-          <mat-icon>search</mat-icon>
-        </button>
-      </div>
-    </form>
   </div>
 
-  <!-- Brand Color Separator Line Between Header and Category Navigation -->
-  <div class="sq-colorful-separator h-1 w-full flex">
-    <div class="flex-1 bg-gradient-to-r from-amber-600 to-amber-500"></div>
-    <div class="flex-1 bg-gradient-to-r from-amber-500 to-orange-500"></div>
-    <div class="flex-1 bg-gradient-to-r from-orange-500 to-orange-600"></div>
-    <div class="flex-1 bg-gradient-to-r from-orange-600 to-amber-700"></div>
-    <div class="flex-1 bg-gradient-to-r from-amber-700 to-yellow-600"></div>
-    <div class="flex-1 bg-gradient-to-r from-yellow-600 to-amber-600"></div>
-    <div class="flex-1 bg-gradient-to-r from-amber-600 to-orange-500"></div>
-    <div class="flex-1 bg-gradient-to-r from-orange-500 to-amber-600"></div>
-  </div>
+  <!-- Mobile Search Bar (shown below main header on mobile/tablet) -->
+  <app-search-bar
+    class="sq-search--mobile"
+    [language]="config.language"
+    [isRtl]="config.rtl"
+    (searchSubmit)="onSearchSubmit($event)"
+  ></app-search-bar>
 
-  <!-- Category Navigation (Desktop) -->
+  <!-- ====================== ROW 3: CATEGORY NAVIGATION ====================== -->
   <app-category-navigation
     [config]="config"
     [categories]="categories"
@@ -314,14 +118,13 @@
     (specialOffersClick)="onCategoryClick(categories[0] || null)"
     (flashSaleClick)="onCategoryClick(categories[0] || null)"
   ></app-category-navigation>
-  
-  <!-- Mega Menu Overlay (for hover effects) -->
-  <div 
-    *ngIf="activeMegaMenu"
-    class="sq-mega-menu-overlay fixed top-0 left-0 w-full h-full bg-black bg-opacity-20 z-40"
-    (click)="hideMegaMenu()"
-  ></div>
-  
+
+  <!-- ====================== ROW 4: QUICK ACCESS ====================== -->
+  <app-quick-access-row
+    [config]="config"
+    (itemClick)="onQuickAccessItemClick($event)"
+  ></app-quick-access-row>
+
   <!-- Mobile Category Menu -->
   <div class="sq-mobile-menu-wrapper" [class.sq-mobile-menu-open]="mobileMenuOpen">
     <app-mobile-category-menu
@@ -341,5 +144,5 @@
       (promotionalLinkClick)="onPromotionalLinkClick($event)"
     ></app-mobile-category-menu>
   </div>
-  
+
 </header>

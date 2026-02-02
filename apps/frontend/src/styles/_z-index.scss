@@ -1,0 +1,61 @@
+/**
+ * Global Z-Index System
+ * @description Centralized z-index management to prevent layering conflicts
+ * @author SouqSyria Development Team
+ * @version 1.0.0
+ *
+ * Usage:
+ * z-index: var(--z-index-dropdown);
+ */
+
+:root {
+  // Base layers (1-99)
+  --z-index-base: 1;
+  --z-index-sticky: 10;
+  --z-index-header: 20;
+
+  // Interactive elements (100-199)
+  --z-index-dropdown: 100;
+  --z-index-autocomplete: 110;
+  --z-index-tooltip: 120;
+
+  // Overlays (200-299) - must be BELOW mega menus
+  --z-index-overlay: 200;
+  --z-index-modal-backdrop: 210;
+  --z-index-drawer-backdrop: 220;
+
+  // Navigation menus (300-399) - must be ABOVE overlays
+  --z-index-mega-menu: 300;
+  --z-index-sidebar-menu: 310;
+  --z-index-category-nav: 320;
+
+  // Modals and drawers (400-499)
+  --z-index-modal: 400;
+  --z-index-drawer: 410;
+  --z-index-dialog: 420;
+
+  // Mobile navigation (500-599)
+  --z-index-mobile-menu: 500;
+  --z-index-mobile-overlay: 510;
+
+  // Notifications (600-699)
+  --z-index-toast: 600;
+  --z-index-snackbar: 610;
+  --z-index-alert: 620;
+
+  // Critical UI (900-999)
+  --z-index-loading: 900;
+  --z-index-progress: 910;
+  --z-index-spinner: 920;
+
+  // Maximum (use sparingly)
+  --z-index-maximum: 9999;
+}
+
+// Helper classes
+.z-dropdown { z-index: var(--z-index-dropdown); }
+.z-mega-menu { z-index: var(--z-index-mega-menu); }
+.z-modal { z-index: var(--z-index-modal); }
+.z-modal-backdrop { z-index: var(--z-index-modal-backdrop); }
+.z-mobile-menu { z-index: var(--z-index-mobile-menu); }
+.z-toast { z-index: var(--z-index-toast); }

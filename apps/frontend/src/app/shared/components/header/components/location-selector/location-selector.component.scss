@@ -1,0 +1,11 @@
+/**
+ * Location selector styles
+ * @description Dropdown shadow and hover states
+ */
+:host {
+  display: contents;
+}
+
+.shadow-menu {
+  box-shadow: var(--shadow-menu, 0 4px 20px rgba(0, 0, 0, 0.15), 0 0 1px rgba(0, 0, 0, 0.1));
+}

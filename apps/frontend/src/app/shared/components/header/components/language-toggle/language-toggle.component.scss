@@ -1,0 +1,11 @@
+/**
+ * Language toggle styles
+ * @description Pill button active/inactive states with smooth transitions
+ */
+:host {
+  display: contents;
+}
+
+button {
+  transition: background-color 0.15s ease, color 0.15s ease;
+}

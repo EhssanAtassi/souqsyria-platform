@@ -1,0 +1,112 @@
+<!-- SouqSyria Sidebar Mega Menu Component -->
+<!-- Prototype match: w-[280px], bg-surface, shadow-menu, border-outline/30, text-[14px] -->
+<!-- Sidebar with nested subcategory flyouts (w-[240px]) and featured products panel -->
+
+<div
+  class="sq-mega-menu-sidebar flex bg-surface rounded-b-xl shadow-menu border border-t-0 border-outline/30 overflow-visible"
+  [attr.dir]="config.rtl ? 'rtl' : 'ltr'"
+  (mouseenter)="menuMouseEnter.emit()"
+  (mouseleave)="menuMouseLeave.emit()"
+  role="menu"
+  [attr.aria-label]="getCategoryName()"
+>
+  <!-- Sidebar Navigation List (prototype: w-[280px], py-2) -->
+  <div class="w-[280px] py-2">
+    <div
+      *ngFor="let subcategory of category.subcategories; trackBy: trackBySubcategory"
+      class="sidebar-item relative"
+    >
+      <a
+        [routerLink]="subcategory.url"
+        class="sq-sidebar-link flex items-center justify-between px-5 py-3 text-[14px] text-on-surface hover:bg-gray-50 hover:text-primary-500 group relative"
+        [class.bg-gray-50]="isSubmenuActive(subcategory.id)"
+        [class.text-primary-500]="isSubmenuActive(subcategory.id)"
+        (mouseenter)="onSubcategoryHover(subcategory.id)"
+        (click)="onSubcategoryClick(subcategory)"
+        role="menuitem"
+        [attr.aria-haspopup]="hasChildren(subcategory)"
+        [attr.aria-expanded]="isSubmenuActive(subcategory.id)"
+      >
+        <span>{{ getSubcategoryName(subcategory) }}</span>
+        <span
+          *ngIf="hasChildren(subcategory)"
+          class="material-icons-round text-[18px] text-on-surface-variant/50 group-hover:text-primary-500 transition-colors"
+          [class.text-primary-500]="isSubmenuActive(subcategory.id)"
+          aria-hidden="true"
+        >
+          chevron_right
+        </span>
+      </a>
+
+      <!-- Nested Submenu Flyout (prototype: w-[240px], shadow-menu, border-outline/30) -->
+      <div
+        *ngIf="hasChildren(subcategory) && isSubmenuActive(subcategory.id)"
+        class="sq-sidebar-submenu absolute top-0 w-[240px] bg-surface rounded-r-xl shadow-menu border border-l-0 border-outline/30 py-2 z-[970]"
+        [style.left]="config.rtl ? 'auto' : '100%'"
+        [style.right]="config.rtl ? '100%' : 'auto'"
+        role="menu"
+      >
+        <a
+          *ngFor="let child of subcategory.children; trackBy: trackByChild"
+          [routerLink]="child.url"
+          class="block px-5 py-2.5 text-[14px] text-on-surface-variant hover:text-primary-500 hover:bg-gray-50 transition-colors"
+          role="menuitem"
+        >
+          {{ getChildName(child) }}
+        </a>
+        <!-- Divider + View All within submenu -->
+        <div class="border-t border-outline/30 my-2"></div>
+        <a
+          [routerLink]="subcategory.url"
+          class="block px-5 py-2.5 text-[14px] text-primary-500 font-medium hover:bg-primary-50 transition-colors"
+        >
+          {{ config.language === 'ar' ? 'عرض الكل ←' : 'View All →' }}
+        </a>
+      </div>
+    </div>
+
+    <!-- Divider + Browse All (prototype: border-t border-outline/30, text-primary-500) -->
+    <div class="border-t border-outline/30 my-2"></div>
+    <a
+      [routerLink]="category.url"
+      class="block px-5 py-3 text-[14px] text-primary-500 font-medium hover:bg-primary-50 transition-colors"
+      (click)="onViewAllClick()"
+    >
+      {{ getViewAllText() }} →
+    </a>
+  </div>
+
+  <!-- Featured Products Panel (optional side panel) -->
+  <div
+    *ngIf="category.megaMenuFeaturedProducts?.length"
+    class="w-72 p-5 border-s border-outline/30"
+  >
+    <h4
+      class="text-[11px] font-semibold text-on-surface-variant uppercase tracking-wide mb-4"
+    >
+      {{ config.language === 'ar' ? 'منتجات مميزة' : 'Featured Products' }}
+    </h4>
+    <div class="grid grid-cols-2 gap-4">
+      <a
+        *ngFor="let product of category.megaMenuFeaturedProducts; trackBy: trackByProduct"
+        [routerLink]="product.url"
+        class="group"
+      >
+        <div class="aspect-square bg-gray-50 rounded-xl overflow-hidden mb-2">
+          <img
+            [src]="product.image"
+            [alt]="getFeaturedProductName(product)"
+            class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"
+            loading="lazy"
+          >
+        </div>
+        <p class="text-[11px] text-on-surface truncate group-hover:text-primary-500 transition-colors">
+          {{ getFeaturedProductName(product) }}
+        </p>
+        <p class="text-[11px] font-semibold text-primary-500">
+          {{ product.price }}
+        </p>
+      </a>
+    </div>
+  </div>
+</div>

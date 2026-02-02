@@ -1,0 +1,164 @@
+/**
+ * Search bar component styles
+ * @description Input focus ring, dropdown shadow, mobile optimization, and keyboard navigation
+ *
+ * P0 Critical Fix: Added mobile-first responsive styles
+ * - 48px minimum touch targets (WCAG 2.2 Level AA)
+ * - 16px font size to prevent iOS zoom
+ * - Optimized padding for touch interaction
+ * - Full-width layout on mobile devices
+ *
+ * Breakpoints aligned with Tailwind defaults:
+ * - Mobile: max-width 639px (below sm)
+ * - Tablet: 640px - 1023px (sm to below lg)
+ * - Desktop: 1024px+ (lg and above)
+ */
+
+/**
+ * Host element styling
+ * Fix: Changed from 'display: contents' to 'block' to prevent dual search box rendering
+ * The display: contents was making the host element transparent, causing both
+ * desktop and mobile search boxes to appear simultaneously
+ */
+:host {
+  display: block;
+  flex: 1;
+  max-width: 640px;
+}
+
+/**
+ * Desktop search visibility
+ * Only show the desktop search bar on screens >= 1024px
+ */
+:host-context(.sq-search--desktop) {
+  display: none;
+
+  @media (min-width: 1024px) {
+    display: block;
+  }
+}
+
+/**
+ * Mobile search visibility
+ * Only show the mobile search bar on screens < 1024px
+ */
+:host-context(.sq-search--mobile) {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  padding: 0 16px;
+  margin-top: 8px;
+
+  @media (min-width: 1024px) {
+    display: none;
+  }
+}
+
+/** Focus ring matches prototype border-primary-400 */
+input:focus {
+  box-shadow: 0 0 0 3px rgba(196, 160, 82, 0.15);
+}
+
+/** Dropdown menu shadow matching prototype */
+.shadow-menu {
+  box-shadow: var(--shadow-menu, 0 4px 20px rgba(0, 0, 0, 0.15), 0 0 1px rgba(0, 0, 0, 0.1));
+}
+
+// ============================================
+// MOBILE STYLES (max-width: 639px)
+// ============================================
+@media (max-width: 639px) {
+  :host {
+    display: block;
+    width: 100%;
+  }
+
+  /** Search form - full width on mobile */
+  form {
+    width: 100%;
+  }
+
+  /** Search input - touch-optimized */
+  input[type="text"] {
+    font-size: 16px;        // Prevents iOS zoom on focus
+    min-height: 48px;       // WCAG 2.2 touch target
+    height: 48px;
+    padding-left: 48px;
+    padding-right: 16px;
+    border-radius: 12px;
+    border-width: 2px;
+
+    // RTL support
+    &[dir="rtl"] {
+      padding-left: 16px;
+      padding-right: 48px;
+    }
+
+    // Placeholder optimization
+    &::placeholder {
+      font-size: 15px;
+      opacity: 0.7;
+    }
+
+    // Enhanced focus state for mobile
+    &:focus {
+      border-color: var(--color-primary-400, #C4A052);
+      box-shadow: 0 0 0 3px rgba(196, 160, 82, 0.2);
+    }
+  }
+
+  /** Search icon - repositioned for mobile */
+  .material-icons-outlined {
+    left: 14px;
+    font-size: 24px;
+  }
+
+  /** Dropdown items - larger touch targets */
+  .sq-search-dropdown-item {
+    min-height: 48px;
+    padding: 14px 16px;
+  }
+}
+
+// ============================================
+// TABLET STYLES (640px - 1023px)
+// ============================================
+@media (min-width: 640px) and (max-width: 1023px) {
+  input[type="text"] {
+    font-size: 15px;
+    min-height: 48px;
+  }
+}
+
+// ============================================
+// DESKTOP STYLES (1024px+)
+// ============================================
+@media (min-width: 1024px) {
+  input[type="text"] {
+    font-size: 15px;
+    min-height: 48px;
+  }
+}
+
+// ============================================
+// ACCESSIBILITY
+// ============================================
+
+/** High contrast mode support */
+@media (prefers-contrast: high) {
+  input {
+    border-width: 2px;
+
+    &:focus {
+      outline: 2px solid var(--color-primary-400, #C4A052);
+      outline-offset: 2px;
+    }
+  }
+}
+
+/** Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  input {
+    transition: none;
+  }
+}

@@ -11,12 +11,16 @@ import { CategoryNavigationComponent } from './category-navigation.component';
 import { CategoryItemComponent } from './category-item.component';
 import { MobileCategoryMenuComponent } from './mobile-category-menu.component';
 import { CategoryIconComponent } from './category-icon.component';
+import { MegaMenuSidebarComponent } from './mega-menu-sidebar/mega-menu-sidebar.component';
+import { MegaMenuFullwidthComponent } from './mega-menu-fullwidth/mega-menu-fullwidth.component';
 
 export { CategoryNavigationComponent } from './category-navigation.component';
 // export { CategoryMegaMenuComponent } from './category-mega-menu.component'; // Temporarily disabled
 export { CategoryItemComponent, type CategoryDisplayMode } from './category-item.component';
 export { MobileCategoryMenuComponent } from './mobile-category-menu.component';
 export { CategoryIconComponent, type IconSize, type IconColor } from './category-icon.component';
+export { MegaMenuSidebarComponent } from './mega-menu-sidebar/mega-menu-sidebar.component';
+export { MegaMenuFullwidthComponent } from './mega-menu-fullwidth/mega-menu-fullwidth.component';
 
 // Type exports for mega menu
 // export { type MegaMenuLayout } from './category-mega-menu.component'; // Temporarily disabled
@@ -27,5 +31,7 @@ export const CATEGORY_NAVIGATION_COMPONENTS = [
   // CategoryMegaMenuComponent, // Temporarily disabled
   CategoryItemComponent,
   MobileCategoryMenuComponent,
-  CategoryIconComponent
+  CategoryIconComponent,
+  MegaMenuSidebarComponent,
+  MegaMenuFullwidthComponent
 ] as const;

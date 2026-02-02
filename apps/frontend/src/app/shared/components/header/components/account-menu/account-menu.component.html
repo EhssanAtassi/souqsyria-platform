@@ -1,0 +1,61 @@
+<!-- Account Menu: person icon + dropdown -->
+<div class="relative">
+  <!-- Trigger button -->
+  <button
+    (click)="onButtonClick()"
+    (blur)="closeDropdown()"
+    class="flex items-center gap-2 px-4 py-2.5 hover:bg-gray-50 rounded-xl transition-all duration-200"
+    [attr.aria-expanded]="dropdownOpen"
+    aria-haspopup="true"
+  >
+    <span class="material-icons-outlined text-on-surface-variant text-[22px]">person</span>
+    <div class="flex flex-col items-start">
+      <span class="text-[10px] text-on-surface-variant">{{ accountLabel }}</span>
+      <span class="text-[14px] font-medium text-on-surface flex items-center gap-0.5 mt-0.5">
+        {{ displayName }}
+        <span class="material-icons-round text-[16px] text-on-surface-variant/60">expand_more</span>
+      </span>
+    </div>
+  </button>
+
+  <!-- Dropdown Menu (only for logged-in users) -->
+  <div
+    *ngIf="dropdownOpen && user.isLoggedIn"
+    class="absolute top-full right-0 mt-1 w-56 bg-white shadow-menu rounded-xl border border-outline/30 z-50 overflow-hidden"
+    role="menu"
+  >
+    <!-- User info header -->
+    <div class="px-4 py-3 border-b border-outline/20">
+      <p class="text-[14px] font-medium text-on-surface">{{ user.name }}</p>
+      <p *ngIf="user.email" class="text-[12px] text-on-surface-variant mt-0.5">{{ user.email }}</p>
+    </div>
+
+    <!-- Menu items -->
+    <div class="py-1">
+      <a
+        *ngFor="let item of menuItems"
+        [routerLink]="item.route"
+        (mousedown)="dropdownOpen = false"
+        class="flex items-center gap-3 px-4 py-2.5 hover:bg-gray-50 transition-colors"
+        role="menuitem"
+      >
+        <span class="material-icons-outlined text-on-surface-variant text-[18px]">{{ item.icon }}</span>
+        <span class="text-[14px] text-on-surface">{{ item.label }}</span>
+      </a>
+    </div>
+
+    <!-- Divider and logout -->
+    <div class="border-t border-outline/20">
+      <button
+        (mousedown)="onLogout()"
+        class="w-full flex items-center gap-3 px-4 py-2.5 hover:bg-red-50 transition-colors"
+        role="menuitem"
+      >
+        <span class="material-icons-outlined text-red-500 text-[18px]">logout</span>
+        <span class="text-[14px] text-red-600">
+          {{ language === 'ar' ? 'تسجيل الخروج' : 'Sign Out' }}
+        </span>
+      </button>
+    </div>
+  </div>
+</div>

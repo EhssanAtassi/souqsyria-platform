@@ -1,0 +1,168 @@
+/**
+ * TopBar Component Styles
+ * @description Styles for the top utility navigation bar (Row 1)
+ * Includes RTL support and responsive design
+ */
+
+// Main container
+.sq-top-bar {
+  position: relative;
+  z-index: var(--z-index-header);
+
+  // RTL support
+  &.rtl {
+    direction: rtl;
+
+    .sq-language-toggle {
+      flex-direction: row-reverse;
+    }
+  }
+}
+
+// Container utility
+.sq-container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+}
+
+// Link styles
+.sq-top-bar-link {
+  position: relative;
+  white-space: nowrap;
+
+  // Subtle underline on hover
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 0;
+    height: 1px;
+    background: theme('colors.primary.500');
+    transition: width 0.2s ease;
+  }
+
+  &:hover::after {
+    width: 100%;
+  }
+
+  // RTL underline direction
+  [dir='rtl'] &::after {
+    left: auto;
+    right: 0;
+  }
+
+  // Focus state for accessibility
+  &:focus-visible {
+    outline: 2px solid theme('colors.primary.500');
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+}
+
+// Premium link special styling
+.sq-premium-link {
+  position: relative;
+
+  mat-icon {
+    animation: premium-glow 2s ease-in-out infinite;
+  }
+
+  &:hover {
+    mat-icon {
+      transform: scale(1.1);
+    }
+  }
+
+  // Focus state
+  &:focus-visible {
+    outline: 2px solid theme('colors.primary.500');
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+}
+
+// Language toggle
+.sq-language-toggle {
+  .sq-lang-btn {
+    min-width: 40px;
+    min-height: 32px; // Desktop-adequate (top bar is desktop-only, hidden on mobile)
+    text-align: center;
+    cursor: pointer;
+    border: none;
+    background: transparent;
+
+    &:hover {
+      transform: translateY(-1px);
+    }
+
+    &:focus-visible {
+      outline: 2px solid theme('colors.primary.500');
+      outline-offset: 2px;
+      z-index: 1;
+    }
+
+    &[aria-pressed='true'] {
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+  }
+}
+
+// Top bar links - ensure adequate touch targets on desktop
+.sq-top-bar-link {
+  min-height: 32px;
+  display: inline-flex;
+  align-items: center;
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
+
+// Animations
+@keyframes premium-glow {
+  0%,
+  100% {
+    filter: drop-shadow(0 0 2px rgba(251, 191, 36, 0.3));
+  }
+  50% {
+    filter: drop-shadow(0 0 6px rgba(251, 191, 36, 0.6));
+  }
+}
+
+// Reduced motion support
+@media (prefers-reduced-motion: reduce) {
+  .sq-premium-link mat-icon {
+    animation: none;
+  }
+
+  .sq-top-bar-link::after {
+    transition: none;
+  }
+
+  .sq-lang-btn {
+    transition: none;
+  }
+}
+
+// High contrast mode support
+@media (prefers-contrast: high) {
+  .sq-top-bar {
+    border-bottom-width: 2px;
+    border-bottom-color: theme('colors.gray.900');
+  }
+
+  .sq-top-bar-link,
+  .sq-premium-link {
+    &:hover,
+    &:focus {
+      text-decoration: underline;
+    }
+  }
+}
+
+// Print styles
+@media print {
+  .sq-top-bar {
+    display: none;
+  }
+}

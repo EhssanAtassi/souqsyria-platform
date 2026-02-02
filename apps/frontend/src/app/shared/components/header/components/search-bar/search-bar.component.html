@@ -1,0 +1,104 @@
+<!-- Search Bar: input with icon, autocomplete dropdown -->
+<div class="flex-1 max-w-[640px]">
+  <form [formGroup]="searchForm" (ngSubmit)="onSubmit($event)" class="relative">
+    <div class="relative">
+      <!-- Search icon -->
+      <span class="material-icons-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant/60 text-[22px]">
+        search
+      </span>
+
+      <!-- Search input -->
+      <input
+        #searchInput
+        type="text"
+        formControlName="query"
+        [placeholder]="placeholder"
+        [attr.dir]="isRtl ? 'rtl' : 'ltr'"
+        (focus)="onInputFocus()"
+        (blur)="onInputBlur()"
+        (keydown)="onKeydown($event)"
+        class="w-full h-12 pl-12 pr-4 text-[15px] bg-background border-2 border-outline/60 rounded-xl
+               placeholder:text-on-surface-variant/50 hover:border-outline
+               focus:outline-none focus:border-primary-400
+               transition-all duration-200"
+        autocomplete="off"
+        role="combobox"
+        [attr.aria-expanded]="dropdownOpen"
+        aria-haspopup="listbox"
+        aria-autocomplete="list"
+        [attr.aria-label]="searchAriaLabel"
+      />
+    </div>
+
+    <!-- Dropdown: Recent Searches -->
+    <div
+      *ngIf="dropdownOpen && showingRecent && recentSearches.length > 0"
+      class="absolute top-full left-0 right-0 mt-1 bg-white shadow-menu rounded-xl border border-outline/30 z-50 overflow-hidden"
+      role="listbox"
+    >
+      <!-- Header -->
+      <div class="flex items-center justify-between px-4 py-2.5 border-b border-outline/20">
+        <span class="text-[13px] font-medium text-on-surface">
+          {{ language === 'ar' ? 'عمليات بحث سابقة' : 'Recent Searches' }}
+        </span>
+        <button
+          type="button"
+          (mousedown)="clearAllRecent()"
+          class="text-[12px] text-primary-400 hover:text-primary-500 font-medium"
+        >
+          {{ language === 'ar' ? 'مسح الكل' : 'Clear All' }}
+        </button>
+      </div>
+
+      <!-- Recent search items -->
+      <div
+        *ngFor="let recent of recentSearches; let i = index"
+        class="sq-search-dropdown-item flex items-center gap-3 px-4 py-2.5 hover:bg-gray-50 cursor-pointer transition-colors"
+        [class.bg-primary-50]="highlightedIndex === i"
+        (mousedown)="selectRecent(recent)"
+        role="option"
+        [attr.aria-selected]="highlightedIndex === i"
+      >
+        <span class="material-icons-outlined text-on-surface-variant/50 text-[18px]">history</span>
+        <span class="flex-1 text-[14px] text-on-surface">{{ recent.query }}</span>
+        <button
+          type="button"
+          (mousedown)="deleteRecent($event, recent)"
+          class="text-on-surface-variant/40 hover:text-on-surface-variant text-[16px] p-1"
+          [attr.aria-label]="language === 'ar' ? 'حذف' : 'Remove'"
+        >
+          <span class="material-icons-outlined text-[16px]">close</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Dropdown: Search Suggestions -->
+    <div
+      *ngIf="dropdownOpen && !showingRecent && suggestions.length > 0"
+      class="absolute top-full left-0 right-0 mt-1 bg-white shadow-menu rounded-xl border border-outline/30 z-50 overflow-hidden max-h-80 overflow-y-auto"
+      role="listbox"
+    >
+      <div
+        *ngFor="let suggestion of suggestions; let i = index"
+        class="sq-search-dropdown-item flex items-center gap-3 px-4 py-2.5 hover:bg-gray-50 cursor-pointer transition-colors"
+        [class.bg-primary-50]="highlightedIndex === i"
+        (mousedown)="selectSuggestion(suggestion)"
+        role="option"
+        [attr.aria-selected]="highlightedIndex === i"
+      >
+        <span class="material-icons-outlined text-on-surface-variant/50 text-[18px]">
+          {{ getSuggestionIcon(suggestion.type) }}
+        </span>
+        <div class="flex-1">
+          <span class="text-[14px] text-on-surface">{{ suggestion.text }}</span>
+          <span
+            *ngIf="suggestion.type === 'category'"
+            class="ml-2 text-[11px] text-primary-400 font-medium"
+          >
+            {{ language === 'ar' ? 'فئة' : 'Category' }}
+          </span>
+        </div>
+      </div>
+    </div>
+  </form>
+</div>

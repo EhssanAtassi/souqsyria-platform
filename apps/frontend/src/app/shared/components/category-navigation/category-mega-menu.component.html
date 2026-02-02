@@ -210,7 +210,7 @@
         </div>
 
         <!-- Category-Specific Quick Actions -->
-        <div class="border-t border-amber-200 pt-4">
+        <div class="sq-mega-menu__quick-links border-t border-amber-200 pt-4">
           <h4 class="font-medium text-amber-700 mb-3 text-sm uppercase tracking-wide">
             {{ config.language === 'ar' ? 'إجراءات سريعة' : 'Quick Actions' }}
           </h4>
@@ -243,7 +243,7 @@
   <!-- Close Button -->
   <button
     mat-icon-button
-    class="absolute top-4 right-4 rtl:right-auto rtl:left-4 text-amber-600 hover:text-amber-800 hover:bg-amber-100 rounded-full transition-all duration-200 z-10 shadow-sm border border-amber-200"
+    class="sq-mega-menu__close-btn sq-mega-menu__close-btn--right absolute top-4 right-4 rtl:right-auto rtl:left-4 text-amber-600 hover:text-amber-800 hover:bg-amber-100 rounded-full transition-all duration-200 z-10 shadow-sm border border-amber-200"
     (click)="closeMegaMenu()"
     [attr.aria-label]="config.language === 'ar' ? 'إغلاق القائمة' : 'Close menu'"
   >
@@ -255,7 +255,7 @@
 <!-- Background Overlay (when mega menu is open) -->
 <div
   *ngIf="isVisible"
-  class="fixed inset-0 bg-gradient-to-br from-amber-900/10 via-orange-900/15 to-yellow-900/10 backdrop-blur-sm z-40"
+  class="sq-mega-menu__overlay fixed inset-0 bg-gradient-to-br from-amber-900/10 via-orange-900/15 to-yellow-900/10 backdrop-blur-sm z-40"
   (click)="closeMegaMenu()"
   aria-hidden="true"
 ></div>

@@ -1,0 +1,118 @@
+/**
+ * Sidebar Mega Menu Styles
+ * @description Styles for the sidebar mega menu (280px) with nested submenu flyouts
+ * Matches the prototype header-complete.html sidebar pattern
+ */
+
+// Shadow token matching prototype
+$shadow-menu: 0 4px 20px rgba(0, 0, 0, 0.15), 0 0 1px rgba(0, 0, 0, 0.1);
+
+:host {
+  display: block;
+  // NOTE: No position here. The parent's .sq-mega-menu-container class
+  // applies position: absolute to this host element.
+}
+
+// Main sidebar container
+.sq-mega-menu-sidebar {
+  box-shadow: $shadow-menu;
+
+  // Entry animation
+  animation: sidebarFadeIn 0.2s ease-out;
+}
+
+// Sidebar link hover states
+.sq-sidebar-link {
+  transition: background-color 0.15s ease, color 0.15s ease;
+  position: relative;
+
+  &:focus-visible {
+    outline: 2px solid theme('colors.primary.500');
+    outline-offset: -2px;
+    border-radius: 4px;
+    z-index: 10;
+  }
+}
+
+// Nested submenu flyout
+.sq-sidebar-submenu {
+  box-shadow: $shadow-menu;
+  animation: submenuSlideIn 0.15s ease;
+
+  a {
+    &:focus-visible {
+      outline: 2px solid theme('colors.primary.500');
+      outline-offset: -2px;
+      border-radius: 4px;
+    }
+  }
+}
+
+// RTL icon flip helper
+.flip-rtl {
+  transform: scaleX(-1);
+}
+
+// Animations
+@keyframes sidebarFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes submenuSlideIn {
+  from {
+    opacity: 0;
+    transform: translateX(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+// RTL submenu animation direction
+[dir="rtl"] {
+  @keyframes submenuSlideIn {
+    from {
+      opacity: 0;
+      transform: translateX(8px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+}
+
+// Reduced motion support
+@media (prefers-reduced-motion: reduce) {
+  .sq-mega-menu-sidebar,
+  .sq-sidebar-submenu {
+    animation: none;
+  }
+
+  .sq-sidebar-link {
+    transition: none;
+  }
+}
+
+// High contrast mode
+@media (prefers-contrast: high) {
+  .sq-mega-menu-sidebar {
+    border-width: 2px;
+    border-color: theme('colors.gray.900');
+  }
+
+  .sq-sidebar-link {
+    &:hover,
+    &:focus {
+      text-decoration: underline;
+    }
+  }
+}

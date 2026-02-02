@@ -1,0 +1,23 @@
+<!-- Language Toggle: EN/AR pill buttons -->
+<div class="flex items-center border-l border-outline/50 pl-6 ml-2" role="radiogroup" aria-label="Language selection">
+  <button
+    (click)="onSelect('en')"
+    [class]="activeLanguage === 'en'
+      ? 'px-3 py-1 text-[11px] font-medium bg-primary-400 text-white rounded-full'
+      : 'px-3 py-1 text-[11px] font-medium text-on-surface-variant hover:bg-gray-100 rounded-full'"
+    role="radio"
+    [attr.aria-checked]="activeLanguage === 'en'"
+  >
+    EN
+  </button>
+  <button
+    (click)="onSelect('ar')"
+    [class]="activeLanguage === 'ar'
+      ? 'px-3 py-1 text-[11px] font-medium bg-primary-400 text-white rounded-full ml-1'
+      : 'px-3 py-1 text-[11px] font-medium text-on-surface-variant hover:bg-gray-100 rounded-full ml-1'"
+    role="radio"
+    [attr.aria-checked]="activeLanguage === 'ar'"
+  >
+    عربي
+  </button>
+</div>

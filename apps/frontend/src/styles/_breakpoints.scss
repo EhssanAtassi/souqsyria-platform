@@ -1,0 +1,78 @@
+/**
+ * SouqSyria Shared Breakpoint System
+ * @description Centralized breakpoint variables and mixins aligned with Tailwind CSS defaults.
+ *              Import this partial in component SCSS files via @use '../styles/breakpoints' as bp;
+ * @version 1.0.0
+ *
+ * Tailwind alignment:
+ *   sm: 640px | md: 768px | lg: 1024px | xl: 1280px | 2xl: 1536px
+ */
+
+// ── Breakpoint values ────────────────────────────
+$sm:  640px;
+$md:  768px;
+$lg:  1024px;
+$xl:  1280px;
+$xxl: 1536px;
+
+// ── Mobile-only (below sm) ───────────────────────
+// Targets: phones in portrait (< 640px)
+@mixin mobile {
+  @media (max-width: #{$sm - 1px}) {
+    @content;
+  }
+}
+
+// ── Small devices and up (sm+) ───────────────────
+@mixin sm-up {
+  @media (min-width: #{$sm}) {
+    @content;
+  }
+}
+
+// ── Tablet range (sm → lg) ──────────────────────
+@mixin tablet {
+  @media (min-width: #{$sm}) and (max-width: #{$lg - 1px}) {
+    @content;
+  }
+}
+
+// ── Medium and up (md+) ─────────────────────────
+@mixin md-up {
+  @media (min-width: #{$md}) {
+    @content;
+  }
+}
+
+// ── Desktop and up (lg+) ────────────────────────
+@mixin desktop {
+  @media (min-width: #{$lg}) {
+    @content;
+  }
+}
+
+// ── Small desktop range (lg → xl) ───────────────
+@mixin desktop-sm {
+  @media (min-width: #{$lg}) and (max-width: #{$xl - 1px}) {
+    @content;
+  }
+}
+
+// ── Large desktop and up (xl+) ──────────────────
+@mixin xl-up {
+  @media (min-width: #{$xl}) {
+    @content;
+  }
+}
+
+// ── Extra-large desktop (2xl+) ──────────────────
+@mixin xxl-up {
+  @media (min-width: #{$xxl}) {
+    @content;
+  }
+}
+
+// ── Touch target constants (WCAG 2.2) ───────────
+$touch-min:       48px;   // Level AA primary target
+$touch-secondary: 44px;   // Level AA secondary target
+$touch-large:     56px;   // Enhanced target for key CTAs

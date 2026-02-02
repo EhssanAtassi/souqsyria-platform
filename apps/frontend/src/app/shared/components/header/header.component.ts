@@ -1,45 +1,41 @@
-import { Component, Input, Output, EventEmitter, OnInit, DestroyRef, inject, ViewChild, ElementRef, ChangeDetectionStrategy } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnInit, DestroyRef, inject, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
-import { debounceTime, distinctUntilChanged } from 'rxjs';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
-// Angular Material imports
-import { MatToolbarModule } from '@angular/material/toolbar';
+// Angular Material imports (kept for mobile menu and badge)
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
-import { MatMenuModule } from '@angular/material/menu';
 import { MatBadgeModule } from '@angular/material/badge';
-import { MatButtonToggleModule } from '@angular/material/button-toggle';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatAutocompleteModule } from '@angular/material/autocomplete';
-import { MatDividerModule } from '@angular/material/divider';
-import { MatListModule } from '@angular/material/list';
-import { MatSidenavModule } from '@angular/material/sidenav';
-import { MatExpansionModule } from '@angular/material/expansion';
 
 // Local imports
-import { 
-  Category, 
+import {
+  Category,
   Subcategory,
-  UserInfo, 
-  CartInfo, 
-  Location, 
-  NavigationConfig, 
-  SearchFilters 
+  UserInfo,
+  CartInfo,
+  Location,
+  NavigationConfig,
+  SearchFilters
 } from '../../interfaces/navigation.interface';
 
 // Category Navigation Components
-import { 
-  CategoryNavigationComponent, 
-  MobileCategoryMenuComponent 
+import {
+  CategoryNavigationComponent,
+  MobileCategoryMenuComponent
 } from '../category-navigation/index';
 
+// Header Sub-Components
+import { TopBarComponent } from './components/top-bar/top-bar.component';
+import { QuickAccessRowComponent } from './components/quick-access-row/quick-access-row.component';
+import { LogoComponent } from './components/logo/logo.component';
+import { SearchBarComponent } from './components/search-bar/search-bar.component';
+import { LocationSelectorComponent } from './components/location-selector/location-selector.component';
+import { AccountMenuComponent } from './components/account-menu/account-menu.component';
+import { CartButtonComponent } from './components/cart-button/cart-button.component';
+import { FavoritesButtonComponent } from './components/favorites-button/favorites-button.component';
+
 // Sample data
-import { SYRIAN_CATEGORIES, FEATURED_CATEGORIES } from '../../data/syrian-categories.data';
+import { SYRIAN_CATEGORIES, HEADER_NAV_CATEGORIES } from '../../data/syrian-categories.data';
 
 /**
  * SouqSyria Header Navigation Component
@@ -97,24 +93,20 @@ import { SYRIAN_CATEGORIES, FEATURED_CATEGORIES } from '../../data/syrian-catego
   standalone: true,
   imports: [
     CommonModule,
-    ReactiveFormsModule,
     RouterModule,
-    MatToolbarModule,
     MatButtonModule,
     MatIconModule,
-    MatInputModule,
-    MatSelectModule,
-    MatMenuModule,
     MatBadgeModule,
-    MatButtonToggleModule,
-    MatFormFieldModule,
-    MatAutocompleteModule,
-    MatDividerModule,
-    MatListModule,
-    MatSidenavModule,
-    MatExpansionModule,
     CategoryNavigationComponent,
-    MobileCategoryMenuComponent
+    MobileCategoryMenuComponent,
+    TopBarComponent,
+    QuickAccessRowComponent,
+    LogoComponent,
+    SearchBarComponent,
+    LocationSelectorComponent,
+    AccountMenuComponent,
+    CartButtonComponent,
+    FavoritesButtonComponent
   ],
   templateUrl: './header.component.html',
   styleUrl: './header.component.scss',
@@ -122,18 +114,8 @@ import { SYRIAN_CATEGORIES, FEATURED_CATEGORIES } from '../../data/syrian-catego
 })
 export class HeaderComponent implements OnInit {
   
-  /**
-   * FormBuilder dependency injection
-   * @description Injects Angular FormBuilder for reactive form creation
-   * @private
-   */
-  constructor(private fb: FormBuilder) {
-    // Initialize search form
-    this.searchForm = this.fb.group({
-      query: [''],
-      category: ['all']
-    });
-  }
+  /** No-op constructor - sub-components handle their own form logic */
+  constructor() {}
   
   //#region Input Properties
   
@@ -176,7 +158,14 @@ export class HeaderComponent implements OnInit {
    * @description Syrian cities and regions for location-based services
    */
   @Input() locations: Location[] = [];
-  
+
+  /**
+   * Wishlist/Favorites item count
+   * @description Number of items in user's wishlist for badge display.
+   * Defaults to 5 for demo/prototype display.
+   */
+  @Input() wishlistCount: number = 5;
+
   //#endregion
   
   //#region Output Events
@@ -228,42 +217,48 @@ export class HeaderComponent implements OnInit {
    * @description Provides selected language to parent component
    */
   @Output() languageChange = new EventEmitter<string>();
-  
+
+  /**
+   * Event emitted when user clicks on wishlist/favorites
+   * @description Opens wishlist page or modal
+   */
+  @Output() wishlistClick = new EventEmitter<void>();
+
+  /**
+   * Event emitted when a top bar link is clicked
+   * @description Provides link ID for analytics/routing
+   */
+  @Output() topBarLinkClick = new EventEmitter<string>();
+
+  /**
+   * Event emitted when a quick access item is clicked
+   * @description Provides item ID for analytics/routing
+   */
+  @Output() quickAccessClick = new EventEmitter<string>();
+
   //#endregion
   
   //#region Public Properties
-  
-  /** Search form group for reactive forms */
-  searchForm!: FormGroup;
-  
+
   /** Currently selected location */
   selectedLocation: Location | null = null;
-  
+
   /** Mobile menu open state */
   mobileMenuOpen = false;
-  
+
   /** Currently active mega menu category */
   activeMegaMenu: string | null = null;
-  
-  /** Search suggestions for autocomplete */
-  searchSuggestions: string[] = [];
-  
-  /** Filtered locations for location autocomplete */
+
+  /** Filtered locations for display */
   filteredLocations: Location[] = [];
 
-  /** Currently selected suggestion index for keyboard navigation */
-  selectedSuggestionIndex: number = -1;
-  
   //#endregion
-  
+
   //#region Private Properties
-  
+
   /** Subject for handling component destruction */
   private destroyRef = inject(DestroyRef);
-  
-  /** Reference to search input element */
-  @ViewChild('searchInput') searchInput?: ElementRef<HTMLInputElement>;
-  
+
   /** Default Syrian locations */
   private readonly defaultLocations: Location[] = [
     {
@@ -302,13 +297,10 @@ export class HeaderComponent implements OnInit {
   
   /**
    * Component initialization
-   * @description Sets up forms, subscriptions, and default values
+   * @description Sets up default location and category data
    */
   ngOnInit(): void {
-    this.initializeSearchForm();
-    this.setupSearchSubscriptions();
     this.initializeDefaultLocation();
-    this.setupLocationFiltering();
     this.initializeCategoryData();
   }
   
@@ -318,23 +310,18 @@ export class HeaderComponent implements OnInit {
   //#region Public Methods
   
   /**
-   * Handles search form submission
-   * @description Processes search input and emits search event
-   * @param event - Form submission event
+   * Handles search submission from SearchBarComponent
+   * @description Receives query string from child and emits as SearchFilters
+   * @param query - Search query string from search bar component
    */
-  onSearchSubmit(event?: Event): void {
-    if (event) {
-      event.preventDefault();
-    }
-    
-    const formValue = this.searchForm.value;
+  onSearchSubmit(query: string): void {
     const searchFilters: SearchFilters = {
-      query: formValue.query?.trim(),
-      category: formValue.category,
+      query: query?.trim(),
+      category: 'all',
       location: this.selectedLocation?.id
     };
-    
-    if (searchFilters.query || searchFilters.category) {
+
+    if (searchFilters.query) {
       this.searchSubmit.emit(searchFilters);
     }
   }
@@ -361,6 +348,32 @@ export class HeaderComponent implements OnInit {
    */
   onCartClick(): void {
     this.cartClick.emit();
+  }
+
+  /**
+   * Handles wishlist/favorites click
+   * @description Emits wishlist click event to parent component
+   */
+  onWishlistClick(): void {
+    this.wishlistClick.emit();
+  }
+
+  /**
+   * Handles top bar link clicks
+   * @description Emits link click event for analytics/tracking
+   * @param linkId - ID of clicked link
+   */
+  onTopBarLinkClick(linkId: string): void {
+    this.topBarLinkClick.emit(linkId);
+  }
+
+  /**
+   * Handles quick access item clicks
+   * @description Emits item click event for analytics/tracking
+   * @param itemId - ID of clicked item
+   */
+  onQuickAccessItemClick(itemId: string): void {
+    this.quickAccessClick.emit(itemId);
   }
   
   /**
@@ -525,95 +538,10 @@ export class HeaderComponent implements OnInit {
     console.log('Promotional link clicked:', linkId);
   }
 
-  /**
-   * Handles search suggestion selection
-   * @description Sets the selected suggestion as search query
-   * @param suggestion - Selected suggestion text
-   * @param index - Index of selected suggestion
-   */
-  selectSuggestion(suggestion: string, index: number): void {
-    this.searchForm.patchValue({ query: suggestion });
-    this.selectedSuggestionIndex = index;
-    this.searchSuggestions = [];
-    this.onSearchSubmit();
-  }
-
-  /**
-   * Handles keyboard navigation in search suggestions
-   * @description Manages arrow key navigation and enter selection
-   * @param event - Keyboard event
-   * @param suggestion - Current suggestion text
-   * @param index - Index of current suggestion
-   */
-  handleSuggestionKeydown(event: KeyboardEvent, suggestion: string, index: number): void {
-    switch (event.key) {
-      case 'ArrowDown':
-        event.preventDefault();
-        this.selectedSuggestionIndex = Math.min(this.selectedSuggestionIndex + 1, this.searchSuggestions.length - 1);
-        break;
-      case 'ArrowUp':
-        event.preventDefault();
-        this.selectedSuggestionIndex = Math.max(this.selectedSuggestionIndex - 1, -1);
-        break;
-      case 'Enter':
-        event.preventDefault();
-        this.selectSuggestion(suggestion, index);
-        break;
-      case 'Escape':
-        event.preventDefault();
-        this.searchSuggestions = [];
-        this.selectedSuggestionIndex = -1;
-        break;
-    }
-  }
-
-  /**
-   * TrackBy function for search suggestions
-   * @description Optimizes ngFor performance for suggestions
-   * @param index - Array index
-   * @param suggestion - Suggestion text
-   * @returns Unique identifier for tracking
-   */
-  trackBySuggestion(index: number, suggestion: string): string {
-    return `${index}-${suggestion}`;
-  }
   
   //#endregion
   
   //#region Private Methods
-  
-  /**
-   * Initializes the search reactive form
-   * @description Sets up form controls and validation
-   * @private
-   */
-  private initializeSearchForm(): void {
-    this.searchForm = this.fb.group({
-      query: [''],
-      category: ['all']
-    });
-  }
-  
-  /**
-   * Sets up search form subscriptions
-   * @description Handles search input debouncing and suggestions
-   * @private
-   */
-  private setupSearchSubscriptions(): void {
-    // Search input debouncing for suggestions
-    this.searchForm.get('query')?.valueChanges
-      .pipe(
-        debounceTime(300),
-        distinctUntilChanged()
-      )
-      .subscribe(query => {
-        if (query && query.length > 2) {
-          this.generateSearchSuggestions(query);
-        } else {
-          this.searchSuggestions = [];
-        }
-      });
-  }
   
   /**
    * Initializes default location selection
@@ -623,7 +551,7 @@ export class HeaderComponent implements OnInit {
   private initializeDefaultLocation(): void {
     const availableLocations = this.locations.length > 0 ? this.locations : this.defaultLocations;
     this.filteredLocations = availableLocations;
-    
+
     // Set Damascus as default location
     const defaultLocation = availableLocations.find(loc => loc.id === 'damascus');
     if (defaultLocation) {
@@ -632,49 +560,22 @@ export class HeaderComponent implements OnInit {
   }
   
   /**
-   * Sets up location filtering for autocomplete
-   * @description Filters locations based on user input
-   * @private
-   */
-  private setupLocationFiltering(): void {
-    // This would typically be connected to a search input for locations
-    this.filteredLocations = this.locations.length > 0 ? this.locations : this.defaultLocations;
-  }
-  
-  /**
-   * Generates search suggestions based on query
-   * @description Creates autocomplete suggestions for search
-   * @param query - Current search query
-   * @private
-   */
-  private generateSearchSuggestions(query: string): void {
-    // In a real application, this would call a search API
-    // For demo purposes, generating basic suggestions
-    const suggestions = [
-      `${query} in Electronics`,
-      `${query} in Fashion`,
-      `${query} in Home & Garden`,
-      `${query} deals`,
-      `best ${query}`
-    ];
-    
-    this.searchSuggestions = suggestions.slice(0, 5);
-  }
-  
-  /**
    * Initializes category data
    * @description Sets up categories and featured categories from data
    * @private
    */
   private initializeCategoryData(): void {
-    // Set categories from sample data if not provided
+    // Set categories from sample data if not provided.
+    // Merge Syrian heritage categories with header nav categories for full mega menu support.
     if (this.categories.length === 0) {
-      this.categories = SYRIAN_CATEGORIES;
+      const existingIds = new Set(SYRIAN_CATEGORIES.map(c => c.id));
+      const newNavCategories = HEADER_NAV_CATEGORIES.filter(c => !existingIds.has(c.id));
+      this.categories = [...SYRIAN_CATEGORIES, ...newNavCategories];
     }
     
-    // Set featured categories in config if not provided
+    // Set featured categories in config using header nav categories
     if (this.config.featuredCategories.length === 0) {
-      this.config.featuredCategories = FEATURED_CATEGORIES;
+      this.config.featuredCategories = HEADER_NAV_CATEGORIES;
     }
   }
   

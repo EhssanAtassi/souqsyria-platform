@@ -1,0 +1,58 @@
+<!-- Location Selector: "Deliver to" button with dropdown -->
+<div class="relative">
+  <!-- Trigger button -->
+  <button
+    (click)="toggleDropdown()"
+    (blur)="closeDropdown()"
+    class="flex items-center gap-2 px-4 py-2.5 hover:bg-gray-50 rounded-xl transition-all duration-200"
+    [attr.aria-expanded]="dropdownOpen"
+    aria-haspopup="listbox"
+  >
+    <span class="material-icons-round text-primary-400 text-[22px]">location_on</span>
+    <div class="flex flex-col items-start">
+      <span class="text-[10px] text-on-surface-variant">{{ deliverToLabel }}</span>
+      <span class="text-[14px] font-medium text-on-surface flex items-center gap-0.5 mt-0.5">
+        {{ locationName }}
+        <span class="material-icons-round text-[16px] text-on-surface-variant/60">expand_more</span>
+      </span>
+    </div>
+  </button>
+
+  <!-- Dropdown -->
+  <div
+    *ngIf="dropdownOpen"
+    class="absolute top-full left-0 mt-1 w-64 bg-white shadow-menu rounded-xl border border-outline/30 z-50 overflow-hidden"
+    role="listbox"
+  >
+    <!-- Header -->
+    <div class="px-4 py-3 border-b border-outline/20">
+      <h4 class="text-[14px] font-medium text-on-surface">{{ dropdownTitle }}</h4>
+    </div>
+
+    <!-- Location items -->
+    <div class="py-1 max-h-60 overflow-y-auto">
+      <button
+        *ngFor="let location of locations"
+        (mousedown)="selectLocation(location)"
+        class="w-full flex items-center gap-3 px-4 py-2.5 text-left hover:bg-gray-50 transition-colors"
+        [class.bg-primary-50]="selectedLocation?.id === location.id"
+        role="option"
+        [attr.aria-selected]="selectedLocation?.id === location.id"
+      >
+        <span class="material-icons-round text-[18px]"
+              [class.text-primary-500]="selectedLocation?.id === location.id"
+              [class.text-on-surface-variant]="selectedLocation?.id !== location.id">
+          {{ selectedLocation?.id === location.id ? 'radio_button_checked' : 'radio_button_unchecked' }}
+        </span>
+        <span class="text-[14px] text-on-surface flex-1">{{ getLocationName(location) }}</span>
+        <span
+          *ngIf="!location.deliveryAvailable"
+          class="material-icons-round text-[16px] text-red-500"
+          [attr.title]="language === 'ar' ? 'التوصيل غير متاح' : 'Delivery not available'"
+        >
+          warning
+        </span>
+      </button>
+    </div>
+  </div>
+</div>

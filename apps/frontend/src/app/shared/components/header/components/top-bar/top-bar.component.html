@@ -1,0 +1,72 @@
+<!-- SouqSyria Top Bar Component (Row 1) -->
+<!-- Prototype match: bg-surface, border-b border-outline/50, h-10, gap-8 nav links -->
+
+<div
+  class="sq-top-bar bg-surface border-b border-outline/50 hidden lg:block"
+  [class.rtl]="config.rtl"
+  [attr.dir]="config.rtl ? 'rtl' : 'ltr'"
+  role="navigation"
+  [attr.aria-label]="config.language === 'ar' ? 'روابط سريعة' : 'Quick links'"
+>
+  <div class="max-w-[1400px] mx-auto px-6">
+    <div class="flex items-center justify-between h-10">
+
+      <!-- Left Spacer (matches prototype w-48) -->
+      <div class="w-48"></div>
+
+      <!-- Navigation Links (prototype: gap-8, text-[12px]) -->
+      <nav class="flex items-center gap-8">
+
+        <ng-container *ngFor="let link of topBarLinks; trackBy: trackByLink">
+          <a
+            *ngIf="shouldShowLink(link)"
+            [routerLink]="link.url"
+            class="text-[12px] text-on-surface-variant hover:text-primary-400 transition-colors duration-200"
+            [class.text-primary-400]="link.isHighlighted"
+            [class.font-medium]="link.isHighlighted"
+            (click)="onLinkClick(link.id)"
+            [attr.aria-label]="getLinkText(link)"
+          >
+            {{ getLinkText(link) }}
+          </a>
+        </ng-container>
+
+        <!-- Premium Badge Link (prototype: text-[12px] font-medium text-primary-500) -->
+        <a
+          [routerLink]="premiumLink.url"
+          class="text-[12px] font-medium text-primary-500 hover:text-primary-600 transition-colors duration-200"
+          (click)="onLinkClick(premiumLink.id)"
+          [attr.aria-label]="getLinkText(premiumLink)"
+        >
+          {{ getLinkText(premiumLink) }}
+        </a>
+
+        <!-- Language Toggle (prototype: border-l border-outline/50 pl-6 ml-2) -->
+        <div class="flex items-center border-l border-outline/50 pl-6 ml-2"
+             role="group"
+             [attr.aria-label]="config.language === 'ar' ? 'اختر اللغة' : 'Select language'">
+          <button
+            type="button"
+            (click)="onLanguageChange('en')"
+            [class]="config.language === 'en'
+              ? 'px-3 py-1 text-[11px] font-medium bg-primary-400 text-white rounded-full'
+              : 'px-3 py-1 text-[11px] font-medium text-on-surface-variant hover:bg-gray-100 rounded-full'"
+            [attr.aria-pressed]="config.language === 'en'"
+          >
+            EN
+          </button>
+          <button
+            type="button"
+            (click)="onLanguageChange('ar')"
+            [class]="config.language === 'ar'
+              ? 'px-3 py-1 text-[11px] font-medium bg-primary-400 text-white rounded-full ml-1'
+              : 'px-3 py-1 text-[11px] font-medium text-on-surface-variant hover:bg-gray-100 rounded-full ml-1'"
+            [attr.aria-pressed]="config.language === 'ar'"
+          >
+            عربي
+          </button>
+        </div>
+      </nav>
+    </div>
+  </div>
+</div>

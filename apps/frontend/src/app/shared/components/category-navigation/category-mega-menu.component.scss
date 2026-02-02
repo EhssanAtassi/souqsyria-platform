@@ -305,9 +305,16 @@
   }
 }
 
+/**
+ * P0 FIX: Replaced Tailwind class selectors with semantic BEM classes
+ * @description Uses proper semantic selectors instead of utility class chains
+ * This prevents breaking when template classes change
+ */
+
 // Quick links section with golden wheat styling
-.border-t.border-amber-200 {
-  border-color: #fde68a !important;  // amber-200
+.sq-mega-menu__quick-links {
+  border-top: 1px solid #fde68a;  // amber-200
+  border-color: #fde68a;
 
   button {
     transition: all 0.3s ease;
@@ -333,12 +340,29 @@
 }
 
 // Close button with golden wheat theme
-.absolute.top-4.right-4,
-.absolute.top-4.left-4 {
+.sq-mega-menu__close-btn {
+  position: absolute;
+  top: 16px;
   background: rgba(255, 255, 255, 0.95);
   border: 1px solid #fde68a;  // amber-200
   transition: all 0.3s ease;
   color: #d97706;  // amber-600
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+
+  // RTL positioning
+  &--right {
+    right: 16px;
+  }
+
+  &--left {
+    left: 16px;
+  }
 
   &:hover {
     background: #fef3c7;  // amber-100
@@ -355,12 +379,17 @@
 }
 
 // Background overlay with warm golden tint
-.fixed.inset-0 {
+.sq-mega-menu__overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
   background: linear-gradient(135deg,
     rgba(217, 119, 6, 0.06),    // warm amber tint
     rgba(146, 64, 14, 0.08),    // deeper amber
     rgba(120, 53, 15, 0.12)     // amber-900 for depth
-  ) !important;
+  );
   animation: overlayFadeIn 0.3s ease;
 }
 
@@ -530,63 +559,114 @@
   }
 }
 
-// CRITICAL OVERRIDE: Force light background and dark text for all mega menu elements
+/**
+ * P0 FIX: Replaced universal color override with targeted approach
+ * @description Establishes proper color cascade without wildcard selectors
+ * Uses CSS custom properties for maintainability
+ */
 .sq-mega-menu-container {
-  // Additional specificity overrides to ensure light background
-  &,
-  &::before,
-  &::after {
-    background: linear-gradient(135deg, #ffffff 0%, #fefdf8 30%, #fef7e0 70%, #fef3c7 100%) !important;
-    background-color: #ffffff !important;
-  }
+  // Theme-aware background with proper specificity
+  --mega-menu-bg: linear-gradient(135deg, #ffffff 0%, #fefdf8 30%, #fef7e0 70%, #fef3c7 100%);
+  --mega-menu-text: #78350f; // amber-900
+  --mega-menu-text-hover: #451a03; // amber-950
+  --mega-menu-icon: #d97706; // amber-600
 
-  // Force all text to be dark and readable
-  * {
-    color: #78350f !important; // amber-900 for excellent readability
-  }
+  // Apply background without !important
+  background: var(--mega-menu-bg);
+  background-color: #ffffff;
 
-  // Specific overrides for text elements
+  // Inherit color properly instead of forcing with *
+  color: var(--mega-menu-text);
+
+  // Target specific elements that need color overrides
+  // Headings and text content
   h1, h2, h3, h4, h5, h6,
+  p, span, div {
+    color: inherit; // Use container's color
+  }
+
+  // Specific utility class overrides (without wildcard)
   .text-amber-900,
   .text-amber-800,
   .text-amber-700,
   .text-amber-600 {
-    color: #78350f !important; // amber-900 - dark brown
+    color: var(--mega-menu-text);
   }
 
-  // Ensure Material Icons are visible
+  // Material Icons with proper targeting
   .mat-icon,
-  mat-icon {
-    color: #d97706 !important; // amber-600 - golden brown for icons
+  mat-icon,
+  .material-icons,
+  .material-icons-outlined {
+    color: var(--mega-menu-icon);
   }
 
-  // Ensure links and buttons have proper contrast
-  a, button {
-    color: #78350f !important; // amber-900
+  // Links and interactive elements
+  a:not(.sq-category-promotion-card a),
+  button:not(.sq-category-promotion-card button) {
+    color: var(--mega-menu-text);
+    transition: color 0.2s ease;
 
-    &:hover {
-      color: #451a03 !important; // amber-950 - darkest for hover
+    &:hover,
+    &:focus-visible {
+      color: var(--mega-menu-text-hover);
     }
   }
 
-  // Force white backgrounds for cards
+  // Subcategory and featured cards
   .sq-mega-subcategory-card,
   .sq-featured-product-card {
-    background: rgba(255, 255, 255, 0.95) !important;
-    color: #78350f !important;
+    background: rgba(255, 255, 255, 0.95);
+    color: var(--mega-menu-text);
+    transition: all 0.2s ease;
 
     &:hover {
-      background: rgba(255, 255, 255, 1) !important;
-      color: #451a03 !important;
+      background: rgba(255, 255, 255, 1);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+
+      // Text color on hover
+      color: var(--mega-menu-text-hover);
     }
   }
 
-  // Ensure promotional cards are readable
+  // Promotional cards - preserve their unique colors
   .sq-category-promotion-card {
-    // Keep the colored backgrounds for promotions but ensure text contrast
-    .text-white {
-      color: #ffffff !important; // Keep white text on colored promotional backgrounds
+    // These cards have their own background colors
+    // Let them use their intended text colors
+    &.badge-gold,
+    &.badge-red,
+    &.badge-blue {
+      // White text on colored backgrounds
+      color: #ffffff;
+
+      h3, p, span {
+        color: inherit;
+      }
     }
+
+    &.badge-green,
+    &.badge-orange,
+    &.badge-yellow {
+      // Dark text on light backgrounds
+      color: var(--mega-menu-text);
+
+      h3, p, span {
+        color: inherit;
+      }
+    }
+  }
+
+  // Category badges with appropriate colors
+  .sq-category-badge {
+    &.badge-gold { background: linear-gradient(135deg, #fbbf24, #f59e0b); color: #ffffff; }
+    &.badge-orange { background: linear-gradient(135deg, #fb923c, #f97316); color: #ffffff; }
+    &.badge-green { background: linear-gradient(135deg, #86efac, #22c55e); color: #15803d; }
+    &.badge-purple { background: linear-gradient(135deg, #c084fc, #9333ea); color: #ffffff; }
+    &.badge-blue { background: linear-gradient(135deg, #60a5fa, #3b82f6); color: #ffffff; }
+    &.badge-red { background: linear-gradient(135deg, #fca5a5, #ef4444); color: #ffffff; }
+    &.badge-teal { background: linear-gradient(135deg, #5eead4, #14b8a6); color: #ffffff; }
+    &.badge-pink { background: linear-gradient(135deg, #f9a8d4, #ec4899); color: #ffffff; }
   }
 }
 

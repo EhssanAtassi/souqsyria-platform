@@ -1,0 +1,1205 @@
+/**
+ * ====================================================================
+ * SOUQSYRIA MATERIAL DESIGN 3 THEME - SYRIAN MARKETPLACE
+ * ====================================================================
+ *
+ * @description Comprehensive Angular Material theme optimized for Syrian
+ *              e-commerce marketplace with cultural authenticity
+ * @version 1.0.0
+ * @angular-material 18.2.14
+ * @design-system Material Design 3 + Syrian Cultural Patterns
+ *
+ * FEATURES:
+ * - Golden Wheat primary palette with Syrian cultural accents
+ * - Bilingual typography (Arabic/English optimized)
+ * - RTL-first Material component styling
+ * - Trust indicators and security badges
+ * - Cultural seasonality support (Ramadan, Eid themes)
+ * - Mobile-first responsive breakpoints
+ * - WCAG 2.1 AA accessibility compliance
+ *
+ * USAGE:
+ * Import this file in your main styles.scss:
+ * @import './styles/material-syrian-theme';
+ */
+
+@use '@angular/material' as mat;
+@use 'sass:map';
+
+// ====================================================================
+// SYRIAN MARKETPLACE COLOR PALETTES
+// ====================================================================
+
+/**
+ * Golden Wheat Primary Palette
+ * Represents heritage, trust, and Syrian craftsmanship
+ */
+$souqsyria-golden-wheat-palette: (
+  50: #faf9f6,
+  100: #edebe0,
+  200: #d9d4c3,
+  300: #b9a779,
+  400: #a89b6d,
+  500: #988561,  // Base golden wheat
+  600: #877556,
+  700: #6f6047,
+  800: #584c38,
+  900: #3d3428,
+  A100: #f4f0e6,
+  A200: #d4c8a8,
+  A400: #a89563,
+  A700: #8b7a4d,
+  contrast: (
+    50: rgba(0, 0, 0, 0.87),
+    100: rgba(0, 0, 0, 0.87),
+    200: rgba(0, 0, 0, 0.87),
+    300: rgba(0, 0, 0, 0.87),
+    400: rgba(0, 0, 0, 0.87),
+    500: white,
+    600: white,
+    700: white,
+    800: white,
+    900: white,
+    A100: rgba(0, 0, 0, 0.87),
+    A200: rgba(0, 0, 0, 0.87),
+    A400: white,
+    A700: white,
+  )
+);
+
+/**
+ * Syrian Red Accent Palette
+ * From Syrian flag - represents urgency, sales, and cultural identity
+ */
+$souqsyria-syrian-red-palette: (
+  50: #fce8eb,
+  100: #f7c5cd,
+  200: #f19ea9,
+  300: #eb7784,
+  400: #e65a6a,
+  500: #ce1126,  // Syrian flag red
+  600: #b81022,
+  700: #9d0e1d,
+  800: #830c18,
+  900: #5c0810,
+  A100: #ff8a95,
+  A200: #ff5768,
+  A400: #ff243b,
+  A700: #ff0a22,
+  contrast: (
+    50: rgba(0, 0, 0, 0.87),
+    100: rgba(0, 0, 0, 0.87),
+    200: rgba(0, 0, 0, 0.87),
+    300: white,
+    400: white,
+    500: white,
+    600: white,
+    700: white,
+    800: white,
+    900: white,
+    A100: rgba(0, 0, 0, 0.87),
+    A200: white,
+    A400: white,
+    A700: white,
+  )
+);
+
+/**
+ * Forest Green Secondary Palette
+ * Represents growth, trust, and natural Syrian products
+ */
+$souqsyria-forest-palette: (
+  50: #e6f2f1,
+  100: #c0dedb,
+  200: #96c8c3,
+  300: #6cb2ab,
+  400: #4da298,
+  500: #428177,  // Forest light
+  600: #2e6159,
+  700: #054239,  // Forest medium
+  800: #002623,  // Forest dark
+  900: #001815,
+  A100: #7dd4c9,
+  A200: #4ac0b3,
+  A400: #17ab9c,
+  A700: #00968a,
+  contrast: (
+    50: rgba(0, 0, 0, 0.87),
+    100: rgba(0, 0, 0, 0.87),
+    200: rgba(0, 0, 0, 0.87),
+    300: rgba(0, 0, 0, 0.87),
+    400: white,
+    500: white,
+    600: white,
+    700: white,
+    800: white,
+    900: white,
+    A100: rgba(0, 0, 0, 0.87),
+    A200: rgba(0, 0, 0, 0.87),
+    A400: white,
+    A700: white,
+  )
+);
+
+/**
+ * Deep Umber Warn Palette
+ * For errors, urgent actions, and critical notifications
+ */
+$souqsyria-umber-palette: (
+  50: #f4e8ea,
+  100: #e3c5cb,
+  200: #d19ea8,
+  300: #be7785,
+  400: #b0596a,
+  500: #6b1f2a,  // Umber light
+  600: #4a151e,  // Umber medium
+  700: #3d111a,
+  800: #260f14,  // Umber dark
+  900: #1a0a0d,
+  A100: #ff9aab,
+  A200: #ff677f,
+  A400: #ff3453,
+  A700: #ff1a3d,
+  contrast: (
+    50: rgba(0, 0, 0, 0.87),
+    100: rgba(0, 0, 0, 0.87),
+    200: rgba(0, 0, 0, 0.87),
+    300: white,
+    400: white,
+    500: white,
+    600: white,
+    700: white,
+    800: white,
+    900: white,
+    A100: rgba(0, 0, 0, 0.87),
+    A200: white,
+    A400: white,
+    A700: white,
+  )
+);
+
+// ====================================================================
+// SYRIAN MARKETPLACE TYPOGRAPHY (Material 3 Compatible)
+// ====================================================================
+
+/**
+ * Bilingual typography configuration optimized for:
+ * - Arabic: Cairo, Noto Sans Arabic (primary)
+ * - English: Inter, Poppins (secondary)
+ * - Enhanced readability for RTL content
+ *
+ * Note: Material 18/M3 uses CSS custom properties for typography.
+ * We define typography via CSS variables for maximum flexibility.
+ */
+
+// Typography CSS Custom Properties
+:root {
+  // Font families
+  --souqsyria-font-family: 'Inter', 'Cairo', 'Noto Sans Arabic', 'Roboto', 'Helvetica Neue', sans-serif;
+  --souqsyria-font-family-arabic: 'Cairo', 'Noto Sans Arabic', 'Tajawal', 'Roboto', sans-serif;
+
+  // Display typography
+  --souqsyria-headline-1-size: 112px;
+  --souqsyria-headline-1-line-height: 112px;
+  --souqsyria-headline-1-weight: 300;
+  --souqsyria-headline-1-tracking: -0.05em;
+
+  --souqsyria-headline-2-size: 56px;
+  --souqsyria-headline-2-line-height: 56px;
+  --souqsyria-headline-2-weight: 400;
+  --souqsyria-headline-2-tracking: -0.02em;
+
+  --souqsyria-headline-3-size: 45px;
+  --souqsyria-headline-3-line-height: 48px;
+  --souqsyria-headline-3-weight: 400;
+  --souqsyria-headline-3-tracking: -0.005em;
+
+  --souqsyria-headline-4-size: 34px;
+  --souqsyria-headline-4-line-height: 40px;
+  --souqsyria-headline-4-weight: 500;
+
+  --souqsyria-headline-5-size: 24px;
+  --souqsyria-headline-5-line-height: 32px;
+  --souqsyria-headline-5-weight: 500;
+
+  --souqsyria-headline-6-size: 20px;
+  --souqsyria-headline-6-line-height: 32px;
+  --souqsyria-headline-6-weight: 600;
+
+  // Body typography - Optimized for Arabic readability
+  --souqsyria-subtitle-1-size: 16px;
+  --souqsyria-subtitle-1-line-height: 28px;
+  --souqsyria-subtitle-1-weight: 500;
+
+  --souqsyria-subtitle-2-size: 14px;
+  --souqsyria-subtitle-2-line-height: 24px;
+  --souqsyria-subtitle-2-weight: 600;
+
+  --souqsyria-body-1-size: 16px;
+  --souqsyria-body-1-line-height: 26px;
+  --souqsyria-body-1-weight: 400;
+
+  --souqsyria-body-2-size: 14px;
+  --souqsyria-body-2-line-height: 22px;
+  --souqsyria-body-2-weight: 400;
+
+  // UI elements
+  --souqsyria-caption-size: 12px;
+  --souqsyria-caption-line-height: 20px;
+  --souqsyria-caption-weight: 400;
+
+  --souqsyria-button-size: 14px;
+  --souqsyria-button-line-height: 20px;
+  --souqsyria-button-weight: 600;
+
+  --souqsyria-overline-size: 12px;
+  --souqsyria-overline-line-height: 32px;
+  --souqsyria-overline-weight: 500;
+  --souqsyria-overline-tracking: 0.1em;
+}
+
+/**
+ * Arabic-specific typography overrides
+ * Applied via [lang="ar"] selector - Larger for Arabic readability
+ */
+[lang="ar"], .arabic-text {
+  --souqsyria-font-family: var(--souqsyria-font-family-arabic);
+
+  // Larger line heights for Arabic script clarity
+  --souqsyria-headline-4-line-height: 44px;
+  --souqsyria-headline-4-weight: 600;
+
+  --souqsyria-headline-5-line-height: 36px;
+  --souqsyria-headline-5-weight: 600;
+
+  --souqsyria-headline-6-line-height: 34px;
+  --souqsyria-headline-6-weight: 700;
+
+  --souqsyria-body-1-size: 17px;
+  --souqsyria-body-1-line-height: 28px;
+
+  --souqsyria-body-2-size: 15px;
+  --souqsyria-body-2-line-height: 24px;
+
+  --souqsyria-button-size: 15px;
+  --souqsyria-button-line-height: 22px;
+  --souqsyria-button-weight: 700;
+}
+
+// Typography utility classes
+.souqsyria-headline-1 {
+  font-size: var(--souqsyria-headline-1-size);
+  line-height: var(--souqsyria-headline-1-line-height);
+  font-weight: var(--souqsyria-headline-1-weight);
+  letter-spacing: var(--souqsyria-headline-1-tracking);
+}
+
+.souqsyria-headline-4 {
+  font-size: var(--souqsyria-headline-4-size);
+  line-height: var(--souqsyria-headline-4-line-height);
+  font-weight: var(--souqsyria-headline-4-weight);
+}
+
+.souqsyria-headline-5 {
+  font-size: var(--souqsyria-headline-5-size);
+  line-height: var(--souqsyria-headline-5-line-height);
+  font-weight: var(--souqsyria-headline-5-weight);
+}
+
+.souqsyria-headline-6 {
+  font-size: var(--souqsyria-headline-6-size);
+  line-height: var(--souqsyria-headline-6-line-height);
+  font-weight: var(--souqsyria-headline-6-weight);
+}
+
+.souqsyria-body-1 {
+  font-size: var(--souqsyria-body-1-size);
+  line-height: var(--souqsyria-body-1-line-height);
+  font-weight: var(--souqsyria-body-1-weight);
+}
+
+.souqsyria-body-2 {
+  font-size: var(--souqsyria-body-2-size);
+  line-height: var(--souqsyria-body-2-line-height);
+  font-weight: var(--souqsyria-body-2-weight);
+}
+
+.souqsyria-caption {
+  font-size: var(--souqsyria-caption-size);
+  line-height: var(--souqsyria-caption-line-height);
+  font-weight: var(--souqsyria-caption-weight);
+}
+
+.souqsyria-button {
+  font-size: var(--souqsyria-button-size);
+  line-height: var(--souqsyria-button-line-height);
+  font-weight: var(--souqsyria-button-weight);
+}
+
+// ====================================================================
+// MATERIAL THEME GENERATION (M2 Compatibility for Angular Material 18)
+// ====================================================================
+
+// Note: Angular Material 18 deprecates old theming API.
+// Using mat.m2-* functions for backward compatibility.
+
+// Define Material palettes using M2 compatibility
+$souqsyria-primary: mat.m2-define-palette($souqsyria-golden-wheat-palette, 500, 300, 700);
+$souqsyria-accent: mat.m2-define-palette($souqsyria-syrian-red-palette, 500, 300, 700);
+$souqsyria-warn: mat.m2-define-palette($souqsyria-umber-palette, 500, 300, 700);
+
+// Create light theme using M2 compatibility
+$souqsyria-light-theme: mat.m2-define-light-theme((
+  color: (
+    primary: $souqsyria-primary,
+    accent: $souqsyria-accent,
+    warn: $souqsyria-warn,
+  ),
+  density: 0,  // Standard density for better touch targets
+));
+
+// Create dark theme (for future dark mode support)
+$souqsyria-dark-theme: mat.m2-define-dark-theme((
+  color: (
+    primary: $souqsyria-primary,
+    accent: $souqsyria-accent,
+    warn: $souqsyria-warn,
+  ),
+  density: 0,
+));
+
+// Include core Material styles
+@include mat.core();
+
+// Include theme styles for all components
+@include mat.all-component-themes($souqsyria-light-theme);
+
+// Dark theme class (optional)
+.souqsyria-dark-theme {
+  @include mat.all-component-colors($souqsyria-dark-theme);
+}
+
+// ====================================================================
+// SYRIAN CULTURAL MATERIAL COMPONENT CUSTOMIZATION
+// ====================================================================
+
+/**
+ * Material Buttons - Syrian Marketplace Styling
+ */
+.mat-mdc-raised-button,
+.mat-mdc-unelevated-button,
+.mat-mdc-fab,
+.mat-mdc-mini-fab {
+  &.mat-primary {
+    // Golden wheat gradient for primary actions
+    background: linear-gradient(135deg, #988561 0%, #b9a779 100%) !important;
+    box-shadow: 0 2px 8px rgba(152, 133, 97, 0.3);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+    &:hover:not([disabled]) {
+      background: linear-gradient(135deg, #a89b6d 0%, #d9d4c3 100%) !important;
+      box-shadow: 0 4px 12px rgba(152, 133, 97, 0.4);
+      transform: translateY(-1px);
+    }
+
+    &:active:not([disabled]) {
+      transform: translateY(0);
+      box-shadow: 0 2px 6px rgba(152, 133, 97, 0.3);
+    }
+  }
+
+  &.mat-accent {
+    // Syrian red for urgent CTAs
+    background: linear-gradient(135deg, #ce1126 0%, #e65a6a 100%) !important;
+    box-shadow: 0 2px 8px rgba(206, 17, 38, 0.3);
+
+    &:hover:not([disabled]) {
+      background: linear-gradient(135deg, #b81022 0%, #eb7784 100%) !important;
+      box-shadow: 0 4px 12px rgba(206, 17, 38, 0.4);
+      transform: translateY(-1px);
+    }
+  }
+
+  &.mat-warn {
+    background: linear-gradient(135deg, #4a151e 0%, #6b1f2a 100%) !important;
+  }
+
+  // Arabic text in buttons - slightly larger and bolder
+  &[lang="ar"] {
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: 0;
+  }
+}
+
+/**
+ * Material Cards - Syrian Marketplace Styling
+ */
+.mat-mdc-card {
+  border-radius: 12px;
+  border: 1px solid rgba(152, 133, 97, 0.12);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+  &:hover {
+    border-color: rgba(152, 133, 97, 0.24);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+    transform: translateY(-2px);
+  }
+
+  // Heritage product card variant
+  &.souqsyria-heritage-card {
+    background: linear-gradient(135deg, #faf9f6 0%, #edebe0 100%);
+    border: 2px solid #d4af37;
+    position: relative;
+    overflow: hidden;
+
+    &::before {
+      content: '';
+      position: absolute;
+      top: -2px;
+      left: -2px;
+      right: -2px;
+      bottom: -2px;
+      background: linear-gradient(45deg, #d4af37, #ce1126, #d4af37);
+      z-index: -1;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    &:hover::before {
+      opacity: 0.15;
+    }
+  }
+
+  // Damascus pattern card background
+  &.souqsyria-damascus-card {
+    background-image:
+      repeating-linear-gradient(
+        45deg,
+        rgba(212, 175, 55, 0.03) 0px,
+        rgba(212, 175, 55, 0.03) 10px,
+        transparent 10px,
+        transparent 20px
+      ),
+      repeating-linear-gradient(
+        -45deg,
+        rgba(206, 17, 38, 0.02) 0px,
+        rgba(206, 17, 38, 0.02) 15px,
+        transparent 15px,
+        transparent 30px
+      );
+  }
+}
+
+/**
+ * Material Chips - Syrian Regional Filters
+ */
+.mat-mdc-chip {
+  &.mat-accent {
+    background-color: #edebe0 !important;
+    border: 1px solid #988561;
+    color: #002623;
+    font-weight: 500;
+
+    &:hover {
+      background-color: #d9d4c3 !important;
+      border-color: #b9a779;
+    }
+
+    &.mat-mdc-chip-selected {
+      background: linear-gradient(135deg, #988561 0%, #b9a779 100%) !important;
+      color: white;
+      border-color: #988561;
+    }
+  }
+
+  // Syrian city chips (Aleppo, Damascus, Homs)
+  &.souqsyria-city-chip {
+    background-color: #faf9f6;
+    border: 1px solid #d4af37;
+    color: #002623;
+
+    &::before {
+      content: '📍';
+      margin-right: 4px;
+    }
+  }
+
+  // UNESCO heritage chips
+  &.souqsyria-unesco-chip {
+    background: linear-gradient(135deg, #002623 0%, #054239 100%);
+    color: white;
+    border: 1px solid #d4af37;
+
+    &::before {
+      content: '🏛️';
+      margin-right: 4px;
+    }
+  }
+}
+
+/**
+ * Material Form Fields - Bilingual Optimization
+ */
+.mat-mdc-form-field {
+  // Accent color for focused fields
+  &.mat-accent {
+    .mdc-text-field--focused {
+      .mdc-floating-label {
+        color: #988561;
+      }
+
+      .mdc-line-ripple::after {
+        border-bottom-color: #988561;
+      }
+    }
+  }
+
+  // Arabic form fields - RTL support
+  &[dir="rtl"],
+  &[lang="ar"] {
+    direction: rtl;
+    text-align: right;
+
+    .mdc-text-field__input {
+      text-align: right;
+    }
+
+    .mat-mdc-form-field-icon-prefix {
+      margin-left: 12px;
+      margin-right: 0;
+    }
+
+    .mat-mdc-form-field-icon-suffix {
+      margin-right: 12px;
+      margin-left: 0;
+    }
+  }
+
+  // Larger touch targets for mobile
+  @media (max-width: 768px) {
+    .mdc-text-field__input {
+      font-size: 16px;  // Prevents zoom on iOS
+      min-height: 44px;
+    }
+  }
+}
+
+/**
+ * Material Stepper - Syrian Checkout Flow
+ */
+.mat-stepper-horizontal,
+.mat-stepper-vertical {
+  background-color: transparent;
+
+  .mat-step-header {
+    &.cdk-keyboard-focused,
+    &.cdk-program-focused,
+    &:hover {
+      background-color: rgba(152, 133, 97, 0.06);
+    }
+
+    .mat-step-icon {
+      background-color: #988561;
+
+      &.mat-step-icon-state-done {
+        background-color: #054239;
+      }
+
+      &.mat-step-icon-state-error {
+        background-color: #4a151e;
+      }
+    }
+
+    .mat-step-label {
+      &.mat-step-label-active {
+        color: #002623;
+        font-weight: 600;
+      }
+
+      &.mat-step-label-selected {
+        font-weight: 600;
+      }
+    }
+  }
+
+  // Mobile stepper optimization - 2 steps
+  @media (max-width: 768px) {
+    &.souqsyria-mobile-checkout {
+      .mat-horizontal-stepper-header-container {
+        margin-bottom: 24px;
+      }
+
+      .mat-step-header {
+        padding: 12px 8px;
+      }
+
+      .mat-step-label {
+        font-size: 13px;
+      }
+    }
+  }
+}
+
+/**
+ * Material Dialogs - Syrian Marketplace Styling
+ */
+.mat-mdc-dialog-container {
+  .mdc-dialog__surface {
+    border-radius: 16px;
+    border: 1px solid rgba(152, 133, 97, 0.2);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+  }
+
+  .mat-mdc-dialog-title {
+    font-family: 'Cairo', 'Inter', sans-serif;
+    font-weight: 700;
+    color: #002623;
+    border-bottom: 2px solid #edebe0;
+    padding-bottom: 16px;
+    margin-bottom: 20px;
+  }
+
+  // Heritage dialog variant
+  &.souqsyria-heritage-dialog {
+    .mdc-dialog__surface {
+      background: linear-gradient(135deg, #faf9f6 0%, #edebe0 100%);
+      border-color: #d4af37;
+    }
+  }
+}
+
+/**
+ * Material Snackbar - Syrian Marketplace Notifications
+ */
+.mat-mdc-snack-bar-container {
+  &.souqsyria-success-snackbar {
+    --mdc-snackbar-container-color: #054239;
+    --mat-snack-bar-button-color: #d4af37;
+  }
+
+  &.souqsyria-error-snackbar {
+    --mdc-snackbar-container-color: #4a151e;
+    --mat-snack-bar-button-color: #f7c5cd;
+  }
+
+  &.souqsyria-info-snackbar {
+    --mdc-snackbar-container-color: #002623;
+    --mat-snack-bar-button-color: #b9a779;
+  }
+
+  // Arabic snackbar - RTL support
+  &[dir="rtl"] {
+    .mdc-snackbar__label {
+      text-align: right;
+    }
+  }
+}
+
+/**
+ * Material Menu - Syrian Category Navigation
+ */
+.mat-mdc-menu-panel {
+  border-radius: 12px;
+  border: 1px solid rgba(152, 133, 97, 0.15);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
+
+  .mat-mdc-menu-item {
+    font-family: 'Cairo', 'Inter', sans-serif;
+
+    &:hover {
+      background-color: rgba(152, 133, 97, 0.08);
+    }
+
+    &.mat-mdc-menu-item-highlighted {
+      background-color: rgba(152, 133, 97, 0.12);
+    }
+
+    // Syrian category items with icons
+    &.souqsyria-category-item {
+      padding: 12px 16px;
+
+      .mat-icon {
+        color: #988561;
+        margin-right: 12px;
+      }
+
+      &[dir="rtl"] .mat-icon {
+        margin-right: 0;
+        margin-left: 12px;
+      }
+    }
+  }
+
+  // Heritage categories submenu
+  &.souqsyria-heritage-menu {
+    background: linear-gradient(135deg, #faf9f6 0%, #edebe0 100%);
+    border-color: #d4af37;
+  }
+}
+
+/**
+ * Material Table - Admin Dashboard & Order History
+ */
+.mat-mdc-table {
+  border-radius: 12px;
+  border: 1px solid rgba(152, 133, 97, 0.15);
+  overflow: hidden;
+
+  .mat-mdc-header-row {
+    background: linear-gradient(135deg, #faf9f6 0%, #edebe0 100%);
+
+    .mat-mdc-header-cell {
+      color: #002623;
+      font-weight: 700;
+      font-family: 'Cairo', 'Inter', sans-serif;
+      border-bottom: 2px solid #988561;
+    }
+  }
+
+  .mat-mdc-row {
+    transition: background-color 0.2s ease;
+
+    &:hover {
+      background-color: rgba(152, 133, 97, 0.04);
+    }
+
+    &:nth-child(even) {
+      background-color: rgba(152, 133, 97, 0.02);
+    }
+  }
+
+  // RTL table support
+  &[dir="rtl"] {
+    .mat-mdc-cell,
+    .mat-mdc-header-cell {
+      text-align: right;
+    }
+  }
+}
+
+/**
+ * Material Paginator - Syrian Styling
+ */
+.mat-mdc-paginator {
+  background-color: transparent;
+  border-top: 1px solid rgba(152, 133, 97, 0.15);
+
+  .mat-mdc-paginator-range-label {
+    font-family: 'Cairo', 'Inter', sans-serif;
+    color: #002623;
+  }
+
+  .mat-mdc-icon-button {
+    &:hover {
+      background-color: rgba(152, 133, 97, 0.08);
+    }
+
+    &.mat-mdc-button-disabled {
+      opacity: 0.4;
+    }
+  }
+
+  // Arabic numbers support
+  &[lang="ar"] {
+    direction: rtl;
+
+    .mat-mdc-paginator-range-label {
+      direction: ltr;  // Keep numbers LTR
+      display: inline-block;
+    }
+  }
+}
+
+/**
+ * Material Tabs - Product Detail & Account Pages
+ */
+.mat-mdc-tab-group {
+  .mat-mdc-tab-header {
+    border-bottom: 2px solid #edebe0;
+  }
+
+  .mat-mdc-tab {
+    font-family: 'Cairo', 'Inter', sans-serif;
+    font-weight: 600;
+    color: #3d3a3b;
+
+    &.mdc-tab--active {
+      color: #002623;
+    }
+
+    &:hover {
+      color: #988561;
+    }
+  }
+
+  .mdc-tab-indicator__content--underline {
+    border-color: #988561;
+    border-width: 3px;
+  }
+
+  // RTL tabs
+  &[dir="rtl"] {
+    .mat-mdc-tab-labels {
+      flex-direction: row-reverse;
+    }
+  }
+}
+
+/**
+ * Material Badge - Cart & Notification Indicators
+ */
+.mat-badge {
+  &.mat-badge-accent {
+    .mat-badge-content {
+      background-color: #ce1126;
+      color: white;
+      font-weight: 700;
+      font-family: 'Inter', sans-serif;
+    }
+  }
+
+  &.mat-badge-primary {
+    .mat-badge-content {
+      background-color: #988561;
+      color: white;
+    }
+  }
+
+  // Larger badges for better visibility
+  .mat-badge-content {
+    min-width: 20px;
+    height: 20px;
+    line-height: 20px;
+    font-size: 11px;
+  }
+
+  &.mat-badge-medium .mat-badge-content {
+    min-width: 24px;
+    height: 24px;
+    line-height: 24px;
+    font-size: 12px;
+  }
+}
+
+/**
+ * Material Progress Spinner - Syrian Loading States
+ */
+.mat-mdc-progress-spinner {
+  circle {
+    stroke: #988561;
+  }
+
+  &.souqsyria-heritage-spinner {
+    circle {
+      stroke: #d4af37;
+      stroke-width: 8%;
+    }
+  }
+}
+
+/**
+ * Material Slider - Price Range Filters
+ */
+.mat-mdc-slider {
+  .mdc-slider__track--active_fill {
+    border-color: #988561;
+  }
+
+  .mdc-slider__thumb-knob {
+    background-color: #988561;
+    border-color: #988561;
+  }
+
+  .mdc-slider__value-indicator {
+    background-color: #002623;
+
+    &::before {
+      border-top-color: #002623;
+    }
+  }
+
+  // RTL slider
+  &[dir="rtl"] {
+    direction: rtl;
+  }
+}
+
+// ====================================================================
+// SYRIAN CULTURAL SEASONAL THEMES
+// ====================================================================
+
+/**
+ * Ramadan Theme - Applied during Ramadan month
+ * Usage: Add .souqsyria-ramadan-theme to body
+ */
+.souqsyria-ramadan-theme {
+  .mat-mdc-raised-button.mat-primary {
+    background: linear-gradient(135deg, #054239 0%, #428177 100%) !important;
+  }
+
+  .mat-mdc-chip.mat-mdc-chip-selected {
+    background: linear-gradient(135deg, #054239 0%, #428177 100%) !important;
+  }
+
+  .mat-stepper-horizontal .mat-step-header .mat-step-icon {
+    background-color: #054239;
+  }
+}
+
+/**
+ * Eid Theme - Applied during Eid celebrations
+ * Usage: Add .souqsyria-eid-theme to body
+ */
+.souqsyria-eid-theme {
+  .mat-mdc-raised-button.mat-primary {
+    background: linear-gradient(135deg, #d4af37 0%, #f4f0e6 100%) !important;
+    color: #002623 !important;
+  }
+
+  .mat-mdc-card {
+    border-color: #d4af37;
+    box-shadow: 0 4px 16px rgba(212, 175, 55, 0.2);
+  }
+}
+
+// ====================================================================
+// MOBILE-FIRST RESPONSIVE MATERIAL OVERRIDES
+// ====================================================================
+
+/**
+ * Mobile optimizations (max-width: 768px)
+ */
+@media (max-width: 768px) {
+  // Larger touch targets
+  .mat-mdc-button,
+  .mat-mdc-raised-button,
+  .mat-mdc-unelevated-button {
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  .mat-mdc-icon-button {
+    width: 44px;
+    height: 44px;
+    padding: 10px;
+  }
+
+  // Mobile-optimized dialogs
+  .mat-mdc-dialog-container {
+    .mdc-dialog__surface {
+      max-width: calc(100vw - 32px);
+      margin: 16px;
+    }
+  }
+
+  // Simplified stepper for checkout
+  .mat-stepper-horizontal.souqsyria-mobile-checkout {
+    .mat-horizontal-content-container {
+      padding: 16px 8px;
+    }
+  }
+
+  // Full-width cards on mobile
+  .mat-mdc-card {
+    border-radius: 8px;
+  }
+
+  // Sticky bottom sheet style for mobile menus
+  .mat-mdc-menu-panel.souqsyria-mobile-menu {
+    position: fixed !important;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    max-width: 100vw;
+    border-radius: 16px 16px 0 0;
+    max-height: 70vh;
+  }
+}
+
+/**
+ * Tablet optimizations (768px - 1024px)
+ */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .mat-mdc-dialog-container {
+    .mdc-dialog__surface {
+      max-width: 600px;
+    }
+  }
+}
+
+// ====================================================================
+// RTL-SPECIFIC MATERIAL OVERRIDES
+// ====================================================================
+
+/**
+ * RTL support for all Material components
+ * Applied automatically when [dir="rtl"] or [lang="ar"]
+ */
+[dir="rtl"],
+[lang="ar"] {
+  // Reverse flex directions
+  .mat-mdc-button,
+  .mat-mdc-raised-button {
+    .mat-icon {
+      margin-left: 8px;
+      margin-right: 0;
+    }
+  }
+
+  // Menu positioning
+  .mat-mdc-menu-panel {
+    transform-origin: top right;
+  }
+
+  // Tab navigation
+  .mat-mdc-tab-header {
+    .mat-mdc-tab-labels {
+      direction: rtl;
+    }
+  }
+
+  // Stepper icons
+  .mat-stepper-horizontal-line {
+    transform: scaleX(-1);
+  }
+
+  // Chip remove icons
+  .mat-mdc-chip .mat-mdc-chip-remove {
+    margin-left: 0;
+    margin-right: 4px;
+  }
+}
+
+// ====================================================================
+// ACCESSIBILITY ENHANCEMENTS
+// ====================================================================
+
+/**
+ * WCAG 2.1 AA compliance enhancements
+ */
+
+// High contrast mode support
+@media (prefers-contrast: high) {
+  .mat-mdc-raised-button.mat-primary {
+    border: 2px solid currentColor;
+  }
+
+  .mat-mdc-chip {
+    border-width: 2px;
+  }
+}
+
+// Reduced motion support
+@media (prefers-reduced-motion: reduce) {
+  .mat-mdc-button,
+  .mat-mdc-card,
+  .mat-mdc-chip,
+  .mat-stepper-horizontal .mat-step-header {
+    transition: none !important;
+    animation: none !important;
+  }
+}
+
+// Focus visible for keyboard navigation
+.mat-mdc-button:focus-visible,
+.mat-mdc-chip:focus-visible,
+.mat-mdc-icon-button:focus-visible {
+  outline: 3px solid #988561;
+  outline-offset: 2px;
+}
+
+// ====================================================================
+// TRUST INDICATORS & SECURITY BADGES
+// ====================================================================
+
+/**
+ * Trust badge component styling
+ */
+.souqsyria-trust-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background: linear-gradient(135deg, #054239 0%, #428177 100%);
+  color: white;
+  border-radius: 24px;
+  font-size: 13px;
+  font-weight: 600;
+  box-shadow: 0 2px 8px rgba(5, 66, 57, 0.3);
+
+  .mat-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+  }
+
+  &.souqsyria-trust-badge-ssl {
+    background: linear-gradient(135deg, #002623 0%, #054239 100%);
+  }
+
+  &.souqsyria-trust-badge-verified {
+    background: linear-gradient(135deg, #988561 0%, #b9a779 100%);
+  }
+
+  &.souqsyria-trust-badge-unesco {
+    background: linear-gradient(135deg, #d4af37 0%, #f4f0e6 100%);
+    color: #002623;
+  }
+}
+
+/**
+ * Security indicator for checkout
+ */
+.souqsyria-security-indicator {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  background: linear-gradient(135deg, #faf9f6 0%, #edebe0 100%);
+  border: 1px solid #d4af37;
+  border-radius: 8px;
+  margin-bottom: 24px;
+
+  .mat-icon {
+    color: #054239;
+    font-size: 24px;
+    width: 24px;
+    height: 24px;
+  }
+
+  .security-text {
+    flex: 1;
+
+    .security-title {
+      font-weight: 700;
+      color: #002623;
+      margin-bottom: 4px;
+    }
+
+    .security-description {
+      font-size: 13px;
+      color: #3d3a3b;
+    }
+  }
+}
+
+// ====================================================================
+// PRINT STYLES
+// ====================================================================
+
+@media print {
+  .mat-mdc-button,
+  .mat-mdc-icon-button,
+  .mat-stepper-horizontal .mat-step-header,
+  .mat-mdc-paginator {
+    display: none !important;
+  }
+
+  .mat-mdc-card,
+  .mat-mdc-table {
+    border: 1px solid #000;
+    box-shadow: none;
+  }
+}

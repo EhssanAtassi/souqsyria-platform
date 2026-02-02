@@ -1,0 +1,138 @@
+<!-- SouqSyria Quick Access Row Component -->
+<!-- Row 4: Supports two display modes - 'icons' and 'cards' (default, promotional carousel) -->
+<!-- Matching header-complete.html prototype: bg-surface, border-outline/30, py-4, NO z-index -->
+
+<div
+  class="sq-quick-access-row bg-[#F8F9FA] border-b border-outline/20 py-4 hidden lg:block"
+  [class.rtl]="config.rtl"
+  [class.cards-mode]="displayMode === 'cards'"
+  [attr.dir]="config.rtl ? 'rtl' : 'ltr'"
+  role="navigation"
+  [attr.aria-label]="config.language === 'ar' ? 'وصول سريع' : 'Quick Access'"
+>
+  <div class="sq-container max-w-[1400px] mx-auto px-6 relative">
+
+    <!-- ═══════════ ICONS MODE ═══════════ -->
+    <ng-container *ngIf="displayMode === 'icons'">
+      <div
+        class="sq-quick-access-scroll flex items-start gap-5 overflow-x-auto scroll-hidden pb-2"
+        role="list"
+      >
+        <a
+          *ngFor="let item of getItems(); trackBy: trackByItem"
+          [routerLink]="item.url"
+          class="sq-quick-access-item flex flex-col items-center gap-2.5 group flex-shrink-0 w-[76px] cursor-pointer"
+          role="listitem"
+          (click)="onItemClick(item.id)"
+          [attr.aria-label]="getItemLabel(item) + ' ' + getItemSubtitle(item)"
+        >
+          <!-- Icon Container -->
+          <div
+            class="sq-icon-container w-[60px] h-[60px] rounded-2xl flex items-center justify-center transition-all duration-200 group-hover:-translate-y-0.5"
+            [ngClass]="getIconContainerClasses(item)"
+            [class.group-hover:border-primary-300]="!item.isSpecial"
+            [class.group-hover:shadow-md]="!item.isSpecial"
+            [class.group-hover:shadow-lg]="item.isSpecial"
+          >
+            <mat-icon
+              class="text-[28px]"
+              [ngClass]="item.iconColor"
+              aria-hidden="true"
+            >
+              {{ item.icon }}
+            </mat-icon>
+          </div>
+
+          <!-- Label -->
+          <span
+            class="sq-item-label text-[11px] font-medium text-center leading-tight transition-colors duration-200"
+            [class.text-primary-500]="item.isSpecial"
+            [class.text-gray-600]="!item.isSpecial"
+            [class.group-hover:text-primary-500]="!item.isSpecial"
+          >
+            {{ getItemLabel(item) }}<br *ngIf="getItemSubtitle(item)">{{ getItemSubtitle(item) }}
+          </span>
+        </a>
+      </div>
+    </ng-container>
+
+    <!-- ═══════════ CARDS MODE (default - promotional carousel) ═══════════ -->
+    <!-- Matching header-complete.html: w-[130px] cards, shadow-soft, border-outline/20 -->
+    <ng-container *ngIf="displayMode === 'cards'">
+
+      <!-- Scroll Left Button (prototype: w-9 h-9, shadow-soft, start-1, text-[18px]) -->
+      <button
+        class="sq-scroll-btn absolute start-1 top-1/2 -translate-y-1/2 z-10 w-9 h-9 bg-white border border-gray-300/50 rounded-full shadow-sm flex items-center justify-center hover:border-primary-400 hover:shadow-md transition-all"
+        (click)="scrollCarousel(-1)"
+        [attr.aria-label]="config.language === 'ar' ? 'تمرير للخلف' : 'Scroll left'"
+      >
+        <mat-icon
+          class="text-[18px] text-gray-500"
+          aria-hidden="true"
+        >
+          chevron_left
+        </mat-icon>
+      </button>
+
+      <!-- Cards Container (prototype: gap-4, px-6, py-1) -->
+      <div
+        #carouselContainer
+        class="sq-cards-scroll flex gap-4 overflow-x-auto scroll-hidden px-6 py-1"
+      >
+        <!-- Promo Card (prototype: w-[130px], shadow-soft, border-outline/20) -->
+        <a
+          *ngFor="let card of getPromoCards(); trackBy: trackByCard"
+          [routerLink]="card.url"
+          class="sq-promo-card flex-shrink-0 w-[130px] bg-white rounded-xl overflow-hidden shadow-sm border border-gray-200/20 transition-all"
+          (click)="onItemClick(card.id)"
+          [attr.aria-label]="getCardCategory(card) + ' - ' + getCardTitle(card)"
+        >
+          <!-- Badge Header (prototype: text-[9px]) -->
+          <div [ngClass]="card.badgeClass" class="px-2 py-1">
+            <span class="text-[9px] font-semibold text-white truncate block">
+              {{ getCardCategory(card) }}
+            </span>
+          </div>
+
+          <!-- Card Body (prototype: p-2.5) -->
+          <div class="p-2.5">
+            <!-- Image (prototype: h-[70px]) -->
+            <div class="w-full h-[70px] bg-gray-50 rounded-lg flex items-center justify-center mb-2 overflow-hidden">
+              <img
+                [src]="card.image"
+                [alt]="getCardCategory(card)"
+                class="w-full h-full object-cover"
+                loading="lazy"
+                (error)="onImageError($event)"
+              >
+            </div>
+
+            <!-- Text (prototype: text-[11px] title, text-[9px] subtitle) -->
+            <p class="text-[11px] font-medium text-gray-900 truncate">
+              {{ getCardTitle(card) }}
+            </p>
+            <p class="text-[9px] text-gray-500 truncate">
+              {{ getCardSubtitle(card) }}
+            </p>
+          </div>
+        </a>
+      </div>
+
+      <!-- Scroll Right Button (prototype: w-9 h-9, shadow-soft, end-1, text-[18px]) -->
+      <button
+        class="sq-scroll-btn absolute end-1 top-1/2 -translate-y-1/2 z-10 w-9 h-9 bg-white border border-gray-300/50 rounded-full shadow-sm flex items-center justify-center hover:border-primary-400 hover:shadow-md transition-all"
+        (click)="scrollCarousel(1)"
+        [attr.aria-label]="config.language === 'ar' ? 'تمرير للأمام' : 'Scroll right'"
+      >
+        <mat-icon
+          class="text-[18px] text-gray-500"
+          aria-hidden="true"
+        >
+          chevron_right
+        </mat-icon>
+      </button>
+
+    </ng-container>
+
+  </div>
+</div>

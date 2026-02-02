@@ -15,9 +15,11 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 
 // Local imports
-import { Category, NavigationConfig } from '../../interfaces/navigation.interface';
+import { Category, NavigationConfig, Subcategory } from '../../interfaces/navigation.interface';
 import { CategoryMegaMenuComponent } from './category-mega-menu.component';
 import { CategoryItemComponent } from './category-item.component';
+import { MegaMenuSidebarComponent } from './mega-menu-sidebar/mega-menu-sidebar.component';
+import { MegaMenuFullwidthComponent } from './mega-menu-fullwidth/mega-menu-fullwidth.component';
 
 /**
  * SouqSyria Category Navigation Component
@@ -86,7 +88,9 @@ import { CategoryItemComponent } from './category-item.component';
     MatIconModule,
     MatMenuModule,
     CategoryMegaMenuComponent,
-    CategoryItemComponent
+    CategoryItemComponent,
+    MegaMenuSidebarComponent,
+    MegaMenuFullwidthComponent
   ],
   templateUrl: './category-navigation.component.html',
   styleUrl: './category-navigation.component.scss',
@@ -425,6 +429,46 @@ export class CategoryNavigationComponent implements OnInit {
    */
   isMegaMenuActive(categoryId: string): boolean {
     return this.activeMegaMenu === categoryId;
+  }
+
+  /**
+   * Gets the mega menu type for a given category
+   * @description Determines which mega menu component to render
+   * @param categoryId - Category ID to check
+   * @returns The mega menu type ('sidebar', 'fullwidth', or 'none')
+   */
+  getMegaMenuType(categoryId: string): string {
+    const category = this.categories.find(c => c.id === categoryId);
+    return category?.megaMenuType || 'sidebar';
+  }
+
+  /**
+   * Handles subcategory click from mega menu components
+   * @description Converts subcategory to category format and emits click event
+   * @param subcategory - Clicked subcategory
+   */
+  onMegaMenuSubcategoryClick(subcategory: Subcategory): void {
+    const categoryData: Category = {
+      id: subcategory.id,
+      name: subcategory.name,
+      nameAr: subcategory.nameAr,
+      icon: subcategory.icon || 'category',
+      url: subcategory.url,
+      featured: false,
+      subcategories: []
+    };
+    this.categoryClick.emit(categoryData);
+    this.hideMegaMenu();
+  }
+
+  /**
+   * Handles "View All" click from mega menu components
+   * @description Emits category click event for the parent category
+   * @param category - Parent category
+   */
+  onMegaMenuViewAllClick(category: Category): void {
+    this.categoryClick.emit(category);
+    this.hideMegaMenu();
   }
   
   //#endregion

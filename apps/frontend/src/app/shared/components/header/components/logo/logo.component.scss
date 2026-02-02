@@ -1,0 +1,15 @@
+/**
+ * Logo component styles
+ * @description Hover animation and brand text styling
+ */
+:host {
+  display: contents;
+}
+
+.sq-logo {
+  transition: transform 0.2s ease;
+
+  &:hover {
+    transform: scale(1.02);
+  }
+}
