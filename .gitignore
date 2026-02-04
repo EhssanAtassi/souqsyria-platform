@@ -183,6 +183,9 @@ specs/
 # Claude Code settings
 .claude/
 
+# Serena cache
+.serena/
+
 .env.*.local
 
 # IDE files
