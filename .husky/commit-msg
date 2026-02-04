@@ -1,8 +1,0 @@
-#!/bin/sh
-. "$(dirname "$0")/_/husky.sh"
-
-# Validate commit message format
-# Format: type(scope): subject
-# Example: feat(auth): add OAuth2 login
-
-npx --no -- commitlint --edit "$1"

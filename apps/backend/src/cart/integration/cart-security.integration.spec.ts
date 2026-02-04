@@ -17,7 +17,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { RedisModule } from '@nestjs-modules/ioredis';
 import { ScheduleModule } from '@nestjs/schedule';
 import request from 'supertest';
 import { Repository } from 'typeorm';
@@ -44,7 +43,6 @@ const testDbConfig = {
 };
 
 // Test Redis configuration (cast to any to avoid type issues with library)
-const testRedisConfig: any = {
   type: 'single',
   url: `redis://${process.env.TEST_REDIS_HOST || 'localhost'}:${parseInt(process.env.TEST_REDIS_PORT) || 6380}/1`,
 };
@@ -62,7 +60,6 @@ describe('Cart Security Integration Tests', () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [
         TypeOrmModule.forRoot(testDbConfig),
-        RedisModule.forRoot(testRedisConfig),
         ScheduleModule.forRoot(),
         CartModule,
       ],
@@ -87,7 +84,6 @@ describe('Cart Security Integration Tests', () => {
 
   beforeEach(async () => {
     // Clear Redis rate limiting data before each test
-    const redis = app.get('default_IORedisModuleConnectionToken');
     await redis.flushdb();
   });
 
@@ -314,7 +310,6 @@ describe('Cart Security Integration Tests', () => {
 
     it('should handle Redis failures gracefully', async () => {
       // Simulate Redis failure by disconnecting
-      const redis = app.get('default_IORedisModuleConnectionToken');
       await redis.disconnect();
 
       // Requests should still work (fail-open behavior)

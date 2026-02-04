@@ -36,8 +36,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, In } from 'typeorm';
-import { InjectRedis } from '@nestjs-modules/ioredis';
-import { Redis } from 'ioredis';
 import { CartItem } from '../entities/cart-item.entity';
 import { ProductVariant } from '../../products/variants/entities/product-variant.entity';
 import { ProductEntity } from '../../products/entities/product.entity';
@@ -163,6 +161,35 @@ export interface PersonalizationConfig {
 export class CartPersonalizationService {
   private readonly logger = new Logger(CartPersonalizationService.name);
 
+  /** In-memory cache (replaces Redis) */
+  private readonly _cache = new Map<string, { value: string; expiresAt: number }>();
+
+  private _cacheGet(key: string): string | null {
+    const entry = this._cache.get(key);
+    if (!entry) return null;
+    if (Date.now() > entry.expiresAt) { this._cache.delete(key); return null; }
+    return entry.value;
+  }
+
+  private _cacheSet(key: string, value: string, ttlSeconds: number): void {
+    this._cache.set(key, { value, expiresAt: Date.now() + ttlSeconds * 1000 });
+  }
+
+  private _cacheDel(key: string): boolean {
+    return this._cache.delete(key);
+  }
+
+  private _cacheIncr(key: string, ttlSeconds: number = 3600): number {
+    const entry = this._cache.get(key);
+    if (!entry || Date.now() > entry.expiresAt) {
+      this._cache.set(key, { value: '1', expiresAt: Date.now() + ttlSeconds * 1000 });
+      return 1;
+    }
+    const newVal = parseInt(entry.value, 10) + 1;
+    entry.value = String(newVal);
+    return newVal;
+  }
+
   /** Personalization configuration with production defaults */
   private readonly config: PersonalizationConfig = {
     maxRecommendations: 10,           // Top 10 recommendations
@@ -257,8 +284,6 @@ export class CartPersonalizationService {
     private readonly variantRepo: Repository<ProductVariant>,
     @InjectRepository(ProductEntity)
     private readonly productRepo: Repository<ProductEntity>,
-    @InjectRedis()
-    private readonly redis: Redis,
   ) {
     this.logger.log('🎯 Cart Personalization Service initialized with ML recommendations');
   }
@@ -279,7 +304,7 @@ export class CartPersonalizationService {
     try {
       // Step 1: Check cache
       const cacheKey = `recommendations:cart:${cartId}:${strategy}`;
-      const cached = await this.redis.get(cacheKey);
+      const cached = this._cacheGet(cacheKey);
 
       if (cached) {
         this.logger.debug(`Cache hit for recommendations: ${cacheKey}`);
@@ -338,7 +363,7 @@ export class CartPersonalizationService {
       }
 
       // Step 5: Cache results
-      await this.redis.setex(cacheKey, this.config.cacheTTL, JSON.stringify(result));
+      this._cacheSet(cacheKey, JSON.stringify(result), this.config.cacheTTL);
 
       this.logger.log(
         `Generated ${result.recommendations.length} recommendations for cart ${cartId} (strategy: ${strategy})`,
@@ -895,7 +920,7 @@ export class CartPersonalizationService {
   ): Promise<void> {
     try {
       const key = `recommendation:engagement:${variantId}:${action}`;
-      await this.redis.incr(key);
+      this._cacheIncr(key);
 
       this.logger.debug(`Tracked recommendation engagement: ${action} for variant ${variantId}`);
 

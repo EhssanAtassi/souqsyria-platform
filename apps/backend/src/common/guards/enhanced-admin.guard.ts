@@ -4,7 +4,7 @@
  *
  * This guard provides additional security layers for administrative endpoints:
  * - IP whitelisting (optional, configurable)
- * - SEC-H03 FIX: Redis-based rate limiting for distributed environments
+ * - In-memory rate limiting
  * - Suspicious activity detection
  * - Session validation
  * - Detailed audit logging for admin actions

@@ -9,8 +9,6 @@ import {
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { ConfigService } from '@nestjs/config';
-import { InjectRedis } from '@nestjs-modules/ioredis';
-import { Redis } from 'ioredis';
 import { Request } from 'express';
 
 /**
@@ -67,6 +65,35 @@ export const RateLimit = (config: RateLimitConfig) =>
 export class CartRateLimitGuard implements CanActivate {
   private readonly logger = new Logger(CartRateLimitGuard.name);
 
+  /** In-memory cache (replaces Redis) */
+  private readonly _cache = new Map<string, { value: string; expiresAt: number }>();
+
+  private _cacheGet(key: string): string | null {
+    const entry = this._cache.get(key);
+    if (!entry) return null;
+    if (Date.now() > entry.expiresAt) { this._cache.delete(key); return null; }
+    return entry.value;
+  }
+
+  private _cacheSet(key: string, value: string, ttlSeconds: number): void {
+    this._cache.set(key, { value, expiresAt: Date.now() + ttlSeconds * 1000 });
+  }
+
+  private _cacheDel(key: string): boolean {
+    return this._cache.delete(key);
+  }
+
+  private _cacheIncr(key: string, ttlSeconds: number = 3600): number {
+    const entry = this._cache.get(key);
+    if (!entry || Date.now() > entry.expiresAt) {
+      this._cache.set(key, { value: '1', expiresAt: Date.now() + ttlSeconds * 1000 });
+      return 1;
+    }
+    const newVal = parseInt(entry.value, 10) + 1;
+    entry.value = String(newVal);
+    return newVal;
+  }
+
   /** Default rate limits for different user types */
   private readonly defaultLimits = {
     authenticated: {
@@ -90,7 +117,7 @@ export class CartRateLimitGuard implements CanActivate {
   constructor(
     private readonly reflector: Reflector,
     private readonly configService: ConfigService,
-    @InjectRedis() private readonly redis: Redis,
+    
   ) {}
 
   /**
@@ -244,23 +271,8 @@ export class CartRateLimitGuard implements CanActivate {
       .replace(/[^a-zA-Z0-9_\-\/]/g, '_');
     const key = `cart_rate_limit:${clientId}:${routePath}`;
 
-    // Use Redis transaction for atomicity
-    const multi = this.redis.multi();
-
-    // Remove old entries outside the window
-    multi.zremrangebyscore(key, 0, windowStart);
-
-    // Add current request with unique identifier to avoid collisions
-    multi.zadd(key, now, `${now}:${Math.random().toString(36).substring(7)}`);
-
-    // Count requests in current window
-    multi.zcard(key);
-
-    // Set expiration for cleanup
-    multi.expire(key, config.windowSizeInSeconds + 60);
-
-    const results = await multi.exec();
-    const requestCount = results[2][1] as number;
+    // In-memory rate limit check using sliding window counter
+    const requestCount = this._cacheIncr(key, config.windowSizeInSeconds);
 
     // Apply different limits based on user type
     const effectiveLimit = this.getEffectiveLimit(config, isAuthenticated);
@@ -313,17 +325,12 @@ export class CartRateLimitGuard implements CanActivate {
     try {
       // Store in Redis for analytics (24-hour retention)
       const violationKey = `cart_violations:${Date.now()}:${clientId.replace(/[^a-zA-Z0-9_\-:]/g, '_')}`;
-      await this.redis.setex(
-        violationKey,
-        86400, // 24 hours
-        JSON.stringify(violationData)
-      );
+      this._cacheSet(violationKey, JSON.stringify(violationData), 86400);
 
       // Track violation count for progressive penalties
       const violationCountKey = `cart_violation_count:${clientId.replace(/[^a-zA-Z0-9_\-:]/g, '_')}`;
-      await this.redis.incr(violationCountKey);
-      await this.redis.expire(violationCountKey, 3600); // 1 hour
-    } catch (error) {
+      this._cacheIncr(violationCountKey);
+          } catch (error) {
       // Don't let Redis errors prevent rate limiting enforcement
       this.logger.error('Failed to store violation data in Redis', error);
     }
@@ -335,7 +342,7 @@ export class CartRateLimitGuard implements CanActivate {
   private async applyPenaltyDelay(clientId: string, basePenaltyMs: number): Promise<void> {
     try {
       const violationCountKey = `cart_violation_count:${clientId.replace(/[^a-zA-Z0-9_\-:]/g, '_')}`;
-      const violationCount = await this.redis.get(violationCountKey);
+      const violationCount = this._cacheGet(violationCountKey);
 
       if (violationCount) {
         const count = parseInt(violationCount, 10);
@@ -346,11 +353,8 @@ export class CartRateLimitGuard implements CanActivate {
         );
 
         // Store penalty info for monitoring
-        await this.redis.setex(
-          `cart_penalty:${clientId.replace(/[^a-zA-Z0-9_\-:]/g, '_')}`,
-          60, // 1 minute
-          penaltyMs.toString(),
-        );
+        const penaltyKey = `cart_penalty:${clientId.replace(/[^a-zA-Z0-9_\-:]/g, '_')}`;
+        this._cacheSet(penaltyKey, penaltyMs.toString(), 60);
       }
     } catch (error) {
       // Don't let penalty tracking errors affect rate limiting

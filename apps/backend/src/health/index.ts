@@ -18,6 +18,6 @@ export { HealthService, SystemMetrics, VersionInfo } from './services/health.ser
 
 // Health Indicators
 export { DatabaseHealthIndicator } from './indicators/database.health';
-export { RedisHealthIndicator } from './indicators/redis.health';
+export { CacheHealthIndicator } from './indicators/redis.health';
 export { DiskHealthIndicator } from './indicators/disk.health';
 export { BusinessHealthIndicator } from './indicators/business.health';

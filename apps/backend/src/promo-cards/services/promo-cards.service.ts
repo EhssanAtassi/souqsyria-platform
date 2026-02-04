@@ -26,8 +26,6 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, LessThanOrEqual, MoreThanOrEqual, IsNull, In } from 'typeorm';
-import { InjectRedis } from '@nestjs-modules/ioredis';
-import Redis from 'ioredis';
 import { PromoCard } from '../entities/promo-card.entity';
 import {
   CreatePromoCardDto,
@@ -54,6 +52,35 @@ import {
 @Injectable()
 export class PromoCardsService {
   private readonly logger = new Logger(PromoCardsService.name);
+
+  /** In-memory cache (replaces Redis) */
+  private readonly _cache = new Map<string, { value: string; expiresAt: number }>();
+
+  private _cacheGet(key: string): string | null {
+    const entry = this._cache.get(key);
+    if (!entry) return null;
+    if (Date.now() > entry.expiresAt) { this._cache.delete(key); return null; }
+    return entry.value;
+  }
+
+  private _cacheSet(key: string, value: string, ttlSeconds: number): void {
+    this._cache.set(key, { value, expiresAt: Date.now() + ttlSeconds * 1000 });
+  }
+
+  private _cacheDel(key: string): boolean {
+    return this._cache.delete(key);
+  }
+
+  private _cacheIncr(key: string, ttlSeconds: number = 3600): number {
+    const entry = this._cache.get(key);
+    if (!entry || Date.now() > entry.expiresAt) {
+      this._cache.set(key, { value: '1', expiresAt: Date.now() + ttlSeconds * 1000 });
+      return 1;
+    }
+    const newVal = parseInt(entry.value, 10) + 1;
+    entry.value = String(newVal);
+    return newVal;
+  }
   private readonly CACHE_KEY_PREFIX = 'promo-cards';
   private readonly CACHE_TTL = 300; // 5 minutes in seconds
   private readonly MAX_CARDS_PER_POSITION = 2; // Maximum 2 cards total (1 per position)
@@ -61,8 +88,6 @@ export class PromoCardsService {
   constructor(
     @InjectRepository(PromoCard)
     private readonly promoCardRepository: Repository<PromoCard>,
-    @InjectRedis()
-    private readonly redis: Redis,
   ) {}
 
   // ================================
@@ -193,7 +218,7 @@ export class PromoCardsService {
 
     // Try to get from cache
     const cacheKey = `${this.CACHE_KEY_PREFIX}:active`;
-    const cachedData = await this.redis.get(cacheKey);
+    const cachedData = this._cacheGet(cacheKey);
 
     if (cachedData) {
       this.logger.log('Returning cached active promo cards');
@@ -224,7 +249,7 @@ export class PromoCardsService {
     });
 
     // Cache the results
-    await this.redis.setex(cacheKey, this.CACHE_TTL, JSON.stringify(activeCards));
+    this._cacheSet(cacheKey, JSON.stringify(activeCards), this.CACHE_TTL);
 
     this.logger.log(`Found ${activeCards.length} active promo cards`);
     return activeCards;
@@ -631,8 +656,8 @@ export class PromoCardsService {
   private async clearCache(): Promise<void> {
     try {
       const cacheKey = `${this.CACHE_KEY_PREFIX}:active`;
-      const deleted = await this.redis.del(cacheKey);
-      if (deleted > 0) {
+      const deleted = this._cacheDel(cacheKey);
+      if (deleted) {
         this.logger.log(`Cleared promo cards cache key: ${cacheKey}`);
       }
     } catch (error: unknown) {

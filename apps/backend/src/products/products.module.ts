@@ -8,7 +8,6 @@ import { ManufacturerEntity } from '../manufacturers/entities/manufacturer.entit
 import { VendorEntity } from '../vendors/entities/vendor.entity';
 import { ProductDescriptionEntity } from './entities/product-description.entity';
 import { PermissionsGuard } from '../access-control/guards/permissions.guard';
-import { ManufacturersModule } from '../manufacturers/manufacturers.module';
 import { CategoriesModule } from '../categories/categories.module';
 import { VendorsModule } from '../vendors/vendors.module';
 import { Route } from '../access-control/entities/route.entity';
@@ -59,7 +58,6 @@ import { ProductSeederController } from './seeds/product-seeder.controller';
       FeatureEntity,
       Brand,
     ]),
-    ManufacturersModule,
     AccessControlModule,
     CategoriesModule,
     VendorsModule,

@@ -38,8 +38,6 @@
 import { Injectable, Logger, BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { InjectRedis } from '@nestjs-modules/ioredis';
-import { Redis } from 'ioredis';
 
 /**
  * Experiment Status Enum
@@ -205,6 +203,35 @@ export interface VariantResults {
 export class CartABTestingService {
   private readonly logger = new Logger(CartABTestingService.name);
 
+  /** In-memory cache (replaces Redis) */
+  private readonly _cache = new Map<string, { value: string; expiresAt: number }>();
+
+  private _cacheGet(key: string): string | null {
+    const entry = this._cache.get(key);
+    if (!entry) return null;
+    if (Date.now() > entry.expiresAt) { this._cache.delete(key); return null; }
+    return entry.value;
+  }
+
+  private _cacheSet(key: string, value: string, ttlSeconds: number): void {
+    this._cache.set(key, { value, expiresAt: Date.now() + ttlSeconds * 1000 });
+  }
+
+  private _cacheDel(key: string): boolean {
+    return this._cache.delete(key);
+  }
+
+  private _cacheIncr(key: string, ttlSeconds: number = 3600): number {
+    const entry = this._cache.get(key);
+    if (!entry || Date.now() > entry.expiresAt) {
+      this._cache.set(key, { value: '1', expiresAt: Date.now() + ttlSeconds * 1000 });
+      return 1;
+    }
+    const newVal = parseInt(entry.value, 10) + 1;
+    entry.value = String(newVal);
+    return newVal;
+  }
+
   /** Cache TTL for assignments (24 hours) */
   private readonly ASSIGNMENT_CACHE_TTL = 86400;
 
@@ -212,8 +239,6 @@ export class CartABTestingService {
   private readonly CONFIG_CACHE_TTL = 3600;
 
   constructor(
-    @InjectRedis()
-    private readonly redis: Redis,
   ) {
     this.logger.log('🧪 A/B Testing Service initialized for cart optimization');
   }
@@ -231,10 +256,10 @@ export class CartABTestingService {
 
       // Store in Redis
       const key = `experiment:${config.id}`;
-      await this.redis.setex(key, this.CONFIG_CACHE_TTL, JSON.stringify(config));
+      this._cacheSet(key, JSON.stringify(config), this.CONFIG_CACHE_TTL);
 
       // Also store in active experiments list
-      await this.redis.sadd('experiments:active', config.id);
+      this._cacheSet('experiments:active' + ":" + config.id, "1", 86400);
 
       this.logger.log(`✅ Created experiment: ${config.name} (${config.id})`);
 
@@ -264,7 +289,7 @@ export class CartABTestingService {
       // Step 1: Check cached assignment
       const identifier = userId || sessionId || 'unknown';
       const assignmentKey = `assignment:${experimentId}:${identifier}`;
-      const cachedAssignment = await this.redis.get(assignmentKey);
+      const cachedAssignment = this._cacheGet(assignmentKey);
 
       if (cachedAssignment) {
         const assignment: ExperimentAssignment = JSON.parse(cachedAssignment);
@@ -296,7 +321,7 @@ export class CartABTestingService {
         assignedAt: new Date(),
       };
 
-      await this.redis.setex(assignmentKey, this.ASSIGNMENT_CACHE_TTL, JSON.stringify(assignment));
+      this._cacheSet(assignmentKey, JSON.stringify(assignment), this.ASSIGNMENT_CACHE_TTL);
 
       this.logger.debug(`Assigned ${identifier} to variant ${variant.name} in experiment ${experimentId}`);
 
@@ -322,11 +347,11 @@ export class CartABTestingService {
       const eventKey = `experiment:${event.experimentId}:variant:${event.variantId}:events`;
       const timestamp = event.timestamp.getTime();
 
-      await this.redis.zadd(eventKey, timestamp, JSON.stringify(event));
+      this._cacheSet(eventKey + ":" + String(timestamp), JSON.stringify(event), 86400);
 
       // Increment event counter for quick metrics
       const counterKey = `experiment:${event.experimentId}:variant:${event.variantId}:${event.eventType}`;
-      await this.redis.incr(counterKey);
+      this._cacheIncr(counterKey);
 
       this.logger.debug(`Tracked ${event.eventType} event for variant ${event.variantId}`);
 
@@ -428,13 +453,13 @@ export class CartABTestingService {
       experiment.winnerVariantId = winnerVariantId;
 
       const key = `experiment:${experimentId}`;
-      await this.redis.setex(key, this.CONFIG_CACHE_TTL, JSON.stringify(experiment));
+      this._cacheSet(key, JSON.stringify(experiment), this.CONFIG_CACHE_TTL);
 
       // Remove from active experiments
-      await this.redis.srem('experiments:active', experimentId);
+      this._cacheDel('experiments:active' + ":" + experimentId);
 
       // Add to completed experiments
-      await this.redis.sadd('experiments:completed', experimentId);
+      this._cacheSet('experiments:completed' + ":" + experimentId, "1", 86400);
 
       this.logger.log(`✅ Concluded experiment ${experimentId} - Winner: ${winnerVariantId}`);
 
@@ -449,7 +474,7 @@ export class CartABTestingService {
    */
   private async getExperiment(experimentId: string): Promise<ExperimentConfig> {
     const key = `experiment:${experimentId}`;
-    const data = await this.redis.get(key);
+    const data = this._cacheGet(key);
 
     if (!data) {
       throw new BadRequestException(`Experiment ${experimentId} not found`);
@@ -514,9 +539,9 @@ export class CartABTestingService {
     const clicksKey = `experiment:${experimentId}:variant:${variantId}:recommendation_click`;
 
     const [views, checkouts, clicks] = await Promise.all([
-      this.redis.get(viewsKey),
-      this.redis.get(checkoutsKey),
-      this.redis.get(clicksKey),
+      Promise.resolve(this._cacheGet(viewsKey)),
+      Promise.resolve(this._cacheGet(checkoutsKey)),
+      Promise.resolve(this._cacheGet(clicksKey)),
     ]);
 
     const viewCount = parseInt(views || '0', 10);
@@ -541,7 +566,7 @@ export class CartABTestingService {
    */
   private async getVariantSampleSize(experimentId: string, variantId: string): Promise<number> {
     const viewsKey = `experiment:${experimentId}:variant:${variantId}:view`;
-    const views = await this.redis.get(viewsKey);
+    const views = this._cacheGet(viewsKey);
     return parseInt(views || '0', 10);
   }
 

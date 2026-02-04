@@ -36,8 +36,6 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
-import { InjectRedis } from '@nestjs-modules/ioredis';
-import { Redis } from 'ioredis';
 import { Request } from 'express';
 import { AuditLogService } from '../../audit-log/service/audit-log.service';
 import { CartFraudDetectionService, FraudDetectionContext } from '../services/cart-fraud-detection.service';
@@ -92,6 +90,35 @@ interface SecurityConfig {
 export class CartSecurityGuard implements CanActivate {
   private readonly logger = new Logger(CartSecurityGuard.name);
 
+  /** In-memory cache (replaces Redis) */
+  private readonly _cache = new Map<string, { value: string; expiresAt: number }>();
+
+  private _cacheGet(key: string): string | null {
+    const entry = this._cache.get(key);
+    if (!entry) return null;
+    if (Date.now() > entry.expiresAt) { this._cache.delete(key); return null; }
+    return entry.value;
+  }
+
+  private _cacheSet(key: string, value: string, ttlSeconds: number): void {
+    this._cache.set(key, { value, expiresAt: Date.now() + ttlSeconds * 1000 });
+  }
+
+  private _cacheDel(key: string): boolean {
+    return this._cache.delete(key);
+  }
+
+  private _cacheIncr(key: string, ttlSeconds: number = 3600): number {
+    const entry = this._cache.get(key);
+    if (!entry || Date.now() > entry.expiresAt) {
+      this._cache.set(key, { value: '1', expiresAt: Date.now() + ttlSeconds * 1000 });
+      return 1;
+    }
+    const newVal = parseInt(entry.value, 10) + 1;
+    entry.value = String(newVal);
+    return newVal;
+  }
+
   /** Security configuration with production-ready defaults */
   private readonly config: SecurityConfig = {
     fraudDetectionEnabled: true,
@@ -104,7 +131,7 @@ export class CartSecurityGuard implements CanActivate {
 
   constructor(
     private readonly reflector: Reflector,
-    @InjectRedis() private readonly redis: Redis,
+    
     private readonly auditLogService: AuditLogService,
     private readonly fraudDetectionService: CartFraudDetectionService,
     private readonly deviceFingerprintService: DeviceFingerprintService,
@@ -305,7 +332,7 @@ export class CartSecurityGuard implements CanActivate {
         ? `device_fingerprints:user:${userId}`
         : `device_fingerprints:ip:${deviceData.clientIP}`;
 
-      const storedFingerprintsJson = await this.redis.get(fingerprintKey);
+      const storedFingerprintsJson = this._cacheGet(fingerprintKey);
       const storedFingerprints = storedFingerprintsJson
         ? JSON.parse(storedFingerprintsJson)
         : [];
@@ -323,11 +350,7 @@ export class CartSecurityGuard implements CanActivate {
         if (storedFingerprints.length > 5) {
           storedFingerprints.shift();
         }
-        await this.redis.setex(
-          fingerprintKey,
-          this.config.fingerprintCacheTTL,
-          JSON.stringify(storedFingerprints),
-        );
+        this._cacheSet(fingerprintKey, JSON.stringify(storedFingerprints), this.config.fingerprintCacheTTL);
       }
 
       return {
@@ -360,7 +383,7 @@ export class CartSecurityGuard implements CanActivate {
     try {
       // Check cache first
       const cacheKey = `fraud_assessment:${context.userId || context.clientIP}:${context.operation}`;
-      const cachedAssessment = await this.redis.get(cacheKey);
+      const cachedAssessment = this._cacheGet(cacheKey);
 
       if (cachedAssessment) {
         return JSON.parse(cachedAssessment);
@@ -370,11 +393,7 @@ export class CartSecurityGuard implements CanActivate {
       const riskAssessment = await this.fraudDetectionService.assessFraudRisk(context);
 
       // Cache assessment
-      await this.redis.setex(
-        cacheKey,
-        this.config.riskCacheTTL,
-        JSON.stringify(riskAssessment),
-      );
+      this._cacheSet(cacheKey, JSON.stringify(riskAssessment), this.config.riskCacheTTL);
 
       return riskAssessment;
 

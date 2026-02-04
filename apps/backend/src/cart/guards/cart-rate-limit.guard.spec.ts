@@ -95,7 +95,6 @@ describe('CartRateLimitGuard', () => {
         CartRateLimitGuard,
         { provide: Reflector, useValue: mockReflector },
         { provide: ConfigService, useValue: { get: jest.fn() } },
-        { provide: 'default_IORedisModuleConnectionToken', useValue: mockRedis },
       ],
     }).compile();
 

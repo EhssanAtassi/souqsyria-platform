@@ -111,7 +111,6 @@ describe('CartSecurityGuard', () => {
       providers: [
         CartSecurityGuard,
         { provide: Reflector, useValue: { get: jest.fn() } },
-        { provide: 'default_IORedisModuleConnectionToken', useValue: mockRedis },
         { provide: AuditLogService, useValue: mockAuditLogService },
         { provide: CartFraudDetectionService, useValue: mockFraudDetectionService },
         { provide: DeviceFingerprintService, useValue: mockDeviceFingerprintService },

@@ -16,7 +16,7 @@ import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Cache } from 'cache-manager';
 
 /**
- * RedisHealthIndicator
+ * CacheHealthIndicator
  * @description Checks Redis/Cache connectivity
  *
  * @example
@@ -24,7 +24,7 @@ import { Cache } from 'cache-manager';
  * () => this.redis.isHealthy('cache')
  */
 @Injectable()
-export class RedisHealthIndicator extends HealthIndicator {
+export class CacheHealthIndicator extends HealthIndicator {
   constructor(
     @Optional()
     @Inject(CACHE_MANAGER)

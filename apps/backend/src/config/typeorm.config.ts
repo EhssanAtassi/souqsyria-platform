@@ -4,7 +4,7 @@
  *
  * Performance Optimizations (PERF-C03, PERF-C04):
  * - Connection pooling: min 5, max 20 connections for production workloads
- * - Query caching: Redis-based caching with fallback to in-memory
+ * - Query caching: database-based caching
  * - Optimized timeout settings for production reliability
  *
  * @author SouqSyria Development Team
@@ -15,36 +15,17 @@ import { config } from 'dotenv';
 
 config({ path: ['.env', '.env.development'] });
 
-/**
- * Determine if Redis is available for caching
- * Falls back to in-memory cache if Redis is not configured
- */
-const isRedisConfigured = Boolean(process.env.REDIS_HOST || process.env.REDIS_URL);
 const isProduction = process.env.NODE_ENV === 'production';
 
 /**
  * PERF-C03: Cache configuration
- * Uses Redis in production for distributed caching across instances
- * Falls back to in-memory cache for development/single-instance deployments
+ * Uses database-based cache table for query caching
  */
-const cacheConfig = isRedisConfigured
-  ? {
-      // Redis cache for distributed environments
-      type: 'redis' as const,
-      options: {
-        host: process.env.REDIS_HOST || 'localhost',
-        port: parseInt(process.env.REDIS_PORT || '6379', 10),
-        password: process.env.REDIS_PASSWORD || undefined,
-        db: parseInt(process.env.REDIS_CACHE_DB || '1', 10), // Separate DB from rate limiting
-      },
-      duration: 30000, // 30 seconds default cache TTL
-    }
-  : {
-      // In-memory cache for single instance deployments
-      type: 'database' as const,
-      tableName: 'typeorm_cache',
-      duration: 30000, // 30 seconds default cache TTL
-    };
+const cacheConfig = {
+  type: 'database' as const,
+  tableName: 'typeorm_cache',
+  duration: 30000, // 30 seconds default cache TTL
+};
 
 export const typeOrmConfig: TypeOrmModuleOptions = {
   type: 'mysql',
