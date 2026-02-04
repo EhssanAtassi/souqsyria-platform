@@ -3,7 +3,6 @@
  * @description User table synced from Firebase Auth. Used to assign app-specific roles and preferences.
  *
  * Security Features:
- * - OAuth tokens stored encrypted (AES-256-GCM) - SEC-H01 fix
  * - Password reset tokens hashed before storage - SEC-H02 fix
  * - Account lockout after failed login attempts - SEC-H06 fix
  *
@@ -29,8 +28,6 @@ import { Address } from '../../addresses/entities/address.entity';
 @Entity('users')
 @Index(['email'], { unique: true })
 @Index(['role', 'isBanned'])
-@Index(['googleId'])
-@Index(['facebookId'])
 export class User {
   @PrimaryGeneratedColumn()
   id: number;
@@ -61,55 +58,6 @@ export class User {
   @Column({ name: 'otp_code', nullable: true })
   otpCode: string; // ✅ Temporary OTP code
 
-  /**
-   * 🔐 OAUTH AUTHENTICATION FIELDS
-   * These fields handle OAuth login with Google and Facebook
-   */
-  /**
-   * Google OAuth unique identifier.
-   * Populated when user authenticates with Google.
-   */
-  @Column({ name: 'google_id', nullable: true, unique: true })
-  googleId: string;
-
-  /**
-   * Facebook OAuth unique identifier.
-   * Populated when user authenticates with Facebook.
-   */
-  @Column({ name: 'facebook_id', nullable: true, unique: true })
-  facebookId: string;
-
-  /**
-   * OAuth provider used for authentication.
-   * Can be 'google', 'facebook', or 'email' for traditional registration.
-   */
-  @Column({ name: 'oauth_provider', nullable: true })
-  oauthProvider: 'google' | 'facebook' | 'email' | null;
-
-  /**
-   * Profile picture URL from OAuth provider.
-   * Used to display user avatar without requiring file upload.
-   */
-  @Column({ name: 'profile_picture_url', nullable: true })
-  profilePictureUrl: string;
-
-  /**
-   * OAuth access token from provider (optional).
-   * SECURITY: Stored encrypted with AES-256-GCM (SEC-H01 fix).
-   * The stored value is a base64-encoded JSON containing IV, ciphertext, and auth tag.
-   * Use EncryptionService.encryptToString() before storing and decryptFromString() when reading.
-   */
-  @Column({ name: 'oauth_access_token', type: 'text', nullable: true })
-  oauthAccessToken: string;
-
-  /**
-   * OAuth refresh token from provider (optional).
-   * SECURITY: Stored encrypted with AES-256-GCM (SEC-H01 fix).
-   * The stored value is a base64-encoded JSON containing IV, ciphertext, and auth tag.
-   * Use EncryptionService.encryptToString() before storing and decryptFromString() when reading.
-   */
-  @Column({ name: 'oauth_refresh_token', type: 'text', nullable: true })
-  oauthRefreshToken: string;
   /**
    * 🎭 Role Management
    */

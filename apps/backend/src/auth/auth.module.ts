@@ -9,8 +9,6 @@ import { PassportModule } from '@nestjs/passport';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtStrategy } from './strategies/jwt.strategy';
-import { GoogleStrategy } from './strategies/google.strategy';
-import { FacebookStrategy } from './strategies/facebook.strategy';
 import { LoginLog } from './entity/login-log.entity';
 import { EmailService } from './service/email.service';
 import { TokenBlacklist } from './entity/token-blacklist.entity';
@@ -19,10 +17,6 @@ import { RefreshToken } from './entity/refresh-token.entity';
 // Common services
 import { EncryptionService } from '../common/utils/encryption.util';
 import { RateLimiterService } from '../common/services/rate-limiter.service';
-
-// Seeding Components
-import { AuthSeederService } from './seeds/auth-seeder.service';
-import { AuthSeederController } from './seeds/auth-seeder.controller';
 
 @Module({
   imports: [
@@ -45,17 +39,14 @@ import { AuthSeederController } from './seeds/auth-seeder.controller';
     }),
     ConfigModule,
   ],
-  controllers: [AuthController, AuthSeederController],
+  controllers: [AuthController],
   providers: [
     AuthService,
-    AuthSeederService,
     JwtStrategy,
-    GoogleStrategy,
-    FacebookStrategy,
     EmailService,
     EncryptionService,
     RateLimiterService,
   ],
-  exports: [AuthService, AuthSeederService],
+  exports: [AuthService],
 })
 export class AuthModule {}

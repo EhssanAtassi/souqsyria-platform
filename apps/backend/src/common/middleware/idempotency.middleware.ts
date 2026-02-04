@@ -42,12 +42,9 @@ import {
   Injectable,
   NestMiddleware,
   Logger,
-  Inject,
   HttpStatus,
 } from '@nestjs/common';
 import { Request, Response, NextFunction } from 'express';
-import { CACHE_MANAGER } from '@nestjs/cache-manager';
-import { Cache } from 'cache-manager';
 
 /**
  * Extended Request interface to include user and guest session
@@ -80,10 +77,11 @@ export class IdempotencyMiddleware implements NestMiddleware {
   private readonly CACHE_TTL = 86400; // 24 hours in seconds
   private readonly CACHE_PREFIX = 'idempotency';
 
-  constructor(
-    @Inject(CACHE_MANAGER) private readonly cacheManager: Cache,
-  ) {
-    this.logger.log('🔑 Idempotency Middleware initialized');
+  /** In-memory cache for idempotency responses with TTL */
+  private readonly cache = new Map<string, { value: CachedResponse; expiresAt: number }>();
+
+  constructor() {
+    this.logger.log('Idempotency Middleware initialized');
   }
 
   /**
@@ -211,15 +209,13 @@ export class IdempotencyMiddleware implements NestMiddleware {
   private async getCachedResponse(
     cacheKey: string,
   ): Promise<CachedResponse | undefined> {
-    try {
-      const cached = await this.cacheManager.get<CachedResponse>(cacheKey);
-      return cached;
-    } catch (error: unknown) {
-      this.logger.error(
-        `❌ Error retrieving cached response: ${(error as Error).message}`,
-      );
+    const entry = this.cache.get(cacheKey);
+    if (!entry) return undefined;
+    if (Date.now() > entry.expiresAt) {
+      this.cache.delete(cacheKey);
       return undefined;
     }
+    return entry.value;
   }
 
   /**
@@ -288,14 +284,11 @@ export class IdempotencyMiddleware implements NestMiddleware {
           },
         };
 
-        // Cache response asynchronously (don't block response)
-        this.cacheManager
-          .set(cacheKey, cachedResponse, this.CACHE_TTL * 1000) // Convert to milliseconds
-          .catch((error) => {
-            this.logger.error(
-              `❌ Error caching idempotent response: ${(error as Error).message}`,
-            );
-          });
+        // Cache response in-memory with TTL
+        this.cache.set(cacheKey, {
+          value: cachedResponse,
+          expiresAt: Date.now() + this.CACHE_TTL * 1000,
+        });
       } else {
         // Don't cache error responses (allow retry)
         this.logger.debug(

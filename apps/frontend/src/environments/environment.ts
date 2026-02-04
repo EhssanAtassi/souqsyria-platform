@@ -5,21 +5,15 @@
 
 export const environment = {
   production: false,
-  apiUrl: 'http://localhost:3001/api',  // Unified backend port for OAuth + API
+  apiUrl: 'http://localhost:3001/api',
   campaignApiUrl: 'http://localhost:3001/api/campaigns',
   productApiUrl: 'http://localhost:3001/api/products',
   userApiUrl: 'http://localhost:3001/api/users',
-
-  // OAuth Configuration
-  oauthCallbackUrl: 'http://localhost:4200/auth/oauth/callback',  // Frontend OAuth callback URL
-  googleOAuthUrl: 'http://localhost:3001/auth/google',             // Backend Google OAuth endpoint
-  facebookOAuthUrl: 'http://localhost:3001/auth/facebook',         // Backend Facebook OAuth endpoint
 
   // Feature flags
   enableCampaigns: true,
   enableAnalytics: false,
   enableABTesting: false,
-  enableOAuth: true,  // Enable OAuth login (Google + Facebook)
 
   // Cache settings
   cacheTimeout: 300000, // 5 minutes

@@ -4,16 +4,16 @@
  *
  * COVERAGE:
  * - Rate limiting enforcement for authenticated and guest users
- * - Redis sliding window algorithm
+ * - In-memory sliding window algorithm
  * - Configurable rate limits via decorator
- * - Error handling and fail-open behavior
+ * - Error handling
  *
  * @author SouqSyria Development Team
  * @version 1.0.0
  */
 
 import { Test, TestingModule } from '@nestjs/testing';
-import { ExecutionContext, HttpException, HttpStatus } from '@nestjs/common';
+import { ExecutionContext, HttpException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Reflector } from '@nestjs/core';
 import { CartRateLimitGuard, RATE_LIMIT_KEY, RateLimit } from './cart-rate-limit.guard';
@@ -24,30 +24,6 @@ interface RateLimitConfig {
   penaltyDelayMs?: number;
   message?: string;
 }
-
-/** Mock Redis with sliding window sorted set operations */
-const mockMulti = {
-  zremrangebyscore: jest.fn().mockReturnThis(),
-  zadd: jest.fn().mockReturnThis(),
-  zcard: jest.fn().mockReturnThis(),
-  expire: jest.fn().mockReturnThis(),
-  exec: jest.fn().mockResolvedValue([
-    [null, 0],   // zremrangebyscore result
-    [null, 1],   // zadd result
-    [null, 5],   // zcard result (current count)
-    [null, 1],   // expire result
-  ]),
-};
-
-const mockRedis = {
-  multi: jest.fn().mockReturnValue(mockMulti),
-  get: jest.fn(),
-  set: jest.fn(),
-  setex: jest.fn(),
-  incr: jest.fn(),
-  expire: jest.fn(),
-  del: jest.fn(),
-};
 
 const mockReflector = {
   get: jest.fn(),
@@ -100,13 +76,6 @@ describe('CartRateLimitGuard', () => {
 
     guard = module.get<CartRateLimitGuard>(CartRateLimitGuard);
     jest.clearAllMocks();
-
-    // Reset default mock behaviors
-    mockRedis.multi.mockReturnValue(mockMulti);
-    mockMulti.zremrangebyscore.mockReturnThis();
-    mockMulti.zadd.mockReturnThis();
-    mockMulti.zcard.mockReturnThis();
-    mockMulti.expire.mockReturnThis();
   });
 
   describe('canActivate', () => {
@@ -116,39 +85,31 @@ describe('CartRateLimitGuard', () => {
         '192.168.1.1',
       );
 
-      // Return low request count (within limits)
-      mockMulti.exec.mockResolvedValue([
-        [null, 0],
-        [null, 1],
-        [null, 5], // 5 requests - well within limit
-        [null, 1],
-      ]);
-
       const result = await guard.canActivate(context as ExecutionContext);
 
       expect(result).toBe(true);
-      expect(mockRedis.multi).toHaveBeenCalled();
     });
 
     it('should block access when exceeding limits', async () => {
-      const context = createMockExecutionContext(
-        { id: 'user123', email: 'test@example.com' },
-        '192.168.1.1',
-      );
-
-      // Mock reflector to provide explicit config
+      // Mock reflector to provide explicit config with very low limit
       mockReflector.get.mockReturnValue({
-        maxRequests: 10,
+        maxRequests: 2,
         windowSizeInSeconds: 3600,
       });
 
-      // Return high request count (over limit: 10 * 1.5 = 15 for authenticated)
-      mockMulti.exec.mockResolvedValue([
-        [null, 0],
-        [null, 1],
-        [null, 20], // 20 requests > 15 (authenticated limit)
-        [null, 1],
-      ]);
+      const context = createMockExecutionContext(
+        { id: 'user-rate-block', email: 'test@example.com' },
+        '192.168.1.1',
+      );
+
+      // Exhaust the limit by making requests
+      for (let i = 0; i < 5; i++) {
+        try {
+          await guard.canActivate(context as ExecutionContext);
+        } catch {
+          // Expected after limit exceeded
+        }
+      }
 
       await expect(guard.canActivate(context as ExecutionContext)).rejects.toThrow(
         HttpException,
@@ -161,52 +122,43 @@ describe('CartRateLimitGuard', () => {
         '192.168.1.100',
       );
 
-      mockMulti.exec.mockResolvedValue([
-        [null, 0],
-        [null, 1],
-        [null, 10], // Within default guest addItem limit of 20
-        [null, 1],
-      ]);
-
       const result = await guard.canActivate(context as ExecutionContext);
 
       expect(result).toBe(true);
     });
 
     it('should block guest user exceeding limits', async () => {
-      const context = createMockExecutionContext(
-        null, // Guest
-        '192.168.1.100',
-      );
-
       mockReflector.get.mockReturnValue({
-        maxRequests: 10,
+        maxRequests: 2,
         windowSizeInSeconds: 300,
       });
 
-      // 15 requests > 10 (guest limit, no 1.5x multiplier)
-      mockMulti.exec.mockResolvedValue([
-        [null, 0],
-        [null, 1],
-        [null, 15],
-        [null, 1],
-      ]);
+      const context = createMockExecutionContext(
+        null, // Guest
+        '192.168.1.200',
+      );
+
+      // Exhaust the limit
+      for (let i = 0; i < 5; i++) {
+        try {
+          await guard.canActivate(context as ExecutionContext);
+        } catch {
+          // Expected after limit exceeded
+        }
+      }
 
       await expect(guard.canActivate(context as ExecutionContext)).rejects.toThrow(
         HttpException,
       );
     });
 
-    it('should handle Redis connection failures gracefully (fail-open)', async () => {
+    it('should use in-memory rate limiting (no external dependencies)', async () => {
       const context = createMockExecutionContext(
-        { id: 'user123' },
+        { id: 'user-memory-test' },
         '192.168.1.1',
       );
 
-      // Simulate Redis failure
-      mockMulti.exec.mockRejectedValue(new Error('Redis connection failed'));
-
-      // Should allow access when Redis fails (fail-open)
+      // In-memory rate limiting always works without external deps
       const result = await guard.canActivate(context as ExecutionContext);
 
       expect(result).toBe(true);
@@ -214,7 +166,7 @@ describe('CartRateLimitGuard', () => {
 
     it('should use custom rate limits from decorator', async () => {
       const context = createMockExecutionContext(
-        { id: 'user123' },
+        { id: 'user-custom-limit' },
         '192.168.1.1',
       );
 
@@ -225,14 +177,6 @@ describe('CartRateLimitGuard', () => {
         message: 'Custom limit exceeded',
       };
       mockReflector.get.mockReturnValue(customLimit);
-
-      // Within custom limit (3 < 5 * 1.5 = 7.5 for authenticated)
-      mockMulti.exec.mockResolvedValue([
-        [null, 0],
-        [null, 1],
-        [null, 3],
-        [null, 1],
-      ]);
 
       const result = await guard.canActivate(context as ExecutionContext);
 
@@ -254,8 +198,6 @@ describe('CartRateLimitGuard', () => {
       const result = await guard.canActivate(context as ExecutionContext);
 
       expect(result).toBe(true);
-      // Redis should NOT be called since no rate limiting applies
-      expect(mockRedis.multi).not.toHaveBeenCalled();
     });
   });
 

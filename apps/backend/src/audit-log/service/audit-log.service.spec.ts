@@ -19,7 +19,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { AuditLogService } from './audit-log.service';
 import { AuditLog } from '../entities/audit-log.entity';
 import { CreateAuditLogDto } from '../dto/create-audit-log.dto';
@@ -205,15 +204,6 @@ const createMockRepository = <T>(): MockRepository<T> & {
   };
 };
 
-/**
- * Creates a mock cache manager
- */
-const createMockCache = () => ({
-  get: jest.fn(),
-  set: jest.fn(),
-  del: jest.fn(),
-  has: jest.fn().mockReturnValue(false), // Default: cache miss
-});
 
 // ============================================================================
 // Test Suite
@@ -222,11 +212,9 @@ const createMockCache = () => ({
 describe('AuditLogService', () => {
   let service: AuditLogService;
   let auditLogRepo: MockRepository<AuditLog>;
-  let cache: ReturnType<typeof createMockCache>;
 
   beforeEach(async () => {
     auditLogRepo = createMockRepository<AuditLog>();
-    cache = createMockCache();
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -248,10 +236,6 @@ describe('AuditLogService', () => {
             logBusinessEvent: jest.fn(),
             getWinstonLogger: jest.fn(),
           },
-        },
-        {
-          provide: CACHE_MANAGER,
-          useValue: cache,
         },
         {
           provide: SentryService,

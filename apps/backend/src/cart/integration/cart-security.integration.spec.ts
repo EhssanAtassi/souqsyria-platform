@@ -5,7 +5,6 @@
  * COVERAGE:
  * - End-to-end security flow validation
  * - Rate limiting + fraud detection integration
- * - Real Redis integration testing
  * - Performance testing under security load
  * - Security event audit trail validation
  * - Guest session lifecycle with security
@@ -40,11 +39,6 @@ const testDbConfig = {
   synchronize: true,
   logging: false,
   dropSchema: true,
-};
-
-// Test Redis configuration (cast to any to avoid type issues with library)
-  type: 'single',
-  url: `redis://${process.env.TEST_REDIS_HOST || 'localhost'}:${parseInt(process.env.TEST_REDIS_PORT) || 6380}/1`,
 };
 
 describe('Cart Security Integration Tests', () => {
@@ -83,8 +77,7 @@ describe('Cart Security Integration Tests', () => {
   });
 
   beforeEach(async () => {
-    // Clear Redis rate limiting data before each test
-    await redis.flushdb();
+    // Rate limiting uses in-memory Maps (no external cache to clear)
   });
 
   describe('Rate Limiting Integration', () => {
@@ -308,11 +301,8 @@ describe('Cart Security Integration Tests', () => {
       expect(averageTime).toBeLessThan(250);
     });
 
-    it('should handle Redis failures gracefully', async () => {
-      // Simulate Redis failure by disconnecting
-      await redis.disconnect();
-
-      // Requests should still work (fail-open behavior)
+    it('should handle in-memory rate limiting without external dependencies', async () => {
+      // Rate limiting uses in-memory Maps — no external failures possible
       const response = await request(app.getHttpServer())
         .post('/cart/guest')
         .send({
@@ -322,9 +312,6 @@ describe('Cart Security Integration Tests', () => {
         });
 
       expect(response.status).toBe(201);
-
-      // Reconnect Redis for other tests
-      await redis.connect();
     });
   });
 
@@ -582,12 +569,4 @@ export const integrationTestConfig = {
     return false;
   },
 
-  // Skip if Redis is not available
-  skipIfNoRedis: () => {
-    if (!process.env.TEST_REDIS_HOST) {
-      console.log('Skipping integration tests - TEST_REDIS_HOST not configured');
-      return true;
-    }
-    return false;
-  },
 };

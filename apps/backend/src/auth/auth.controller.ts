@@ -14,9 +14,8 @@ import {
   Put,
   BadRequestException,
   Delete,
-  Res,
 } from '@nestjs/common';
-import { Request, Response } from 'express';
+import { Request } from 'express';
 import { FirebaseAuthGuard } from './guards/firebase-auth.guard';
 import { UsersService } from '../users/users.service';
 import { AuthService } from './auth.service';
@@ -34,11 +33,6 @@ import { LogoutDto } from './dto/logout.dto';
 import { RefreshTokenDto } from './dto/refresh-token.dto';
 import { ResendOtpDto } from './dto/resend-otp.dto';
 import { DeleteAccountDto } from './dto/delete-account.dto';
-import { GoogleAuthGuard } from './guards/google-auth.guard';
-import { FacebookAuthGuard } from './guards/facebook-auth.guard';
-import { ConfigService } from '@nestjs/config';
-import { GoogleProfile } from './strategies/google.strategy';
-import { FacebookProfile } from './strategies/facebook.strategy';
 @ApiTags('Auth')
 @Controller('auth')
 export class AuthController {
@@ -46,7 +40,6 @@ export class AuthController {
   constructor(
     private readonly usersService: UsersService,
     private readonly authService: AuthService,
-    private readonly configService: ConfigService,
   ) {}
   /**
    * @route POST /auth/register
@@ -137,141 +130,6 @@ export class AuthController {
         success: false,
         message: 'Login failed',
       };
-    }
-  }
-
-  /**
-   * 🔐 OAUTH AUTHENTICATION ENDPOINTS
-   * Google and Facebook OAuth 2.0 authentication flows
-   */
-
-  /**
-   * @route GET /auth/google
-   * @description Initiate Google OAuth 2.0 authentication flow
-   * Redirects user to Google consent screen
-   */
-  @ApiOperation({
-    summary: 'Initiate Google OAuth login',
-    description:
-      'Redirects to Google consent screen for OAuth authentication. After user approval, Google redirects back to /auth/google/callback',
-  })
-  @Get('google')
-  @UseGuards(GoogleAuthGuard)
-  async googleAuth() {
-    // Guard automatically redirects to Google OAuth consent screen
-    // No code needed here - Passport handles the redirect
-  }
-
-  /**
-   * @route GET /auth/google/callback
-   * @description Handle Google OAuth callback after user authorization
-   * Processes authorization code, creates/links user account, and redirects to frontend with tokens
-   */
-  @ApiOperation({
-    summary: 'Google OAuth callback',
-    description:
-      'Processes Google OAuth response, creates or links user account, and redirects to frontend with JWT tokens',
-  })
-  @Get('google/callback')
-  @UseGuards(GoogleAuthGuard)
-  async googleAuthCallback(@Req() req: Request, @Res() res: Response) {
-    try {
-      // req.user contains GoogleProfile from strategy
-      const googleProfile = req.user as GoogleProfile;
-
-      // Handle user creation/login via service
-      const result = await this.authService.handleGoogleUser(googleProfile, req);
-
-      // Build frontend redirect URL with tokens
-      const frontendUrl = this.configService.get<string>('FRONTEND_URL');
-      const redirectUrl = new URL(`${frontendUrl}/auth/oauth/callback`);
-
-      // Pass tokens and user data as URL parameters
-      redirectUrl.searchParams.set('accessToken', result.accessToken);
-      redirectUrl.searchParams.set('refreshToken', result.refreshToken);
-      redirectUrl.searchParams.set('isNewUser', result.isNewUser.toString());
-      redirectUrl.searchParams.set('provider', 'google');
-
-      // Redirect to frontend
-      this.logger.log(
-        `Google OAuth successful, redirecting to frontend: ${frontendUrl}`,
-      );
-      return res.redirect(redirectUrl.toString());
-    } catch (error: unknown) {
-      this.logger.error(`Google OAuth callback failed: ${(error as Error).message}`);
-
-      // Redirect to frontend error page
-      const frontendUrl = this.configService.get<string>('FRONTEND_URL');
-      const errorUrl = new URL(`${frontendUrl}/auth/oauth/error`);
-      errorUrl.searchParams.set('error', (error as Error).message);
-      errorUrl.searchParams.set('provider', 'google');
-
-      return res.redirect(errorUrl.toString());
-    }
-  }
-
-  /**
-   * @route GET /auth/facebook
-   * @description Initiate Facebook OAuth authentication flow
-   * Redirects user to Facebook consent screen
-   */
-  @ApiOperation({
-    summary: 'Initiate Facebook OAuth login',
-    description:
-      'Redirects to Facebook consent screen for OAuth authentication. After user approval, Facebook redirects back to /auth/facebook/callback',
-  })
-  @Get('facebook')
-  @UseGuards(FacebookAuthGuard)
-  async facebookAuth() {
-    // Guard automatically redirects to Facebook OAuth consent screen
-    // No code needed here - Passport handles the redirect
-  }
-
-  /**
-   * @route GET /auth/facebook/callback
-   * @description Handle Facebook OAuth callback after user authorization
-   * Processes authorization code, creates/links user account, and redirects to frontend with tokens
-   */
-  @ApiOperation({
-    summary: 'Facebook OAuth callback',
-    description:
-      'Processes Facebook OAuth response, creates or links user account, and redirects to frontend with JWT tokens',
-  })
-  @Get('facebook/callback')
-  @UseGuards(FacebookAuthGuard)
-  async facebookAuthCallback(@Req() req: Request, @Res() res: Response) {
-    try {
-      // req.user contains FacebookProfile from strategy
-      const facebookProfile = req.user as FacebookProfile;
-
-      // Handle user creation/login via service
-      const result = await this.authService.handleFacebookUser(facebookProfile, req);
-
-      // Build frontend redirect URL with tokens
-      const frontendUrl = this.configService.get<string>('FRONTEND_URL');
-      const redirectUrl = new URL(`${frontendUrl}/auth/oauth/callback`);
-
-      // Pass tokens and user data as URL parameters
-      redirectUrl.searchParams.set('accessToken', result.accessToken);
-      redirectUrl.searchParams.set('refreshToken', result.refreshToken);
-      redirectUrl.searchParams.set('isNewUser', result.isNewUser.toString());
-      redirectUrl.searchParams.set('provider', 'facebook');
-
-      // Redirect to frontend
-      this.logger.log(
-        `Facebook OAuth successful, redirecting to frontend: ${frontendUrl}`,
-      );
-      return res.redirect(redirectUrl.toString());
-    } catch (error: unknown) {
-      this.logger.error(`Facebook OAuth callback failed: ${(error as Error).message}`);
-
-      // Redirect to frontend error page
-      const frontendUrl = this.configService.get<string>('FRONTEND_URL');
-      const errorUrl = new URL(`${frontendUrl}/auth/oauth/error`);
-      errorUrl.searchParams.set('error', (error as Error).message);
-      errorUrl.searchParams.set('provider', 'facebook');
-
-      return res.redirect(errorUrl.toString());
     }
   }
 

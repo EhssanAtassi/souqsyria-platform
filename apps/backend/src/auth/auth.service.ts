@@ -3,7 +3,6 @@
  * @description Business logic for user registration, login, OTP verification, and JWT token generation.
  *
  * Security Enhancements (QA Remediation):
- * - SEC-H01: OAuth tokens encrypted with AES-256-GCM before storage
  * - SEC-H02: Password reset tokens hashed with SHA-256 before storage
  * - SEC-H05: OTP strengthened from 4 to 6 digits
  * - SEC-H06: Account lockout after 5 failed login attempts
@@ -43,8 +42,6 @@ import { RefreshTokenDto } from './dto/refresh-token.dto';
 import { ResendOtpDto } from './dto/resend-otp.dto';
 import { DeleteAccountDto } from './dto/delete-account.dto';
 import { RefreshToken } from './entity/refresh-token.entity';
-import { GoogleProfile } from './strategies/google.strategy';
-import { FacebookProfile } from './strategies/facebook.strategy';
 import { EncryptionService } from '../common/utils/encryption.util';
 import { RateLimiterService } from '../common/services/rate-limiter.service';
 
@@ -90,254 +87,6 @@ export class AuthService {
     private readonly encryptionService: EncryptionService,
     private readonly rateLimiterService: RateLimiterService,
   ) {}
-
-  /**
-   * 🔐 OAUTH AUTHENTICATION HANDLERS
-   * These methods handle Google and Facebook OAuth login/registration flows
-   */
-
-  /**
-   * Handle Google OAuth user login/registration
-   * - Finds existing user by googleId or email (for account linking)
-   * - Creates new user if doesn't exist (auto-verified)
-   * - Generates JWT access and refresh tokens
-   * - Returns user data and tokens for frontend to store
-   *
-   * @param googleProfile - User profile data from Google OAuth strategy
-   * @param request - Express request object for logging IP and user-agent
-   * @returns Object containing user, tokens, and isNewUser flag
-   */
-  async handleGoogleUser(
-    googleProfile: GoogleProfile,
-    request?: Request,
-  ): Promise<{
-    user: User;
-    accessToken: string;
-    refreshToken: string;
-    isNewUser: boolean;
-  }> {
-    const { googleId, email, fullName, profilePictureUrl, accessToken, refreshToken: googleRefreshToken } = googleProfile;
-    this.logger.log(`Google OAuth login attempt for email: ${email}`);
-
-    // Step 1: Try to find existing user by Google ID
-    let user = await this.userRepository.findOne({
-      where: { googleId },
-      relations: ['role'],
-    });
-
-    let isNewUser = false;
-
-    // Step 2: If not found by Google ID, try to find by email (account linking scenario)
-    if (!user) {
-      user = await this.userRepository.findOne({
-        where: { email },
-        relations: ['role'],
-      });
-
-      // If user exists with this email but no Google ID, link the accounts
-      if (user) {
-        this.logger.log(`Linking existing account with Google for email: ${email}`);
-        user.googleId = googleId;
-        user.oauthProvider = 'google';
-        user.profilePictureUrl = profilePictureUrl || user.profilePictureUrl;
-        // SEC-H01: Encrypt OAuth tokens before storage
-        user.oauthAccessToken = accessToken
-          ? this.encryptionService.encryptToString(accessToken)
-          : null;
-        user.oauthRefreshToken = googleRefreshToken
-          ? this.encryptionService.encryptToString(googleRefreshToken)
-          : null;
-        user.isVerified = true; // OAuth users are auto-verified
-        await this.userRepository.save(user);
-      }
-    }
-
-    // Step 3: If still no user found, create new user (registration via OAuth)
-    if (!user) {
-      this.logger.log(`Creating new user via Google OAuth: ${email}`);
-      isNewUser = true;
-
-      // Get default "buyer" role
-      const defaultRole = await this.roleRepository.findOne({
-        where: { name: 'buyer' },
-      });
-
-      if (!defaultRole) {
-        throw new Error('Default role "buyer" not found in database');
-      }
-
-      // Create new user with Google OAuth data
-      // SEC-H01: Encrypt OAuth tokens before storage
-      user = this.userRepository.create({
-        email,
-        fullName,
-        googleId,
-        oauthProvider: 'google',
-        profilePictureUrl,
-        oauthAccessToken: accessToken
-          ? this.encryptionService.encryptToString(accessToken)
-          : null,
-        oauthRefreshToken: googleRefreshToken
-          ? this.encryptionService.encryptToString(googleRefreshToken)
-          : null,
-        isVerified: true, // OAuth users are auto-verified
-        role: defaultRole,
-      });
-
-      await this.userRepository.save(user);
-      this.logger.log(`New user created via Google OAuth: ${user.id}`);
-    }
-
-    // Step 4: Check account status
-    if (user.isBanned) {
-      throw new UnauthorizedException('This account has been banned.');
-    }
-
-    // Step 5: Generate JWT tokens for our application
-    const tokens = await this.generateTokens(user, request);
-
-    // Step 6: Log the login
-    if (request) {
-      await this.loginLogRepository.save({
-        user,
-        ipAddress: request.ip,
-        userAgent: request.headers['user-agent'] || 'unknown',
-      });
-    }
-
-    // Step 7: Update last login timestamp
-    user.lastLoginAt = new Date();
-    await this.userRepository.save(user);
-
-    this.logger.log(`Google OAuth successful for user ID: ${user.id}`);
-
-    return {
-      user,
-      accessToken: tokens.accessToken,
-      refreshToken: tokens.refreshToken,
-      isNewUser,
-    };
-  }
-
-  /**
-   * Handle Facebook OAuth user login/registration
-   * Similar flow to Google OAuth handler
-   *
-   * @param facebookProfile - User profile data from Facebook OAuth strategy
-   * @param request - Express request object for logging IP and user-agent
-   * @returns Object containing user, tokens, and isNewUser flag
-   */
-  async handleFacebookUser(
-    facebookProfile: FacebookProfile,
-    request?: Request,
-  ): Promise<{
-    user: User;
-    accessToken: string;
-    refreshToken: string;
-    isNewUser: boolean;
-  }> {
-    const { facebookId, email, fullName, profilePictureUrl, accessToken, refreshToken: facebookRefreshToken } = facebookProfile;
-    this.logger.log(`Facebook OAuth login attempt for email: ${email}`);
-
-    // Step 1: Try to find existing user by Facebook ID
-    let user = await this.userRepository.findOne({
-      where: { facebookId },
-      relations: ['role'],
-    });
-
-    let isNewUser = false;
-
-    // Step 2: If not found by Facebook ID, try to find by email (account linking scenario)
-    if (!user) {
-      user = await this.userRepository.findOne({
-        where: { email },
-        relations: ['role'],
-      });
-
-      // If user exists with this email but no Facebook ID, link the accounts
-      if (user) {
-        this.logger.log(`Linking existing account with Facebook for email: ${email}`);
-        user.facebookId = facebookId;
-        user.oauthProvider = 'facebook';
-        user.profilePictureUrl = profilePictureUrl || user.profilePictureUrl;
-        // SEC-H01: Encrypt OAuth tokens before storage
-        user.oauthAccessToken = accessToken
-          ? this.encryptionService.encryptToString(accessToken)
-          : null;
-        user.oauthRefreshToken = facebookRefreshToken
-          ? this.encryptionService.encryptToString(facebookRefreshToken)
-          : null;
-        user.isVerified = true; // OAuth users are auto-verified
-        await this.userRepository.save(user);
-      }
-    }
-
-    // Step 3: If still no user found, create new user (registration via OAuth)
-    if (!user) {
-      this.logger.log(`Creating new user via Facebook OAuth: ${email}`);
-      isNewUser = true;
-
-      // Get default "buyer" role
-      const defaultRole = await this.roleRepository.findOne({
-        where: { name: 'buyer' },
-      });
-
-      if (!defaultRole) {
-        throw new Error('Default role "buyer" not found in database');
-      }
-
-      // Create new user with Facebook OAuth data
-      // SEC-H01: Encrypt OAuth tokens before storage
-      user = this.userRepository.create({
-        email,
-        fullName,
-        facebookId,
-        oauthProvider: 'facebook',
-        profilePictureUrl,
-        oauthAccessToken: accessToken
-          ? this.encryptionService.encryptToString(accessToken)
-          : null,
-        oauthRefreshToken: facebookRefreshToken
-          ? this.encryptionService.encryptToString(facebookRefreshToken)
-          : null,
-        isVerified: true, // OAuth users are auto-verified
-        role: defaultRole,
-      });
-
-      await this.userRepository.save(user);
-      this.logger.log(`New user created via Facebook OAuth: ${user.id}`);
-    }
-
-    // Step 4: Check account status
-    if (user.isBanned) {
-      throw new UnauthorizedException('This account has been banned.');
-    }
-
-    // Step 5: Generate JWT tokens for our application
-    const tokens = await this.generateTokens(user, request);
-
-    // Step 6: Log the login
-    if (request) {
-      await this.loginLogRepository.save({
-        user,
-        ipAddress: request.ip,
-        userAgent: request.headers['user-agent'] || 'unknown',
-      });
-    }
-
-    // Step 7: Update last login timestamp
-    user.lastLoginAt = new Date();
-    await this.userRepository.save(user);
-
-    this.logger.log(`Facebook OAuth successful for user ID: ${user.id}`);
-
-    return {
-      user,
-      accessToken: tokens.accessToken,
-      refreshToken: tokens.refreshToken,
-      isNewUser,
-    };
-  }
 
   /**
    * Generate JWT access and refresh tokens for a user
@@ -441,7 +190,6 @@ export class AuthService {
       passwordHash,
       otpCode,
       isVerified: false,
-      oauthProvider: 'email', // Mark as email registration
       role: defaultRole,
     });
 
@@ -1172,41 +920,4 @@ export class AuthService {
     return request.ip || request.connection?.remoteAddress || 'unknown';
   }
 
-  /**
-   * Decrypts an OAuth access token for use
-   * Should be called when accessing provider APIs on behalf of user
-   *
-   * @param user - User entity with encrypted token
-   * @returns Decrypted access token or null
-   */
-  getDecryptedOAuthAccessToken(user: User): string | null {
-    if (!user.oauthAccessToken) {
-      return null;
-    }
-    try {
-      return this.encryptionService.decryptFromString(user.oauthAccessToken);
-    } catch (error: unknown) {
-      this.logger.error(`Failed to decrypt OAuth token for user ${user.id}`);
-      return null;
-    }
-  }
-
-  /**
-   * Decrypts an OAuth refresh token for use
-   * Should be called when refreshing provider access tokens
-   *
-   * @param user - User entity with encrypted token
-   * @returns Decrypted refresh token or null
-   */
-  getDecryptedOAuthRefreshToken(user: User): string | null {
-    if (!user.oauthRefreshToken) {
-      return null;
-    }
-    try {
-      return this.encryptionService.decryptFromString(user.oauthRefreshToken);
-    } catch (error: unknown) {
-      this.logger.error(`Failed to decrypt OAuth refresh token for user ${user.id}`);
-      return null;
-    }
-  }
 }

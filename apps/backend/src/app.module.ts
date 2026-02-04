@@ -5,7 +5,6 @@
  */
 import { Module, NestModule, MiddlewareConsumer, RequestMethod } from '@nestjs/common';
 import { ConfigModule } from "@nestjs/config";
-import { CacheModule } from '@nestjs/cache-manager';
 import { GuestSessionMiddleware } from './common/middleware/guest-session.middleware';
 import { IdempotencyMiddleware } from './common/middleware/idempotency.middleware';
 import { GuestSession } from './cart/entities/guest-session.entity';
@@ -66,12 +65,6 @@ import { HealthModule } from './health';
     SharedDomainModule,
     TypeOrmModule.forRoot(typeOrmConfig),
     TypeOrmModule.forFeature([GuestSession]),
-    // In-memory cache for idempotency
-    CacheModule.register({
-      ttl: 86400000,
-      max: 1000,
-      isGlobal: true,
-    }),
 
     // MVP1 Core
     AuthModule,
