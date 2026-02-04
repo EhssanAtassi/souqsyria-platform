@@ -171,7 +171,6 @@ e2e/*.map
 *GUIDE*.md
 *REFERENCE*.md
 *SETUP*.md
-DOCKER-*.md
 FRONTEND_*.md
 BACKEND_*.md
 SPECKIT_*.md
@@ -184,8 +183,6 @@ specs/
 # Claude Code settings
 .claude/
 
-# Docker environment files (keep docker-compose.yml but exclude env files)
-.env.docker
 .env.*.local
 
 # IDE files

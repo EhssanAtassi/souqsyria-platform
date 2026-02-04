@@ -6,12 +6,10 @@
  * - Complete user management functionality
  * - TypeORM entity registration
  * - Role-based access control integration
- * - User seeding functionality
  * - Modular service architecture
  *
  * SERVICES INCLUDED:
  * - UsersService (Core CRUD operations)
- * - UserSeederService (Enterprise seeding functionality)
  *
  * @author SouqSyria Development Team
  * @since 2025-08-14
@@ -38,12 +36,6 @@ import { UsersController } from './users.controller';
 // ================================
 import { UsersService } from './users.service';
 
-// ================================
-// SEEDING IMPORTS
-// ================================
-import { UserSeederService } from './seeds/user-seeder.service';
-import { UserSeederController } from './seeds/user-seeder.controller';
-
 @Module({
   // ================================
   // DATABASE ENTITIES REGISTRATION
@@ -63,9 +55,6 @@ import { UserSeederController } from './seeds/user-seeder.controller';
   controllers: [
     // Core user management controller
     UsersController,
-
-    // ✅ SEEDING CONTROLLER: Enterprise user seeding functionality
-    UserSeederController,
   ],
 
   // ================================
@@ -74,9 +63,6 @@ import { UserSeederController } from './seeds/user-seeder.controller';
   providers: [
     // Core user management service
     UsersService,
-
-    // ✅ SEEDING SERVICE: Enterprise user seeding functionality
-    UserSeederService,
   ],
 
   // ================================
@@ -88,13 +74,6 @@ import { UserSeederController } from './seeds/user-seeder.controller';
 
     // Export core service for other modules to use
     UsersService,
-
-    // ✅ Export seeding service for other modules
-    UserSeederService,
   ],
 })
-export class UsersModule {
-  constructor() {
-    console.log('🚀 Users Module initialized with enterprise seeding features');
-  }
-}
+export class UsersModule {}

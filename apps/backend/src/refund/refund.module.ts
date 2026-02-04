@@ -22,15 +22,9 @@ import { ScheduleModule } from '@nestjs/schedule';
 import { RefundService } from './services/refund.service';
 import { SyrianRefundWorkflowService } from './services/syrian-refund-workflow.service';
 
-// Seeding Services
-import { RefundSeederService } from './seeds/refund-seeder.service';
-
 // Controllers
 import { RefundController } from './controllers/refund.controller';
 import { SyrianRefundController } from './controllers/syrian-refund.controller';
-
-// Seeding Controllers
-import { RefundSeederController } from './seeds/refund-seeder.controller';
 
 // Entities
 import { RefundTransaction } from './entities/refund-transaction.entity';
@@ -72,9 +66,6 @@ import { AddressesModule } from '../addresses/addresses.module';
 
     // Enterprise Syrian Refund Services
     SyrianRefundWorkflowService,
-
-    // Enterprise Seeding Services
-    RefundSeederService,
   ],
 
   controllers: [
@@ -83,9 +74,6 @@ import { AddressesModule } from '../addresses/addresses.module';
 
     // Enterprise Syrian Refund Controller
     SyrianRefundController,
-
-    // Enterprise Seeding Controllers
-    RefundSeederController,
   ],
 
   exports: [

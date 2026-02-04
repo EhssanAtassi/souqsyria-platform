@@ -6,7 +6,6 @@
  * - Advanced coupon management with Syrian localization
  * - Promotion campaign orchestration
  * - Usage analytics and reporting
- * - Professional seeding capabilities
  *
  * @author SouqSyria Development Team
  * @since 2025-08-16
@@ -34,10 +33,6 @@ import { PromotionRuleController } from './controllers/promotion-rule.controller
 import { CouponsService } from './services/coupons.service';
 import { PromotionRuleService } from './services/promotion-rule.service';
 
-// Seeding Components
-import { PromotionsSeederService } from './seeds/promotions-seeder.service';
-import { PromotionsSeederController } from './seeds/promotions-seeder.controller';
-
 @Module({
   imports: [
     TypeOrmModule.forFeature([
@@ -55,17 +50,14 @@ import { PromotionsSeederController } from './seeds/promotions-seeder.controller
   controllers: [
     // CouponsController,      // Temporarily disabled - PermissionsGuard dependency issue
     PromotionRuleController,
-    PromotionsSeederController,
   ],
   providers: [
-    CouponsService, 
-    PromotionRuleService, 
-    PromotionsSeederService,
+    CouponsService,
+    PromotionRuleService,
   ],
   exports: [
-    CouponsService, 
-    PromotionRuleService, 
-    PromotionsSeederService,
+    CouponsService,
+    PromotionRuleService,
   ],
 })
 export class PromotionsModule {}

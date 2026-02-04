@@ -50,9 +50,6 @@ import { Route } from '../access-control/entities/route.entity';
 import { ProductEntity } from '../products/entities/product.entity';
 import { AuditLog } from '../audit-log/entities/audit-log.entity';
 
-// Seeding Services
-import { CartSeederService } from './seeds/cart.seeder.service';
-
 @Module({
   imports: [
     TypeOrmModule.forFeature([
@@ -84,8 +81,6 @@ import { CartSeederService } from './seeds/cart.seeder.service';
     CartFraudDetectionService, // ✅ ML-based fraud detection with geolocation
     DeviceFingerprintService, // ✅ Device fingerprinting and validation
     ThreatResponseService, // ✅ Automated threat response system
-    // Seeding Services
-    CartSeederService,
   ],
   exports: [
     CartService,

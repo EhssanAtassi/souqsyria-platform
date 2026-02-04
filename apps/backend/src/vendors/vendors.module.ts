@@ -37,15 +37,9 @@ import { VendorsService } from './vendors.service';
 import { SyrianVendorService } from './services/syrian-vendor.service';
 import { SyrianVendorWorkflowService } from './services/syrian-vendor-workflow.service';
 
-// Seeding Services
-import { VendorSeederService } from './seeds/vendor.seeder.service';
-
 // Controllers
 import { VendorsController } from './vendors.controller';
 import { SyrianVendorController } from './controllers/syrian-vendor.controller';
-
-// Seeding Controllers
-import { VendorSeederController } from './seeds/vendor-seeder.controller';
 
 // External Modules
 import { UsersModule } from '../users/users.module';
@@ -85,9 +79,6 @@ import { AccessControlModule } from '../access-control/access-control.module';
 
     // Legacy Service (for backward compatibility)
     VendorsService,
-
-    // Seeding Services
-    VendorSeederService,
   ],
 
   controllers: [
@@ -96,9 +87,6 @@ import { AccessControlModule } from '../access-control/access-control.module';
 
     // Legacy Controller (for backward compatibility)
     VendorsController,
-
-    // Seeding Controllers
-    VendorSeederController,
   ],
 
   exports: [

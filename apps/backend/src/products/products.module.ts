@@ -38,8 +38,7 @@ import { ProductSearchService } from './services/product-search.service';
 import { ProductsAdminSearchController } from './controllers/products-admin-search.controller';
 import { AuditLogModule } from '../audit-log/audit-log.module';
 import { UsersModule } from '../users/users.module';
-import { ProductSeederService } from './seeds/product-seeder.service';
-import { ProductSeederController } from './seeds/product-seeder.controller';
+
 @Module({
   imports: [
     TypeOrmModule.forFeature([
@@ -78,7 +77,6 @@ import { ProductSeederController } from './seeds/product-seeder.controller';
     AdminProductsController,
     ProductsAdminApprovalController, // ✅ Product approval workflow controller
     ProductsAdminSearchController, // ✅ Product search and analytics controller
-    ProductSeederController, // ✅ Product seeding controller for enterprise data management
   ],
   providers: [
     ProductsService,
@@ -89,7 +87,6 @@ import { ProductSeederController } from './seeds/product-seeder.controller';
     AdminProductsService,
     ProductApprovalService, // ✅ Product approval workflow service
     ProductSearchService, // ✅ Product search and analytics service
-    ProductSeederService, // ✅ Product seeding service for enterprise data management
   ],
   exports: [
     TypeOrmModule,
@@ -98,13 +95,6 @@ import { ProductSeederController } from './seeds/product-seeder.controller';
     ProductAttributeService,
     ProductApprovalService, // ✅ Export for other modules to use
     ProductSearchService, // ✅ Export search service for other modules
-    ProductSeederService, // ✅ Export seeding service for other modules to use
   ],
 })
-export class ProductsModule {
-  constructor() {
-    console.log(
-      '🚀 Products Module initialized with enterprise seeding features',
-    );
-  }
-}
+export class ProductsModule {}

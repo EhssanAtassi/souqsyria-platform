@@ -55,12 +55,6 @@ import { UsersModule } from '../users/users.module';
 import { PublicModule } from '../products/public/public.module';
 import { CategoriesPublicController } from './controllers/categories-public.controller';
 
-// ================================
-// SEEDING IMPORTS
-// ================================
-import { CategorySeederService } from './seeds/category-seeder.service';
-import { CategorySeederController } from './seeds/category-seeder.controller';
-
 @Module({
   imports: [
     // ================================
@@ -95,9 +89,6 @@ import { CategorySeederController } from './seeds/category-seeder.controller';
 
     // Public customer-facing API
     CategoriesPublicController,
-
-    // ✅ SEEDING CONTROLLER: Enterprise category seeding functionality
-    CategorySeederController,
   ],
 
   // ================================
@@ -112,9 +103,6 @@ import { CategorySeederController } from './seeds/category-seeder.controller';
     CategoryApprovalService, // Workflow and approval logic
     CategorySearchService, // Search, filtering, pagination
     CategoryAnalyticsService, // Metrics and performance analytics
-
-    // ✅ SEEDING SERVICE: Enterprise category seeding functionality
-    CategorySeederService,
 
     // TODO: Add CategoryCacheService for performance
     // TODO: Add CategoryImageService for media management
@@ -136,14 +124,7 @@ import { CategorySeederController } from './seeds/category-seeder.controller';
     CategorySearchService,
     CategoryAnalyticsService,
 
-    // ✅ Export seeding service for other modules
-    CategorySeederService,
-
     // CategoryApprovalService kept internal (admin workflow only)
   ],
 })
-export class CategoriesModule {
-  constructor() {
-    console.log('🚀 Categories Module initialized with enterprise features');
-  }
-}
+export class CategoriesModule {}

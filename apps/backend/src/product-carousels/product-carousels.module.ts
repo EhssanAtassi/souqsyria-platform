@@ -26,8 +26,6 @@ import { ProductCarouselItem } from './entities/product-carousel-item.entity';
 import { ProductEntity } from '../products/entities/product.entity';
 import { ProductCarouselsService } from './services/product-carousels.service';
 import { ProductCarouselsController } from './controllers/product-carousels.controller';
-import { ProductCarouselsSeederService } from './seeds/product-carousels-seeder.service';
-import { ProductCarouselsSeederController } from './seeds/product-carousels-seeder.controller';
 
 /**
  * Product Carousels Module
@@ -52,11 +50,9 @@ import { ProductCarouselsSeederController } from './seeds/product-carousels-seed
   ],
   controllers: [
     ProductCarouselsController,
-    ProductCarouselsSeederController, // Seeding endpoints
   ],
   providers: [
     ProductCarouselsService,
-    ProductCarouselsSeederService, // Seeding service
   ],
   exports: [ProductCarouselsService], // Export for use in HomepageModule
 })

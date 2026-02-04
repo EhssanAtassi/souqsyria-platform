@@ -15,12 +15,9 @@ import { Country } from './country/entities/country.entity';
 import { Region } from './region/entities/region.entity';
 import { City } from './city/entities/city.entity';
 import { Route } from '../access-control/entities/route.entity';
-import { AddressSeederService } from './seeds/address.seeder.service';
-import { AddressSeederController } from './seeds/address.seeder.controller';
-
 @Module({
-  providers: [AddressesService, AddressSeederService],
-  controllers: [AddressesController, AddressSeederController],
+  providers: [AddressesService],
+  controllers: [AddressesController],
   imports: [
     TypeOrmModule.forFeature([
       Address,
@@ -38,6 +35,6 @@ import { AddressSeederController } from './seeds/address.seeder.controller';
     RegionModule,
     CityModule,
   ],
-  exports: [AddressesService, AddressSeederService],
+  exports: [AddressesService],
 })
 export class AddressesModule {}

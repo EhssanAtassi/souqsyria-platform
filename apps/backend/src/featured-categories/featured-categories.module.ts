@@ -19,8 +19,6 @@ import { FeaturedCategory } from './entities/featured-category.entity';
 import { Category } from '../categories/entities/category.entity';
 import { FeaturedCategoriesService } from './services/featured-categories.service';
 import { FeaturedCategoriesController } from './controllers/featured-categories.controller';
-import { FeaturedCategoriesSeederService } from './seeds/featured-categories-seeder.service';
-import { FeaturedCategoriesSeederController } from './seeds/featured-categories-seeder.controller';
 
 /**
  * Featured Categories Module
@@ -34,11 +32,9 @@ import { FeaturedCategoriesSeederController } from './seeds/featured-categories-
   ],
   controllers: [
     FeaturedCategoriesController,
-    FeaturedCategoriesSeederController, // Seeding endpoints
   ],
   providers: [
     FeaturedCategoriesService,
-    FeaturedCategoriesSeederService, // Seeding service
   ],
   exports: [FeaturedCategoriesService], // Export for use in HomepageModule
 })

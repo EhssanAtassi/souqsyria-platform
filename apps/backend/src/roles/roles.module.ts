@@ -7,10 +7,6 @@ import { Permission } from '../access-control/entities/permission.entity';
 import { User } from '../users/entities/user.entity';
 import { RolesController } from './roles.controller';
 
-// Seeding Components
-import { RolesSeederService } from './seeds/roles-seeder.service';
-import { RolesSeederController } from './seeds/roles-seeder.controller';
-
 import { AccessControlModule } from '../access-control/access-control.module';
 
 /**
@@ -35,15 +31,12 @@ import { AccessControlModule } from '../access-control/access-control.module';
   ],
   controllers: [
     RolesController,
-    RolesSeederController,
   ],
   providers: [
     RolesService,
-    RolesSeederService,
   ],
   exports: [
     RolesService,
-    RolesSeederService,
     TypeOrmModule,
   ],
 })

@@ -55,10 +55,6 @@ import { OrdersModule } from '../orders/orders.module';
 import { UsersModule } from '../users/users.module';
 import { AddressesModule } from '../addresses/addresses.module';
 
-// Seeding Services and Controllers
-import { StockSeederService } from './seeds/stock.seeder.service';
-import { StockSeederController } from './seeds/stock-seeder.controller';
-
 @Module({
   imports: [
     // TypeORM Entities
@@ -105,8 +101,6 @@ import { StockSeederController } from './seeds/stock-seeder.controller';
     SyrianStockAnalyticsService, // Advanced analytics with Syrian localization
     InventoryReservationService, // Enterprise reservation and allocation
 
-    // Seeding Services
-    StockSeederService,
   ],
 
   controllers: [
@@ -116,8 +110,6 @@ import { StockSeederController } from './seeds/stock-seeder.controller';
     // Enterprise Controllers
     SyrianStockAnalyticsController, // Syrian stock analytics and dashboards
 
-    // Seeding Controllers
-    StockSeederController,
   ],
 
   exports: [

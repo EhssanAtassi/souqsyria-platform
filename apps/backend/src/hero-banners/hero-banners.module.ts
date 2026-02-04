@@ -18,8 +18,6 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { HeroBanner } from './entities/hero-banner.entity';
 import { HeroBannersService } from './services/hero-banners.service';
 import { HeroBannersController } from './controllers/hero-banners.controller';
-import { HeroBannersSeederService } from './seeds/hero-banners-seeder.service';
-import { HeroBannersSeederController } from './seeds/hero-banners-seeder.controller';
 
 /**
  * Hero Banners Module
@@ -30,7 +28,6 @@ import { HeroBannersSeederController } from './seeds/hero-banners-seeder.control
  * - Approval workflow
  * - Multi-device responsive images
  * - Syrian cultural integration
- * - Enterprise seeding system for testing and development
  */
 @Module({
   imports: [
@@ -39,15 +36,12 @@ import { HeroBannersSeederController } from './seeds/hero-banners-seeder.control
   ],
   controllers: [
     HeroBannersController,
-    HeroBannersSeederController, // Seeding API endpoints
   ],
   providers: [
     HeroBannersService,
-    HeroBannersSeederService, // Seeding service
   ],
   exports: [
     HeroBannersService, // Export service for use in other modules
-    HeroBannersSeederService, // Export seeding service
   ],
 })
 export class HeroBannersModule {}

@@ -31,10 +31,6 @@ import { DhlProvider } from './providers/dhl.provider';
 import { ShipmentsController } from './controller/shipments.controller';
 import { SyrianShipmentsController } from './controllers/syrian-shipments.controller';
 
-// Seeding
-import { ShipmentSeederService } from './seeds/shipment-seeder.service';
-import { ShipmentSeederController } from './seeds/shipment-seeder.controller';
-
 // Core Entities
 import { Shipment } from './entities/shipment.entity';
 import { ShipmentItem } from './entities/shipment-item.entity';
@@ -85,14 +81,12 @@ import { SyrianCityEntity } from '../addresses/entities/syrian-city.entity';
   controllers: [
     ShipmentsController,
     SyrianShipmentsController, // New enterprise controller
-    ShipmentSeederController, // Seeding endpoints
   ],
   providers: [
     ShipmentsService,
     SyrianShippingService, // Syrian companies management
     ShipmentWorkflowService, // Enterprise workflow engine
     ShipmentTrackingService, // Carrier polling service
-    ShipmentSeederService, // Seeding service
     AramexProvider,
     DhlProvider,
   ],
@@ -101,7 +95,6 @@ import { SyrianCityEntity } from '../addresses/entities/syrian-city.entity';
     SyrianShippingService,
     ShipmentWorkflowService,
     ShipmentTrackingService,
-    ShipmentSeederService,
   ],
 })
 export class ShipmentsModule {}

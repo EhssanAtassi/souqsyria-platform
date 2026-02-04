@@ -17,9 +17,6 @@ import { PaymentModule } from '../payment/payment.module';
 import { RefundModule } from '../refund/refund.module';
 import { Route } from '../access-control/entities/route.entity';
 
-// Seeding Services
-import { OrdersSeederService } from './seeds/orders.seeder.service';
-
 @Module({
   imports: [
     TypeOrmModule.forFeature([
@@ -39,8 +36,6 @@ import { OrdersSeederService } from './seeds/orders.seeder.service';
   ],
   providers: [
     OrdersService,
-    // Seeding Services
-    OrdersSeederService,
   ],
   controllers: [OrdersController],
   exports: [OrdersService, TypeOrmModule],

@@ -27,10 +27,6 @@ import { SyrianPaymentMethodsService } from './services/syrian-payment-methods.s
 import { SyrianBankEntity } from './entities/syrian-bank.entity';
 import { SyrianPaymentMethodEntity } from './entities/syrian-payment-method.entity';
 
-// Seeding Services and Controllers
-import { PaymentSeederService } from './seeds/payment.seeder.service';
-import { PaymentSeederController } from './seeds/payment-seeder.controller';
-
 @Module({
   imports: [
     TypeOrmModule.forFeature([
@@ -52,15 +48,11 @@ import { PaymentSeederController } from './seeds/payment-seeder.controller';
     PaymentService,
     FinancialReportingService,
     SyrianPaymentMethodsService,
-    // Seeding Services
-    PaymentSeederService,
   ],
   controllers: [
     PaymentController,
     CustomerPaymentController,
     FinancialAnalyticsController,
-    // Seeding Controllers
-    PaymentSeederController,
   ],
   exports: [
     PaymentService,

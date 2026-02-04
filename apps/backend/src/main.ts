@@ -1,12 +1,11 @@
 /**
  * @file main.ts
- * @description Bootstrap function for SouqSyria API backend. Configures Swagger for API documentation.
+ * @description Bootstrap function for SouqSyria API backend.
  */
 
 import { NestFactory, Reflector } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { initializeFirebase } from './config/firebase.config';
-import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { Logger, ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 
@@ -87,19 +86,6 @@ async function bootstrap() {
   });
   
   app.setGlobalPrefix('api');
-  // const app = await NestFactory.create(AppModule);
-  // await app.listen(3000);
-  // Swagger Configuration
-  const config = new DocumentBuilder()
-    .setTitle('SouqSyria API')
-    .setDescription(
-      'Backend API Documentation for SouqSyria E-commerce Platform',
-    )
-    .setVersion('1.0')
-    .addBearerAuth() // 🔒 Add Authorization Bearer Token (JWT)
-    .build();
-  const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('api/docs', app, document); // Access at /api/docs
   // ========================================
   // GLOBAL FILTERS, PIPES & INTERCEPTORS
   // ========================================
@@ -143,7 +129,6 @@ async function bootstrap() {
 
   const logger = new Logger('Bootstrap');
   logger.log(`🚀 Application is running on: http://localhost:${port}`);
-  logger.log(`📚 Swagger docs available at: http://localhost:${port}/api/docs`);
 }
 
 bootstrap();
