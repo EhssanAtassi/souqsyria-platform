@@ -11,6 +11,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 import { environment } from '../../../../environments/environment';
 import {
   RegisterRequest,
@@ -29,6 +30,18 @@ import {
   LogoutRequest,
   LogoutResponse
 } from '../models/auth.models';
+
+/**
+ * Backend API response wrapper
+ * @description All backend responses are wrapped in this structure by NestJS global interceptor
+ */
+interface ApiResponse<T> {
+  success: boolean;
+  data: T;
+  meta?: Record<string, unknown>;
+  timestamp?: string;
+  path?: string;
+}
 
 /**
  * @class AuthApiService
@@ -50,7 +63,9 @@ export class AuthApiService {
    * @returns {Observable<RegisterResponse>} Observable emitting registration response with user data and tokens
    */
   register(request: RegisterRequest): Observable<RegisterResponse> {
-    return this.http.post<RegisterResponse>(`${this.apiUrl}/register`, request);
+    return this.http.post<ApiResponse<RegisterResponse>>(`${this.apiUrl}/register`, request).pipe(
+      map(response => response.data)
+    );
   }
 
   /**
@@ -61,7 +76,9 @@ export class AuthApiService {
    * @returns {Observable<LoginResponse>} Observable emitting login response with access token and user info
    */
   login(request: LoginRequest): Observable<LoginResponse> {
-    return this.http.post<LoginResponse>(`${this.apiUrl}/email-login`, request);
+    return this.http.post<ApiResponse<LoginResponse>>(`${this.apiUrl}/email-login`, request).pipe(
+      map(response => response.data)
+    );
   }
 
   /**
@@ -72,7 +89,9 @@ export class AuthApiService {
    * @returns {Observable<VerifyOtpResponse>} Observable emitting verification response
    */
   verifyOtp(request: VerifyOtpRequest): Observable<VerifyOtpResponse> {
-    return this.http.post<VerifyOtpResponse>(`${this.apiUrl}/verify`, request);
+    return this.http.post<ApiResponse<VerifyOtpResponse>>(`${this.apiUrl}/verify`, request).pipe(
+      map(response => response.data)
+    );
   }
 
   /**
@@ -83,7 +102,9 @@ export class AuthApiService {
    * @returns {Observable<VerifyOtpResponse>} Observable emitting resend OTP response
    */
   resendOtp(request: ResendOtpRequest): Observable<VerifyOtpResponse> {
-    return this.http.post<VerifyOtpResponse>(`${this.apiUrl}/resend-otp`, request);
+    return this.http.post<ApiResponse<VerifyOtpResponse>>(`${this.apiUrl}/resend-otp`, request).pipe(
+      map(response => response.data)
+    );
   }
 
   /**
@@ -94,7 +115,9 @@ export class AuthApiService {
    * @returns {Observable<ForgotPasswordResponse>} Observable emitting forgot password response
    */
   forgotPassword(request: ForgotPasswordRequest): Observable<ForgotPasswordResponse> {
-    return this.http.post<ForgotPasswordResponse>(`${this.apiUrl}/forgot-password`, request);
+    return this.http.post<ApiResponse<ForgotPasswordResponse>>(`${this.apiUrl}/forgot-password`, request).pipe(
+      map(response => response.data)
+    );
   }
 
   /**
@@ -105,7 +128,9 @@ export class AuthApiService {
    * @returns {Observable<ResetPasswordResponse>} Observable emitting reset password response
    */
   resetPassword(request: ResetPasswordRequest): Observable<ResetPasswordResponse> {
-    return this.http.post<ResetPasswordResponse>(`${this.apiUrl}/reset-password`, request);
+    return this.http.post<ApiResponse<ResetPasswordResponse>>(`${this.apiUrl}/reset-password`, request).pipe(
+      map(response => response.data)
+    );
   }
 
   /**
@@ -116,7 +141,9 @@ export class AuthApiService {
    * @returns {Observable<RefreshTokenResponse>} Observable emitting new access token
    */
   refreshToken(request: RefreshTokenRequest): Observable<RefreshTokenResponse> {
-    return this.http.post<RefreshTokenResponse>(`${this.apiUrl}/refresh`, request);
+    return this.http.post<ApiResponse<RefreshTokenResponse>>(`${this.apiUrl}/refresh`, request).pipe(
+      map(response => response.data)
+    );
   }
 
   /**
@@ -127,6 +154,8 @@ export class AuthApiService {
    * @returns {Observable<LogoutResponse>} Observable emitting logout confirmation response
    */
   logout(request: LogoutRequest): Observable<LogoutResponse> {
-    return this.http.post<LogoutResponse>(`${this.apiUrl}/logout`, request);
+    return this.http.post<ApiResponse<LogoutResponse>>(`${this.apiUrl}/logout`, request).pipe(
+      map(response => response.data)
+    );
   }
 }

@@ -24,6 +24,7 @@ import { LoginDto } from './dto/login.dto';
 import { VerifyOtpDto } from './dto/verify-otp.dto';
 
 import { CurrentUser } from '../common/decorators/current-user.decorator';
+import { Public } from '../common/decorators/public.decorator';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
@@ -45,6 +46,7 @@ export class AuthController {
    * @route POST /auth/register
    * @description Register new user and return JWT tokens for auto-login
    */
+  @Public()
   @ApiOperation({
     summary: 'Register new user with email and password (auto-login enabled)',
   })
@@ -64,6 +66,7 @@ export class AuthController {
    * @description Verify user OTP
    */
 
+  @Public()
   @ApiOperation({ summary: 'Verify user email using OTP' })
   @Post('verify')
   async verifyOtp(@Body() verifyOtpDto: VerifyOtpDto) {
@@ -78,6 +81,7 @@ export class AuthController {
    * @route POST /auth/login
    * @description Login user and return JWT
    */
+  @Public()
   @ApiOperation({ summary: 'Login with email and password' })
   @Post('email-login')
   async email_login(@Body() loginDto: LoginDto, @Req() request: Request) {
@@ -137,6 +141,7 @@ export class AuthController {
    * @route POST /auth/forgot-password
    * @description Send password reset email with token
    */
+  @Public()
   @ApiOperation({ summary: 'Send password reset email' })
   @Post('forgot-password')
   async forgotPassword(@Body() forgotPasswordDto: ForgotPasswordDto) {
@@ -150,6 +155,7 @@ export class AuthController {
    * @route POST /auth/reset-password
    * @description Reset password using token
    */
+  @Public()
   @ApiOperation({ summary: 'Reset password with token' })
   @Post('reset-password')
   async resetPassword(@Body() resetPasswordDto: ResetPasswordDto) {
@@ -217,6 +223,7 @@ export class AuthController {
    * @route POST /auth/refresh
    * @description Refresh JWT token without re-login
    */
+  @Public()
   @ApiOperation({ summary: 'Refresh JWT access token' })
   @Post('refresh')
   async refreshToken(@Body() refreshTokenDto: RefreshTokenDto) {
@@ -231,6 +238,7 @@ export class AuthController {
    * @route POST /auth/resend-otp
    * @description Resend OTP verification email
    */
+  @Public()
   @ApiOperation({ summary: 'Resend OTP verification email' })
   @Post('resend-otp')
   async resendOtp(@Body() resendOtpDto: ResendOtpDto) {
