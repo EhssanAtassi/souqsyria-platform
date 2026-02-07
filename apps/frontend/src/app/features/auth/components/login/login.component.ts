@@ -46,7 +46,7 @@ import {
   FormGroup,
   Validators,
 } from '@angular/forms';
-import { ActivatedRoute, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { Store } from '@ngrx/store';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { TranslateModule } from '@ngx-translate/core';
@@ -212,6 +212,9 @@ export class LoginComponent implements OnInit {
   /** @description ActivatedRoute for reading query parameters */
   private readonly route = inject(ActivatedRoute);
 
+  /** @description Router for clearing query params after display (L2 fix) */
+  private readonly router = inject(Router);
+
   /**
    * Loading state signal from NgRx store
    * @description Converted from Observable to Signal via toSignal for template binding
@@ -274,6 +277,16 @@ export class LoginComponent implements OnInit {
     });
 
     this.store.dispatch(AuthActions.clearError());
+
+    // L2 fix: Clear success query params after displaying the message
+    const params = this.route.snapshot.queryParams;
+    if (params['verified'] || params['passwordReset']) {
+      this.router.navigate([], {
+        relativeTo: this.route,
+        queryParams: {},
+        replaceUrl: true,
+      });
+    }
   }
 
   /**

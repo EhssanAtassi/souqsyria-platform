@@ -98,7 +98,7 @@ export const authInterceptor: HttpInterceptorFn = (
   const handle401Error = (
     error: HttpErrorResponse
   ): Observable<HttpEvent<unknown>> => {
-    const isAuthRequest = req.url.includes('/auth/refresh') || req.url.includes('/auth/login');
+    const isAuthRequest = req.url.includes('/auth/refresh-token') || req.url.includes('/auth/login');
 
     // Pass through auth endpoint errors without refresh attempt
     if (isAuthRequest) {
@@ -167,6 +167,50 @@ export const authInterceptor: HttpInterceptorFn = (
 
   // Get current token
   const token = tokenService.getAccessToken();
+
+  // H3 fix: Proactive token refresh when token expires within 2 minutes
+  const isAuthRequest = req.url.includes('/auth/refresh-token') || req.url.includes('/auth/login');
+  if (token && !isAuthRequest && !isRefreshing && tokenService.isTokenExpired(120)) {
+    // Token is about to expire — trigger silent refresh
+    isRefreshing = true;
+    refreshTokenSubject.next(false);
+
+    if (!window.location.href.includes('production')) {
+      console.log('[AuthInterceptor] Proactive token refresh — token expires within 2 minutes');
+    }
+
+    store.dispatch(AuthActions.refreshToken());
+
+    // Wait for refresh to complete, then send request with new token
+    return refreshTokenSubject.pipe(
+      filter(refreshed => refreshed === true),
+      take(1),
+      switchMap(() => {
+        isRefreshing = false;
+        const newToken = tokenService.getAccessToken();
+        return next(addAuthHeaders(req, newToken)).pipe(
+          catchError((error: HttpErrorResponse) => {
+            if (error.status === 401) {
+              return handle401Error(error);
+            }
+            return throwError(() => error);
+          })
+        );
+      }),
+      catchError(() => {
+        isRefreshing = false;
+        // Fallback: send with current token if refresh fails
+        return next(addAuthHeaders(req, token)).pipe(
+          catchError((error: HttpErrorResponse) => {
+            if (error.status === 401) {
+              return handle401Error(error);
+            }
+            return throwError(() => error);
+          })
+        );
+      })
+    );
+  }
 
   // Add auth headers to request
   const authReq = addAuthHeaders(req, token);

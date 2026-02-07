@@ -86,6 +86,7 @@
     "register": {
       "title": "إنشاء حساب",
       "subtitle": "انضم إلى سوق سوريا",
+      "fullName": "الاسم الكامل",
       "email": "البريد الإلكتروني",
       "password": "كلمة المرور",
       "confirmPassword": "تأكيد كلمة المرور",
@@ -108,7 +109,9 @@
       "resendButton": "إعادة إرسال الرمز",
       "resendIn": "إعادة الإرسال خلال {{seconds}} ثانية",
       "resendSuccess": "تم إرسال رمز جديد إلى بريدك الإلكتروني",
-      "backToRegister": "العودة للتسجيل"
+      "backToRegister": "العودة للتسجيل",
+      "validFor": "الرمز صالح لمدة",
+      "expired": "انتهت صلاحية الرمز. يرجى إعادة إرسال رمز جديد."
     },
     "forgotPassword": {
       "title": "نسيت كلمة المرور",
@@ -140,14 +143,15 @@
       "emailRequired": "البريد الإلكتروني مطلوب",
       "emailInvalid": "يرجى إدخال بريد إلكتروني صحيح",
       "passwordRequired": "كلمة المرور مطلوبة",
-      "passwordMinLength": "يجب أن تكون كلمة المرور 6 أحرف على الأقل",
+      "passwordMinLength": "يجب أن تكون كلمة المرور 8 أحرف على الأقل",
       "passwordMin8": "يجب أن تكون كلمة المرور 8 أحرف على الأقل",
       "passwordUppercase": "يجب أن تحتوي كلمة المرور على حرف كبير واحد على الأقل",
       "passwordNumber": "يجب أن تحتوي كلمة المرور على رقم واحد على الأقل",
       "passwordMismatch": "كلمتا المرور غير متطابقتين",
       "otpRequired": "رمز التحقق مطلوب",
       "otpFormat": "يجب أن يكون الرمز 6 أرقام بالضبط",
-      "confirmPasswordRequired": "يرجى تأكيد كلمة المرور"
+      "confirmPasswordRequired": "يرجى تأكيد كلمة المرور",
+      "fullNameRequired": "الاسم الكامل مطلوب"
     },
     "errors": {
       "generic": "حدث خطأ ما. يرجى المحاولة مرة أخرى.",

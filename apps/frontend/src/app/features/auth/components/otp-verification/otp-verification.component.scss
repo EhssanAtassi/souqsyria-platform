@@ -87,6 +87,41 @@ mat-form-field {
   }
 }
 
+.otp-validity-timer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin: 16px 0;
+  padding: 10px 16px;
+  background: #f0ece4;
+  border-radius: 8px;
+  font-size: 14px;
+  color: #5a4a32;
+
+  .timer-icon {
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+    color: #988561;
+  }
+
+  strong {
+    color: #988561;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+  }
+
+  &.expired {
+    background: #fdecea;
+    color: #d32f2f;
+
+    .timer-icon {
+      color: #d32f2f;
+    }
+  }
+}
+
 .resend-section {
   text-align: center;
   margin-top: 24px;

@@ -441,6 +441,7 @@
     "register": {
       "title": "Create Account",
       "subtitle": "Join the SouqSyria marketplace",
+      "fullName": "Full Name",
       "email": "Email Address",
       "password": "Password",
       "confirmPassword": "Confirm Password",
@@ -463,7 +464,9 @@
       "resendButton": "Resend Code",
       "resendIn": "Resend in {{seconds}}s",
       "resendSuccess": "New code sent to your email",
-      "backToRegister": "Back to Register"
+      "backToRegister": "Back to Register",
+      "validFor": "Code valid for",
+      "expired": "Code expired. Please resend a new code."
     },
     "forgotPassword": {
       "title": "Forgot Password",
@@ -495,14 +498,15 @@
       "emailRequired": "Email is required",
       "emailInvalid": "Please enter a valid email address",
       "passwordRequired": "Password is required",
-      "passwordMinLength": "Password must be at least 6 characters",
+      "passwordMinLength": "Password must be at least 8 characters",
       "passwordMin8": "Password must be at least 8 characters",
       "passwordUppercase": "Password must contain at least one uppercase letter",
       "passwordNumber": "Password must contain at least one number",
       "passwordMismatch": "Passwords do not match",
       "otpRequired": "Verification code is required",
       "otpFormat": "Code must be exactly 6 digits",
-      "confirmPasswordRequired": "Please confirm your password"
+      "confirmPasswordRequired": "Please confirm your password",
+      "fullNameRequired": "Full name is required"
     },
     "errors": {
       "generic": "Something went wrong. Please try again.",

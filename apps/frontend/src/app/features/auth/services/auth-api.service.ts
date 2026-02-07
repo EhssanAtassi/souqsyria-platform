@@ -71,12 +71,12 @@ export class AuthApiService {
   /**
    * @method login
    * @description Authenticates a user with email and password credentials.
-   * Sends a POST request to /auth/email-login endpoint.
+   * Sends a POST request to /auth/login endpoint.
    * @param {LoginRequest} request - Contains email and password for authentication
    * @returns {Observable<LoginResponse>} Observable emitting login response with access token and user info
    */
   login(request: LoginRequest): Observable<LoginResponse> {
-    return this.http.post<ApiResponse<LoginResponse>>(`${this.apiUrl}/email-login`, request).pipe(
+    return this.http.post<ApiResponse<LoginResponse>>(`${this.apiUrl}/login`, request).pipe(
       map(response => response.data)
     );
   }
@@ -84,12 +84,12 @@ export class AuthApiService {
   /**
    * @method verifyOtp
    * @description Verifies the OTP code sent to user's email after registration.
-   * Sends a POST request to /auth/verify endpoint.
+   * Sends a POST request to /auth/verify-otp endpoint.
    * @param {VerifyOtpRequest} request - Contains email and OTP code for verification
    * @returns {Observable<VerifyOtpResponse>} Observable emitting verification response
    */
   verifyOtp(request: VerifyOtpRequest): Observable<VerifyOtpResponse> {
-    return this.http.post<ApiResponse<VerifyOtpResponse>>(`${this.apiUrl}/verify`, request).pipe(
+    return this.http.post<ApiResponse<VerifyOtpResponse>>(`${this.apiUrl}/verify-otp`, request).pipe(
       map(response => response.data)
     );
   }
@@ -136,12 +136,12 @@ export class AuthApiService {
   /**
    * @method refreshToken
    * @description Refreshes the access token using a valid refresh token.
-   * Sends a POST request to /auth/refresh endpoint.
+   * Sends a POST request to /auth/refresh-token endpoint.
    * @param {RefreshTokenRequest} request - Contains refresh token
-   * @returns {Observable<RefreshTokenResponse>} Observable emitting new access token
+   * @returns {Observable<RefreshTokenResponse>} Observable emitting new access and refresh tokens
    */
   refreshToken(request: RefreshTokenRequest): Observable<RefreshTokenResponse> {
-    return this.http.post<ApiResponse<RefreshTokenResponse>>(`${this.apiUrl}/refresh`, request).pipe(
+    return this.http.post<ApiResponse<RefreshTokenResponse>>(`${this.apiUrl}/refresh-token`, request).pipe(
       map(response => response.data)
     );
   }

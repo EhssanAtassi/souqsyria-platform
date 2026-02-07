@@ -59,6 +59,13 @@ export class User {
   otpCode: string; // ✅ Temporary OTP code
 
   /**
+   * OTP expiration timestamp.
+   * OTP codes expire after 10 minutes for security.
+   */
+  @Column({ name: 'otp_expires_at', type: 'timestamp', nullable: true })
+  otpExpiresAt: Date;
+
+  /**
    * 🎭 Role Management
    */
   @ManyToOne(() => Role)
@@ -172,6 +179,15 @@ export class User {
    */
   isTemporarilyBanned(): boolean {
     return this.bannedUntil && this.bannedUntil > new Date();
+  }
+
+  /**
+   * Check if OTP code is valid and not expired.
+   * OTP codes expire after 10 minutes for security.
+   * @returns true if OTP is valid and not expired, false otherwise
+   */
+  isOtpValid(): boolean {
+    return this.otpExpiresAt && this.otpExpiresAt > new Date();
   }
 
   /**

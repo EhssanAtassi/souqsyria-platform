@@ -91,7 +91,7 @@ export class AuthService {
   /**
    * Generate JWT access and refresh tokens for a user
    * Implements secure token rotation pattern:
-   * - Access token: Short-lived (1 day) for API access
+   * - Access token: Short-lived (15 minutes) for API access
    * - Refresh token: Longer-lived (7 days) stored in database with hash
    *
    * @param user - User entity to generate tokens for
@@ -110,9 +110,9 @@ export class AuthService {
       role_id: user.role.id,
     };
 
-    // Generate short-lived access token (1 day)
+    // Generate short-lived access token (15 minutes)
     const accessToken = this.jwtService.sign(payload, {
-      expiresIn: '1d',
+      expiresIn: '15m',
     });
 
     // Generate long-lived refresh token (7 days)
@@ -147,12 +147,17 @@ export class AuthService {
   }
 
   /**
-   * Register a new user with email/password
-   * Now returns JWT tokens for auto-login functionality
+   * Register a new user with email/password.
    *
-   * @param registerDto - Registration data (email, password, etc.)
-   * @param request - Express request object for logging and token generation
-   * @returns Object containing user info, tokens, and message
+   * AUTO-LOGIN BEHAVIOR (intentional):
+   * Returns JWT tokens immediately for auto-login to improve UX.
+   * User can browse the marketplace while completing email verification in parallel.
+   * Certain protected actions (purchases, reviews) require isVerified=true.
+   * The frontend shows a verification banner until the user completes OTP verification.
+   *
+   * @param registerDto - Registration data (email, password, fullName)
+   * @param request - Express request object for IP/device logging and token generation
+   * @returns Object containing user info, access token, refresh token, and message
    */
   async register(
     registerDto: RegisterDto,
@@ -163,7 +168,7 @@ export class AuthService {
     refreshToken: string;
     message: string;
   }> {
-    const { email, password } = registerDto;
+    const { email, password, fullName } = registerDto;
     this.logger.log(`Registering new user: ${email}`);
 
     const existingUser = await this.userRepository.findOne({
@@ -188,7 +193,9 @@ export class AuthService {
     const user = this.userRepository.create({
       email,
       passwordHash,
+      fullName: fullName || null,
       otpCode,
+      otpExpiresAt: new Date(Date.now() + 10 * 60 * 1000), // 10 minutes
       isVerified: false,
       role: defaultRole,
     });
@@ -232,12 +239,17 @@ export class AuthService {
       throw new BadRequestException('Account already verified.');
     }
 
+    if (!user.isOtpValid()) {
+      throw new BadRequestException('OTP code has expired. Please request a new one.');
+    }
+
     if (user.otpCode !== otpCode) {
       throw new BadRequestException('Invalid OTP code.');
     }
 
     user.isVerified = true;
     user.otpCode = null;
+    user.otpExpiresAt = null;
     await this.userRepository.save(user);
 
     this.logger.log(`Email verified successfully for: ${email}`);
@@ -257,7 +269,7 @@ export class AuthService {
   async login(
     loginDto: LoginDto,
     request: Request,
-  ): Promise<{ accessToken: string }> {
+  ): Promise<{ accessToken: string; refreshToken: string }> {
     const { email, password } = loginDto;
     const clientIp = this.getClientIp(request);
     this.logger.log(`Login attempt for email: ${email} from IP: ${clientIp}`);
@@ -354,9 +366,8 @@ export class AuthService {
     user.resetFailedAttempts();
     await this.rateLimiterService.recordSuccess('login', `${email}:${clientIp}`);
 
-    const payload = { sub: user.id, role: user.role.name, email: user.email };
-
-    const accessToken = this.jwtService.sign(payload, { expiresIn: '1d' });
+    // Generate both access and refresh tokens using the shared method
+    const tokens = await this.generateTokens(user, request);
 
     this.logger.log(`Login successful for user ID: ${user.id}`);
 
@@ -375,7 +386,7 @@ export class AuthService {
     user.lastLoginAt = new Date();
     await this.userRepository.save(user);
 
-    return { accessToken };
+    return { accessToken: tokens.accessToken, refreshToken: tokens.refreshToken };
   }
 
   /**
@@ -418,7 +429,7 @@ export class AuthService {
 
     // Save HASHED reset token and expiration in database
     user.resetPasswordToken = hashedResetToken;
-    user.resetPasswordExpires = new Date(Date.now() + 15 * 60 * 1000); // 15 minutes
+    user.resetPasswordExpires = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
     await this.userRepository.save(user);
 
     // Send reset email with the RAW token (not the hash)
@@ -476,6 +487,14 @@ export class AuthService {
     user.resetFailedAttempts(); // Clear any failed login attempts
 
     await this.userRepository.save(user);
+
+    // H2 fix: Revoke all active refresh tokens to invalidate existing sessions
+    await this.refreshTokenRepository
+      .createQueryBuilder()
+      .update(RefreshToken)
+      .set({ revokedAt: new Date() })
+      .where('user_id = :userId AND revoked_at IS NULL', { userId: user.id })
+      .execute();
 
     this.logger.log(`Password successfully reset for user: ${user.email}`);
 
@@ -598,6 +617,14 @@ export class AuthService {
 
       await this.tokenBlacklistRepository.save(blacklistEntry);
 
+      // Revoke ALL active refresh tokens for this user (C5 fix)
+      await this.refreshTokenRepository
+        .createQueryBuilder()
+        .update(RefreshToken)
+        .set({ revokedAt: new Date() })
+        .where('user_id = :userId AND revoked_at IS NULL', { userId })
+        .execute();
+
       // Update user's last activity
       await this.userRepository.update(userId, {
         lastActivityAt: new Date(),
@@ -618,118 +645,125 @@ export class AuthService {
 
   /**
    * 🔄 REFRESH TOKEN FUNCTIONALITY
-   * Validates current token and issues a new one without requiring re-login
+   * Validates refresh token against the database and issues a new access token.
+   * Uses token hash lookup in refresh_tokens table with entity validation methods.
+   *
+   * @description Implements secure token rotation — issues both new access AND refresh tokens.
+   * 1. Hash the incoming refresh token (SHA-256)
+   * 2. Look up the hash in the refresh_tokens table
+   * 3. Validate the token using RefreshToken.isValid() (not revoked + not expired)
+   * 4. Load the user and verify account status
+   * 5. Generate new access token (15min) AND new refresh token (7 days)
+   * 6. Store new refresh token hash in database
+   * 7. Revoke the old refresh token (rotation)
+   *
+   * @param refreshTokenDto - Contains the raw refresh token string
+   * @returns New access token, new refresh token, and confirmation message
    */
   async refreshToken(
     refreshTokenDto: RefreshTokenDto,
-  ): Promise<{ accessToken: string; message: string }> {
+  ): Promise<{ accessToken: string; refreshToken: string; message: string }> {
     const { token } = refreshTokenDto;
     this.logger.log(`Token refresh requested`);
 
-    try {
-      // Verify the current token
-      const decodedToken = this.jwtService.verify(token);
+    // Step 1: Hash the incoming refresh token to match against DB
+    const tokenHash = crypto
+      .createHash('sha256')
+      .update(token)
+      .digest('hex');
 
-      if (!decodedToken || !decodedToken.sub) {
-        throw new BadRequestException('Invalid token format.');
-      }
+    // Step 2: Look up the refresh token in the database
+    const storedToken = await this.refreshTokenRepository.findOne({
+      where: { tokenHash },
+      relations: ['user', 'user.role'],
+    });
 
-      // Check if token is blacklisted
-      const tokenHash = crypto.createHash('sha256').update(token).digest('hex');
-      const blacklistedToken = await this.tokenBlacklistRepository.findOne({
-        where: { tokenHash },
-      });
-
-      if (blacklistedToken) {
-        this.logger.warn(
-          `Attempt to refresh blacklisted token for user: ${decodedToken.sub}`,
-        );
-        throw new UnauthorizedException(
-          'Token has been invalidated. Please log in again.',
-        );
-      }
-
-      // Get user from database to ensure they still exist and are active
-      const user = await this.userRepository.findOne({
-        where: { id: decodedToken.sub },
-        relations: ['role'],
-      });
-
-      if (!user || user.deletedAt) {
-        throw new UnauthorizedException('User not found or account deleted.');
-      }
-
-      // Check account status
-      if (user.isBanned) {
-        throw new UnauthorizedException('Account is banned.');
-      }
-
-      if (!user.isVerified) {
-        throw new UnauthorizedException('Account is not verified.');
-      }
-
-      // Check if account is locked
-      if (user.isAccountLocked()) {
-        throw new UnauthorizedException('Account is temporarily locked.');
-      }
-
-      // Generate new token with same payload but new expiration
-      const newPayload = {
-        sub: user.id,
-        role: user.role.name,
-        email: user.email,
-        role_id: user.role.id,
-      };
-
-      const newAccessToken = this.jwtService.sign(newPayload);
-
-      // Optionally blacklist the old token (for enhanced security)
-      // This prevents the old token from being used after refresh
-      const oldTokenBlacklist = this.tokenBlacklistRepository.create({
-        tokenHash,
-        userId: user.id,
-        expiresAt: new Date(decodedToken.exp * 1000),
-        reason: 'token_refreshed',
-        ipAddress: 'refresh_request',
-      });
-      await this.tokenBlacklistRepository.save(oldTokenBlacklist);
-
-      // Update user activity
-      user.lastActivityAt = new Date();
-      await this.userRepository.save(user);
-
-      this.logger.log(`Token successfully refreshed for user ID: ${user.id}`);
-
-      return {
-        accessToken: newAccessToken,
-        message: 'Token refreshed successfully.',
-      };
-    } catch (error: unknown) {
-      const err = error as Error & { name?: string };
-
-      if (err.name === 'TokenExpiredError') {
-        this.logger.warn(`Expired token provided for refresh`);
-        throw new UnauthorizedException(
-          'Token has expired. Please log in again.',
-        );
-      }
-
-      if (err.name === 'JsonWebTokenError') {
-        this.logger.warn(`Invalid token provided for refresh`);
-        throw new UnauthorizedException('Invalid token. Please log in again.');
-      }
-
-      // Re-throw our custom exceptions
-      if (
-        error instanceof UnauthorizedException ||
-        error instanceof BadRequestException
-      ) {
-        throw error;
-      }
-
-      this.logger.error(`Token refresh failed: ${(error as Error).message}`);
-      throw new BadRequestException('Token refresh failed.');
+    if (!storedToken) {
+      this.logger.warn(`Refresh token not found in database`);
+      throw new UnauthorizedException(
+        'Invalid refresh token. Please log in again.',
+      );
     }
+
+    // Step 3: Validate using entity methods (checks revoked + expired)
+    if (!storedToken.isValid()) {
+      this.logger.warn(
+        `Invalid/expired refresh token for user ID: ${storedToken.userId}`,
+      );
+      throw new UnauthorizedException(
+        'Refresh token has expired or been revoked. Please log in again.',
+      );
+    }
+
+    // Step 4: Load user and verify account status
+    const user = storedToken.user;
+
+    if (!user || user.deletedAt) {
+      throw new UnauthorizedException('User not found or account deleted.');
+    }
+
+    if (user.isBanned) {
+      throw new UnauthorizedException('Account is banned.');
+    }
+
+    if (!user.isVerified) {
+      throw new UnauthorizedException('Account is not verified.');
+    }
+
+    if (user.isAccountLocked()) {
+      throw new UnauthorizedException('Account is temporarily locked.');
+    }
+
+    // Step 5: Generate a new access token
+    const newPayload = {
+      sub: user.id,
+      role: user.role.name,
+      email: user.email,
+      role_id: user.role.id,
+    };
+
+    const newAccessToken = this.jwtService.sign(newPayload, {
+      expiresIn: '15m',
+    });
+
+    // Step 6: Generate a NEW refresh token (7 days) for token rotation
+    const newRefreshToken = this.jwtService.sign(
+      { ...newPayload, type: 'refresh' },
+      { expiresIn: '7d' },
+    );
+
+    // Step 7: Hash and store the new refresh token
+    const newRefreshTokenHash = crypto
+      .createHash('sha256')
+      .update(newRefreshToken)
+      .digest('hex');
+
+    const newRefreshTokenEntity = this.refreshTokenRepository.create({
+      tokenHash: newRefreshTokenHash,
+      userId: user.id,
+      user,
+      deviceInfo: storedToken.deviceInfo || 'unknown',
+      ipAddress: storedToken.ipAddress || 'unknown',
+      expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+    });
+
+    await this.refreshTokenRepository.save(newRefreshTokenEntity);
+
+    // Step 8: Revoke the old refresh token (token rotation for security)
+    storedToken.revoke();
+    await this.refreshTokenRepository.save(storedToken);
+
+    // Update user activity
+    user.lastActivityAt = new Date();
+    await this.userRepository.save(user);
+
+    this.logger.log(`Token successfully refreshed for user ID: ${user.id} with new refresh token`);
+
+    return {
+      accessToken: newAccessToken,
+      refreshToken: newRefreshToken,
+      message: 'Token refreshed successfully.',
+    };
   }
 
   /**
@@ -778,8 +812,9 @@ export class AuthService {
     // SEC-H05: Generate 6-digit OTP using secure method
     const newOtpCode = this.generateSecureOtp();
 
-    // Update user with new OTP
+    // Update user with new OTP and expiration
     user.otpCode = newOtpCode;
+    user.otpExpiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
     await this.userRepository.save(user);
 
     // Send new verification email
@@ -841,6 +876,7 @@ export class AuthService {
     user.resetPasswordToken = null;
     user.resetPasswordExpires = null;
     user.otpCode = null;
+    user.otpExpiresAt = null;
 
     await this.userRepository.save(user);
 

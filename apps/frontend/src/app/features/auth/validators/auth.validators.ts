@@ -8,30 +8,6 @@
 import { AbstractControl, ValidationErrors, ValidatorFn } from '@angular/forms';
 
 /**
- * Validates password strength with minimum length requirement
- * @description Checks if password meets minimum 6 character requirement for login/register
- * @param control - The form control to validate
- * @returns ValidationErrors object with minLength property if invalid, null if valid
- * @example
- * this.fb.control('', [Validators.required, passwordStrength()])
- */
-export function passwordStrength(): ValidatorFn {
-  return (control: AbstractControl): ValidationErrors | null => {
-    const value = control.value;
-
-    if (!value) {
-      return null;
-    }
-
-    if (value.length < 6) {
-      return { minLength: true };
-    }
-
-    return null;
-  };
-}
-
-/**
  * Validates that password and confirmPassword fields match
  * @description Group-level validator that compares password and confirmPassword controls.
  * Sets error on confirmPassword control if mismatch detected.

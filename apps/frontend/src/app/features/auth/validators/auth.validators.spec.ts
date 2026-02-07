@@ -1,38 +1,17 @@
 /**
  * Unit tests for authentication validators
  *
- * @description Tests custom form validators: passwordStrength, passwordMatch,
+ * @description Tests custom form validators: passwordMatch,
  * strongPassword, and otpFormat used throughout the auth feature forms.
  */
 import { FormControl, FormGroup } from '@angular/forms';
 import {
-  passwordStrength,
   passwordMatch,
   strongPassword,
   otpFormat,
 } from './auth.validators';
 
 describe('Auth Validators', () => {
-
-  // ─── passwordStrength ─────────────────────────────────────────
-
-  describe('passwordStrength', () => {
-    const validator = passwordStrength();
-
-    it('should return null for empty value (let required handle it)', () => {
-      expect(validator(new FormControl(''))).toBeNull();
-    });
-
-    it('should return minLength error for passwords shorter than 6 chars', () => {
-      expect(validator(new FormControl('abc'))).toEqual({ minLength: true });
-      expect(validator(new FormControl('12345'))).toEqual({ minLength: true });
-    });
-
-    it('should return null for passwords with 6+ characters', () => {
-      expect(validator(new FormControl('123456'))).toBeNull();
-      expect(validator(new FormControl('longpassword'))).toBeNull();
-    });
-  });
 
   // ─── passwordMatch ────────────────────────────────────────────
 

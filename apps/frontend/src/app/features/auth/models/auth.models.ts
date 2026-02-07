@@ -53,8 +53,10 @@ export interface AuthUser {
 export interface RegisterRequest {
   /** Valid email address */
   email: string;
-  /** Password (minimum 6 characters) */
+  /** Password (minimum 8 characters, 1 uppercase, 1 number) */
   password: string;
+  /** User full name (required per SS-AUTH-001) */
+  fullName: string;
 }
 
 /**
@@ -80,7 +82,7 @@ export interface RegisterResponse {
 /**
  * OTP verification request payload
  *
- * @description Sent to POST /auth/verify
+ * @description Sent to POST /auth/verify-otp
  */
 export interface VerifyOtpRequest {
   /** Email address that received the OTP */
@@ -92,7 +94,7 @@ export interface VerifyOtpRequest {
 /**
  * OTP verification response
  *
- * @description Returned from POST /auth/verify
+ * @description Returned from POST /auth/verify-otp
  */
 export interface VerifyOtpResponse {
   /** Operation success flag */
@@ -116,7 +118,7 @@ export interface ResendOtpRequest {
 /**
  * Login request payload
  *
- * @description Sent to POST /auth/email-login
+ * @description Sent to POST /auth/login
  */
 export interface LoginRequest {
   /** User email address */
@@ -137,6 +139,8 @@ export interface LoginResponse {
   message: string;
   /** JWT access token (1 day expiry) */
   accessToken: string;
+  /** JWT refresh token (7 day expiry) */
+  refreshToken: string;
 }
 
 // ─── Password Reset ──────────────────────────────────────────
@@ -192,7 +196,7 @@ export interface ResetPasswordResponse {
 /**
  * Token refresh request payload
  *
- * @description Sent to POST /auth/refresh
+ * @description Sent to POST /auth/refresh-token
  */
 export interface RefreshTokenRequest {
   /** JWT refresh token used to obtain a new access token */
@@ -202,7 +206,7 @@ export interface RefreshTokenRequest {
 /**
  * Token refresh response
  *
- * @description Returns new access token
+ * @description Returns new access token and rotated refresh token
  */
 export interface RefreshTokenResponse {
   /** Operation success flag */
@@ -211,6 +215,8 @@ export interface RefreshTokenResponse {
   message: string;
   /** New JWT access token */
   accessToken: string;
+  /** New JWT refresh token (rotation: old token revoked, new one issued) */
+  refreshToken: string;
 }
 
 // ─── Logout ──────────────────────────────────────────────────

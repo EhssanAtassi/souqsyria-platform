@@ -154,6 +154,22 @@ import { LanguageService } from '../../../../shared/services/language.service';
           </button>
         </form>
 
+        <!-- OTP validity timer (10 minutes) -->
+        @if (otpValidityCountdown() > 0) {
+          <div class="otp-validity-timer">
+            <mat-icon class="timer-icon">timer</mat-icon>
+            <span>
+              {{ 'auth.otp.validFor' | translate }}
+              <strong>{{ formatTime(otpValidityCountdown()) }}</strong>
+            </span>
+          </div>
+        } @else {
+          <div class="otp-validity-timer expired">
+            <mat-icon class="timer-icon">timer_off</mat-icon>
+            <span>{{ 'auth.otp.expired' | translate }}</span>
+          </div>
+        }
+
         <!-- Resend section with countdown -->
         <div class="resend-section">
           @if (countdown() > 0) {
@@ -221,13 +237,23 @@ export class OtpVerificationComponent implements OnInit, OnDestroy {
   });
 
   /**
-   * Countdown timer signal
+   * Resend countdown timer signal
    * @description Counts down from 60 seconds for the resend OTP button
    */
   readonly countdown = signal(60);
 
-  /** @description Interval reference for the countdown timer cleanup */
+  /**
+   * OTP validity countdown signal (10 minutes = 600 seconds)
+   * @description Shows how much time remains before the OTP code expires.
+   * Per SS-AUTH-001: OTP is valid for 10 minutes.
+   */
+  readonly otpValidityCountdown = signal(600);
+
+  /** @description Interval reference for the resend countdown timer cleanup */
   private countdownInterval: ReturnType<typeof setInterval> | null = null;
+
+  /** @description Interval reference for the OTP validity timer cleanup */
+  private validityInterval: ReturnType<typeof setInterval> | null = null;
 
   /**
    * OTP verification reactive form
@@ -259,14 +285,16 @@ export class OtpVerificationComponent implements OnInit, OnDestroy {
 
     this.store.dispatch(AuthActions.clearError());
     this.startCountdown();
+    this.startValidityTimer();
   }
 
   /**
-   * Cleanup countdown timer on component destroy
-   * @description Clears the setInterval to prevent memory leaks
+   * Cleanup countdown timers on component destroy
+   * @description Clears all setInterval timers to prevent memory leaks
    */
   ngOnDestroy(): void {
     this.clearCountdown();
+    this.clearValidityTimer();
   }
 
   /**
@@ -296,6 +324,8 @@ export class OtpVerificationComponent implements OnInit, OnDestroy {
       );
       this.countdown.set(60);
       this.startCountdown();
+      this.otpValidityCountdown.set(600);
+      this.startValidityTimer();
     }
   }
 
@@ -319,7 +349,7 @@ export class OtpVerificationComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Clear the countdown interval
+   * Clear the resend countdown interval
    * @description Stops the setInterval timer to prevent memory leaks
    * @private
    */
@@ -328,5 +358,47 @@ export class OtpVerificationComponent implements OnInit, OnDestroy {
       clearInterval(this.countdownInterval);
       this.countdownInterval = null;
     }
+  }
+
+  /**
+   * Start the 10-minute OTP validity timer
+   * @description Decrements the validity countdown every second.
+   * Shows user how much time remains before the OTP code expires.
+   * @private
+   */
+  private startValidityTimer(): void {
+    this.clearValidityTimer();
+    this.validityInterval = setInterval(() => {
+      this.otpValidityCountdown.update((v) => {
+        if (v <= 1) {
+          this.clearValidityTimer();
+          return 0;
+        }
+        return v - 1;
+      });
+    }, 1000);
+  }
+
+  /**
+   * Clear the OTP validity timer interval
+   * @private
+   */
+  private clearValidityTimer(): void {
+    if (this.validityInterval) {
+      clearInterval(this.validityInterval);
+      this.validityInterval = null;
+    }
+  }
+
+  /**
+   * Format seconds into MM:SS display string
+   * @description Converts total seconds to a human-readable minute:second format
+   * @param totalSeconds - Total seconds remaining
+   * @returns Formatted string like "9:45" or "0:30"
+   */
+  formatTime(totalSeconds: number): string {
+    const minutes = Math.floor(totalSeconds / 60);
+    const seconds = totalSeconds % 60;
+    return `${minutes}:${seconds.toString().padStart(2, '0')}`;
   }
 }

@@ -66,8 +66,9 @@ export const AuthActions = createActionGroup({
      * @description Dispatched when user submits the registration form
      * @param email - New user email address
      * @param password - New user password
+     * @param fullName - Optional user full name
      */
-    'Register': props<{ email: string; password: string }>(),
+    'Register': props<{ email: string; password: string; fullName: string }>(),
 
     /**
      * @description Dispatched after successful backend registration

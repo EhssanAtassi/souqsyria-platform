@@ -53,7 +53,7 @@ export const login$ = createEffect(
       exhaustMap(({ email, password }) =>
         authApiService.login({ email, password }).pipe(
           map((response) => {
-            tokenService.setTokens(response.accessToken);
+            tokenService.setTokens(response.accessToken, response.refreshToken);
             return AuthActions.loginSuccess({
               accessToken: response.accessToken,
             });
@@ -124,8 +124,8 @@ export const register$ = createEffect(
   ) =>
     actions$.pipe(
       ofType(AuthActions.register),
-      exhaustMap(({ email, password }) =>
-        authApiService.register({ email, password }).pipe(
+      exhaustMap(({ email, password, fullName }) =>
+        authApiService.register({ email, password, fullName }).pipe(
           map((response) => {
             tokenService.setTokens(response.accessToken, response.refreshToken);
             return AuthActions.registerSuccess({
@@ -384,7 +384,8 @@ export const refreshToken$ = createEffect(
         }
         return authApiService.refreshToken({ token }).pipe(
           map((response) => {
-            tokenService.setTokens(response.accessToken);
+            /** Store both new access token and rotated refresh token */
+            tokenService.setTokens(response.accessToken, response.refreshToken);
             return AuthActions.refreshTokenSuccess({
               accessToken: response.accessToken,
             });

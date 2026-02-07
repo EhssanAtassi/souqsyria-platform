@@ -58,7 +58,7 @@ import {
 } from '../../store/auth.selectors';
 import {
   passwordMatch,
-  passwordStrength,
+  strongPassword,
 } from '../../validators/auth.validators';
 import { LanguageService } from '../../../../shared/services/language.service';
 
@@ -67,7 +67,7 @@ import { LanguageService } from '../../../../shared/services/language.service';
  *
  * @description Smart standalone component that handles user registration.
  * Collects email, password, and password confirmation with client-side
- * validation. Uses passwordMatch group-level validator and passwordStrength
+ * validation. Uses passwordMatch group-level validator and strongPassword
  * field-level validator. Dispatches to NgRx store for async registration
  * and shows loading/error states from the store.
  *
@@ -104,6 +104,21 @@ import { LanguageService } from '../../../../shared/services/language.service';
         }
 
         <form [formGroup]="form" (ngSubmit)="onSubmit()">
+          <!-- Full Name field (required per SS-AUTH-001) -->
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'auth.register.fullName' | translate }}</mat-label>
+            <input
+              matInput
+              formControlName="fullName"
+              type="text"
+              autocomplete="name"
+            />
+            <mat-icon matSuffix>person</mat-icon>
+            @if (form.get('fullName')?.hasError('required') && form.get('fullName')?.touched) {
+              <mat-error>{{ 'auth.validation.fullNameRequired' | translate }}</mat-error>
+            }
+          </mat-form-field>
+
           <!-- Email field -->
           <mat-form-field appearance="outline">
             <mat-label>{{ 'auth.register.email' | translate }}</mat-label>
@@ -145,6 +160,12 @@ import { LanguageService } from '../../../../shared/services/language.service';
             }
             @if (form.get('password')?.hasError('minLength') && form.get('password')?.touched) {
               <mat-error>{{ 'auth.validation.passwordMinLength' | translate }}</mat-error>
+            }
+            @if (form.get('password')?.hasError('uppercase') && form.get('password')?.touched) {
+              <mat-error>{{ 'auth.validation.passwordUppercase' | translate }}</mat-error>
+            }
+            @if (form.get('password')?.hasError('number') && form.get('password')?.touched) {
+              <mat-error>{{ 'auth.validation.passwordNumber' | translate }}</mat-error>
             }
           </mat-form-field>
 
@@ -256,8 +277,9 @@ export class RegisterComponent implements OnInit {
   ngOnInit(): void {
     this.form = this.fb.group(
       {
+        fullName: ['', [Validators.required]],
         email: ['', [Validators.required, Validators.email]],
-        password: ['', [Validators.required, passwordStrength()]],
+        password: ['', [Validators.required, strongPassword()]],
         confirmPassword: ['', [Validators.required]],
       },
       { validators: passwordMatch() },
@@ -289,8 +311,10 @@ export class RegisterComponent implements OnInit {
    */
   onSubmit(): void {
     if (this.form.valid) {
-      const { email, password } = this.form.value;
-      this.store.dispatch(AuthActions.register({ email, password }));
+      const { email, password, fullName } = this.form.value;
+      this.store.dispatch(
+        AuthActions.register({ email, password, fullName }),
+      );
     } else {
       this.form.markAllAsTouched();
     }
