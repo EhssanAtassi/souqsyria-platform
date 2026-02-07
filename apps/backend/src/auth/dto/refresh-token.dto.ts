@@ -9,7 +9,7 @@ import { ApiProperty } from '@nestjs/swagger';
 export class RefreshTokenDto {
   @ApiProperty({
     example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...',
-    description: 'Current JWT access token to refresh',
+    description: 'JWT refresh token used to obtain a new access token',
   })
   @IsString({ message: 'Token must be a valid string' })
   @IsNotEmpty({ message: 'Token is required' })

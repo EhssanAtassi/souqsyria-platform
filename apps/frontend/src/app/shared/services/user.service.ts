@@ -1,15 +1,17 @@
-import { Injectable, signal } from '@angular/core';
+import { Injectable, signal, inject, DestroyRef } from '@angular/core';
 import { BehaviorSubject, Observable, of } from 'rxjs';
 import { delay, map } from 'rxjs/operators';
-import { 
-  User, 
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { Store } from '@ngrx/store';
+import {
+  User,
   UserPreferences,
   NotificationPreferences,
   PrivacySettings,
-  AccountDashboardConfig, 
-  AccountDashboardItem, 
-  UserStats, 
-  RecentActivity, 
+  AccountDashboardConfig,
+  AccountDashboardItem,
+  UserStats,
+  RecentActivity,
   Announcement,
   WishlistItem,
   WishlistConfig,
@@ -29,6 +31,9 @@ import {
   GeoCoordinates
 } from '../interfaces/user.interface';
 import { SYRIAN_GOVERNORATES } from '../interfaces/category-filter.interface';
+import { TokenService } from '../../features/auth/services/token.service';
+import { selectUser, selectIsAuthenticated } from '../../features/auth/store/auth.selectors';
+import { AuthUser } from '../../features/auth/models/auth.models';
 
 /**
  * User service for Syrian marketplace
@@ -69,62 +74,82 @@ export class UserService {
   // Observable for backward compatibility
   public readonly currentUser$ = this.currentUserSubject.asObservable();
 
+  /** @description NgRx Store instance for reading auth state */
+  private readonly store = inject(Store);
+
+  /** @description Token service for checking persisted JWT tokens */
+  private readonly tokenService = inject(TokenService);
+
+  /** @description DestroyRef for automatic subscription cleanup */
+  private readonly destroyRef = inject(DestroyRef);
+
   constructor() {
-    this.initializeMockUser();
+    this.syncWithAuthStore();
   }
 
   /**
-   * Initialize mock user for MVP development
-   * Simulates authenticated Syrian marketplace user with complete profile
+   * Synchronize UserService signals with NgRx auth store
+   *
+   * @description Subscribes to the NgRx auth state and updates the local
+   * signals that guards and other components depend on. This bridges NgRx
+   * store state to the signal-based API consumed by auth guards.
    */
-  private initializeMockUser(): void {
-    const mockPreferences: UserPreferences = {
-      notifications: {
-        orderUpdates: true,
-        promotions: true,
-        newsletter: true,
-        sms: false,
-        push: true
-      },
-      privacy: {
-        profileVisibility: 'public',
-        showReviews: true,
-        showPurchaseHistory: false,
-        dataCollection: true,
-        analyticsOptOut: false
-      },
-      theme: 'light',
-      twoFactorAuth: false
-    };
+  private syncWithAuthStore(): void {
+    this.store.select(selectIsAuthenticated).pipe(
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe(isAuth => {
+      this._isAuthenticated.set(isAuth);
+    });
 
-    const mockUser: User = {
-      id: 'user_syria_001',
-      email: 'ahmad.damascus@souqsyria.com',
-      firstName: 'أحمد',
-      lastName: 'الدمشقي',
-      firstNameAr: 'أحمد',
-      lastNameAr: 'الدمشقي',
-      firstNameEn: 'Ahmad',
-      lastNameEn: 'Al-Dimashqi',
-      preferredLanguage: 'ar',
+    this.store.select(selectUser).pipe(
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe(authUser => {
+      if (authUser) {
+        const user = this.mapAuthUserToUser(authUser);
+        this._currentUser.set(user);
+        this.currentUserSubject.next(user);
+        if (user.preferredLanguage) {
+          this._preferredLanguage.set(user.preferredLanguage);
+        }
+      } else {
+        this._currentUser.set(null);
+        this.currentUserSubject.next(null);
+      }
+    });
+  }
+
+  /**
+   * Map backend AuthUser to frontend User interface
+   *
+   * @description Converts the minimal AuthUser from JWT/API responses
+   * into the full User interface expected by frontend components.
+   * Missing fields are populated with sensible defaults.
+   * @param authUser - Authenticated user data from NgRx store
+   * @returns User object compatible with the frontend User interface
+   */
+  private mapAuthUserToUser(authUser: AuthUser): User {
+    const nameParts = (authUser.fullName || '').split(' ');
+    const firstName = nameParts[0] || '';
+    const lastName = nameParts.slice(1).join(' ') || '';
+
+    return {
+      id: String(authUser.id),
+      email: authUser.email,
+      firstName,
+      lastName,
+      firstNameEn: firstName,
+      lastNameEn: lastName,
+      firstNameAr: firstName,
+      lastNameAr: lastName,
+      preferredLanguage: 'en',
       preferredCurrency: 'SYP',
-      profilePicture: 'https://i.pravatar.cc/150?u=ahmad.damascus',
-      phoneNumber: '+963-11-555-0123',
-      syrianOriginCity: 'Damascus',
-      diasporaLocation: 'Dubai, UAE',
-      isEmailVerified: true,
-      isPhoneVerified: true,
-      loyaltyPoints: 1250,
-      membershipTier: 'gold',
-      lastLoginAt: new Date(),
-      createdAt: new Date('2023-06-15'),
-      preferences: mockPreferences
+      isEmailVerified: authUser.isVerified,
+      isPhoneVerified: false,
+      loyaltyPoints: 0,
+      membershipTier: 'bronze',
+      lastLoginAt: authUser.lastLoginAt ? new Date(authUser.lastLoginAt) : new Date(),
+      createdAt: authUser.createdAt ? new Date(authUser.createdAt) : new Date(),
     };
-
-    this._currentUser.set(mockUser);
-    this._isAuthenticated.set(true);
-    this._preferredLanguage.set(mockUser.preferredLanguage);
-    this.currentUserSubject.next(mockUser);
   }
 
   /**

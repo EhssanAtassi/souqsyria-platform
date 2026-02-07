@@ -1,7 +1,7 @@
 import { inject } from '@angular/core';
 import { CanDeactivateFn } from '@angular/router';
 import { Observable, of } from 'rxjs';
-import { map, take } from 'rxjs/operators';
+import { switchMap, take } from 'rxjs/operators';
 import { ModalService } from '../services/modal.service';
 
 /**
@@ -134,9 +134,9 @@ export const unsavedChangesGuard: CanDeactivateFn<ComponentCanDeactivate> = (
 
     return canDeactivate$.pipe(
       take(1),
-      map(result => {
+      switchMap(result => {
         if (result) {
-          return true; // Component allows deactivation
+          return of(true); // Component allows deactivation
         }
         // Component has unsaved changes, show confirmation
         return showConfirmationDialog(modalService);

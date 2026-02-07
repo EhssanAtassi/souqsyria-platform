@@ -67,7 +67,7 @@ export class EmailService {
       console.log(`Subject: SouqSyria - Password Reset Request`);
       console.log(`Reset URL: ${resetUrl}`);
       console.log(`Token: ${resetToken}`);
-      console.log(`Expires: 15 minutes`);
+      console.log(`Expires: 1 hour`);
       console.log('========================================');
       return;
     }
@@ -103,7 +103,7 @@ export class EmailService {
       console.log(`To: ${email}`);
       console.log(`Subject: SouqSyria - Verify Your Email`);
       console.log(`OTP Code: ${otpCode}`);
-      console.log(`Expires: 15 minutes`);
+      console.log(`Expires: 10 minutes`);
       console.log('=====================================');
       return;
     }
@@ -171,7 +171,7 @@ export class EmailService {
       <div class="otp-code">
         <p style="margin: 0; color: #666; font-size: 14px;">رمز التحقق الخاص بك</p>
         <h2>${otpCode}</h2>
-        <p style="margin: 0; color: #666; font-size: 12px;">صالح لمدة 15 دقيقة</p>
+        <p style="margin: 0; color: #666; font-size: 12px;">صالح لمدة 10 دقائق</p>
       </div>
 
       <div class="warning">
@@ -192,7 +192,7 @@ export class EmailService {
       <div class="otp-code">
         <p style="margin: 0; color: #666; font-size: 14px;">Your Verification Code</p>
         <h2>${otpCode}</h2>
-        <p style="margin: 0; color: #666; font-size: 12px;">Valid for 15 minutes</p>
+        <p style="margin: 0; color: #666; font-size: 12px;">Valid for 10 minutes</p>
       </div>
 
       <div class="warning">
@@ -255,7 +255,7 @@ export class EmailService {
 
       <div class="warning">
         <strong>⚠️ تنبيه أمني:</strong>
-        <p style="margin: 5px 0 0 0;">هذا الرابط صالح لمدة 15 دقيقة فقط. إذا لم تطلب إعادة تعيين كلمة المرور، يرجى تجاهل هذه الرسالة وحسابك سيبقى آمناً.</p>
+        <p style="margin: 5px 0 0 0;">هذا الرابط صالح لمدة ساعة واحدة فقط. إذا لم تطلب إعادة تعيين كلمة المرور، يرجى تجاهل هذه الرسالة وحسابك سيبقى آمناً.</p>
       </div>
 
       <p style="margin-top: 20px; font-size: 12px; color: #666;">إذا لم يعمل الزر، انسخ الرابط التالي والصقه في المتصفح:<br><a href="${resetUrl}" style="color: #988561; word-break: break-all;">${resetUrl}</a></p>
@@ -275,7 +275,7 @@ export class EmailService {
 
       <div class="warning">
         <strong>⚠️ Security Warning:</strong>
-        <p style="margin: 5px 0 0 0;">This link is valid for 15 minutes only. If you didn't request a password reset, please ignore this email and your account will remain secure.</p>
+        <p style="margin: 5px 0 0 0;">This link is valid for 1 hour only. If you didn't request a password reset, please ignore this email and your account will remain secure.</p>
       </div>
 
       <p style="margin-top: 20px; font-size: 12px; color: #666;">If the button doesn't work, copy and paste this link into your browser:<br><a href="${resetUrl}" style="color: #988561; word-break: break-all;">${resetUrl}</a></p>

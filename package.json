@@ -15,7 +15,7 @@
     "install:all": "npm install",
     "clean": "rm -rf node_modules apps/*/node_modules",
     "dev": "concurrently \"npm run backend\" \"npm run frontend\"",
-"lint": "npm run lint --workspaces --if-present",
+    "lint": "npm run lint --workspaces --if-present",
     "lint:fix": "npm run lint -- --fix --workspaces --if-present",
     "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md,yml,yaml,css,scss,html}\"",
     "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,json,md,yml,yaml,css,scss,html}\"",
@@ -24,11 +24,11 @@
     "postinstall": "husky install"
   },
   "devDependencies": {
+    "@commitlint/cli": "^18.4.3",
+    "@commitlint/config-conventional": "^18.4.3",
     "concurrently": "^9.1.2",
     "husky": "^8.0.3",
     "lint-staged": "^15.2.0",
-    "@commitlint/cli": "^18.4.3",
-    "@commitlint/config-conventional": "^18.4.3",
     "prettier": "^3.1.1",
     "typescript": "^5.5.2"
   },
@@ -41,5 +41,10 @@
     "url": "https://github.com/EhssanAtassi/souqsyria-platform.git"
   },
   "author": "Ehssan Atassi",
-  "license": "UNLICENSED"
+  "license": "UNLICENSED",
+  "dependencies": {
+    "@ngrx/effects": "^18.1.1",
+    "@ngrx/store": "^18.1.1",
+    "@ngrx/store-devtools": "^18.1.1"
+  }
 }

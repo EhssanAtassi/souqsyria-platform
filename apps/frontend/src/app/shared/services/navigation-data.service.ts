@@ -1,14 +1,18 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject, DestroyRef } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
-import { 
-  Category, 
-  UserInfo, 
-  CartInfo, 
-  Location, 
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { Store } from '@ngrx/store';
+import {
+  Category,
+  UserInfo,
+  CartInfo,
+  Location,
   NavigationConfig,
-  SearchFilters 
+  SearchFilters
 } from '../interfaces/navigation.interface';
 import { SYRIAN_CATEGORIES } from '../data/syrian-categories.data';
+import { selectIsAuthenticated, selectUser } from '../../features/auth/store/auth.selectors';
+import { AuthActions } from '../../features/auth/store/auth.actions';
 
 /**
  * Navigation Data Service
@@ -49,29 +53,79 @@ import { SYRIAN_CATEGORIES } from '../data/syrian-categories.data';
   providedIn: 'root'
 })
 export class NavigationDataService {
-  
+
+  //#region Injected Dependencies
+
+  /** NgRx Store for auth state */
+  private readonly store = inject(Store);
+
+  /** DestroyRef for automatic subscription cleanup */
+  private readonly destroyRef = inject(DestroyRef);
+
+  //#endregion
+
   //#region Private Properties
-  
+
   /** Navigation configuration subject */
   private configSubject = new BehaviorSubject<NavigationConfig>(this.getDefaultConfig());
-  
+
   /** User information subject */
   private userSubject = new BehaviorSubject<UserInfo>({ isLoggedIn: false });
-  
+
   /** Cart information subject */
-  private cartSubject = new BehaviorSubject<CartInfo>({ 
-    itemCount: 3, 
-    totalAmount: 125.50, 
-    currency: 'SYP' 
+  private cartSubject = new BehaviorSubject<CartInfo>({
+    itemCount: 3,
+    totalAmount: 125.50,
+    currency: 'SYP'
   });
-  
+
   /** Categories subject */
   private categoriesSubject = new BehaviorSubject<Category[]>(this.getSampleCategories());
-  
+
   /** Locations subject */
   private locationsSubject = new BehaviorSubject<Location[]>(this.getSyrianLocations());
-  
+
   //#endregion
+
+  /**
+   * @constructor
+   * @description Initializes auth state bridge from NgRx to navigation service
+   */
+  constructor() {
+    this.initAuthStateBridge();
+  }
+
+  /**
+   * Bridges NgRx auth state to navigation user state
+   * @description Subscribes to NgRx auth selectors and updates userSubject
+   * so header component displays correct login state
+   * @private
+   */
+  private initAuthStateBridge(): void {
+    // Subscribe to auth state changes from NgRx store
+    this.store.select(selectIsAuthenticated)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(isAuthenticated => {
+        if (isAuthenticated) {
+          // Get user data from store when authenticated
+          this.store.select(selectUser)
+            .pipe(takeUntilDestroyed(this.destroyRef))
+            .subscribe(authUser => {
+              if (authUser) {
+                const userInfo: UserInfo = {
+                  id: String(authUser.id),
+                  name: authUser.fullName || authUser.email.split('@')[0],
+                  email: authUser.email,
+                  isLoggedIn: true
+                };
+                this.userSubject.next(userInfo);
+              }
+            });
+        } else {
+          this.userSubject.next({ isLoggedIn: false });
+        }
+      });
+  }
   
   //#region Public Observables
   
@@ -139,11 +193,11 @@ export class NavigationDataService {
   }
   
   /**
-   * Simulates user logout
-   * @description Sets user as logged out
+   * Logs out the current user
+   * @description Dispatches NgRx logout action to clear auth state
    */
   simulateLogout(): void {
-    this.updateUser({ isLoggedIn: false });
+    this.store.dispatch(AuthActions.logout());
   }
   
   /**

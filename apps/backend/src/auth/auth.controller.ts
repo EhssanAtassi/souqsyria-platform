@@ -1,11 +1,10 @@
 /**
  * @file auth.controller.ts
- * @description Authentication Controller to handle login using Firebase ID Token.
- * Syncs users with MySQL and returns profile.
+ * @description Authentication Controller for email/password JWT auth.
+ * Handles registration, login, OTP verification, password reset, token refresh, and logout.
  */
 import {
   Controller,
-  Get,
   UseGuards,
   Logger,
   Post,
@@ -16,7 +15,6 @@ import {
   Delete,
 } from '@nestjs/common';
 import { Request } from 'express';
-import { FirebaseAuthGuard } from './guards/firebase-auth.guard';
 import { UsersService } from '../users/users.service';
 import { AuthService } from './auth.service';
 import { RegisterDto } from './dto/register.dto';
@@ -24,6 +22,7 @@ import { LoginDto } from './dto/login.dto';
 import { VerifyOtpDto } from './dto/verify-otp.dto';
 
 import { CurrentUser } from '../common/decorators/current-user.decorator';
+import { Public } from '../common/decorators/public.decorator';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
@@ -45,6 +44,7 @@ export class AuthController {
    * @route POST /auth/register
    * @description Register new user and return JWT tokens for auto-login
    */
+  @Public()
   @ApiOperation({
     summary: 'Register new user with email and password (auto-login enabled)',
   })
@@ -53,111 +53,58 @@ export class AuthController {
     @Body() registerDto: RegisterDto,
     @Req() request: Request,
   ) {
-    const result = await this.authService.register(registerDto, request);
-    return {
-      success: true,
-      ...result,
-    };
+    return await this.authService.register(registerDto, request);
   }
-  /**
-   * @route POST /auth/verify
-   * @description Verify user OTP
-   */
 
+  /**
+   * @route POST /auth/verify-otp
+   * @description Verify user OTP code sent via email
+   */
+  @Public()
   @ApiOperation({ summary: 'Verify user email using OTP' })
-  @Post('verify')
+  @Post('verify-otp')
   async verifyOtp(@Body() verifyOtpDto: VerifyOtpDto) {
     await this.authService.verifyOtp(verifyOtpDto);
     return {
-      success: true,
       message: 'Account verified successfully.',
     };
   }
 
   /**
    * @route POST /auth/login
-   * @description Login user and return JWT
+   * @description Login user with email/password and return JWT tokens
    */
+  @Public()
   @ApiOperation({ summary: 'Login with email and password' })
-  @Post('email-login')
-  async email_login(@Body() loginDto: LoginDto, @Req() request: Request) {
-    const token = await this.authService.login(loginDto, request);
+  @Post('login')
+  async login(@Body() loginDto: LoginDto, @Req() request: Request) {
+    const tokens = await this.authService.login(loginDto, request);
     return {
-      success: true,
       message: 'Login successful.',
-      accessToken: token.accessToken,
+      accessToken: tokens.accessToken,
+      refreshToken: tokens.refreshToken,
     };
-  }
-
-  /**
-   * @route GET /auth/login
-   * @description Sync user from Firebase to MySQL and return profile
-   */
-  @ApiOperation({ summary: 'Login using Firebase token (optional)' })
-  @Get('firebase-login')
-  @UseGuards(FirebaseAuthGuard)
-  async firebase_login(
-    @CurrentUser()
-    firebaseUser: {
-      uid: string;
-      email?: string;
-      phone?: string;
-    },
-  ) {
-    this.logger.log(`Login attempt for Firebase UID: ${firebaseUser.uid}`);
-
-    try {
-      const user =
-        await this.usersService.findOrCreateByFirebaseUid(firebaseUser);
-      this.logger.log(`Login successful for user ID: ${user.id}`);
-      return {
-        success: true,
-        message: 'Login successful',
-        user: {
-          id: user.id,
-          email: user.email,
-          phone: user.phone,
-          fullName: user.fullName,
-          role: user.role?.name,
-          isVerified: user.isVerified,
-          createdAt: user.createdAt,
-          lastLoginAt: user.lastLoginAt,
-        },
-      };
-    } catch (error: unknown) {
-      this.logger.error(`Login failed: ${(error as Error).message}`, (error as Error).stack);
-      return {
-        success: false,
-        message: 'Login failed',
-      };
-    }
   }
 
   /**
    * @route POST /auth/forgot-password
    * @description Send password reset email with token
    */
+  @Public()
   @ApiOperation({ summary: 'Send password reset email' })
   @Post('forgot-password')
   async forgotPassword(@Body() forgotPasswordDto: ForgotPasswordDto) {
-    const result = await this.authService.forgotPassword(forgotPasswordDto);
-    return {
-      success: true,
-      ...result,
-    };
+    return await this.authService.forgotPassword(forgotPasswordDto);
   }
   /**
    * @route POST /auth/reset-password
    * @description Reset password using token
    */
+  @Public()
   @ApiOperation({ summary: 'Reset password with token' })
   @Post('reset-password')
   async resetPassword(@Body() resetPasswordDto: ResetPasswordDto) {
-    const result = await this.authService.resetPassword(resetPasswordDto);
-    return {
-      success: true,
-      ...result,
-    };
+    return await this.authService.resetPassword(resetPasswordDto);
   }
   /**
    * @route PUT /auth/change-password
@@ -170,14 +117,10 @@ export class AuthController {
     @CurrentUser() user: { id: number },
     @Body() changePasswordDto: ChangePasswordDto,
   ) {
-    const result = await this.authService.changePassword(
+    return await this.authService.changePassword(
       user.id,
       changePasswordDto,
     );
-    return {
-      success: true,
-      ...result,
-    };
   }
 
   /**
@@ -200,45 +143,34 @@ export class AuthController {
       throw new BadRequestException('No token provided for logout.');
     }
 
-    const result = await this.authService.logout(
+    return await this.authService.logout(
       user.id,
       token,
       request.ip || 'unknown',
       logoutDto,
     );
-
-    return {
-      success: true,
-      ...result,
-    };
   }
 
   /**
-   * @route POST /auth/refresh
-   * @description Refresh JWT token without re-login
+   * @route POST /auth/refresh-token
+   * @description Refresh JWT tokens using token rotation (issues new access + refresh tokens)
    */
-  @ApiOperation({ summary: 'Refresh JWT access token' })
-  @Post('refresh')
+  @Public()
+  @ApiOperation({ summary: 'Refresh JWT access and refresh tokens' })
+  @Post('refresh-token')
   async refreshToken(@Body() refreshTokenDto: RefreshTokenDto) {
-    const result = await this.authService.refreshToken(refreshTokenDto);
-    return {
-      success: true,
-      ...result,
-    };
+    return await this.authService.refreshToken(refreshTokenDto);
   }
 
   /**
    * @route POST /auth/resend-otp
    * @description Resend OTP verification email
    */
+  @Public()
   @ApiOperation({ summary: 'Resend OTP verification email' })
   @Post('resend-otp')
   async resendOtp(@Body() resendOtpDto: ResendOtpDto) {
-    const result = await this.authService.resendOtp(resendOtpDto);
-    return {
-      success: true,
-      ...result,
-    };
+    return await this.authService.resendOtp(resendOtpDto);
   }
 
   /**
@@ -253,15 +185,10 @@ export class AuthController {
     @Req() request: Request,
     @Body() deleteAccountDto: DeleteAccountDto,
   ) {
-    const result = await this.authService.deleteAccount(
+    return await this.authService.deleteAccount(
       user.id,
       deleteAccountDto,
       request.ip || 'unknown',
     );
-
-    return {
-      success: true,
-      ...result,
-    };
   }
 }

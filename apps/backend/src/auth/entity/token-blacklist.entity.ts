@@ -17,9 +17,10 @@ export class TokenBlacklist {
   id: number;
 
   /**
-   * The JWT token that has been blacklisted (usually the 'jti' claim or full token hash)
+   * The JWT token that has been blacklisted (usually the 'jti' claim or full token hash).
+   * Indexed for fast lookups during authentication requests (checked on every protected endpoint).
    */
-  // @Index('IDX_TOKEN_BLACKLIST_HASH') // Index for fast lookups during auth
+  @Index('IDX_TOKEN_BLACKLIST_HASH')
   @Column({ name: 'token_hash', unique: true })
   tokenHash: string;
 

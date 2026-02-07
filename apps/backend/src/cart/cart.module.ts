@@ -62,7 +62,10 @@ import { AuditLog } from '../audit-log/entities/audit-log.entity';
       ProductEntity,
       AuditLog, // ✅ For monitoring dashboard analytics
     ]),
-    JwtModule.register({}), // ✅ For OptionalAuthGuard JWT verification
+    JwtModule.register({
+      secret: process.env.JWT_SECRET || 'souqsyria_dev_jwt_secret',
+      signOptions: { expiresIn: '1d' },
+    }), // ✅ For OptionalAuthGuard JWT verification
     AccessControlModule, // ✅ For permissions and access control
     AuditLogModule, // ✅ For comprehensive audit logging
   ],
