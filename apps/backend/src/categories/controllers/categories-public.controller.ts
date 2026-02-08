@@ -44,7 +44,7 @@ import { CategoriesService } from '../services/categories.service';
 import { PublicProductsService } from '../../products/public/service/public-products.service';
 
 // Import DTOs and Types
-import { CategoryQueryDto } from '../dto/index-dto';
+import { CategoryQueryDto, GetCategoriesTreeResponseDto, CategoryTreeRootDto, CategoryTreeChildDto, CategoryTreeGrandchildDto } from '../dto/index-dto';
 
 /**
  * PUBLIC CATEGORIES CONTROLLER
@@ -276,6 +276,146 @@ export class CategoriesPublicController {
         success: false,
         error: 'Internal server error',
         message: 'Failed to retrieve categories. Please try again.',
+        statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+      });
+    }
+  }
+
+  /**
+   * GET CATEGORY TREE FOR MEGA MENU
+   *
+   * Returns complete 3-level category hierarchy optimized for frontend mega menus.
+   * Structure: Root > Children > Grandchildren
+   *
+   * Features:
+   * - Only active and approved categories
+   * - 3 levels deep (Parent > Child > Grandchild)
+   * - Sorted by sortOrder ASC
+   * - Lightweight response for fast navigation
+   * - Cached for optimal performance
+   */
+  @Get('tree')
+  @ApiOperation({
+    summary: 'Get complete category tree for mega menu (3 levels)',
+    description: `
+      Retrieve the full category hierarchy optimized for mega menu navigation.
+
+      Features:
+      • 3-level hierarchy: Parent > Child > Grandchild
+      • Only active and approved categories
+      • Sorted by sort order
+      • Bilingual support (Arabic/English)
+      • Heavily cached for performance
+
+      Use Cases:
+      • Main navigation mega menus
+      • Mobile app category browsers
+      • Category selection dropdowns
+      • Sitemap generation
+    `,
+  })
+  @ApiQuery({
+    name: 'language',
+    required: false,
+    enum: ['en', 'ar'],
+    example: 'en',
+    description: 'Response language preference (default: en)',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Category tree retrieved successfully',
+    type: GetCategoriesTreeResponseDto,
+    headers: {
+      'Cache-Control': {
+        description: 'Long cache for tree structure',
+        schema: { type: 'string', example: 'public, max-age=1800' },
+      },
+    },
+  })
+  @ApiResponse({
+    status: 500,
+    description: 'Internal server error',
+  })
+  async getCategoryTree(
+    @Query('language') language: 'en' | 'ar' = 'en',
+    @Res() response: Response,
+  ) {
+    const startTime = Date.now();
+
+    this.logger.log(`🌳 Category tree request: lang=${language}`);
+
+    try {
+      // Validate language parameter
+      const sanitizedLanguage = ['en', 'ar'].includes(language) ? language : 'en';
+
+      // Get complete tree from service
+      const tree = await this.categoriesService.getTree();
+
+      // Transform to tree response format
+      const treeResponse: CategoryTreeRootDto[] = tree.map((root) => ({
+        id: root.id,
+        name: sanitizedLanguage === 'ar' ? root.nameAr : root.nameEn,
+        nameAr: root.nameAr,
+        slug: root.slug,
+        icon: root.iconUrl,
+        image: root.bannerUrl,
+        productCount: root.productCount,
+        children: (root.children || []).map((child) => ({
+          id: child.id,
+          name: sanitizedLanguage === 'ar' ? child.nameAr : child.nameEn,
+          nameAr: child.nameAr,
+          slug: child.slug,
+          icon: child.iconUrl,
+          image: child.bannerUrl,
+          productCount: child.productCount,
+          children: (child.children || []).map((grandchild) => ({
+            id: grandchild.id,
+            name: sanitizedLanguage === 'ar' ? grandchild.nameAr : grandchild.nameEn,
+            nameAr: grandchild.nameAr,
+            slug: grandchild.slug,
+            icon: grandchild.iconUrl,
+            image: grandchild.bannerUrl,
+            productCount: grandchild.productCount,
+          })),
+        })),
+      }));
+
+      // Set aggressive cache headers for tree (30 minutes)
+      response.set({
+        'Cache-Control': 'public, max-age=1800',
+        'Content-Language': sanitizedLanguage,
+        'X-Content-Type-Options': 'nosniff',
+      });
+
+      const processingTime = Date.now() - startTime;
+      const totalCategories = treeResponse.reduce(
+        (sum, root) =>
+          sum +
+          1 +
+          (root.children?.length || 0) +
+          (root.children?.reduce((childSum, child) => childSum + (child.children?.length || 0), 0) || 0),
+        0,
+      );
+
+      this.logger.log(
+        `✅ Category tree served: ${treeResponse.length} roots, ${totalCategories} total (${processingTime}ms)`,
+      );
+
+      return response.status(HttpStatus.OK).json({
+        data: treeResponse,
+      });
+    } catch (error: unknown) {
+      const processingTime = Date.now() - startTime;
+
+      this.logger.error(
+        `❌ Category tree failed: ${(error as Error).message} (${processingTime}ms)`,
+        (error as Error).stack,
+      );
+
+      return response.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        error: 'Failed to retrieve category tree',
+        message: (error as Error).message || 'Please try again later',
         statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
       });
     }

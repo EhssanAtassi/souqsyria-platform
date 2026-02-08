@@ -114,10 +114,18 @@
     (categoryClick)="onCategoryClick($event)"
     (megaMenuShow)="showMegaMenu($event)"
     (megaMenuHide)="hideMegaMenu()"
-    (allCategoriesClick)="onCategoryClick(categories[0] || null)"
+    (allCategoriesClick)="onCategoriesClick()"
     (specialOffersClick)="onCategoryClick(categories[0] || null)"
     (flashSaleClick)="onCategoryClick(categories[0] || null)"
   ></app-category-navigation>
+
+  <!-- ====================== MEGA MENU (S1 Categories Sprint) ====================== -->
+  <app-mega-menu
+    [categories]="categoryTree()"
+    [isOpen]="megaMenuOpen()"
+    (categorySelected)="onMegaMenuCategorySelected($event)"
+    (menuClosed)="onMegaMenuClosed()"
+  ></app-mega-menu>
 
   <!-- ====================== ROW 4: QUICK ACCESS ====================== -->
   <app-quick-access-row

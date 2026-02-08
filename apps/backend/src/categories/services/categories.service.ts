@@ -87,6 +87,74 @@ export class CategoriesService {
     return categories;
   }
 
+  /**
+   * GET CATEGORY TREE FOR MEGA MENU
+   *
+   * Retrieves complete 3-level category hierarchy optimized for frontend mega menus
+   * Structure: Root > Children > Grandchildren
+   *
+   * Features:
+   * - Only active and approved categories
+   * - Eager loading 3 levels deep
+   * - Sorted by sortOrder ASC
+   * - Lightweight response (only essential fields)
+   *
+   * @returns Complete category tree structure (3 levels)
+   */
+  async getTree(): Promise<Category[]> {
+    this.logger.log('🌳 Building category tree for mega menu (3 levels)');
+
+    const startTime = Date.now();
+
+    // Query root categories (parent IS NULL) with eager-loaded children 3 levels deep
+    const rootCategories = await this.categoryRepository.find({
+      where: {
+        parent: null, // Root categories only
+        isActive: true,
+        approvalStatus: 'approved',
+      },
+      relations: ['children', 'children.children'], // Load 3 levels
+      order: {
+        sortOrder: 'ASC',
+        nameEn: 'ASC',
+      },
+    });
+
+    // Filter children to only include active + approved
+    const filteredRoots = rootCategories.map((root) => {
+      // Filter level 2 (children)
+      if (root.children) {
+        root.children = root.children
+          .filter((child) => child.isActive && child.approvalStatus === 'approved')
+          .sort((a, b) => a.sortOrder - b.sortOrder);
+
+        // Filter level 3 (grandchildren)
+        root.children.forEach((child) => {
+          if (child.children) {
+            child.children = child.children
+              .filter((grandchild) => grandchild.isActive && grandchild.approvalStatus === 'approved')
+              .sort((a, b) => a.sortOrder - b.sortOrder);
+          }
+        });
+      }
+
+      return root;
+    });
+
+    const processingTime = Date.now() - startTime;
+    const totalCategories = filteredRoots.reduce(
+      (sum, root) => sum + 1 + (root.children?.length || 0) +
+        (root.children?.reduce((childSum, child) => childSum + (child.children?.length || 0), 0) || 0),
+      0
+    );
+
+    this.logger.log(
+      `✅ Category tree built: ${filteredRoots.length} roots, ${totalCategories} total categories (${processingTime}ms)`
+    );
+
+    return filteredRoots;
+  }
+
   // ============================================================================
   // CORE CRUD OPERATIONS
   // ============================================================================
