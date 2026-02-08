@@ -14,7 +14,7 @@ import { EmailService } from '../auth/service/email.service';
 import { UpdateProfileDto } from './dto/update-profile.dto';
 import { ChangePasswordDto } from './dto/change-password.dto';
 import * as bcrypt from 'bcryptjs';
-import * as fs from 'fs';
+import { promises as fs } from 'fs';
 import * as path from 'path';
 
 @Injectable()
@@ -200,12 +200,18 @@ export class UsersService {
       };
     }
 
-    // Handle avatar upload/update
-    if (updateProfileDto.avatar) {
-      user.avatar = await this.processAvatarUpload(
-        userId,
-        updateProfileDto.avatar,
-      );
+    // Handle avatar upload/update/removal
+    if (updateProfileDto.avatar !== undefined) {
+      if (updateProfileDto.avatar === null || updateProfileDto.avatar === '') {
+        // Explicit removal
+        user.avatar = null;
+      } else {
+        // Upload new avatar
+        user.avatar = await this.processAvatarUpload(
+          userId,
+          updateProfileDto.avatar,
+        );
+      }
     }
 
     // Update last activity
@@ -252,10 +258,21 @@ export class UsersService {
       const extension = matches[1]; // png, jpg, jpeg, gif, etc.
       const base64Data = matches[2];
 
+      // Decode base64 and enforce server-side size limit before writing to file
+      const buffer = Buffer.from(base64Data, 'base64');
+      const MAX_AVATAR_SIZE_BYTES = 2 * 1024 * 1024; // 2MB
+      if (buffer.length > MAX_AVATAR_SIZE_BYTES) {
+        throw new BadRequestException(
+          `Avatar image is too large. Maximum allowed size is ${MAX_AVATAR_SIZE_BYTES} bytes.`,
+        );
+      }
+
       // Create avatars directory if it doesn't exist
       const avatarsDir = path.join(process.cwd(), 'public', 'avatars');
-      if (!fs.existsSync(avatarsDir)) {
-        fs.mkdirSync(avatarsDir, { recursive: true });
+      try {
+        await fs.access(avatarsDir);
+      } catch {
+        await fs.mkdir(avatarsDir, { recursive: true });
         this.logger.log(`📁 Created avatars directory: ${avatarsDir}`);
       }
 
@@ -263,9 +280,8 @@ export class UsersService {
       const filename = `user-${userId}-${Date.now()}.${extension}`;
       const filePath = path.join(avatarsDir, filename);
 
-      // Decode base64 and write to file
-      const buffer = Buffer.from(base64Data, 'base64');
-      fs.writeFileSync(filePath, buffer);
+      // Write to file asynchronously
+      await fs.writeFile(filePath, buffer);
 
       this.logger.log(`✅ Avatar saved successfully: ${filename}`);
 

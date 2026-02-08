@@ -328,8 +328,6 @@ describe('UsersController', () => {
      * Verifies that the endpoint is configured as PATCH request
      */
     it('should use PATCH decorator for endpoint', async () => {
-      const updateDto: UpdateProfileDto = { fullName: 'Test' };
-
       usersService.updateUserProfile.mockResolvedValue(mockUserProfile as any);
       usersService.getUserProfile.mockResolvedValue(mockUserProfile as any);
       usersService.getUserAddresses.mockResolvedValue(mockAddresses as any);

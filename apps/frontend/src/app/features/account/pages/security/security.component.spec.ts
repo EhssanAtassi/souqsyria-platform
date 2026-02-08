@@ -16,7 +16,6 @@ import { Router } from '@angular/router';
 import { of, throwError } from 'rxjs';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { Store } from '@ngrx/store';
 import { provideMockStore, MockStore } from '@ngrx/store/testing';
 
 import { SecurityComponent } from './security.component';

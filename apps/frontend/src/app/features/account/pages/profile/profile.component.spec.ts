@@ -5,7 +5,7 @@
  * Mocks AccountApiService to isolate component logic from HTTP layer.
  */
 
-import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { Router } from '@angular/router';
 import { of, throwError, Subject } from 'rxjs';

@@ -58,8 +58,8 @@ export interface UpdateProfileRequest {
   /** Updated phone number (optional) */
   phone?: string;
 
-  /** Updated avatar - base64 data URL or URL string (optional) */
-  avatar?: string;
+  /** Updated avatar - base64 data URL, URL string, or null to remove (optional) */
+  avatar?: string | null;
 }
 
 /**

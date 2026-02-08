@@ -276,7 +276,7 @@ export class SecurityComponent {
           : 'confirmRequired'
       }`;
     }
-    if (control.errors['minLength']) {
+    if (control.errors['minlength']) {
       return 'account.security.validation.minLength';
     }
     if (control.errors['uppercase']) {

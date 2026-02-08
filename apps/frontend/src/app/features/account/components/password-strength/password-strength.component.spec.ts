@@ -11,7 +11,6 @@ import { TranslateModule } from '@ngx-translate/core';
 
 import {
   PasswordStrengthComponent,
-  StrengthLevel,
 } from './password-strength.component';
 
 describe('PasswordStrengthComponent', () => {
@@ -252,26 +251,34 @@ describe('PasswordStrengthComponent', () => {
     });
 
     /**
-     * @description Verifies level is 'fair' when score is 1
+     * @description Verifies level is 'weak' when score is 1
      */
-    it('should return "fair" when score is 1', () => {
+    it('should return "weak" when score is 1', () => {
       component.password = 'alllower'; // score = 1 (minLength only)
+      expect(component.strengthLevel()).toBe('weak');
+    });
+
+    /**
+     * @description Verifies level is 'fair' when score is 2
+     */
+    it('should return "fair" when score is 2', () => {
+      component.password = 'Abcdefgh'; // score = 2 (minLength + uppercase)
       expect(component.strengthLevel()).toBe('fair');
     });
 
     /**
-     * @description Verifies level is 'good' when score is 2
+     * @description Verifies level is 'good' when score is 3
      */
-    it('should return "good" when score is 2', () => {
-      component.password = 'Abcdefgh'; // score = 2 (minLength + uppercase)
+    it('should return "good" when score is 3', () => {
+      component.password = 'Abcdefg1'; // score = 3 (minLength + uppercase + number)
       expect(component.strengthLevel()).toBe('good');
     });
 
     /**
-     * @description Verifies level is 'strong' when score is 3
+     * @description Verifies level is 'strong' when score is 4
      */
-    it('should return "strong" when score is 3', () => {
-      component.password = 'Abcdefg1'; // score = 3 (all criteria)
+    it('should return "strong" when score is 4', () => {
+      component.password = 'Abcdefg1!'; // score = 4 (all criteria)
       expect(component.strengthLevel()).toBe('strong');
     });
   });
