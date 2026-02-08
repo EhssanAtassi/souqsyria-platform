@@ -422,5 +422,109 @@
   "no_link_found": "No link found",
   "no_category_found": "No category found",
   "more_and_enjoy": "More And Enjoy",
-  "free_shipping": "Free Shiping"
+  "free_shipping": "Free Shiping",
+  "auth": {
+    "login": {
+      "title": "Sign In",
+      "subtitle": "Welcome back to SouqSyria",
+      "email": "Email Address",
+      "password": "Password",
+      "rememberMe": "Remember me",
+      "forgotPassword": "Forgot your password?",
+      "submit": "Sign In",
+      "noAccount": "Don't have an account?",
+      "registerLink": "Create Account",
+      "togglePassword": "Toggle password visibility",
+      "verifiedSuccess": "Email verified successfully! You can now sign in.",
+      "passwordResetSuccess": "Password reset successful! Sign in with your new password."
+    },
+    "register": {
+      "title": "Create Account",
+      "subtitle": "Join the SouqSyria marketplace",
+      "fullName": "Full Name",
+      "email": "Email Address",
+      "password": "Password",
+      "confirmPassword": "Confirm Password",
+      "submit": "Create Account",
+      "hasAccount": "Already have an account?",
+      "loginLink": "Sign In",
+      "termsPrefix": "By creating an account, you agree to our",
+      "termsLink": "Terms of Service",
+      "termsAnd": "and",
+      "privacyLink": "Privacy Policy",
+      "togglePassword": "Toggle password visibility",
+      "toggleConfirmPassword": "Toggle confirm password visibility"
+    },
+    "otp": {
+      "title": "Verify Your Email",
+      "subtitle": "We sent a 6-digit code to your email",
+      "codeSentTo": "A verification code was sent to:",
+      "codeLabel": "Verification Code",
+      "submit": "Verify",
+      "resendButton": "Resend Code",
+      "resendIn": "Resend in {{seconds}}s",
+      "resendSuccess": "New code sent to your email",
+      "backToRegister": "Back to Register",
+      "validFor": "Code valid for",
+      "expired": "Code expired. Please resend a new code."
+    },
+    "forgotPassword": {
+      "title": "Forgot Password",
+      "subtitle": "Enter your email and we'll send you a reset link",
+      "email": "Email Address",
+      "submit": "Send Reset Link",
+      "successTitle": "Check Your Email",
+      "successMessage": "If the email exists, a password reset link has been sent.",
+      "backToLogin": "Back to Sign In"
+    },
+    "resetPassword": {
+      "title": "Reset Password",
+      "subtitle": "Enter your new password",
+      "newPassword": "New Password",
+      "confirmPassword": "Confirm New Password",
+      "submit": "Reset Password",
+      "successTitle": "Password Reset!",
+      "successMessage": "Your password has been reset successfully.",
+      "goToLogin": "Go to Sign In",
+      "invalidLinkTitle": "Invalid Link",
+      "invalidLinkMessage": "This password reset link is invalid or has expired.",
+      "requestNewLink": "Request New Link",
+      "backToLogin": "Back to Sign In",
+      "togglePassword": "Toggle password visibility",
+      "toggleConfirmPassword": "Toggle confirm password visibility",
+      "requirements": "Min 8 characters, 1 uppercase letter, 1 number"
+    },
+    "validation": {
+      "emailRequired": "Email is required",
+      "emailInvalid": "Please enter a valid email address",
+      "passwordRequired": "Password is required",
+      "passwordMinLength": "Password must be at least 8 characters",
+      "passwordMin8": "Password must be at least 8 characters",
+      "passwordUppercase": "Password must contain at least one uppercase letter",
+      "passwordNumber": "Password must contain at least one number",
+      "passwordMismatch": "Passwords do not match",
+      "otpRequired": "Verification code is required",
+      "otpFormat": "Code must be exactly 6 digits",
+      "confirmPasswordRequired": "Please confirm your password",
+      "fullNameRequired": "Full name is required"
+    },
+    "errors": {
+      "generic": "Something went wrong. Please try again.",
+      "network": "Network error. Please check your connection.",
+      "invalidCredentials": "Invalid email or password",
+      "accountLocked": "Account locked. Please try again in 15 minutes.",
+      "emailNotVerified": "Please verify your email first",
+      "accountBanned": "This account has been suspended",
+      "tokenExpired": "Your session has expired. Please sign in again."
+    },
+    "logout": {
+      "success": "You have been logged out successfully"
+    },
+    "passwordStrength": {
+      "weak": "Weak",
+      "fair": "Fair",
+      "good": "Good",
+      "strong": "Strong"
+    }
+  }
 }

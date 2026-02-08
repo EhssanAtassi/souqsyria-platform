@@ -1,0 +1,137 @@
+/**
+ * Category Skeleton Component Styles
+ *
+ * @description Animated skeleton loader styles with shimmer effect
+ * matching FeaturedCategories layout and responsive behavior.
+ */
+
+// Skeleton grid - matches FeaturedCategories layout
+.category-skeleton-grid {
+  // Mobile: 3 columns
+  @media (max-width: 767px) {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  // Tablet: 4 columns
+  @media (min-width: 768px) and (max-width: 1023px) {
+    grid-template-columns: repeat(4, 1fr);
+  }
+
+  // Desktop: 6 columns
+  @media (min-width: 1024px) {
+    grid-template-columns: repeat(6, 1fr);
+  }
+}
+
+// Skeleton card
+.skeleton-card {
+  text-align: center;
+}
+
+// Skeleton image
+.skeleton-image {
+  aspect-ratio: 1 / 1;
+  background: linear-gradient(
+    90deg,
+    #f3f4f6 0%,
+    #e5e7eb 50%,
+    #f3f4f6 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite ease-in-out;
+}
+
+// Skeleton title
+.skeleton-title {
+  background: linear-gradient(
+    90deg,
+    #f3f4f6 0%,
+    #e5e7eb 50%,
+    #f3f4f6 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite ease-in-out;
+  animation-delay: 0.1s;
+}
+
+// Skeleton count
+.skeleton-count {
+  background: linear-gradient(
+    90deg,
+    #f3f4f6 0%,
+    #e5e7eb 50%,
+    #f3f4f6 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite ease-in-out;
+  animation-delay: 0.2s;
+}
+
+// Shimmer animation
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+// Screen reader only utility
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+// Reduced motion - disable animations
+@media (prefers-reduced-motion: reduce) {
+  .skeleton-image,
+  .skeleton-title,
+  .skeleton-count {
+    animation: none;
+    background: #e5e7eb;
+  }
+
+  .skeleton-card {
+    animation: none;
+  }
+}
+
+// Dark mode support
+@media (prefers-color-scheme: dark) {
+  .skeleton-image,
+  .skeleton-title,
+  .skeleton-count {
+    background: linear-gradient(
+      90deg,
+      #374151 0%,
+      #4b5563 50%,
+      #374151 100%
+    );
+    background-size: 200% 100%;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .skeleton-image,
+    .skeleton-title,
+    .skeleton-count {
+      background: #4b5563;
+    }
+  }
+}
+
+// High contrast mode
+@media (prefers-contrast: high) {
+  .skeleton-image,
+  .skeleton-title,
+  .skeleton-count {
+    border: 1px solid currentColor;
+  }
+}

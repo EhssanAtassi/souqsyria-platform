@@ -64,6 +64,18 @@ export {
 } from './category-tree-response.dto';
 
 export {
+  GetCategoriesTreeResponseDto,
+  CategoryTreeRootDto,
+  CategoryTreeChildDto,
+  CategoryTreeGrandchildDto,
+} from './get-categories-tree.dto';
+
+export {
+  GetFeaturedCategoriesResponseDto,
+  FeaturedCategoryDto,
+} from './get-featured-categories.dto';
+
+export {
   CategoryBreadcrumbDto,
   CategoryBreadcrumbCollectionDto,
 } from './category-breadcrumb.dto';

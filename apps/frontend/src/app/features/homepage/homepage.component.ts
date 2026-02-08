@@ -36,6 +36,12 @@ import { HomepageSectionsService } from '../../shared/services/homepage-sections
 import { ProductOffersService } from '../../shared/services/product-offers.service';
 import { environment } from '../../../environments/environment';
 
+// Category Integration (S1 Categories Sprint)
+import { FeaturedCategoriesComponent } from '../category/components/featured-categories/featured-categories.component';
+import { CategorySkeletonComponent } from '../category/components/category-skeleton/category-skeleton.component';
+import { CategoryApiService } from '../category/services/category-api.service';
+import { FeaturedCategory } from '../category/models/category-tree.interface';
+
 /**
  * SouqSyria Syrian Marketplace Homepage Component
  *
@@ -116,7 +122,9 @@ import { environment } from '../../../environments/environment';
     MatSnackBarModule,
     HeroSplitLayoutComponent,
     CategoryShowcaseSectionComponent,
-    ProductOffersRowComponent
+    ProductOffersRowComponent,
+    FeaturedCategoriesComponent,
+    CategorySkeletonComponent
   ],
   templateUrl: './homepage.component.html',
   styleUrl: './homepage.component.scss'
@@ -326,6 +334,9 @@ export class HomepageComponent implements OnInit {
   /** Service for product offers */
   private readonly productOffersService = inject(ProductOffersService);
 
+  /** Category API service for featured categories (S1 Categories Sprint) */
+  private readonly categoryApiService = inject(CategoryApiService);
+
   /** Akita service for hero banners state management (public for template access) */
   readonly heroBannersService = inject(HeroBannersService);
 
@@ -354,6 +365,16 @@ export class HomepageComponent implements OnInit {
 
   /** Loading state for product offers */
   readonly isLoadingOffers = signal<boolean>(false);
+
+  //#endregion
+
+  //#region Featured Categories State (S1 Categories Sprint)
+
+  /** Featured categories from backend API */
+  readonly featuredCategoriesFromApi = signal<FeaturedCategory[]>([]);
+
+  /** Loading state for featured categories */
+  readonly isLoadingFeaturedCategories = signal<boolean>(false);
 
   //#endregion
 
@@ -390,6 +411,7 @@ export class HomepageComponent implements OnInit {
       this.loadMockSyrianProducts();
       this.loadCategoryShowcaseSections();
       this.loadProductOffers();
+      this.loadFeaturedCategories();
       // Load categories data (but skip campaign API calls)
       // TEMPORARILY COMMENTED OUT TO ISOLATE THE ISSUE
       // this.initializeData();
@@ -419,6 +441,39 @@ export class HomepageComponent implements OnInit {
           this.isLoadingShowcaseSections.set(false);
         }
       });
+  }
+
+  /**
+   * Loads featured categories from backend API (S1 Categories Sprint)
+   * @description Fetches featured categories for homepage display
+   */
+  private loadFeaturedCategories(): void {
+    this.isLoadingFeaturedCategories.set(true);
+
+    this.categoryApiService.getFeatured(6)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (response) => {
+          this.featuredCategoriesFromApi.set(response.data);
+          this.isLoadingFeaturedCategories.set(false);
+          console.log(`✅ Loaded ${response.data.length} featured categories from API`);
+        },
+        error: (error) => {
+          console.error('Failed to load featured categories:', error);
+          this.isLoadingFeaturedCategories.set(false);
+          this.showErrorNotification('Failed to load featured categories');
+        }
+      });
+  }
+
+  /**
+   * Handle featured category click from API component (S1 Categories Sprint)
+   * @description Navigates to category page when featured category is clicked
+   * @param slug - Category slug
+   */
+  onFeaturedCategoryClickApi(slug: string): void {
+    console.log('Featured category clicked (API):', slug);
+    this.router.navigate(['/categories', slug]);
   }
 
   /**

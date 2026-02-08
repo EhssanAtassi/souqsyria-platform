@@ -70,7 +70,7 @@ export const authGuard: CanActivateFn = (route, state): boolean | UrlTree => {
 
   // User is not authenticated, redirect to login with return URL
   const returnUrl = state.url;
-  const loginUrl = router.createUrlTree(['/login'], {
+  const loginUrl = router.createUrlTree(['/auth/login'], {
     queryParams: { returnUrl }
   });
 
@@ -184,7 +184,7 @@ export const emailVerifiedGuard: CanActivateFn = (route, state): boolean | UrlTr
   const isAuthenticated = userService.isAuthenticated();
   if (!isAuthenticated) {
     // Let authGuard handle this
-    return router.createUrlTree(['/login'], {
+    return router.createUrlTree(['/auth/login'], {
       queryParams: { returnUrl: state.url }
     });
   }
@@ -252,7 +252,7 @@ export const phoneVerifiedGuard: CanActivateFn = (route, state): boolean | UrlTr
   const isAuthenticated = userService.isAuthenticated();
   if (!isAuthenticated) {
     // Let authGuard handle this
-    return router.createUrlTree(['/login'], {
+    return router.createUrlTree(['/auth/login'], {
       queryParams: { returnUrl: state.url }
     });
   }
@@ -333,7 +333,7 @@ export function membershipTierGuard(
     // Check if user is authenticated first
     const isAuthenticated = userService.isAuthenticated();
     if (!isAuthenticated) {
-      return router.createUrlTree(['/login'], {
+      return router.createUrlTree(['/auth/login'], {
         queryParams: { returnUrl: state.url }
       });
     }

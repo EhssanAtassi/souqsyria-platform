@@ -42,12 +42,15 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { HeroSplitLayoutComponent } from '../components/hero-split-layout/hero-split-layout.component';
 import { CategoryShowcaseSectionComponent } from '../components/category-showcase-section/category-showcase-section.component';
 import { ProductOffersRowComponent } from '../../../shared/components/product-offers-row/product-offers-row.component';
+import { FeaturedCategoriesComponent } from '../../category/components/featured-categories/featured-categories.component';
+import { CategorySkeletonComponent } from '../../category/components/category-skeleton/category-skeleton.component';
 
 // Services
 import { HomepageFacadeService } from '../services/homepage-facade.service';
 import { HomepageAnalyticsService } from '../services/homepage-analytics.service';
 import { HeroBannersService } from '../../../store/hero-banners/hero-banners.service';
 import { HeroBannersQuery } from '../../../store/hero-banners/hero-banners.query';
+import { CategoryApiService } from '../../category/services/category-api.service';
 
 // Interfaces
 import { Product } from '../../../shared/interfaces/product.interface';
@@ -57,6 +60,7 @@ import {
   SubcategoryClickEvent
 } from '../../../shared/interfaces/category-showcase.interface';
 import { ProductOffer, ProductOfferClickEvent } from '../../../shared/interfaces/product-offer.interface';
+import { FeaturedCategory } from '../../category/models/category-tree.interface';
 
 // Configurations
 import {
@@ -100,7 +104,9 @@ import {
     MatSnackBarModule,
     HeroSplitLayoutComponent,
     CategoryShowcaseSectionComponent,
-    ProductOffersRowComponent
+    ProductOffersRowComponent,
+    FeaturedCategoriesComponent,
+    CategorySkeletonComponent
   ],
   templateUrl: '../homepage.component.html',
   styleUrl: '../homepage.component.scss'
@@ -115,6 +121,7 @@ export class HomepageComponent implements OnInit {
   private readonly analytics = inject(HomepageAnalyticsService);
   readonly heroBannersService = inject(HeroBannersService);
   private readonly heroBannersQuery = inject(HeroBannersQuery);
+  private readonly categoryApi = inject(CategoryApiService);
 
   //#endregion
 
@@ -148,6 +155,10 @@ export class HomepageComponent implements OnInit {
   /** Loading states */
   readonly isLoadingProducts = signal<boolean>(false);
   readonly isLoadingOffers = signal<boolean>(false);
+  readonly isLoadingFeaturedCategories = signal<boolean>(false);
+
+  /** Featured categories from API (S1 Categories Sprint) */
+  readonly featuredCategoriesFromApi = signal<FeaturedCategory[]>([]);
 
   /** Error states */
   readonly productsError = signal<string | null>(null);
@@ -188,7 +199,30 @@ export class HomepageComponent implements OnInit {
     this.heroBannersService.loadActiveBanners(5);
     console.log('✅ Hero banners loading initiated via Akita store');
 
+    this.loadFeaturedCategories();
     this.initializeHomepage();
+  }
+
+  /**
+   * Load featured categories from API
+   * @description Fetches featured categories for homepage display
+   */
+  private loadFeaturedCategories(): void {
+    this.isLoadingFeaturedCategories.set(true);
+
+    this.categoryApi
+      .getFeatured(6)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (response) => {
+          this.featuredCategoriesFromApi.set(response.data);
+          this.isLoadingFeaturedCategories.set(false);
+        },
+        error: (error) => {
+          console.error('Failed to load featured categories:', error);
+          this.isLoadingFeaturedCategories.set(false);
+        }
+      });
   }
 
   /**
@@ -236,6 +270,15 @@ export class HomepageComponent implements OnInit {
   onFeaturedCategoryClick(category: FeaturedCategoryConfig): void {
     this.analytics.trackCategoryClick(category.route, category.name, 'featured-categories');
     this.router.navigate([category.route]);
+  }
+
+  /**
+   * Handle API-driven featured category click
+   * @description Navigates to category page using slug from API data
+   */
+  onFeaturedCategoryClickApi(slug: string): void {
+    this.analytics.trackCategoryClick(`/category/${slug}`, slug, 'featured-categories-api');
+    this.router.navigate(['/category', slug]);
   }
 
   /**

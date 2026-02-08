@@ -1,0 +1,123 @@
+<!-- Featured Categories Section -->
+<section
+  class="featured-categories py-8 px-4 md:px-6 lg:px-8"
+  [class.rtl]="isRtl()"
+>
+  <!-- Section Header -->
+  <div class="section-header mb-6">
+    <h2
+      class="text-2xl md:text-3xl font-bold text-gray-900"
+      [class.rtl:text-right]="isRtl()"
+    >
+      {{ isRtl() ? 'الفئات المميزة' : 'Featured Categories' }}
+    </h2>
+    <p
+      class="mt-2 text-sm md:text-base text-gray-600"
+      [class.rtl:text-right]="isRtl()"
+    >
+      {{ isRtl() ? 'تصفح الفئات الأكثر شهرة' : 'Browse our most popular categories' }}
+    </p>
+  </div>
+
+  <!-- Loading Skeleton -->
+  <div
+    *ngIf="isLoading"
+    class="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4"
+    role="status"
+    aria-label="Loading categories"
+  >
+    <div
+      *ngFor="let i of [1, 2, 3, 4, 5, 6]"
+      class="skeleton-card animate-pulse"
+    >
+      <div class="aspect-square bg-gray-200 rounded-lg mb-2"></div>
+      <div class="h-4 bg-gray-200 rounded w-3/4 mx-auto mb-2"></div>
+      <div class="h-3 bg-gray-200 rounded w-1/2 mx-auto"></div>
+    </div>
+  </div>
+
+  <!-- Categories Grid -->
+  <div
+    *ngIf="!isLoading && categories.length > 0"
+    class="categories-grid grid grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4"
+  >
+    <div
+      *ngFor="let category of categories; trackBy: trackByCategory"
+      class="category-card group cursor-pointer text-center"
+      (click)="onCategoryClick(category.slug)"
+      (keydown.enter)="onCategoryClick(category.slug)"
+      (keydown.space)="onCategoryClick(category.slug)"
+      [attr.tabindex]="0"
+      role="button"
+      [attr.aria-label]="'Navigate to ' + getCategoryName(category)"
+    >
+      <!-- Category Image -->
+      <div
+        class="category-image-wrapper relative overflow-hidden rounded-lg aspect-square mb-2
+               transition-all duration-200 ease-in-out
+               group-hover:scale-105 group-hover:shadow-lg
+               group-focus:scale-105 group-focus:shadow-lg group-focus:outline-none group-focus:ring-2 group-focus:ring-primary-500"
+      >
+        <img
+          [src]="category.image"
+          [alt]="getCategoryName(category)"
+          class="w-full h-full object-cover"
+          loading="lazy"
+          (error)="onImageError($event)"
+        />
+
+        <!-- Hover Overlay -->
+        <div
+          class="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent
+                 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+        ></div>
+      </div>
+
+      <!-- Category Name -->
+      <h3
+        class="category-name text-sm font-medium text-gray-900 truncate px-1
+               group-hover:text-primary-600 transition-colors duration-200"
+        [title]="getCategoryName(category)"
+      >
+        {{ getCategoryName(category) }}
+      </h3>
+
+      <!-- Product Count Badge -->
+      <span
+        class="product-count inline-block mt-1 text-xs text-gray-500 px-2 py-0.5 rounded-full bg-gray-100
+               group-hover:bg-primary-100 group-hover:text-primary-700 transition-all duration-200"
+      >
+        {{ getProductCountText(category.productCount) }}
+      </span>
+    </div>
+  </div>
+
+  <!-- Empty State -->
+  <div
+    *ngIf="!isLoading && categories.length === 0"
+    class="empty-state text-center py-12"
+  >
+    <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gray-100 mb-4">
+      <svg
+        class="w-8 h-8 text-gray-400"
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"
+        ></path>
+      </svg>
+    </div>
+    <h3 class="text-lg font-medium text-gray-900 mb-2">
+      {{ isRtl() ? 'لا توجد فئات' : 'No Categories' }}
+    </h3>
+    <p class="text-sm text-gray-600">
+      {{ isRtl() ? 'لم يتم العثور على فئات مميزة' : 'No featured categories found' }}
+    </p>
+  </div>
+</section>
