@@ -37,6 +37,13 @@ import { FavoritesButtonComponent } from './components/favorites-button/favorite
 // Sample data
 import { SYRIAN_CATEGORIES, HEADER_NAV_CATEGORIES } from '../../data/syrian-categories.data';
 
+// Category Integration (S1 Categories Sprint)
+import { MegaMenuComponent } from '../../../features/category/components/mega-menu/mega-menu.component';
+import { CategoryApiService } from '../../../features/category/services/category-api.service';
+import { CategoryTreeNode } from '../../../features/category/models/category-tree.interface';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { signal } from '@angular/core';
+
 /**
  * SouqSyria Header Navigation Component
  * 
@@ -99,6 +106,7 @@ import { SYRIAN_CATEGORIES, HEADER_NAV_CATEGORIES } from '../../data/syrian-cate
     MatBadgeModule,
     CategoryNavigationComponent,
     MobileCategoryMenuComponent,
+    MegaMenuComponent,
     TopBarComponent,
     QuickAccessRowComponent,
     LogoComponent,
@@ -259,6 +267,25 @@ export class HeaderComponent implements OnInit {
   /** Subject for handling component destruction */
   private destroyRef = inject(DestroyRef);
 
+  /** Category API service for fetching category tree (S1 Categories Sprint) */
+  private categoryApiService = inject(CategoryApiService);
+
+  //#endregion
+
+  //#region Category Integration (S1 Categories Sprint)
+
+  /** Category tree data for mega menu navigation */
+  categoryTree = signal<CategoryTreeNode[]>([]);
+
+  /** Mega menu open state */
+  megaMenuOpen = signal<boolean>(false);
+
+  /** Category tree loading state */
+  categoryTreeLoading = signal<boolean>(false);
+
+  /** Cache flag to load category tree only once */
+  private categoryTreeLoaded = false;
+
   /** Default Syrian locations */
   private readonly defaultLocations: Location[] = [
     {
@@ -302,6 +329,73 @@ export class HeaderComponent implements OnInit {
   ngOnInit(): void {
     this.initializeDefaultLocation();
     this.initializeCategoryData();
+  }
+
+  /**
+   * Load category tree for mega menu (lazy loading on first hover)
+   * @description Fetches category tree from backend API and caches result
+   * @private
+   */
+  private loadCategoryTree(): void {
+    if (this.categoryTreeLoaded || this.categoryTreeLoading()) {
+      return; // Already loaded or loading
+    }
+
+    this.categoryTreeLoading.set(true);
+    this.categoryApiService.getTree()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (response) => {
+          this.categoryTree.set(response.data);
+          this.categoryTreeLoaded = true;
+          this.categoryTreeLoading.set(false);
+          console.log('✅ Category tree loaded for mega menu:', response.data.length, 'categories');
+        },
+        error: (error) => {
+          console.error('❌ Failed to load category tree:', error);
+          this.categoryTreeLoading.set(false);
+        }
+      });
+  }
+
+  /**
+   * Handle category button hover (desktop)
+   * @description Opens mega menu and loads category tree on first hover
+   */
+  onCategoriesHover(): void {
+    if (!this.categoryTreeLoaded) {
+      this.loadCategoryTree();
+    }
+    this.megaMenuOpen.set(true);
+  }
+
+  /**
+   * Handle category button click (mobile)
+   * @description Opens mega menu and loads category tree on first click
+   */
+  onCategoriesClick(): void {
+    if (!this.categoryTreeLoaded) {
+      this.loadCategoryTree();
+    }
+    this.megaMenuOpen.set(!this.megaMenuOpen());
+  }
+
+  /**
+   * Handle mega menu category selection
+   * @description Closes mega menu when category is selected
+   * @param slug - Selected category slug
+   */
+  onMegaMenuCategorySelected(slug: string): void {
+    this.megaMenuOpen.set(false);
+    console.log('Mega menu category selected:', slug);
+  }
+
+  /**
+   * Handle mega menu close event
+   * @description Closes mega menu
+   */
+  onMegaMenuClosed(): void {
+    this.megaMenuOpen.set(false);
   }
   
   

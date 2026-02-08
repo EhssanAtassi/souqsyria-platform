@@ -12,6 +12,19 @@
   <div class="sq-container max-w-[1400px] mx-auto px-6">
     <div class="flex items-center h-12">
 
+      <!-- All Categories Button (S1 Categories Sprint Integration) -->
+      <button
+        class="sq-all-categories-btn flex items-center gap-2 h-full px-5 text-[14px] font-semibold text-primary-600 hover:text-primary-400 hover:bg-primary-50 transition-all duration-200"
+        (click)="onAllCategoriesClick()"
+        [attr.aria-label]="config.language === 'ar' ? 'جميع الفئات' : 'All Categories'"
+      >
+        <mat-icon class="text-[20px]">menu</mat-icon>
+        <span>{{ config.language === 'ar' ? 'جميع الفئات' : 'All Categories' }}</span>
+      </button>
+
+      <!-- Vertical Divider -->
+      <div class="h-6 w-px bg-outline/30 mx-2"></div>
+
       <!-- Featured Categories Navigation (prototype: text-only with underline hover) -->
       <div
         class="flex items-center h-full"

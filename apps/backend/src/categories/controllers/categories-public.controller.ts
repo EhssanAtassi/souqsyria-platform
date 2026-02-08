@@ -44,7 +44,7 @@ import { CategoriesService } from '../services/categories.service';
 import { PublicProductsService } from '../../products/public/service/public-products.service';
 
 // Import DTOs and Types
-import { CategoryQueryDto } from '../dto/index-dto';
+import { CategoryQueryDto, ApprovalStatus, GetCategoriesTreeResponseDto, CategoryTreeRootDto, CategoryTreeChildDto, CategoryTreeGrandchildDto, PaginatedCategoriesResponseDto } from '../dto/index-dto';
 
 /**
  * PUBLIC CATEGORIES CONTROLLER
@@ -201,7 +201,7 @@ export class CategoriesPublicController {
         limit: sanitizedParams.limit,
         language: sanitizedParams.language,
         isActive: true,
-        approvalStatus: 'approved' as any,
+        approvalStatus: ApprovalStatus.APPROVED,
         isFeatured: sanitizedParams.featured ? true : undefined,
         parentId: sanitizedParams.parentId,
         showInNav: true,
@@ -276,6 +276,146 @@ export class CategoriesPublicController {
         success: false,
         error: 'Internal server error',
         message: 'Failed to retrieve categories. Please try again.',
+        statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+      });
+    }
+  }
+
+  /**
+   * GET CATEGORY TREE FOR MEGA MENU
+   *
+   * Returns complete 3-level category hierarchy optimized for frontend mega menus.
+   * Structure: Root > Children > Grandchildren
+   *
+   * Features:
+   * - Only active and approved categories
+   * - 3 levels deep (Parent > Child > Grandchild)
+   * - Sorted by sortOrder ASC
+   * - Lightweight response for fast navigation
+   * - Cached for optimal performance
+   */
+  @Get('tree')
+  @ApiOperation({
+    summary: 'Get complete category tree for mega menu (3 levels)',
+    description: `
+      Retrieve the full category hierarchy optimized for mega menu navigation.
+
+      Features:
+      • 3-level hierarchy: Parent > Child > Grandchild
+      • Only active and approved categories
+      • Sorted by sort order
+      • Bilingual support (Arabic/English)
+      • Heavily cached for performance
+
+      Use Cases:
+      • Main navigation mega menus
+      • Mobile app category browsers
+      • Category selection dropdowns
+      • Sitemap generation
+    `,
+  })
+  @ApiQuery({
+    name: 'language',
+    required: false,
+    enum: ['en', 'ar'],
+    example: 'en',
+    description: 'Response language preference (default: en)',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Category tree retrieved successfully',
+    type: GetCategoriesTreeResponseDto,
+    headers: {
+      'Cache-Control': {
+        description: 'Long cache for tree structure',
+        schema: { type: 'string', example: 'public, max-age=1800' },
+      },
+    },
+  })
+  @ApiResponse({
+    status: 500,
+    description: 'Internal server error',
+  })
+  async getCategoryTree(
+    @Query('language') language: 'en' | 'ar' = 'en',
+    @Res() response: Response,
+  ) {
+    const startTime = Date.now();
+
+    this.logger.log(`🌳 Category tree request: lang=${language}`);
+
+    try {
+      // Validate language parameter
+      const sanitizedLanguage = ['en', 'ar'].includes(language) ? language : 'en';
+
+      // Get complete tree from service
+      const tree = await this.categoriesService.getTree();
+
+      // Transform to tree response format
+      const treeResponse: CategoryTreeRootDto[] = tree.map((root) => ({
+        id: root.id,
+        name: sanitizedLanguage === 'ar' ? root.nameAr : root.nameEn,
+        nameAr: root.nameAr,
+        slug: root.slug,
+        icon: root.iconUrl,
+        image: root.bannerUrl,
+        productCount: root.productCount,
+        children: (root.children || []).map((child) => ({
+          id: child.id,
+          name: sanitizedLanguage === 'ar' ? child.nameAr : child.nameEn,
+          nameAr: child.nameAr,
+          slug: child.slug,
+          icon: child.iconUrl,
+          image: child.bannerUrl,
+          productCount: child.productCount,
+          children: (child.children || []).map((grandchild) => ({
+            id: grandchild.id,
+            name: sanitizedLanguage === 'ar' ? grandchild.nameAr : grandchild.nameEn,
+            nameAr: grandchild.nameAr,
+            slug: grandchild.slug,
+            icon: grandchild.iconUrl,
+            image: grandchild.bannerUrl,
+            productCount: grandchild.productCount,
+          })),
+        })),
+      }));
+
+      // Set aggressive cache headers for tree (30 minutes)
+      response.set({
+        'Cache-Control': 'public, max-age=1800',
+        'Content-Language': sanitizedLanguage,
+        'X-Content-Type-Options': 'nosniff',
+      });
+
+      const processingTime = Date.now() - startTime;
+      const totalCategories = treeResponse.reduce(
+        (sum, root) =>
+          sum +
+          1 +
+          (root.children?.length || 0) +
+          (root.children?.reduce((childSum, child) => childSum + (child.children?.length || 0), 0) || 0),
+        0,
+      );
+
+      this.logger.log(
+        `✅ Category tree served: ${treeResponse.length} roots, ${totalCategories} total (${processingTime}ms)`,
+      );
+
+      return response.status(HttpStatus.OK).json({
+        data: treeResponse,
+      });
+    } catch (error: unknown) {
+      const processingTime = Date.now() - startTime;
+
+      this.logger.error(
+        `❌ Category tree failed: ${(error as Error).message} (${processingTime}ms)`,
+        (error as Error).stack,
+      );
+
+      return response.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        error: 'Failed to retrieve category tree',
+        message: (error as Error).message || 'Please try again later',
         statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
       });
     }
@@ -424,7 +564,7 @@ export class CategoriesPublicController {
         limit: sanitizedLimit,
         language: sanitizedLanguage,
         isActive: true,
-        approvalStatus: 'approved' as any,
+        approvalStatus: ApprovalStatus.APPROVED,
         search: searchQuery.trim(),
         parentId: parentId,
         includeDeleted: false,
@@ -625,22 +765,16 @@ export class CategoriesPublicController {
         sanitizedLimit,
       );
 
-      // 3. Transform to featured response format (snake_case, both languages)
+      // 3. Transform to featured response format (camelCase, matching FE interface)
       const featuredResponse = categories.map((category) => ({
         id: category.id,
-        name_en: category.nameEn,
-        name_ar: category.nameAr,
+        name: category.nameEn,
+        nameAr: category.nameAr,
         slug: category.slug,
-        description_en: category.descriptionEn || '',
-        description_ar: category.descriptionAr || '',
-        icon_url: category.iconUrl,
-        theme_color: category.themeColor,
-        featured_image_url: category.featuredImageUrl || category.bannerUrl,
-        featured_discount: category.featuredDiscount,
-        is_featured: category.isFeatured,
-        featured_priority: category.featuredPriority,
-        is_active: category.isActive,
-        product_count: category.productCount,
+        image: category.featuredImageUrl || category.bannerUrl || '',
+        icon: category.iconUrl || '',
+        productCount: category.productCount,
+        sortOrder: category.featuredPriority || category.sortOrder,
       }));
 
       // 4. Set long cache headers for featured content
@@ -769,7 +903,7 @@ export class CategoriesPublicController {
         where: {
           parent: IsNull(), // Top-level categories have no parent
           isActive: true,
-          approvalStatus: 'approved' as any,
+          approvalStatus: ApprovalStatus.APPROVED,
         },
         order: {
           sortOrder: 'ASC',
@@ -794,7 +928,7 @@ export class CategoriesPublicController {
             where: {
               parent: { id: parent.id }, // Children of this parent category
               isActive: true,
-              approvalStatus: 'approved' as any,
+              approvalStatus: ApprovalStatus.APPROVED,
             },
             order: {
               sortOrder: 'ASC',
@@ -853,14 +987,18 @@ export class CategoriesPublicController {
   /**
    * VALIDATE PUBLIC QUERY PARAMETERS
    */
-  private validatePublicQueryParams(params: any): any {
-    const page = Math.max(1, parseInt(params.page) || 1);
-    const limit = Math.min(Math.max(1, parseInt(params.limit) || 20), 50); // Max 50 for public
-    const language = ['en', 'ar'].includes(params.language)
-      ? params.language
-      : 'en';
+  private validatePublicQueryParams(params: {
+    page?: number | string;
+    limit?: number | string;
+    language?: string;
+    featured?: boolean | string;
+    parentId?: number | string;
+  }): { page: number; limit: number; language: 'en' | 'ar'; featured: boolean; parentId: number | undefined } {
+    const page = Math.max(1, Number(params.page) || 1);
+    const limit = Math.min(Math.max(1, Number(params.limit) || 20), 50); // Max 50 for public
+    const language: 'en' | 'ar' = params.language === 'ar' ? 'ar' : 'en';
     const featured = params.featured === true || params.featured === 'true';
-    const parentId = params.parentId ? parseInt(params.parentId) : undefined;
+    const parentId = params.parentId ? Number(params.parentId) : undefined;
 
     return { page, limit, language, featured, parentId };
   }
@@ -918,10 +1056,10 @@ export class CategoriesPublicController {
    * TRANSFORM TO PUBLIC RESPONSE FORMAT
    */
   private transformToPublicResponse(
-    result: any,
+    result: PaginatedCategoriesResponseDto,
     language: string,
-    userContext: any,
-  ): any {
+    userContext: { type: 'local' | 'diaspora'; country?: string },
+  ): Omit<PaginatedCategoriesResponseDto, 'data'> & { data: Record<string, unknown>[] } {
     // Remove admin-only fields and optimize for public consumption
     const publicData = result.data.map((category) => ({
       id: category.id,
