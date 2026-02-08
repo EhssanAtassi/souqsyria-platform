@@ -24,7 +24,7 @@
 import {
   Controller,
   Get,
-  Put,
+  Patch,
   Post,
   Body,
   UseGuards,
@@ -94,9 +94,12 @@ export class UsersController {
       this.usersService.getUserStatistics(user.id),
     ]);
 
-    // Transform to response DTO
+    // Transform to response DTO with flat stats
     const responseData = {
       ...userProfile,
+      avatar: userProfile.avatar || null,
+      ordersCount: statistics.totalOrders,
+      wishlistCount: statistics.wishlistItems,
       addresses: addresses.map((address) => ({
         id: address.id,
         label: address.label,
@@ -104,7 +107,7 @@ export class UsersController {
         fullAddress: `${address.addressLine1}, ${address.city?.name || ''}, ${address.region?.name || ''}, ${address.country?.name || ''}`,
       })),
       preferences: userProfile.metadata?.preferences || {},
-      statistics,
+      statistics, // Keep for backwards compatibility
     };
 
     return plainToInstance(UserProfileResponseDto, responseData, {
@@ -117,11 +120,11 @@ export class UsersController {
    *
    * Updates user profile information with validation
    */
-  @Put('profile')
+  @Patch('profile')
   @ApiOperation({
     summary: 'Update user profile',
     description:
-      'Updates user profile information including name, email, phone, and preferences',
+      'Updates user profile information including name, email, phone, avatar, and preferences',
   })
   @ApiBody({
     type: UpdateProfileDto,
@@ -161,23 +164,7 @@ export class UsersController {
   })
   @ApiOkResponse({
     description: 'Profile updated successfully',
-    schema: {
-      example: {
-        message: 'Profile updated successfully',
-        profile: {
-          id: 123,
-          fullName: 'أحمد محمد السوري',
-          email: 'ahmed.updated@example.com',
-          phone: '+963987654321',
-          preferences: {
-            language: 'ar',
-            currency: 'SYP',
-            emailNotifications: true,
-          },
-          updatedAt: '2025-08-08T14:30:00.000Z',
-        },
-      },
-    },
+    type: UserProfileResponseDto,
   })
   @ApiBadRequestResponse({
     description: 'Invalid profile data or email/phone already taken',
@@ -195,25 +182,13 @@ export class UsersController {
   async updateUserProfile(
     @CurrentUser() user: UserFromToken,
     @Body() updateProfileDto: UpdateProfileDto,
-  ) {
+  ): Promise<UserProfileResponseDto> {
     this.logger.log(`✏️ Updating profile for user ${user.id}`);
 
-    const updatedUser = await this.usersService.updateUserProfile(
-      user.id,
-      updateProfileDto,
-    );
+    await this.usersService.updateUserProfile(user.id, updateProfileDto);
 
-    return {
-      message: 'Profile updated successfully',
-      profile: {
-        id: updatedUser.id,
-        fullName: updatedUser.fullName,
-        email: updatedUser.email,
-        phone: updatedUser.phone,
-        preferences: updatedUser.metadata?.preferences || {},
-        updatedAt: updatedUser.updatedAt,
-      },
-    };
+    // Return full profile response (same as GET /profile)
+    return this.getUserProfile(user);
   }
 
   /**

@@ -28,8 +28,18 @@ export const accountRoutes: Routes = [
   },
   {
     path: 'profile',
-    loadComponent: () => import('./profile-settings.component').then(m => m.ProfileSettingsComponent),
-    title: 'Profile Settings - SouqSyria'
+    loadComponent: () => import('./pages/profile/profile.component').then(m => m.ProfileComponent),
+    title: 'Profile - SouqSyria'
+  },
+  {
+    path: 'profile/edit',
+    loadComponent: () => import('./pages/profile-edit/profile-edit.component').then(m => m.ProfileEditComponent),
+    title: 'Edit Profile - SouqSyria'
+  },
+  {
+    path: 'security',
+    loadComponent: () => import('./pages/security/security.component').then(m => m.SecurityComponent),
+    title: 'Security - SouqSyria'
   },
   {
     path: 'wishlist',

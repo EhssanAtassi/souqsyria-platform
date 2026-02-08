@@ -1,0 +1,112 @@
+/**
+ * @fileoverview Styles for security component (change password)
+ * @description Responsive styles with RTL support for password change form
+ */
+
+.security-container {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 2rem;
+
+  @media (max-width: 768px) {
+    padding: 1rem;
+  }
+}
+
+/* Security Card */
+.security-card {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 12px;
+}
+
+.security-title {
+  font-size: 1.75rem;
+  font-weight: 600;
+  margin: 0;
+  color: rgba(0, 0, 0, 0.87);
+}
+
+/* Form Fields */
+.form-field {
+  width: 100%;
+  margin-bottom: 1.5rem;
+}
+
+/* Form Error */
+.form-error {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  margin-bottom: 1.5rem;
+  background-color: #ffebee;
+  border-radius: 4px;
+  color: #c62828;
+  font-size: 0.875rem;
+
+  mat-icon {
+    font-size: 1.25rem;
+    width: 1.25rem;
+    height: 1.25rem;
+  }
+}
+
+/* Actions Row */
+.actions-row {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 2rem;
+}
+
+.submit-button {
+  min-width: 200px;
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+
+  mat-icon {
+    font-size: 1.25rem;
+    width: 1.25rem;
+    height: 1.25rem;
+  }
+
+  @media (max-width: 640px) {
+    width: 100%;
+  }
+}
+
+.button-spinner {
+  display: inline-block;
+  margin-right: 0.5rem;
+}
+
+/* RTL Support */
+[dir='rtl'] {
+  .form-error,
+  .submit-button {
+    direction: rtl;
+  }
+
+  .button-spinner {
+    margin-right: 0;
+    margin-left: 0.5rem;
+  }
+
+  .actions-row {
+    justify-content: flex-start;
+  }
+}
+
+/* Success/Error Snackbar Styles */
+::ng-deep .success-snackbar {
+  background-color: #4caf50 !important;
+  color: white !important;
+}
+
+::ng-deep .error-snackbar {
+  background-color: #f44336 !important;
+  color: white !important;
+}
