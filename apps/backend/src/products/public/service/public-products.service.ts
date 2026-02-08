@@ -221,6 +221,10 @@ export class PublicProductsService {
       // Placeholder: Sort by rating (currently same as newest)
       // TODO: Implement when review system is available
       query.orderBy('product.createdAt', 'DESC');
+    } else if (filters.sortBy === 'popularity') {
+      // Sort by sales count (best sellers first), then by creation date
+      query.orderBy('product.salesCount', 'DESC');
+      query.addOrderBy('product.createdAt', 'DESC');
     } else {
       // Default: Sort by newest (creation date descending)
       query.orderBy('product.createdAt', 'DESC');
@@ -298,12 +302,14 @@ export class PublicProductsService {
   /**
    * GET INDIVIDUAL PRODUCT DETAILS
    *
-   * Retrieves complete product information by slug for product detail page
+   * Retrieves complete product information by slug for product detail page.
+   * Includes structured response with attributes, variants with stock status,
+   * and related products from the same category.
    *
    * @param slug - Product slug identifier
-   * @returns Promise<ProductEntity> - Complete product details
+   * @returns Structured product details with related products
    */
-  async getProductBySlug(slug: string): Promise<ProductEntity> {
+  async getProductBySlug(slug: string) {
     this.logger.log(`🔍 Getting product details for slug: ${slug}`);
 
     const product = await this.productRepo
@@ -312,7 +318,10 @@ export class PublicProductsService {
       .leftJoinAndSelect('product.images', 'images')
       .leftJoinAndSelect('product.descriptions', 'descriptions')
       .leftJoinAndSelect('product.variants', 'variants')
-      .leftJoinAndSelect('variants.pricing', 'variantPricing')
+      .leftJoinAndSelect('variants.stocks', 'variantStocks')
+      .leftJoinAndSelect('product.attributes', 'productAttributes')
+      .leftJoinAndSelect('productAttributes.attribute', 'attributeDef')
+      .leftJoinAndSelect('productAttributes.value', 'attributeValue')
       .leftJoinAndSelect('product.category', 'category')
       .leftJoinAndSelect('product.manufacturer', 'manufacturer')
       .leftJoinAndSelect('product.vendor', 'vendor')
@@ -329,7 +338,197 @@ export class PublicProductsService {
       );
     }
 
-    return product;
+    // Query related products (same category, exclude self, limit 4, active/published only)
+    const relatedProducts = await this.productRepo
+      .createQueryBuilder('related')
+      .leftJoinAndSelect('related.pricing', 'relatedPricing')
+      .leftJoinAndSelect('related.images', 'relatedImages')
+      .leftJoinAndSelect('related.category', 'relatedCategory')
+      .leftJoinAndSelect('related.variants', 'relatedVariants')
+      .leftJoinAndSelect('relatedVariants.stocks', 'relatedStocks')
+      .where(
+        'related.isActive = true AND related.isPublished = true AND related.is_deleted = false',
+      )
+      .andWhere('relatedPricing.isActive = true')
+      .andWhere('related.category_id = :categoryId', {
+        categoryId: product.category?.id,
+      })
+      .andWhere('related.id != :productId', { productId: product.id })
+      .orderBy('related.salesCount', 'DESC')
+      .limit(4)
+      .getMany();
+
+    // Compute stock status from variants
+    let totalStock = 0;
+    if (product.variants?.length) {
+      product.variants.forEach((variant) => {
+        variant.stocks?.forEach((stock) => {
+          totalStock += stock.quantity || 0;
+        });
+      });
+    }
+
+    let stockStatus: 'in_stock' | 'low_stock' | 'out_of_stock';
+    if (!product.variants?.length) stockStatus = 'in_stock';
+    else if (totalStock === 0) stockStatus = 'out_of_stock';
+    else if (totalStock <= 5) stockStatus = 'low_stock';
+    else stockStatus = 'in_stock';
+
+    return {
+      id: product.id,
+      slug: product.slug,
+      nameEn: product.nameEn,
+      nameAr: product.nameAr,
+      sku: product.sku,
+      category: product.category
+        ? {
+            id: product.category.id,
+            nameEn: product.category.nameEn,
+            nameAr: product.category.nameAr,
+            slug: product.category.slug,
+          }
+        : null,
+      manufacturer: product.manufacturer
+        ? {
+            id: product.manufacturer.id,
+            name: product.manufacturer.name,
+          }
+        : null,
+      vendor: product.vendor
+        ? {
+            id: product.vendor.id,
+            storeName: product.vendor.storeName,
+          }
+        : null,
+      pricing: product.pricing
+        ? {
+            basePrice: product.pricing.basePrice,
+            discountPrice: product.pricing.discountPrice ?? null,
+            currency: product.pricing.currency ?? 'SYP',
+          }
+        : null,
+      images: (product.images || []).map((img) => ({
+        id: img.id,
+        imageUrl: img.imageUrl,
+        sortOrder: img.sortOrder ?? 0,
+      })),
+      descriptions: (product.descriptions || []).map((desc) => ({
+        language: desc.language,
+        shortDescription: desc.description ?? '',
+        fullDescription: desc.description ?? '',
+      })),
+      variants: (product.variants || []).map((variant) => {
+        let variantStock = 0;
+        variant.stocks?.forEach((s) => {
+          variantStock += s.quantity || 0;
+        });
+        let variantStockStatus: 'in_stock' | 'low_stock' | 'out_of_stock';
+        if (variantStock === 0) variantStockStatus = 'out_of_stock';
+        else if (variantStock <= 5) variantStockStatus = 'low_stock';
+        else variantStockStatus = 'in_stock';
+
+        return {
+          id: variant.id,
+          sku: variant.sku,
+          price: variant.price,
+          variantData: variant.variantData,
+          imageUrl: variant.imageUrl ?? null,
+          stockStatus: variantStockStatus,
+          totalStock: variantStock,
+          isActive: variant.isActive,
+        };
+      }),
+      attributes: (product.attributes || []).map((attr) => ({
+        id: attr.id,
+        attributeNameEn: attr.attribute?.nameEn ?? '',
+        attributeNameAr: attr.attribute?.nameAr ?? '',
+        valueEn: attr.value?.valueEn ?? '',
+        valueAr: attr.value?.valueAr ?? '',
+        colorHex: attr.value?.colorHex ?? null,
+      })),
+      stockStatus,
+      totalStock,
+      relatedProducts: relatedProducts.map((rp) => {
+        let rpTotalStock = 0;
+        rp.variants?.forEach((v) =>
+          v.stocks?.forEach((s) => {
+            rpTotalStock += s.quantity || 0;
+          }),
+        );
+        let rpStockStatus: 'in_stock' | 'low_stock' | 'out_of_stock';
+        if (!rp.variants?.length) rpStockStatus = 'in_stock';
+        else if (rpTotalStock === 0) rpStockStatus = 'out_of_stock';
+        else if (rpTotalStock <= 5) rpStockStatus = 'low_stock';
+        else rpStockStatus = 'in_stock';
+
+        return {
+          id: rp.id,
+          slug: rp.slug,
+          nameEn: rp.nameEn,
+          nameAr: rp.nameAr,
+          mainImage: rp.images?.[0]?.imageUrl ?? null,
+          basePrice: rp.pricing?.basePrice,
+          discountPrice: rp.pricing?.discountPrice ?? null,
+          currency: rp.pricing?.currency ?? 'SYP',
+          stockStatus: rpStockStatus,
+        };
+      }),
+    };
+  }
+
+  /**
+   * GET SEARCH SUGGESTIONS
+   *
+   * Retrieves search suggestions for autocomplete dropdown.
+   * Returns product names (limit 5) and category names (limit 3) that match the query.
+   *
+   * @param query - Search query string (minimum 2 characters)
+   * @returns Object containing suggestions array with text, textAr, type, and slug
+   */
+  async getSearchSuggestions(query: string) {
+    const searchTerm = `%${query}%`;
+
+    // Search product names (limit 5)
+    const products = await this.productRepo
+      .createQueryBuilder('product')
+      .select(['product.nameEn', 'product.nameAr', 'product.slug'])
+      .where(
+        'product.isActive = true AND product.isPublished = true AND product.is_deleted = false',
+      )
+      .andWhere(
+        '(product.nameEn LIKE :search OR product.nameAr LIKE :search)',
+        { search: searchTerm },
+      )
+      .limit(5)
+      .getMany();
+
+    // Search category names (limit 3) - use raw query to access categories table
+    const categories = await this.productRepo.manager
+      .createQueryBuilder()
+      .select(['cat.name_en', 'cat.name_ar', 'cat.slug'])
+      .from('categories', 'cat')
+      .where('cat.name_en LIKE :search OR cat.name_ar LIKE :search', {
+        search: searchTerm,
+      })
+      .limit(3)
+      .getRawMany();
+
+    const suggestions = [
+      ...products.map((p) => ({
+        text: p.nameEn,
+        textAr: p.nameAr,
+        type: 'product' as const,
+        slug: p.slug,
+      })),
+      ...categories.map((c) => ({
+        text: c.cat_name_en,
+        textAr: c.cat_name_ar,
+        type: 'category' as const,
+        slug: c.cat_slug,
+      })),
+    ];
+
+    return { suggestions };
   }
 
   /**

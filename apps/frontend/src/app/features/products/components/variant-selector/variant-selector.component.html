@@ -1,0 +1,18 @@
+<div class="variant-selector" [class.rtl]="language() === 'ar'">
+  @for (key of attributeKeys(); track key) {
+    <div class="variant-selector__group">
+      <label class="variant-selector__label">{{ key }}</label>
+      <div class="variant-selector__options">
+        @for (value of getOptionsForKey()(key); track value) {
+          <button
+            class="variant-option"
+            [class.variant-option--selected]="isSelected(key, value)"
+            (click)="selectOption(key, value)"
+          >
+            {{ value }}
+          </button>
+        }
+      </div>
+    </div>
+  }
+</div>

@@ -13,6 +13,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../../environments/environment';
 import { ProductListResponse } from '../models/product-list.interface';
+import { ProductDetailResponse, SearchSuggestionItem } from '../models/product-detail.interface';
 
 /**
  * @description Query parameters accepted by the product listing API
@@ -22,7 +23,7 @@ export interface ProductQueryParams {
   page?: number;
   /** Items per page (1-100) */
   limit?: number;
-  /** Sort option: price_asc, price_desc, newest, rating */
+  /** Sort option: price_asc, price_desc, newest, rating, popularity */
   sortBy?: string;
   /** Search term for product name (English or Arabic) */
   search?: string;
@@ -80,5 +81,35 @@ export class ProductService {
     }
 
     return this.http.get<ProductListResponse>(this.apiUrl, { params: httpParams });
+  }
+
+  /**
+   * @description Fetches detailed product information by slug
+   * @param slug - URL-friendly product identifier
+   * @returns Observable of ProductDetailResponse with full product data
+   *
+   * @example
+   * this.productService.getProductBySlug('damascus-steel-knife')
+   *   .subscribe(product => console.log(product.nameEn, product.pricing));
+   */
+  getProductBySlug(slug: string): Observable<ProductDetailResponse> {
+    return this.http.get<ProductDetailResponse>(`${this.apiUrl}/${slug}`);
+  }
+
+  /**
+   * @description Fetches search suggestions for autocomplete
+   * @param query - Search query string
+   * @returns Observable with array of suggestions (products and categories)
+   *
+   * @example
+   * this.productService.getSearchSuggestions('damascus')
+   *   .subscribe(response => console.log(response.suggestions));
+   */
+  getSearchSuggestions(query: string): Observable<{ suggestions: SearchSuggestionItem[] }> {
+    const httpParams = new HttpParams().set('q', query);
+    return this.http.get<{ suggestions: SearchSuggestionItem[] }>(
+      `${this.apiUrl}/suggestions`,
+      { params: httpParams }
+    );
   }
 }

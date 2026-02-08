@@ -5,10 +5,11 @@ import {
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { debounceTime, distinctUntilChanged, switchMap, of, tap } from 'rxjs';
+import { debounceTime, distinctUntilChanged, switchMap, of, tap, map } from 'rxjs';
 
 import { HeaderApiService } from '../../../../services/header-api.service';
 import { SearchSuggestion, RecentSearch } from '../../../../interfaces/header.interfaces';
+import { ProductService } from '../../../../../features/products/services/product.service';
 
 /**
  * Search Bar Component
@@ -82,6 +83,7 @@ export class SearchBarComponent implements OnInit {
   private readonly fb = inject(FormBuilder);
   private readonly destroyRef = inject(DestroyRef);
   private readonly headerApi = inject(HeaderApiService);
+  private readonly productService = inject(ProductService);
   private readonly cdr = inject(ChangeDetectorRef);
 
   /** Placeholder text based on language */
@@ -270,7 +272,15 @@ export class SearchBarComponent implements OnInit {
           return of([]);
         }
         this.showingRecent = false;
-        return this.headerApi.getSearchSuggestions({ query: trimmed });
+        return this.productService.getSearchSuggestions(trimmed).pipe(
+          map(response => response.suggestions.map(item => ({
+            text: item.text,
+            type: item.type as SearchSuggestion['type'],
+            url: item.slug
+              ? (item.type === 'product' ? `/products/${item.slug}` : `/category/${item.slug}`)
+              : undefined,
+          } as SearchSuggestion)))
+        );
       }),
       tap(suggestions => {
         if (!this.showingRecent) {
@@ -292,5 +302,17 @@ export class SearchBarComponent implements OnInit {
       this.recentSearches = searches;
       this.cdr.markForCheck();
     });
+  }
+
+  /**
+   * @description Highlights matching text in suggestion
+   * @param text - Original suggestion text
+   * @returns HTML string with matched portion wrapped in <strong>
+   */
+  highlightMatch(text: string): string {
+    const query = this.searchForm.get('query')?.value?.trim();
+    if (!query || query.length < 2) return text;
+    const regex = new RegExp(`(${query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
+    return text.replace(regex, '<strong>$1</strong>');
   }
 }

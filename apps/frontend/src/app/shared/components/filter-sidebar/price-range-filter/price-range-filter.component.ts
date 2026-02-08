@@ -82,9 +82,9 @@ export class PriceRangeFilterComponent {
 
   /**
    * Initial maximum price value
-   * @default 1000
+   * @default 10000000
    */
-  readonly initialMax = input<number>(1000);
+  readonly initialMax = input<number>(10000000);
 
   /**
    * Minimum allowed price (slider lower bound)
@@ -94,15 +94,15 @@ export class PriceRangeFilterComponent {
 
   /**
    * Maximum allowed price (slider upper bound)
-   * @default 10000
+   * @default 50000000
    */
-  readonly maxLimit = input<number>(10000);
+  readonly maxLimit = input<number>(50000000);
 
   /**
    * Currency to display
-   * @default 'USD'
+   * @default 'SYP'
    */
-  readonly currency = input<'USD' | 'EUR' | 'SYP'>('USD');
+  readonly currency = input<'USD' | 'EUR' | 'SYP'>('SYP');
 
   /**
    * Emits when price range changes
@@ -118,12 +118,12 @@ export class PriceRangeFilterComponent {
   /**
    * Current maximum price
    */
-  maxPrice = signal<number>(1000);
+  maxPrice = signal<number>(10000000);
 
   /**
    * Slider step value
    */
-  readonly step = 10;
+  readonly step = 100000;
 
   constructor() {
     // Initialize from inputs when component loads
