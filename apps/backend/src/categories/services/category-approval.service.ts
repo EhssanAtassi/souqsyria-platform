@@ -31,6 +31,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Category } from '../entities/category.entity';
 import { User } from '../../users/entities/user.entity';
+import { RolePermission } from '../../access-control/entities/role-permission.entity';
 import { AuditLogService } from '../../audit-log/service/audit-log.service';
 import { CategoryResponseDto, UpdateCategoryDto } from '../dto/index-dto';
 import { PendingCategoriesQueryDto } from '../dto/pending-categories-query.dto';
@@ -81,7 +82,7 @@ export class CategoryApprovalService {
    */
   async handleStatusChange(
     category: Category,
-    newStatus: string,
+    newStatus: Category['approvalStatus'],
     adminUser: User,
     updateData: Partial<UpdateCategoryDto> = {},
   ): Promise<void> {
@@ -94,7 +95,7 @@ export class CategoryApprovalService {
       // 1. Validate transition is allowed
       await this.validateStatusTransition(
         category.approvalStatus,
-        newStatus as any,
+        newStatus,
       );
 
       // 2. Validate admin permissions
@@ -280,7 +281,7 @@ export class CategoryApprovalService {
    */
   private async validateStatusTransition(
     currentStatus: string,
-    newStatus: string,
+    newStatus: Category['approvalStatus'],
   ): Promise<void> {
     this.logger.debug(`Validating transition: ${currentStatus} → ${newStatus}`);
 
@@ -370,7 +371,7 @@ export class CategoryApprovalService {
    */
   private async validateStatusBusinessRules(
     category: Category,
-    newStatus: string,
+    newStatus: Category['approvalStatus'],
     updateData: Partial<UpdateCategoryDto>,
   ): Promise<void> {
     this.logger.debug(
@@ -513,7 +514,7 @@ export class CategoryApprovalService {
    */
   private async executeStatusChange(
     category: Category,
-    newStatus: string,
+    newStatus: Category['approvalStatus'],
     adminUser: User,
     updateData: Partial<UpdateCategoryDto>,
   ): Promise<void> {
@@ -522,7 +523,7 @@ export class CategoryApprovalService {
 
     // Prepare update object
     const updates: Partial<Category> = {
-      approvalStatus: newStatus as any,
+      approvalStatus: newStatus,
       updatedBy: userId,
     };
 
@@ -575,7 +576,7 @@ export class CategoryApprovalService {
    */
   private async handlePostApprovalActions(
     category: Category,
-    newStatus: string,
+    newStatus: Category['approvalStatus'],
     adminUser: User,
   ): Promise<void> {
     this.logger.debug(
@@ -686,8 +687,8 @@ export class CategoryApprovalService {
    * Extracts all permissions from user's roles (business + assigned admin roles).
    * Follows the same pattern as your PermissionsGuard.
    */
-  private getUserPermissions(user: User): any[] {
-    const permissions: any[] = [];
+  private getUserPermissions(user: User): RolePermission[] {
+    const permissions: RolePermission[] = [];
 
     // Add permissions from business role
     if (user.role?.rolePermissions) {

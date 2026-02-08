@@ -44,7 +44,7 @@ import { CategoriesService } from '../services/categories.service';
 import { PublicProductsService } from '../../products/public/service/public-products.service';
 
 // Import DTOs and Types
-import { CategoryQueryDto, GetCategoriesTreeResponseDto, CategoryTreeRootDto, CategoryTreeChildDto, CategoryTreeGrandchildDto } from '../dto/index-dto';
+import { CategoryQueryDto, ApprovalStatus, GetCategoriesTreeResponseDto, CategoryTreeRootDto, CategoryTreeChildDto, CategoryTreeGrandchildDto, PaginatedCategoriesResponseDto } from '../dto/index-dto';
 
 /**
  * PUBLIC CATEGORIES CONTROLLER
@@ -201,7 +201,7 @@ export class CategoriesPublicController {
         limit: sanitizedParams.limit,
         language: sanitizedParams.language,
         isActive: true,
-        approvalStatus: 'approved' as any,
+        approvalStatus: ApprovalStatus.APPROVED,
         isFeatured: sanitizedParams.featured ? true : undefined,
         parentId: sanitizedParams.parentId,
         showInNav: true,
@@ -564,7 +564,7 @@ export class CategoriesPublicController {
         limit: sanitizedLimit,
         language: sanitizedLanguage,
         isActive: true,
-        approvalStatus: 'approved' as any,
+        approvalStatus: ApprovalStatus.APPROVED,
         search: searchQuery.trim(),
         parentId: parentId,
         includeDeleted: false,
@@ -765,22 +765,16 @@ export class CategoriesPublicController {
         sanitizedLimit,
       );
 
-      // 3. Transform to featured response format (snake_case, both languages)
+      // 3. Transform to featured response format (camelCase, matching FE interface)
       const featuredResponse = categories.map((category) => ({
         id: category.id,
-        name_en: category.nameEn,
-        name_ar: category.nameAr,
+        name: category.nameEn,
+        nameAr: category.nameAr,
         slug: category.slug,
-        description_en: category.descriptionEn || '',
-        description_ar: category.descriptionAr || '',
-        icon_url: category.iconUrl,
-        theme_color: category.themeColor,
-        featured_image_url: category.featuredImageUrl || category.bannerUrl,
-        featured_discount: category.featuredDiscount,
-        is_featured: category.isFeatured,
-        featured_priority: category.featuredPriority,
-        is_active: category.isActive,
-        product_count: category.productCount,
+        image: category.featuredImageUrl || category.bannerUrl || '',
+        icon: category.iconUrl || '',
+        productCount: category.productCount,
+        sortOrder: category.featuredPriority || category.sortOrder,
       }));
 
       // 4. Set long cache headers for featured content
@@ -909,7 +903,7 @@ export class CategoriesPublicController {
         where: {
           parent: IsNull(), // Top-level categories have no parent
           isActive: true,
-          approvalStatus: 'approved' as any,
+          approvalStatus: ApprovalStatus.APPROVED,
         },
         order: {
           sortOrder: 'ASC',
@@ -934,7 +928,7 @@ export class CategoriesPublicController {
             where: {
               parent: { id: parent.id }, // Children of this parent category
               isActive: true,
-              approvalStatus: 'approved' as any,
+              approvalStatus: ApprovalStatus.APPROVED,
             },
             order: {
               sortOrder: 'ASC',
@@ -993,11 +987,17 @@ export class CategoriesPublicController {
   /**
    * VALIDATE PUBLIC QUERY PARAMETERS
    */
-  private validatePublicQueryParams(params: any): any {
-    const page = Math.max(1, parseInt(params.page) || 1);
-    const limit = Math.min(Math.max(1, parseInt(params.limit) || 20), 50); // Max 50 for public
-    const language = ['en', 'ar'].includes(params.language)
-      ? params.language
+  private validatePublicQueryParams(params: {
+    page?: string;
+    limit?: string;
+    language?: string;
+    featured?: boolean | string;
+    parentId?: string;
+  }): { page: number; limit: number; language: string; featured: boolean; parentId: number | undefined } {
+    const page = Math.max(1, parseInt(params.page || '1') || 1);
+    const limit = Math.min(Math.max(1, parseInt(params.limit || '20') || 20), 50); // Max 50 for public
+    const language = ['en', 'ar'].includes(params.language || '')
+      ? (params.language as string)
       : 'en';
     const featured = params.featured === true || params.featured === 'true';
     const parentId = params.parentId ? parseInt(params.parentId) : undefined;
@@ -1058,10 +1058,10 @@ export class CategoriesPublicController {
    * TRANSFORM TO PUBLIC RESPONSE FORMAT
    */
   private transformToPublicResponse(
-    result: any,
+    result: PaginatedCategoriesResponseDto,
     language: string,
-    userContext: any,
-  ): any {
+    userContext: { type: 'local' | 'diaspora'; country?: string },
+  ): Record<string, unknown> {
     // Remove admin-only fields and optimize for public consumption
     const publicData = result.data.map((category) => ({
       id: category.id,

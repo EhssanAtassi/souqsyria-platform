@@ -124,6 +124,58 @@ const categorySeedData: CategorySeedData[] = [
     depthLevel: 1,
     parentId: 1,
   },
+  // Grandchildren of Mobile Phones (id: 10)
+  {
+    id: 100,
+    nameEn: 'Samsung',
+    nameAr: 'سامسونج',
+    slug: 'samsung-phones',
+    descriptionEn: 'Samsung Galaxy smartphones',
+    descriptionAr: 'هواتف سامسونج جالاكسي',
+    iconUrl: 'phone_android',
+    isFeatured: false,
+    isActive: true,
+    approvalStatus: 'approved',
+    sortOrder: 10,
+    showInNav: true,
+    productCount: 12,
+    depthLevel: 2,
+    parentId: 10,
+  },
+  {
+    id: 101,
+    nameEn: 'iPhone',
+    nameAr: 'آيفون',
+    slug: 'iphone',
+    descriptionEn: 'Apple iPhone smartphones',
+    descriptionAr: 'هواتف آبل آيفون',
+    iconUrl: 'phone_iphone',
+    isFeatured: false,
+    isActive: true,
+    approvalStatus: 'approved',
+    sortOrder: 20,
+    showInNav: true,
+    productCount: 10,
+    depthLevel: 2,
+    parentId: 10,
+  },
+  {
+    id: 102,
+    nameEn: 'Huawei',
+    nameAr: 'هواوي',
+    slug: 'huawei-phones',
+    descriptionEn: 'Huawei smartphones',
+    descriptionAr: 'هواتف هواوي',
+    iconUrl: 'phone_android',
+    isFeatured: false,
+    isActive: true,
+    approvalStatus: 'approved',
+    sortOrder: 30,
+    showInNav: true,
+    productCount: 6,
+    depthLevel: 2,
+    parentId: 10,
+  },
   {
     id: 12,
     nameEn: 'Accessories',
@@ -185,6 +237,41 @@ const categorySeedData: CategorySeedData[] = [
     productCount: 18,
     depthLevel: 1,
     parentId: 2,
+  },
+  // Grandchildren of Men's Fashion (id: 20)
+  {
+    id: 200,
+    nameEn: 'T-Shirts',
+    nameAr: 'تيشيرتات',
+    slug: 'men-tshirts',
+    descriptionEn: 'Men\'s t-shirts and casual tops',
+    descriptionAr: 'تيشيرتات وملابس كاجوال رجالية',
+    iconUrl: 'dry_cleaning',
+    isFeatured: false,
+    isActive: true,
+    approvalStatus: 'approved',
+    sortOrder: 10,
+    showInNav: true,
+    productCount: 8,
+    depthLevel: 2,
+    parentId: 20,
+  },
+  {
+    id: 201,
+    nameEn: 'Shoes',
+    nameAr: 'أحذية رجالية',
+    slug: 'men-shoes',
+    descriptionEn: 'Men\'s footwear and shoes',
+    descriptionAr: 'أحذية رجالية',
+    iconUrl: 'steps',
+    isFeatured: false,
+    isActive: true,
+    approvalStatus: 'approved',
+    sortOrder: 20,
+    showInNav: true,
+    productCount: 10,
+    depthLevel: 2,
+    parentId: 20,
   },
   {
     id: 21,
@@ -327,6 +414,41 @@ const categorySeedData: CategorySeedData[] = [
     productCount: 22,
     depthLevel: 1,
     parentId: 4,
+  },
+  // Grandchildren of Skincare (id: 40)
+  {
+    id: 400,
+    nameEn: 'Face Creams',
+    nameAr: 'كريمات الوجه',
+    slug: 'face-creams',
+    descriptionEn: 'Moisturizers and face creams',
+    descriptionAr: 'مرطبات وكريمات للوجه',
+    iconUrl: 'water_drop',
+    isFeatured: false,
+    isActive: true,
+    approvalStatus: 'approved',
+    sortOrder: 10,
+    showInNav: true,
+    productCount: 14,
+    depthLevel: 2,
+    parentId: 40,
+  },
+  {
+    id: 401,
+    nameEn: 'Serums',
+    nameAr: 'سيروم',
+    slug: 'serums',
+    descriptionEn: 'Face serums and treatments',
+    descriptionAr: 'سيروم وعلاجات للبشرة',
+    iconUrl: 'science',
+    isFeatured: false,
+    isActive: true,
+    approvalStatus: 'approved',
+    sortOrder: 20,
+    showInNav: true,
+    productCount: 8,
+    depthLevel: 2,
+    parentId: 40,
   },
   {
     id: 41,
@@ -503,6 +625,29 @@ export async function seedCategories(dataSource: DataSource): Promise<void> {
     console.log(`📦 Seeding ${childCategories.length} child categories...`);
 
     for (const seedData of childCategories) {
+      const parent = await categoryRepository.findOne({
+        where: { id: seedData.parentId },
+      });
+
+      if (!parent) {
+        console.warn(`  ⚠️  Parent not found for: ${seedData.nameEn} (parentId: ${seedData.parentId})`);
+        continue;
+      }
+
+      const category = categoryRepository.create({
+        ...seedData,
+        parent: parent,
+      });
+
+      await categoryRepository.save(category);
+      console.log(`  ✅ Saved: ${seedData.nameEn} (${seedData.nameAr}) under ${parent.nameEn}`);
+    }
+
+    // Finally, insert/update grandchild categories (depthLevel = 2)
+    const grandchildCategories = categorySeedData.filter((cat) => cat.depthLevel === 2);
+    console.log(`📦 Seeding ${grandchildCategories.length} grandchild categories...`);
+
+    for (const seedData of grandchildCategories) {
       const parent = await categoryRepository.findOne({
         where: { id: seedData.parentId },
       });

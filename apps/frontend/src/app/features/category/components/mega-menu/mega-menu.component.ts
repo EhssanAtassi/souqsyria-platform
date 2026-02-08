@@ -81,11 +81,11 @@ import { trigger, transition, style, animate } from '@angular/animations';
     ]),
     trigger('slideIn', [
       transition(':enter', [
-        style({ transform: 'translateX(100%)' }),
+        style({ transform: '{{ enterFrom }}' }),
         animate('300ms ease-out', style({ transform: 'translateX(0)' }))
       ]),
       transition(':leave', [
-        animate('300ms ease-in', style({ transform: 'translateX(100%)' }))
+        animate('300ms ease-in', style({ transform: '{{ leaveTo }}' }))
       ])
     ])
   ]
@@ -137,6 +137,12 @@ export class MegaMenuComponent implements OnInit, OnDestroy {
 
   /** Focused category index for keyboard navigation */
   focusedCategoryIndex = signal<number>(0);
+
+  /** Computed: slide animation params based on RTL direction */
+  slideAnimationParams = computed(() => {
+    const direction = this.isRtl() ? 'translateX(-100%)' : 'translateX(100%)';
+    return { enterFrom: direction, leaveTo: direction };
+  });
 
   /** Computed: categories to display in current view */
   displayCategories = computed(() => {

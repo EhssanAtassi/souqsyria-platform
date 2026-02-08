@@ -27,9 +27,10 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { FindManyOptions, Repository } from 'typeorm';
 import { Category } from '../entities/category.entity';
 import { User } from '../../users/entities/user.entity';
+import { RolePermission } from '../../access-control/entities/role-permission.entity';
 import { AuditLogService } from '../../audit-log/service/audit-log.service';
 import { CategoryHierarchyService } from './category-hierarchy.service';
 import { CategoryApprovalService } from './category-approval.service';
@@ -38,6 +39,7 @@ import {
   CreateCategoryDto,
   UpdateCategoryDto,
 } from '../dto/index-dto';
+import { CategoryBreadcrumbDto } from '../dto/category-breadcrumb.dto';
 
 @Injectable()
 export class CategoriesService {
@@ -698,7 +700,7 @@ export class CategoriesService {
   private transformToResponseDto(
     category: Category,
     language: 'en' | 'ar' = 'en',
-    breadcrumbs?: any,
+    breadcrumbs?: CategoryBreadcrumbDto[],
   ): CategoryResponseDto {
     return {
       id: category.id,
@@ -768,8 +770,8 @@ export class CategoriesService {
   /**
    * GET USER PERMISSIONS (copied from your ACL pattern)
    */
-  private getUserPermissions(user: User): any[] {
-    const permissions: any[] = [];
+  private getUserPermissions(user: User): RolePermission[] {
+    const permissions: RolePermission[] = [];
 
     if (user.role?.rolePermissions) {
       permissions.push(...user.role.rolePermissions);
@@ -824,7 +826,7 @@ export class CategoriesService {
    * Generic find method for repository access
    * Used by public controllers for flexible querying
    */
-  async find(options: any): Promise<Category[]> {
+  async find(options: FindManyOptions<Category>): Promise<Category[]> {
     return await this.categoryRepository.find(options);
   }
 }

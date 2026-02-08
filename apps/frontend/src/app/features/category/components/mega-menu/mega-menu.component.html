@@ -105,7 +105,7 @@
     *ngIf="isMobile()"
     class="mobile-menu-container fixed inset-0 bg-white z-50 overflow-y-auto"
     (click)="$event.stopPropagation()"
-    [@slideIn]
+    [@slideIn]="{ value: '', params: slideAnimationParams() }"
     role="navigation"
     aria-label="Mobile category navigation"
   >

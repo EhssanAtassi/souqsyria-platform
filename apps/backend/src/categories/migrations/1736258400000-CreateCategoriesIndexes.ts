@@ -1,6 +1,6 @@
 /**
  * @file 1736258400000-CreateCategoriesIndexes.ts
- * @description Categories table indexes for optimal query performance
+ * @description Categories table indexes for optimal query performance (MySQL 8)
  *
  * PURPOSE:
  * - Ensures critical indexes exist on categories table
@@ -26,6 +26,30 @@
 
 import { MigrationInterface, QueryRunner } from 'typeorm';
 
+/**
+ * Helper to check if an index exists on a MySQL table
+ *
+ * @param queryRunner - TypeORM query runner
+ * @param tableName - Table to check
+ * @param indexName - Index name to look for
+ * @returns true if the index exists
+ */
+async function indexExists(
+  queryRunner: QueryRunner,
+  tableName: string,
+  indexName: string,
+): Promise<boolean> {
+  const result = await queryRunner.query(
+    `SELECT 1 FROM information_schema.STATISTICS
+     WHERE TABLE_SCHEMA = DATABASE()
+       AND TABLE_NAME = ?
+       AND INDEX_NAME = ?
+     LIMIT 1`,
+    [tableName, indexName],
+  );
+  return result && result.length > 0;
+}
+
 export class CreateCategoriesIndexes1736258400000 implements MigrationInterface {
   name = 'CreateCategoriesIndexes1736258400000';
 
@@ -46,13 +70,10 @@ export class CreateCategoriesIndexes1736258400000 implements MigrationInterface 
      * Query Pattern: WHERE is_active = true AND approval_status = 'approved' ORDER BY sort_order
      * Impact: Main category listings, mega menu queries
      */
-    const idx1Exists = await queryRunner.query(`
-      SELECT 1 FROM pg_indexes WHERE indexname = 'IDX_categories_active_approved_sort'
-    `);
-    if (!idx1Exists || idx1Exists.length === 0) {
+    if (!(await indexExists(queryRunner, 'categories', 'IDX_categories_active_approved_sort'))) {
       await queryRunner.query(`
-        CREATE INDEX "IDX_categories_active_approved_sort"
-        ON "categories" ("is_active", "approval_status", "sort_order")
+        CREATE INDEX \`IDX_categories_active_approved_sort\`
+        ON \`categories\` (\`is_active\`, \`approval_status\`, \`sort_order\`)
       `);
       console.log('  ✅ Created: IDX_categories_active_approved_sort');
     } else {
@@ -64,15 +85,12 @@ export class CreateCategoriesIndexes1736258400000 implements MigrationInterface 
      * Purpose: Fast lookups for Arabic URL slugs
      * Query Pattern: WHERE seo_slug = ?
      * Impact: Arabic language routing and SEO
+     * Note: MySQL does not support partial indexes; NULL values are simply excluded from lookups
      */
-    const idx2Exists = await queryRunner.query(`
-      SELECT 1 FROM pg_indexes WHERE indexname = 'IDX_categories_seo_slug'
-    `);
-    if (!idx2Exists || idx2Exists.length === 0) {
+    if (!(await indexExists(queryRunner, 'categories', 'IDX_categories_seo_slug'))) {
       await queryRunner.query(`
-        CREATE INDEX "IDX_categories_seo_slug"
-        ON "categories" ("seo_slug")
-        WHERE "seo_slug" IS NOT NULL
+        CREATE INDEX \`IDX_categories_seo_slug\`
+        ON \`categories\` (\`seo_slug\`)
       `);
       console.log('  ✅ Created: IDX_categories_seo_slug');
     } else {
@@ -85,14 +103,10 @@ export class CreateCategoriesIndexes1736258400000 implements MigrationInterface 
      * Query Pattern: WHERE parent_id = ? ORDER BY sort_order
      * Impact: Tree structure queries, mega menu building
      */
-    const idx3Exists = await queryRunner.query(`
-      SELECT 1 FROM pg_indexes WHERE indexname = 'IDX_categories_parent_sort'
-    `);
-    if (!idx3Exists || idx3Exists.length === 0) {
+    if (!(await indexExists(queryRunner, 'categories', 'IDX_categories_parent_sort'))) {
       await queryRunner.query(`
-        CREATE INDEX "IDX_categories_parent_sort"
-        ON "categories" ("parent_id", "sort_order")
-        WHERE "parent_id" IS NOT NULL
+        CREATE INDEX \`IDX_categories_parent_sort\`
+        ON \`categories\` (\`parent_id\`, \`sort_order\`)
       `);
       console.log('  ✅ Created: IDX_categories_parent_sort');
     } else {
@@ -106,18 +120,20 @@ export class CreateCategoriesIndexes1736258400000 implements MigrationInterface 
      * Impact: Category routing, URL generation
      * Note: This is likely already created by TypeORM @Column({ unique: true })
      */
-    const idx4Exists = await queryRunner.query(`
-      SELECT 1 FROM pg_indexes WHERE indexname = 'IDX_categories_slug_unique'
-    `);
-    if (!idx4Exists || idx4Exists.length === 0) {
-      // Check if TypeORM already created a unique constraint
-      const uniqueExists = await queryRunner.query(`
-        SELECT 1 FROM pg_indexes WHERE indexname LIKE '%slug%' AND tablename = 'categories'
-      `);
-      if (!uniqueExists || uniqueExists.length === 0) {
+    if (!(await indexExists(queryRunner, 'categories', 'IDX_categories_slug_unique'))) {
+      // Check if TypeORM already created a unique constraint on slug
+      const slugIndexResult = await queryRunner.query(
+        `SELECT 1 FROM information_schema.STATISTICS
+         WHERE TABLE_SCHEMA = DATABASE()
+           AND TABLE_NAME = 'categories'
+           AND COLUMN_NAME = 'slug'
+           AND NON_UNIQUE = 0
+         LIMIT 1`,
+      );
+      if (!slugIndexResult || slugIndexResult.length === 0) {
         await queryRunner.query(`
-          CREATE UNIQUE INDEX "IDX_categories_slug_unique"
-          ON "categories" ("slug")
+          CREATE UNIQUE INDEX \`IDX_categories_slug_unique\`
+          ON \`categories\` (\`slug\`)
         `);
         console.log('  ✅ Created: IDX_categories_slug_unique');
       } else {
@@ -133,14 +149,10 @@ export class CreateCategoriesIndexes1736258400000 implements MigrationInterface 
      * Query Pattern: WHERE is_featured = true AND is_active = true ORDER BY featured_priority DESC
      * Impact: Homepage featured sections, promotional displays
      */
-    const idx5Exists = await queryRunner.query(`
-      SELECT 1 FROM pg_indexes WHERE indexname = 'IDX_categories_featured'
-    `);
-    if (!idx5Exists || idx5Exists.length === 0) {
+    if (!(await indexExists(queryRunner, 'categories', 'IDX_categories_featured'))) {
       await queryRunner.query(`
-        CREATE INDEX "IDX_categories_featured"
-        ON "categories" ("is_featured", "is_active", "featured_priority")
-        WHERE "is_featured" = true
+        CREATE INDEX \`IDX_categories_featured\`
+        ON \`categories\` (\`is_featured\`, \`is_active\`, \`featured_priority\`)
       `);
       console.log('  ✅ Created: IDX_categories_featured');
     } else {
@@ -148,31 +160,26 @@ export class CreateCategoriesIndexes1736258400000 implements MigrationInterface 
     }
 
     console.log('✅ Categories indexes created successfully');
-    console.log('📊 Expected Performance Improvements:');
-    console.log('   - Mega menu queries: 80% faster');
-    console.log('   - Featured categories: 85% faster');
-    console.log('   - Arabic slug lookups: 90% faster');
-    console.log('   - Hierarchy navigation: 75% faster');
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
     console.log('🗑️  Dropping categories table indexes...');
 
-    // Drop indexes in reverse order
-    await queryRunner.query('DROP INDEX IF EXISTS "IDX_categories_featured"');
-    console.log('  ✅ Dropped: IDX_categories_featured');
+    // MySQL DROP INDEX requires ON table_name
+    const indexes = [
+      'IDX_categories_featured',
+      'IDX_categories_slug_unique',
+      'IDX_categories_parent_sort',
+      'IDX_categories_seo_slug',
+      'IDX_categories_active_approved_sort',
+    ];
 
-    await queryRunner.query('DROP INDEX IF EXISTS "IDX_categories_slug_unique"');
-    console.log('  ✅ Dropped: IDX_categories_slug_unique');
-
-    await queryRunner.query('DROP INDEX IF EXISTS "IDX_categories_parent_sort"');
-    console.log('  ✅ Dropped: IDX_categories_parent_sort');
-
-    await queryRunner.query('DROP INDEX IF EXISTS "IDX_categories_seo_slug"');
-    console.log('  ✅ Dropped: IDX_categories_seo_slug');
-
-    await queryRunner.query('DROP INDEX IF EXISTS "IDX_categories_active_approved_sort"');
-    console.log('  ✅ Dropped: IDX_categories_active_approved_sort');
+    for (const idx of indexes) {
+      if (await indexExists(queryRunner, 'categories', idx)) {
+        await queryRunner.query(`DROP INDEX \`${idx}\` ON \`categories\``);
+        console.log(`  ✅ Dropped: ${idx}`);
+      }
+    }
 
     console.log('✅ Categories indexes dropped successfully');
   }
