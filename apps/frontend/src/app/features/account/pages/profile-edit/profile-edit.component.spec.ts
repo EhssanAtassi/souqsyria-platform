@@ -267,9 +267,9 @@ describe('ProfileEditComponent', () => {
     /**
      * @description Verifies phone rejects too many digits after +963
      */
-    it('should reject phone with more than 9 digits after +963', () => {
+    it('should reject phone with more than 10 digits after +963', () => {
       const phone = component.profileForm.get('phone');
-      phone?.setValue('+9639123456789');
+      phone?.setValue('+96391234567890');
       expect(phone?.hasError('pattern')).toBe(true);
     });
 
