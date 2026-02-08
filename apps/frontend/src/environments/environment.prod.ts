@@ -6,12 +6,13 @@
 
 export const environment = {
   production: true,
-  
+
   // API Configuration
   apiUrl: 'https://api.souqsyria.com',
   productApiUrl: 'https://api.souqsyria.com/products',
+  userApiUrl: 'https://api.souqsyria.com/users',
   apiVersion: 'v1',
-  
+
   // Performance Configuration
   performance: {
     // Enable performance monitoring
@@ -25,7 +26,7 @@ export const environment = {
     // Network request monitoring
     enableNetworkMonitoring: true,
   },
-  
+
   // Caching Configuration
   cache: {
     // Service Worker enabled
@@ -44,7 +45,7 @@ export const environment = {
     // Font cache duration (days)
     fontCacheDuration: 7
   },
-  
+
   // Feature Flags
   features: {
     // Enable advanced BI dashboard
@@ -62,7 +63,7 @@ export const environment = {
     // Enable virtual scrolling
     virtualScrolling: true
   },
-  
+
   // Chart Configuration
   charts: {
     // Maximum data points per chart
@@ -76,7 +77,7 @@ export const environment = {
     // Chart library lazy loading
     lazyLoadLibrary: true
   },
-  
+
   // Table Configuration
   tables: {
     // Virtual scrolling threshold
@@ -88,7 +89,7 @@ export const environment = {
     // Enable row recycling
     rowRecycling: true
   },
-  
+
   // Material Design Configuration
   materialDesign: {
     // Use outlined icons (lighter weight)
@@ -100,7 +101,7 @@ export const environment = {
     // Dense typography
     denseTypography: false
   },
-  
+
   // Security Configuration
   security: {
     // JWT token expiry (minutes)
@@ -112,7 +113,7 @@ export const environment = {
     // Content Security Policy
     contentSecurityPolicy: true
   },
-  
+
   // Logging Configuration
   logging: {
     // Log level: 'error' | 'warn' | 'info' | 'debug'
@@ -126,7 +127,7 @@ export const environment = {
     // Performance logs
     performance: true
   },
-  
+
   // Error Handling
   errorHandling: {
     // Global error handler enabled
@@ -140,7 +141,7 @@ export const environment = {
     // Maximum retry attempts
     maxRetryAttempts: 3
   },
-  
+
   // Internationalization
   i18n: {
     // Default language
@@ -152,7 +153,7 @@ export const environment = {
     // Lazy load translations
     lazyLoadTranslations: true
   },
-  
+
   // Analytics & Tracking
   analytics: {
     // Google Analytics
@@ -164,7 +165,7 @@ export const environment = {
     // Custom event tracking
     customEvents: true
   },
-  
+
   // CDN Configuration
   cdn: {
     // Use CDN for static assets
@@ -176,7 +177,7 @@ export const environment = {
     // Font CDN
     fontUrl: 'https://fonts.souqsyria.com'
   },
-  
+
   // Compression Configuration
   compression: {
     // Gzip compression
@@ -202,14 +203,14 @@ export const performanceConfig = {
     fcp: { good: 1800, needsImprovement: 3000 }, // ms
     ttfb: { good: 800, needsImprovement: 1800 }  // ms
   },
-  
+
   // Bundle size thresholds
   bundleSize: {
     initial: { warning: 400, error: 800 }, // KB
     vendor: { warning: 500, error: 1000 }, // KB
     main: { warning: 300, error: 600 }     // KB
   },
-  
+
   // Memory usage thresholds
   memory: {
     baseline: 50,  // MB
@@ -231,7 +232,7 @@ export const buildOptimization = {
     // Unused variable removal
     unusedVariableRemoval: true
   },
-  
+
   // Code splitting configuration
   codeSplitting: {
     // Split vendor chunks
@@ -243,7 +244,7 @@ export const buildOptimization = {
     // Minimum chunk size (KB)
     minChunkSize: 30
   },
-  
+
   // Optimization strategies
   optimization: {
     // Minification

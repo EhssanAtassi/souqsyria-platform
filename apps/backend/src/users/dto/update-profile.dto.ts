@@ -13,9 +13,9 @@ import {
   IsEmail,
   MinLength,
   MaxLength,
-  IsPhoneNumber,
   IsObject,
   ValidateNested,
+  Matches,
 } from 'class-validator';
 import { Type } from 'class-transformer';
 
@@ -88,12 +88,27 @@ export class UpdateProfileDto {
   email?: string;
 
   @ApiPropertyOptional({
-    description: 'User phone number (Syrian format)',
+    description: 'User phone number (Syrian format: +963XXXXXXXXX)',
     example: '+963987654321',
   })
   @IsOptional()
-  @IsPhoneNumber('SY')
+  @IsString()
+  @Matches(/^\+963\d{9,10}$/, {
+    message:
+      'Phone must be in Syrian format: +963XXXXXXXXX (9-10 digits after +963)',
+  })
   phone?: string;
+
+  @ApiPropertyOptional({
+    description:
+      'User avatar - can be a base64 data URL (data:image/png;base64,...), a direct URL string, or null to remove the avatar',
+    example:
+      'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==',
+    nullable: true,
+  })
+  @IsOptional()
+  @IsString()
+  avatar?: string | null;
 
   @ApiPropertyOptional({
     description: 'User preferences',

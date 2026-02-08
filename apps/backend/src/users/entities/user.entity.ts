@@ -48,6 +48,15 @@ export class User {
 
   @Column({ nullable: true })
   fullName: string;
+
+  /**
+   * User avatar URL or path
+   * Can be a full URL or a relative path to the avatar file
+   * Example: '/avatars/user-123-1234567890.png' or 'https://example.com/avatar.jpg'
+   */
+  @Column({ nullable: true })
+  avatar: string;
+
   @Column({ name: 'password_hash', nullable: true })
   passwordHash: string; // ✅ For email/password login
 

@@ -423,6 +423,80 @@
   "no_category_found": "No category found",
   "more_and_enjoy": "More And Enjoy",
   "free_shipping": "Free Shiping",
+  "account": {
+    "sidebar": {
+      "profile": "Profile",
+      "security": "Security",
+      "orders": "Orders",
+      "addresses": "Addresses"
+    },
+    "profile": {
+      "title": "My Profile",
+      "memberSince": "Member since",
+      "ordersCount": "Orders",
+      "wishlistCount": "Wishlist",
+      "editProfile": "Edit Profile",
+      "changePassword": "Change Password",
+      "noAvatar": "No photo",
+      "loading": "Loading profile...",
+      "error": "Failed to load profile",
+      "retry": "Retry"
+    },
+    "editProfile": {
+      "title": "Edit Profile",
+      "avatar": "Profile Photo",
+      "changePhoto": "Change Photo",
+      "removePhoto": "Remove Photo",
+      "fullName": "Full Name",
+      "phone": "Phone Number",
+      "phonePlaceholder": "XXXXXXXXX (9-10 digits)",
+      "save": "Save Changes",
+      "cancel": "Cancel",
+      "saving": "Saving...",
+      "success": "Profile updated successfully",
+      "error": "Failed to update profile",
+      "validation": {
+        "nameRequired": "Full name is required",
+        "nameMinLength": "Name must be at least 2 characters",
+        "nameMaxLength": "Name must not exceed 100 characters",
+        "phoneInvalid": "Phone must be in Syrian format: +963 followed by 9-10 digits",
+        "avatarTooLarge": "Image must be less than 2MB",
+        "invalidAvatarType": "Invalid file type. Please select an image."
+      }
+    },
+    "security": {
+      "title": "Change Password",
+      "currentPassword": "Current Password",
+      "newPassword": "New Password",
+      "confirmPassword": "Confirm New Password",
+      "showPassword": "Show password",
+      "hidePassword": "Hide password",
+      "submit": "Change Password",
+      "submitting": "Changing...",
+      "success": "Password changed successfully. You will be logged out.",
+      "error": "Failed to change password",
+      "validation": {
+        "currentRequired": "Current password is required",
+        "newRequired": "New password is required",
+        "confirmRequired": "Please confirm your new password",
+        "minLength": "Password must be at least 8 characters",
+        "uppercase": "Must contain at least one uppercase letter",
+        "number": "Must contain at least one number",
+        "specialChar": "Must contain at least one special character (@$!%*?&)",
+        "mismatch": "Passwords do not match"
+      },
+      "strength": {
+        "weak": "Weak",
+        "fair": "Fair",
+        "good": "Good",
+        "strong": "Strong",
+        "minChars": "At least 8 characters",
+        "uppercase": "At least 1 uppercase letter",
+        "number": "At least 1 number",
+        "specialChar": "At least 1 special character (@$!%*?&)"
+      }
+    }
+  },
   "auth": {
     "login": {
       "title": "Sign In",

@@ -1,0 +1,112 @@
+<div class="profile-container" [dir]="'auto'">
+  <!-- Loading State -->
+  @if (loading()) {
+    <div class="loading-state">
+      <mat-spinner diameter="60"></mat-spinner>
+      <p class="loading-text">{{ 'account.profile.loading' | translate }}</p>
+    </div>
+  }
+
+  <!-- Error State -->
+  @else if (error()) {
+    <mat-card class="error-card">
+      <mat-card-content class="error-content">
+        <mat-icon class="error-icon">error_outline</mat-icon>
+        <h2 class="error-title">{{ 'account.profile.error' | translate }}</h2>
+        <p class="error-message">{{ error() }}</p>
+        <button mat-raised-button color="primary" (click)="retry()">
+          <mat-icon>refresh</mat-icon>
+          {{ 'account.profile.retry' | translate }}
+        </button>
+      </mat-card-content>
+    </mat-card>
+  }
+
+  <!-- Profile Content -->
+  @else if (profile()) {
+    <div class="profile-content">
+      <!-- Profile Card -->
+      <mat-card class="profile-card">
+        <mat-card-header>
+          <h1 class="profile-title">{{ 'account.profile.title' | translate }}</h1>
+        </mat-card-header>
+
+        <mat-card-content>
+          <!-- Avatar and Basic Info -->
+          <div class="profile-header">
+            <div class="avatar-section">
+              @if (profile()!.avatar) {
+                <img [src]="profile()!.avatar" [alt]="profile()!.fullName || 'User'" class="avatar-img" />
+              } @else {
+                <div class="avatar-placeholder">
+                  <span class="avatar-initials">{{ getInitials(profile()!.fullName) }}</span>
+                </div>
+              }
+            </div>
+
+            <div class="user-info">
+              <h2 class="user-name">{{ profile()!.fullName || profile()!.email || 'User' }}</h2>
+              @if (profile()!.email) {
+                <p class="user-detail">
+                  <mat-icon>email</mat-icon>
+                  <span>{{ profile()!.email }}</span>
+                </p>
+              }
+              @if (profile()!.phone) {
+                <p class="user-detail">
+                  <mat-icon>phone</mat-icon>
+                  <span>{{ profile()!.phone }}</span>
+                </p>
+              }
+              <p class="user-detail member-since">
+                <mat-icon>calendar_today</mat-icon>
+                <span>{{ 'account.profile.memberSince' | translate }} {{ formatDate(profile()!.createdAt) }}</span>
+              </p>
+            </div>
+          </div>
+
+          <!-- Stats Row -->
+          <div class="stats-row">
+            <div class="stat-item">
+              <mat-icon class="stat-icon">shopping_bag</mat-icon>
+              <div class="stat-content">
+                <span class="stat-value">{{ profile()!.ordersCount }}</span>
+                <span class="stat-label">{{ 'account.profile.ordersCount' | translate }}</span>
+              </div>
+            </div>
+
+            <div class="stat-item">
+              <mat-icon class="stat-icon">favorite</mat-icon>
+              <div class="stat-content">
+                <span class="stat-value">{{ profile()!.wishlistCount }}</span>
+                <span class="stat-label">{{ 'account.profile.wishlistCount' | translate }}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Action Buttons -->
+          <div class="actions-row">
+            <button
+              mat-raised-button
+              color="primary"
+              class="action-button"
+              (click)="navigateToEdit()"
+            >
+              <mat-icon>edit</mat-icon>
+              {{ 'account.profile.editProfile' | translate }}
+            </button>
+
+            <button
+              mat-stroked-button
+              class="action-button"
+              (click)="navigateToSecurity()"
+            >
+              <mat-icon>lock</mat-icon>
+              {{ 'account.profile.changePassword' | translate }}
+            </button>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+  }
+</div>

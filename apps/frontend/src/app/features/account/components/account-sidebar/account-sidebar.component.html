@@ -1,0 +1,17 @@
+<nav class="account-sidebar" [dir]="'auto'">
+  <mat-nav-list class="nav-list">
+    @for (item of navItems; track item.route) {
+      <a
+        mat-list-item
+        [routerLink]="item.route"
+        routerLinkActive="active"
+        [routerLinkActiveOptions]="{ exact: false }"
+        [class.disabled]="item.disabled"
+        [attr.aria-disabled]="item.disabled"
+      >
+        <mat-icon matListItemIcon class="nav-icon">{{ item.icon }}</mat-icon>
+        <span matListItemTitle class="nav-label">{{ item.label | translate }}</span>
+      </a>
+    }
+  </mat-nav-list>
+</nav>

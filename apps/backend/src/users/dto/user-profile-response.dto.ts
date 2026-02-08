@@ -147,6 +147,14 @@ export class UserProfileResponseDto {
   @Expose()
   fullName?: string;
 
+  @ApiPropertyOptional({
+    description:
+      'User avatar URL or path (e.g., /avatars/user-123-1234567890.png)',
+    example: '/avatars/user-123-1234567890.png',
+  })
+  @Expose()
+  avatar?: string;
+
   @ApiProperty({
     description: 'Account verification status',
     example: true,
@@ -208,7 +216,21 @@ export class UserProfileResponseDto {
   updatedAt: Date;
 
   @ApiProperty({
-    description: 'Account statistics',
+    description: 'Total number of orders placed by the user',
+    example: 15,
+  })
+  @Expose()
+  ordersCount: number;
+
+  @ApiProperty({
+    description: 'Total number of items in user wishlist',
+    example: 8,
+  })
+  @Expose()
+  wishlistCount: number;
+
+  @ApiProperty({
+    description: 'Account statistics (deprecated - use flat ordersCount and wishlistCount instead)',
     example: {
       totalOrders: 15,
       totalSpent: 5750000,
