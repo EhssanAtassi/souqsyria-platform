@@ -94,7 +94,7 @@
       "removePhoto": "إزالة الصورة",
       "fullName": "الاسم الكامل",
       "phone": "رقم الهاتف",
-      "phonePlaceholder": "+963XXXXXXXXX",
+      "phonePlaceholder": "XXXXXXXXX (9-10 أرقام)",
       "save": "حفظ التغييرات",
       "cancel": "إلغاء",
       "saving": "جاري الحفظ...",

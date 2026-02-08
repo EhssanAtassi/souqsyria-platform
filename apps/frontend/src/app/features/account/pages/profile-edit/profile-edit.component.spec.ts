@@ -238,38 +238,38 @@ describe('ProfileEditComponent', () => {
     });
 
     /**
-     * @description Verifies phone field accepts valid Syrian phone number
+     * @description Verifies phone field accepts valid Syrian phone number (without prefix)
      */
-    it('should accept valid Syrian phone number +963XXXXXXXXX', () => {
+    it('should accept valid Syrian phone number (9-10 digits)', () => {
       const phone = component.profileForm.get('phone');
-      phone?.setValue('+963912345678');
+      phone?.setValue('912345678');
       expect(phone?.valid).toBe(true);
     });
 
     /**
-     * @description Verifies phone field rejects invalid format
+     * @description Verifies phone field rejects invalid format (with prefix)
      */
-    it('should reject phone number without +963 prefix', () => {
+    it('should reject phone number with +963 prefix (user should not type it)', () => {
       const phone = component.profileForm.get('phone');
-      phone?.setValue('0912345678');
+      phone?.setValue('+963912345678');
       expect(phone?.hasError('pattern')).toBe(true);
     });
 
     /**
-     * @description Verifies phone rejects too few digits after +963
+     * @description Verifies phone rejects too few digits
      */
-    it('should reject phone with fewer than 9 digits after +963', () => {
+    it('should reject phone with fewer than 9 digits', () => {
       const phone = component.profileForm.get('phone');
-      phone?.setValue('+96391234567');
+      phone?.setValue('91234567');
       expect(phone?.hasError('pattern')).toBe(true);
     });
 
     /**
-     * @description Verifies phone rejects too many digits after +963
+     * @description Verifies phone rejects too many digits
      */
-    it('should reject phone with more than 10 digits after +963', () => {
+    it('should reject phone with more than 10 digits', () => {
       const phone = component.profileForm.get('phone');
-      phone?.setValue('+96391234567890');
+      phone?.setValue('91234567890');
       expect(phone?.hasError('pattern')).toBe(true);
     });
 
