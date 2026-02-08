@@ -101,13 +101,14 @@ export class UpdateProfileDto {
 
   @ApiPropertyOptional({
     description:
-      'User avatar - can be a base64 data URL (data:image/png;base64,...) or a direct URL string',
+      'User avatar - can be a base64 data URL (data:image/png;base64,...), a direct URL string, or null to remove the avatar',
     example:
       'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==',
+    nullable: true,
   })
   @IsOptional()
   @IsString()
-  avatar?: string;
+  avatar?: string | null;
 
   @ApiPropertyOptional({
     description: 'User preferences',

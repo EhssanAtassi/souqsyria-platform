@@ -71,10 +71,6 @@ describe('UsersService', () => {
     addresses: [],
   } as any;
 
-  const mockRole = {
-    id: 1,
-    name: 'buyer',
-  };
 
   const mockAddress = {
     id: 1,

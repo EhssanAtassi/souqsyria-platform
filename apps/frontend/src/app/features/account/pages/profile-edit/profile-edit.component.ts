@@ -155,7 +155,7 @@ export class ProfileEditComponent implements OnInit {
     const file = input.files[0];
 
     if (!file.type.startsWith('image/')) {
-      this.showError('Invalid file type. Please select an image.');
+      this.showError('account.editProfile.validation.invalidAvatarType');
       return;
     }
 
@@ -192,7 +192,7 @@ export class ProfileEditComponent implements OnInit {
    */
   removeAvatar(): void {
     this.avatarPreview.set(null);
-    this.avatarData.set('');
+    this.avatarData.set(null);
   }
 
   /**
@@ -232,8 +232,10 @@ export class ProfileEditComponent implements OnInit {
       phone: formValue.phone || undefined,
     };
 
-    if (this.avatarData()) {
-      updateData.avatar = this.avatarData() || undefined;
+    // Include avatar if it has been modified (including removal)
+    const avatarValue = this.avatarData();
+    if (avatarValue !== undefined) {
+      updateData.avatar = avatarValue;
     }
 
     this.accountApi.updateProfile(updateData).subscribe({

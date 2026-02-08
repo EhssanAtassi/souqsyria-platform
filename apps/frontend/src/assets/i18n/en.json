@@ -460,7 +460,8 @@
         "nameMinLength": "Name must be at least 2 characters",
         "nameMaxLength": "Name must not exceed 100 characters",
         "phoneInvalid": "Phone must be in Syrian format: +963 followed by 9-10 digits",
-        "avatarTooLarge": "Image must be less than 2MB"
+        "avatarTooLarge": "Image must be less than 2MB",
+        "invalidAvatarType": "Invalid file type. Please select an image."
       }
     },
     "security": {
