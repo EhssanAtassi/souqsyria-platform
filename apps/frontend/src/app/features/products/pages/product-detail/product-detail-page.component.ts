@@ -19,7 +19,7 @@ import {
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, ActivatedRoute } from '@angular/router';
-import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
+import { DomSanitizer, SafeHtml, SecurityContext } from '@angular/platform-browser';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatBadgeModule } from '@angular/material/badge';
@@ -143,7 +143,7 @@ export class ProductDetailPageComponent implements OnInit {
   sanitizedDescription = computed((): SafeHtml | null => {
     const desc = this.descriptionForLang();
     if (!desc?.fullDescription) return null;
-    return this.sanitizer.sanitize(1, desc.fullDescription) || null;
+    return this.sanitizer.sanitize(SecurityContext.HTML, desc.fullDescription) || null;
   });
 
   /** @description Stock status label */

@@ -523,31 +523,33 @@ export class PublicProductsService {
       })),
       stockStatus,
       totalStock,
-      relatedProducts: relatedProducts.map((rp) => {
-        let rpTotalStock = 0;
-        rp.variants?.forEach((v) =>
-          v.stocks?.forEach((s) => {
-            rpTotalStock += s.quantity || 0;
-          }),
-        );
-        let rpStockStatus: 'in_stock' | 'low_stock' | 'out_of_stock';
-        if (!rp.variants?.length) rpStockStatus = 'in_stock';
-        else if (rpTotalStock === 0) rpStockStatus = 'out_of_stock';
-        else if (rpTotalStock <= 5) rpStockStatus = 'low_stock';
-        else rpStockStatus = 'in_stock';
+      relatedProducts: relatedProducts
+        .filter((rp) => rp.pricing?.basePrice != null) // Exclude products without valid pricing
+        .map((rp) => {
+          let rpTotalStock = 0;
+          rp.variants?.forEach((v) =>
+            v.stocks?.forEach((s) => {
+              rpTotalStock += s.quantity || 0;
+            }),
+          );
+          let rpStockStatus: 'in_stock' | 'low_stock' | 'out_of_stock';
+          if (!rp.variants?.length) rpStockStatus = 'in_stock';
+          else if (rpTotalStock === 0) rpStockStatus = 'out_of_stock';
+          else if (rpTotalStock <= 5) rpStockStatus = 'low_stock';
+          else rpStockStatus = 'in_stock';
 
-        return {
-          id: rp.id,
-          slug: rp.slug,
-          nameEn: rp.nameEn,
-          nameAr: rp.nameAr,
-          mainImage: rp.images?.[0]?.imageUrl ?? null,
-          basePrice: rp.pricing?.basePrice ?? 0,
-          discountPrice: rp.pricing?.discountPrice ?? null,
-          currency: rp.pricing?.currency ?? 'SYP',
-          stockStatus: rpStockStatus,
-        };
-      }),
+          return {
+            id: rp.id,
+            slug: rp.slug,
+            nameEn: rp.nameEn,
+            nameAr: rp.nameAr,
+            mainImage: rp.images?.[0]?.imageUrl ?? null,
+            basePrice: rp.pricing.basePrice, // Safe after filter
+            discountPrice: rp.pricing?.discountPrice ?? null,
+            currency: rp.pricing?.currency ?? 'SYP',
+            stockStatus: rpStockStatus,
+          };
+        }),
     };
   }
 
