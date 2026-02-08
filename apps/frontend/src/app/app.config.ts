@@ -3,11 +3,18 @@ import { provideRouter } from '@angular/router';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { importProvidersFrom } from '@angular/core';
 import { AkitaNgDevtools } from '@datorama/akita-ngdevtools';
+import { provideStore } from '@ngrx/store';
+import { provideEffects } from '@ngrx/effects';
+import { provideStoreDevtools } from '@ngrx/store-devtools';
+import { provideTranslateService } from '@ngx-translate/core';
+import { provideTranslateHttpLoader } from '@ngx-translate/http-loader';
 
 import { routes } from './app.routes';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
-import { apiInterceptor } from './core/interceptors/api.interceptor';
+import { authInterceptor } from './features/auth/interceptors/auth.interceptor';
 import { offlineInterceptor } from './core/interceptors/offline.interceptor';
+import { authReducer, authFeatureKey } from './features/auth/store/auth.reducer';
+import * as authEffects from './features/auth/store/auth.effects';
 
 /**
  * Main application configuration for Syrian marketplace
@@ -16,26 +23,22 @@ import { offlineInterceptor } from './core/interceptors/offline.interceptor';
  * - Zone change detection with event coalescing
  * - Router with application routes
  * - Animations (async loaded)
- * - HTTP client for API calls
- * - Akita DevTools (development only)
+ * - HTTP client with auth interceptor
+ * - NgRx Store for auth state management
+ * - NgRx Effects for auth side effects
+ * - ngx-translate for bilingual i18n (Arabic/English)
+ * - Akita DevTools (development only, for legacy stores)
  *
- * Akita State Management:
- * - Products Store: Product catalog with filtering and search
- * - Cart Store: Shopping cart with localStorage persistence
- * - User Store: Authentication and user preferences
- * - UI Store: Global UI state (modals, sidebars, toasts)
- *
- * DevTools:
- * - Akita DevTools enabled in development mode
- * - Access via Redux DevTools browser extension
- * - Track state changes, time-travel debugging
+ * State Management:
+ * - NgRx: Authentication state (login, register, tokens)
+ * - Akita (legacy): Products, Cart, UI, Wishlist stores
  *
  * @swagger
  * components:
  *   schemas:
  *     AppConfig:
  *       type: object
- *       description: Angular application configuration with Akita state management
+ *       description: Angular application configuration with NgRx and ngx-translate
  */
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -44,19 +47,43 @@ export const appConfig: ApplicationConfig = {
     provideAnimationsAsync(),
     provideHttpClient(
       withInterceptors([
-        apiInterceptor,      // First: Add API base URL
+        authInterceptor,     // First: Add JWT auth token + handle 401 refresh
         offlineInterceptor   // Second: Handle offline scenarios
       ])
     ),
 
-    // Akita DevTools - enabled in development mode only
-    // Requires Redux DevTools browser extension
+    // NgRx Store - centralized state management for auth
+    provideStore({ [authFeatureKey]: authReducer }),
+
+    // NgRx Effects - side effects for auth API calls
+    provideEffects(authEffects),
+
+    // NgRx Store DevTools - development only
+    ...(isDevMode() ? [
+      provideStoreDevtools({
+        maxAge: 25,
+        logOnly: false,
+        name: 'SouqSyria Auth Store'
+      })
+    ] : []),
+
+    // ngx-translate - bilingual support (Arabic/English)
+    provideTranslateService({
+      loader: provideTranslateHttpLoader({
+        prefix: './assets/i18n/',
+        suffix: '.json',
+      }),
+      fallbackLang: 'en',
+      lang: 'en',
+    }),
+
+    // Akita DevTools - enabled in development mode only (for legacy stores)
     ...(isDevMode() ? [
       importProvidersFrom(
         AkitaNgDevtools.forRoot({
-          maxAge: 25, // Maximum number of states to keep in history
-          logTrace: true, // Log trace information for debugging
-          name: 'Syrian Marketplace State' // DevTools instance name
+          maxAge: 25,
+          logTrace: true,
+          name: 'Syrian Marketplace State'
         })
       )
     ] : [])

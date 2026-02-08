@@ -25,6 +25,25 @@ export const routes: Routes = [
     title: 'SouqSyria - Syrian Marketplace | سوق سوريا'
   },
 
+  // Authentication routes (login, register, OTP, password reset)
+  {
+    path: 'auth',
+    loadChildren: () => import('./features/auth/auth.routes').then(m => m.authRoutes),
+    title: 'Authentication - SouqSyria'
+  },
+
+  // Direct login/register aliases for convenience
+  {
+    path: 'login',
+    redirectTo: 'auth/login',
+    pathMatch: 'full'
+  },
+  {
+    path: 'register',
+    redirectTo: 'auth/register',
+    pathMatch: 'full'
+  },
+
   // Slider Demo Route (for development/testing)
   {
     path: 'slider-demo',
