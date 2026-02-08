@@ -1,0 +1,142 @@
+@import '../../../../shared/styles/variables';
+
+/**
+ * Products Pagination Component Styles
+ * Pagination controls with page numbers and items per page selector
+ */
+
+.pagination {
+  display: flex;
+  flex-direction: column;
+  gap: $space-4;
+  padding: $space-4 0;
+  align-items: center;
+
+  &.rtl {
+    direction: rtl;
+  }
+
+  @media (min-width: $breakpoint-md) {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+  }
+}
+
+.pagination__info {
+  order: 1;
+
+  @media (min-width: $breakpoint-md) {
+    order: 1;
+  }
+}
+
+.pagination__text {
+  margin: 0;
+  font-size: $font-size-sm;
+  color: $charcoal-medium;
+  font-weight: $font-weight-medium;
+}
+
+.pagination__controls {
+  display: flex;
+  align-items: center;
+  gap: $space-2;
+  order: 3;
+
+  @media (min-width: $breakpoint-md) {
+    order: 2;
+  }
+}
+
+.pagination__nav-button {
+  color: $golden-wheat-primary;
+
+  &:disabled {
+    color: rgba($charcoal-medium, 0.4);
+  }
+}
+
+.pagination__pages {
+  display: flex;
+  align-items: center;
+  gap: $space-1;
+}
+
+.pagination__page-button {
+  min-width: 40px;
+  height: 40px;
+  padding: 0 $space-2;
+  font-weight: $font-weight-medium;
+  color: $charcoal-dark;
+  transition: all $transition-fast ease;
+
+  &:hover:not(:disabled) {
+    background: rgba($golden-wheat-primary, 0.1);
+    color: $golden-wheat-primary;
+  }
+
+  &--active {
+    background: $golden-wheat-primary;
+    color: white;
+    font-weight: $font-weight-semibold;
+
+    &:disabled {
+      opacity: 1;
+    }
+  }
+}
+
+.pagination__ellipsis {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 40px;
+  height: 40px;
+  color: $charcoal-medium;
+  font-weight: $font-weight-medium;
+}
+
+.pagination__limit {
+  order: 2;
+
+  @media (min-width: $breakpoint-md) {
+    order: 3;
+  }
+}
+
+.pagination__limit-field {
+  width: 180px;
+
+  ::ng-deep {
+    .mat-mdc-form-field-subscript-wrapper {
+      display: none;
+    }
+
+    .mat-mdc-text-field-wrapper {
+      padding-bottom: 0;
+    }
+  }
+}
+
+// Responsive adjustments
+@media (max-width: $breakpoint-sm) {
+  .pagination {
+    gap: $space-3;
+  }
+
+  .pagination__page-button {
+    min-width: 36px;
+    height: 36px;
+    font-size: $font-size-sm;
+  }
+
+  .pagination__ellipsis {
+    min-width: 36px;
+    height: 36px;
+  }
+
+  .pagination__limit-field {
+    width: 150px;
+  }
+}

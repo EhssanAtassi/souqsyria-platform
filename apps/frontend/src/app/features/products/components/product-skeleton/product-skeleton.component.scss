@@ -1,0 +1,119 @@
+@import '../../../../shared/styles/variables';
+
+/**
+ * Product Skeleton Component Styles
+ * Loading placeholder that matches product card dimensions
+ */
+
+.skeleton-card {
+  display: flex;
+  flex-direction: column;
+  background: white;
+  border-radius: $border-radius-lg;
+  box-shadow: $shadow-sm;
+  overflow: hidden;
+  height: 100%;
+}
+
+.skeleton-card__image {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  background: $golden-wheat-light;
+}
+
+.skeleton-card__content {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  padding: $space-4;
+  gap: $space-2;
+}
+
+.skeleton-card__category {
+  width: 80px;
+  height: 12px;
+  border-radius: $border-radius-sm;
+  background: $golden-wheat-light;
+}
+
+.skeleton-card__name {
+  display: flex;
+  flex-direction: column;
+  gap: $space-2;
+  flex: 1;
+}
+
+.skeleton-card__name-line {
+  width: 100%;
+  height: 16px;
+  border-radius: $border-radius-sm;
+  background: $golden-wheat-light;
+
+  &--short {
+    width: 70%;
+  }
+}
+
+.skeleton-card__rating {
+  width: 120px;
+  height: 16px;
+  border-radius: $border-radius-sm;
+  background: $golden-wheat-light;
+}
+
+.skeleton-card__price {
+  width: 100px;
+  height: 24px;
+  margin-top: $space-1;
+  border-radius: $border-radius-sm;
+  background: $golden-wheat-light;
+}
+
+.skeleton-card__button {
+  width: 100%;
+  height: 40px;
+  margin-top: $space-3;
+  border-radius: $border-radius-sm;
+  background: $golden-wheat-light;
+}
+
+/**
+ * Shimmer Animation
+ * Creates a moving gradient effect for loading indication
+ */
+.skeleton-shimmer {
+  position: relative;
+  overflow: hidden;
+
+  &::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+      90deg,
+      rgba(255, 255, 255, 0) 0%,
+      rgba(255, 255, 255, 0.6) 50%,
+      rgba(255, 255, 255, 0) 100%
+    );
+    animation: shimmer 1.5s infinite;
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+// Responsive adjustments
+@media (max-width: $breakpoint-sm) {
+  .skeleton-card__content {
+    padding: $space-3;
+  }
+}

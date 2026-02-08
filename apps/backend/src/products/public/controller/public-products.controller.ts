@@ -23,13 +23,90 @@ export class PublicProductsController {
   /**
    * GET /products
    * Public catalog listing endpoint for customers
-   * Supports pagination, search, price range, category/vendor filters
+   * Supports pagination, search, price range, category/vendor filters, and sorting
    */
   @Get()
   @ApiOperation({
-    summary: 'Get public product catalog',
-    description:
-      'Retrieves paginated product listings with filters for category, price range, search, etc.',
+    summary: 'Browse public product catalog with filters and sorting',
+    description: `
+      Retrieves paginated product listings with comprehensive filtering and sorting options.
+
+      Features:
+      • Pagination with page and limit controls
+      • Full-text search across English and Arabic names
+      • Category and manufacturer filtering
+      • Price range filtering (min/max)
+      • Multiple sort options (price, date, rating)
+      • Stock status computation (in_stock, low_stock, out_of_stock)
+      • Category information included in response
+
+      Stock Status:
+      • in_stock: More than 5 units available
+      • low_stock: 1-5 units available
+      • out_of_stock: No units available
+
+      Use Cases:
+      • Main product catalog page
+      • Category browsing pages
+      • Search results display
+      • Price comparison tools
+    `,
+  })
+  @ApiQuery({
+    name: 'page',
+    required: false,
+    type: Number,
+    example: 1,
+    description: 'Page number (1-indexed, minimum: 1)',
+  })
+  @ApiQuery({
+    name: 'limit',
+    required: false,
+    type: Number,
+    example: 20,
+    description: 'Items per page (minimum: 1, maximum: 100)',
+  })
+  @ApiQuery({
+    name: 'search',
+    required: false,
+    type: String,
+    example: 'Damascus Steel',
+    description: 'Search query for product names (English or Arabic)',
+  })
+  @ApiQuery({
+    name: 'categoryId',
+    required: false,
+    type: Number,
+    example: 1,
+    description: 'Filter by category ID',
+  })
+  @ApiQuery({
+    name: 'manufacturerId',
+    required: false,
+    type: Number,
+    example: 2,
+    description: 'Filter by manufacturer ID',
+  })
+  @ApiQuery({
+    name: 'minPrice',
+    required: false,
+    type: Number,
+    example: 50000,
+    description: 'Minimum price in SYP (inclusive)',
+  })
+  @ApiQuery({
+    name: 'maxPrice',
+    required: false,
+    type: Number,
+    example: 500000,
+    description: 'Maximum price in SYP (inclusive)',
+  })
+  @ApiQuery({
+    name: 'sortBy',
+    required: false,
+    enum: ['price_asc', 'price_desc', 'newest', 'rating'],
+    example: 'price_asc',
+    description: 'Sort order: price_asc, price_desc, newest (default), or rating',
   })
   @ApiResponse({
     status: 200,
@@ -38,20 +115,55 @@ export class PublicProductsController {
       example: {
         data: [
           {
-            id: 123,
-            slug: 'samsung-galaxy-s24',
-            nameEn: 'Samsung Galaxy S24',
-            nameAr: 'سامسونج جالاكسي إس 24',
-            mainImage: 'https://example.com/images/galaxy-s24.jpg',
-            finalPrice: 2750000,
+            id: 1,
+            slug: 'damascus-steel-chef-knife',
+            nameEn: 'Damascus Steel Chef Knife',
+            nameAr: 'سكين الطهاة من الفولاذ الدمشقي',
+            mainImage: 'https://placehold.co/600x400?text=Damascus+Steel+Chef+Knife',
+            basePrice: 500000,
+            discountPrice: 450000,
             currency: 'SYP',
+            categoryId: 1,
+            categoryNameEn: 'Damascus Steel',
+            categoryNameAr: 'الفولاذ الدمشقي',
+            stockStatus: 'in_stock',
+            rating: 0,
+            reviewCount: 0,
+          },
+          {
+            id: 2,
+            slug: 'olive-oil-soap-bar',
+            nameEn: 'Olive Oil Soap Bar',
+            nameAr: 'صابون زيت الزيتون',
+            mainImage: 'https://placehold.co/600x400?text=Olive+Oil+Soap+Bar',
+            basePrice: 75000,
+            discountPrice: null,
+            currency: 'SYP',
+            categoryId: 2,
+            categoryNameEn: 'Beauty & Wellness',
+            categoryNameAr: 'الجمال والعافية',
+            stockStatus: 'low_stock',
+            rating: 0,
+            reviewCount: 0,
           },
         ],
         meta: {
           total: 156,
           page: 1,
           limit: 20,
+          totalPages: 8,
         },
+      },
+    },
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Requested page exceeds available pages',
+    schema: {
+      example: {
+        message: 'Requested page 15 exceeds available pages (8). Total products: 156.',
+        error: 'Not Found',
+        statusCode: 404,
       },
     },
   })

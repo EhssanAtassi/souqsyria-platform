@@ -134,38 +134,67 @@ export class PublicProductsService {
   }
 
   /**
-   * Fetches a public product list with filters and pagination
+   * GET PUBLIC PRODUCT FEED
+   *
+   * Fetches a public product list with comprehensive filters, pagination, and sorting.
+   * This endpoint powers the main product catalog browsing experience.
+   *
+   * Features:
+   * - Full pagination with totalPages calculation
+   * - Stock status computation from variant-level stock
+   * - Category information inclusion
+   * - Price-based sorting (ascending/descending)
+   * - Date-based sorting (newest first)
+   * - Out-of-range page validation
+   *
+   * Stock Status Logic:
+   * - in_stock: Total stock > 5 units
+   * - low_stock: Total stock 1-5 units
+   * - out_of_stock: Total stock = 0 units
+   * - Default to in_stock if no variants exist
+   *
+   * @param filters - Pagination, search, category, price, and sorting filters
+   * @returns Paginated product list with metadata
+   * @throws NotFoundException when requested page exceeds available pages
    */
   async getPublicFeed(filters: GetPublicProductsDto) {
     const page = filters.page || 1;
     const limit = Math.min(filters.limit || 20, 100);
     const skip = (page - 1) * limit;
 
+    // Build base query with all necessary joins
     const query = this.productRepo
       .createQueryBuilder('product')
       .leftJoinAndSelect('product.pricing', 'pricing')
       .leftJoinAndSelect('product.images', 'images')
+      .leftJoinAndSelect('product.category', 'category')
+      .leftJoinAndSelect('product.variants', 'variants')
+      .leftJoinAndSelect('variants.stocks', 'stocks')
       .where(
         'product.isActive = true AND product.isPublished = true AND product.is_deleted = false',
       )
       .andWhere('pricing.isActive = true');
 
+    // Apply search filter (supports English and Arabic)
     if (filters.search) {
-      query.andWhere('product.nameEn LIKE :search', {
+      query.andWhere('product.nameEn LIKE :search OR product.nameAr LIKE :search', {
         search: `%${filters.search}%`,
       });
     }
 
+    // Apply category filter
     if (filters.categoryId) {
       query.andWhere('product.category_id = :cid', { cid: filters.categoryId });
     }
 
+    // Apply manufacturer filter
     if (filters.manufacturerId) {
       query.andWhere('product.manufacturer_id = :mid', {
         mid: filters.manufacturerId,
       });
     }
 
+    // Apply minimum price filter (considers discount price if available)
     if (filters.minPrice) {
       query.andWhere(
         '(pricing.discountPrice IS NOT NULL AND pricing.discountPrice >= :min) OR (pricing.discountPrice IS NULL AND pricing.basePrice >= :min)',
@@ -173,6 +202,7 @@ export class PublicProductsService {
       );
     }
 
+    // Apply maximum price filter (considers discount price if available)
     if (filters.maxPrice) {
       query.andWhere(
         '(pricing.discountPrice IS NOT NULL AND pricing.discountPrice <= :max) OR (pricing.discountPrice IS NULL AND pricing.basePrice <= :max)',
@@ -180,20 +210,88 @@ export class PublicProductsService {
       );
     }
 
+    // Apply sorting based on sortBy parameter
+    if (filters.sortBy === 'price_asc') {
+      // Sort by final price ascending (discount price takes priority)
+      query.orderBy('COALESCE(pricing.discountPrice, pricing.basePrice)', 'ASC');
+    } else if (filters.sortBy === 'price_desc') {
+      // Sort by final price descending (discount price takes priority)
+      query.orderBy('COALESCE(pricing.discountPrice, pricing.basePrice)', 'DESC');
+    } else if (filters.sortBy === 'rating') {
+      // Placeholder: Sort by rating (currently same as newest)
+      // TODO: Implement when review system is available
+      query.orderBy('product.createdAt', 'DESC');
+    } else {
+      // Default: Sort by newest (creation date descending)
+      query.orderBy('product.createdAt', 'DESC');
+    }
+
+    // Execute query with pagination
     const [data, total] = await query.skip(skip).take(limit).getManyAndCount();
 
+    // Calculate total pages
+    const totalPages = Math.ceil(total / limit);
+
+    // Validate requested page is within bounds
+    if (page > totalPages && total > 0) {
+      throw new NotFoundException(
+        `Requested page ${page} exceeds available pages (${totalPages}). Total products: ${total}.`,
+      );
+    }
+
+    // Map products to response format with stock status computation
     return {
-      data: data.map((product) => ({
-        id: product.id,
-        slug: product.slug,
-        nameEn: product.nameEn,
-        nameAr: product.nameAr,
-        mainImage: product.images?.[0]?.imageUrl ?? null,
-        finalPrice:
-          product.pricing?.discountPrice ?? product.pricing?.basePrice,
-        currency: product.pricing?.currency ?? 'SYP',
-      })),
-      meta: { total, page, limit },
+      data: data.map((product) => {
+        // Compute total stock across all variants and their warehouses
+        let totalStock = 0;
+        if (product.variants && product.variants.length > 0) {
+          product.variants.forEach((variant) => {
+            if (variant.stocks && variant.stocks.length > 0) {
+              variant.stocks.forEach((stock) => {
+                totalStock += stock.quantity || 0;
+              });
+            }
+          });
+        }
+
+        // Determine stock status based on total quantity
+        let stockStatus: 'in_stock' | 'low_stock' | 'out_of_stock';
+        if (totalStock === 0) {
+          stockStatus = 'out_of_stock';
+        } else if (totalStock > 0 && totalStock <= 5) {
+          stockStatus = 'low_stock';
+        } else {
+          stockStatus = 'in_stock';
+        }
+
+        // Default to in_stock if no variants exist (virtual/service products)
+        if (!product.variants || product.variants.length === 0) {
+          stockStatus = 'in_stock';
+        }
+
+        return {
+          id: product.id,
+          slug: product.slug,
+          nameEn: product.nameEn,
+          nameAr: product.nameAr,
+          mainImage: product.images?.[0]?.imageUrl ?? null,
+          basePrice: product.pricing?.basePrice,
+          discountPrice: product.pricing?.discountPrice ?? null,
+          currency: product.pricing?.currency ?? 'SYP',
+          categoryId: product.category?.id ?? null,
+          categoryNameEn: product.category?.nameEn ?? null,
+          categoryNameAr: product.category?.nameAr ?? null,
+          stockStatus,
+          rating: 0, // Placeholder for future review system
+          reviewCount: 0, // Placeholder for future review system
+        };
+      }),
+      meta: {
+        total,
+        page,
+        limit,
+        totalPages,
+      },
     };
   }
 

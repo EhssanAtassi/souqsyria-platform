@@ -1,0 +1,98 @@
+<div class="product-list-page" [class.rtl]="language() === 'ar'">
+  <!-- Page Header -->
+  <header class="product-list-page__header">
+    <div class="product-list-page__title-section">
+      <h1 class="product-list-page__title">{{ pageTitle }}</h1>
+      @if (meta()) {
+        <p class="product-list-page__count">{{ meta()!.total }} {{ language() === 'ar' ? 'منتج' : 'products' }}</p>
+      }
+    </div>
+
+    <div class="product-list-page__controls">
+      <!-- Sort Dropdown -->
+      <mat-form-field appearance="outline" class="product-list-page__sort">
+        <mat-label>{{ sortLabel }}</mat-label>
+        <mat-select [value]="sortBy()" (selectionChange)="onSortChange($event.value)">
+          @for (option of sortOptions; track option.value) {
+            <mat-option [value]="option.value">
+              {{ getSortLabel(option) }}
+            </mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+
+      <!-- View Mode Toggle -->
+      <button
+        mat-icon-button
+        class="product-list-page__view-toggle"
+        (click)="toggleViewMode()"
+        [attr.aria-label]="viewModeLabel"
+      >
+        <mat-icon>{{ viewMode() === 'grid' ? 'view_list' : 'grid_view' }}</mat-icon>
+      </button>
+    </div>
+  </header>
+
+  <!-- Loading State -->
+  @if (loading()) {
+    <div class="product-list-page__grid" [class.product-list-page__grid--list]="viewMode() === 'list'">
+      @for (item of skeletonArray; track $index) {
+        <app-product-skeleton />
+      }
+    </div>
+  }
+
+  <!-- Error State -->
+  @else if (error()) {
+    <div class="product-list-page__error">
+      <mat-icon class="product-list-page__error-icon">error_outline</mat-icon>
+      <h2 class="product-list-page__error-title">{{ error() }}</h2>
+      <button
+        mat-raised-button
+        color="primary"
+        (click)="retryLoad()"
+      >
+        <mat-icon>refresh</mat-icon>
+        <span>{{ retryLabel }}</span>
+      </button>
+    </div>
+  }
+
+  <!-- Empty State -->
+  @else if (products().length === 0) {
+    <div class="product-list-page__empty">
+      <mat-icon class="product-list-page__empty-icon">inventory_2</mat-icon>
+      <h2 class="product-list-page__empty-title">{{ emptyMessage }}</h2>
+      <button
+        mat-raised-button
+        color="primary"
+        routerLink="/products"
+      >
+        {{ browseAllLabel }}
+      </button>
+    </div>
+  }
+
+  <!-- Products Grid -->
+  @else {
+    <div class="product-list-page__grid" [class.product-list-page__grid--list]="viewMode() === 'list'">
+      @for (product of products(); track product.id) {
+        <app-product-card
+          [product]="product"
+          [language]="language()"
+          (addToCart)="onAddToCart($event)"
+        />
+      }
+    </div>
+
+    <!-- Pagination -->
+    @if (meta()) {
+      <app-products-pagination
+        [meta]="meta()!"
+        [language]="language()"
+        (pageChange)="onPageChange($event)"
+        (limitChange)="onLimitChange($event)"
+      />
+    }
+  }
+</div>

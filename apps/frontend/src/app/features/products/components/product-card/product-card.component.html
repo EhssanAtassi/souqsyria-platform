@@ -1,0 +1,84 @@
+<article class="product-card" [class.rtl]="language() === 'ar'">
+  <!-- Product Image -->
+  <a [routerLink]="['/product', product().slug]" class="product-card__image-link">
+    <div class="product-card__image-wrapper">
+      @if (product().mainImage) {
+        <img
+          [src]="product().mainImage"
+          [alt]="productName()"
+          class="product-card__image"
+          loading="lazy"
+          (error)="onImageError($event)"
+        />
+      } @else {
+        <div class="product-card__image-placeholder">
+          <mat-icon class="product-card__placeholder-icon">image</mat-icon>
+        </div>
+      }
+
+      <!-- Stock Badge -->
+      <span class="stock-badge" [ngClass]="stockClass()">
+        {{ stockLabel() }}
+      </span>
+    </div>
+  </a>
+
+  <!-- Product Info -->
+  <div class="product-card__content">
+    <!-- Category -->
+    @if (categoryName()) {
+      <p class="product-card__category">{{ categoryName() }}</p>
+    }
+
+    <!-- Product Name -->
+    <h3 class="product-card__name">
+      <a [routerLink]="['/product', product().slug]" class="product-card__name-link">
+        {{ productName() }}
+      </a>
+    </h3>
+
+    <!-- Rating -->
+    <div class="product-card__rating">
+      @if (product().reviewCount > 0) {
+        <div class="product-card__stars">
+          @for (star of stars(); track $index) {
+            <mat-icon class="product-card__star">{{ star }}</mat-icon>
+          }
+        </div>
+        <span class="product-card__review-count">({{ product().reviewCount }})</span>
+      } @else {
+        <span class="product-card__no-reviews">{{ noReviewsLabel() }}</span>
+      }
+    </div>
+
+    <!-- Price -->
+    <div class="product-card__price-container">
+      @if (hasDiscount()) {
+        <div class="product-card__price-wrapper">
+          <span class="product-card__price product-card__price--current">
+            {{ formattedDiscountPrice() }}
+          </span>
+          <span class="product-card__price product-card__price--original">
+            {{ formattedBasePrice() }}
+          </span>
+        </div>
+      } @else {
+        <span class="product-card__price product-card__price--current">
+          {{ formattedBasePrice() }}
+        </span>
+      }
+    </div>
+
+    <!-- Add to Cart Button -->
+    <button
+      mat-raised-button
+      color="primary"
+      class="product-card__add-to-cart"
+      [disabled]="product().stockStatus === 'out_of_stock'"
+      (click)="onAddToCartClick()"
+    >
+      <mat-icon>shopping_cart</mat-icon>
+      <span>{{ addToCartLabel() }}</span>
+    </button>
+  </div>
+</article>
