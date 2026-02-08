@@ -96,7 +96,7 @@ async function seed() {
     // Initialize connection
     await dataSource.initialize();
     logger.success('Database connection established');
-    logger.info(`Connected to: ${dataSource.options.database}@${dataSource.options.host}`);
+    logger.info(`Connected to: ${dataSource.options.database}@${(dataSource.options as unknown as { host?: string }).host ?? 'localhost'}`);
 
     // Start transaction for atomic operations
     await dataSource.transaction(async (transactionalEntityManager) => {

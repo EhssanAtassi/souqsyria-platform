@@ -289,98 +289,11 @@ export class PublicProductsController {
   }
 
   /**
-   * GET /products/:slug
-   * Individual product details endpoint for product detail page
-   * Retrieves complete product information including variants, pricing, descriptions
-   */
-  @Get(':slug')
-  @ApiOperation({
-    summary: 'Get product details by slug',
-    description:
-      'Retrieves complete product information including variants, pricing, images, and descriptions',
-  })
-  @ApiParam({
-    name: 'slug',
-    description: 'Product slug identifier',
-    example: 'samsung-galaxy-s24',
-  })
-  @ApiResponse({
-    status: 200,
-    description: 'Product details retrieved successfully',
-    schema: {
-      example: {
-        id: 123,
-        slug: 'samsung-galaxy-s24',
-        nameEn: 'Samsung Galaxy S24',
-        nameAr: 'سامسونج جالاكسي إس 24',
-        category: {
-          id: 5,
-          nameEn: 'Smartphones',
-          nameAr: 'الهواتف الذكية',
-        },
-        manufacturer: {
-          id: 2,
-          name: 'Samsung',
-        },
-        vendor: {
-          id: 10,
-          businessName: 'TechSyria Store',
-        },
-        pricing: {
-          basePrice: 3000000,
-          discountPrice: 2750000,
-          currency: 'SYP',
-        },
-        images: [
-          {
-            id: 1,
-            imageUrl: 'https://example.com/images/galaxy-s24-1.jpg',
-            altText: 'Samsung Galaxy S24 Front View',
-          },
-        ],
-        descriptions: [
-          {
-            language: 'en',
-            shortDescription: 'Latest Samsung flagship smartphone',
-            fullDescription: 'Detailed product description...',
-          },
-        ],
-        variants: [
-          {
-            id: 201,
-            sku: 'SGS24-128GB-BLACK',
-            attributeValues: {
-              color: 'Black',
-              storage: '128GB',
-            },
-            pricing: {
-              basePrice: 3000000,
-              discountPrice: 2750000,
-            },
-          },
-        ],
-      },
-    },
-  })
-  @ApiResponse({
-    status: 404,
-    description: 'Product not found or not available',
-    schema: {
-      example: {
-        message: 'Product with slug "invalid-slug" not found or not available',
-        error: 'Not Found',
-        statusCode: 404,
-      },
-    },
-  })
-  async getProductBySlug(@Param('slug') slug: string) {
-    return await this.service.getProductBySlug(slug);
-  }
-
-  /**
    * GET /products/search
    * Advanced product search endpoint with full-text search
    * Searches across product names, descriptions, categories, and manufacturers
+   *
+   * NOTE: This MUST be defined BEFORE the :slug route to avoid route conflicts
    */
   @Get('search')
   @ApiOperation({
@@ -489,5 +402,96 @@ export class PublicProductsController {
     }
 
     return await this.service.searchProducts(searchQuery, filters);
+  }
+
+  /**
+   * GET /products/:slug
+   * Individual product details endpoint for product detail page
+   * Retrieves complete product information including variants, pricing, descriptions
+   *
+   * NOTE: This MUST be the LAST @Get() route to avoid catching specific routes like /search
+   */
+  @Get(':slug')
+  @ApiOperation({
+    summary: 'Get product details by slug',
+    description:
+      'Retrieves complete product information including variants, pricing, images, and descriptions',
+  })
+  @ApiParam({
+    name: 'slug',
+    description: 'Product slug identifier',
+    example: 'samsung-galaxy-s24',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Product details retrieved successfully',
+    schema: {
+      example: {
+        id: 123,
+        slug: 'samsung-galaxy-s24',
+        nameEn: 'Samsung Galaxy S24',
+        nameAr: 'سامسونج جالاكسي إس 24',
+        category: {
+          id: 5,
+          nameEn: 'Smartphones',
+          nameAr: 'الهواتف الذكية',
+        },
+        manufacturer: {
+          id: 2,
+          name: 'Samsung',
+        },
+        vendor: {
+          id: 10,
+          businessName: 'TechSyria Store',
+        },
+        pricing: {
+          basePrice: 3000000,
+          discountPrice: 2750000,
+          currency: 'SYP',
+        },
+        images: [
+          {
+            id: 1,
+            imageUrl: 'https://example.com/images/galaxy-s24-1.jpg',
+            altText: 'Samsung Galaxy S24 Front View',
+          },
+        ],
+        descriptions: [
+          {
+            language: 'en',
+            shortDescription: 'Latest Samsung flagship smartphone',
+            fullDescription: 'Detailed product description...',
+          },
+        ],
+        variants: [
+          {
+            id: 201,
+            sku: 'SGS24-128GB-BLACK',
+            attributeValues: {
+              color: 'Black',
+              storage: '128GB',
+            },
+            pricing: {
+              basePrice: 3000000,
+              discountPrice: 2750000,
+            },
+          },
+        ],
+      },
+    },
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Product not found or not available',
+    schema: {
+      example: {
+        message: 'Product with slug "invalid-slug" not found or not available',
+        error: 'Not Found',
+        statusCode: 404,
+      },
+    },
+  })
+  async getProductBySlug(@Param('slug') slug: string) {
+    return await this.service.getProductBySlug(slug);
   }
 }

@@ -13,6 +13,7 @@ import {
   Component,
   ChangeDetectionStrategy,
   signal,
+  computed,
   effect,
   inject,
   DestroyRef,
@@ -31,6 +32,7 @@ import {
   ProductListMeta,
 } from '../../models/product-list.interface';
 import { ProductService } from '../../services/product.service';
+import { LanguageService } from '../../../../shared/services/language.service';
 import { ProductCardComponent } from '../../components/product-card/product-card.component';
 import { ProductSkeletonComponent } from '../../components/product-skeleton/product-skeleton.component';
 import { ProductsPaginationComponent } from '../../components/pagination/products-pagination.component';
@@ -64,6 +66,7 @@ export class ProductListPageComponent implements OnInit {
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly languageService = inject(LanguageService);
 
   /** Product list items from API */
   products = signal<ProductListItem[]>([]);
@@ -80,8 +83,8 @@ export class ProductListPageComponent implements OnInit {
   /** View mode toggle (grid or list) */
   viewMode = signal<'grid' | 'list'>('grid');
 
-  /** Current UI language */
-  language = signal<'en' | 'ar'>('en');
+  /** Current UI language from shared LanguageService */
+  readonly language = this.languageService.language;
 
   /** Current sort option synced from URL */
   sortBy = signal<string>('newest');
@@ -100,19 +103,27 @@ export class ProductListPageComponent implements OnInit {
     { value: 'rating', labelEn: 'Rating', labelAr: 'التقييم' },
   ];
 
-  /** Number of skeleton cards shown during loading */
-  readonly skeletonCount = 8;
+  /** Number of skeleton cards matches current page limit for consistent layout */
+  readonly skeletonCount = computed(() => this.currentLimit());
 
   constructor() {
     // Restore view mode preference from localStorage
-    const savedViewMode = localStorage.getItem('productViewMode') as 'grid' | 'list';
-    if (savedViewMode) {
-      this.viewMode.set(savedViewMode);
+    try {
+      const savedViewMode = localStorage.getItem('productViewMode') as 'grid' | 'list';
+      if (savedViewMode) {
+        this.viewMode.set(savedViewMode);
+      }
+    } catch {
+      // localStorage unavailable (Safari private mode, etc.)
     }
 
     // Persist view mode changes to localStorage
     effect(() => {
-      localStorage.setItem('productViewMode', this.viewMode());
+      try {
+        localStorage.setItem('productViewMode', this.viewMode());
+      } catch {
+        // localStorage unavailable
+      }
     });
   }
 
@@ -277,6 +288,6 @@ export class ProductListPageComponent implements OnInit {
 
   /** @description Array of skeleton card indices for ngFor */
   get skeletonArray(): number[] {
-    return Array(this.skeletonCount).fill(0);
+    return Array(this.skeletonCount()).fill(0);
   }
 }

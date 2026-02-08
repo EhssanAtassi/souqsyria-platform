@@ -115,12 +115,14 @@ export class ProductCardComponent {
   });
 
   /**
-   * @description Formats price with thousand separators and currency
+   * @description Formats price with thousand separators and currency.
+   * Uses Arabic-Indic numerals (٢,٥٠٠,٠٠٠) when in Arabic mode.
    * @param price - Price in smallest currency unit
-   * @returns Formatted price string
+   * @returns Formatted price string with SYP currency symbol
    */
   private formatPrice(price: number): string {
-    const formatted = price.toLocaleString('en-US');
+    const locale = this.language() === 'ar' ? 'ar-SY' : 'en-US';
+    const formatted = price.toLocaleString(locale);
     return `${formatted} ل.س`;
   }
 

@@ -103,10 +103,6 @@
   }
 
   @media (min-width: $breakpoint-md) {
-    grid-template-columns: repeat(3, 1fr);
-  }
-
-  @media (min-width: $breakpoint-lg) {
     grid-template-columns: repeat(4, 1fr);
   }
 

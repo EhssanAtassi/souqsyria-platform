@@ -252,7 +252,7 @@ describe('ProductListPageComponent', () => {
       const skeletons = compiled.querySelectorAll('app-product-skeleton');
 
       expect(component.loading()).toBeTrue();
-      expect(skeletons.length).toBe(8);
+      expect(skeletons.length).toBe(component.currentLimit());
     });
 
     /**
