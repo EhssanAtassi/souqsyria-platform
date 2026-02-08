@@ -9,6 +9,7 @@ export const environment = {
   
   // API Configuration
   apiUrl: 'https://api.souqsyria.com',
+  productApiUrl: 'https://api.souqsyria.com/products',
   apiVersion: 'v1',
   
   // Performance Configuration

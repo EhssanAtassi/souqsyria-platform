@@ -1,0 +1,67 @@
+<div class="pagination" [class.rtl]="language() === 'ar'">
+  <!-- Showing Range Info -->
+  <div class="pagination__info">
+    <p class="pagination__text">{{ showingText() }}</p>
+  </div>
+
+  <!-- Pagination Controls -->
+  <div class="pagination__controls">
+    <!-- Previous Button -->
+    <button
+      mat-icon-button
+      class="pagination__nav-button"
+      [disabled]="isPreviousDisabled()"
+      (click)="onPreviousClick()"
+      [attr.aria-label]="previousLabel()"
+    >
+      <mat-icon>{{ language() === 'ar' ? 'chevron_right' : 'chevron_left' }}</mat-icon>
+    </button>
+
+    <!-- Page Numbers -->
+    <div class="pagination__pages">
+      @for (page of pageNumbers(); track $index) {
+        @if (page === 'ellipsis') {
+          <span class="pagination__ellipsis">...</span>
+        } @else {
+          <button
+            mat-button
+            class="pagination__page-button"
+            [class.pagination__page-button--active]="isCurrentPage(page)"
+            [disabled]="isCurrentPage(page)"
+            (click)="onPageClick(page)"
+            [attr.aria-label]="'Page ' + page"
+            [attr.aria-current]="isCurrentPage(page) ? 'page' : null"
+          >
+            {{ page }}
+          </button>
+        }
+      }
+    </div>
+
+    <!-- Next Button -->
+    <button
+      mat-icon-button
+      class="pagination__nav-button"
+      [disabled]="isNextDisabled()"
+      (click)="onNextClick()"
+      [attr.aria-label]="nextLabel()"
+    >
+      <mat-icon>{{ language() === 'ar' ? 'chevron_left' : 'chevron_right' }}</mat-icon>
+    </button>
+  </div>
+
+  <!-- Items Per Page Selector -->
+  <div class="pagination__limit">
+    <mat-form-field appearance="outline" class="pagination__limit-field">
+      <mat-label>{{ itemsPerPageLabel() }}</mat-label>
+      <mat-select
+        [value]="meta().limit"
+        (selectionChange)="onLimitChange($event.value)"
+      >
+        @for (option of limitOptions; track option) {
+          <mat-option [value]="option">{{ option }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+  </div>
+</div>

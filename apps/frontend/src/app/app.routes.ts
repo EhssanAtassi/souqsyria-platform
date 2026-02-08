@@ -183,6 +183,13 @@ export const routes: Routes = [
     pathMatch: 'full'
   },
 
+  // Product catalog with server-side pagination (SS-PROD-001)
+  {
+    path: 'products',
+    loadChildren: () => import('./features/products/products.routes').then(m => m.productsRoutes),
+    title: 'Products - SouqSyria | المنتجات'
+  },
+
   // User account routes
   {
     path: 'account',

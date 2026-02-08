@@ -1,0 +1,240 @@
+@import '../../../../shared/styles/variables';
+
+/**
+ * Product List Page Component Styles
+ * Main product browsing page with grid/list layouts and pagination
+ */
+
+.product-list-page {
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: $space-6 $space-4;
+
+  &.rtl {
+    direction: rtl;
+  }
+
+  @media (min-width: $breakpoint-md) {
+    padding: $space-8 $space-6;
+  }
+
+  @media (min-width: $breakpoint-lg) {
+    padding: $space-10 $space-8;
+  }
+}
+
+.product-list-page__header {
+  display: flex;
+  flex-direction: column;
+  gap: $space-4;
+  margin-bottom: $space-8;
+
+  @media (min-width: $breakpoint-md) {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+  }
+}
+
+.product-list-page__title-section {
+  display: flex;
+  flex-direction: column;
+  gap: $space-2;
+}
+
+.product-list-page__title {
+  margin: 0;
+  font-size: $font-size-2xl;
+  font-weight: $font-weight-bold;
+  color: $charcoal-dark;
+
+  @media (min-width: $breakpoint-md) {
+    font-size: $font-size-3xl;
+  }
+}
+
+.product-list-page__count {
+  margin: 0;
+  font-size: $font-size-base;
+  color: $charcoal-medium;
+}
+
+.product-list-page__controls {
+  display: flex;
+  align-items: center;
+  gap: $space-3;
+}
+
+.product-list-page__sort {
+  width: 220px;
+
+  ::ng-deep {
+    .mat-mdc-form-field-subscript-wrapper {
+      display: none;
+    }
+
+    .mat-mdc-text-field-wrapper {
+      padding-bottom: 0;
+    }
+  }
+
+  @media (max-width: $breakpoint-sm) {
+    width: 180px;
+  }
+}
+
+.product-list-page__view-toggle {
+  color: $golden-wheat-primary;
+}
+
+/**
+ * Product Grid Layouts
+ */
+.product-list-page__grid {
+  display: grid;
+  gap: $grid-gap;
+  margin-bottom: $space-8;
+
+  // Grid mode - responsive columns
+  grid-template-columns: 1fr;
+
+  @media (min-width: $breakpoint-xs) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  @media (min-width: $breakpoint-md) {
+    grid-template-columns: repeat(4, 1fr);
+  }
+
+  // List mode - single column with larger cards
+  &--list {
+    grid-template-columns: 1fr;
+
+    @media (min-width: $breakpoint-md) {
+      gap: $grid-gap-small;
+    }
+
+    // Modify card layout for list view
+    ::ng-deep {
+      .product-card {
+        flex-direction: row;
+        max-height: 300px;
+      }
+
+      .product-card__image-wrapper {
+        width: 300px;
+        flex-shrink: 0;
+      }
+
+      .product-card__content {
+        flex: 1;
+        padding: $space-6;
+      }
+    }
+  }
+}
+
+/**
+ * Error State
+ */
+.product-list-page__error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+  text-align: center;
+  gap: $space-4;
+}
+
+.product-list-page__error-icon {
+  font-size: 80px;
+  width: 80px;
+  height: 80px;
+  color: $color-error;
+}
+
+.product-list-page__error-title {
+  margin: 0;
+  font-size: $font-size-xl;
+  font-weight: $font-weight-semibold;
+  color: $charcoal-dark;
+}
+
+/**
+ * Empty State
+ */
+.product-list-page__empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+  text-align: center;
+  gap: $space-4;
+}
+
+.product-list-page__empty-icon {
+  font-size: 80px;
+  width: 80px;
+  height: 80px;
+  color: $charcoal-medium;
+  opacity: 0.5;
+}
+
+.product-list-page__empty-title {
+  margin: 0;
+  font-size: $font-size-xl;
+  font-weight: $font-weight-semibold;
+  color: $charcoal-medium;
+}
+
+/**
+ * Responsive adjustments
+ */
+@media (max-width: $breakpoint-sm) {
+  .product-list-page {
+    padding: $space-4 $space-3;
+  }
+
+  .product-list-page__header {
+    margin-bottom: $space-6;
+  }
+
+  .product-list-page__title {
+    font-size: $font-size-xl;
+  }
+
+  .product-list-page__grid {
+    gap: $grid-gap-small;
+
+    &--list {
+      ::ng-deep {
+        .product-card {
+          flex-direction: column;
+          max-height: none;
+        }
+
+        .product-card__image-wrapper {
+          width: 100%;
+        }
+
+        .product-card__content {
+          padding: $space-4;
+        }
+      }
+    }
+  }
+
+  .product-list-page__error-icon,
+  .product-list-page__empty-icon {
+    font-size: 60px;
+    width: 60px;
+    height: 60px;
+  }
+
+  .product-list-page__error-title,
+  .product-list-page__empty-title {
+    font-size: $font-size-lg;
+  }
+}
