@@ -382,11 +382,10 @@ describe('CategoriesPublicController', () => {
           data: expect.arrayContaining([
             expect.objectContaining({
               id: 1,
-              name_en: 'Electronics',
-              name_ar: '\u0625\u0644\u0643\u062A\u0631\u0648\u0646\u064A\u0627\u062A',
+              name: 'Electronics',
+              nameAr: '\u0625\u0644\u0643\u062A\u0631\u0648\u0646\u064A\u0627\u062A',
               slug: 'electronics',
-              is_featured: true,
-              product_count: 45,
+              productCount: 45,
             }),
           ]),
           meta: expect.objectContaining({
@@ -437,7 +436,7 @@ describe('CategoriesPublicController', () => {
      * Should return response in snake_case format
      * Validates: Response transformation to frontend-expected format
      */
-    it('should return response in snake_case format', async () => {
+    it('should return response in camelCase format matching FE interface', async () => {
       const mockResponse = createMockResponse();
       const mockRequest = createMockRequest();
 
@@ -460,16 +459,13 @@ describe('CategoriesPublicController', () => {
       const jsonCall = mockResponse.json.mock.calls[0][0];
       const firstItem = jsonCall.data[0];
 
-      expect(firstItem).toHaveProperty('name_en');
-      expect(firstItem).toHaveProperty('name_ar');
-      expect(firstItem).toHaveProperty('icon_url');
-      expect(firstItem).toHaveProperty('theme_color');
-      expect(firstItem).toHaveProperty('featured_image_url');
-      expect(firstItem).toHaveProperty('featured_discount');
-      expect(firstItem).toHaveProperty('is_featured');
-      expect(firstItem).toHaveProperty('featured_priority');
-      expect(firstItem).toHaveProperty('is_active');
-      expect(firstItem).toHaveProperty('product_count');
+      expect(firstItem).toHaveProperty('name');
+      expect(firstItem).toHaveProperty('nameAr');
+      expect(firstItem).toHaveProperty('slug');
+      expect(firstItem).toHaveProperty('image');
+      expect(firstItem).toHaveProperty('icon');
+      expect(firstItem).toHaveProperty('productCount');
+      expect(firstItem).toHaveProperty('sortOrder');
     });
 
     /**

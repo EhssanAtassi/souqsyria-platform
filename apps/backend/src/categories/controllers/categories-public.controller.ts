@@ -988,19 +988,17 @@ export class CategoriesPublicController {
    * VALIDATE PUBLIC QUERY PARAMETERS
    */
   private validatePublicQueryParams(params: {
-    page?: string;
-    limit?: string;
+    page?: number | string;
+    limit?: number | string;
     language?: string;
     featured?: boolean | string;
-    parentId?: string;
-  }): { page: number; limit: number; language: string; featured: boolean; parentId: number | undefined } {
-    const page = Math.max(1, parseInt(params.page || '1') || 1);
-    const limit = Math.min(Math.max(1, parseInt(params.limit || '20') || 20), 50); // Max 50 for public
-    const language = ['en', 'ar'].includes(params.language || '')
-      ? (params.language as string)
-      : 'en';
+    parentId?: number | string;
+  }): { page: number; limit: number; language: 'en' | 'ar'; featured: boolean; parentId: number | undefined } {
+    const page = Math.max(1, Number(params.page) || 1);
+    const limit = Math.min(Math.max(1, Number(params.limit) || 20), 50); // Max 50 for public
+    const language: 'en' | 'ar' = params.language === 'ar' ? 'ar' : 'en';
     const featured = params.featured === true || params.featured === 'true';
-    const parentId = params.parentId ? parseInt(params.parentId) : undefined;
+    const parentId = params.parentId ? Number(params.parentId) : undefined;
 
     return { page, limit, language, featured, parentId };
   }
@@ -1061,7 +1059,7 @@ export class CategoriesPublicController {
     result: PaginatedCategoriesResponseDto,
     language: string,
     userContext: { type: 'local' | 'diaspora'; country?: string },
-  ): Record<string, unknown> {
+  ): Omit<PaginatedCategoriesResponseDto, 'data'> & { data: Record<string, unknown>[] } {
     // Remove admin-only fields and optimize for public consumption
     const publicData = result.data.map((category) => ({
       id: category.id,
