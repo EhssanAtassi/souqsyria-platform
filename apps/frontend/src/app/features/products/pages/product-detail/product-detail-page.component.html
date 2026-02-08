@@ -111,11 +111,19 @@
         <div class="info__quantity">
           <label class="info__quantity-label">{{ language() === 'ar' ? 'الكمية' : 'Quantity' }}</label>
           <div class="quantity-controls">
-            <button mat-icon-button (click)="onQuantityChange(-1)">
+            <button
+              mat-icon-button
+              (click)="onQuantityChange(-1)"
+              [attr.aria-label]="language() === 'ar' ? 'إنقاص الكمية' : 'Decrease quantity'"
+            >
               <mat-icon>remove</mat-icon>
             </button>
             <span class="quantity-value">{{ quantity() }}</span>
-            <button mat-icon-button (click)="onQuantityChange(1)">
+            <button
+              mat-icon-button
+              (click)="onQuantityChange(1)"
+              [attr.aria-label]="language() === 'ar' ? 'زيادة الكمية' : 'Increase quantity'"
+            >
               <mat-icon>add</mat-icon>
             </button>
           </div>
@@ -155,8 +163,8 @@
     <mat-tab-group class="product-detail__tabs">
       <mat-tab [label]="descriptionTabLabel">
         <div class="tab-content">
-          @if (descriptionForLang()?.fullDescription) {
-            <div [innerHTML]="descriptionForLang()!.fullDescription" class="description-content"></div>
+          @if (sanitizedDescription()) {
+            <div [innerHTML]="sanitizedDescription()" class="description-content"></div>
           } @else {
             <p class="tab-content__empty">{{ language() === 'ar' ? 'لا يوجد وصف متاح' : 'No description available' }}</p>
           }

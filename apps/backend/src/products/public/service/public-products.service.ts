@@ -8,6 +8,77 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { ProductEntity } from '../../entities/product.entity';
 import { Repository } from 'typeorm';
 
+/**
+ * Product detail response interface
+ */
+export interface ProductDetailResponse {
+  id: number;
+  slug: string;
+  nameEn: string;
+  nameAr: string;
+  sku: string;
+  category: {
+    id: number;
+    nameEn: string;
+    nameAr: string;
+    slug: string;
+  } | null;
+  manufacturer: {
+    id: number;
+    name: string;
+  } | null;
+  vendor: {
+    id: number;
+    storeName: string;
+  } | null;
+  pricing: {
+    basePrice: number;
+    discountPrice: number | null;
+    currency: string;
+  } | null;
+  images: Array<{
+    id: number;
+    imageUrl: string;
+    sortOrder: number;
+  }>;
+  descriptions: Array<{
+    language: string;
+    shortDescription: string;
+    fullDescription: string;
+  }>;
+  variants: Array<{
+    id: number;
+    sku: string;
+    price: number;
+    variantData: Record<string, any>;
+    imageUrl: string | null;
+    stockStatus: 'in_stock' | 'low_stock' | 'out_of_stock';
+    totalStock: number;
+    isActive: boolean;
+  }>;
+  attributes: Array<{
+    id: number;
+    attributeNameEn: string;
+    attributeNameAr: string;
+    valueEn: string;
+    valueAr: string;
+    colorHex: string | null;
+  }>;
+  stockStatus: 'in_stock' | 'low_stock' | 'out_of_stock';
+  totalStock: number;
+  relatedProducts: Array<{
+    id: number;
+    slug: string;
+    nameEn: string;
+    nameAr: string;
+    mainImage: string | null;
+    basePrice: number;
+    discountPrice: number | null;
+    currency: string;
+    stockStatus: 'in_stock' | 'low_stock' | 'out_of_stock';
+  }>;
+}
+
 @Injectable()
 export class PublicProductsService {
   private readonly logger = new Logger(PublicProductsService.name);
@@ -309,7 +380,7 @@ export class PublicProductsService {
    * @param slug - Product slug identifier
    * @returns Structured product details with related products
    */
-  async getProductBySlug(slug: string) {
+  async getProductBySlug(slug: string): Promise<ProductDetailResponse> {
     this.logger.log(`🔍 Getting product details for slug: ${slug}`);
 
     const product = await this.productRepo
@@ -339,24 +410,28 @@ export class PublicProductsService {
     }
 
     // Query related products (same category, exclude self, limit 4, active/published only)
-    const relatedProducts = await this.productRepo
-      .createQueryBuilder('related')
-      .leftJoinAndSelect('related.pricing', 'relatedPricing')
-      .leftJoinAndSelect('related.images', 'relatedImages')
-      .leftJoinAndSelect('related.category', 'relatedCategory')
-      .leftJoinAndSelect('related.variants', 'relatedVariants')
-      .leftJoinAndSelect('relatedVariants.stocks', 'relatedStocks')
-      .where(
-        'related.isActive = true AND related.isPublished = true AND related.is_deleted = false',
-      )
-      .andWhere('relatedPricing.isActive = true')
-      .andWhere('related.category_id = :categoryId', {
-        categoryId: product.category?.id,
-      })
-      .andWhere('related.id != :productId', { productId: product.id })
-      .orderBy('related.salesCount', 'DESC')
-      .limit(4)
-      .getMany();
+    let relatedProducts: ProductEntity[] = [];
+
+    if (product.category) {
+      relatedProducts = await this.productRepo
+        .createQueryBuilder('related')
+        .leftJoinAndSelect('related.pricing', 'relatedPricing')
+        .leftJoinAndSelect('related.images', 'relatedImages')
+        .leftJoinAndSelect('related.category', 'relatedCategory')
+        .leftJoinAndSelect('related.variants', 'relatedVariants')
+        .leftJoinAndSelect('relatedVariants.stocks', 'relatedStocks')
+        .where(
+          'related.isActive = true AND related.isPublished = true AND related.is_deleted = false',
+        )
+        .andWhere('relatedPricing.isActive = true')
+        .andWhere('related.category_id = :categoryId', {
+          categoryId: product.category.id,
+        })
+        .andWhere('related.id != :productId', { productId: product.id })
+        .orderBy('related.salesCount', 'DESC')
+        .limit(4)
+        .getMany();
+    }
 
     // Compute stock status from variants
     let totalStock = 0;
@@ -467,7 +542,7 @@ export class PublicProductsService {
           nameEn: rp.nameEn,
           nameAr: rp.nameAr,
           mainImage: rp.images?.[0]?.imageUrl ?? null,
-          basePrice: rp.pricing?.basePrice,
+          basePrice: rp.pricing?.basePrice ?? 0,
           discountPrice: rp.pricing?.discountPrice ?? null,
           currency: rp.pricing?.currency ?? 'SYP',
           stockStatus: rpStockStatus,
