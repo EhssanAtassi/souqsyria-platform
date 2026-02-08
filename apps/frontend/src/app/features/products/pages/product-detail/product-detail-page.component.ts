@@ -139,7 +139,10 @@ export class ProductDetailPageComponent implements OnInit {
     return p.descriptions.find(d => d.language === lang);
   });
 
-  /** @description Sanitized full description HTML for rendering */
+  /** @description Sanitized full description HTML for rendering
+   * Note: Assumes fullDescription contains trusted content from backend.
+   * Uses SecurityContext.HTML to allow formatting tags while preventing XSS.
+   */
   sanitizedDescription = computed((): SafeHtml | null => {
     const desc = this.descriptionForLang();
     if (!desc?.fullDescription) return null;

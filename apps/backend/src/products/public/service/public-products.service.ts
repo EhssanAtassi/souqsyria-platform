@@ -524,7 +524,7 @@ export class PublicProductsService {
       stockStatus,
       totalStock,
       relatedProducts: relatedProducts
-        .filter((rp) => rp.pricing?.basePrice != null) // Exclude products without valid pricing
+        .filter((rp) => rp.pricing?.basePrice != null && rp.pricing.basePrice > 0) // Exclude products without valid pricing or $0
         .map((rp) => {
           let rpTotalStock = 0;
           rp.variants?.forEach((v) =>
