@@ -126,7 +126,7 @@ import { HealthModule } from './health';
      */
     {
       provide: APP_GUARD,
-      useClass: JwtAuthGuard,
+      useExisting: JwtAuthGuard,
     },
     {
       provide: APP_GUARD,

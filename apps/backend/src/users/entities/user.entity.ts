@@ -35,7 +35,6 @@ export class User {
   @Column({ name: 'firebase_uid', nullable: true, unique: true })
   firebaseUid: string;
 
-  @Index()
   @Column({ nullable: true })
   email: string;
 

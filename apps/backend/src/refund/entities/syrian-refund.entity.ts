@@ -98,16 +98,6 @@ export enum RefundReasonCategory {
 }
 
 @Entity('syrian_refunds')
-@Index(['refundStatus'])
-@Index(['refundMethod'])
-@Index(['currency'])
-@Index(['bankType'])
-@Index(['governorate'])
-@Index(['reasonCategory'])
-@Index(['isUrgent'])
-@Index(['amountSyp'])
-@Index(['submittedAt'])
-@Index(['completedAt'])
 export class SyrianRefundEntity {
   @PrimaryGeneratedColumn()
   id: number;
@@ -157,7 +147,6 @@ export class SyrianRefundEntity {
   // REFUND BASIC INFORMATION
   // ========================================
   @Column({ name: 'refund_reference', length: 50, unique: true })
-  @Index()
   refundReference: string; // REF-SY-2025-001234
 
   @Column({
