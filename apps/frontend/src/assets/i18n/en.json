@@ -449,7 +449,7 @@
       "removePhoto": "Remove Photo",
       "fullName": "Full Name",
       "phone": "Phone Number",
-      "phonePlaceholder": "+963XXXXXXXXX",
+      "phonePlaceholder": "XXXXXXXXX (9-10 digits)",
       "save": "Save Changes",
       "cancel": "Cancel",
       "saving": "Saving...",

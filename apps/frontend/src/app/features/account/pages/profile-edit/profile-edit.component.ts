@@ -93,7 +93,7 @@ export class ProfileEditComponent implements OnInit {
           Validators.maxLength(100),
         ],
       ],
-      phone: ['', [Validators.pattern(/^\+963\d{9,10}$/)]],
+      phone: ['', [Validators.pattern(/^\d{9,10}$/)]],
     });
   }
 
@@ -131,9 +131,14 @@ export class ProfileEditComponent implements OnInit {
    * @returns {void}
    */
   populateForm(profile: UserProfile): void {
+    // Strip +963 prefix from phone for display (UI shows it as a prefix)
+    const phoneValue = profile.phone?.startsWith('+963')
+      ? profile.phone.substring(4)
+      : profile.phone || '';
+    
     this.profileForm.patchValue({
       fullName: profile.fullName || '',
-      phone: profile.phone || '',
+      phone: phoneValue,
     });
 
     if (profile.avatar) {
@@ -229,7 +234,8 @@ export class ProfileEditComponent implements OnInit {
     const formValue = this.profileForm.value;
     const updateData: UpdateProfileRequest = {
       fullName: formValue.fullName,
-      phone: formValue.phone || undefined,
+      // Prepend +963 to phone if present
+      phone: formValue.phone ? `+963${formValue.phone}` : undefined,
     };
 
     // Include avatar if it has been modified (including removal)

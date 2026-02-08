@@ -201,9 +201,9 @@ describe('SecurityComponent', () => {
     /**
      * @description Verifies a fully valid password passes all validators
      */
-    it('should be valid when all criteria met (8+ chars, uppercase, number)', () => {
+    it('should be valid when all criteria met (8+ chars, uppercase, number, special char)', () => {
       const control = component.passwordForm.get('newPassword');
-      control?.setValue('ValidPass1');
+      control?.setValue('ValidPass1!');
       expect(control?.valid).toBe(true);
     });
   });
