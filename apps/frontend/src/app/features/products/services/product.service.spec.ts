@@ -20,6 +20,10 @@ import {
   ProductListItem,
   ProductListMeta,
 } from '../models/product-list.interface';
+import {
+  ProductDetailResponse,
+  SearchSuggestionItem,
+} from '../models/product-detail.interface';
 import { environment } from '../../../../environments/environment';
 
 /**
@@ -235,6 +239,140 @@ describe('ProductService', () => {
 
       const req = httpController.expectOne(API_URL);
       req.flush(errorMessage, { status: 500, statusText: 'Server Error' });
+    });
+  });
+
+  describe('getProductBySlug', () => {
+    /** @description Mock product detail response for slug-based lookups */
+    const mockDetailResponse: ProductDetailResponse = {
+      id: 1,
+      slug: 'damascus-knife',
+      nameEn: 'Damascus Knife',
+      nameAr: '\u0633\u0643\u064a\u0646 \u062f\u0645\u0634\u0642\u064a',
+      sku: 'DK-001',
+      category: { id: 1, nameEn: 'Knives', nameAr: '\u0633\u0643\u0627\u0643\u064a\u0646', slug: 'knives' },
+      manufacturer: null,
+      vendor: null,
+      pricing: { basePrice: 100, discountPrice: 80, currency: 'USD' },
+      images: [{ id: 1, imageUrl: '/img.jpg', sortOrder: 0 }],
+      descriptions: [{ language: 'en', shortDescription: 'Short', fullDescription: 'Full' }],
+      variants: [],
+      attributes: [],
+      stockStatus: 'in_stock',
+      totalStock: 10,
+      relatedProducts: [],
+    };
+
+    /**
+     * @description Verifies getProductBySlug calls GET with correct URL
+     */
+    it('should call GET with apiUrl/slug', () => {
+      const slug = 'damascus-knife';
+
+      service.getProductBySlug(slug).subscribe((response) => {
+        expect(response).toEqual(mockDetailResponse);
+      });
+
+      const req = httpController.expectOne(`${API_URL}/${slug}`);
+      expect(req.request.method).toBe('GET');
+      req.flush(mockDetailResponse);
+    });
+
+    /**
+     * @description Verifies getProductBySlug propagates HTTP errors
+     */
+    it('should propagate HTTP errors for slug lookup', () => {
+      const slug = 'nonexistent';
+
+      service.getProductBySlug(slug).subscribe({
+        next: () => fail('Expected an error'),
+        error: (error) => {
+          expect(error.status).toBe(404);
+        },
+      });
+
+      const req = httpController.expectOne(`${API_URL}/${slug}`);
+      req.flush('Not Found', { status: 404, statusText: 'Not Found' });
+    });
+
+    /**
+     * @description Verifies the response is typed as ProductDetailResponse
+     */
+    it('should return typed ProductDetailResponse', () => {
+      const slug = 'damascus-knife';
+
+      service.getProductBySlug(slug).subscribe((response) => {
+        expect(response.id).toBe(1);
+        expect(response.slug).toBe('damascus-knife');
+        expect(response.nameEn).toBe('Damascus Knife');
+        expect(response.pricing?.basePrice).toBe(100);
+      });
+
+      const req = httpController.expectOne(`${API_URL}/${slug}`);
+      req.flush(mockDetailResponse);
+    });
+  });
+
+  describe('getSearchSuggestions', () => {
+    /** @description Mock suggestion items for search autocomplete */
+    const mockSuggestions: { suggestions: SearchSuggestionItem[] } = {
+      suggestions: [
+        { text: 'Damascus Knife', textAr: '\u0633\u0643\u064a\u0646 \u062f\u0645\u0634\u0642\u064a', type: 'product', slug: 'damascus-knife' },
+        { text: 'Damascus Steel', textAr: '\u0641\u0648\u0644\u0627\u0630 \u062f\u0645\u0634\u0642\u064a', type: 'category', slug: null },
+      ],
+    };
+
+    /**
+     * @description Verifies getSearchSuggestions calls GET with correct URL and query param
+     */
+    it('should call GET with apiUrl/suggestions and q param', () => {
+      const query = 'damascus';
+
+      service.getSearchSuggestions(query).subscribe((response) => {
+        expect(response).toEqual(mockSuggestions);
+      });
+
+      const req = httpController.expectOne(
+        (request) =>
+          request.url === `${API_URL}/suggestions` &&
+          request.params.get('q') === 'damascus'
+      );
+      expect(req.request.method).toBe('GET');
+      req.flush(mockSuggestions);
+    });
+
+    /**
+     * @description Verifies the query param is correctly encoded
+     */
+    it('should pass query string as q parameter', () => {
+      const query = 'test query';
+
+      service.getSearchSuggestions(query).subscribe();
+
+      const req = httpController.expectOne(
+        (request) =>
+          request.url === `${API_URL}/suggestions` &&
+          request.params.get('q') === 'test query'
+      );
+      expect(req.request.method).toBe('GET');
+      req.flush({ suggestions: [] });
+    });
+
+    /**
+     * @description Verifies getSearchSuggestions propagates HTTP errors
+     */
+    it('should propagate HTTP errors for suggestions', () => {
+      service.getSearchSuggestions('test').subscribe({
+        next: () => fail('Expected an error'),
+        error: (error) => {
+          expect(error.status).toBe(500);
+        },
+      });
+
+      const req = httpController.expectOne(
+        (request) => request.url === `${API_URL}/suggestions`
+      );
+      req.flush('Error', { status: 500, statusText: 'Server Error' });
     });
   });
 });

@@ -24,17 +24,9 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { debounceTime, distinctUntilChanged } from 'rxjs';
 import { Product } from '../../shared/interfaces/product.interface';
 import { ProductCardComponent } from '../../shared/components/product-card/product-card.component';
-import { CategoryService } from '../../shared/services/category.service';
+import { ProductService, ProductQueryParams } from '../../features/products/services/product.service';
+import { ProductListResponse, ProductListItem } from '../../features/products/models/product-list.interface';
 import { CartService } from '../../store/cart/cart.service';
-import { 
-  CategoryFilter, 
-  ProductSort, 
-  ProductListingRequest, 
-  ProductListingResponse,
-  ProductViewMode,
-  SORT_OPTIONS,
-  DEFAULT_VIEW_MODE 
-} from '../../shared/interfaces/category-filter.interface';
 
 /**
  * Search results component for Syrian marketplace
@@ -100,26 +92,27 @@ export class SearchResultsComponent implements OnInit {
   // Signals for reactive state management
   searchQuery = signal<string>('');
   originalSearchQuery = signal<string>(''); // Store original query for display
-  productListingResponse = signal<ProductListingResponse | null>(null);
+  productListingResponse = signal<ProductListResponse | null>(null);
   isLoading = signal<boolean>(false);
   isSidenavOpen = signal<boolean>(false);
-  
-  // Filter state (reusing category filter functionality)
-  currentFilters = signal<CategoryFilter>({});
-  currentSort = signal<ProductSort>(SORT_OPTIONS[0]);
-  currentViewMode = signal<ProductViewMode>(DEFAULT_VIEW_MODE);
+
+  // Filter state
+  currentSort = signal<string>('newest');
+  currentViewMode = signal<{ mode: 'grid' | 'list' }>({ mode: 'grid' });
   currentPage = signal<number>(1);
   itemsPerPage = signal<number>(20);
-  
+
   // Computed properties
-  products = computed(() => this.productListingResponse()?.products || []);
-  pagination = computed(() => this.productListingResponse()?.pagination);
-  availableFilters = computed(() => this.productListingResponse()?.availableFilters);
+  products = computed(() => {
+    const data = this.productListingResponse()?.data || [];
+    return data.map(item => this.transformToProduct(item));
+  });
+  pagination = computed(() => this.productListingResponse()?.meta);
   totalResults = computed(() => this.pagination()?.total || 0);
   hasResults = computed(() => this.totalResults() > 0);
   
   // Filter panel state
-  priceRange = signal<{ min: number; max: number }>({ min: 0, max: 1000 });
+  priceRange = signal<{ min: number; max: number }>({ min: 0, max: 1000000 });
   selectedRatings = signal<number[]>([]);
   selectedAvailability = signal<string[]>([]);
   selectedCategories = signal<string[]>([]);
@@ -134,7 +127,13 @@ export class SearchResultsComponent implements OnInit {
   onlyInStock = signal<boolean>(false);
   
   // Available options
-  sortOptions = SORT_OPTIONS;
+  sortOptions = [
+    { value: 'newest', label: 'Newest', labelAr: 'الأحدث' },
+    { value: 'price_asc', label: 'Price: Low to High', labelAr: 'السعر: من الأقل إلى الأعلى' },
+    { value: 'price_desc', label: 'Price: High to Low', labelAr: 'السعر: من الأعلى إلى الأقل' },
+    { value: 'popularity', label: 'Most Popular', labelAr: 'الأكثر شعبية' },
+    { value: 'rating', label: 'Rating', labelAr: 'التقييم' }
+  ];
   viewModeOptions = [
     { value: 'grid', icon: 'view_module', label: 'Grid View' },
     { value: 'list', icon: 'view_list', label: 'List View' }
@@ -146,7 +145,7 @@ export class SearchResultsComponent implements OnInit {
   constructor(
     private route: ActivatedRoute,
     private router: Router,
-    private categoryService: CategoryService,
+    private productService: ProductService,
     private cartService: CartService
   ) {}
 
@@ -175,59 +174,29 @@ export class SearchResultsComponent implements OnInit {
 
   /**
    * Loads search results based on current query and filters
-   * Uses CategoryService for consistent filtering experience
+   * Uses ProductService to fetch products from the API
    */
   private loadSearchResults(): void {
     const query = this.searchQuery().trim();
     if (!query) return;
 
     this.isLoading.set(true);
-    
-    const filters: CategoryFilter = {
-      priceRange: {
-        min: this.priceRange().min,
-        max: this.priceRange().max,
-        currency: 'USD'
-      },
-      ratings: this.selectedRatings(),
-      availability: this.selectedAvailability() as any[],
-      categories: this.selectedCategories(),
-      locations: this.selectedLocations(),
-      materials: this.selectedMaterials(),
-      heritage: this.selectedHeritage() as any[],
-      authenticityOnly: this.onlyAuthentic(),
-      freeShippingOnly: this.onlyFreeShipping(),
-      onSaleOnly: this.onlyOnSale(),
-      unescoOnly: this.onlyUnesco(),
-      masterCraftsmanOnly: this.onlyMasterCraftsman(),
-      inStockOnly: this.onlyInStock()
+
+    const params: ProductQueryParams = {
+      search: query,
+      page: this.currentPage(),
+      limit: this.itemsPerPage(),
+      sortBy: this.currentSort(),
+      minPrice: this.priceRange().min > 0 ? this.priceRange().min : undefined,
+      maxPrice: this.priceRange().max < 1000000 ? this.priceRange().max : undefined
     };
-    
-    const request: ProductListingRequest = {
-      searchQuery: query,
-      filters,
-      sort: this.currentSort(),
-      pagination: {
-        page: this.currentPage(),
-        limit: this.itemsPerPage()
-      },
-      viewMode: this.currentViewMode()
-    };
-    
-    this.categoryService.getProductsByCategory(request)
+
+    this.productService.getProducts(params)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (response) => {
           this.productListingResponse.set(response);
           this.isLoading.set(false);
-          
-          // Update price range if not set
-          if (response.availableFilters && this.priceRange().max === 1000) {
-            this.priceRange.set({
-              min: Math.floor(response.availableFilters.priceRanges.min),
-              max: Math.ceil(response.availableFilters.priceRanges.max)
-            });
-          }
         },
         error: (error) => {
           console.error('Error loading search results:', error);
@@ -260,8 +229,8 @@ export class SearchResultsComponent implements OnInit {
   /**
    * Handles sorting change
    */
-  onSortChange(sort: ProductSort): void {
-    this.currentSort.set(sort);
+  onSortChange(sortValue: string): void {
+    this.currentSort.set(sortValue);
     this.currentPage.set(1);
     this.loadSearchResults();
   }
@@ -270,11 +239,7 @@ export class SearchResultsComponent implements OnInit {
    * Handles view mode toggle
    */
   onViewModeChange(mode: 'grid' | 'list'): void {
-    const newViewMode: ProductViewMode = {
-      ...this.currentViewMode(),
-      mode
-    };
-    this.currentViewMode.set(newViewMode);
+    this.currentViewMode.set({ mode });
   }
 
   /**
@@ -313,10 +278,10 @@ export class SearchResultsComponent implements OnInit {
   }
 
   /**
-   * Clears all filters
+   * Clears all filters and reloads results
    */
   clearAllFilters(): void {
-    this.priceRange.set({ min: 0, max: 1000 });
+    this.priceRange.set({ min: 0, max: 1000000 });
     this.selectedRatings.set([]);
     this.selectedAvailability.set([]);
     this.selectedCategories.set([]);
@@ -429,7 +394,7 @@ export class SearchResultsComponent implements OnInit {
   }
 
   onProductClick(product: Product): void {
-    this.router.navigate(['/product', product.slug]);
+    this.router.navigate(['/products', product.slug]);
   }
 
   /**
@@ -462,10 +427,10 @@ export class SearchResultsComponent implements OnInit {
   }
 
   /**
-   * Formats slider values for display
+   * Formats slider values for display in Syrian Pounds
    */
   formatSliderValue(value: number): string {
-    return `$${value}`;
+    return `${value.toLocaleString()} ل.س`;
   }
 
   /**
@@ -621,5 +586,97 @@ export class SearchResultsComponent implements OnInit {
   clearSearch(): void {
     this.searchQuery.set('');
     this.router.navigate(['/']);
+  }
+
+  /**
+   * Transforms ProductListItem from API to Product interface for ProductCard
+   * Creates a minimal Product object with required fields for display
+   *
+   * @param item - Product list item from API
+   * @returns Transformed Product object compatible with ProductCard
+   */
+  private transformToProduct(item: ProductListItem): Product {
+    const now = new Date();
+
+    return {
+      id: item.id.toString(),
+      name: item.nameEn,
+      nameArabic: item.nameAr,
+      slug: item.slug,
+      description: '', // Not available in list view
+      descriptionArabic: '',
+      price: {
+        amount: item.discountPrice || item.basePrice,
+        currency: item.currency as 'USD' | 'EUR' | 'SYP',
+        originalPrice: item.discountPrice ? item.basePrice : undefined,
+        discount: item.discountPrice ? {
+          percentage: Math.round(((item.basePrice - item.discountPrice) / item.basePrice) * 100),
+          type: 'percentage' as const
+        } : undefined
+      },
+      category: {
+        id: item.categoryId?.toString() || '',
+        name: item.categoryNameEn || '',
+        nameArabic: item.categoryNameAr || '',
+        slug: item.categoryId?.toString() || '',
+        breadcrumb: []
+      },
+      images: [
+        {
+          id: '1',
+          url: item.mainImage || '/assets/images/placeholder.jpg',
+          alt: item.nameEn,
+          isPrimary: true,
+          order: 1
+        }
+      ],
+      specifications: {
+        materials: [],
+        colors: [],
+        sizes: []
+      },
+      seller: {
+        id: '1',
+        name: 'Syrian Artisan',
+        location: {
+          city: 'Damascus',
+          governorate: 'Damascus'
+        },
+        rating: 4.5,
+        reviewCount: 10,
+        verified: true
+      },
+      shipping: {
+        methods: [],
+        deliveryTimes: {}
+      },
+      authenticity: {
+        certified: false,
+        heritage: 'traditional',
+        badges: []
+      },
+      inventory: {
+        inStock: item.stockStatus === 'in_stock',
+        quantity: item.stockStatus === 'in_stock' ? 10 : 0,
+        minOrderQuantity: 1,
+        status: item.stockStatus,
+        lowStockThreshold: 5
+      },
+      reviews: {
+        averageRating: item.rating,
+        totalReviews: item.reviewCount,
+        ratingDistribution: {
+          1: 0,
+          2: 0,
+          3: 0,
+          4: 0,
+          5: 0
+        }
+      },
+      timestamps: {
+        created: now,
+        updated: now
+      }
+    };
   }
 }
