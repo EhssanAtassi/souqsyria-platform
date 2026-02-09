@@ -39,10 +39,12 @@ import { SYRIAN_CATEGORIES, HEADER_NAV_CATEGORIES } from '../../data/syrian-cate
 
 // Category Integration (S1 Categories Sprint)
 import { MegaMenuComponent } from '../../../features/category/components/mega-menu/mega-menu.component';
+import { MobileCategoryNavComponent } from '../../../features/category/components/mobile-category-nav/mobile-category-nav.component';
 import { CategoryApiService } from '../../../features/category/services/category-api.service';
 import { CategoryTreeNode } from '../../../features/category/models/category-tree.interface';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { signal } from '@angular/core';
+import { Router } from '@angular/router';
 
 /**
  * SouqSyria Header Navigation Component
@@ -107,6 +109,7 @@ import { signal } from '@angular/core';
     CategoryNavigationComponent,
     MobileCategoryMenuComponent,
     MegaMenuComponent,
+    MobileCategoryNavComponent,
     TopBarComponent,
     QuickAccessRowComponent,
     LogoComponent,
@@ -270,6 +273,9 @@ export class HeaderComponent implements OnInit {
   /** Category API service for fetching category tree (S1 Categories Sprint) */
   private categoryApiService = inject(CategoryApiService);
 
+  /** Router for navigation */
+  private router = inject(Router);
+
   //#endregion
 
   //#region Category Integration (S1 Categories Sprint)
@@ -397,8 +403,19 @@ export class HeaderComponent implements OnInit {
   onMegaMenuClosed(): void {
     this.megaMenuOpen.set(false);
   }
-  
-  
+
+  /**
+   * Handle mobile category navigation selection
+   * @description Navigates to category page and closes mobile menu
+   * @param slug - Selected category slug
+   */
+  onMobileCategorySelected(slug: string): void {
+    this.router.navigate(['/category', slug]);
+    this.closeMobileMenu();
+    console.log('Mobile category selected:', slug);
+  }
+
+
   //#endregion
   
   //#region Public Methods
@@ -513,11 +530,16 @@ export class HeaderComponent implements OnInit {
   
   /**
    * Toggles mobile navigation menu
-   * @description Opens/closes mobile menu and emits state change
+   * @description Opens/closes mobile menu and emits state change. Loads category tree on first open.
    */
   toggleMobileMenu(): void {
     this.mobileMenuOpen = !this.mobileMenuOpen;
     this.mobileMenuToggle.emit(this.mobileMenuOpen);
+
+    // Load category tree on first open
+    if (this.mobileMenuOpen && !this.categoryTreeLoaded) {
+      this.loadCategoryTree();
+    }
   }
   
   /**

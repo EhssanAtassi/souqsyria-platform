@@ -188,3 +188,102 @@ export interface FeaturedCategoriesResponse {
   /** Array of featured categories sorted by sortOrder */
   data: FeaturedCategory[];
 }
+
+/**
+ * Product search result item
+ *
+ * @description Basic product information returned from category search
+ *
+ * @interface ProductSearchResult
+ */
+export interface ProductSearchResult {
+  /** Product identifier */
+  id: number;
+
+  /** Product name in English */
+  name: string;
+
+  /** Product name in Arabic */
+  nameAr: string;
+
+  /** Product URL slug */
+  slug: string;
+
+  /** Product thumbnail image URL */
+  image: string;
+
+  /** Product price */
+  price: number;
+
+  /** Discounted price (if applicable) */
+  discountPrice?: number;
+
+  /** Product rating (0-5) */
+  rating: number;
+
+  /** Number of reviews */
+  reviewCount: number;
+
+  /** Stock availability status */
+  inStock: boolean;
+}
+
+/**
+ * Search in category API response
+ *
+ * @description Response for searching products within a specific category.
+ * Backend returns products with nameEn/nameAr which map to name/nameAr in frontend.
+ *
+ * @interface SearchInCategoryResponse
+ *
+ * @swagger
+ * components:
+ *   schemas:
+ *     SearchInCategoryResponse:
+ *       type: object
+ *       description: API response for category product search
+ *       properties:
+ *         success:
+ *           type: boolean
+ *           description: Request success status
+ *         data:
+ *           type: array
+ *           items:
+ *             $ref: '#/components/schemas/ProductSearchResult'
+ *           description: Array of product search results
+ *         meta:
+ *           type: object
+ *           description: Pagination metadata
+ *           properties:
+ *             total:
+ *               type: number
+ *               description: Total number of results
+ *             page:
+ *               type: number
+ *               description: Current page number
+ *             limit:
+ *               type: number
+ *               description: Results per page
+ *             totalPages:
+ *               type: number
+ *               description: Total number of pages
+ */
+export interface SearchInCategoryResponse {
+  /** Request success status */
+  success: boolean;
+
+  /** Array of product search results */
+  data: ProductSearchResult[];
+
+  /** Pagination metadata */
+  meta: {
+    /** Total number of results */
+    total: number;
+    /** Current page number */
+    page: number;
+    /** Results per page */
+    limit: number;
+    /** Total number of pages */
+    totalPages: number;
+  };
+}

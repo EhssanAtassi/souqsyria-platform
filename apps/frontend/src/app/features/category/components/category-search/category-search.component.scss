@@ -1,0 +1,150 @@
+/**
+ * Category Search Styles
+ *
+ * @description Custom styles for category search component
+ * with focus states, transitions, and RTL support.
+ */
+
+// Search container
+.category-search-container {
+  width: 100%;
+  max-width: 600px;
+  margin: 0 auto;
+
+  // RTL support
+  &.rtl {
+    direction: rtl;
+  }
+}
+
+// Search input field
+.search-input {
+  // Remove default browser styles
+  appearance: none;
+  -webkit-appearance: none;
+
+  // Custom styling
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+
+  // Placeholder styling
+  &::placeholder {
+    color: #9ca3af;
+    opacity: 1;
+  }
+
+  // RTL padding adjustment
+  &.text-right {
+    padding-right: 2.75rem;
+    padding-left: 2.75rem;
+  }
+
+  // Focus state
+  &:focus {
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  }
+
+  // Disabled state
+  &:disabled {
+    background-color: #f3f4f6;
+    cursor: not-allowed;
+    opacity: 0.6;
+  }
+
+  // Smooth transitions
+  transition: all 0.2s ease-out;
+}
+
+// Loading spinner override
+::ng-deep {
+  .mat-progress-spinner circle,
+  .mat-spinner circle {
+    stroke: currentColor;
+  }
+}
+
+// Clear button
+button[aria-label*='clear'],
+button[aria-label*='مسح'] {
+  // Ensure circular shape
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  // Smooth transitions
+  transition: background-color 0.2s ease-out;
+
+  // Hover effect
+  &:hover {
+    background-color: #e5e7eb;
+  }
+
+  // Active state
+  &:active {
+    background-color: #d1d5db;
+    transform: scale(0.95);
+  }
+}
+
+// Empty state animation
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.mt-8 {
+  animation: fadeIn 0.3s ease-out;
+}
+
+// Accessibility: Focus states
+input:focus-visible {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+}
+
+button:focus-visible {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+  border-radius: 9999px;
+}
+
+// Mobile responsiveness
+@media (max-width: 640px) {
+  .search-input {
+    font-size: 0.875rem;
+    padding-top: 0.625rem;
+    padding-bottom: 0.625rem;
+  }
+}
+
+// High contrast mode support
+@media (prefers-contrast: high) {
+  .search-input {
+    border-width: 2px;
+    border-color: #000;
+
+    &:focus {
+      border-color: #0066cc;
+    }
+  }
+}
+
+// Reduced motion support
+@media (prefers-reduced-motion: reduce) {
+  .search-input,
+  button {
+    transition: none;
+  }
+
+  .mt-8 {
+    animation: none;
+  }
+}
