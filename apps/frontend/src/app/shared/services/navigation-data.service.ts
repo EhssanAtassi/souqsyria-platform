@@ -1,7 +1,8 @@
 import { Injectable, inject, DestroyRef } from '@angular/core';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { BehaviorSubject, Observable, combineLatest } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Store } from '@ngrx/store';
+import { CartQuery } from '../../store/cart/cart.query';
 import {
   Category,
   UserInfo,
@@ -62,6 +63,9 @@ export class NavigationDataService {
   /** DestroyRef for automatic subscription cleanup */
   private readonly destroyRef = inject(DestroyRef);
 
+  /** Akita CartQuery for reactive cart state */
+  private readonly cartQuery = inject(CartQuery);
+
   //#endregion
 
   //#region Private Properties
@@ -72,10 +76,10 @@ export class NavigationDataService {
   /** User information subject */
   private userSubject = new BehaviorSubject<UserInfo>({ isLoggedIn: false });
 
-  /** Cart information subject */
+  /** Cart information subject — initially empty, updated reactively from Akita CartQuery */
   private cartSubject = new BehaviorSubject<CartInfo>({
-    itemCount: 3,
-    totalAmount: 125.50,
+    itemCount: 0,
+    totalAmount: 0,
     currency: 'SYP'
   });
 
@@ -93,6 +97,7 @@ export class NavigationDataService {
    */
   constructor() {
     this.initAuthStateBridge();
+    this.initCartStateBridge();
   }
 
   /**
@@ -127,6 +132,27 @@ export class NavigationDataService {
       });
   }
   
+  /**
+   * Bridges Akita cart state to navigation cart info
+   * @description Subscribes to CartQuery observables and updates cartSubject
+   * so the header badge displays the real cart item count and total
+   * @private
+   */
+  private initCartStateBridge(): void {
+    combineLatest([
+      this.cartQuery.itemCount$,
+      this.cartQuery.total$,
+    ])
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(([itemCount, totalAmount]) => {
+        this.cartSubject.next({
+          itemCount,
+          totalAmount,
+          currency: 'SYP',
+        });
+      });
+  }
+
   //#region Public Observables
   
   /** Observable for navigation configuration */
@@ -194,9 +220,11 @@ export class NavigationDataService {
   
   /**
    * Logs out the current user
-   * @description Dispatches NgRx logout action to clear auth state
+   * @description Dispatches NgRx logout action and resets local user state.
+   * Resets userSubject directly in case login was done outside NgRx.
    */
   simulateLogout(): void {
+    this.userSubject.next({ isLoggedIn: false });
     this.store.dispatch(AuthActions.logout());
   }
   

@@ -684,12 +684,12 @@ describe('CategoriesService', () => {
 
     /**
      * Should enforce minimum limit of 1
-     * Validates: Lower bound sanitization
+     * Validates: Lower bound sanitization (when 0 passed, uses default 4, then sanitized to 1)
      */
-    it('should enforce minimum limit of 1', async () => {
+    it('should enforce minimum limit of 1 when negative number passed', async () => {
       categoryRepository.find.mockResolvedValue([]);
 
-      await service.getFeaturedCategories(0);
+      await service.getFeaturedCategories(-5);
 
       expect(categoryRepository.find).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -907,6 +907,218 @@ describe('CategoriesService', () => {
 
       // Should not throw, children filtering is guarded
       expect(result).toHaveLength(1);
+    });
+  });
+
+  // ===========================================================================
+  // SEARCH WITHIN CATEGORY TESTS (SS-CAT-006)
+  // ===========================================================================
+
+  /** @description Tests for searchWithinCategory method */
+  describe('searchWithinCategory', () => {
+    /**
+     * Should return paginated products for valid category
+     * Validates: Correct response structure with pagination metadata
+     */
+    it('should return paginated products for valid category', async () => {
+      const mockCategory = createSyrianCategory({
+        id: 1,
+        nameEn: 'Damascus Steel',
+        isActive: true,
+        approvalStatus: 'approved',
+      });
+
+      const mockProduct = {
+        id: 1,
+        nameEn: 'Damascus Steel Knife',
+        nameAr: '\u0633\u0643\u064A\u0646 \u0645\u0646 \u0627\u0644\u0641\u0648\u0644\u0627\u0630',
+        slug: 'damascus-knife',
+        images: [{ imageUrl: 'knife.jpg', sortOrder: 1 }],
+        pricing: { basePrice: 15000, discountPrice: 12000 },
+        descriptions: [{ description: 'Premium knife' }],
+      };
+
+      const mockQueryBuilder = {
+        leftJoinAndSelect: jest.fn().mockReturnThis(),
+        leftJoin: jest.fn().mockReturnThis(),
+        addSelect: jest.fn().mockReturnThis(),
+        where: jest.fn().mockReturnThis(),
+        andWhere: jest.fn().mockReturnThis(),
+        orderBy: jest.fn().mockReturnThis(),
+        skip: jest.fn().mockReturnThis(),
+        take: jest.fn().mockReturnThis(),
+        getManyAndCount: jest.fn().mockResolvedValue([[mockProduct], 1]),
+      };
+
+      categoryRepository.findOne.mockResolvedValue(mockCategory as Category);
+      const mockRepository = {
+        createQueryBuilder: jest.fn().mockReturnValue(mockQueryBuilder),
+      };
+      Object.defineProperty(categoryRepository, 'manager', {
+        value: { getRepository: jest.fn().mockReturnValue(mockRepository) },
+        writable: true,
+      });
+
+      const result = await service.searchWithinCategory(1, undefined, 1, 20);
+
+      expect(result.data).toHaveLength(1);
+      expect(result.meta).toEqual({
+        page: 1,
+        limit: 20,
+        total: 1,
+        totalPages: 1,
+      });
+    });
+
+    /**
+     * Should filter by search keyword
+     * Validates: Search term is applied to query builder
+     */
+    it('should filter by search keyword', async () => {
+      const mockCategory = createSyrianCategory({
+        id: 1,
+        isActive: true,
+        approvalStatus: 'approved',
+      });
+
+      const mockQueryBuilder = {
+        leftJoinAndSelect: jest.fn().mockReturnThis(),
+        leftJoin: jest.fn().mockReturnThis(),
+        addSelect: jest.fn().mockReturnThis(),
+        where: jest.fn().mockReturnThis(),
+        andWhere: jest.fn().mockReturnThis(),
+        orderBy: jest.fn().mockReturnThis(),
+        skip: jest.fn().mockReturnThis(),
+        take: jest.fn().mockReturnThis(),
+        getManyAndCount: jest.fn().mockResolvedValue([[], 0]),
+      };
+
+      categoryRepository.findOne.mockResolvedValue(mockCategory as Category);
+      const mockRepository = {
+        createQueryBuilder: jest.fn().mockReturnValue(mockQueryBuilder),
+      };
+      Object.defineProperty(categoryRepository, 'manager', {
+        value: { getRepository: jest.fn().mockReturnValue(mockRepository) },
+        writable: true,
+        configurable: true,
+      });
+
+      await service.searchWithinCategory(1, 'damascus', 1, 20);
+
+      // Verify search filter was applied with LIKE pattern
+      expect(mockQueryBuilder.andWhere).toHaveBeenCalledWith(
+        expect.stringContaining('LIKE'),
+        expect.objectContaining({
+          search: '%damascus%',
+        }),
+      );
+    });
+
+    /**
+     * Should throw NotFoundException for inactive category
+     * Validates: Inactive categories rejected
+     */
+    it('should throw NotFoundException for inactive category', async () => {
+      const inactiveCategory = createSyrianCategory({
+        id: 1,
+        isActive: false,
+        approvalStatus: 'approved',
+      });
+
+      categoryRepository.findOne.mockResolvedValue(inactiveCategory as Category);
+
+      await expect(service.searchWithinCategory(1, undefined, 1, 20))
+        .rejects.toThrow();
+    });
+
+    /**
+     * Should throw NotFoundException for non-existent category
+     * Validates: Missing categories handled properly
+     */
+    it('should throw NotFoundException for non-existent category', async () => {
+      categoryRepository.findOne.mockResolvedValue(null);
+
+      await expect(service.searchWithinCategory(99999, undefined, 1, 20))
+        .rejects.toThrow();
+    });
+
+    /**
+     * Should sanitize pagination parameters
+     * Validates: Page and limit are bounded correctly
+     */
+    it('should sanitize pagination parameters', async () => {
+      const mockCategory = createSyrianCategory({
+        id: 1,
+        isActive: true,
+        approvalStatus: 'approved',
+      });
+
+      const mockQueryBuilder = {
+        leftJoinAndSelect: jest.fn().mockReturnThis(),
+        leftJoin: jest.fn().mockReturnThis(),
+        addSelect: jest.fn().mockReturnThis(),
+        where: jest.fn().mockReturnThis(),
+        andWhere: jest.fn().mockReturnThis(),
+        orderBy: jest.fn().mockReturnThis(),
+        skip: jest.fn().mockReturnThis(),
+        take: jest.fn().mockReturnThis(),
+        getManyAndCount: jest.fn().mockResolvedValue([[], 0]),
+      };
+
+      categoryRepository.findOne.mockResolvedValue(mockCategory as Category);
+      const mockRepository = {
+        createQueryBuilder: jest.fn().mockReturnValue(mockQueryBuilder),
+      };
+      Object.defineProperty(categoryRepository, 'manager', {
+        value: { getRepository: jest.fn().mockReturnValue(mockRepository) },
+        writable: true,
+        configurable: true,
+      });
+
+      await service.searchWithinCategory(1, undefined, 200, 150);
+
+      // Verify limit was capped at 100 (max)
+      expect(mockQueryBuilder.take).toHaveBeenCalledWith(100);
+    });
+
+    /**
+     * Should handle empty search results
+     * Validates: Empty array returned with correct metadata
+     */
+    it('should handle empty search results', async () => {
+      const mockCategory = createSyrianCategory({
+        id: 1,
+        isActive: true,
+        approvalStatus: 'approved',
+      });
+
+      const mockQueryBuilder = {
+        leftJoinAndSelect: jest.fn().mockReturnThis(),
+        leftJoin: jest.fn().mockReturnThis(),
+        addSelect: jest.fn().mockReturnThis(),
+        where: jest.fn().mockReturnThis(),
+        andWhere: jest.fn().mockReturnThis(),
+        orderBy: jest.fn().mockReturnThis(),
+        skip: jest.fn().mockReturnThis(),
+        take: jest.fn().mockReturnThis(),
+        getManyAndCount: jest.fn().mockResolvedValue([[], 0]),
+      };
+
+      categoryRepository.findOne.mockResolvedValue(mockCategory as Category);
+      const mockRepository = {
+        createQueryBuilder: jest.fn().mockReturnValue(mockQueryBuilder),
+      };
+      Object.defineProperty(categoryRepository, 'manager', {
+        value: { getRepository: jest.fn().mockReturnValue(mockRepository) },
+        writable: true,
+        configurable: true,
+      });
+
+      const result = await service.searchWithinCategory(1, 'nonexistent', 1, 20);
+
+      expect(result.data).toEqual([]);
+      expect(result.meta.total).toBe(0);
+      expect(result.meta.totalPages).toBe(0);
     });
   });
 });

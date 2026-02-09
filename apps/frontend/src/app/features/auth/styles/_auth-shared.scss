@@ -1,0 +1,352 @@
+/**
+ * Shared Auth Component Styles for SouqSyria Marketplace
+ *
+ * @description Common SCSS styles used across all authentication pages
+ * (login, register, forgot-password, otp-verification, reset-password).
+ * Uses the SouqSyria Golden Wheat design palette with mobile-first responsive design,
+ * Tailwind spacing scale, and full RTL/Arabic compatibility via CSS logical properties.
+ *
+ * @architecture
+ * RTL Strategy: Uses CSS logical properties (inline-start/end) instead of
+ * physical properties (left/right). This eliminates the need for separate
+ * `:host-context([dir="rtl"])` overrides for directional layout, since logical
+ * properties automatically adapt to the writing direction set on the parent
+ * `<div class="auth-page" [dir]="languageService.direction()">`.
+ *
+ * Arabic Typography: When `[dir="rtl"]` is active, font-family switches to
+ * Cairo/Noto Sans Arabic, letter-spacing is reset (to preserve Arabic ligatures),
+ * and line-height is increased for Arabic readability.
+ *
+ * @component AuthSharedStyles
+ *
+ * @swagger
+ * components:
+ *   schemas:
+ *     AuthSharedStyles:
+ *       type: object
+ *       description: Shared SCSS styling utilities for all auth forms
+ *       properties:
+ *         authPage:
+ *           type: string
+ *           description: Full-height flex container with gradient background
+ *         authCard:
+ *           type: string
+ *           description: White card container with responsive padding and shadow
+ *         authHeader:
+ *           type: string
+ *           description: Centered header with title and subtitle
+ *         authFooter:
+ *           type: string
+ *           description: Centered footer with links
+ *         errorMessage:
+ *           type: string
+ *           description: Red error alert banner
+ *         successMessage:
+ *           type: string
+ *           description: Green success alert banner
+ *         submitBtn:
+ *           type: string
+ *           description: Full-width golden submit button with loading state
+ */
+
+// =============================================================================
+// SCSS Variables - Tailwind Spacing Scale (rem-based)
+// =============================================================================
+$spacing-1: 0.25rem;   // 4px
+$spacing-2: 0.5rem;    // 8px
+$spacing-3: 0.75rem;   // 12px
+$spacing-4: 1rem;      // 16px
+$spacing-5: 1.25rem;   // 20px
+$spacing-6: 1.5rem;    // 24px
+$spacing-8: 2rem;      // 32px
+$spacing-10: 2.5rem;   // 40px
+$spacing-11: 2.75rem;  // 44px (touch target minimum)
+$spacing-12: 3rem;     // 48px
+
+// =============================================================================
+// Color Variables - Mapped to CSS Custom Properties from :root in styles.scss
+// These SCSS variables alias the CSS custom properties so that they can be
+// used inside SCSS expressions (e.g., calc, string interpolation).
+// Zero hardcoded hex values -- all colors flow from the design system tokens.
+// =============================================================================
+
+/** Golden wheat primary brand color */
+$color-primary: var(--golden-wheat-primary);
+/** Golden wheat medium for hover states */
+$color-primary-dark: var(--golden-wheat-medium);
+/** Deep teal / forest dark for headings and primary text */
+$color-text-primary: var(--forest-dark);
+/** Secondary text color for labels and descriptions */
+$color-text-secondary: var(--color-text-secondary);
+/** Tertiary/muted text color for hints and disclaimers */
+$color-text-tertiary: var(--color-text-muted);
+/** Semantic error color for validation messages */
+$color-error: var(--color-error);
+/** Semantic error background for alert containers */
+$color-error-bg: var(--color-error-bg);
+/** Semantic success color for confirmation states */
+$color-success: var(--color-success);
+/** Semantic success background for alert containers */
+$color-success-bg: var(--color-success-bg);
+/** White / light surface color (charcoal-light = #ffffff) */
+$color-white: var(--charcoal-light);
+/** Auth page gradient start — neutral surface */
+$color-bg-gradient-start: var(--color-surface-neutral);
+/** Auth page gradient end — golden wheat light */
+$color-bg-gradient-end: var(--golden-wheat-light);
+
+// =============================================================================
+// Responsive Breakpoints (mobile-first)
+// =============================================================================
+$breakpoint-xs: 375px;   // Modern mobile devices
+$breakpoint-sm: 480px;   // Large mobile devices
+$breakpoint-md: 768px;   // Tablets
+
+// =============================================================================
+// Main Auth Page Container
+// =============================================================================
+/**
+ * Full-height flex container with gradient background.
+ * Centers auth card vertically and horizontally.
+ * Mobile-first: reduced padding on small screens, increased on larger screens.
+ */
+.auth-page {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: calc(100vh - 4rem);  // Account for header height (64px = 4rem)
+  padding: $spacing-4;  // 1rem (16px) on mobile
+  background: linear-gradient(135deg, $color-bg-gradient-start 0%, $color-bg-gradient-end 100%);
+
+  @media (min-width: $breakpoint-sm) {
+    padding: $spacing-6;  // 1.5rem (24px) on sm+
+  }
+}
+
+// =============================================================================
+// Auth Card Container
+// =============================================================================
+/**
+ * White card with rounded corners and shadow.
+ * Mobile-first: full-width with no border-radius on very small screens,
+ * then constrained width with border-radius on larger screens.
+ */
+.auth-card {
+  width: 100%;
+  background: $color-white;
+  box-shadow: var(--shadow-auth-card);
+
+  // Mobile base (< 375px): full-width, no border-radius, reduced padding
+  padding: $spacing-5;  // 1.25rem (20px)
+  border-radius: 0;
+
+  @media (min-width: $breakpoint-xs) {
+    // Modern mobile (375px+): add border-radius, increase padding
+    max-width: 420px;
+    padding: $spacing-6;  // 1.5rem (24px)
+    border-radius: 0.75rem;  // Tailwind rounded-xl
+  }
+
+  @media (min-width: $breakpoint-sm) {
+    // Large mobile/tablet (480px+): increase padding further
+    padding: $spacing-10;  // 2.5rem (40px)
+  }
+}
+
+// =============================================================================
+// Auth Header (Title + Subtitle)
+// =============================================================================
+/**
+ * Centered header with responsive typography.
+ * Mobile-first: smaller font sizes on mobile, larger on desktop.
+ */
+.auth-header {
+  text-align: center;
+  margin-bottom: $spacing-6;  // 1.5rem (24px)
+
+  @media (min-width: $breakpoint-sm) {
+    margin-bottom: $spacing-8;  // 2rem (32px) on sm+
+  }
+
+  h1 {
+    font-weight: 600;
+    color: $color-text-primary;
+    margin: 0 0 $spacing-2;  // 0.5rem (8px)
+
+    // Mobile base: 24px
+    font-size: 1.5rem;
+
+    @media (min-width: $breakpoint-sm) {
+      // Large mobile+: 28px
+      font-size: 1.75rem;
+    }
+  }
+
+  p {
+    color: $color-text-secondary;
+    margin: 0;
+    font-size: 0.875rem;  // 14px
+    line-height: 1.5;
+  }
+}
+
+// =============================================================================
+// Form Fields
+// =============================================================================
+/**
+ * Full-width form fields with consistent spacing.
+ * Uses margin-block-end (logical property) instead of margin-bottom
+ * for correct spacing in both LTR and RTL writing modes.
+ */
+mat-form-field {
+  width: 100%;
+  margin-block-end: $spacing-2;  // 0.5rem (8px)
+}
+
+.password-field {
+  position: relative;
+}
+
+// =============================================================================
+// Submit Button
+// =============================================================================
+/**
+ * Full-width golden submit button with touch-friendly height.
+ * Minimum 44px height for accessibility and touch targets.
+ * Uses margin-block-start (logical property) for vertical spacing.
+ */
+.submit-btn {
+  width: 100%;
+  min-height: $spacing-11;  // 2.75rem (44px) - touch target minimum
+  height: $spacing-12;      // 3rem (48px) - comfortable height
+  font-size: 1rem;          // 16px
+  margin-block-start: $spacing-4;   // 1rem (16px) - logical property for top margin
+  // Background color handled by global Material override in styles.scss
+  // (.mat-mdc-raised-button.mat-primary sets golden wheat gradient)
+  transition: background-color 0.2s ease;
+
+  mat-spinner {
+    display: inline-block;
+  }
+}
+
+// =============================================================================
+// Auth Footer (Links)
+// =============================================================================
+/**
+ * Centered footer with links.
+ * Used for "Back to Login", "Need an account?" etc.
+ * Uses margin-block-start (logical) instead of margin-top.
+ */
+.auth-footer {
+  text-align: center;
+  margin-block-start: $spacing-6;  // 1.5rem (24px) - logical property
+  font-size: 0.875rem;     // 14px
+  color: $color-text-secondary;
+
+  a {
+    color: $color-primary;
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.2s ease, text-decoration 0.2s ease;
+
+    &:hover {
+      color: var(--golden-wheat-medium);  // Darker golden wheat for hover
+      text-decoration: underline;
+    }
+
+    &:active {
+      color: var(--forest-dark);  // Forest dark for active state
+    }
+
+    &:focus-visible {
+      outline: 2px solid $color-primary;
+      outline-offset: 2px;
+      border-radius: 2px;
+    }
+  }
+}
+
+// =============================================================================
+// Alert Messages (Error & Success)
+// =============================================================================
+/**
+ * Error message banner with red color scheme.
+ * Uses logical properties: margin-block-end for bottom spacing,
+ * padding-inline/padding-block for directional-agnostic padding.
+ */
+.error-message {
+  color: $color-error;
+  font-size: 0.875rem;     // Tailwind text-sm (14px, rounded from 13px)
+  text-align: center;
+  margin-block-end: $spacing-4;  // 1rem (16px)
+  padding-block: $spacing-2;     // 0.5rem (8px) vertical
+  padding-inline: $spacing-3;    // 0.75rem (12px) horizontal
+  background: $color-error-bg;
+  border-radius: 0.5rem;  // Tailwind rounded-lg
+  line-height: 1.5;
+}
+
+/**
+ * Success message banner with green color scheme.
+ * Uses logical properties for directional-agnostic spacing.
+ */
+.success-message {
+  color: $color-success;
+  font-size: 0.875rem;     // Tailwind text-sm (14px, rounded from 13px)
+  text-align: center;
+  margin-block-end: $spacing-4;  // 1rem (16px)
+  padding-block: $spacing-2;     // 0.5rem (8px) vertical
+  padding-inline: $spacing-3;    // 0.75rem (12px) horizontal
+  background: $color-success-bg;
+  border-radius: 0.5rem;  // Tailwind rounded-lg
+  line-height: 1.5;
+}
+
+// =============================================================================
+// Arabic / RTL Typography Tuning
+// =============================================================================
+/**
+ * Arabic typography adjustments applied when the auth page is in RTL mode.
+ *
+ * @description
+ * - Cairo is the primary Arabic font (matching SouqSyria brand guidelines).
+ * - letter-spacing is reset to `normal` because non-zero letter-spacing
+ *   breaks Arabic ligatures (connected letters like lam-alef).
+ * - line-height is increased to 1.625 (Tailwind's `leading-relaxed`) because
+ *   Arabic script has more vertical extenders (diacritics above/below baseline).
+ * - word-spacing is slightly increased for improved Arabic readability.
+ * - Headings use 700 weight with extra line-height for Arabic display text.
+ *
+ * No separate `:host-context([dir="rtl"])` blocks are needed for direction
+ * because the parent `.auth-page` already has `[dir]` bound dynamically.
+ */
+[dir="rtl"] {
+  .auth-card {
+    line-height: 1.625;
+    font-family: 'Cairo', 'Noto Sans Arabic', sans-serif;
+    letter-spacing: normal;
+    word-spacing: 0.05em;
+  }
+
+  .auth-header {
+    h1 {
+      font-family: 'Cairo', 'Noto Sans Arabic', sans-serif;
+      font-weight: 700;
+      line-height: 1.4;
+    }
+
+    p {
+      line-height: 1.7;
+    }
+  }
+
+  .auth-footer {
+    line-height: 1.625;
+  }
+
+  .error-message,
+  .success-message {
+    line-height: 1.625;
+  }
+}

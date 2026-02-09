@@ -173,6 +173,67 @@ export class EmailService {
   }
 
   /**
+   * Send account lockout notification email
+   *
+   * @description Alerts the user that their account has been locked due to
+   * repeated failed login attempts. Includes the IP address that triggered
+   * the lockout, the lockout duration, and a link to reset their password.
+   * Uses bilingual HTML template (Arabic RTL + English).
+   *
+   * @param email - User email address
+   * @param lockoutMinutes - Duration of the lockout in minutes
+   * @param ipAddress - IP address that triggered the lockout
+   */
+  async sendAccountLockoutEmail(
+    email: string,
+    lockoutMinutes: number,
+    ipAddress: string,
+  ): Promise<void> {
+    this.logger.log(`Sending account lockout email to: ${email}`);
+
+    const frontendUrl =
+      this.configService.get<string>('FRONTEND_URL') || 'http://localhost:4200';
+    const resetUrl = `${frontendUrl}/auth/forgot-password`;
+
+    // If no transporter configured, log to console (development mode)
+    if (!this.transporter) {
+      console.log('=== ACCOUNT LOCKOUT EMAIL (DEV MODE) ===');
+      console.log(`To: ${email}`);
+      console.log(`Subject: SouqSyria - Account Locked`);
+      console.log(`IP Address: ${ipAddress}`);
+      console.log(`Lockout Duration: ${lockoutMinutes} minutes`);
+      console.log(`Reset URL: ${resetUrl}`);
+      console.log('=========================================');
+      return;
+    }
+
+    try {
+      const mailOptions = {
+        from: `"SouqSyria - سوق سوريا" <${this.configService.get('SMTP_FROM') || this.configService.get('SMTP_USER')}>`,
+        to: email,
+        subject:
+          'SouqSyria - Account Locked / تم قفل الحساب',
+        html: this.getAccountLockoutTemplate(
+          lockoutMinutes,
+          ipAddress,
+          resetUrl,
+        ),
+      };
+
+      await this.transporter.sendMail(mailOptions);
+      this.logger.log(
+        `Account lockout email sent successfully to: ${email}`,
+      );
+    } catch (error: unknown) {
+      this.logger.error(
+        `Failed to send account lockout email to: ${email}`,
+        (error as Error).message,
+      );
+      // Do not throw — lockout email is non-critical (fire-and-forget)
+    }
+  }
+
+  /**
    * 🎨 EMAIL TEMPLATES
    * Beautiful bilingual HTML templates for emails
    */
@@ -251,6 +312,82 @@ export class EmailService {
     <div class="footer">
       <p>© 2026 SouqSyria - سوق سوريا. All rights reserved.</p>
       <p>This is an automated email. Please do not reply.</p>
+    </div>
+  </div>
+</body>
+</html>
+    `;
+  }
+
+  /**
+   * Account lockout email template
+   * Bilingual (Arabic RTL + English) alert when account is locked
+   */
+  private getAccountLockoutTemplate(
+    lockoutMinutes: number,
+    ipAddress: string,
+    resetUrl: string,
+  ): string {
+    return `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; background-color: #f4f4f4; }
+    .container { max-width: 600px; margin: 20px auto; background: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+    .header { background: linear-gradient(135deg, #c62828 0%, #b71c1c 100%); color: #ffffff; padding: 30px 20px; text-align: center; }
+    .header h1 { margin: 0; font-size: 28px; }
+    .content { padding: 30px 20px; }
+    .arabic { direction: rtl; font-family: 'Arial', 'Segoe UI', 'Tahoma', sans-serif; }
+    .footer { background: #f8f6f3; color: #666; padding: 20px; text-align: center; font-size: 12px; border-top: 1px solid #e0e0e0; }
+    .button { display: inline-block; background: #988561; color: #ffffff !important; padding: 12px 30px; text-decoration: none; border-radius: 5px; margin: 10px 0; font-weight: bold; }
+    .alert-box { background: #ffebee; border-left: 4px solid #c62828; padding: 15px; margin: 15px 0; border-radius: 4px; }
+    .info-box { background: #f5f5f5; padding: 12px; margin: 10px 0; border-radius: 4px; font-family: monospace; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>سوق سوريا - SouqSyria</h1>
+    </div>
+
+    <!-- Arabic Section -->
+    <div class="content arabic">
+      <h2 style="color: #c62828;">تنبيه أمني: تم قفل الحساب 🔒</h2>
+      <div class="alert-box">
+        <strong>تم قفل حسابك مؤقتاً</strong> بسبب محاولات تسجيل دخول فاشلة متعددة.
+      </div>
+      <p><strong>عنوان IP المسبب:</strong></p>
+      <div class="info-box">${ipAddress}</div>
+      <p><strong>مدة القفل:</strong> ${lockoutMinutes} دقيقة</p>
+      <p>إذا لم تكن أنت من حاول تسجيل الدخول، نوصي بإعادة تعيين كلمة المرور فوراً:</p>
+      <div style="text-align: center; margin: 25px 0;">
+        <a href="${resetUrl}" class="button">إعادة تعيين كلمة المرور</a>
+      </div>
+    </div>
+
+    <hr style="border: none; border-top: 1px solid #e0e0e0; margin: 30px 0;">
+
+    <!-- English Section -->
+    <div class="content">
+      <h2 style="color: #c62828;">Security Alert: Account Locked 🔒</h2>
+      <div class="alert-box">
+        <strong>Your account has been temporarily locked</strong> due to multiple failed login attempts.
+      </div>
+      <p><strong>IP Address that triggered lockout:</strong></p>
+      <div class="info-box">${ipAddress}</div>
+      <p><strong>Lockout duration:</strong> ${lockoutMinutes} minutes</p>
+      <p>If this wasn't you, we recommend resetting your password immediately:</p>
+      <div style="text-align: center; margin: 25px 0;">
+        <a href="${resetUrl}" class="button">Reset Password</a>
+      </div>
+    </div>
+
+    <div class="footer">
+      <p>&copy; 2026 SouqSyria - سوق سوريا. All rights reserved.</p>
+      <p>This is an automated security alert. Please do not reply.</p>
     </div>
   </div>
 </body>

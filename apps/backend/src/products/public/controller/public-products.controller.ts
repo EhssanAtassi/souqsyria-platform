@@ -14,8 +14,10 @@ import {
   ApiQuery,
 } from '@nestjs/swagger';
 import { PublicProductsService } from '../service/public-products.service';
+import { Public } from '../../../common/decorators/public.decorator';
 
 @ApiTags('🛒 Public Products')
+@Public()
 @Controller('products')
 export class PublicProductsController {
   constructor(private readonly service: PublicProductsService) {}

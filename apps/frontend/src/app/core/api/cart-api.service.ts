@@ -10,10 +10,13 @@ import { environment } from '../../../environments/environment';
  * Connects to the souqsyria-backend MySQL database.
  *
  * Backend Endpoints:
- * - GET /api/cart - Get current user's cart
- * - POST /api/cart/add - Add item to cart
- * - DELETE /api/cart/item/:variantId - Remove item from cart
- * - DELETE /api/cart/clear - Clear entire cart
+ * - GET    /api/cart                          - Get current user's cart
+ * - POST   /api/cart/add                      - Add item to cart
+ * - PUT    /api/cart/item/:itemId             - Update cart item quantity
+ * - DELETE /api/cart/item/:variantId          - Remove item from cart (soft-delete)
+ * - POST   /api/cart/item/:itemId/undo-remove - Undo remove within 5s
+ * - DELETE /api/cart/clear                    - Clear entire cart
+ * - POST   /api/cart/validate                 - Validate cart before checkout
  *
  * @swagger
  * tags:
@@ -45,33 +48,42 @@ export class CartApiService {
    */
   addToCart(variantId: string, quantity: number = 1): Observable<any> {
     return this.http.post<any>(`${this.baseUrl}/add`, {
-      variantId,
+      variant_id: Number(variantId),
       quantity
     });
   }
 
   /**
-   * Update item quantity in cart
+   * Update item quantity in cart (idempotent PUT)
    *
-   * @param variantId - Product variant ID
-   * @param quantity - New quantity
-   * @returns Observable of updated cart
+   * @param itemId - Cart item ID
+   * @param quantity - New absolute quantity
+   * @returns Observable of updated cart item
    */
-  updateQuantity(variantId: string, quantity: number): Observable<any> {
-    return this.http.post<any>(`${this.baseUrl}/update`, {
-      variantId,
+  updateQuantity(itemId: string, quantity: number): Observable<any> {
+    return this.http.put<any>(`${this.baseUrl}/item/${itemId}`, {
       quantity
     });
   }
 
   /**
-   * Remove item from cart
+   * Remove item from cart (soft-delete with 5s undo window)
    *
    * @param variantId - Product variant ID to remove
-   * @returns Observable of updated cart
+   * @returns Observable with { itemId } for undo reference
    */
   removeFromCart(variantId: string): Observable<any> {
     return this.http.delete<any>(`${this.baseUrl}/item/${variantId}`);
+  }
+
+  /**
+   * Undo remove cart item within 5-second window
+   *
+   * @param itemId - Cart item ID returned from removeFromCart
+   * @returns Observable of restored cart item
+   */
+  undoRemove(itemId: string): Observable<any> {
+    return this.http.post<any>(`${this.baseUrl}/item/${itemId}/undo-remove`, {});
   }
 
   /**
@@ -81,6 +93,15 @@ export class CartApiService {
    */
   clearCart(): Observable<any> {
     return this.http.delete<any>(`${this.baseUrl}/clear`);
+  }
+
+  /**
+   * Validate cart before checkout
+   *
+   * @returns Observable of validation result with price changes, stock status
+   */
+  validateCart(): Observable<any> {
+    return this.http.post<any>(`${this.baseUrl}/validate`, {});
   }
 
   /**

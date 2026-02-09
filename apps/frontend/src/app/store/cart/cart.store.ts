@@ -42,10 +42,10 @@ export class CartStore extends Store<Cart> {
         shipping: 0,
         discount: 0,
         total: 0,
-        currency: 'USD',
+        currency: 'SYP',
         itemCount: 0
       },
-      selectedCurrency: 'USD',
+      selectedCurrency: 'SYP',
       appliedCoupon: null,
       createdAt: new Date(),
       updatedAt: new Date()

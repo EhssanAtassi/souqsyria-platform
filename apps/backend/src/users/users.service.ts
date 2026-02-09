@@ -11,7 +11,7 @@ import { Role } from '../roles/entities/role.entity';
 import { Address } from '../addresses/entities/address.entity';
 import { RefreshToken } from '../auth/entity/refresh-token.entity';
 import { EmailService } from '../auth/service/email.service';
-import { UpdateProfileDto } from './dto/update-profile.dto';
+import { UpdateProfileDto, UserPreferences } from './dto/update-profile.dto';
 import { ChangePasswordDto } from './dto/change-password.dto';
 import * as bcrypt from 'bcryptjs';
 import { promises as fs } from 'fs';
@@ -203,9 +203,20 @@ export class UsersService {
     // Handle avatar upload/update/removal
     if (updateProfileDto.avatar !== undefined) {
       if (updateProfileDto.avatar === null || updateProfileDto.avatar === '') {
-        // Explicit removal
+        // Explicit removal - also delete old file if exists
+        if (user.avatar && user.avatar.startsWith('/avatars/')) {
+          await fs
+            .unlink(path.join(process.cwd(), 'public', user.avatar))
+            .catch(() => {});
+        }
         user.avatar = null;
       } else {
+        // Delete old avatar file before uploading new one
+        if (user.avatar && user.avatar.startsWith('/avatars/')) {
+          await fs
+            .unlink(path.join(process.cwd(), 'public', user.avatar))
+            .catch(() => {});
+        }
         // Upload new avatar
         user.avatar = await this.processAvatarUpload(
           userId,
@@ -221,6 +232,48 @@ export class UsersService {
     this.logger.log(`✅ Profile updated successfully for user ${userId}`);
 
     return updatedUser;
+  }
+
+  /**
+   * UPDATE USER PREFERENCES
+   *
+   * Merges new preferences into existing user preferences.
+   * Only the provided fields are updated; others remain unchanged.
+   *
+   * @param userId - User ID
+   * @param preferencesDto - Partial preferences to merge
+   * @returns Promise<UserPreferences> - Updated preferences object
+   */
+  async updatePreferences(
+    userId: number,
+    preferencesDto: UserPreferences,
+  ): Promise<UserPreferences> {
+    this.logger.log(`⚙️ Updating preferences for user ${userId}`);
+
+    const user = await this.userRepository.findOne({
+      where: { id: userId },
+    });
+
+    if (!user) {
+      throw new NotFoundException(`User with ID ${userId} not found`);
+    }
+
+    const currentPreferences = user.metadata?.preferences || {};
+    const mergedPreferences = {
+      ...currentPreferences,
+      ...preferencesDto,
+    };
+
+    user.metadata = {
+      ...user.metadata,
+      preferences: mergedPreferences,
+    };
+    user.lastActivityAt = new Date();
+
+    await this.userRepository.save(user);
+    this.logger.log(`✅ Preferences updated for user ${userId}`);
+
+    return mergedPreferences;
   }
 
   /**

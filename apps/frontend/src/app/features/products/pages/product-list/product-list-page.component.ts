@@ -31,8 +31,10 @@ import {
   ProductListItem,
   ProductListMeta,
 } from '../../models/product-list.interface';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { ProductService } from '../../services/product.service';
 import { LanguageService } from '../../../../shared/services/language.service';
+import { CartService } from '../../../../store/cart/cart.service';
 import { ProductCardComponent } from '../../components/product-card/product-card.component';
 import { ProductSkeletonComponent } from '../../components/product-skeleton/product-skeleton.component';
 import { ProductsPaginationComponent } from '../../components/pagination/products-pagination.component';
@@ -59,6 +61,7 @@ import { FilterState } from '../../../../shared/components/filter-sidebar/filter
     ProductSkeletonComponent,
     ProductsPaginationComponent,
     FilterSidebarComponent,
+    MatSnackBarModule,
   ],
   templateUrl: './product-list-page.component.html',
   styleUrls: ['./product-list-page.component.scss'],
@@ -70,6 +73,8 @@ export class ProductListPageComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly destroyRef = inject(DestroyRef);
   private readonly languageService = inject(LanguageService);
+  private readonly cartService = inject(CartService);
+  private readonly snackBar = inject(MatSnackBar);
 
   /** Product list items from API */
   products = signal<ProductListItem[]>([]);
@@ -271,9 +276,27 @@ export class ProductListPageComponent implements OnInit {
    * Placeholder for cart service integration.
    * @param product - Product to add to cart
    */
+  /**
+   * @description Adds a product to cart and shows snackbar with "View Cart" action
+   * @param product - Product to add to cart
+   */
   onAddToCart(product: ProductListItem): void {
-    // TODO: Integrate with cart service in a later story
-    console.log('Add to cart:', product.id, product.nameEn);
+    this.cartService.addToCart(String(product.id), 1);
+
+    const productName = this.language() === 'ar' ? product.nameAr : product.nameEn;
+    const message = this.language() === 'ar'
+      ? `تمت إضافة ${productName} إلى السلة`
+      : `${productName} added to cart`;
+    const action = this.language() === 'ar' ? 'عرض السلة' : 'View Cart';
+
+    const ref = this.snackBar.open(message, action, {
+      duration: 4000,
+      panelClass: 'success-snackbar',
+    });
+
+    ref.onAction().subscribe(() => {
+      this.router.navigate(['/cart']);
+    });
   }
 
   /** @description Toggles between grid and list view modes */

@@ -145,9 +145,9 @@ describe('CategoryApiService', () => {
       service.getTree().subscribe((response) => {
         expect(response.data).toBeDefined();
         expect(Array.isArray(response.data)).toBe(true);
-        expect(response.data).toHaveLength(2);
+        expect(response.data).toHaveSize(2);
         expect(response.data[0].name).toBe('Electronics');
-        expect(response.data[0].children).toHaveLength(1);
+        expect(response.data[0].children).toHaveSize(1);
       });
 
       const req = httpMock.expectOne(`${environment.apiUrl}/categories/tree`);
@@ -280,7 +280,7 @@ describe('CategoryApiService', () => {
       service.getFeatured(6).subscribe((response) => {
         expect(response.data).toBeDefined();
         expect(Array.isArray(response.data)).toBe(true);
-        expect(response.data).toHaveLength(2);
+        expect(response.data).toHaveSize(2);
         expect(response.data[0].productCount).toBe(45);
         expect(response.data[1].slug).toBe('fashion');
       });
@@ -330,6 +330,213 @@ describe('CategoryApiService', () => {
         status: 404,
         statusText: 'Not Found',
       });
+    });
+  });
+
+  // ===========================================================================
+  // SEARCH IN CATEGORY (SS-CAT-006)
+  // ===========================================================================
+
+  /** @description Tests for the searchInCategory(categoryId, search, page, limit) method */
+  describe('searchInCategory', () => {
+    /**
+     * Should call correct URL for searchInCategory
+     * Validates: Correct HTTP endpoint is called with category ID
+     */
+    it('should call correct URL for searchInCategory', () => {
+      const mockResponse: SearchInCategoryResponse = {
+        success: true,
+        data: [
+          {
+            id: 1,
+            nameEn: 'Damascus Steel Knife',
+            nameAr: '\u0633\u0643\u064A\u0646',
+            slug: 'damascus-knife',
+            mainImage: 'knife.jpg',
+            basePrice: 15000,
+            discountPrice: 12000,
+            currency: 'SYP',
+            approvalStatus: 'approved',
+            isActive: true,
+            isPublished: true,
+          },
+        ],
+        meta: {
+          page: 1,
+          limit: 20,
+          total: 1,
+          totalPages: 1,
+        },
+      };
+
+      service.searchInCategory(5, 'damascus', 1, 20).subscribe((response) => {
+        expect(response).toEqual(mockResponse);
+      });
+
+      const req = httpMock.expectOne(
+        (request) =>
+          request.url === `${environment.apiUrl}/categories/5/products`
+      );
+      expect(req.request.method).toBe('GET');
+      req.flush(mockResponse);
+    });
+
+    /**
+     * Should pass search, page, limit as query params
+     * Validates: Query parameters are correctly serialized
+     */
+    it('should pass search, page, limit as query params', () => {
+      const mockResponse: SearchInCategoryResponse = {
+        success: true,
+        data: [],
+        meta: { page: 2, limit: 50, total: 0, totalPages: 0 },
+      };
+
+      service.searchInCategory(3, 'laptop', 2, 50).subscribe();
+
+      const req = httpMock.expectOne(
+        (request) =>
+          request.url === `${environment.apiUrl}/categories/3/products` &&
+          request.params.get('search') === 'laptop' &&
+          request.params.get('page') === '2' &&
+          request.params.get('limit') === '50'
+      );
+      expect(req.request.params.get('search')).toBe('laptop');
+      expect(req.request.params.get('page')).toBe('2');
+      expect(req.request.params.get('limit')).toBe('50');
+      req.flush(mockResponse);
+    });
+
+    /**
+     * Should use default pagination values
+     * Validates: Default page=1 and limit=20 when not specified
+     */
+    it('should use default pagination values', () => {
+      const mockResponse: SearchInCategoryResponse = {
+        success: true,
+        data: [],
+        meta: { page: 1, limit: 20, total: 0, totalPages: 0 },
+      };
+
+      service.searchInCategory(1, 'test').subscribe();
+
+      const req = httpMock.expectOne(
+        (request) =>
+          request.url === `${environment.apiUrl}/categories/1/products` &&
+          request.params.get('page') === '1' &&
+          request.params.get('limit') === '20'
+      );
+      expect(req.request.params.get('page')).toBe('1');
+      expect(req.request.params.get('limit')).toBe('20');
+      req.flush(mockResponse);
+    });
+
+    /**
+     * Should handle empty search results
+     * Validates: Empty data array returned with correct metadata
+     */
+    it('should handle empty search results', () => {
+      const mockResponse: SearchInCategoryResponse = {
+        success: true,
+        data: [],
+        meta: { page: 1, limit: 20, total: 0, totalPages: 0 },
+      };
+
+      service.searchInCategory(1, 'nonexistent', 1, 20).subscribe((response) => {
+        expect(response.data).toEqual([]);
+        expect(response.meta.total).toBe(0);
+      });
+
+      const req = httpMock.expectOne(
+        (request) =>
+          request.url === `${environment.apiUrl}/categories/1/products`
+      );
+      req.flush(mockResponse);
+    });
+
+    /**
+     * Should propagate HTTP errors
+     * Validates: Observable error stream for network failures
+     */
+    it('should propagate HTTP errors', () => {
+      service.searchInCategory(1, 'test', 1, 20).subscribe({
+        next: () => fail('Should have errored'),
+        error: (error) => {
+          expect(error.status).toBe(500);
+        },
+      });
+
+      const req = httpMock.expectOne(
+        (request) =>
+          request.url === `${environment.apiUrl}/categories/1/products`
+      );
+      req.flush('Internal Server Error', {
+        status: 500,
+        statusText: 'Internal Server Error',
+      });
+    });
+
+    /**
+     * Should handle 404 for non-existent category
+     * Validates: Not found error properly propagated
+     */
+    it('should handle 404 for non-existent category', () => {
+      service.searchInCategory(99999, 'test', 1, 20).subscribe({
+        next: () => fail('Should have errored'),
+        error: (error) => {
+          expect(error.status).toBe(404);
+        },
+      });
+
+      const req = httpMock.expectOne(
+        (request) =>
+          request.url === `${environment.apiUrl}/categories/99999/products`
+      );
+      req.flush('Not Found', {
+        status: 404,
+        statusText: 'Not Found',
+      });
+    });
+
+    /**
+     * Should return product data with pricing and images
+     * Validates: Complete product information in response
+     */
+    it('should return product data with pricing and images', () => {
+      const mockResponse: SearchInCategoryResponse = {
+        success: true,
+        data: [
+          {
+            id: 1,
+            nameEn: 'Product 1',
+            nameAr: 'منتج 1',
+            slug: 'product-1',
+            mainImage: 'image1.jpg',
+            basePrice: 1000,
+            discountPrice: 800,
+            currency: 'SYP',
+            approvalStatus: 'approved',
+            isActive: true,
+            isPublished: true,
+          },
+        ],
+        meta: { page: 1, limit: 20, total: 1, totalPages: 1 },
+      };
+
+      service.searchInCategory(1, 'product', 1, 20).subscribe((response) => {
+        expect(response.data[0]).toHaveProperty('id');
+        expect(response.data[0]).toHaveProperty('nameEn');
+        expect(response.data[0]).toHaveProperty('nameAr');
+        expect(response.data[0]).toHaveProperty('mainImage');
+        expect(response.data[0]).toHaveProperty('basePrice');
+        expect(response.data[0]).toHaveProperty('discountPrice');
+      });
+
+      const req = httpMock.expectOne(
+        (request) =>
+          request.url === `${environment.apiUrl}/categories/1/products`
+      );
+      req.flush(mockResponse);
     });
   });
 });

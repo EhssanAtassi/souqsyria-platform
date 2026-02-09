@@ -93,21 +93,58 @@ export class CartSecurityGuard implements CanActivate {
   /** In-memory cache (replaces Redis) */
   private readonly _cache = new Map<string, { value: string; expiresAt: number }>();
 
+  /** Counter for periodic cache cleanup */
+  private _cacheAccessCount = 0;
+
+  /** Maximum cache entries before forced eviction */
+  private readonly MAX_CACHE_SIZE = 10_000;
+
+  /**
+   * Retrieve cached value with automatic expiry check and periodic cleanup
+   * @description Performs cleanup every 100 accesses to prevent memory leaks
+   * @param key - Cache key to retrieve
+   * @returns Cached value or null if expired/not found
+   */
   private _cacheGet(key: string): string | null {
+    // Periodic cleanup every 100 accesses
+    if (++this._cacheAccessCount % 100 === 0) {
+      this._cacheCleanup();
+    }
     const entry = this._cache.get(key);
     if (!entry) return null;
     if (Date.now() > entry.expiresAt) { this._cache.delete(key); return null; }
     return entry.value;
   }
 
+  /**
+   * Store value in cache with TTL and size limit enforcement
+   * @description Triggers cleanup if cache exceeds MAX_CACHE_SIZE
+   * @param key - Cache key to store
+   * @param value - Value to cache
+   * @param ttlSeconds - Time to live in seconds
+   */
   private _cacheSet(key: string, value: string, ttlSeconds: number): void {
+    if (this._cache.size >= this.MAX_CACHE_SIZE) {
+      this._cacheCleanup();
+    }
     this._cache.set(key, { value, expiresAt: Date.now() + ttlSeconds * 1000 });
   }
 
+  /**
+   * Delete cached value by key
+   * @param key - Cache key to delete
+   * @returns true if entry existed and was deleted, false otherwise
+   */
   private _cacheDel(key: string): boolean {
     return this._cache.delete(key);
   }
 
+  /**
+   * Increment cached counter with automatic initialization and TTL
+   * @param key - Cache key for counter
+   * @param ttlSeconds - Time to live in seconds (default: 3600)
+   * @returns New counter value after increment
+   */
   private _cacheIncr(key: string, ttlSeconds: number = 3600): number {
     const entry = this._cache.get(key);
     if (!entry || Date.now() > entry.expiresAt) {
@@ -117,6 +154,32 @@ export class CartSecurityGuard implements CanActivate {
     const newVal = parseInt(entry.value, 10) + 1;
     entry.value = String(newVal);
     return newVal;
+  }
+
+  /**
+   * Evict expired entries and enforce max cache size
+   * @description Removes expired entries; if still over MAX_CACHE_SIZE, evicts oldest 20%
+   */
+  private _cacheCleanup(): void {
+    const now = Date.now();
+    // Phase 1: Remove all expired entries
+    for (const [key, entry] of this._cache) {
+      if (now > entry.expiresAt) {
+        this._cache.delete(key);
+      }
+    }
+    // Phase 2: Force eviction if still over limit (evict oldest 20%)
+    if (this._cache.size > this.MAX_CACHE_SIZE) {
+      const entriesToEvict = Math.ceil(this._cache.size * 0.2);
+      const iterator = this._cache.keys();
+      for (let i = 0; i < entriesToEvict; i++) {
+        const key = iterator.next().value;
+        if (key) this._cache.delete(key);
+      }
+      this.logger.warn(
+        `🧹 Cache cleanup: evicted ${entriesToEvict} entries (size was ${this._cache.size + entriesToEvict})`,
+      );
+    }
   }
 
   /** Security configuration with production-ready defaults */

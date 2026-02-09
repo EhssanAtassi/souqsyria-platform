@@ -196,3 +196,4 @@ specs/
 *.md
 /_archive/
 /MVP1
+!/prompt/

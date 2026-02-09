@@ -24,6 +24,9 @@ export class TokenService {
   /** LocalStorage key for the JWT refresh token */
   private readonly REFRESH_TOKEN_KEY = 'auth_refresh_token';
 
+  /** LocalStorage key for the remember-me preference */
+  private readonly REMEMBER_ME_KEY = 'auth_remember_me';
+
   /**
    * Get the stored access token
    *
@@ -59,14 +62,37 @@ export class TokenService {
   }
 
   /**
-   * Clear all stored tokens
+   * Clear all stored tokens and remember-me preference
    *
-   * @description Removes both access and refresh tokens from localStorage.
-   * Called on logout or when tokens are invalidated.
+   * @description Removes access token, refresh token, and remember-me flag
+   * from localStorage. Called on logout or when tokens are invalidated.
    */
   clearTokens(): void {
     localStorage.removeItem(this.ACCESS_TOKEN_KEY);
     localStorage.removeItem(this.REFRESH_TOKEN_KEY);
+    localStorage.removeItem(this.REMEMBER_ME_KEY);
+  }
+
+  /**
+   * Store the remember-me preference
+   *
+   * @description Persists the user's "remember me" choice to localStorage
+   * so it can be restored when the login form reloads.
+   * @param value - Whether "remember me" was selected
+   */
+  setRememberMe(value: boolean): void {
+    localStorage.setItem(this.REMEMBER_ME_KEY, JSON.stringify(value));
+  }
+
+  /**
+   * Get the stored remember-me preference
+   *
+   * @description Retrieves the remember-me flag from localStorage
+   * @returns True if remember-me was previously selected, false otherwise
+   */
+  getRememberMe(): boolean {
+    const stored = localStorage.getItem(this.REMEMBER_ME_KEY);
+    return stored ? JSON.parse(stored) : false;
   }
 
   /**

@@ -31,6 +31,8 @@ import { AuthApiService } from '../services/auth-api.service';
 import { TokenService } from '../services/token.service';
 import { notifyTokenRefreshed } from '../interceptors/auth.interceptor';
 import { AuthActions } from './auth.actions';
+import { CartSessionService } from '../../../store/cart/cart-session.service';
+import { CartSyncService } from '../../../store/cart/cart-sync.service';
 
 // ─── Login ────────────────────────────────────────────────────────
 
@@ -50,25 +52,76 @@ export const login$ = createEffect(
   ) =>
     actions$.pipe(
       ofType(AuthActions.login),
-      exhaustMap(({ email, password }) =>
-        authApiService.login({ email, password }).pipe(
+      exhaustMap(({ email, password, rememberMe }) =>
+        authApiService.login({ email, password, rememberMe }).pipe(
           map((response) => {
             tokenService.setTokens(response.accessToken, response.refreshToken);
+            tokenService.setRememberMe(rememberMe);
             return AuthActions.loginSuccess({
               accessToken: response.accessToken,
             });
           }),
-          catchError((error) =>
-            of(
+          catchError((error) => {
+            const body = error.error;
+            return of(
               AuthActions.loginFailure({
-                error: error.error?.message || error.message || 'Login failed',
+                error: body?.message || error.message || 'Login failed',
+                errorCode: body?.errorCode,
+                remainingAttempts: body?.remainingAttempts,
+                lockedUntilMinutes: body?.lockedUntilMinutes,
               }),
-            ),
-          ),
+            );
+          }),
         ),
       ),
     ),
   { functional: true },
+);
+
+// ─── Cart Merge on Login ────────────────────────────────────────
+
+/**
+ * Merge guest cart into authenticated user cart after login
+ *
+ * @description After successful login, checks for an existing guest session
+ * and merges the guest cart into the authenticated user's cart.
+ * Fire-and-forget: errors are logged but don't affect the login flow.
+ */
+export const mergeGuestCartOnLogin$ = createEffect(
+  (
+    actions$ = inject(Actions),
+    tokenService = inject(TokenService),
+    cartSessionService = inject(CartSessionService),
+    cartSyncService = inject(CartSyncService),
+  ) =>
+    actions$.pipe(
+      ofType(AuthActions.loginSuccess),
+      tap(() => {
+        const sessionId = cartSessionService.getSessionId();
+        if (!sessionId) {
+          return;
+        }
+
+        const token = tokenService.getAccessToken();
+        const payload = token ? tokenService.decodeToken(token) : null;
+        const userId = payload?.['sub'] || '';
+
+        if (!userId) {
+          return;
+        }
+
+        cartSyncService.mergeGuestCart(userId, sessionId).subscribe({
+          next: () => {
+            cartSessionService.clearCachedSession();
+            console.log('[Auth] Guest cart merged successfully after login');
+          },
+          error: (err) => {
+            console.error('[Auth] Failed to merge guest cart (non-blocking):', err);
+          },
+        });
+      }),
+    ),
+  { functional: true, dispatch: false },
 );
 
 // ─── Login Success Navigation ─────────────────────────────────────

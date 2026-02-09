@@ -9,7 +9,9 @@
  * import {
  *   MegaMenuComponent,
  *   FeaturedCategoriesComponent,
- *   CategorySkeletonComponent
+ *   CategorySkeletonComponent,
+ *   MobileCategoryNavComponent,
+ *   CategorySearchComponent
  * } from '@features/category/components';
  * ```
  */
@@ -17,3 +19,5 @@
 export * from './mega-menu/mega-menu.component';
 export * from './featured-categories/featured-categories.component';
 export * from './category-skeleton/category-skeleton.component';
+export * from './mobile-category-nav/mobile-category-nav.component';
+export * from './category-search/category-search.component';
