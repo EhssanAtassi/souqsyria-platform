@@ -44,6 +44,7 @@ import { CategoryShowcaseSectionComponent } from '../components/category-showcas
 import { ProductOffersRowComponent } from '../../../shared/components/product-offers-row/product-offers-row.component';
 import { FeaturedCategoriesComponent } from '../../category/components/featured-categories/featured-categories.component';
 import { CategorySkeletonComponent } from '../../category/components/category-skeleton/category-skeleton.component';
+import { HeroSkeletonComponent } from '../../../shared/components/hero-skeleton/hero-skeleton.component';
 
 // Services
 import { HomepageFacadeService } from '../services/homepage-facade.service';
@@ -106,7 +107,8 @@ import {
     CategoryShowcaseSectionComponent,
     ProductOffersRowComponent,
     FeaturedCategoriesComponent,
-    CategorySkeletonComponent
+    CategorySkeletonComponent,
+    HeroSkeletonComponent
   ],
   templateUrl: '../homepage.component.html',
   styleUrl: '../homepage.component.scss'

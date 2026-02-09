@@ -41,6 +41,7 @@ import { FeaturedCategoriesComponent } from '../category/components/featured-cat
 import { CategorySkeletonComponent } from '../category/components/category-skeleton/category-skeleton.component';
 import { CategoryApiService } from '../category/services/category-api.service';
 import { FeaturedCategory } from '../category/models/category-tree.interface';
+import { HeroSkeletonComponent } from '../../shared/components/hero-skeleton/hero-skeleton.component';
 
 /**
  * SouqSyria Syrian Marketplace Homepage Component
@@ -124,7 +125,8 @@ import { FeaturedCategory } from '../category/models/category-tree.interface';
     CategoryShowcaseSectionComponent,
     ProductOffersRowComponent,
     FeaturedCategoriesComponent,
-    CategorySkeletonComponent
+    CategorySkeletonComponent,
+    HeroSkeletonComponent
   ],
   templateUrl: './homepage.component.html',
   styleUrl: './homepage.component.scss'
