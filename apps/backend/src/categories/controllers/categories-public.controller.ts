@@ -34,7 +34,7 @@ import {
   Req,
   Res,
 } from '@nestjs/common';
-import { ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiOperation, ApiParam, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Request, Response } from 'express';
 import { IsNull } from 'typeorm';
 import { Public } from '../../common/decorators/public.decorator';
@@ -1126,6 +1126,12 @@ export class CategoriesPublicController {
    * @ticket SS-CAT-006
    */
   @Get(':id/products')
+  @ApiParam({
+    name: 'id',
+    type: Number,
+    description: 'Category ID to search within',
+    example: 1,
+  })
   @ApiOperation({
     summary: 'Search products within a specific category',
     description: `

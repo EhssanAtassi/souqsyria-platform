@@ -4,10 +4,10 @@
  * @description Search input component for filtering products within a specific
  * category. Provides debounced search with loading states and results display.
  *
- * @pattern Dumb/Presentational Component
+ * @pattern Smart Component (self-contained search)
  * - Receives category context via inputs
- * - Emits search events for parent handling
- * - Manages internal search state with signals
+ * - Manages search lifecycle internally via CategoryApiService
+ * - Emits results and state events for parent handling
  * - OnPush change detection
  *
  * @features

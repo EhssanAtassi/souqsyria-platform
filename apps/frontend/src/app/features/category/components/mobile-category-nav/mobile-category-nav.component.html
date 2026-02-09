@@ -41,7 +41,7 @@
     <mat-accordion *ngIf="!isLoading && categories.length > 0" class="mobile-category-accordion">
       <!-- Top-level Categories -->
       <mat-expansion-panel
-        *ngFor="let category of categories; trackBy: 'id'"
+        *ngFor="let category of categories; trackBy: trackById"
         class="category-panel"
         [class.rtl]="isRtl()"
       >
@@ -77,7 +77,7 @@
           <!-- Subcategories (Level 2) -->
           <div *ngIf="hasChildren(category)">
             <!-- Simple list for Level 2 without children -->
-            <ng-container *ngFor="let subCategory of category.children; trackBy: 'id'">
+            <ng-container *ngFor="let subCategory of category.children; trackBy: trackById">
               <!-- Level 2 without children -->
               <button
                 *ngIf="!hasChildren(subCategory)"
@@ -125,7 +125,7 @@
 
                   <!-- Level 3 Items -->
                   <button
-                    *ngFor="let subSubCategory of subCategory.children; trackBy: 'id'"
+                    *ngFor="let subSubCategory of subCategory.children; trackBy: trackById"
                     type="button"
                     class="w-full text-left px-6 py-2.5 hover:bg-gray-50 transition-colors border-b border-gray-100"
                     [class.text-right]="isRtl()"

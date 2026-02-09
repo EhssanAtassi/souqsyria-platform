@@ -133,27 +133,7 @@
     (itemClick)="onQuickAccessItemClick($event)"
   ></app-quick-access-row>
 
-  <!-- Mobile Category Menu (Legacy - Can be removed in future sprint) -->
-  <div class="sq-mobile-menu-wrapper" [class.sq-mobile-menu-open]="mobileMenuOpen">
-    <app-mobile-category-menu
-      [categories]="categories"
-      [config]="config"
-      [user]="user"
-      [locations]="filteredLocations"
-      [isOpen]="mobileMenuOpen"
-      [selectedLocation]="selectedLocation"
-      (categoryClick)="onCategoryClick($event)"
-      (subcategoryClick)="onSubcategoryClick($event)"
-      (menuClose)="closeMobileMenu()"
-      (loginClick)="onLoginClick()"
-      (logoutClick)="onLogoutClick()"
-      (locationChange)="onLocationSelect($event)"
-      (languageChange)="onLanguageChange($event)"
-      (promotionalLinkClick)="onPromotionalLinkClick($event)"
-    ></app-mobile-category-menu>
-  </div>
-
-  <!-- Mobile Category Nav (S3 Categories Sprint) -->
+  <!-- Mobile Category Nav (S3 - replaces legacy MobileCategoryMenu) -->
   <app-mobile-category-nav
     [categories]="categoryTree()"
     [isOpen]="mobileMenuOpen"

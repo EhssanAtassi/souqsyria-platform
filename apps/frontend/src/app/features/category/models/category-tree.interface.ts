@@ -192,7 +192,8 @@ export interface FeaturedCategoriesResponse {
 /**
  * Product search result item
  *
- * @description Basic product information returned from category search
+ * @description Product information returned from category search endpoint.
+ * Field names match the backend searchWithinCategory response exactly.
  *
  * @interface ProductSearchResult
  */
@@ -201,7 +202,7 @@ export interface ProductSearchResult {
   id: number;
 
   /** Product name in English */
-  name: string;
+  nameEn: string;
 
   /** Product name in Arabic */
   nameAr: string;
@@ -209,23 +210,26 @@ export interface ProductSearchResult {
   /** Product URL slug */
   slug: string;
 
-  /** Product thumbnail image URL */
-  image: string;
+  /** Product main image URL (first image sorted by sortOrder) */
+  mainImage: string | null;
 
-  /** Product price */
-  price: number;
+  /** Product base price in SYP */
+  basePrice: number | null;
 
   /** Discounted price (if applicable) */
-  discountPrice?: number;
+  discountPrice: number | null;
 
-  /** Product rating (0-5) */
-  rating: number;
+  /** Currency code (default: SYP) */
+  currency: string;
 
-  /** Number of reviews */
-  reviewCount: number;
+  /** Product approval status */
+  approvalStatus: string;
 
-  /** Stock availability status */
-  inStock: boolean;
+  /** Whether product is active */
+  isActive: boolean;
+
+  /** Whether product is published */
+  isPublished: boolean;
 }
 
 /**

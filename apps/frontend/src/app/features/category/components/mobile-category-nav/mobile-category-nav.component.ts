@@ -234,4 +234,16 @@ export class MobileCategoryNavComponent {
   hasChildren(category: CategoryTreeNode): boolean {
     return category.children && category.children.length > 0;
   }
+
+  /**
+   * TrackBy function for ngFor performance optimization
+   *
+   * @description Tracks category items by their unique ID for efficient DOM updates
+   * @param index - Item index in the array
+   * @param item - Category tree node
+   * @returns Unique category ID
+   */
+  trackById(index: number, item: CategoryTreeNode): number {
+    return item.id;
+  }
 }

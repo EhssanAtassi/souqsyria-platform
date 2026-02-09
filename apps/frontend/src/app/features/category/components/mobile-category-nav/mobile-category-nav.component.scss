@@ -163,8 +163,10 @@ button[matRipple] {
   animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
 
-// Smooth transitions for all interactive elements
-* {
+// Smooth transitions for interactive elements
+button,
+.category-header,
+.nested-category-header {
   transition-property: background-color, border-color, color, fill, stroke;
   transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
   transition-duration: 150ms;
