@@ -235,10 +235,10 @@ describe('MegaMenuComponent', () => {
      * Validates: Escape keydown triggers close()
      */
     it('should close menu on Escape key press', () => {
-      const closeSpy = jest.spyOn(component, 'close');
+      const closeSpy = spyOn(component, 'close');
 
       const event = new KeyboardEvent('keydown', { key: 'Escape' });
-      Object.defineProperty(event, 'preventDefault', { value: jest.fn() });
+      Object.defineProperty(event, 'preventDefault', { value: jasmine.createSpy('preventDefault') });
       component.handleEscapeKey(event);
 
       expect(closeSpy).toHaveBeenCalled();
@@ -252,7 +252,7 @@ describe('MegaMenuComponent', () => {
       component.focusedCategoryIndex.set(0);
 
       const event = new KeyboardEvent('keydown', { key: 'ArrowDown' });
-      Object.defineProperty(event, 'preventDefault', { value: jest.fn() });
+      Object.defineProperty(event, 'preventDefault', { value: jasmine.createSpy('preventDefault') });
       component.handleKeyboardNav(event);
 
       expect(component.focusedCategoryIndex()).toBe(1);
@@ -266,7 +266,7 @@ describe('MegaMenuComponent', () => {
       component.focusedCategoryIndex.set(1);
 
       const event = new KeyboardEvent('keydown', { key: 'ArrowUp' });
-      Object.defineProperty(event, 'preventDefault', { value: jest.fn() });
+      Object.defineProperty(event, 'preventDefault', { value: jasmine.createSpy('preventDefault') });
       component.handleKeyboardNav(event);
 
       expect(component.focusedCategoryIndex()).toBe(0);
@@ -280,7 +280,7 @@ describe('MegaMenuComponent', () => {
       component.focusedCategoryIndex.set(0);
 
       const event = new KeyboardEvent('keydown', { key: 'ArrowUp' });
-      Object.defineProperty(event, 'preventDefault', { value: jest.fn() });
+      Object.defineProperty(event, 'preventDefault', { value: jasmine.createSpy('preventDefault') });
       component.handleKeyboardNav(event);
 
       expect(component.focusedCategoryIndex()).toBe(0);
@@ -295,7 +295,7 @@ describe('MegaMenuComponent', () => {
       component.focusedCategoryIndex.set(lastIndex);
 
       const event = new KeyboardEvent('keydown', { key: 'ArrowDown' });
-      Object.defineProperty(event, 'preventDefault', { value: jest.fn() });
+      Object.defineProperty(event, 'preventDefault', { value: jasmine.createSpy('preventDefault') });
       component.handleKeyboardNav(event);
 
       expect(component.focusedCategoryIndex()).toBe(lastIndex);
@@ -306,11 +306,11 @@ describe('MegaMenuComponent', () => {
      * Validates: Enter triggers onCategoryClick on focused category
      */
     it('should select category on Enter key', () => {
-      const clickSpy = jest.spyOn(component, 'onCategoryClick');
+      const clickSpy = spyOn(component, 'onCategoryClick');
       component.focusedCategoryIndex.set(0);
 
       const event = new KeyboardEvent('keydown', { key: 'Enter' });
-      Object.defineProperty(event, 'preventDefault', { value: jest.fn() });
+      Object.defineProperty(event, 'preventDefault', { value: jasmine.createSpy('preventDefault') });
       component.handleKeyboardNav(event);
 
       expect(clickSpy).toHaveBeenCalledWith(MOCK_CATEGORIES[0]);
@@ -325,7 +325,7 @@ describe('MegaMenuComponent', () => {
       component.focusedCategoryIndex.set(0);
 
       const event = new KeyboardEvent('keydown', { key: 'ArrowDown' });
-      Object.defineProperty(event, 'preventDefault', { value: jest.fn() });
+      Object.defineProperty(event, 'preventDefault', { value: jasmine.createSpy('preventDefault') });
       component.handleKeyboardNav(event);
 
       expect(component.focusedCategoryIndex()).toBe(0);
@@ -343,8 +343,8 @@ describe('MegaMenuComponent', () => {
      * Validates: Output emitter fires with correct slug
      */
     it('should emit categorySelected when navigateToCategory is called', () => {
-      const emitSpy = jest.spyOn(component.categorySelected, 'emit');
-      const routerSpy = jest.spyOn(router, 'navigate').mockResolvedValue(true);
+      const emitSpy = spyOn(component.categorySelected, 'emit');
+      const routerSpy = spyOn(router, 'navigate').and.returnValue(Promise.resolve(true));
 
       component.navigateToCategory('electronics');
 
@@ -356,7 +356,7 @@ describe('MegaMenuComponent', () => {
      * Validates: Output emitter fires when menu closes
      */
     it('should emit menuClosed when close() is called', () => {
-      const emitSpy = jest.spyOn(component.menuClosed, 'emit');
+      const emitSpy = spyOn(component.menuClosed, 'emit');
 
       component.close();
 
@@ -411,7 +411,7 @@ describe('MegaMenuComponent', () => {
 
       component.onCategoryClick(electronicsCategory);
 
-      expect(component.categoryStack()).toHaveLength(1);
+      expect(component.categoryStack()).toHaveSize(1);
       expect(component.categoryStack()[0]).toBe(electronicsCategory);
       expect(component.currentMobileCategory()).toBe(electronicsCategory);
     });
@@ -421,13 +421,13 @@ describe('MegaMenuComponent', () => {
      * Validates: Leaf categories trigger navigation instead of drill-down
      */
     it('should navigate directly on mobile category click without children', () => {
-      const navigateSpy = jest.spyOn(component, 'navigateToCategory');
+      const navigateSpy = spyOn(component, 'navigateToCategory');
       const fashionCategory = MOCK_CATEGORIES[1]; // No children
 
       component.onCategoryClick(fashionCategory);
 
       expect(navigateSpy).toHaveBeenCalledWith('fashion');
-      expect(component.categoryStack()).toHaveLength(0);
+      expect(component.categoryStack()).toHaveSize(0);
     });
 
     /**
@@ -442,12 +442,12 @@ describe('MegaMenuComponent', () => {
       component.onCategoryClick(electronicsCategory);
       component.onCategoryClick(mobilePhonesCategory);
 
-      expect(component.categoryStack()).toHaveLength(2);
+      expect(component.categoryStack()).toHaveSize(2);
 
       // Go back to Electronics
       component.goBack();
 
-      expect(component.categoryStack()).toHaveLength(1);
+      expect(component.categoryStack()).toHaveSize(1);
       expect(component.currentMobileCategory()).toBe(electronicsCategory);
     });
 
@@ -459,11 +459,11 @@ describe('MegaMenuComponent', () => {
       const electronicsCategory = MOCK_CATEGORIES[0];
 
       component.onCategoryClick(electronicsCategory);
-      expect(component.categoryStack()).toHaveLength(1);
+      expect(component.categoryStack()).toHaveSize(1);
 
       component.goBack();
 
-      expect(component.categoryStack()).toHaveLength(0);
+      expect(component.categoryStack()).toHaveSize(0);
       expect(component.currentMobileCategory()).toBeNull();
     });
   });
@@ -484,7 +484,7 @@ describe('MegaMenuComponent', () => {
      * Validates: Desktop always navigates on click (hover shows children)
      */
     it('should navigate to category on desktop click regardless of children', () => {
-      const navigateSpy = jest.spyOn(component, 'navigateToCategory');
+      const navigateSpy = spyOn(component, 'navigateToCategory');
 
       component.onCategoryClick(MOCK_CATEGORIES[0]); // Has children
 

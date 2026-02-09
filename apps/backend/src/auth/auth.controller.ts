@@ -23,7 +23,7 @@ import { VerifyOtpDto } from './dto/verify-otp.dto';
 
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { Public } from '../common/decorators/public.decorator';
-import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
@@ -76,6 +76,22 @@ export class AuthController {
    */
   @Public()
   @ApiOperation({ summary: 'Login with email and password' })
+  @ApiResponse({
+    status: 200,
+    description: 'Login successful. Returns access token, refresh token, and rememberMe flag.',
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Invalid credentials. Response includes errorCode: INVALID_CREDENTIALS and remainingAttempts before lockout.',
+  })
+  @ApiResponse({
+    status: 403,
+    description: 'Account locked due to too many failed attempts. Response includes errorCode: ACCOUNT_LOCKED and lockedUntilMinutes.',
+  })
+  @ApiResponse({
+    status: 429,
+    description: 'Rate limit exceeded. Response includes retryAfter seconds.',
+  })
   @Post('login')
   async login(@Body() loginDto: LoginDto, @Req() request: Request) {
     const tokens = await this.authService.login(loginDto, request);

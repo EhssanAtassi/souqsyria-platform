@@ -15,7 +15,13 @@ import { TranslateModule } from '@ngx-translate/core';
 
 import { LoginComponent } from './login.component';
 import { AuthActions } from '../../store/auth.actions';
-import { selectIsLoading, selectError } from '../../store/auth.selectors';
+import {
+  selectIsLoading,
+  selectError,
+  selectRemainingAttempts,
+  selectLockedUntilMinutes,
+  selectIsAccountLocked,
+} from '../../store/auth.selectors';
 
 describe('LoginComponent', () => {
   let component: LoginComponent;
@@ -23,7 +29,10 @@ describe('LoginComponent', () => {
   let store: MockStore;
   let dispatchSpy: jasmine.Spy;
 
-  const createComponent = (queryParams: Record<string, string> = {}) => {
+  const createComponent = (
+    queryParams: Record<string, string> = {},
+    selectorOverrides: Record<string, any> = {},
+  ) => {
     TestBed.configureTestingModule({
       imports: [
         LoginComponent,
@@ -33,14 +42,18 @@ describe('LoginComponent', () => {
       providers: [
         provideMockStore({
           selectors: [
-            { selector: selectIsLoading, value: false },
-            { selector: selectError, value: null },
+            { selector: selectIsLoading, value: selectorOverrides['isLoading'] ?? false },
+            { selector: selectError, value: selectorOverrides['error'] ?? null },
+            { selector: selectRemainingAttempts, value: selectorOverrides['remainingAttempts'] ?? null },
+            { selector: selectLockedUntilMinutes, value: selectorOverrides['lockedUntilMinutes'] ?? null },
+            { selector: selectIsAccountLocked, value: selectorOverrides['isAccountLocked'] ?? false },
           ],
         }),
         {
           provide: ActivatedRoute,
           useValue: {
             queryParams: of(queryParams),
+            snapshot: { queryParams },
           },
         },
       ],
@@ -113,11 +126,19 @@ describe('LoginComponent', () => {
   describe('onSubmit', () => {
     beforeEach(() => createComponent());
 
-    it('should dispatch login action with valid form', () => {
-      component.form.patchValue({ email: 'test@souq.sy', password: 'Pass123' });
+    it('should dispatch login action with valid form including rememberMe', () => {
+      component.form.patchValue({ email: 'test@souq.sy', password: 'Pass123', rememberMe: true });
       component.onSubmit();
       expect(dispatchSpy).toHaveBeenCalledWith(
-        AuthActions.login({ email: 'test@souq.sy', password: 'Pass123' })
+        AuthActions.login({ email: 'test@souq.sy', password: 'Pass123', rememberMe: true })
+      );
+    });
+
+    it('should dispatch login with rememberMe false when unchecked', () => {
+      component.form.patchValue({ email: 'test@souq.sy', password: 'Pass123', rememberMe: false });
+      component.onSubmit();
+      expect(dispatchSpy).toHaveBeenCalledWith(
+        AuthActions.login({ email: 'test@souq.sy', password: 'Pass123', rememberMe: false })
       );
     });
 
@@ -173,6 +194,65 @@ describe('LoginComponent', () => {
     it('should not show password reset message when query param absent', () => {
       createComponent();
       expect(component.showPasswordResetMessage()).toBeFalse();
+    });
+  });
+
+  // ─── S2: Account lockout UI ────────────────────────────────────
+
+  describe('Account lockout', () => {
+    it('should show lockout banner when account is locked', () => {
+      createComponent({}, { isAccountLocked: true, lockedUntilMinutes: 30 });
+      expect(component.isAccountLocked()).toBeTrue();
+    });
+
+    it('should disable submit button when account is locked', () => {
+      createComponent({}, { isAccountLocked: true, lockedUntilMinutes: 30 });
+      component.form.patchValue({ email: 'test@souq.sy', password: 'Pass123' });
+      fixture.detectChanges();
+      const submitBtn = fixture.nativeElement.querySelector('.submit-btn') as HTMLButtonElement;
+      expect(submitBtn?.disabled).toBeTrue();
+    });
+
+    it('should not show lockout banner when account is not locked', () => {
+      createComponent();
+      expect(component.isAccountLocked()).toBeFalse();
+    });
+  });
+
+  // ─── S2: Remaining attempts warning ────────────────────────────
+
+  describe('Remaining attempts warning', () => {
+    it('should expose remaining attempts from store', () => {
+      createComponent({}, { remainingAttempts: 2 });
+      expect(component.remainingAttempts()).toBe(2);
+    });
+
+    it('should have null remaining attempts initially', () => {
+      createComponent();
+      expect(component.remainingAttempts()).toBeNull();
+    });
+  });
+
+  // ─── S2: Lockout countdown timer ───────────────────────────────
+
+  describe('Lockout countdown', () => {
+    it('should initialize lockout countdown to 0', () => {
+      createComponent();
+      expect(component.lockoutCountdown()).toBe(0);
+    });
+  });
+
+  // ─── S2: RememberMe checkbox ───────────────────────────────────
+
+  describe('Remember Me', () => {
+    it('should have rememberMe form control', () => {
+      createComponent();
+      expect(component.form.get('rememberMe')).toBeTruthy();
+    });
+
+    it('should default rememberMe to false', () => {
+      createComponent();
+      expect(component.form.get('rememberMe')!.value).toBeFalsy();
     });
   });
 });

@@ -2,11 +2,53 @@ import { Injectable, inject } from '@angular/core';
 import { CartStore } from './cart.store';
 import { CartQuery } from './cart.query';
 import { ProductsQuery } from '../products/products.query';
-import { CartItem } from '../../shared/interfaces/cart.interface';
+import { Cart, CartItem } from '../../shared/interfaces/cart.interface';
 import { CartSyncService } from './cart-sync.service';
 import { CartOfflineQueueService } from './cart-offline-queue.service';
 import { catchError, tap } from 'rxjs/operators';
 import { of } from 'rxjs';
+
+/**
+ * Backend cart response structure
+ *
+ * @description Structure returned by backend cart API endpoints
+ */
+interface BackendCartResponse {
+  id?: string;
+  items: BackendCartItem[];
+  version?: number;
+  sessionId?: string;
+  userId?: string;
+}
+
+/**
+ * Backend cart item structure
+ *
+ * @description Structure of cart items in backend responses
+ */
+interface BackendCartItem {
+  id: string;
+  productId?: string;
+  product?: { id: string };
+  quantity: number;
+  variant?: unknown;
+  shippingMethodId?: string;
+  priceAtAdd?: number;
+  price?: { unitPrice: number };
+  addedAt?: string;
+  createdAt?: string;
+  notes?: string;
+}
+
+/**
+ * Sync error structure
+ *
+ * @description Error structure from cart sync failures
+ */
+interface CartSyncError {
+  message: string;
+  status?: number;
+}
 
 /**
  * Cart Service
@@ -405,7 +447,7 @@ export class CartService {
    *
    * @param syncedCart - Cart data from server
    */
-  private handleSyncSuccess(syncedCart: any) {
+  private handleSyncSuccess(syncedCart: BackendCartResponse | Cart) {
     console.log('Handling sync success - updating store with server data');
 
     // Check if server response differs from local state
@@ -432,7 +474,7 @@ export class CartService {
    *
    * @param error - Error from sync attempt
    */
-  private async handleSyncFailure(error: any) {
+  private async handleSyncFailure(error: CartSyncError) {
     console.error('Handling sync failure - queuing for offline processing');
 
     // Update sync status
@@ -461,7 +503,7 @@ export class CartService {
    *
    * @param backendCart - Cart data from backend API
    */
-  private updateStoreFromBackend(backendCart: any) {
+  private updateStoreFromBackend(backendCart: BackendCartResponse | Cart) {
     if (!backendCart || !backendCart.items) {
       console.log('No cart data from backend - keeping local cart');
       return;
@@ -470,26 +512,41 @@ export class CartService {
     console.log('Updating store with backend cart data:', backendCart);
 
     // Map backend items to local CartItem format
-    const items = backendCart.items.map((item: any) => {
-      // Lookup product from products store
-      const product = this.productsQuery.getEntity(item.productId || item.product?.id);
+    const items = backendCart.items.map((item: BackendCartItem | CartItem) => {
+      // Check if item is already a CartItem (has product object) or BackendCartItem
+      const isCartItem = 'product' in item && typeof item.product === 'object' && 'name' in item.product;
+
+      // Lookup product from products store for BackendCartItem
+      const productId = isCartItem
+        ? (item as CartItem).product.id
+        : ((item as BackendCartItem).productId || (item as BackendCartItem).product?.id);
+      const product = this.productsQuery.getEntity(productId);
+
+      const backendItem = item as BackendCartItem;
+      const cartItem = item as CartItem;
+
+      // Ensure product is valid (has full Product interface)
+      const validProduct = product || (isCartItem ? cartItem.product : undefined);
+      if (!validProduct) {
+        console.warn('Product not found for cart item:', productId);
+      }
 
       return {
         id: item.id,
-        product: product || item.product,
+        product: validProduct || (isCartItem ? cartItem.product : backendItem.product) as any,
         quantity: item.quantity,
-        selectedVariant: item.variant,
-        selectedShippingMethod: item.shippingMethodId,
+        selectedVariant: isCartItem ? cartItem.selectedVariant : backendItem.variant,
+        selectedShippingMethod: isCartItem ? cartItem.selectedShippingMethod : backendItem.shippingMethodId,
         price: {
-          unitPrice: item.priceAtAdd || item.price?.unitPrice || 0,
-          totalPrice: (item.priceAtAdd || item.price?.unitPrice || 0) * item.quantity,
+          unitPrice: isCartItem ? cartItem.price.unitPrice : (backendItem.priceAtAdd || backendItem.price?.unitPrice || 0),
+          totalPrice: (isCartItem ? cartItem.price.unitPrice : (backendItem.priceAtAdd || backendItem.price?.unitPrice || 0)) * item.quantity,
           discount: 0,
           shipping: 0,
           currency: 'USD'
         },
-        addedAt: new Date(item.addedAt || item.createdAt),
-        notes: item.notes
-      };
+        addedAt: isCartItem ? cartItem.addedAt : new Date(backendItem.addedAt || backendItem.createdAt || Date.now()),
+        notes: isCartItem ? cartItem.notes : backendItem.notes
+      } as CartItem;
     });
 
     // Update store
@@ -517,7 +574,7 @@ export class CartService {
    * @param serverCart - Server cart state
    * @returns True if conflict detected
    */
-  private detectConflict(localCart: any, serverCart: any): boolean {
+  private detectConflict(localCart: Cart, serverCart: BackendCartResponse | Cart): boolean {
     // Simple conflict detection based on item count and version
     const localItemCount = localCart.items.length;
     const serverItemCount = serverCart.items?.length || 0;

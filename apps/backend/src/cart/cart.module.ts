@@ -28,6 +28,7 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { JwtModule } from '@nestjs/jwt';
+import { ScheduleModule } from '@nestjs/schedule';
 import { Cart } from './entities/cart.entity';
 import { CartItem } from './entities/cart-item.entity';
 import { GuestSession } from './entities/guest-session.entity';
@@ -43,6 +44,7 @@ import { CartMonitoringService } from './services/cart-monitoring.service';
 import { CartFraudDetectionService } from './services/cart-fraud-detection.service';
 import { DeviceFingerprintService } from './services/device-fingerprint.service';
 import { ThreatResponseService } from './services/threat-response.service';
+import { SessionCleanupService } from '../guest-sessions/services/session-cleanup.service';
 import { AccessControlModule } from '../access-control/access-control.module';
 import { AuditLogModule } from '../audit-log/audit-log.module';
 import { User } from '../users/entities/user.entity';
@@ -66,6 +68,7 @@ import { AuditLog } from '../audit-log/entities/audit-log.entity';
       secret: process.env.JWT_SECRET || 'souqsyria_dev_jwt_secret',
       signOptions: { expiresIn: '1d' },
     }), // ✅ For OptionalAuthGuard JWT verification
+    ScheduleModule, // ✅ Required for SessionCleanupService @Cron decorators
     AccessControlModule, // ✅ For permissions and access control
     AuditLogModule, // ✅ For comprehensive audit logging
   ],
@@ -84,6 +87,7 @@ import { AuditLog } from '../audit-log/entities/audit-log.entity';
     CartFraudDetectionService, // ✅ ML-based fraud detection with geolocation
     DeviceFingerprintService, // ✅ Device fingerprinting and validation
     ThreatResponseService, // ✅ Automated threat response system
+    SessionCleanupService, // ✅ Automated guest session cleanup (daily cron job)
   ],
   exports: [
     CartService,
@@ -94,6 +98,7 @@ import { AuditLog } from '../audit-log/entities/audit-log.entity';
     CartFraudDetectionService,
     DeviceFingerprintService,
     ThreatResponseService,
+    SessionCleanupService, // ✅ Export for potential manual cleanup triggers
   ],
 })
 export class CartModule {}

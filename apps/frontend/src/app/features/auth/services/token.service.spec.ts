@@ -89,11 +89,41 @@ describe('TokenService', () => {
   // ─── clearTokens ──────────────────────────────────────────────
 
   describe('clearTokens', () => {
-    it('should remove both tokens from localStorage', () => {
+    it('should remove both tokens and rememberMe from localStorage', () => {
       service.setTokens('access', 'refresh');
+      service.setRememberMe(true);
       service.clearTokens();
       expect(localStorage.removeItem).toHaveBeenCalledWith('auth_token');
       expect(localStorage.removeItem).toHaveBeenCalledWith('auth_refresh_token');
+      expect(localStorage.removeItem).toHaveBeenCalledWith('auth_remember_me');
+    });
+  });
+
+  // ─── rememberMe ─────────────────────────────────────────────
+
+  describe('setRememberMe / getRememberMe', () => {
+    it('should store rememberMe preference as true', () => {
+      service.setRememberMe(true);
+      expect(localStorage.setItem).toHaveBeenCalledWith('auth_remember_me', 'true');
+    });
+
+    it('should store rememberMe preference as false', () => {
+      service.setRememberMe(false);
+      expect(localStorage.setItem).toHaveBeenCalledWith('auth_remember_me', 'false');
+    });
+
+    it('should return true when rememberMe was set to true', () => {
+      service.setRememberMe(true);
+      expect(service.getRememberMe()).toBeTrue();
+    });
+
+    it('should return false when rememberMe was set to false', () => {
+      service.setRememberMe(false);
+      expect(service.getRememberMe()).toBeFalse();
+    });
+
+    it('should return false when no rememberMe preference is stored', () => {
+      expect(service.getRememberMe()).toBeFalse();
     });
   });
 
