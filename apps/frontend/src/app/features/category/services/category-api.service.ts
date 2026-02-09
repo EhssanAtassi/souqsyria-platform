@@ -26,7 +26,11 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../../environments/environment';
-import { CategoryTreeResponse, FeaturedCategoriesResponse } from '../models/category-tree.interface';
+import {
+  CategoryTreeResponse,
+  FeaturedCategoriesResponse,
+  SearchInCategoryResponse,
+} from '../models/category-tree.interface';
 
 /**
  * Category API Service
@@ -83,6 +87,44 @@ export class CategoryApiService {
     return this.http.get<FeaturedCategoriesResponse>(
       `${this.apiUrl}/categories/featured`,
       { params: { limit: limit.toString() } }
+    );
+  }
+
+  /**
+   * Search for products within a specific category
+   *
+   * @description Searches for products within a category by name,
+   * returns paginated results with product details.
+   *
+   * @param categoryId - Category ID to search within
+   * @param search - Search query string (product name)
+   * @param page - Page number for pagination (default: 1)
+   * @param limit - Number of results per page (default: 20)
+   * @returns Observable of search results with pagination metadata
+   *
+   * @example
+   * ```typescript
+   * this.categoryApi.searchInCategory(5, 'laptop', 1, 20).subscribe(response => {
+   *   console.log('Search results:', response.data);
+   *   console.log('Total results:', response.meta.total);
+   * });
+   * ```
+   */
+  searchInCategory(
+    categoryId: number,
+    search: string,
+    page = 1,
+    limit = 20
+  ): Observable<SearchInCategoryResponse> {
+    return this.http.get<SearchInCategoryResponse>(
+      `${this.apiUrl}/categories/${categoryId}/products`,
+      {
+        params: {
+          search,
+          page: page.toString(),
+          limit: limit.toString(),
+        },
+      }
     );
   }
 }

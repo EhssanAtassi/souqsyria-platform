@@ -14,7 +14,7 @@
  */
 
 import { Test, TestingModule } from '@nestjs/testing';
-import { HttpStatus } from '@nestjs/common';
+import { HttpStatus, BadRequestException, NotFoundException } from '@nestjs/common';
 import { CategoriesPublicController } from './categories-public.controller';
 import { CategoriesService } from '../services/categories.service';
 import { CategorySearchService } from '../services/category-search.service';
@@ -528,6 +528,181 @@ describe('CategoriesPublicController', () => {
           meta: expect.objectContaining({
             total: 0,
           }),
+        }),
+      );
+    });
+  });
+
+  // ===========================================================================
+  // SEARCH WITHIN CATEGORY (SS-CAT-006)
+  // ===========================================================================
+
+  /** @description Tests for the searchWithinCategory endpoint */
+  describe('searchWithinCategory', () => {
+    /**
+     * Should return 200 with products for valid category
+     * Validates: Response shape { success, data, meta }
+     */
+    it('should return 200 with products for valid category', async () => {
+      const mockResponse = createMockResponse();
+      const mockResult = {
+        data: [
+          {
+            id: 1,
+            nameEn: 'Damascus Steel Knife',
+            nameAr: '\u0633\u0643\u064A\u0646 \u0645\u0646 \u0627\u0644\u0641\u0648\u0644\u0627\u0630 \u0627\u0644\u062F\u0645\u0634\u0642\u064A',
+            slug: 'damascus-knife',
+            mainImage: 'https://cdn.souqsyria.com/knife.jpg',
+            basePrice: 15000,
+            discountPrice: 12000,
+            currency: 'SYP',
+            approvalStatus: 'approved',
+            isActive: true,
+            isPublished: true,
+          },
+        ],
+        meta: {
+          page: 1,
+          limit: 20,
+          total: 1,
+          totalPages: 1,
+        },
+      };
+
+      categoriesService.searchWithinCategory = jest
+        .fn()
+        .mockResolvedValue(mockResult);
+
+      await controller.searchProductsWithinCategory(1, { page: 1, limit: 20 }, mockResponse);
+
+      expect(mockResponse.status).toHaveBeenCalledWith(HttpStatus.OK);
+      expect(mockResponse.json).toHaveBeenCalledWith(
+        expect.objectContaining({
+          success: true,
+          data: expect.any(Array),
+          meta: expect.objectContaining({
+            page: 1,
+            limit: 20,
+            total: 1,
+          }),
+        }),
+      );
+    });
+
+    /**
+     * Should accept search query parameter
+     * Validates: Search param is passed to service
+     */
+    it('should accept search query parameter', async () => {
+      const mockResponse = createMockResponse();
+      const mockResult = { data: [], meta: { page: 1, limit: 20, total: 0, totalPages: 0 } };
+
+      categoriesService.searchWithinCategory = jest
+        .fn()
+        .mockResolvedValue(mockResult);
+
+      await controller.searchProductsWithinCategory(1, { search: 'damascus', page: 1, limit: 20 }, mockResponse);
+
+      expect(categoriesService.searchWithinCategory).toHaveBeenCalledWith(1, 'damascus', 1, 20);
+    });
+
+    /**
+     * Should accept pagination parameters (page, limit)
+     * Validates: Page and limit are passed to service
+     */
+    it('should accept pagination parameters (page, limit)', async () => {
+      const mockResponse = createMockResponse();
+      const mockResult = { data: [], meta: { page: 2, limit: 50, total: 100, totalPages: 2 } };
+
+      categoriesService.searchWithinCategory = jest
+        .fn()
+        .mockResolvedValue(mockResult);
+
+      await controller.searchProductsWithinCategory(1, { page: 2, limit: 50 }, mockResponse);
+
+      expect(categoriesService.searchWithinCategory).toHaveBeenCalledWith(1, undefined, 2, 50);
+    });
+
+    /**
+     * Should return 404 for non-existent category
+     * Validates: Service throws NotFoundException
+     */
+    it('should return 404 for non-existent category', async () => {
+      const mockResponse = createMockResponse();
+
+      categoriesService.searchWithinCategory = jest
+        .fn()
+        .mockRejectedValue(new NotFoundException('Category not found'));
+
+      await controller.searchProductsWithinCategory(99999, { page: 1, limit: 20 }, mockResponse);
+
+      expect(mockResponse.status).toHaveBeenCalledWith(HttpStatus.NOT_FOUND);
+    });
+
+    /**
+     * Should return empty data array when no products match search
+     * Validates: Empty search results handled gracefully
+     */
+    it('should return empty data array when no products match search', async () => {
+      const mockResponse = createMockResponse();
+      const mockResult = { data: [], meta: { page: 1, limit: 20, total: 0, totalPages: 0 } };
+
+      categoriesService.searchWithinCategory = jest
+        .fn()
+        .mockResolvedValue(mockResult);
+
+      await controller.searchProductsWithinCategory(1, { search: 'nonexistent', page: 1, limit: 20 }, mockResponse);
+
+      expect(mockResponse.json).toHaveBeenCalledWith(
+        expect.objectContaining({
+          success: true,
+          data: [],
+          meta: expect.objectContaining({
+            total: 0,
+          }),
+        }),
+      );
+    });
+
+    /**
+     * Should return 400 for invalid category ID
+     * Validates: Non-numeric ID rejected
+     */
+    it('should return 400 for invalid category ID', async () => {
+      const mockResponse = createMockResponse();
+
+      categoriesService.searchWithinCategory = jest
+        .fn()
+        .mockRejectedValue(new BadRequestException('Invalid category ID'));
+
+      await controller.searchProductsWithinCategory(NaN, { page: 1, limit: 20 }, mockResponse);
+
+      expect(mockResponse.status).toHaveBeenCalledWith(HttpStatus.BAD_REQUEST);
+      expect(mockResponse.json).toHaveBeenCalledWith(
+        expect.objectContaining({
+          success: false,
+          error: 'Bad Request',
+        }),
+      );
+    });
+
+    /**
+     * Should set cache headers on response
+     * Validates: Cache-Control header present
+     */
+    it('should set cache headers on response', async () => {
+      const mockResponse = createMockResponse();
+      const mockResult = { data: [], meta: { page: 1, limit: 20, total: 0, totalPages: 0 } };
+
+      categoriesService.searchWithinCategory = jest
+        .fn()
+        .mockResolvedValue(mockResult);
+
+      await controller.searchProductsWithinCategory(1, { page: 1, limit: 20 }, mockResponse);
+
+      expect(mockResponse.set).toHaveBeenCalledWith(
+        expect.objectContaining({
+          'Cache-Control': 'public, max-age=300',
         }),
       );
     });
