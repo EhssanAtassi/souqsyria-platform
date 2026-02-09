@@ -4,6 +4,27 @@
  */
 
 /**
+ * @description User preferences for language, currency, and notifications
+ * @interface UserPreferences
+ */
+export interface UserPreferences {
+  /** Preferred language */
+  language?: 'en' | 'ar';
+
+  /** Preferred currency */
+  currency?: 'SYP' | 'USD' | 'EUR' | 'TRY';
+
+  /** Email notifications enabled */
+  emailNotifications?: boolean;
+
+  /** SMS notifications enabled */
+  smsNotifications?: boolean;
+
+  /** Marketing emails enabled */
+  marketingEmails?: boolean;
+}
+
+/**
  * @description User profile data model matching backend GET /users/profile response
  * @interface UserProfile
  */
@@ -39,6 +60,9 @@ export interface UserProfile {
 
   /** Total number of items in user's wishlist */
   wishlistCount: number;
+
+  /** User preferences (language, currency, notifications) */
+  preferences?: UserPreferences;
 
   /** Account creation timestamp */
   createdAt: string;

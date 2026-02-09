@@ -22,12 +22,17 @@ import { UpdateProfileDto } from './dto/update-profile.dto';
 import { ChangePasswordDto } from './dto/change-password.dto';
 import { UserProfileResponseDto } from './dto/user-profile-response.dto';
 import { UserFromToken } from '../common/interfaces/user-from-token.interface';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
 /**
  * Mock plainToInstance for DTO transformation tests
  */
 jest.mock('class-transformer', () => ({
   plainToInstance: jest.fn((cls, obj) => obj),
+  Type: () => () => {},
+  Expose: () => () => {},
+  Transform: () => () => {},
+  Exclude: () => () => {},
 }));
 
 describe('UsersController', () => {
@@ -37,7 +42,8 @@ describe('UsersController', () => {
   const mockUser: UserFromToken = {
     id: 1,
     email: 'test@example.com',
-    firebaseUid: 'firebase-uid-123',
+    role_id: 1,
+    firebase_uid: 'firebase-uid-123',
   };
 
   const mockUserProfile = {
@@ -100,7 +106,7 @@ describe('UsersController', () => {
         },
       ],
     })
-      .overrideGuard('JwtAuthGuard')
+      .overrideGuard(JwtAuthGuard)
       .useValue({ canActivate: () => true })
       .compile();
 
@@ -685,6 +691,57 @@ describe('UsersController', () => {
 
       expect(usersService.getUserStatistics).toHaveBeenCalledWith(mockUser.id);
       expect(usersService.findById).toHaveBeenCalledWith(mockUser.id);
+    });
+  });
+
+  describe('updatePreferences', () => {
+    /**
+     * Test: updatePreferences should call service and return success response
+     * Verifies the endpoint calls usersService.updatePreferences and returns the expected shape
+     */
+    it('should call service and return success response', async () => {
+      const preferencesDto = {
+        language: 'en',
+        currency: 'USD',
+        emailNotifications: true,
+      };
+      const updatedPreferences = {
+        language: 'en',
+        currency: 'USD',
+        emailNotifications: true,
+        smsNotifications: false,
+        marketingEmails: false,
+      };
+
+      (usersService as any).updatePreferences = jest
+        .fn()
+        .mockResolvedValue(updatedPreferences);
+
+      const result = await controller.updatePreferences(
+        mockUser,
+        preferencesDto as any,
+      );
+
+      expect((usersService as any).updatePreferences).toHaveBeenCalledWith(
+        mockUser.id,
+        preferencesDto,
+      );
+      expect(result.message).toBe('Preferences updated successfully');
+      expect(result.preferences).toEqual(updatedPreferences);
+    });
+
+    /**
+     * Test: updatePreferences should propagate service errors
+     * Verifies that NotFoundException from service is not caught
+     */
+    it('should propagate service errors', async () => {
+      (usersService as any).updatePreferences = jest
+        .fn()
+        .mockRejectedValue(new Error('User with ID 999 not found'));
+
+      await expect(
+        controller.updatePreferences(mockUser, { language: 'en' } as any),
+      ).rejects.toThrow('User with ID 999 not found');
     });
   });
 

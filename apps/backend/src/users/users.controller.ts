@@ -48,7 +48,7 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { UserFromToken } from '../common/interfaces/user-from-token.interface';
 import { UsersService } from './users.service';
-import { UpdateProfileDto } from './dto/update-profile.dto';
+import { UpdateProfileDto, UserPreferences } from './dto/update-profile.dto';
 import { ChangePasswordDto } from './dto/change-password.dto';
 import { UserProfileResponseDto } from './dto/user-profile-response.dto';
 import { plainToInstance } from 'class-transformer';
@@ -271,6 +271,77 @@ export class UsersController {
     return {
       message: 'Password changed successfully',
       changedAt: new Date(),
+    };
+  }
+
+  /**
+   * UPDATE USER PREFERENCES
+   *
+   * Updates user preferences (language, currency, notifications)
+   * without touching other profile fields.
+   */
+  @Patch('preferences')
+  @ApiOperation({
+    summary: 'Update user preferences',
+    description:
+      'Updates user preferences including language, currency, and notification settings',
+  })
+  @ApiBody({
+    type: UserPreferences,
+    description: 'Preferences to update',
+    examples: {
+      languageAndCurrency: {
+        summary: 'Update language and currency',
+        value: {
+          language: 'ar',
+          currency: 'SYP',
+        },
+      },
+      notifications: {
+        summary: 'Update notification preferences',
+        value: {
+          emailNotifications: true,
+          smsNotifications: false,
+          marketingEmails: false,
+        },
+      },
+    },
+  })
+  @ApiOkResponse({
+    description: 'Preferences updated successfully',
+    schema: {
+      example: {
+        message: 'Preferences updated successfully',
+        preferences: {
+          language: 'ar',
+          currency: 'SYP',
+          emailNotifications: true,
+          smsNotifications: false,
+          marketingEmails: false,
+        },
+      },
+    },
+  })
+  @ApiBadRequestResponse({
+    description: 'Invalid preferences data',
+  })
+  @ApiUnauthorizedResponse({
+    description: 'User not authenticated',
+  })
+  async updatePreferences(
+    @CurrentUser() user: UserFromToken,
+    @Body() preferencesDto: UserPreferences,
+  ) {
+    this.logger.log(`⚙️ Updating preferences for user ${user.id}`);
+
+    const preferences = await this.usersService.updatePreferences(
+      user.id,
+      preferencesDto,
+    );
+
+    return {
+      message: 'Preferences updated successfully',
+      preferences,
     };
   }
 

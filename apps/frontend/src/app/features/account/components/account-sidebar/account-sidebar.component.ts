@@ -72,7 +72,13 @@ export class AccountSidebarComponent {
       route: '/account/addresses',
       icon: 'location_on',
       label: 'account.sidebar.addresses',
-      disabled: true,
+      disabled: false,
+    },
+    {
+      route: '/account/preferences',
+      icon: 'settings',
+      label: 'account.sidebar.preferences',
+      disabled: false,
     },
   ];
 }
