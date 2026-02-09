@@ -113,6 +113,9 @@ export class SearchResultsComponent implements OnInit {
   
   // Filter panel state
   priceRange = signal<{ min: number; max: number }>({ min: 0, max: 1000000 });
+  // Separate properties for slider binding (ngModel compatibility)
+  priceMin = 0;
+  priceMax = 1000000;
   selectedRatings = signal<number[]>([]);
   selectedAvailability = signal<string[]>([]);
   selectedCategories = signal<string[]>([]);
@@ -434,6 +437,20 @@ export class SearchResultsComponent implements OnInit {
   }
 
   /**
+   * Updates price range signal when slider min value changes
+   */
+  onPriceMinChange(value: number): void {
+    this.priceRange.update(range => ({ ...range, min: value }));
+  }
+
+  /**
+   * Updates price range signal when slider max value changes
+   */
+  onPriceMaxChange(value: number): void {
+    this.priceRange.update(range => ({ ...range, max: value }));
+  }
+
+  /**
    * Gets search suggestions based on current query
    * This is a mock implementation - in real app would call API
    */
@@ -606,10 +623,10 @@ export class SearchResultsComponent implements OnInit {
       description: '', // Not available in list view
       descriptionArabic: '',
       price: {
-        amount: item.discountPrice || item.basePrice,
+        amount: item.discountPrice ?? item.basePrice,
         currency: item.currency as 'USD' | 'EUR' | 'SYP',
-        originalPrice: item.discountPrice ? item.basePrice : undefined,
-        discount: item.discountPrice ? {
+        originalPrice: item.discountPrice != null ? item.basePrice : undefined,
+        discount: item.discountPrice != null ? {
           percentage: Math.round(((item.basePrice - item.discountPrice) / item.basePrice) * 100),
           type: 'percentage' as const
         } : undefined
@@ -637,14 +654,14 @@ export class SearchResultsComponent implements OnInit {
       },
       seller: {
         id: '1',
-        name: 'Syrian Artisan',
+        name: '',
         location: {
-          city: 'Damascus',
-          governorate: 'Damascus'
+          city: '',
+          governorate: ''
         },
-        rating: 4.5,
-        reviewCount: 10,
-        verified: true
+        rating: 0,
+        reviewCount: 0,
+        verified: false
       },
       shipping: {
         methods: [],
@@ -657,10 +674,10 @@ export class SearchResultsComponent implements OnInit {
       },
       inventory: {
         inStock: item.stockStatus === 'in_stock',
-        quantity: item.stockStatus === 'in_stock' ? 10 : 0,
+        quantity: undefined,
         minOrderQuantity: 1,
         status: item.stockStatus,
-        lowStockThreshold: 5
+        lowStockThreshold: undefined
       },
       reviews: {
         averageRating: item.rating,

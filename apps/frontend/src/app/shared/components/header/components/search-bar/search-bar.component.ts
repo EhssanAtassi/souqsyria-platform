@@ -274,7 +274,9 @@ export class SearchBarComponent implements OnInit {
         this.showingRecent = false;
         return this.productService.getSearchSuggestions(trimmed).pipe(
           map(response => response.suggestions.map(item => ({
-            text: item.text,
+            text: this.language === 'ar'
+              ? (item.textAr || item.text)
+              : (item.text || item.textAr),
             type: item.type as SearchSuggestion['type'],
             url: item.slug
               ? (item.type === 'product' ? `/products/${item.slug}` : `/category/${item.slug}`)
@@ -308,11 +310,27 @@ export class SearchBarComponent implements OnInit {
    * @description Highlights matching text in suggestion
    * @param text - Original suggestion text
    * @returns HTML string with matched portion wrapped in <strong>
+   * Text is HTML-escaped before highlighting to prevent XSS
    */
   highlightMatch(text: string): string {
     const query = this.searchForm.get('query')?.value?.trim();
-    if (!query || query.length < 2) return text;
-    const regex = new RegExp(`(${query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
-    return text.replace(regex, '<strong>$1</strong>');
+    if (!query || query.length < 2) {
+      return this.escapeHtml(text);
+    }
+    const escapedText = this.escapeHtml(text);
+    const escapedQuery = this.escapeHtml(query);
+    const regex = new RegExp(`(${escapedQuery.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
+    return escapedText.replace(regex, '<strong>$1</strong>');
+  }
+
+  /**
+   * @description Escapes HTML special characters to prevent XSS
+   * @param text - Text to escape
+   * @returns HTML-escaped text
+   */
+  private escapeHtml(text: string): string {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
   }
 }

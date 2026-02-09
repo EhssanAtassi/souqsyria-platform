@@ -49,7 +49,7 @@
       @if (activeFilterCategory()) {
         <span class="filter-badge">
           {{ language() === 'ar' ? 'الفئة' : 'Category' }}: {{ activeFilterCategory() }}
-          <button (click)="removeFilter('categoryId')" class="filter-badge__remove" aria-label="Remove filter">
+          <button (click)="removeFilter('categoryId')" class="filter-badge__remove" [attr.aria-label]="language() === 'ar' ? 'إزالة الفلتر' : 'Remove filter'">
             <mat-icon>close</mat-icon>
           </button>
         </span>
@@ -57,7 +57,7 @@
       @if (activeFilterPriceRange()) {
         <span class="filter-badge">
           {{ activeFilterPriceRange() }}
-          <button (click)="removeFilter('price')" class="filter-badge__remove" aria-label="Remove filter">
+          <button (click)="removeFilter('price')" class="filter-badge__remove" [attr.aria-label]="language() === 'ar' ? 'إزالة الفلتر' : 'Remove filter'">
             <mat-icon>close</mat-icon>
           </button>
         </span>
@@ -65,7 +65,7 @@
       @if (activeFilterSearch()) {
         <span class="filter-badge">
           {{ language() === 'ar' ? 'بحث' : 'Search' }}: "{{ activeFilterSearch() }}"
-          <button (click)="removeFilter('search')" class="filter-badge__remove" aria-label="Remove filter">
+          <button (click)="removeFilter('search')" class="filter-badge__remove" [attr.aria-label]="language() === 'ar' ? 'إزالة الفلتر' : 'Remove filter'">
             <mat-icon>close</mat-icon>
           </button>
         </span>

@@ -26,7 +26,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatSelectModule } from '@angular/material/select';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { FormsModule } from '@angular/forms';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import {
   ProductListItem,
   ProductListMeta,
@@ -88,6 +88,9 @@ export class ProductListPageComponent implements OnInit {
 
   /** Current UI language from shared LanguageService */
   readonly language = this.languageService.language;
+
+  /** Query params as a signal for reactive computations */
+  private readonly queryParams = toSignal(this.route.queryParams, { initialValue: {} });
 
   /** Current sort option synced from URL */
   sortBy = signal<string>('newest');
@@ -303,6 +306,10 @@ export class ProductListPageComponent implements OnInit {
     if (filters.priceRange) {
       queryParams.minPrice = filters.priceRange.min;
       queryParams.maxPrice = filters.priceRange.max;
+    } else {
+      // Explicitly clear price params when filter is removed
+      queryParams.minPrice = null;
+      queryParams.maxPrice = null;
     }
 
     // Preserve existing categoryId and search from URL
@@ -396,7 +403,7 @@ export class ProductListPageComponent implements OnInit {
    * @description Whether any filters are active
    */
   hasActiveFilters = computed(() => {
-    const params = this.route.snapshot.queryParams;
+    const params = this.queryParams();
     return !!(params['categoryId'] || params['minPrice'] || params['maxPrice'] || params['search']);
   });
 
@@ -404,7 +411,7 @@ export class ProductListPageComponent implements OnInit {
    * @description Active category filter label
    */
   activeFilterCategory = computed(() => {
-    const params = this.route.snapshot.queryParams;
+    const params = this.queryParams();
     return params['categoryId'] ? `#${params['categoryId']}` : null;
   });
 
@@ -412,7 +419,7 @@ export class ProductListPageComponent implements OnInit {
    * @description Active price range label
    */
   activeFilterPriceRange = computed(() => {
-    const params = this.route.snapshot.queryParams;
+    const params = this.queryParams();
     const min = params['minPrice'];
     const max = params['maxPrice'];
     if (!min && !max) return null;
@@ -426,7 +433,7 @@ export class ProductListPageComponent implements OnInit {
    * @description Active search term
    */
   activeFilterSearch = computed(() => {
-    return this.route.snapshot.queryParams['search'] || null;
+    return this.queryParams()['search'] || null;
   });
 
   /**
