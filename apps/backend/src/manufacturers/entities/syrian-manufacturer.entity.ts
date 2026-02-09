@@ -69,12 +69,6 @@ export enum SyrianManufacturerSizeCategory {
 }
 
 @Entity('syrian_manufacturers')
-@Index(['nameEn'])
-@Index(['nameAr'])
-@Index(['verificationStatus'])
-@Index(['businessType'])
-@Index(['isActive'])
-@Index(['createdAt'])
 export class SyrianManufacturerEntity {
   @PrimaryGeneratedColumn()
   @ApiProperty({ description: 'Unique manufacturer identifier' })
@@ -181,7 +175,6 @@ export class SyrianManufacturerEntity {
    * Syrian Business Registration
    */
   @Column({ name: 'syrian_tax_id', length: 50, unique: true, nullable: true })
-  @Index({ unique: true })
   @ApiProperty({
     description: 'Syrian tax identification number',
     example: 'TAX-SYR-123456789',

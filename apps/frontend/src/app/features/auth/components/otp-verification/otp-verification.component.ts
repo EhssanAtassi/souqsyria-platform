@@ -111,7 +111,7 @@ import { LanguageService } from '../../../../shared/services/language.service';
         }
 
         @if (error()) {
-          <div class="error-message">
+          <div class="error-message" role="alert" aria-live="polite">
             {{ error() }}
           </div>
         }

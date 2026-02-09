@@ -50,9 +50,8 @@ export const typeOrmConfig: TypeOrmModuleOptions = {
    * Optimizes connection management for production workloads
    *
    * Pool settings:
-   * - min: 5 - Minimum connections kept alive (reduces cold start latency)
-   * - max: 20 - Maximum concurrent connections (prevents DB overload)
-   * - acquireTimeout: 30s - Time to wait for available connection
+   * - connectionLimit: 10 dev / 20 prod - Maximum concurrent connections
+   * - connectTimeout: 30s - Time to establish a connection
    * - idleTimeout: 60s - Time before idle connections are closed
    */
   extra: {
@@ -60,12 +59,9 @@ export const typeOrmConfig: TypeOrmModuleOptions = {
     connectionLimit: isProduction ? 20 : 10, // Max pool size
     waitForConnections: true, // Queue requests when pool exhausted
     queueLimit: 0, // Unlimited queue (0 = no limit)
-    acquireTimeout: 30000, // 30s timeout to acquire connection
-    timeout: 30000, // General timeout
+    connectTimeout: 30000, // 30s timeout to establish connection
     enableKeepAlive: true, // Keep connections alive
     keepAliveInitialDelay: 10000, // 10s delay before keepalive
-    // Connection retry settings
-    reconnect: true,
     maxIdle: 5, // Maximum idle connections
     idleTimeout: 60000, // 60s idle timeout
   },

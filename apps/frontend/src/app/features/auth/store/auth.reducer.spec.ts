@@ -34,9 +34,28 @@ describe('Auth Reducer', () => {
   describe('Login', () => {
     it('should set loading to true and clear error on login', () => {
       const prevState: AuthState = { ...initialAuthState, error: 'previous error' };
-      const state = authReducer(prevState, AuthActions.login({ email: 'a@b.c', password: 'x' }));
+      const state = authReducer(
+        prevState,
+        AuthActions.login({ email: 'a@b.c', password: 'x', rememberMe: false }),
+      );
       expect(state.isLoading).toBeTrue();
       expect(state.error).toBeNull();
+    });
+
+    it('should clear loginErrorCode, remainingAttempts, lockedUntilMinutes on login', () => {
+      const prevState: AuthState = {
+        ...initialAuthState,
+        loginErrorCode: 'ACCOUNT_LOCKED',
+        remainingAttempts: 1,
+        lockedUntilMinutes: 30,
+      };
+      const state = authReducer(
+        prevState,
+        AuthActions.login({ email: 'a@b.c', password: 'x', rememberMe: true }),
+      );
+      expect(state.loginErrorCode).toBeNull();
+      expect(state.remainingAttempts).toBeNull();
+      expect(state.lockedUntilMinutes).toBeNull();
     });
 
     it('should set accessToken and isAuthenticated on login success', () => {
@@ -58,6 +77,34 @@ describe('Auth Reducer', () => {
       expect(state.error).toBe('Invalid credentials');
       expect(state.isLoading).toBeFalse();
     });
+
+    it('should store errorCode and remainingAttempts on INVALID_CREDENTIALS failure', () => {
+      const state = authReducer(
+        { ...initialAuthState, isLoading: true },
+        AuthActions.loginFailure({
+          error: 'Invalid credentials. 2 attempts remaining.',
+          errorCode: 'INVALID_CREDENTIALS',
+          remainingAttempts: 2,
+        })
+      );
+      expect(state.loginErrorCode).toBe('INVALID_CREDENTIALS');
+      expect(state.remainingAttempts).toBe(2);
+      expect(state.lockedUntilMinutes).toBeNull();
+    });
+
+    it('should store errorCode and lockedUntilMinutes on ACCOUNT_LOCKED failure', () => {
+      const state = authReducer(
+        { ...initialAuthState, isLoading: true },
+        AuthActions.loginFailure({
+          error: 'Account locked.',
+          errorCode: 'ACCOUNT_LOCKED',
+          lockedUntilMinutes: 30,
+        })
+      );
+      expect(state.loginErrorCode).toBe('ACCOUNT_LOCKED');
+      expect(state.lockedUntilMinutes).toBe(30);
+      expect(state.remainingAttempts).toBeNull();
+    });
   });
 
   // ─── Register ─────────────────────────────────────────────────
@@ -66,7 +113,7 @@ describe('Auth Reducer', () => {
     it('should set loading on register', () => {
       const state = authReducer(
         initialAuthState,
-        AuthActions.register({ email: 'a@b.c', password: 'x' })
+        AuthActions.register({ email: 'a@b.c', password: 'x', fullName: 'Test' })
       );
       expect(state.isLoading).toBeTrue();
       expect(state.error).toBeNull();
@@ -290,6 +337,20 @@ describe('Auth Reducer', () => {
         AuthActions.clearError()
       );
       expect(state.error).toBeNull();
+    });
+
+    it('should clear loginErrorCode, remainingAttempts, and lockedUntilMinutes', () => {
+      const lockedState: AuthState = {
+        ...initialAuthState,
+        error: 'Account locked.',
+        loginErrorCode: 'ACCOUNT_LOCKED',
+        remainingAttempts: 0,
+        lockedUntilMinutes: 30,
+      };
+      const state = authReducer(lockedState, AuthActions.clearError());
+      expect(state.loginErrorCode).toBeNull();
+      expect(state.remainingAttempts).toBeNull();
+      expect(state.lockedUntilMinutes).toBeNull();
     });
   });
 

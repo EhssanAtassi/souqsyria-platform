@@ -24,6 +24,7 @@ import {
 import { Role } from '../../roles/entities/role.entity';
 import { Wishlist } from '../../wishlist/entities/wishlist.entity';
 import { Address } from '../../addresses/entities/address.entity';
+import { RefreshToken } from '../../auth/entity/refresh-token.entity';
 
 @Entity('users')
 @Index(['email'], { unique: true })
@@ -35,11 +36,11 @@ export class User {
   @Column({ name: 'firebase_uid', nullable: true, unique: true })
   firebaseUid: string;
 
-  @Index()
   @Column({ nullable: true })
   email: string;
 
-  @Column({ nullable: true })
+  @Index()
+  @Column({ nullable: true, unique: true })
   phone: string;
   /**
    * * All addresses belonging to this user (address book)
@@ -49,6 +50,15 @@ export class User {
 
   @Column({ nullable: true })
   fullName: string;
+
+  /**
+   * User avatar URL or path
+   * Can be a full URL or a relative path to the avatar file
+   * Example: '/avatars/user-123-1234567890.png' or 'https://example.com/avatar.jpg'
+   */
+  @Column({ nullable: true })
+  avatar: string;
+
   @Column({ name: 'password_hash', nullable: true })
   passwordHash: string; // ✅ For email/password login
 
@@ -88,6 +98,11 @@ export class User {
   metadata: Record<string, any>; // 🧠 Optional dynamic data
   @OneToMany(() => Wishlist, (wishlist) => wishlist.user)
   wishlist: Wishlist[];
+  /**
+   * All refresh tokens belonging to this user (multi-device sessions)
+   */
+  @OneToMany(() => RefreshToken, (refreshToken) => refreshToken.user)
+  refreshTokens: RefreshToken[];
   @DeleteDateColumn({ name: 'deleted_at', nullable: true })
   deletedAt?: Date; // 🧹 Soft delete support
   /**
@@ -111,7 +126,7 @@ export class User {
   failedLoginAttempts: number;
   /**
    * Timestamp when account will be unlocked after failed attempts.
-   * Account is locked for 15 minutes after 5 failed logins.
+   * Account is locked for 30 minutes after 5 failed logins.
    */
   @Column({ name: 'account_locked_until', type: 'timestamp', nullable: true })
   accountLockedUntil: Date;
@@ -165,7 +180,7 @@ export class User {
 
   /**
    * Check if account is currently locked due to failed login attempts.
-   * Account gets locked for 15 minutes after 5 failed attempts.
+   * Account gets locked for 30 minutes after 5 failed attempts.
    * @returns true if account is locked, false if unlocked
    */
   isAccountLocked(): boolean {
@@ -211,15 +226,15 @@ export class User {
 
   /**
    * Increment failed login attempts and lock account if threshold reached.
-   * Implements progressive security: locks account for 15 minutes after 5 failed attempts.
+   * Implements progressive security: locks account for 30 minutes after 5 failed attempts.
    * This prevents brute force attacks while allowing legitimate retry attempts.
    */
   incrementFailedAttempts(): void {
     this.failedLoginAttempts += 1;
 
-    // Lock account after 5 failed attempts for 15 minutes
+    // Lock account after 5 failed attempts for 30 minutes
     if (this.failedLoginAttempts >= 5) {
-      this.accountLockedUntil = new Date(Date.now() + 15 * 60 * 1000);
+      this.accountLockedUntil = new Date(Date.now() + 30 * 60 * 1000);
     }
   }
 

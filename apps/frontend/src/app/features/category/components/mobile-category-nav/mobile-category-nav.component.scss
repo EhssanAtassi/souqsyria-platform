@@ -1,0 +1,199 @@
+/**
+ * Mobile Category Navigation Styles
+ *
+ * @description Custom styles for mobile category navigation overlay
+ * and Material accordion components. Provides touch-friendly interactions
+ * and smooth animations.
+ */
+
+// Backdrop overlay
+.mobile-nav-backdrop {
+  // Prevent body scroll when menu is open
+  touch-action: none;
+}
+
+// Navigation panel
+.mobile-nav-panel {
+  // Smooth scrolling for category list
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+
+  // Remove default focus outline (replaced with custom styles)
+  &:focus {
+    outline: none;
+  }
+}
+
+// Category accordion container
+.mobile-category-accordion {
+  // Remove default Material expansion panel margins
+  .mat-expansion-panel {
+    margin: 0 !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    border-bottom: 1px solid #e5e7eb;
+
+    &:last-child {
+      border-bottom: none;
+    }
+
+    // Remove default Material animations (we use custom animations)
+    &.mat-expanded {
+      margin: 0 !important;
+    }
+  }
+
+  // Expansion panel header (Level 1)
+  .category-header {
+    min-height: 56px !important;
+    height: auto !important;
+    padding: 0 16px !important;
+
+    // Ensure touch-friendly tap target
+    @media (pointer: coarse) {
+      min-height: 48px !important;
+    }
+
+    // Header content
+    .mat-expansion-panel-header-title {
+      flex-grow: 1;
+      margin: 0 !important;
+    }
+
+    // Remove default hover background (we use custom)
+    &:hover {
+      background-color: #f9fafb !important;
+    }
+
+    // Active/expanded state
+    &.mat-expanded {
+      background-color: #f3f4f6 !important;
+      border-bottom: 1px solid #e5e7eb;
+    }
+  }
+
+  // Expansion panel content
+  .category-content {
+    padding: 0 !important;
+
+    // Remove default Material padding
+    .mat-expansion-panel-body {
+      padding: 0 !important;
+    }
+  }
+
+  // Nested expansion panels (Level 2)
+  .nested-category-panel {
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    background-color: #f9fafb;
+    border-bottom: 1px solid #e5e7eb;
+
+    &:last-child {
+      border-bottom: none;
+    }
+
+    // Nested header
+    .nested-category-header {
+      min-height: 48px !important;
+      height: auto !important;
+      padding: 0 16px !important;
+      background-color: #f9fafb;
+
+      &:hover {
+        background-color: #f3f4f6 !important;
+      }
+
+      &.mat-expanded {
+        background-color: #e5e7eb !important;
+      }
+    }
+
+    // Nested content (Level 3)
+    .nested-category-content {
+      padding: 0 !important;
+      background-color: #ffffff;
+
+      .mat-expansion-panel-body {
+        padding: 0 !important;
+      }
+    }
+  }
+}
+
+// RTL Support
+.rtl {
+  direction: rtl;
+
+  // Icon positioning for RTL
+  .mat-expansion-indicator {
+    transform: rotate(180deg);
+  }
+
+  // Chevron icon for nested categories
+  mat-icon {
+    transform: scaleX(-1);
+  }
+}
+
+// Touch-friendly button styles
+button[matRipple] {
+  // Minimum touch target size
+  min-height: 48px;
+  transition: background-color 0.2s ease-out;
+
+  // Active state feedback
+  &:active {
+    background-color: #e5e7eb !important;
+  }
+}
+
+// Loading skeleton animation
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.animate-pulse {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+// Smooth transitions for interactive elements
+button,
+.category-header,
+.nested-category-header {
+  transition-property: background-color, border-color, color, fill, stroke;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 150ms;
+}
+
+// Accessibility: Focus states
+button:focus-visible {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+}
+
+// Scrollbar styling (Webkit browsers)
+.mobile-nav-panel {
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: #f1f1f1;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 3px;
+
+    &:hover {
+      background: #94a3b8;
+    }
+  }
+}

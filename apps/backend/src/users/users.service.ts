@@ -9,9 +9,13 @@ import { User } from './entities/user.entity';
 import { Repository } from 'typeorm';
 import { Role } from '../roles/entities/role.entity';
 import { Address } from '../addresses/entities/address.entity';
-import { UpdateProfileDto } from './dto/update-profile.dto';
+import { RefreshToken } from '../auth/entity/refresh-token.entity';
+import { EmailService } from '../auth/service/email.service';
+import { UpdateProfileDto, UserPreferences } from './dto/update-profile.dto';
 import { ChangePasswordDto } from './dto/change-password.dto';
 import * as bcrypt from 'bcryptjs';
+import { promises as fs } from 'fs';
+import * as path from 'path';
 
 @Injectable()
 export class UsersService {
@@ -24,6 +28,9 @@ export class UsersService {
     private readonly roleRepository: Repository<Role>,
     @InjectRepository(Address)
     private readonly addressRepository: Repository<Address>,
+    @InjectRepository(RefreshToken)
+    private readonly refreshTokenRepository: Repository<RefreshToken>,
+    private readonly emailService: EmailService,
   ) {}
 
   /**
@@ -43,11 +50,10 @@ export class UsersService {
     });
 
     if (!user) {
-      this.logger.log(`User already exists with ID: ${user.id}`);
+      this.logger.log(`User not found for UID: ${firebaseUser.uid}. Creating new user...`);
       const defaultRole = await this.roleRepository.findOne({
         where: { name: 'buyer' },
       });
-      this.logger.log(`User not found. Creating new user...`);
       if (!defaultRole) {
         this.logger.error(`Default role "buyer" not found`);
         throw new Error('Default role "buyer" not found');
@@ -61,6 +67,9 @@ export class UsersService {
       });
       const savedUser = await this.userRepository.save(user);
       this.logger.log(`New user created with ID: ${savedUser.id}`);
+      return savedUser;
+    } else {
+      this.logger.log(`User already exists with ID: ${user.id}`);
     }
 
     return user;
@@ -92,6 +101,7 @@ export class UsersService {
         email: true,
         phone: true,
         fullName: true,
+        avatar: true,
         isVerified: true,
         lastLoginAt: true,
         lastActivityAt: true,
@@ -190,6 +200,31 @@ export class UsersService {
       };
     }
 
+    // Handle avatar upload/update/removal
+    if (updateProfileDto.avatar !== undefined) {
+      if (updateProfileDto.avatar === null || updateProfileDto.avatar === '') {
+        // Explicit removal - also delete old file if exists
+        if (user.avatar && user.avatar.startsWith('/avatars/')) {
+          await fs
+            .unlink(path.join(process.cwd(), 'public', user.avatar))
+            .catch(() => {});
+        }
+        user.avatar = null;
+      } else {
+        // Delete old avatar file before uploading new one
+        if (user.avatar && user.avatar.startsWith('/avatars/')) {
+          await fs
+            .unlink(path.join(process.cwd(), 'public', user.avatar))
+            .catch(() => {});
+        }
+        // Upload new avatar
+        user.avatar = await this.processAvatarUpload(
+          userId,
+          updateProfileDto.avatar,
+        );
+      }
+    }
+
     // Update last activity
     user.lastActivityAt = new Date();
 
@@ -197,6 +232,123 @@ export class UsersService {
     this.logger.log(`✅ Profile updated successfully for user ${userId}`);
 
     return updatedUser;
+  }
+
+  /**
+   * UPDATE USER PREFERENCES
+   *
+   * Merges new preferences into existing user preferences.
+   * Only the provided fields are updated; others remain unchanged.
+   *
+   * @param userId - User ID
+   * @param preferencesDto - Partial preferences to merge
+   * @returns Promise<UserPreferences> - Updated preferences object
+   */
+  async updatePreferences(
+    userId: number,
+    preferencesDto: UserPreferences,
+  ): Promise<UserPreferences> {
+    this.logger.log(`⚙️ Updating preferences for user ${userId}`);
+
+    const user = await this.userRepository.findOne({
+      where: { id: userId },
+    });
+
+    if (!user) {
+      throw new NotFoundException(`User with ID ${userId} not found`);
+    }
+
+    const currentPreferences = user.metadata?.preferences || {};
+    const mergedPreferences = {
+      ...currentPreferences,
+      ...preferencesDto,
+    };
+
+    user.metadata = {
+      ...user.metadata,
+      preferences: mergedPreferences,
+    };
+    user.lastActivityAt = new Date();
+
+    await this.userRepository.save(user);
+    this.logger.log(`✅ Preferences updated for user ${userId}`);
+
+    return mergedPreferences;
+  }
+
+  /**
+   * PROCESS AVATAR UPLOAD
+   *
+   * Handles avatar upload - supports both base64 data URLs and direct URL strings
+   *
+   * @param userId - User ID for filename generation
+   * @param avatarData - Avatar data (base64 data URL or direct URL string)
+   * @returns Promise<string> - Path to saved avatar or URL string
+   */
+  private async processAvatarUpload(
+    userId: number,
+    avatarData: string,
+  ): Promise<string> {
+    this.logger.log(`📸 Processing avatar upload for user ${userId}`);
+
+    // If it's already a URL string (not base64), just store it directly
+    if (!avatarData.startsWith('data:image/')) {
+      this.logger.log(`Avatar is a URL string, storing directly`);
+      return avatarData;
+    }
+
+    try {
+      // Extract image format and base64 data
+      // Format: data:image/png;base64,iVBORw0KGgoAAAANS...
+      const matches = avatarData.match(/^data:image\/(\w+);base64,(.+)$/);
+
+      if (!matches) {
+        throw new BadRequestException(
+          'Invalid avatar format. Must be a data URL (data:image/png;base64,...) or a direct URL',
+        );
+      }
+
+      const extension = matches[1]; // png, jpg, jpeg, gif, etc.
+      const base64Data = matches[2];
+
+      // Decode base64 and enforce server-side size limit before writing to file
+      const buffer = Buffer.from(base64Data, 'base64');
+      const MAX_AVATAR_SIZE_BYTES = 2 * 1024 * 1024; // 2MB
+      if (buffer.length > MAX_AVATAR_SIZE_BYTES) {
+        throw new BadRequestException(
+          `Avatar image is too large. Maximum allowed size is ${MAX_AVATAR_SIZE_BYTES} bytes.`,
+        );
+      }
+
+      // Create avatars directory if it doesn't exist
+      const avatarsDir = path.join(process.cwd(), 'public', 'avatars');
+      try {
+        await fs.access(avatarsDir);
+      } catch {
+        await fs.mkdir(avatarsDir, { recursive: true });
+        this.logger.log(`📁 Created avatars directory: ${avatarsDir}`);
+      }
+
+      // Generate unique filename
+      const filename = `user-${userId}-${Date.now()}.${extension}`;
+      const filePath = path.join(avatarsDir, filename);
+
+      // Write to file asynchronously
+      await fs.writeFile(filePath, buffer);
+
+      this.logger.log(`✅ Avatar saved successfully: ${filename}`);
+
+      // Return relative path for storage in database
+      return `/avatars/${filename}`;
+    } catch (error) {
+      this.logger.error(
+        `❌ Failed to process avatar upload for user ${userId}`,
+        error,
+      );
+      throw new BadRequestException(
+        'Failed to process avatar upload. Please ensure the image format is correct.',
+      );
+    }
   }
 
   /**
@@ -246,6 +398,18 @@ export class UsersService {
       throw new BadRequestException('Current password is incorrect');
     }
 
+    // Check if new password is different from current password
+    const isSamePassword = await bcrypt.compare(
+      changePasswordDto.newPassword,
+      user.passwordHash,
+    );
+
+    if (isSamePassword) {
+      throw new BadRequestException(
+        'New password must be different from current password',
+      );
+    }
+
     // Hash new password
     const saltRounds = 12;
     const hashedNewPassword = await bcrypt.hash(
@@ -259,6 +423,32 @@ export class UsersService {
       passwordChangedAt: new Date(),
       lastActivityAt: new Date(),
     });
+
+    // Invalidate all refresh tokens for this user (force re-login on all devices)
+    await this.refreshTokenRepository.delete({ userId });
+    this.logger.log(
+      `🔐 All refresh tokens invalidated for user ${userId} after password change`,
+    );
+
+    // Send password change confirmation email
+    try {
+      const fullUser = await this.userRepository.findOne({
+        where: { id: userId },
+        select: ['email'],
+      });
+
+      if (fullUser?.email) {
+        await this.emailService.sendPasswordChangedEmail(fullUser.email);
+        this.logger.log(
+          `📧 Password change confirmation email sent to ${fullUser.email}`,
+        );
+      }
+    } catch (emailError) {
+      this.logger.warn(
+        `⚠️ Failed to send password change email for user ${userId}: ${emailError}`,
+      );
+      // Don't throw error - password was changed successfully, email is just notification
+    }
 
     this.logger.log(`✅ Password changed successfully for user ${userId}`);
   }

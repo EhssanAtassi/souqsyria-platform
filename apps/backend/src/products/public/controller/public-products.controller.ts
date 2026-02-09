@@ -14,8 +14,10 @@ import {
   ApiQuery,
 } from '@nestjs/swagger';
 import { PublicProductsService } from '../service/public-products.service';
+import { Public } from '../../../common/decorators/public.decorator';
 
 @ApiTags('🛒 Public Products')
+@Public()
 @Controller('products')
 export class PublicProductsController {
   constructor(private readonly service: PublicProductsService) {}
@@ -104,9 +106,10 @@ export class PublicProductsController {
   @ApiQuery({
     name: 'sortBy',
     required: false,
-    enum: ['price_asc', 'price_desc', 'newest', 'rating'],
+    enum: ['price_asc', 'price_desc', 'newest', 'rating', 'popularity'],
     example: 'price_asc',
-    description: 'Sort order: price_asc, price_desc, newest (default), or rating',
+    description:
+      'Sort order: price_asc, price_desc, newest (default), rating, or popularity (best sellers)',
   })
   @ApiResponse({
     status: 200,
@@ -286,6 +289,70 @@ export class PublicProductsController {
       parentCategoryId,
       sort,
     );
+  }
+
+  /**
+   * GET /products/suggestions
+   * Search suggestions endpoint for autocomplete dropdown
+   * Returns product name and category name matches for search autocomplete
+   *
+   * NOTE: This MUST be defined BEFORE the :slug route to avoid route conflicts
+   */
+  @Get('suggestions')
+  @ApiOperation({
+    summary: 'Get search suggestions for autocomplete',
+    description:
+      'Returns product name and category name matches for search autocomplete dropdown',
+  })
+  @ApiQuery({
+    name: 'q',
+    required: true,
+    description: 'Search query (minimum 2 characters)',
+    example: 'Dam',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Search suggestions retrieved successfully',
+    schema: {
+      example: {
+        suggestions: [
+          {
+            text: 'Damascus Steel Chef Knife',
+            textAr: 'سكين الطهاة من الفولاذ الدمشقي',
+            type: 'product',
+            slug: 'damascus-steel-chef-knife',
+            imageUrl: 'https://placehold.co/60x60?text=Knife',
+            price: 450000,
+            currency: 'SYP',
+          },
+          {
+            text: 'Damascus Steel',
+            textAr: 'الفولاذ الدمشقي',
+            type: 'category',
+            slug: 'damascus-steel',
+          },
+        ],
+      },
+    },
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Search query must be at least 2 characters',
+    schema: {
+      example: {
+        message: 'Search query must be at least 2 characters',
+        error: 'Bad Request',
+        statusCode: 400,
+      },
+    },
+  })
+  async getSearchSuggestions(@Query('q') query: string) {
+    if (!query || query.trim().length < 2) {
+      throw new BadRequestException(
+        'Search query must be at least 2 characters',
+      );
+    }
+    return await this.service.getSearchSuggestions(query.trim());
   }
 
   /**

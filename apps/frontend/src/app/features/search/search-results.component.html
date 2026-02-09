@@ -150,7 +150,7 @@
         <mat-form-field appearance="outline" class="w-48">
           <mat-label>Sort by</mat-label>
           <mat-select [value]="currentSort()" (selectionChange)="onSortChange($event.value)">
-            <mat-option *ngFor="let sort of sortOptions" [value]="sort">
+            <mat-option *ngFor="let sort of sortOptions" [value]="sort.value">
               {{ sort.label }}
             </mat-option>
           </mat-select>
@@ -250,16 +250,16 @@
                 <mat-panel-title>Price Range</mat-panel-title>
               </mat-expansion-panel-header>
               <div class="pt-4">
-                <mat-slider [min]="0" [max]="1000" [step]="10" 
+                <mat-slider [min]="0" [max]="1000000" [step]="1000"
                            [displayWith]="formatSliderValue.bind(this)">
-                  <input matSliderStartThumb [(ngModel)]="priceRange" [ngModelOptions]="{updateOn: 'change'}" 
-                         [value]="priceRange().min">
-                  <input matSliderEndThumb [(ngModel)]="priceRange" [ngModelOptions]="{updateOn: 'change'}" 
-                         [value]="priceRange().max">
+                  <input matSliderStartThumb [(ngModel)]="priceMin" [ngModelOptions]="{updateOn: 'change'}"
+                         (ngModelChange)="onPriceMinChange($event)">
+                  <input matSliderEndThumb [(ngModel)]="priceMax" [ngModelOptions]="{updateOn: 'change'}"
+                         (ngModelChange)="onPriceMaxChange($event)">
                 </mat-slider>
                 <div class="flex justify-between text-sm text-gray-600 mt-2">
-                  <span>${{ priceRange().min }}</span>
-                  <span>${{ priceRange().max }}</span>
+                  <span>{{ priceRange().min.toLocaleString() }} ل.س</span>
+                  <span>{{ priceRange().max.toLocaleString() }} ل.س</span>
                 </div>
               </div>
             </mat-expansion-panel>
@@ -281,23 +281,7 @@
               </div>
             </mat-expansion-panel>
 
-            <!-- Categories Filter -->
-            <mat-expansion-panel *ngIf="availableFilters()?.categories?.length" expanded>
-              <mat-expansion-panel-header>
-                <mat-panel-title class="flex items-center">
-                  <mat-icon class="mr-2 text-purple-600">category</mat-icon>
-                  Categories
-                </mat-panel-title>
-              </mat-expansion-panel-header>
-              <div class="pt-2 space-y-2">
-                <mat-checkbox *ngFor="let category of availableFilters()!.categories.slice(0, 8)" 
-                             [checked]="selectedCategories().includes(category.id)"
-                             (change)="toggleCategory(category.id)">
-                  {{ category.name }}
-                  <span class="text-gray-500 text-sm">({{ category.count }})</span>
-                </mat-checkbox>
-              </div>
-            </mat-expansion-panel>
+            <!-- Categories Filter - Removed as not available from new API -->
 
             <!-- Syrian Heritage Filter -->
             <mat-expansion-panel expanded>
@@ -453,7 +437,7 @@
           <mat-form-field appearance="outline" class="flex-1 mr-4">
             <mat-label>Sort</mat-label>
             <mat-select [value]="currentSort()" (selectionChange)="onSortChange($event.value)">
-              <mat-option *ngFor="let sort of sortOptions" [value]="sort">
+              <mat-option *ngFor="let sort of sortOptions" [value]="sort.value">
                 {{ sort.label }}
               </mat-option>
             </mat-select>
@@ -518,21 +502,7 @@
     <!-- Syrian Marketplace Exploration -->
     <div *ngIf="hasResults()" class="mt-12 space-y-8">
       
-      <!-- Related Categories -->
-      <div *ngIf="availableFilters()?.categories?.length">
-        <h3 class="text-xl font-bold mb-4 flex items-center">
-          <mat-icon class="mr-2 text-purple-600">category</mat-icon>
-          Browse Related Categories
-        </h3>
-        <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
-          <a *ngFor="let category of availableFilters()!.categories.slice(0, 6)" 
-             [routerLink]="['/category', category.id]"
-             class="bg-gradient-to-br from-white to-gray-50 rounded-lg p-4 text-center hover:shadow-md transition-all duration-300 border-2 border-transparent hover:border-purple-200">
-            <div class="font-medium text-sm text-gray-800">{{ category.name }}</div>
-            <div class="text-xs text-gray-500 mt-1">{{ category.count }} products</div>
-          </a>
-        </div>
-      </div>
+      <!-- Related Categories - Removed as not available from new API -->
 
       <!-- Explore Syrian Regions -->
       <div>

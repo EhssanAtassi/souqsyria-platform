@@ -43,8 +43,8 @@ describe('AuthApiService', () => {
   // ─── register ─────────────────────────────────────────────────
 
   describe('register', () => {
-    it('should POST to /auth/register with email and password', () => {
-      const request = { email: 'user@souq.sy', password: 'Pass123' };
+    it('should POST to /auth/register with email, password, and fullName', () => {
+      const request = { email: 'user@souq.sy', password: 'Pass123', fullName: 'Test User' };
       const responseData = {
         user: { id: 1, email: 'user@souq.sy', role: 'customer' },
         accessToken: 'access-token',

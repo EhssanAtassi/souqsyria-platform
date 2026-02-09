@@ -101,6 +101,23 @@ export class CartService {
       return cart;
     }
 
+    // 🗑️ Clean up expired soft-deleted items (older than 5 seconds)
+    const UNDO_WINDOW_MS = 5000;
+    const expiredSoftDeletes = cart.items.filter(
+      (item) =>
+        item.removed_at &&
+        Date.now() - new Date(item.removed_at).getTime() > UNDO_WINDOW_MS,
+    );
+    if (expiredSoftDeletes.length > 0) {
+      await this.cartItemRepo.remove(expiredSoftDeletes);
+      this.logger.log(
+        `🧹 Cleaned up ${expiredSoftDeletes.length} expired soft-deleted items`,
+      );
+    }
+
+    // Filter out soft-deleted items for validation and display
+    cart.items = cart.items.filter((item) => !item.removed_at);
+
     // 🔄 Validate each item
     let updated = false;
     for (const item of cart.items) {
@@ -372,15 +389,26 @@ export class CartService {
    * @param variantId - Product variant ID to remove
    * @returns Promise<void>
    */
-  async removeItem(user: UserFromToken, variantId: number): Promise<void> {
+  /**
+   * REMOVE CART ITEM (SOFT-DELETE)
+   *
+   * Soft-deletes a specific cart item by setting `removed_at` timestamp.
+   * The item can be restored within 5 seconds via `undoRemoveItem`.
+   * Expired soft-deletes are cleaned up on next cart access.
+   *
+   * @param user - User from JWT token
+   * @param variantId - Product variant ID to remove
+   * @returns Promise<{ itemId: number }> - Removed item ID for undo reference
+   */
+  async removeItem(user: UserFromToken, variantId: number): Promise<{ itemId: number }> {
     const startTime = Date.now();
     this.logger.log(
-      `🗑️ User ${user.id} removing variant ${variantId} from cart`,
+      `🗑️ User ${user.id} soft-removing variant ${variantId} from cart`,
     );
 
     try {
       const cart = await this.getOrCreateCart(user);
-      const item = cart.items.find((i) => i.variant.id === variantId);
+      const item = cart.items.find((i) => i.variant.id === variantId && !i.removed_at);
 
       if (!item) {
         this.logger.warn(
@@ -392,16 +420,17 @@ export class CartService {
       const removedQuantity = item.quantity;
       const itemId = item.id;
 
-      // Remove the item
-      await this.cartItemRepo.remove(item);
+      // Soft-delete: set removed_at timestamp
+      item.removed_at = new Date();
+      await this.cartItemRepo.save(item);
 
-      // Update cart totals
+      // Update cart totals (excluding soft-deleted items)
       const updatedCart = await this.getOrCreateCart(user);
       await this.updateCartTotals(updatedCart);
 
       const processingTime = Date.now() - startTime;
       this.logger.log(
-        `✅ Removed ${removedQuantity}x variant ${variantId} from cart in ${processingTime}ms`,
+        `✅ Soft-removed ${removedQuantity}x variant ${variantId} from cart in ${processingTime}ms`,
       );
 
       // Audit log: Cart item removed
@@ -412,8 +441,10 @@ export class CartService {
         actorType: 'user',
         entityType: 'cart_item',
         entityId: itemId,
-        description: `Removed ${removedQuantity}x variant ${variantId} from shopping cart`,
+        description: `Soft-removed ${removedQuantity}x variant ${variantId} from shopping cart`,
       });
+
+      return { itemId };
     } catch (error: unknown) {
       this.logger.error(
         `❌ Failed to remove item from cart: ${(error as Error).message}`,
@@ -433,6 +464,68 @@ export class CartService {
 
       throw error;
     }
+  }
+
+  /**
+   * UNDO REMOVE CART ITEM
+   *
+   * Restores a soft-deleted cart item within the 5-second undo window.
+   * Rejects the undo if the window has expired.
+   *
+   * @param user - User from JWT token
+   * @param itemId - Cart item ID to restore
+   * @returns Promise<CartItem> - Restored cart item
+   */
+  async undoRemoveItem(user: UserFromToken, itemId: number): Promise<CartItem> {
+    this.logger.log(`↩️ User ${user.id} undoing remove for item ${itemId}`);
+
+    const item = await this.cartItemRepo.findOne({
+      where: { id: itemId },
+      relations: ['cart', 'cart.user'],
+    });
+
+    if (!item) {
+      throw new NotFoundException(`Cart item ${itemId} not found`);
+    }
+
+    // Verify ownership
+    if (item.cart.userId !== user.id) {
+      throw new BadRequestException('Cart item does not belong to this user');
+    }
+
+    if (!item.removed_at) {
+      throw new BadRequestException('Item is not removed');
+    }
+
+    // Check 5-second undo window
+    const elapsed = Date.now() - new Date(item.removed_at).getTime();
+    const UNDO_WINDOW_MS = 5000;
+
+    if (elapsed > UNDO_WINDOW_MS) {
+      throw new BadRequestException('Undo window has expired (5 seconds)');
+    }
+
+    // Restore the item
+    item.removed_at = null;
+    const restoredItem = await this.cartItemRepo.save(item);
+
+    // Update cart totals
+    await this.updateCartTotals(item.cart);
+
+    this.logger.log(`✅ Item ${itemId} restored successfully`);
+
+    // Audit log
+    await this.auditLogService.logSimple({
+      action: 'CART_ITEM_RESTORED',
+      module: 'cart',
+      actorId: user.id,
+      actorType: 'user',
+      entityType: 'cart_item',
+      entityId: itemId,
+      description: `Restored soft-deleted cart item ${itemId} via undo`,
+    });
+
+    return restoredItem;
   }
 
   // ============================================================================
@@ -766,6 +859,16 @@ export class CartService {
    * @param updateDto - Properties to update
    * @returns Updated cart item entity
    */
+  /**
+   * UPDATE CART ITEM
+   *
+   * Updates a specific cart item's quantity with stock validation.
+   * Validates against available stock before allowing quantity increase.
+   *
+   * @param itemId - Cart item ID
+   * @param updateDto - Properties to update
+   * @returns Updated cart item entity
+   */
   async updateCartItem(
     itemId: number,
     updateDto: { quantity?: number },
@@ -775,7 +878,7 @@ export class CartService {
     try {
       const item = await this.cartItemRepo.findOne({
         where: { id: itemId },
-        relations: ['cart', 'variant'],
+        relations: ['cart', 'variant', 'variant.stocks'],
       });
 
       if (!item) {
@@ -798,6 +901,19 @@ export class CartService {
           // Update cart totals
           await this.updateCartTotals(item.cart);
           return item;
+        }
+
+        // Stock validation before quantity update
+        const totalStock =
+          item.variant.stocks?.reduce((sum, s) => sum + s.quantity, 0) || 0;
+
+        if (updateDto.quantity > totalStock) {
+          this.logger.warn(
+            `⚠️ Cart item ${itemId}: requested quantity ${updateDto.quantity} exceeds stock ${totalStock}`,
+          );
+          throw new BadRequestException(
+            `Not enough stock. Available: ${totalStock}, Requested: ${updateDto.quantity}`,
+          );
         }
 
         item.quantity = updateDto.quantity;

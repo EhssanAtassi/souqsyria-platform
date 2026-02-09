@@ -18,6 +18,10 @@ import {
   selectPasswordResetSuccess,
   selectUserEmail,
   selectIsVerified,
+  selectLoginErrorCode,
+  selectRemainingAttempts,
+  selectLockedUntilMinutes,
+  selectIsAccountLocked,
 } from './auth.selectors';
 import { AuthState, AuthUser } from '../models/auth.models';
 import { initialAuthState } from './auth.reducer';
@@ -48,6 +52,9 @@ describe('Auth Selectors', () => {
     otpSent: true,
     resetEmailSent: false,
     passwordResetSuccess: false,
+    loginErrorCode: null,
+    remainingAttempts: null,
+    lockedUntilMinutes: null,
   };
 
   // Helper to create root state object with auth slice
@@ -188,6 +195,83 @@ describe('Auth Selectors', () => {
 
     it('should return false when no user', () => {
       expect(selectIsVerified(createState(initialAuthState))).toBeFalse();
+    });
+  });
+
+  // ─── S2: Login Error Detail Selectors ──────────────────────────
+
+  describe('selectLoginErrorCode', () => {
+    it('should return null initially', () => {
+      expect(selectLoginErrorCode(createState(initialAuthState))).toBeNull();
+    });
+
+    it('should return the error code when set', () => {
+      const state = { ...initialAuthState, loginErrorCode: 'ACCOUNT_LOCKED' };
+      expect(selectLoginErrorCode(createState(state))).toBe('ACCOUNT_LOCKED');
+    });
+  });
+
+  describe('selectRemainingAttempts', () => {
+    it('should return null initially', () => {
+      expect(selectRemainingAttempts(createState(initialAuthState))).toBeNull();
+    });
+
+    it('should return the remaining attempts count', () => {
+      const state = { ...initialAuthState, remainingAttempts: 2 };
+      expect(selectRemainingAttempts(createState(state))).toBe(2);
+    });
+  });
+
+  describe('selectLockedUntilMinutes', () => {
+    it('should return null initially', () => {
+      expect(selectLockedUntilMinutes(createState(initialAuthState))).toBeNull();
+    });
+
+    it('should return the lockout minutes', () => {
+      const state = { ...initialAuthState, lockedUntilMinutes: 30 };
+      expect(selectLockedUntilMinutes(createState(state))).toBe(30);
+    });
+  });
+
+  describe('selectIsAccountLocked', () => {
+    it('should return false initially', () => {
+      expect(selectIsAccountLocked(createState(initialAuthState))).toBeFalse();
+    });
+
+    it('should return true when errorCode is ACCOUNT_LOCKED and minutes > 0', () => {
+      const state = {
+        ...initialAuthState,
+        loginErrorCode: 'ACCOUNT_LOCKED',
+        lockedUntilMinutes: 30,
+      };
+      expect(selectIsAccountLocked(createState(state))).toBeTrue();
+    });
+
+    it('should return false when errorCode is ACCOUNT_LOCKED but minutes is null', () => {
+      const state = {
+        ...initialAuthState,
+        loginErrorCode: 'ACCOUNT_LOCKED',
+        lockedUntilMinutes: null,
+      };
+      expect(selectIsAccountLocked(createState(state))).toBeFalse();
+    });
+
+    it('should return false when errorCode is INVALID_CREDENTIALS', () => {
+      const state = {
+        ...initialAuthState,
+        loginErrorCode: 'INVALID_CREDENTIALS',
+        remainingAttempts: 2,
+      };
+      expect(selectIsAccountLocked(createState(state))).toBeFalse();
+    });
+
+    it('should return false when lockedUntilMinutes is 0', () => {
+      const state = {
+        ...initialAuthState,
+        loginErrorCode: 'ACCOUNT_LOCKED',
+        lockedUntilMinutes: 0,
+      };
+      expect(selectIsAccountLocked(createState(state))).toBeFalse();
     });
   });
 });

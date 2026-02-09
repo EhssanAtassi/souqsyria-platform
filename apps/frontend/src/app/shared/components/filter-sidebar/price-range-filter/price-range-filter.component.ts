@@ -82,9 +82,9 @@ export class PriceRangeFilterComponent {
 
   /**
    * Initial maximum price value
-   * @default 1000
+   * @default 10000000
    */
-  readonly initialMax = input<number>(1000);
+  readonly initialMax = input<number>(10000000);
 
   /**
    * Minimum allowed price (slider lower bound)
@@ -94,15 +94,15 @@ export class PriceRangeFilterComponent {
 
   /**
    * Maximum allowed price (slider upper bound)
-   * @default 10000
+   * @default 50000000
    */
-  readonly maxLimit = input<number>(10000);
+  readonly maxLimit = input<number>(50000000);
 
   /**
    * Currency to display
-   * @default 'USD'
+   * @default 'SYP'
    */
-  readonly currency = input<'USD' | 'EUR' | 'SYP'>('USD');
+  readonly currency = input<'USD' | 'EUR' | 'SYP'>('SYP');
 
   /**
    * Emits when price range changes
@@ -118,12 +118,24 @@ export class PriceRangeFilterComponent {
   /**
    * Current maximum price
    */
-  maxPrice = signal<number>(1000);
+  maxPrice = signal<number>(10000000);
 
   /**
    * Slider step value
    */
-  readonly step = 10;
+  readonly step = 100000;
+
+  /**
+   * Preset price ranges for quick selection (SYP)
+   * @description Provides common price range shortcuts for easy filtering
+   */
+  readonly presets = [
+    { labelEn: 'Under 500K', labelAr: 'أقل من 500 ألف', min: 0, max: 500000 },
+    { labelEn: '500K - 1M', labelAr: '500 ألف - 1 مليون', min: 500000, max: 1000000 },
+    { labelEn: '1M - 5M', labelAr: '1 - 5 مليون', min: 1000000, max: 5000000 },
+    { labelEn: '5M - 10M', labelAr: '5 - 10 مليون', min: 5000000, max: 10000000 },
+    { labelEn: 'Over 10M', labelAr: 'أكثر من 10 مليون', min: 10000000, max: 50000000 },
+  ];
 
   constructor() {
     // Initialize from inputs when component loads
@@ -182,11 +194,22 @@ export class PriceRangeFilterComponent {
   /**
    * Emits current price range to parent
    */
-  private emitChange(): void {
+  emitChange(): void {
     this.rangeChange.emit({
       min: this.minPrice(),
       max: this.maxPrice()
     });
+  }
+
+  /**
+   * Selects a preset price range
+   * @param preset - The preset to apply with min/max values
+   * @description Updates min and max price signals and emits the change
+   */
+  selectPreset(preset: { min: number; max: number }): void {
+    this.minPrice.set(preset.min);
+    this.maxPrice.set(preset.max);
+    this.emitChange();
   }
 
   /**

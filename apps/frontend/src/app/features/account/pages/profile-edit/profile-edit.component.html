@@ -1,0 +1,138 @@
+<div class="profile-edit-container" [dir]="'auto'">
+  <!-- Loading State -->
+  @if (loading()) {
+    <div class="loading-state">
+      <mat-spinner diameter="60"></mat-spinner>
+      <p class="loading-text">{{ 'account.profile.loading' | translate }}</p>
+    </div>
+  }
+
+  <!-- Edit Form -->
+  @else {
+    <mat-card class="edit-card">
+      <mat-card-header>
+        <h1 class="edit-title">{{ 'account.editProfile.title' | translate }}</h1>
+      </mat-card-header>
+
+      <mat-card-content>
+        <form [formGroup]="profileForm" (ngSubmit)="onSubmit()">
+          <!-- Avatar Section -->
+          <div class="avatar-section">
+            <label class="section-label">{{ 'account.editProfile.avatar' | translate }}</label>
+
+            <div class="avatar-container">
+              <div class="avatar-preview" (click)="triggerFileInput()">
+                @if (avatarPreview()) {
+                  <img [src]="avatarPreview()" alt="Avatar preview" class="avatar-img" />
+                } @else {
+                  <div class="avatar-placeholder">
+                    <span class="avatar-initials">
+                      {{ getInitials(profileForm.get('fullName')?.value || '') }}
+                    </span>
+                  </div>
+                }
+                <div class="avatar-overlay">
+                  <mat-icon>photo_camera</mat-icon>
+                </div>
+              </div>
+
+              <input
+                type="file"
+                id="avatar-input"
+                accept="image/*"
+                (change)="onAvatarChange($event)"
+                style="display: none"
+              />
+
+              <div class="avatar-actions">
+                <button
+                  type="button"
+                  mat-stroked-button
+                  (click)="triggerFileInput()"
+                  class="avatar-button"
+                >
+                  <mat-icon>add_photo_alternate</mat-icon>
+                  {{ 'account.editProfile.changePhoto' | translate }}
+                </button>
+
+                @if (avatarPreview()) {
+                  <button
+                    type="button"
+                    mat-stroked-button
+                    color="warn"
+                    (click)="removeAvatar()"
+                    class="avatar-button"
+                  >
+                    <mat-icon>delete</mat-icon>
+                    {{ 'account.editProfile.removePhoto' | translate }}
+                  </button>
+                }
+              </div>
+            </div>
+          </div>
+
+          <!-- Full Name Field -->
+          <mat-form-field appearance="outline" class="form-field">
+            <mat-label>{{ 'account.editProfile.fullName' | translate }}</mat-label>
+            <input
+              matInput
+              formControlName="fullName"
+              [placeholder]="'account.editProfile.fullName' | translate"
+            />
+            @if (profileForm.get('fullName')?.invalid && profileForm.get('fullName')?.touched) {
+              <mat-error>
+                {{ getErrorMessage('fullName') | translate }}
+              </mat-error>
+            }
+          </mat-form-field>
+
+          <!-- Phone Field -->
+          <mat-form-field appearance="outline" class="form-field">
+            <mat-label>{{ 'account.editProfile.phone' | translate }}</mat-label>
+            <input
+              matInput
+              formControlName="phone"
+              [placeholder]="'account.editProfile.phonePlaceholder' | translate"
+              type="tel"
+            />
+            <mat-hint>{{ 'account.editProfile.phonePlaceholder' | translate }}</mat-hint>
+            @if (profileForm.get('phone')?.invalid && profileForm.get('phone')?.touched) {
+              <mat-error>
+                {{ getErrorMessage('phone') | translate }}
+              </mat-error>
+            }
+          </mat-form-field>
+
+          <!-- Action Buttons -->
+          <div class="actions-row">
+            <button
+              type="button"
+              mat-stroked-button
+              (click)="cancel()"
+              [disabled]="saving()"
+              class="action-button"
+            >
+              {{ 'account.editProfile.cancel' | translate }}
+            </button>
+
+            <button
+              type="submit"
+              mat-raised-button
+              color="primary"
+              [disabled]="profileForm.invalid || saving()"
+              class="action-button"
+            >
+              @if (saving()) {
+                <mat-spinner diameter="20" class="button-spinner"></mat-spinner>
+                {{ 'account.editProfile.saving' | translate }}
+              } @else {
+                <mat-icon>save</mat-icon>
+                {{ 'account.editProfile.save' | translate }}
+              }
+            </button>
+          </div>
+        </form>
+      </mat-card-content>
+    </mat-card>
+  }
+</div>

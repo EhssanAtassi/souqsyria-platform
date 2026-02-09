@@ -11,7 +11,7 @@
  *
  * ENDPOINTS:
  * - GET /users/profile - Get user profile
- * - PUT /users/profile - Update user profile
+ * - PATCH /users/profile - Update user profile
  * - POST /users/change-password - Change password
  * - GET /users/addresses - Get user addresses
  * - GET /users/statistics - Get account statistics
@@ -24,7 +24,7 @@
 import {
   Controller,
   Get,
-  Put,
+  Patch,
   Post,
   Body,
   UseGuards,
@@ -48,7 +48,7 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { UserFromToken } from '../common/interfaces/user-from-token.interface';
 import { UsersService } from './users.service';
-import { UpdateProfileDto } from './dto/update-profile.dto';
+import { UpdateProfileDto, UserPreferences } from './dto/update-profile.dto';
 import { ChangePasswordDto } from './dto/change-password.dto';
 import { UserProfileResponseDto } from './dto/user-profile-response.dto';
 import { plainToInstance } from 'class-transformer';
@@ -94,9 +94,12 @@ export class UsersController {
       this.usersService.getUserStatistics(user.id),
     ]);
 
-    // Transform to response DTO
+    // Transform to response DTO with flat stats
     const responseData = {
       ...userProfile,
+      avatar: userProfile.avatar || null,
+      ordersCount: statistics.totalOrders,
+      wishlistCount: statistics.wishlistItems,
       addresses: addresses.map((address) => ({
         id: address.id,
         label: address.label,
@@ -104,7 +107,7 @@ export class UsersController {
         fullAddress: `${address.addressLine1}, ${address.city?.name || ''}, ${address.region?.name || ''}, ${address.country?.name || ''}`,
       })),
       preferences: userProfile.metadata?.preferences || {},
-      statistics,
+      statistics, // Keep for backwards compatibility
     };
 
     return plainToInstance(UserProfileResponseDto, responseData, {
@@ -117,11 +120,11 @@ export class UsersController {
    *
    * Updates user profile information with validation
    */
-  @Put('profile')
+  @Patch('profile')
   @ApiOperation({
     summary: 'Update user profile',
     description:
-      'Updates user profile information including name, email, phone, and preferences',
+      'Updates user profile information including name, email, phone, avatar, and preferences',
   })
   @ApiBody({
     type: UpdateProfileDto,
@@ -161,23 +164,7 @@ export class UsersController {
   })
   @ApiOkResponse({
     description: 'Profile updated successfully',
-    schema: {
-      example: {
-        message: 'Profile updated successfully',
-        profile: {
-          id: 123,
-          fullName: 'أحمد محمد السوري',
-          email: 'ahmed.updated@example.com',
-          phone: '+963987654321',
-          preferences: {
-            language: 'ar',
-            currency: 'SYP',
-            emailNotifications: true,
-          },
-          updatedAt: '2025-08-08T14:30:00.000Z',
-        },
-      },
-    },
+    type: UserProfileResponseDto,
   })
   @ApiBadRequestResponse({
     description: 'Invalid profile data or email/phone already taken',
@@ -195,25 +182,13 @@ export class UsersController {
   async updateUserProfile(
     @CurrentUser() user: UserFromToken,
     @Body() updateProfileDto: UpdateProfileDto,
-  ) {
+  ): Promise<UserProfileResponseDto> {
     this.logger.log(`✏️ Updating profile for user ${user.id}`);
 
-    const updatedUser = await this.usersService.updateUserProfile(
-      user.id,
-      updateProfileDto,
-    );
+    await this.usersService.updateUserProfile(user.id, updateProfileDto);
 
-    return {
-      message: 'Profile updated successfully',
-      profile: {
-        id: updatedUser.id,
-        fullName: updatedUser.fullName,
-        email: updatedUser.email,
-        phone: updatedUser.phone,
-        preferences: updatedUser.metadata?.preferences || {},
-        updatedAt: updatedUser.updatedAt,
-      },
-    };
+    // Return full profile response (same as GET /profile)
+    return this.getUserProfile(user);
   }
 
   /**
@@ -296,6 +271,77 @@ export class UsersController {
     return {
       message: 'Password changed successfully',
       changedAt: new Date(),
+    };
+  }
+
+  /**
+   * UPDATE USER PREFERENCES
+   *
+   * Updates user preferences (language, currency, notifications)
+   * without touching other profile fields.
+   */
+  @Patch('preferences')
+  @ApiOperation({
+    summary: 'Update user preferences',
+    description:
+      'Updates user preferences including language, currency, and notification settings',
+  })
+  @ApiBody({
+    type: UserPreferences,
+    description: 'Preferences to update',
+    examples: {
+      languageAndCurrency: {
+        summary: 'Update language and currency',
+        value: {
+          language: 'ar',
+          currency: 'SYP',
+        },
+      },
+      notifications: {
+        summary: 'Update notification preferences',
+        value: {
+          emailNotifications: true,
+          smsNotifications: false,
+          marketingEmails: false,
+        },
+      },
+    },
+  })
+  @ApiOkResponse({
+    description: 'Preferences updated successfully',
+    schema: {
+      example: {
+        message: 'Preferences updated successfully',
+        preferences: {
+          language: 'ar',
+          currency: 'SYP',
+          emailNotifications: true,
+          smsNotifications: false,
+          marketingEmails: false,
+        },
+      },
+    },
+  })
+  @ApiBadRequestResponse({
+    description: 'Invalid preferences data',
+  })
+  @ApiUnauthorizedResponse({
+    description: 'User not authenticated',
+  })
+  async updatePreferences(
+    @CurrentUser() user: UserFromToken,
+    @Body() preferencesDto: UserPreferences,
+  ) {
+    this.logger.log(`⚙️ Updating preferences for user ${user.id}`);
+
+    const preferences = await this.usersService.updatePreferences(
+      user.id,
+      preferencesDto,
+    );
+
+    return {
+      message: 'Preferences updated successfully',
+      preferences,
     };
   }
 

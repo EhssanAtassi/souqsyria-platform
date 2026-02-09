@@ -141,11 +141,11 @@ export const routes: Routes = [
     pathMatch: 'full'
   },
 
-  // Product detail routes
+  // Product detail routes - redirect to /products/:slug
   {
     path: 'product/:productSlug',
-    loadComponent: () => import('./features/product/product-detail.component').then(m => m.ProductDetailComponent),
-    title: 'Product Details - SouqSyria'
+    redirectTo: 'products/:productSlug',
+    pathMatch: 'full'
   },
 
   // Legacy Turkish route redirect

@@ -74,13 +74,6 @@ export enum SyrianVendorCategory {
 }
 
 @Entity('syrian_vendors')
-@Index(['verificationStatus'])
-@Index(['businessType'])
-@Index(['vendorCategory'])
-@Index(['governorate'])
-@Index(['isActive'])
-@Index(['qualityScore'])
-@Index(['totalRevenueSyp'])
 export class SyrianVendorEntity {
   @PrimaryGeneratedColumn()
   id: number;
@@ -145,11 +138,9 @@ export class SyrianVendorEntity {
     nullable: true,
     unique: true,
   })
-  @Index()
   commercialRegisterNumber: string;
 
   @Column({ name: 'tax_id_number', length: 50, nullable: true, unique: true })
-  @Index()
   taxIdNumber: string;
 
   @Column({ name: 'industrial_license_number', length: 50, nullable: true })

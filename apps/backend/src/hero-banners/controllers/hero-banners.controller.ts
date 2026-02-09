@@ -47,6 +47,7 @@ import {
   Request,
   Req,
 } from '@nestjs/common';
+import { Public } from '../../common/decorators/public.decorator';
 import {
   ApiTags,
   ApiOperation,
@@ -114,6 +115,7 @@ export class HeroBannersController {
     return await this.heroBannersService.findAll(queryDto);
   }
 
+  @Public()
   @Get('active')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({

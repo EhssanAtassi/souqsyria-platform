@@ -100,6 +100,53 @@ export const selectRefreshToken = createSelector(
   (state: AuthState) => state.refreshToken,
 );
 
+// ─── Login Error Detail Selectors ─────────────────────────────────
+
+/**
+ * Select the structured login error code
+ *
+ * @description Returns 'ACCOUNT_LOCKED' or 'INVALID_CREDENTIALS' or null.
+ * Used to conditionally render warning/lockout banners.
+ */
+export const selectLoginErrorCode = createSelector(
+  selectAuthState,
+  (state: AuthState) => state.loginErrorCode,
+);
+
+/**
+ * Select remaining login attempts before lockout
+ *
+ * @description Returns the count of attempts left or null when not applicable.
+ * Shown as a warning when <= 2 attempts remain.
+ */
+export const selectRemainingAttempts = createSelector(
+  selectAuthState,
+  (state: AuthState) => state.remainingAttempts,
+);
+
+/**
+ * Select minutes until lockout expires
+ *
+ * @description Returns the lockout duration in minutes or null.
+ * Used to render the lockout countdown timer.
+ */
+export const selectLockedUntilMinutes = createSelector(
+  selectAuthState,
+  (state: AuthState) => state.lockedUntilMinutes,
+);
+
+/**
+ * Select whether the account is currently locked
+ *
+ * @description Derived selector: true when loginErrorCode is ACCOUNT_LOCKED
+ * and lockedUntilMinutes is set.
+ */
+export const selectIsAccountLocked = createSelector(
+  selectLoginErrorCode,
+  selectLockedUntilMinutes,
+  (errorCode, minutes) => errorCode === 'ACCOUNT_LOCKED' && minutes != null && minutes > 0,
+);
+
 // ─── OTP Flow Selectors ───────────────────────────────────────────
 
 /**

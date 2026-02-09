@@ -1,161 +1,197 @@
 /**
  * Login Component Styles for SouqSyria marketplace
  *
- * @description SCSS styles for the user login form.
- * Uses the SouqSyria Golden Wheat design palette with a centered
- * card layout, responsive mobile support, and RTL compatibility.
+ * @description Component-specific SCSS styles for the user login form.
+ * Imports shared auth styles and adds login-specific styles for form options,
+ * lockout/warning messages, and remember-me hint.
+ *
+ * @architecture
+ * RTL Strategy: Uses CSS logical properties and flexbox auto-reversal
+ * instead of explicit `:host-context([dir="rtl"])` overrides.
  *
  * @swagger
  * components:
  *   schemas:
  *     LoginComponentStyles:
  *       type: object
- *       description: SCSS styling for the login auth form
+ *       description: SCSS styling for the login auth form (component-specific)
  */
 
-.auth-page {
+// Import shared auth styles
+@import '../../styles/auth-shared';
+
+// =============================================================================
+// Login-Specific Styles
+// =============================================================================
+
+/**
+ * Smooth fade-slide animation for error and success messages
+ * @description Provides visual feedback when messages appear dynamically
+ */
+@keyframes fadeSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/**
+ * Error and success message styling with animation
+ */
+.error-message,
+.success-message {
+  animation: fadeSlideIn 0.3s ease-out;
+}
+
+/**
+ * Form options row: "Remember me" checkbox and "Forgot password" link.
+ * Mobile-first: stacks vertically on small screens, horizontal on larger.
+ *
+ * @description
+ * Uses `margin-block-end` (logical property) instead of `margin-bottom`.
+ * Flexbox automatically handles RTL reversal -- in RTL mode, the checkbox
+ * appears on the right and the forgot-password link appears on the left,
+ * because `justify-content: space-between` respects the flex container's
+ * direction, which is inherited from the parent `[dir="rtl"]`.
+ */
+.form-options {
   display: flex;
-  justify-content: center;
   align-items: center;
-  min-height: calc(100vh - 64px);
-  padding: 24px;
-  background: linear-gradient(135deg, #f5f5f5 0%, #edebe0 100%);
+  margin-block-end: $spacing-2;  // 0.5rem (8px) - logical property
+
+  // Mobile base (< 375px): stack vertically, center items
+  flex-direction: column;
+  justify-content: center;
+  gap: $spacing-3;  // 0.75rem (12px)
+
+  @media (min-width: $breakpoint-xs) {
+    // Modern mobile (375px+): horizontal layout, space between
+    flex-direction: row;
+    justify-content: space-between;
+    gap: $spacing-2;  // 0.5rem (8px)
+  }
+
+  /**
+   * Mobile column stacking alignment.
+   * In LTR: stacked items align to the left (flex-start).
+   * In RTL: stacked items align to the right (flex-end) so they
+   * visually anchor to the correct side for Arabic readers.
+   */
+  @media (max-width: #{$breakpoint-xs - 1}) {
+    align-items: flex-start;
+
+    [dir="rtl"] & {
+      align-items: flex-end;
+    }
+  }
+
+  mat-checkbox {
+    // Touch-friendly target
+    min-height: $spacing-11;  // 2.75rem (44px)
+    display: flex;
+    align-items: center;
+
+    ::ng-deep .mdc-label {
+      font-size: 0.875rem;  // 14px
+      color: $color-text-secondary;
+    }
+  }
+
+  a {
+    color: $color-primary;
+    text-decoration: none;
+    font-size: 0.875rem;  // 14px
+    font-weight: 500;
+    min-height: $spacing-11;  // 2.75rem (44px) - touch target
+    display: flex;
+    align-items: center;
+    transition: color 0.2s ease, text-decoration 0.2s ease;
+
+    &:hover {
+      color: var(--golden-wheat-medium);  // Darker golden wheat for hover
+      text-decoration: underline;
+    }
+
+    &:active {
+      color: var(--forest-dark);  // Forest dark for active state
+    }
+
+    &:focus-visible {
+      outline: 2px solid $color-primary;
+      outline-offset: 2px;
+      border-radius: 2px;
+    }
+  }
 }
 
-.auth-card {
-  width: 100%;
-  max-width: 420px;
-  background: white;
-  border-radius: 12px;
-  padding: 40px;
-  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
-}
+// =============================================================================
+// S2 Auth Enhancements: Warning, Lockout, and Remember-Me styles
+// =============================================================================
 
-.auth-header {
+/**
+ * Warning message for low remaining login attempts
+ * @description Shown when user has <= 2 attempts before account lockout
+ */
+.warning-message {
+  color: #e65100;
+  font-size: 0.875rem;
   text-align: center;
-  margin-bottom: 32px;
+  margin-block-end: $spacing-4;
+  padding-block: $spacing-2;
+  padding-inline: $spacing-3;
+  background: #fff3e0;
+  border-radius: 0.5rem;
+  border-inline-start: 4px solid #ff9800;
+  animation: fadeSlideIn 0.3s ease-out;
+}
 
-  h1 {
-    font-size: 28px;
-    font-weight: 600;
-    color: #002623;
-    margin: 0 0 8px;
+/**
+ * Lockout message with countdown timer
+ * @description Shown when account is locked after too many failed attempts
+ */
+.lockout-message {
+  color: #c62828;
+  font-size: 0.875rem;
+  text-align: center;
+  margin-block-end: $spacing-4;
+  padding-block: $spacing-3;
+  padding-inline: $spacing-3;
+  background: #ffebee;
+  border-radius: 0.5rem;
+  border-inline-start: 4px solid #f44336;
+  animation: fadeSlideIn 0.3s ease-out;
+
+  strong {
+    display: block;
+    margin-bottom: $spacing-1;
+    font-size: 0.875rem;
   }
 
   p {
-    color: #666;
     margin: 0;
-    font-size: 14px;
   }
 }
 
-mat-form-field {
-  width: 100%;
-  margin-bottom: 8px;
+/**
+ * Remember-me hint text below checkbox
+ */
+.remember-me-hint {
+  display: block;
+  font-size: 0.6875rem;  // 11px
+  color: $color-text-tertiary;
+  margin-top: -$spacing-1;
 }
 
-.password-field {
-  position: relative;
-}
-
-.form-options {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 8px;
-  flex-wrap: wrap;
-  gap: 8px;
-
-  mat-checkbox {
-    ::ng-deep .mdc-label {
-      font-size: 14px;
-      color: #666;
-    }
-  }
-
-  a {
-    color: #988561;
-    text-decoration: none;
-    font-size: 14px;
-    font-weight: 500;
-
-    &:hover {
-      text-decoration: underline;
-    }
-  }
-}
-
-.submit-btn {
-  width: 100%;
-  height: 48px;
-  font-size: 16px;
-  margin-top: 16px;
-  background-color: #988561 !important;
-
-  mat-spinner {
-    display: inline-block;
-  }
-}
-
-.auth-footer {
-  text-align: center;
-  margin-top: 24px;
-  font-size: 14px;
-  color: #666;
-
-  a {
-    color: #988561;
-    text-decoration: none;
-    font-weight: 500;
-
-    &:hover {
-      text-decoration: underline;
-    }
-  }
-}
-
-.error-message {
-  color: #d32f2f;
-  font-size: 13px;
-  text-align: center;
-  margin-bottom: 16px;
-  padding: 8px 12px;
-  background: #fdecea;
-  border-radius: 4px;
-}
-
-.success-message {
-  color: #2e7d32;
-  font-size: 13px;
-  text-align: center;
-  margin-bottom: 16px;
-  padding: 8px 12px;
-  background: #e8f5e9;
-  border-radius: 4px;
-}
-
-// RTL support
-:host-context([dir="rtl"]) {
-  .auth-footer {
-    direction: rtl;
-  }
-
-  .form-options {
-    direction: rtl;
-  }
-}
-
-@media (max-width: 480px) {
-  .auth-card {
-    padding: 24px 20px;
-  }
-
-  .auth-header h1 {
-    font-size: 24px;
-  }
-
-  .form-options {
-    flex-direction: column;
-    align-items: flex-start;
+/**
+ * RTL additions for login-specific elements
+ */
+[dir="rtl"] {
+  .warning-message,
+  .lockout-message {
+    line-height: 1.625;
   }
 }

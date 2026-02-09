@@ -5,6 +5,7 @@
  */
 import { Module, NestModule, MiddlewareConsumer, RequestMethod } from '@nestjs/common';
 import { ConfigModule } from "@nestjs/config";
+import { ScheduleModule } from '@nestjs/schedule';
 import { GuestSessionMiddleware } from './common/middleware/guest-session.middleware';
 import { IdempotencyMiddleware } from './common/middleware/idempotency.middleware';
 import { GuestSession } from './cart/entities/guest-session.entity';
@@ -61,6 +62,8 @@ import { HealthModule } from './health';
       isGlobal: true,
       envFilePath: ['.env.development', '.env'],
     }),
+    // Enable scheduled tasks and cron jobs (required for SessionCleanupService)
+    ScheduleModule.forRoot(),
     // Shared Domain Module - Event-driven architecture for breaking circular dependencies
     SharedDomainModule,
     TypeOrmModule.forRoot(typeOrmConfig),
@@ -126,7 +129,7 @@ import { HealthModule } from './health';
      */
     {
       provide: APP_GUARD,
-      useClass: JwtAuthGuard,
+      useExisting: JwtAuthGuard,
     },
     {
       provide: APP_GUARD,

@@ -219,15 +219,17 @@ export class AddressesController {
   /**
    * @route POST /addresses/:id/set-default
    * @description Set an address as default (per type, for the user).
+   * Validates that the address belongs to the current user before updating.
    */
   @Post(':id/set-default')
   @ApiOperation({ summary: 'Set default address for user/type' })
+  @ApiParam({ name: 'id', description: 'Address ID' })
   async setDefault(
     @CurrentUser() user: User,
     @Param('id') addressId: number,
     @Body() dto: SetDefaultAddressDto,
   ) {
-    return this.addressesService.setAsDefault(addressId, dto);
+    return this.addressesService.setDefault(user, Number(addressId));
   }
 
   /**

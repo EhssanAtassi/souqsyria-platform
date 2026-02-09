@@ -1,6 +1,53 @@
-import { IsOptional, IsInt, IsString, IsEnum, Min, Max } from 'class-validator';
+import {
+  IsOptional,
+  IsInt,
+  IsString,
+  IsEnum,
+  Min,
+  Max,
+  ValidatorConstraint,
+  ValidatorConstraintInterface,
+  ValidationArguments,
+  Validate,
+} from 'class-validator';
 import { Type } from 'class-transformer';
 import { ApiPropertyOptional } from '@nestjs/swagger';
+
+/**
+ * Custom validator to ensure minPrice is less than or equal to maxPrice.
+ * Validates cross-field constraint when both price bounds are provided.
+ *
+ * @class IsPriceRangeValid
+ * @implements {ValidatorConstraintInterface}
+ */
+@ValidatorConstraint({ name: 'isPriceRangeValid', async: false })
+export class IsPriceRangeValid implements ValidatorConstraintInterface {
+  /**
+   * Validates that minPrice <= maxPrice when both are provided.
+   *
+   * @param {any} _ - The value being validated (unused for class-level validation)
+   * @param {ValidationArguments} args - Validation arguments containing the DTO object
+   * @returns {boolean} True if validation passes, false otherwise
+   */
+  validate(_: any, args: ValidationArguments): boolean {
+    const obj = args.object as GetPublicProductsDto;
+    // Only validate if both minPrice and maxPrice are provided
+    if (obj.minPrice !== undefined && obj.maxPrice !== undefined) {
+      return obj.minPrice <= obj.maxPrice;
+    }
+    // If only one or neither is provided, validation passes
+    return true;
+  }
+
+  /**
+   * Returns the error message when validation fails.
+   *
+   * @returns {string} The error message
+   */
+  defaultMessage(): string {
+    return 'minPrice must be less than or equal to maxPrice';
+  }
+}
 
 /**
  * Data Transfer Object for public product catalog browsing.
@@ -87,11 +134,12 @@ export class GetPublicProductsDto {
   /**
    * Maximum price filter in SYP (Syrian Pounds).
    * Returns products with final price <= maxPrice.
+   * Must be greater than or equal to minPrice when both are provided.
    *
    * @example 500000
    */
   @ApiPropertyOptional({
-    description: 'Maximum price in SYP (inclusive)',
+    description: 'Maximum price in SYP (inclusive). Must be >= minPrice when both are provided.',
     example: 500000,
     minimum: 0,
     type: Number,
@@ -100,6 +148,7 @@ export class GetPublicProductsDto {
   @Type(() => Number)
   @IsInt()
   @Min(0)
+  @Validate(IsPriceRangeValid)
   maxPrice?: number;
 
   /**
@@ -150,16 +199,17 @@ export class GetPublicProductsDto {
    * - price_desc: Sort by price (highest first)
    * - newest: Sort by creation date (newest first) - DEFAULT
    * - rating: Sort by rating (highest first) - currently same as newest
+   * - popularity: Sort by sales count (best sellers first)
    *
    * @default undefined (uses newest)
    * @example "price_asc"
    */
   @ApiPropertyOptional({
     description: 'Sort order for results',
-    enum: ['price_asc', 'price_desc', 'newest', 'rating'],
+    enum: ['price_asc', 'price_desc', 'newest', 'rating', 'popularity'],
     example: 'price_asc',
   })
   @IsOptional()
-  @IsEnum(['price_asc', 'price_desc', 'newest', 'rating'])
-  sortBy?: 'price_asc' | 'price_desc' | 'newest' | 'rating';
+  @IsEnum(['price_asc', 'price_desc', 'newest', 'rating', 'popularity'])
+  sortBy?: 'price_asc' | 'price_desc' | 'newest' | 'rating' | 'popularity';
 }

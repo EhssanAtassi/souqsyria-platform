@@ -1,0 +1,92 @@
+@import '../../../../shared/styles/variables';
+
+/**
+ * Specifications Table Component Styles
+ * Zebra-striped table for product attributes
+ */
+
+.specifications-table {
+  width: 100%;
+
+  &.rtl {
+    direction: rtl;
+  }
+}
+
+.specifications-table__empty {
+  text-align: center;
+  color: $charcoal-medium;
+  font-style: italic;
+  padding: $space-8;
+}
+
+.specifications-table__table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.specifications-table__row {
+  border-bottom: 1px solid $golden-wheat-light;
+
+  &:nth-child(even) {
+    background: rgba($golden-wheat-light, 0.3);
+  }
+
+  &:hover {
+    background: rgba($golden-wheat-light, 0.5);
+  }
+}
+
+.specifications-table__label {
+  padding: $space-4;
+  font-size: $font-size-base;
+  font-weight: $font-weight-semibold;
+  color: $charcoal-dark;
+  text-align: left;
+  width: 40%;
+
+  .rtl & {
+    text-align: right;
+  }
+}
+
+.specifications-table__value {
+  padding: $space-4;
+  font-size: $font-size-base;
+  color: $charcoal-medium;
+  text-align: left;
+
+  .rtl & {
+    text-align: right;
+  }
+}
+
+.specifications-table__color-swatch {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  border-radius: $border-radius-sm;
+  border: 1px solid $charcoal-medium;
+  margin-right: $space-2;
+  vertical-align: middle;
+
+  .rtl & {
+    margin-right: 0;
+    margin-left: $space-2;
+  }
+}
+
+/**
+ * Responsive Adjustments
+ */
+@media (max-width: $breakpoint-sm) {
+  .specifications-table__label,
+  .specifications-table__value {
+    font-size: $font-size-sm;
+    padding: $space-3;
+  }
+
+  .specifications-table__label {
+    width: 50%;
+  }
+}

@@ -5,10 +5,11 @@ import {
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { debounceTime, distinctUntilChanged, switchMap, of, tap } from 'rxjs';
+import { debounceTime, distinctUntilChanged, switchMap, of, tap, map } from 'rxjs';
 
 import { HeaderApiService } from '../../../../services/header-api.service';
 import { SearchSuggestion, RecentSearch } from '../../../../interfaces/header.interfaces';
+import { ProductService } from '../../../../../features/products/services/product.service';
 
 /**
  * Search Bar Component
@@ -82,6 +83,7 @@ export class SearchBarComponent implements OnInit {
   private readonly fb = inject(FormBuilder);
   private readonly destroyRef = inject(DestroyRef);
   private readonly headerApi = inject(HeaderApiService);
+  private readonly productService = inject(ProductService);
   private readonly cdr = inject(ChangeDetectorRef);
 
   /** Placeholder text based on language */
@@ -270,7 +272,20 @@ export class SearchBarComponent implements OnInit {
           return of([]);
         }
         this.showingRecent = false;
-        return this.headerApi.getSearchSuggestions({ query: trimmed });
+        return this.productService.getSearchSuggestions(trimmed).pipe(
+          map(response => response.suggestions.map(item => ({
+            text: this.language === 'ar'
+              ? (item.textAr || item.text)
+              : (item.text || item.textAr),
+            type: item.type as SearchSuggestion['type'],
+            url: item.slug
+              ? (item.type === 'product' ? `/products/${item.slug}` : `/category/${item.slug}`)
+              : undefined,
+            imageUrl: item.imageUrl ?? undefined,
+            price: item.price ?? null,
+            currency: item.currency ?? 'SYP',
+          } as SearchSuggestion)))
+        );
       }),
       tap(suggestions => {
         if (!this.showingRecent) {
@@ -292,5 +307,47 @@ export class SearchBarComponent implements OnInit {
       this.recentSearches = searches;
       this.cdr.markForCheck();
     });
+  }
+
+  /**
+   * @description Formats suggestion price for display in dropdown
+   * @param price - Price value
+   * @param currency - Currency code (default: SYP)
+   * @returns Formatted price string
+   */
+  formatSuggestionPrice(price: number | null | undefined, currency?: string): string {
+    if (!price) return '';
+    if (currency === 'SYP' || !currency) {
+      return `${price.toLocaleString('ar-SY')} ل.س`;
+    }
+    return `$${price.toLocaleString('en-US')}`;
+  }
+
+  /**
+   * @description Highlights matching text in suggestion
+   * @param text - Original suggestion text
+   * @returns HTML string with matched portion wrapped in <strong>
+   * Text is HTML-escaped before highlighting to prevent XSS
+   */
+  highlightMatch(text: string): string {
+    const query = this.searchForm.get('query')?.value?.trim();
+    if (!query || query.length < 2) {
+      return this.escapeHtml(text);
+    }
+    const escapedText = this.escapeHtml(text);
+    const escapedQuery = this.escapeHtml(query);
+    const regex = new RegExp(`(${escapedQuery.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
+    return escapedText.replace(regex, '<strong>$1</strong>');
+  }
+
+  /**
+   * @description Escapes HTML special characters to prevent XSS
+   * @param text - Text to escape
+   * @returns HTML-escaped text
+   */
+  private escapeHtml(text: string): string {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
   }
 }

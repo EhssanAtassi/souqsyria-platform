@@ -58,7 +58,6 @@ export enum UserTier {
 }
 
 @Entity('coupons')
-@Index(['code'], { unique: true })
 @Index(['status', 'valid_from', 'valid_to'])
 @Index(['coupon_type', 'status'])
 export class CouponEntity {

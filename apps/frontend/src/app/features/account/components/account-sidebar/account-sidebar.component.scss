@@ -1,0 +1,108 @@
+/**
+ * @fileoverview Styles for account sidebar navigation component
+ * @description Responsive sidebar with active state highlighting and mobile drawer support
+ */
+
+.account-sidebar {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+
+  @media (max-width: 768px) {
+    border-radius: 0;
+    box-shadow: none;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.12);
+  }
+}
+
+.nav-list {
+  padding: 0;
+}
+
+/* Navigation Item */
+::ng-deep .mat-mdc-list-item {
+  padding: 1rem 1.5rem !important;
+  border-left: 4px solid transparent;
+  transition: all 0.2s ease;
+  cursor: pointer;
+
+  &:hover:not(.disabled) {
+    background-color: rgba(103, 126, 234, 0.08);
+  }
+
+  &.active {
+    background-color: rgba(103, 126, 234, 0.12);
+    border-left-color: #667eea;
+
+    .nav-icon,
+    .nav-label {
+      color: #667eea;
+      font-weight: 500;
+    }
+  }
+
+  &.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    pointer-events: none;
+
+    .nav-icon,
+    .nav-label {
+      color: rgba(0, 0, 0, 0.38);
+    }
+  }
+}
+
+.nav-icon {
+  color: rgba(0, 0, 0, 0.54);
+  margin-right: 1rem;
+  font-size: 1.5rem;
+  width: 1.5rem;
+  height: 1.5rem;
+  transition: color 0.2s ease;
+}
+
+.nav-label {
+  color: rgba(0, 0, 0, 0.87);
+  font-size: 1rem;
+  transition: color 0.2s ease;
+}
+
+/* RTL Support */
+[dir='rtl'] {
+  ::ng-deep .mat-mdc-list-item {
+    border-left: none;
+    border-right: 4px solid transparent;
+
+    &.active {
+      border-right-color: #667eea;
+    }
+  }
+
+  .nav-icon {
+    margin-right: 0;
+    margin-left: 1rem;
+  }
+}
+
+/* Mobile Styles */
+@media (max-width: 768px) {
+  .account-sidebar {
+    width: 100%;
+  }
+
+  ::ng-deep .mat-mdc-list-item {
+    padding: 0.75rem 1rem !important;
+  }
+
+  .nav-icon {
+    font-size: 1.25rem;
+    width: 1.25rem;
+    height: 1.25rem;
+  }
+
+  .nav-label {
+    font-size: 0.875rem;
+  }
+}

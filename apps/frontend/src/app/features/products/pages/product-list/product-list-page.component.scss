@@ -87,6 +87,104 @@
   color: $golden-wheat-primary;
 }
 
+.product-list-page__filter-toggle {
+  display: none;
+  color: $golden-wheat-primary;
+
+  @media (max-width: $breakpoint-md) {
+    display: inline-flex;
+  }
+}
+
+/**
+ * Active Filter Badges
+ */
+.product-list-page__filter-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 12px 0;
+}
+
+.filter-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 12px;
+  background: #f5f0e8;
+  border-radius: 16px;
+  font-size: 13px;
+  color: #333;
+
+  &__remove {
+    display: inline-flex;
+    border: none;
+    background: none;
+    padding: 0;
+    cursor: pointer;
+    color: #666;
+
+    mat-icon {
+      font-size: 16px;
+      width: 16px;
+      height: 16px;
+    }
+  }
+
+  &--clear {
+    background: transparent;
+    color: #c8102e;
+    cursor: pointer;
+    border: none;
+    font-weight: 500;
+  }
+}
+
+/**
+ * Layout: sidebar + content
+ */
+.product-list-page__layout {
+  display: flex;
+  gap: $space-6;
+}
+
+.product-list-page__sidebar {
+  width: 280px;
+  flex-shrink: 0;
+
+  // Hidden on mobile, shown as overlay
+  @media (max-width: $breakpoint-md) {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: 300px;
+    z-index: 1000;
+    background: $charcoal-light;
+    box-shadow: $shadow-lg;
+    padding: $space-4;
+    overflow-y: auto;
+
+    &--open {
+      display: block;
+    }
+  }
+
+  // RTL mirror
+  .rtl & {
+    @media (max-width: $breakpoint-md) {
+      left: auto;
+      right: 0;
+    }
+  }
+}
+
+.product-list-page__main {
+  flex: 1;
+  min-width: 0;
+}
+
 /**
  * Product Grid Layouts
  */
@@ -103,7 +201,7 @@
   }
 
   @media (min-width: $breakpoint-md) {
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(3, 1fr);
   }
 
   // List mode - single column with larger cards

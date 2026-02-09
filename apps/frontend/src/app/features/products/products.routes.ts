@@ -13,4 +13,12 @@ export const productsRoutes: Routes = [
       ),
     title: 'Products - SouqSyria | المنتجات',
   },
+  {
+    path: ':productSlug',
+    loadComponent: () =>
+      import('./pages/product-detail/product-detail-page.component').then(
+        (m) => m.ProductDetailPageComponent,
+      ),
+    title: 'Product Details - SouqSyria | تفاصيل المنتج',
+  },
 ];

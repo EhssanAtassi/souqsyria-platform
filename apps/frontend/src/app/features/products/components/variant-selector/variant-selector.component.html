@@ -1,0 +1,41 @@
+<div class="variant-selector" [class.rtl]="language() === 'ar'">
+  @for (group of enrichedOptionGroups(); track group.optionName) {
+    <div class="variant-selector__group">
+      <label class="variant-selector__label">
+        {{ language() === 'ar' && group.optionNameAr ? group.optionNameAr : group.optionName }}
+      </label>
+      <div class="variant-selector__options">
+        @for (option of group.values; track option.value) {
+          @if (group.type === 'color' && option.colorHex) {
+            <!-- Color swatch button -->
+            <button
+              class="variant-option variant-option--color"
+              [class.variant-option--selected]="isSelected(group.optionName, option.value)"
+              [class.variant-option--disabled]="!isAvailable(group.optionName, option.value)"
+              [disabled]="!isAvailable(group.optionName, option.value)"
+              (click)="selectOption(group.optionName, option.value)"
+              [attr.aria-label]="(language() === 'ar' && option.valueAr ? option.valueAr : option.value)"
+              [attr.title]="(language() === 'ar' && option.valueAr ? option.valueAr : option.value)"
+            >
+              <span
+                class="variant-option__swatch"
+                [style.background-color]="option.colorHex"
+              ></span>
+            </button>
+          } @else {
+            <!-- Standard chip button -->
+            <button
+              class="variant-option"
+              [class.variant-option--selected]="isSelected(group.optionName, option.value)"
+              [class.variant-option--disabled]="!isAvailable(group.optionName, option.value)"
+              [disabled]="!isAvailable(group.optionName, option.value)"
+              (click)="selectOption(group.optionName, option.value)"
+            >
+              {{ language() === 'ar' && option.valueAr ? option.valueAr : option.value }}
+            </button>
+          }
+        }
+      </div>
+    </div>
+  }
+</div>

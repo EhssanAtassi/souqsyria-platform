@@ -1,0 +1,21 @@
+<div class="specifications-table" [class.rtl]="language() === 'ar'">
+  @if (localizedRows().length === 0) {
+    <p class="specifications-table__empty">{{ emptyMessage() }}</p>
+  } @else {
+    <table class="specifications-table__table">
+      <tbody>
+        @for (row of localizedRows(); track $index) {
+          <tr class="specifications-table__row">
+            <th class="specifications-table__label">{{ row.name }}</th>
+            <td class="specifications-table__value">
+              @if (row.colorHex) {
+                <span class="specifications-table__color-swatch" [style.background-color]="row.colorHex"></span>
+              }
+              {{ row.value }}
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  }
+</div>

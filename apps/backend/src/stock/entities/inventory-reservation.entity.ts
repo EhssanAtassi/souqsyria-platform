@@ -83,8 +83,6 @@ export enum ConflictResolution {
 @Index(['variant', 'status'])
 @Index(['warehouse', 'status'])
 @Index(['order', 'status'])
-@Index(['expiresAt', 'status'])
-@Index(['priority', 'createdAt'])
 export class InventoryReservationEntity {
   @PrimaryGeneratedColumn()
   id: number;

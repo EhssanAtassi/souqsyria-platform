@@ -18,5 +18,8 @@
     "src/app/features/category/components/featured-categories/featured-categories.component.spec.ts",
     "src/app/features/auth/services/auth-api.service.spec.ts",
     "src/app/features/auth/store/auth.reducer.spec.ts"
+    "src/app/features/category/**/*.spec.ts",
+    "src/app/features/account/**/*.spec.ts",
+    "src/app/features/auth/**/*.spec.ts"
   ]
 }

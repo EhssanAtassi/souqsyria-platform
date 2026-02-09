@@ -9,6 +9,16 @@
     </div>
 
     <div class="product-list-page__controls">
+      <!-- Mobile filter toggle -->
+      <button
+        mat-icon-button
+        class="product-list-page__filter-toggle"
+        (click)="toggleSidebar()"
+        [attr.aria-label]="language() === 'ar' ? 'تصفية' : 'Filters'"
+      >
+        <mat-icon>filter_list</mat-icon>
+      </button>
+
       <!-- Sort Dropdown -->
       <mat-form-field appearance="outline" class="product-list-page__sort">
         <mat-label>{{ sortLabel }}</mat-label>
@@ -33,66 +43,102 @@
     </div>
   </header>
 
-  <!-- Loading State -->
-  @if (loading()) {
-    <div class="product-list-page__grid" [class.product-list-page__grid--list]="viewMode() === 'list'">
-      @for (item of skeletonArray; track $index) {
-        <app-product-skeleton />
+  <!-- Active Filter Badges -->
+  @if (hasActiveFilters()) {
+    <div class="product-list-page__filter-badges">
+      @if (activeFilterCategory()) {
+        <span class="filter-badge">
+          {{ language() === 'ar' ? 'الفئة' : 'Category' }}: {{ activeFilterCategory() }}
+          <button (click)="removeFilter('categoryId')" class="filter-badge__remove" [attr.aria-label]="language() === 'ar' ? 'إزالة الفلتر' : 'Remove filter'">
+            <mat-icon>close</mat-icon>
+          </button>
+        </span>
       }
-    </div>
-  }
-
-  <!-- Error State -->
-  @else if (error()) {
-    <div class="product-list-page__error">
-      <mat-icon class="product-list-page__error-icon">error_outline</mat-icon>
-      <h2 class="product-list-page__error-title">{{ error() }}</h2>
-      <button
-        mat-raised-button
-        color="primary"
-        (click)="retryLoad()"
-      >
-        <mat-icon>refresh</mat-icon>
-        <span>{{ retryLabel }}</span>
+      @if (activeFilterPriceRange()) {
+        <span class="filter-badge">
+          {{ activeFilterPriceRange() }}
+          <button (click)="removeFilter('price')" class="filter-badge__remove" [attr.aria-label]="language() === 'ar' ? 'إزالة الفلتر' : 'Remove filter'">
+            <mat-icon>close</mat-icon>
+          </button>
+        </span>
+      }
+      @if (activeFilterSearch()) {
+        <span class="filter-badge">
+          {{ language() === 'ar' ? 'بحث' : 'Search' }}: "{{ activeFilterSearch() }}"
+          <button (click)="removeFilter('search')" class="filter-badge__remove" [attr.aria-label]="language() === 'ar' ? 'إزالة الفلتر' : 'Remove filter'">
+            <mat-icon>close</mat-icon>
+          </button>
+        </span>
+      }
+      <button class="filter-badge filter-badge--clear" (click)="onClearFilters()">
+        {{ language() === 'ar' ? 'مسح الكل' : 'Clear All' }}
       </button>
     </div>
   }
 
-  <!-- Empty State -->
-  @else if (products().length === 0) {
-    <div class="product-list-page__empty">
-      <mat-icon class="product-list-page__empty-icon">inventory_2</mat-icon>
-      <h2 class="product-list-page__empty-title">{{ emptyMessage }}</h2>
-      <button
-        mat-raised-button
-        color="primary"
-        routerLink="/products"
-      >
-        {{ browseAllLabel }}
-      </button>
-    </div>
-  }
-
-  <!-- Products Grid -->
-  @else {
-    <div class="product-list-page__grid" [class.product-list-page__grid--list]="viewMode() === 'list'">
-      @for (product of products(); track product.id) {
-        <app-product-card
-          [product]="product"
-          [language]="language()"
-          (addToCart)="onAddToCart($event)"
-        />
-      }
-    </div>
-
-    <!-- Pagination -->
-    @if (meta()) {
-      <app-products-pagination
-        [meta]="meta()!"
+  <!-- Main layout: sidebar + content -->
+  <div class="product-list-page__layout">
+    <!-- Filter Sidebar -->
+    <aside class="product-list-page__sidebar" [class.product-list-page__sidebar--open]="sidebarOpen()">
+      <app-filter-sidebar
         [language]="language()"
-        (pageChange)="onPageChange($event)"
-        (limitChange)="onLimitChange($event)"
+        [initialFilters]="activeFilters()"
+        (filtersChange)="onFiltersChange($event)"
+        (clearFilters)="onClearFilters()"
       />
-    }
-  }
+    </aside>
+
+    <!-- Main content area -->
+    <main class="product-list-page__main">
+      <!-- Loading State -->
+      @if (loading()) {
+        <div class="product-list-page__grid" [class.product-list-page__grid--list]="viewMode() === 'list'">
+          @for (item of skeletonArray; track $index) {
+            <app-product-skeleton />
+          }
+        </div>
+      }
+      <!-- Error State -->
+      @else if (error()) {
+        <div class="product-list-page__error">
+          <mat-icon class="product-list-page__error-icon">error_outline</mat-icon>
+          <h2 class="product-list-page__error-title">{{ error() }}</h2>
+          <button mat-raised-button color="primary" (click)="retryLoad()">
+            <mat-icon>refresh</mat-icon>
+            <span>{{ retryLabel }}</span>
+          </button>
+        </div>
+      }
+      <!-- Empty State -->
+      @else if (products().length === 0) {
+        <div class="product-list-page__empty">
+          <mat-icon class="product-list-page__empty-icon">inventory_2</mat-icon>
+          <h2 class="product-list-page__empty-title">{{ emptyMessage }}</h2>
+          <button mat-raised-button color="primary" routerLink="/products">
+            {{ browseAllLabel }}
+          </button>
+        </div>
+      }
+      <!-- Products Grid -->
+      @else {
+        <div class="product-list-page__grid" [class.product-list-page__grid--list]="viewMode() === 'list'">
+          @for (product of products(); track product.id) {
+            <app-product-card
+              [product]="product"
+              [language]="language()"
+              (addToCart)="onAddToCart($event)"
+            />
+          }
+        </div>
+        @if (meta()) {
+          <app-products-pagination
+            [meta]="meta()!"
+            [language]="language()"
+            (pageChange)="onPageChange($event)"
+            (limitChange)="onLimitChange($event)"
+          />
+        }
+      }
+    </main>
+  </div>
 </div>

@@ -1,137 +1,104 @@
 /**
  * Register Component Styles for SouqSyria marketplace
  *
- * @description SCSS styles for the user registration form.
- * Uses the SouqSyria Golden Wheat design palette with a centered
- * card layout, responsive mobile support, and RTL compatibility.
+ * @description Component-specific SCSS styles for the user registration form.
+ * Imports shared auth styles and adds register-specific styles for terms text.
+ *
+ * @architecture
+ * RTL Strategy: Uses CSS logical properties (padding-inline, margin-block-start)
+ * instead of physical left/right/top/bottom. The terms text inherits direction
+ * from the parent `[dir]` attribute, so no explicit `:host-context([dir="rtl"])`
+ * override is needed. The redundant `direction: rtl` block has been removed.
  *
  * @swagger
  * components:
  *   schemas:
  *     RegisterComponentStyles:
  *       type: object
- *       description: SCSS styling for the register auth form
+ *       description: SCSS styling for the register auth form (component-specific)
  */
 
-.auth-page {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: calc(100vh - 64px);
-  padding: 24px;
-  background: linear-gradient(135deg, #f5f5f5 0%, #edebe0 100%);
-}
+// Import shared auth styles
+@import '../../styles/auth-shared';
 
-.auth-card {
-  width: 100%;
-  max-width: 420px;
-  background: white;
-  border-radius: 12px;
-  padding: 40px;
-  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
-}
+// =============================================================================
+// Register-Specific Styles
+// =============================================================================
 
-.auth-header {
-  text-align: center;
-  margin-bottom: 32px;
-
-  h1 {
-    font-size: 28px;
-    font-weight: 600;
-    color: #002623;
-    margin: 0 0 8px;
+/**
+ * Smooth fade-slide animation for error messages
+ * @description Provides visual feedback when error messages appear dynamically
+ */
+@keyframes fadeSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
   }
-
-  p {
-    color: #666;
-    margin: 0;
-    font-size: 14px;
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 
-mat-form-field {
-  width: 100%;
-  margin-bottom: 8px;
-}
-
-.password-field {
-  position: relative;
-}
-
-.submit-btn {
-  width: 100%;
-  height: 48px;
-  font-size: 16px;
-  margin-top: 16px;
-  background-color: #988561 !important;
-
-  mat-spinner {
-    display: inline-block;
-  }
-}
-
-.auth-footer {
-  text-align: center;
-  margin-top: 24px;
-  font-size: 14px;
-  color: #666;
-
-  a {
-    color: #988561;
-    text-decoration: none;
-    font-weight: 500;
-
-    &:hover {
-      text-decoration: underline;
-    }
-  }
-}
-
+/**
+ * Error message styling with animation
+ */
 .error-message {
-  color: #d32f2f;
-  font-size: 13px;
-  text-align: center;
-  margin-bottom: 16px;
-  padding: 8px 12px;
-  background: #fdecea;
-  border-radius: 4px;
+  animation: fadeSlideIn 0.3s ease-out;
 }
 
+/**
+ * Terms and conditions text below submit button.
+ * Small gray text with golden links to T&C and Privacy Policy.
+ *
+ * @description
+ * Uses `margin-block-start` (logical) instead of `margin-top`.
+ * Uses `padding-inline` (logical) instead of `padding: 0 $spacing-2`
+ * so horizontal padding auto-adapts in RTL mode. The `text-align: center`
+ * is direction-agnostic and works identically in both LTR and RTL.
+ */
 .terms-text {
-  font-size: 12px;
-  color: #999;
+  font-size: 0.75rem;      // 12px
+  color: $color-text-tertiary;  // #999
   text-align: center;
-  margin-top: 16px;
+  margin-block-start: $spacing-4;  // 1rem (16px) - logical property
   line-height: 1.5;
+  padding-inline: $spacing-2;     // 0.5rem (8px) horizontal padding - logical property
+
+  @media (min-width: $breakpoint-sm) {
+    padding-inline: 0;  // Remove horizontal padding on larger screens
+  }
 
   a {
-    color: #988561;
+    color: $color-primary;
     text-decoration: none;
     font-weight: 500;
+    transition: color 0.2s ease, text-decoration 0.2s ease;
 
     &:hover {
+      color: var(--golden-wheat-medium);  // Darker golden wheat for hover
       text-decoration: underline;
+    }
+
+    &:active {
+      color: var(--forest-dark);  // Forest dark for active state
+    }
+
+    &:focus-visible {
+      outline: 2px solid $color-primary;
+      outline-offset: 2px;
+      border-radius: 2px;
     }
   }
 }
 
-// RTL support
-:host-context([dir="rtl"]) {
-  .auth-footer {
-    direction: rtl;
-  }
-
+/**
+ * Arabic typography tuning for terms text.
+ * Increased line-height for Arabic readability in small legal text.
+ * Arabic legal text is particularly dense and benefits from extra leading.
+ */
+[dir="rtl"] {
   .terms-text {
-    direction: rtl;
-  }
-}
-
-@media (max-width: 480px) {
-  .auth-card {
-    padding: 24px 20px;
-  }
-
-  .auth-header h1 {
-    font-size: 24px;
+    line-height: 1.7;
   }
 }

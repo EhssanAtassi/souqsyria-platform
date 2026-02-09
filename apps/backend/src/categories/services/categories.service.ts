@@ -829,4 +829,174 @@ export class CategoriesService {
   async find(options: FindManyOptions<Category>): Promise<Category[]> {
     return await this.categoryRepository.find(options);
   }
+
+  /**
+   * SEARCH WITHIN CATEGORY (SS-CAT-006)
+   *
+   * Search for products within a specific category with pagination
+   * Only returns products that are active, published, and approved
+   * Only searches within active and approved categories
+   *
+   * Features:
+   * - Full-text search on product nameEn, nameAr, and descriptions
+   * - LEFT JOIN with product_descriptions for description search
+   * - Pagination with total count
+   * - Includes first product image
+   * - Returns product pricing information
+   * - MySQL LIKE for flexible search
+   *
+   * @param categoryId - Category ID to search within
+   * @param search - Optional search keyword (min 2 chars recommended)
+   * @param page - Page number (starts from 1)
+   * @param limit - Items per page (max 100)
+   * @returns Paginated product results with metadata
+   * @throws NotFoundException if category doesn't exist or isn't public
+   */
+  async searchWithinCategory(
+    categoryId: number,
+    search: string | undefined,
+    page: number,
+    limit: number,
+  ): Promise<{
+    data: Array<{
+      id: number;
+      nameEn: string;
+      nameAr: string;
+      slug: string;
+      mainImage: string | null;
+      basePrice: number | null;
+      discountPrice: number | null;
+      currency: string;
+      approvalStatus: string;
+      isActive: boolean;
+      isPublished: boolean;
+    }>;
+    meta: {
+      page: number;
+      limit: number;
+      total: number;
+      totalPages: number;
+    };
+  }> {
+    const startTime = Date.now();
+    this.logger.log(
+      `🔍 Searching products in category ${categoryId}: search="${search || 'all'}", page=${page}, limit=${limit}`,
+    );
+
+    try {
+      // 1. Validate category exists and is public
+      const category = await this.categoryRepository.findOne({
+        where: { id: categoryId },
+      });
+
+      if (!category) {
+        throw new NotFoundException(`Category with ID ${categoryId} not found`);
+      }
+
+      if (!category.isActive || category.approvalStatus !== 'approved') {
+        throw new NotFoundException(
+          `Category with ID ${categoryId} is not publicly available`,
+        );
+      }
+
+      // 2. Calculate pagination offset
+      const sanitizedPage = Math.max(1, page || 1);
+      const sanitizedLimit = Math.min(Math.max(1, limit || 20), 100);
+      const offset = (sanitizedPage - 1) * sanitizedLimit;
+
+      // 3. Build TypeORM QueryBuilder for products
+      const queryBuilder = this.categoryRepository.manager
+        .getRepository('ProductEntity')
+        .createQueryBuilder('product')
+        .leftJoinAndSelect('product.pricing', 'pricing')
+        .leftJoin('product.images', 'image')
+        .leftJoin('product.descriptions', 'description')
+        .addSelect([
+          'image.id',
+          'image.imageUrl',
+          'image.sortOrder',
+          'description.description',
+        ])
+        .where('product.category_id = :categoryId', { categoryId })
+        .andWhere('product.isActive = :isActive', { isActive: true })
+        .andWhere('product.isPublished = :isPublished', { isPublished: true })
+        .andWhere('product.approvalStatus = :approvalStatus', {
+          approvalStatus: 'approved',
+        })
+        .andWhere('product.is_deleted = :isDeleted', { isDeleted: false });
+
+      // 4. Apply search filter if provided
+      if (search && search.trim().length > 0) {
+        const searchTerm = `%${search.trim()}%`;
+        queryBuilder.andWhere(
+          '(product.nameEn LIKE :search OR product.nameAr LIKE :search OR description.description LIKE :search)',
+          { search: searchTerm },
+        );
+      }
+
+      // 5. Order by creation date (newest first)
+      queryBuilder.orderBy('product.createdAt', 'DESC');
+
+      // 6. Add pagination
+      queryBuilder.skip(offset).take(sanitizedLimit);
+
+      // 7. Execute query and get total count
+      const [products, total] = await queryBuilder.getManyAndCount();
+
+      // 8. Transform results to response format
+      const transformedData = products.map((product) => {
+        // Get first image sorted by sortOrder
+        const sortedImages = (product.images || []).sort(
+          (a, b) => (a.sortOrder || 0) - (b.sortOrder || 0),
+        );
+        const mainImage = sortedImages[0]?.imageUrl || null;
+
+        return {
+          id: product.id,
+          nameEn: product.nameEn,
+          nameAr: product.nameAr,
+          slug: product.slug,
+          mainImage,
+          basePrice: product.pricing?.basePrice || null,
+          discountPrice: product.pricing?.discountPrice || null,
+          currency: product.pricing?.currency || 'SYP',
+          approvalStatus: product.approvalStatus,
+          isActive: product.isActive,
+          isPublished: product.isPublished,
+        };
+      });
+
+      // 9. Calculate metadata
+      const totalPages = Math.ceil(total / sanitizedLimit);
+      const processingTime = Date.now() - startTime;
+
+      this.logger.log(
+        `✅ Found ${transformedData.length}/${total} products in category ${categoryId} (${processingTime}ms)`,
+      );
+
+      return {
+        data: transformedData,
+        meta: {
+          page: sanitizedPage,
+          limit: sanitizedLimit,
+          total,
+          totalPages,
+        },
+      };
+    } catch (error: unknown) {
+      const processingTime = Date.now() - startTime;
+      this.logger.error(
+        `❌ Failed to search products in category ${categoryId}: ${(error as Error).message} (${processingTime}ms)`,
+        (error as Error).stack,
+      );
+
+      if (error instanceof NotFoundException) {
+        throw error;
+      }
+
+      throw new InternalServerErrorException(
+        `Failed to search products in category ${categoryId}`,
+      );
+    }
+  }
 }

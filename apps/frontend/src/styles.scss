@@ -87,6 +87,24 @@
   --umber-dark: #260f14;
   --umber-medium: #4a151e;
   --umber-light: #6b1f2a;
+
+  /** Semantic feedback state colors for form validation and user notifications */
+  --color-error: #d32f2f;
+  /** Background color for error message containers */
+  --color-error-bg: #fdecea;
+  /** Semantic success color for confirmation states */
+  --color-success: #2e7d32;
+  /** Background color for success message containers */
+  --color-success-bg: #e8f5e9;
+  /** Secondary text color for labels and descriptions */
+  --color-text-secondary: #666666;
+  /** Muted text color for hints and disclaimers */
+  --color-text-muted: #999999;
+
+  /** Auth card shadow — consistent elevation for all auth forms */
+  --shadow-auth-card: 0 4px 24px rgba(0, 0, 0, 0.08);
+  /** Neutral background for page surfaces (maps to neutral-100) */
+  --color-surface-neutral: #f5f5f5;
 }
 
 /* Material Button Overrides - SouqSyria Golden Wheat Colors */

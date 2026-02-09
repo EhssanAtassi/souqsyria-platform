@@ -16,6 +16,18 @@
     </div>
   </div>
 
+  <!-- Preset Price Buttons -->
+  <div class="price-presets">
+    @for (preset of presets; track preset.labelEn) {
+      <button
+        class="price-preset-btn"
+        [class.price-preset-btn--active]="minPrice() === preset.min && maxPrice() === preset.max"
+        (click)="selectPreset(preset)">
+        {{ language() === 'ar' ? preset.labelAr : preset.labelEn }}
+      </button>
+    }
+  </div>
+
   <!-- Min Price Slider -->
   <div class="slider-container">
     <label class="slider-label">{{ getMinLabel() }}</label>

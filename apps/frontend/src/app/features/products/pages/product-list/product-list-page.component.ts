@@ -26,16 +26,20 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatSelectModule } from '@angular/material/select';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { FormsModule } from '@angular/forms';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import {
   ProductListItem,
   ProductListMeta,
 } from '../../models/product-list.interface';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { ProductService } from '../../services/product.service';
 import { LanguageService } from '../../../../shared/services/language.service';
+import { CartService } from '../../../../store/cart/cart.service';
 import { ProductCardComponent } from '../../components/product-card/product-card.component';
 import { ProductSkeletonComponent } from '../../components/product-skeleton/product-skeleton.component';
 import { ProductsPaginationComponent } from '../../components/pagination/products-pagination.component';
+import { FilterSidebarComponent } from '../../../../shared/components/filter-sidebar/filter-sidebar.component';
+import { FilterState } from '../../../../shared/components/filter-sidebar/filter-sidebar.component';
 
 /**
  * @description Product listing page component.
@@ -56,6 +60,8 @@ import { ProductsPaginationComponent } from '../../components/pagination/product
     ProductCardComponent,
     ProductSkeletonComponent,
     ProductsPaginationComponent,
+    FilterSidebarComponent,
+    MatSnackBarModule,
   ],
   templateUrl: './product-list-page.component.html',
   styleUrls: ['./product-list-page.component.scss'],
@@ -67,6 +73,8 @@ export class ProductListPageComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly destroyRef = inject(DestroyRef);
   private readonly languageService = inject(LanguageService);
+  private readonly cartService = inject(CartService);
+  private readonly snackBar = inject(MatSnackBar);
 
   /** Product list items from API */
   products = signal<ProductListItem[]>([]);
@@ -86,6 +94,9 @@ export class ProductListPageComponent implements OnInit {
   /** Current UI language from shared LanguageService */
   readonly language = this.languageService.language;
 
+  /** Query params as a signal for reactive computations */
+  private readonly queryParams = toSignal(this.route.queryParams, { initialValue: {} });
+
   /** Current sort option synced from URL */
   sortBy = signal<string>('newest');
 
@@ -101,7 +112,14 @@ export class ProductListPageComponent implements OnInit {
     { value: 'price_desc', labelEn: 'Price: High to Low', labelAr: 'السعر: من الأعلى إلى الأقل' },
     { value: 'newest', labelEn: 'Newest', labelAr: 'الأحدث' },
     { value: 'rating', labelEn: 'Rating', labelAr: 'التقييم' },
+    { value: 'popularity', labelEn: 'Most Popular', labelAr: 'الأكثر شعبية' },
   ];
+
+  /** Active filters from sidebar */
+  activeFilters = signal<FilterState>({});
+
+  /** Sidebar open state for mobile */
+  sidebarOpen = signal(false);
 
   /** Number of skeleton cards matches current page limit for consistent layout */
   readonly skeletonCount = computed(() => this.currentLimit());
@@ -128,8 +146,8 @@ export class ProductListPageComponent implements OnInit {
   }
 
   /**
-   * @description Subscribes to URL query params to drive pagination.
-   * Every time query params change (page, limit, sort), a new API call fires.
+   * @description Subscribes to URL query params to drive pagination and filters.
+   * Every time query params change (page, limit, sort, filters), a new API call fires.
    */
   ngOnInit(): void {
     this.route.queryParams
@@ -138,22 +156,48 @@ export class ProductListPageComponent implements OnInit {
         const page = Number(params['page']) || 1;
         const limit = Number(params['limit']) || 20;
         const sortBy = params['sort'] || 'newest';
+        const categoryId = params['categoryId'] ? Number(params['categoryId']) : undefined;
+        const minPrice = params['minPrice'] ? Number(params['minPrice']) : undefined;
+        const maxPrice = params['maxPrice'] ? Number(params['maxPrice']) : undefined;
+        const search = params['search'] || undefined;
 
         this.currentPage.set(page);
         this.currentLimit.set(limit);
         this.sortBy.set(sortBy);
 
-        this.loadProducts(page, limit, sortBy);
+        // Update activeFilters from URL
+        const filters: FilterState = {};
+        if (minPrice !== undefined || maxPrice !== undefined) {
+          filters.priceRange = {
+            min: minPrice || 0,
+            max: maxPrice || 999999
+          };
+        }
+        this.activeFilters.set(filters);
+
+        this.loadProducts(page, limit, sortBy, categoryId, minPrice, maxPrice, search);
       });
   }
 
   /**
-   * @description Fetches products from the API with current pagination state
+   * @description Fetches products from the API with current pagination and filter state
    * @param page - Page number to fetch
    * @param limit - Items per page
    * @param sortBy - Sort order key
+   * @param categoryId - Optional category filter
+   * @param minPrice - Optional minimum price filter
+   * @param maxPrice - Optional maximum price filter
+   * @param search - Optional search term
    */
-  loadProducts(page: number, limit: number, sortBy?: string): void {
+  loadProducts(
+    page: number,
+    limit: number,
+    sortBy?: string,
+    categoryId?: number,
+    minPrice?: number,
+    maxPrice?: number,
+    search?: string
+  ): void {
     this.loading.set(true);
     this.error.set(null);
 
@@ -162,6 +206,10 @@ export class ProductListPageComponent implements OnInit {
         page,
         limit,
         sortBy: sortBy || this.sortBy(),
+        categoryId,
+        minPrice,
+        maxPrice,
+        search,
       })
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
@@ -228,9 +276,27 @@ export class ProductListPageComponent implements OnInit {
    * Placeholder for cart service integration.
    * @param product - Product to add to cart
    */
+  /**
+   * @description Adds a product to cart and shows snackbar with "View Cart" action
+   * @param product - Product to add to cart
+   */
   onAddToCart(product: ProductListItem): void {
-    // TODO: Integrate with cart service in a later story
-    console.log('Add to cart:', product.id, product.nameEn);
+    this.cartService.addToCart(String(product.id), 1);
+
+    const productName = this.language() === 'ar' ? product.nameAr : product.nameEn;
+    const message = this.language() === 'ar'
+      ? `تمت إضافة ${productName} إلى السلة`
+      : `${productName} added to cart`;
+    const action = this.language() === 'ar' ? 'عرض السلة' : 'View Cart';
+
+    const ref = this.snackBar.open(message, action, {
+      duration: 4000,
+      panelClass: 'success-snackbar',
+    });
+
+    ref.onAction().subscribe(() => {
+      this.router.navigate(['/cart']);
+    });
   }
 
   /** @description Toggles between grid and list view modes */
@@ -240,7 +306,72 @@ export class ProductListPageComponent implements OnInit {
 
   /** @description Retries the last API call after an error */
   retryLoad(): void {
-    this.loadProducts(this.currentPage(), this.currentLimit(), this.sortBy());
+    const params = this.route.snapshot.queryParams;
+    this.loadProducts(
+      this.currentPage(),
+      this.currentLimit(),
+      this.sortBy(),
+      params['categoryId'] ? Number(params['categoryId']) : undefined,
+      params['minPrice'] ? Number(params['minPrice']) : undefined,
+      params['maxPrice'] ? Number(params['maxPrice']) : undefined,
+      params['search']
+    );
+  }
+
+  /**
+   * @description Handles filter changes from sidebar
+   * Extracts price range and updates URL params
+   * @param filters - New filter state from sidebar
+   */
+  onFiltersChange(filters: FilterState): void {
+    const queryParams: any = { page: 1 }; // Reset to page 1 on filter change
+
+    if (filters.priceRange) {
+      queryParams.minPrice = filters.priceRange.min;
+      queryParams.maxPrice = filters.priceRange.max;
+    } else {
+      // Explicitly clear price params when filter is removed
+      queryParams.minPrice = null;
+      queryParams.maxPrice = null;
+    }
+
+    // Preserve existing categoryId and search from URL
+    const currentParams = this.route.snapshot.queryParams;
+    if (currentParams['categoryId']) {
+      queryParams.categoryId = currentParams['categoryId'];
+    }
+    if (currentParams['search']) {
+      queryParams.search = currentParams['search'];
+    }
+
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams,
+      queryParamsHandling: 'merge',
+    });
+  }
+
+  /**
+   * @description Clears all active filters
+   * Removes filter params from URL
+   */
+  onClearFilters(): void {
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: {
+        page: 1,
+        minPrice: null,
+        maxPrice: null,
+        categoryId: null,
+        search: null,
+      },
+      queryParamsHandling: 'merge',
+    });
+  }
+
+  /** @description Toggles sidebar visibility for mobile */
+  toggleSidebar(): void {
+    this.sidebarOpen.update(open => !open);
   }
 
   /**
@@ -289,5 +420,58 @@ export class ProductListPageComponent implements OnInit {
   /** @description Array of skeleton card indices for ngFor */
   get skeletonArray(): number[] {
     return Array(this.skeletonCount()).fill(0);
+  }
+
+  /**
+   * @description Whether any filters are active
+   */
+  hasActiveFilters = computed(() => {
+    const params = this.queryParams();
+    return !!(params['categoryId'] || params['minPrice'] || params['maxPrice'] || params['search']);
+  });
+
+  /**
+   * @description Active category filter label
+   */
+  activeFilterCategory = computed(() => {
+    const params = this.queryParams();
+    return params['categoryId'] ? `#${params['categoryId']}` : null;
+  });
+
+  /**
+   * @description Active price range label
+   */
+  activeFilterPriceRange = computed(() => {
+    const params = this.queryParams();
+    const min = params['minPrice'];
+    const max = params['maxPrice'];
+    if (!min && !max) return null;
+    const fmt = (v: string) => Number(v).toLocaleString();
+    if (min && max) return `${fmt(min)} - ${fmt(max)} ل.س`;
+    if (min) return `${this.language() === 'ar' ? 'من' : 'From'} ${fmt(min)} ل.س`;
+    return `${this.language() === 'ar' ? 'إلى' : 'Up to'} ${fmt(max)} ل.س`;
+  });
+
+  /**
+   * @description Active search term
+   */
+  activeFilterSearch = computed(() => {
+    return this.queryParams()['search'] || null;
+  });
+
+  /**
+   * @description Remove a specific filter
+   * @param type - Filter type to remove
+   */
+  removeFilter(type: 'categoryId' | 'price' | 'search'): void {
+    const params: any = { page: 1 };
+    if (type === 'categoryId') params.categoryId = null;
+    if (type === 'price') { params.minPrice = null; params.maxPrice = null; }
+    if (type === 'search') params.search = null;
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: params,
+      queryParamsHandling: 'merge',
+    });
   }
 }

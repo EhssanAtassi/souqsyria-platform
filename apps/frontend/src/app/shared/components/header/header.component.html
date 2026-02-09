@@ -133,24 +133,13 @@
     (itemClick)="onQuickAccessItemClick($event)"
   ></app-quick-access-row>
 
-  <!-- Mobile Category Menu -->
-  <div class="sq-mobile-menu-wrapper" [class.sq-mobile-menu-open]="mobileMenuOpen">
-    <app-mobile-category-menu
-      [categories]="categories"
-      [config]="config"
-      [user]="user"
-      [locations]="filteredLocations"
-      [isOpen]="mobileMenuOpen"
-      [selectedLocation]="selectedLocation"
-      (categoryClick)="onCategoryClick($event)"
-      (subcategoryClick)="onSubcategoryClick($event)"
-      (menuClose)="closeMobileMenu()"
-      (loginClick)="onLoginClick()"
-      (logoutClick)="onLogoutClick()"
-      (locationChange)="onLocationSelect($event)"
-      (languageChange)="onLanguageChange($event)"
-      (promotionalLinkClick)="onPromotionalLinkClick($event)"
-    ></app-mobile-category-menu>
-  </div>
+  <!-- Mobile Category Nav (S3 - replaces legacy MobileCategoryMenu) -->
+  <app-mobile-category-nav
+    [categories]="categoryTree()"
+    [isOpen]="mobileMenuOpen"
+    [isLoading]="categoryTreeLoading()"
+    (categorySelected)="onMobileCategorySelected($event)"
+    (menuClosed)="closeMobileMenu()"
+  ></app-mobile-category-nav>
 
 </header>

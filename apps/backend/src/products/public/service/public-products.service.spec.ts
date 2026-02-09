@@ -347,10 +347,10 @@ describe('PublicProductsService', () => {
       // Act
       await service.getPublicFeed(dto);
 
-      // Assert
+      // Assert — search now uses FULLTEXT index with LIKE fallback
       expect(mockQueryBuilder.andWhere).toHaveBeenCalledWith(
-        'product.nameEn LIKE :search OR product.nameAr LIKE :search',
-        { search: '%Damascus%' },
+        '(MATCH(product.nameEn, product.nameAr) AGAINST(:ftSearch IN BOOLEAN MODE) OR product.nameEn LIKE :search OR product.nameAr LIKE :search)',
+        { ftSearch: 'Damascus', search: '%Damascus%' },
       );
     });
 
@@ -528,7 +528,7 @@ describe('PublicProductsService', () => {
       expect(mockQueryBuilder.skip).toHaveBeenCalledWith(10);
       expect(mockQueryBuilder.take).toHaveBeenCalledWith(10);
       expect(mockQueryBuilder.andWhere).toHaveBeenCalledWith(
-        'product.nameEn LIKE :search OR product.nameAr LIKE :search',
+        '(MATCH(product.nameEn, product.nameAr) AGAINST(:ftSearch IN BOOLEAN MODE) OR product.nameEn LIKE :search OR product.nameAr LIKE :search)',
         expect.any(Object),
       );
       expect(mockQueryBuilder.andWhere).toHaveBeenCalledWith(

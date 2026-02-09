@@ -1,0 +1,202 @@
+<div class="product-detail-page" [class.rtl]="language() === 'ar'">
+  <!-- Loading State -->
+  @if (loading()) {
+    <div class="product-detail-page__loading">
+      <mat-icon class="spinner">hourglass_empty</mat-icon>
+      <p>{{ language() === 'ar' ? 'جاري التحميل...' : 'Loading...' }}</p>
+    </div>
+  }
+
+  <!-- Error State -->
+  @else if (error()) {
+    <div class="product-detail-page__error">
+      <mat-icon class="product-detail-page__error-icon">error_outline</mat-icon>
+      <h2 class="product-detail-page__error-title">{{ error() }}</h2>
+      <button mat-raised-button color="primary" (click)="retryLoad()">
+        <mat-icon>refresh</mat-icon>
+        <span>{{ retryLabel }}</span>
+      </button>
+    </div>
+  }
+
+  <!-- Product Content -->
+  @else if (product()) {
+    <!-- Breadcrumb -->
+    <nav class="breadcrumb">
+      <a routerLink="/" class="breadcrumb__link">{{ language() === 'ar' ? 'الرئيسية' : 'Home' }}</a>
+      <mat-icon class="breadcrumb__separator">chevron_right</mat-icon>
+      @if (product()!.category) {
+        <a [routerLink]="['/category', product()!.category!.slug]" class="breadcrumb__link">{{ categoryName() }}</a>
+        <mat-icon class="breadcrumb__separator">chevron_right</mat-icon>
+      }
+      <span class="breadcrumb__current">{{ productName() }}</span>
+    </nav>
+
+    <!-- Main Product Section -->
+    <div class="product-detail">
+      <!-- Image Gallery Component -->
+      <div class="product-detail__gallery">
+        <app-image-gallery
+          [images]="product()!.images"
+          [productName]="productName()"
+          [language]="language()"
+          [selectedIndex]="variantImageIndex()"
+          (imageChange)="onGalleryImageChange($event)"
+        />
+      </div>
+
+      <!-- Product Info -->
+      <div class="product-detail__info">
+        <h1 class="info__title">{{ productName() }}</h1>
+
+        <!-- Price (variant-aware) -->
+        <div class="info__pricing">
+          @if (selectedVariant()) {
+            <span class="info__price">{{ formattedEffectivePrice() }}</span>
+          } @else if (hasDiscount()) {
+            <span class="info__price info__price--discounted">{{ formattedDiscountPrice() }}</span>
+            <span class="info__price info__price--original">{{ formattedBasePrice() }}</span>
+          } @else {
+            <span class="info__price">{{ formattedBasePrice() }}</span>
+          }
+        </div>
+
+        <!-- Stock Badge (variant-aware) -->
+        <div class="info__stock">
+          <span class="stock-badge" [class]="effectiveStockClass()">
+            {{ effectiveStockLabel() }}
+          </span>
+        </div>
+
+        <!-- SKU -->
+        @if (product()!.sku) {
+          <p class="info__sku">SKU: {{ product()!.sku }}</p>
+        }
+
+        <!-- Variant Selector -->
+        @if (product()!.variants.length > 0) {
+          <div class="info__variants">
+            <app-variant-selector
+              [variants]="product()!.variants"
+              [language]="language()"
+              [attributes]="product()!.attributes"
+              (variantSelect)="onVariantSelect($event)"
+            />
+          </div>
+        }
+
+        <mat-divider class="info__divider"></mat-divider>
+
+        <!-- Quantity Selector -->
+        <div class="info__quantity">
+          <label class="info__quantity-label">{{ language() === 'ar' ? 'الكمية' : 'Quantity' }}</label>
+          <div class="quantity-controls">
+            <button
+              mat-icon-button
+              (click)="onQuantityChange(-1)"
+              [attr.aria-label]="language() === 'ar' ? 'إنقاص الكمية' : 'Decrease quantity'"
+            >
+              <mat-icon>remove</mat-icon>
+            </button>
+            <span class="quantity-value">{{ quantity() }}</span>
+            <button
+              mat-icon-button
+              (click)="onQuantityChange(1)"
+              [attr.aria-label]="language() === 'ar' ? 'زيادة الكمية' : 'Increase quantity'"
+            >
+              <mat-icon>add</mat-icon>
+            </button>
+          </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="info__actions">
+          <button
+            mat-raised-button
+            color="primary"
+            class="info__add-to-cart"
+            (click)="onAddToCart()"
+            [disabled]="effectiveStockStatus() === 'out_of_stock'"
+          >
+            <mat-icon>shopping_cart</mat-icon>
+            <span>{{ addToCartLabel }}</span>
+          </button>
+
+          <button
+            mat-icon-button
+            class="info__wishlist"
+            (click)="onAddToWishlist()"
+            [attr.aria-label]="addToWishlistLabel"
+          >
+            <mat-icon>favorite_border</mat-icon>
+          </button>
+        </div>
+
+        <!-- Short Description -->
+        @if (descriptionForLang()?.shortDescription) {
+          <p class="info__short-description">{{ descriptionForLang()!.shortDescription }}</p>
+        }
+      </div>
+    </div>
+
+    <!-- Tabs: Description | Specifications -->
+    <mat-tab-group class="product-detail__tabs">
+      <mat-tab [label]="descriptionTabLabel">
+        <div class="tab-content">
+          @if (sanitizedDescription()) {
+            <div [innerHTML]="sanitizedDescription()" class="description-content"></div>
+          } @else {
+            <p class="tab-content__empty">{{ language() === 'ar' ? 'لا يوجد وصف متاح' : 'No description available' }}</p>
+          }
+        </div>
+      </mat-tab>
+
+      <mat-tab [label]="specificationsTabLabel">
+        <div class="tab-content">
+          <app-specifications-table
+            [attributes]="product()!.attributes"
+            [language]="language()"
+          />
+        </div>
+      </mat-tab>
+    </mat-tab-group>
+
+    <!-- Related Products -->
+    @if (relatedProductItems().length > 0) {
+      <section class="product-detail__related">
+        <h2 class="related__heading">{{ relatedProductsHeading }}</h2>
+        <div class="related__grid">
+          @for (relatedProduct of relatedProductItems(); track relatedProduct.id) {
+            <app-product-card
+              [product]="relatedProduct"
+              [language]="language()"
+            />
+          }
+        </div>
+      </section>
+    }
+
+    <!-- Mobile Sticky Add to Cart -->
+    <div class="product-detail__sticky-cart">
+      <div class="sticky-cart__price">
+        @if (selectedVariant()) {
+          <span class="sticky-cart__price-text">{{ formattedEffectivePrice() }}</span>
+        } @else if (hasDiscount()) {
+          <span class="sticky-cart__discount-price">{{ formattedDiscountPrice() }}</span>
+        } @else {
+          <span class="sticky-cart__price-text">{{ formattedBasePrice() }}</span>
+        }
+      </div>
+      <button
+        mat-raised-button
+        color="primary"
+        class="sticky-cart__button"
+        (click)="onAddToCart()"
+        [disabled]="effectiveStockStatus() === 'out_of_stock'"
+      >
+        <mat-icon>shopping_cart</mat-icon>
+        {{ addToCartLabel }}
+      </button>
+    </div>
+  }
+</div>

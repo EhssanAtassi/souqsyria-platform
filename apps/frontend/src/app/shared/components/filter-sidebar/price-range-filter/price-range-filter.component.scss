@@ -14,7 +14,7 @@ $forest-medium: #054239;
     align-items: center;
     justify-content: space-between;
     gap: 1rem;
-    margin-bottom: 1.5rem;
+    margin-bottom: 1rem;
     padding: 1rem;
     background: $golden-wheat-light;
     border-radius: 8px;
@@ -49,6 +49,37 @@ $forest-medium: #054239;
       font-weight: 300;
       color: $golden-wheat-medium;
       margin-top: 1rem;
+    }
+  }
+
+  // Preset Price Buttons
+  .price-presets {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+
+  .price-preset-btn {
+    padding: 6px 12px;
+    border: 1px solid #d1d5db;
+    border-radius: 20px;
+    background: white;
+    color: #374151;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+
+    &:hover {
+      border-color: #c5a55a;
+      color: #c5a55a;
+    }
+
+    &--active {
+      background: #c5a55a;
+      border-color: #c5a55a;
+      color: white;
     }
   }
 

@@ -45,8 +45,9 @@ export const AuthActions = createActionGroup({
      * @description Dispatched when user submits the login form
      * @param email - User email address
      * @param password - User password
+     * @param rememberMe - Extend session to 30 days
      */
-    'Login': props<{ email: string; password: string }>(),
+    'Login': props<{ email: string; password: string; rememberMe: boolean }>(),
 
     /**
      * @description Dispatched after successful backend login response
@@ -57,8 +58,16 @@ export const AuthActions = createActionGroup({
     /**
      * @description Dispatched when login request fails
      * @param error - Error message from the backend or network
+     * @param errorCode - Structured error code (ACCOUNT_LOCKED | INVALID_CREDENTIALS)
+     * @param remainingAttempts - Attempts remaining before lockout
+     * @param lockedUntilMinutes - Minutes until lockout expires
      */
-    'Login Failure': props<{ error: string }>(),
+    'Login Failure': props<{
+      error: string;
+      errorCode?: string;
+      remainingAttempts?: number;
+      lockedUntilMinutes?: number;
+    }>(),
 
     // ─── Register ─────────────────────────────────────────────
 

@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Global, Module } from '@nestjs/common';
 import { AuthController } from './auth.controller';
 import { UsersModule } from '../users/users.module';
 import { AuthService } from './auth.service';
@@ -14,11 +14,13 @@ import { LoginLog } from './entity/login-log.entity';
 import { EmailService } from './service/email.service';
 import { TokenBlacklist } from './entity/token-blacklist.entity';
 import { RefreshToken } from './entity/refresh-token.entity';
+import { SecurityAudit } from './entity/security-audit.entity';
 
 // Common services
 import { EncryptionService } from '../common/utils/encryption.util';
 import { RateLimiterService } from '../common/services/rate-limiter.service';
 
+@Global()
 @Module({
   imports: [
     UsersModule,
@@ -28,6 +30,7 @@ import { RateLimiterService } from '../common/services/rate-limiter.service';
       LoginLog,
       TokenBlacklist,
       RefreshToken,
+      SecurityAudit,
     ]),
     PassportModule,
     JwtModule.registerAsync({
@@ -49,6 +52,6 @@ import { RateLimiterService } from '../common/services/rate-limiter.service';
     EncryptionService,
     RateLimiterService,
   ],
-  exports: [AuthService],
+  exports: [AuthService, JwtAuthGuard, TypeOrmModule],
 })
 export class AuthModule {}

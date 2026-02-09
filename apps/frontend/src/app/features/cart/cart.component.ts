@@ -20,6 +20,7 @@ import { Observable, Subject } from 'rxjs';
 import { debounceTime, takeUntil } from 'rxjs/operators';
 
 import { CartService } from '../../store/cart/cart.service';
+import { CartApiService } from '../../core/api/cart-api.service';
 import { CartQuery } from '../../store/cart/cart.query';
 import { ProductsQuery } from '../../store/products/products.query';
 import { CartItem, Cart } from '../../shared/interfaces/cart.interface';
@@ -28,6 +29,9 @@ import { ProductRecommendationsComponent } from '../../shared/components/product
 import { ProductRecommendationsCarouselComponent } from '../../shared/components/product-recommendations-carousel';
 import { ProductBoxGridComponent } from '../../shared/components/ui/product-box/product-box-grid.component';
 import { Router } from '@angular/router';
+import { Store } from '@ngrx/store';
+import { selectUser } from '../auth/store/auth.selectors';
+import { LanguageService } from '../../shared/services/language.service';
 
 /**
  * Syrian marketplace shopping cart component
@@ -138,14 +142,22 @@ export class CartComponent implements OnInit, OnDestroy {
   /** Debounce delay for recommendation recalculation (500ms) */
   private readonly RECOMMENDATION_DEBOUNCE_MS = 500;
 
+  /** Current UI language signal */
+  readonly language: ReturnType<LanguageService['language']>;
+
   constructor(
     private cartService: CartService,
+    private cartApiService: CartApiService,
     private cartQuery: CartQuery,
     private productsQuery: ProductsQuery,
     private snackBar: MatSnackBar,
     private dialog: MatDialog,
-    private router: Router
-  ) {}
+    private router: Router,
+    private languageService: LanguageService,
+    private store: Store,
+  ) {
+    this.language = this.languageService.language;
+  }
 
   /**
    * Component initialization
@@ -204,13 +216,33 @@ export class CartComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Removes item from cart
+   * Removes item from cart with undo snackbar (5-second window)
    *
    * @param productId - Product ID
    */
   removeItem(productId: string): void {
     this.cartService.removeFromCart(productId);
-    this.showSnackBar('Item removed from cart', 'success');
+
+    // Show snackbar with Undo action (5-second duration matching backend window)
+    const ref = this.snackBar.open('Item removed from cart', 'Undo', {
+      duration: 5000,
+      panelClass: 'success-snackbar',
+    });
+
+    ref.onAction().subscribe(() => {
+      // Call backend undo endpoint
+      this.cartApiService.undoRemove(productId).subscribe({
+        next: () => {
+          // Re-fetch cart to restore the item in local state
+          const userId = this.getUserId();
+          this.cartService.fetchCartFromBackend(userId);
+          this.showSnackBar('Item restored', 'success');
+        },
+        error: () => {
+          this.showSnackBar('Undo window expired', 'warning');
+        },
+      });
+    });
 
     // Refresh recommendations after removing item
     this.loadCartRecommendations();
@@ -598,28 +630,17 @@ export class CartComponent implements OnInit, OnDestroy {
   /**
    * Get User ID for Authenticated Users
    *
-   * Retrieves current user ID from authentication service.
+   * Retrieves current user ID from NgRx auth state.
    * Returns undefined for guest users.
    *
    * @returns User ID or undefined
    */
   private getUserId(): string | undefined {
-    // TODO: Replace with actual authentication service when available
-    // Example: return this.authService.currentUser?.id;
-
-    // For now, check localStorage for demo/testing purposes
-    const userStr = localStorage.getItem('currentUser');
-    if (userStr) {
-      try {
-        const user = JSON.parse(userStr);
-        console.log('Found authenticated user:', user.id);
-        return user.id;
-      } catch (e) {
-        console.error('Failed to parse user from localStorage:', e);
-      }
-    }
-
-    console.log('No authenticated user found - using guest cart');
-    return undefined;
+    let userId: string | undefined;
+    // Synchronous snapshot from NgRx store
+    this.store.select(selectUser).subscribe(user => {
+      userId = user ? String(user.id) : undefined;
+    }).unsubscribe();
+    return userId;
   }
 }

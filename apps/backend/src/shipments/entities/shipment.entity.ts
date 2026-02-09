@@ -145,7 +145,6 @@ export class Shipment {
    * Tracking and identification
    */
   @Column({ type: 'varchar', length: 100, nullable: true, unique: true })
-  @Index()
   @ApiProperty({
     description: 'Unique tracking code',
     example: 'SY-SHIP-2025-001234',

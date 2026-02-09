@@ -69,9 +69,6 @@ export enum SyrianStockAlertLevel {
 @Index(['warehouse', 'recordDate'])
 @Index(['governorate', 'recordDate'])
 @Index(['variant', 'recordDate'])
-@Index(['performanceCategory'])
-@Index(['alertLevel'])
-@Index(['totalValueSyp'])
 export class SyrianStockAnalyticsEntity {
   @PrimaryGeneratedColumn()
   id: number;

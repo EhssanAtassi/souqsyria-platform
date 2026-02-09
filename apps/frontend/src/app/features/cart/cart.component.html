@@ -1,5 +1,5 @@
 <!-- Syrian Marketplace Shopping Cart - Akita Version -->
-<div class="cart-page">
+<div class="cart-page" [dir]="language() === 'ar' ? 'rtl' : 'ltr'">
 
   <!-- Cart Content -->
   <div class="container" *ngIf="(items$ | async) as items">
@@ -7,9 +7,15 @@
     <!-- Page Header -->
     <div class="cart-page__header">
       <div>
-        <h1 class="cart-page__title">Shopping Cart</h1>
+        <h1 class="cart-page__title">
+          {{ language() === 'ar' ? 'سلة التسوق' : 'Shopping Cart' }}
+        </h1>
         <p class="cart-page__subtitle" *ngIf="(itemCount$ | async) as count">
-          {{ count }} {{ count === 1 ? 'item' : 'items' }} in your cart
+          {{ count }}
+          {{ language() === 'ar'
+            ? (count === 1 ? 'عنصر' : 'عناصر')
+            : (count === 1 ? 'item' : 'items') }}
+          {{ language() === 'ar' ? 'في سلتك' : 'in your cart' }}
         </p>
       </div>
     </div>
@@ -17,14 +23,18 @@
     <!-- Empty Cart State -->
     <div *ngIf="items.length === 0" class="cart-page__empty">
       <mat-icon class="cart-page__empty-icon">shopping_cart</mat-icon>
-      <h2 class="cart-page__empty-title">Your cart is empty</h2>
+      <h2 class="cart-page__empty-title">
+        {{ language() === 'ar' ? 'سلة التسوق فارغة' : 'Your cart is empty' }}
+      </h2>
       <p class="cart-page__empty-text">
-        Discover authentic Syrian products and add them to your cart.
+        {{ language() === 'ar'
+          ? 'اكتشف منتجات سورية أصلية وأضفها إلى سلتك.'
+          : 'Discover authentic Syrian products and add them to your cart.' }}
       </p>
       <div class="cart-page__empty-actions">
         <button mat-raised-button color="primary" (click)="continueShopping()">
           <mat-icon>shopping_bag</mat-icon>
-          Start Shopping
+          {{ language() === 'ar' ? 'ابدأ التسوق' : 'Start Shopping' }}
         </button>
       </div>
     </div>
@@ -38,11 +48,12 @@
         <!-- Cart Actions Bar -->
         <div class="cart-page__actions-bar">
           <span class="cart-page__item-count">
-            {{ (itemCount$ | async) }} items
+            {{ (itemCount$ | async) }}
+            {{ language() === 'ar' ? 'عناصر' : 'items' }}
           </span>
           <button mat-button color="warn" (click)="clearCart()">
             <mat-icon>delete_outline</mat-icon>
-            Clear Cart
+            {{ language() === 'ar' ? 'إفراغ السلة' : 'Clear Cart' }}
           </button>
         </div>
 
@@ -82,7 +93,7 @@
               <div class="cart-item__controls">
                 <!-- Quantity Selector -->
                 <div class="cart-item__quantity">
-                  <label>Quantity:</label>
+                  <label>{{ language() === 'ar' ? 'الكمية:' : 'Quantity:' }}</label>
                   <div class="cart-item__quantity-controls">
                     <button
                       mat-icon-button
@@ -102,9 +113,11 @@
 
                 <!-- Price -->
                 <div class="cart-item__price">
-                  <span class="cart-item__price-label">Price:</span>
+                  <span class="cart-item__price-label">
+                    {{ language() === 'ar' ? 'السعر:' : 'Price:' }}
+                  </span>
                   <span class="cart-item__price-value">
-                    {{ formatPrice(item.product.price.amount * item.quantity, 'USD') }}
+                    {{ formatPrice(item.product.price.amount * item.quantity, 'SYP') }}
                   </span>
                 </div>
 
@@ -114,7 +127,7 @@
                   color="warn"
                   class="cart-item__remove"
                   (click)="removeItem(item.product.id)"
-                  [matTooltip]="'Remove from cart'">
+                  [matTooltip]="language() === 'ar' ? 'إزالة من السلة' : 'Remove from cart'">
                   <mat-icon>delete</mat-icon>
                 </button>
               </div>
@@ -127,28 +140,30 @@
       <div class="cart-page__summary">
         <mat-card class="cart-summary">
           <mat-card-header>
-            <mat-card-title>Order Summary</mat-card-title>
+            <mat-card-title>
+              {{ language() === 'ar' ? 'ملخص الطلب' : 'Order Summary' }}
+            </mat-card-title>
           </mat-card-header>
 
           <mat-card-content>
             <!-- Subtotal -->
             <div class="cart-summary__row">
-              <span>Subtotal:</span>
-              <span>{{ formatPrice((subtotal$ | async) || 0, 'USD') }}</span>
+              <span>{{ language() === 'ar' ? 'المجموع الفرعي:' : 'Subtotal:' }}</span>
+              <span>{{ formatPrice((subtotal$ | async) || 0, 'SYP') }}</span>
             </div>
 
             <mat-divider></mat-divider>
 
             <!-- Coupon Section -->
             <div class="cart-summary__coupon">
-              <h4>Have a coupon?</h4>
+              <h4>{{ language() === 'ar' ? 'لديك كوبون؟' : 'Have a coupon?' }}</h4>
               <div class="cart-summary__coupon-input">
                 <mat-form-field appearance="outline" class="flex-1">
-                  <mat-label>Coupon Code</mat-label>
+                  <mat-label>{{ language() === 'ar' ? 'رمز الكوبون' : 'Coupon Code' }}</mat-label>
                   <input
                     matInput
                     [(ngModel)]="couponCode"
-                    placeholder="Enter code"
+                    [placeholder]="language() === 'ar' ? 'أدخل الرمز' : 'Enter code'"
                     [disabled]="isApplyingCoupon()">
                 </mat-form-field>
                 <button
@@ -156,14 +171,16 @@
                   color="accent"
                   (click)="applyCoupon()"
                   [disabled]="!couponCode() || isApplyingCoupon()">
-                  {{ isApplyingCoupon() ? 'Applying...' : 'Apply' }}
+                  {{ isApplyingCoupon()
+                    ? (language() === 'ar' ? 'جارٍ التطبيق...' : 'Applying...')
+                    : (language() === 'ar' ? 'تطبيق' : 'Apply') }}
                 </button>
               </div>
               <p class="cart-summary__coupon-error" *ngIf="couponError()">
                 {{ couponError() }}
               </p>
               <p class="cart-summary__coupon-hint">
-                Try: SYRIA10 or WELCOME15
+                {{ language() === 'ar' ? 'جرّب: SYRIA10 أو WELCOME15' : 'Try: SYRIA10 or WELCOME15' }}
               </p>
             </div>
 
@@ -171,8 +188,8 @@
 
             <!-- Total -->
             <div class="cart-summary__row cart-summary__row--total">
-              <span>Total:</span>
-              <span>{{ formatPrice((total$ | async) || 0, 'USD') }}</span>
+              <span>{{ language() === 'ar' ? 'الإجمالي:' : 'Total:' }}</span>
+              <span>{{ formatPrice((total$ | async) || 0, 'SYP') }}</span>
             </div>
           </mat-card-content>
 
@@ -183,14 +200,14 @@
               class="cart-summary__checkout-btn"
               (click)="proceedToCheckout()">
               <mat-icon>lock</mat-icon>
-              Proceed to Checkout
+              {{ language() === 'ar' ? 'الدفع' : 'Proceed to Checkout' }}
             </button>
             <button
               mat-stroked-button
               class="cart-summary__continue-btn"
               (click)="continueShopping()">
               <mat-icon>shopping_bag</mat-icon>
-              Continue Shopping
+              {{ language() === 'ar' ? 'متابعة التسوق' : 'Continue Shopping' }}
             </button>
           </mat-card-actions>
         </mat-card>
@@ -201,14 +218,14 @@
     <div *ngIf="items.length > 0 && recommendedProducts().length > 0" class="cart-page__recommendations">
       <h2 class="cart-page__recommendations-title">
         <mat-icon>recommend</mat-icon>
-        You might also like
+        {{ language() === 'ar' ? 'قد يعجبك أيضاً' : 'You might also like' }}
       </h2>
 
       <div class="cart-page__recommendations-grid">
         <app-product-box-grid
           *ngFor="let product of recommendedProducts()"
           [product]="product"
-          [language]="'en'"
+          [language]="language()"
           (addToCart)="addRecommendedProductToCart($event)">
         </app-product-box-grid>
       </div>
@@ -218,13 +235,13 @@
     <div *ngIf="items.length > 0 && customersAlsoBought().length > 0" class="cart-page__also-bought">
       <h2 class="cart-page__also-bought-title">
         <mat-icon>people</mat-icon>
-        Customers also bought
+        {{ language() === 'ar' ? 'اشترى العملاء أيضاً' : 'Customers also bought' }}
       </h2>
 
       <app-product-recommendations-carousel
         *ngIf="getFirstCartProductId()"
         [productId]="getFirstCartProductId()"
-        [title]="'Customers Also Bought'"
+        [title]="language() === 'ar' ? 'اشترى العملاء أيضاً' : 'Customers Also Bought'"
         (productClick)="onRecommendedProductClick($event)"
         (addToCart)="onRecommendedProductAddToCart($event)">
       </app-product-recommendations-carousel>
