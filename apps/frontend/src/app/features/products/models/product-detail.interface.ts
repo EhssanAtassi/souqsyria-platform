@@ -79,4 +79,10 @@ export interface SearchSuggestionItem {
   textAr: string;
   type: 'product' | 'category';
   slug: string | null;
+  /** Thumbnail image URL (product suggestions only) */
+  imageUrl?: string | null;
+  /** Product price (discount or base, product suggestions only) */
+  price?: number | null;
+  /** Currency code (default: SYP) */
+  currency?: string;
 }

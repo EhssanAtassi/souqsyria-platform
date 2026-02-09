@@ -16,10 +16,11 @@ import {
   inject,
   DestroyRef,
   OnInit,
+  SecurityContext,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, ActivatedRoute } from '@angular/router';
-import { DomSanitizer, SafeHtml, SecurityContext } from '@angular/platform-browser';
+import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatBadgeModule } from '@angular/material/badge';
@@ -53,7 +54,6 @@ import { SpecificationsTableComponent } from '../../components/specifications-ta
     MatBadgeModule,
     MatTabsModule,
     MatDividerModule,
-    CurrencyPipe,
     ProductCardComponent,
     VariantSelectorComponent,
     SpecificationsTableComponent,

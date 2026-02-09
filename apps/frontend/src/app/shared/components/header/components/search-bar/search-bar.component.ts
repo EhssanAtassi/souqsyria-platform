@@ -281,6 +281,9 @@ export class SearchBarComponent implements OnInit {
             url: item.slug
               ? (item.type === 'product' ? `/products/${item.slug}` : `/category/${item.slug}`)
               : undefined,
+            imageUrl: item.imageUrl ?? undefined,
+            price: item.price ?? null,
+            currency: item.currency ?? 'SYP',
           } as SearchSuggestion)))
         );
       }),
@@ -304,6 +307,20 @@ export class SearchBarComponent implements OnInit {
       this.recentSearches = searches;
       this.cdr.markForCheck();
     });
+  }
+
+  /**
+   * @description Formats suggestion price for display in dropdown
+   * @param price - Price value
+   * @param currency - Currency code (default: SYP)
+   * @returns Formatted price string
+   */
+  formatSuggestionPrice(price: number | null | undefined, currency?: string): string {
+    if (!price) return '';
+    if (currency === 'SYP' || !currency) {
+      return `${price.toLocaleString('ar-SY')} ل.س`;
+    }
+    return `$${price.toLocaleString('en-US')}`;
   }
 
   /**

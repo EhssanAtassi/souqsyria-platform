@@ -51,84 +51,8 @@
       </app-price-range-filter>
     </mat-expansion-panel>
 
-    <!-- Rating Filter -->
-    <mat-expansion-panel expanded="true" class="filter-panel">
-      <mat-expansion-panel-header>
-        <mat-panel-title>
-          <mat-icon>star</mat-icon>
-          {{ language() === 'ar' ? 'التقييم' : 'Customer Rating' }}
-        </mat-panel-title>
-      </mat-expansion-panel-header>
-
-      <app-rating-filter
-        [language]="language()"
-        [selectedRatings]="currentFilters().ratings || []"
-        (ratingsChange)="onRatingChange($event)">
-      </app-rating-filter>
-    </mat-expansion-panel>
-
-    <!-- Authenticity Filter (Syrian Heritage) -->
-    <mat-expansion-panel expanded="true" class="filter-panel authenticity-panel">
-      <mat-expansion-panel-header>
-        <mat-panel-title>
-          <mat-icon>verified</mat-icon>
-          {{ language() === 'ar' ? 'الأصالة السورية' : 'Syrian Authenticity' }}
-        </mat-panel-title>
-      </mat-expansion-panel-header>
-
-      <app-authenticity-filter
-        [language]="language()"
-        [selectedAuthenticity]="currentFilters().authenticity || {}"
-        (authenticityChange)="onAuthenticityChange($event)">
-      </app-authenticity-filter>
-    </mat-expansion-panel>
-
-    <!-- Availability Filter -->
-    <mat-expansion-panel class="filter-panel">
-      <mat-expansion-panel-header>
-        <mat-panel-title>
-          <mat-icon>inventory_2</mat-icon>
-          {{ language() === 'ar' ? 'التوفر' : 'Availability' }}
-        </mat-panel-title>
-      </mat-expansion-panel-header>
-
-      <div class="filter-options">
-        <mat-checkbox
-          [checked]="isAvailabilitySelected('inStock')"
-          (change)="onAvailabilityChange('inStock', $event.checked)"
-          class="filter-checkbox">
-          {{ language() === 'ar' ? 'متوفر' : 'In Stock' }}
-        </mat-checkbox>
-
-        <mat-checkbox
-          [checked]="isAvailabilitySelected('outOfStock')"
-          (change)="onAvailabilityChange('outOfStock', $event.checked)"
-          class="filter-checkbox">
-          {{ language() === 'ar' ? 'غير متوفر' : 'Out of Stock' }}
-        </mat-checkbox>
-      </div>
-    </mat-expansion-panel>
-
-    <!-- Syrian Regions Filter -->
-    <mat-expansion-panel class="filter-panel">
-      <mat-expansion-panel-header>
-        <mat-panel-title>
-          <mat-icon>location_on</mat-icon>
-          {{ language() === 'ar' ? 'المنطقة السورية' : 'Syrian Region' }}
-        </mat-panel-title>
-      </mat-expansion-panel-header>
-
-      <div class="filter-options region-filter">
-        @for (region of syrianRegions; track region.value) {
-          <mat-checkbox
-            [checked]="isRegionSelected(region.value)"
-            (change)="onRegionChange(region.value, $event.checked)"
-            class="filter-checkbox">
-            {{ getLabel(region.label, region.labelAr) }}
-          </mat-checkbox>
-        }
-      </div>
-    </mat-expansion-panel>
+    <!-- TODO: Enable when backend supports these filters -->
+    <!-- Rating, Authenticity, Availability, and Regions filters removed temporarily -->
 
   </mat-accordion>
 

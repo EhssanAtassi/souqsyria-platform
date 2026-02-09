@@ -86,10 +86,22 @@
         role="option"
         [attr.aria-selected]="highlightedIndex === i"
       >
-        <span class="material-icons-outlined text-on-surface-variant/50 text-[18px]">
+        <!-- Thumbnail for product suggestions -->
+        <img
+          *ngIf="suggestion.imageUrl && suggestion.type === 'product'"
+          [src]="suggestion.imageUrl"
+          [alt]="suggestion.text"
+          class="w-10 h-10 rounded-md object-cover flex-shrink-0"
+          loading="lazy"
+        />
+        <!-- Icon fallback for non-product or missing image -->
+        <span
+          *ngIf="!suggestion.imageUrl || suggestion.type !== 'product'"
+          class="material-icons-outlined text-on-surface-variant/50 text-[18px]"
+        >
           {{ getSuggestionIcon(suggestion.type) }}
         </span>
-        <div class="flex-1">
+        <div class="flex-1 min-w-0">
           <span class="text-[14px] text-on-surface" [innerHTML]="highlightMatch(suggestion.text)"></span>
           <span
             *ngIf="suggestion.type === 'category'"
@@ -97,6 +109,13 @@
           >
             {{ language === 'ar' ? 'فئة' : 'Category' }}
           </span>
+          <!-- Price for product suggestions -->
+          <div
+            *ngIf="suggestion.price && suggestion.type === 'product'"
+            class="text-[12px] text-on-surface-variant/70 mt-0.5"
+          >
+            {{ formatSuggestionPrice(suggestion.price, suggestion.currency) }}
+          </div>
         </div>
       </div>
     </div>
