@@ -66,7 +66,6 @@ import {
   selectOtpEmail,
 } from '../../store/auth.selectors';
 import { otpFormat } from '../../validators/auth.validators';
-import { LanguageService } from '../../../../shared/services/language.service';
 
 /**
  * OtpVerificationComponent
@@ -96,8 +95,11 @@ import { LanguageService } from '../../../../shared/services/language.service';
     MatProgressSpinnerModule,
   ],
   template: `
-    <div class="auth-page" [dir]="languageService.direction()">
+    <div class="auth-page">
       <div class="auth-card">
+        <div class="auth-brand-mark">
+          <div class="auth-brand-icon"><span>س</span></div>
+        </div>
         <div class="auth-header">
           <h1>{{ 'auth.otp.title' | translate }}</h1>
           <p>{{ 'auth.otp.subtitle' | translate }}</p>
@@ -200,9 +202,6 @@ import { LanguageService } from '../../../../shared/services/language.service';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class OtpVerificationComponent implements OnInit, OnDestroy {
-  /** @description Language service for RTL direction binding */
-  readonly languageService = inject(LanguageService);
-
   /** @description NgRx store for dispatching auth actions and selecting state */
   private readonly store = inject(Store);
 

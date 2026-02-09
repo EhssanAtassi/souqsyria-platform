@@ -66,7 +66,11 @@ import { AuditLog } from '../audit-log/entities/audit-log.entity';
     ]),
     JwtModule.register({
       secret: process.env.JWT_SECRET || 'souqsyria_dev_jwt_secret',
-      signOptions: { expiresIn: '1d' },
+      signOptions: {
+        expiresIn: '1d',
+        issuer: 'souqsyria-api',
+        audience: 'souqsyria-client',
+      },
     }), // ✅ For OptionalAuthGuard JWT verification
     ScheduleModule, // ✅ Required for SessionCleanupService @Cron decorators
     AccessControlModule, // ✅ For permissions and access control

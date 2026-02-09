@@ -9,6 +9,7 @@ import { initializeFirebase } from './config/firebase.config';
 import { Logger, ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 
+import helmet from 'helmet';
 import { AuditInterceptor } from './common/interceptors/audit.interceptor';
 import { ResponseInterceptor } from './common/interceptors/response.interceptor';
 import { GlobalExceptionFilter } from './common/filters/global-exception.filter';
@@ -19,7 +20,14 @@ async function bootstrap() {
   initializeFirebase();
   const app = await NestFactory.create(AppModule);
   const configService = app.get(ConfigService);
-  
+
+  // Security headers via Helmet (X-Content-Type-Options, HSTS, X-Frame-Options, etc.)
+  app.use(helmet());
+
+  // CSRF note: Not applicable for this API — authentication is JWT Bearer-token only.
+  // JWT tokens are not automatically attached by browsers (unlike cookies), so CSRF
+  // attacks cannot forge authenticated requests. No CSRF middleware is needed.
+
   // SEC-H04 FIX: Strict CORS configuration
   // Removed null origin bypass which allowed cross-origin attacks
   const isDevelopment = process.env.NODE_ENV !== 'production';

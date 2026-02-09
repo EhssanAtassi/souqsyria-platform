@@ -114,9 +114,8 @@ $breakpoint-md: 768px;   // Tablets
   display: flex;
   justify-content: center;
   align-items: center;
-  min-height: calc(100vh - 4rem);  // Account for header height (64px = 4rem)
+  min-height: 100%;
   padding: $spacing-4;  // 1rem (16px) on mobile
-  background: linear-gradient(135deg, $color-bg-gradient-start 0%, $color-bg-gradient-end 100%);
 
   @media (min-width: $breakpoint-sm) {
     padding: $spacing-6;  // 1.5rem (24px) on sm+
@@ -150,6 +149,38 @@ $breakpoint-md: 768px;   // Tablets
   @media (min-width: $breakpoint-sm) {
     // Large mobile/tablet (480px+): increase padding further
     padding: $spacing-10;  // 2.5rem (40px)
+  }
+}
+
+// =============================================================================
+// Auth Brand Mark (Logo Icon)
+// =============================================================================
+/**
+ * Circular brand icon with Arabic "س" (Seen) letter
+ * Positioned above the auth header for visual identity
+ */
+.auth-brand-mark {
+  display: flex;
+  justify-content: center;
+  margin-bottom: $spacing-4;
+}
+
+.auth-brand-icon {
+  width: 3.5rem;
+  height: 3.5rem;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--golden-wheat-primary) 0%, var(--golden-wheat-medium) 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+
+  span {
+    color: #fff;
+    font-size: 1.5rem;
+    font-weight: 700;
+    font-family: 'Cairo', 'Noto Sans Arabic', sans-serif;
+    line-height: 1;
   }
 }
 

@@ -33,7 +33,13 @@
     /* Advanced Options */
     "resolveJsonModule": true,
     "esModuleInterop": true,
-    "allowJs": false
+    "allowJs": false,
+
+    /* Force single rxjs resolution to avoid duplicate-type errors in npm workspaces */
+    "paths": {
+      "rxjs": ["../../node_modules/rxjs"],
+      "rxjs/*": ["../../node_modules/rxjs/*"]
+    }
   },
   "exclude": [
     "node_modules",

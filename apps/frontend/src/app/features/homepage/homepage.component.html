@@ -4,14 +4,10 @@
 <!-- Hero Split Layout Section (E-commerce Style) -->
 <!-- ============================================ -->
 <section class="relative">
+  <h1 class="sr-only">SouqSyria - Syrian Marketplace</h1>
   @if ((isLoadingHeroBanners$ | async)) {
-    <!-- Loading State -->
-    <div class="h-[450px] bg-neutral-100 animate-pulse flex items-center justify-center">
-      <div class="text-center">
-        <div class="inline-block w-12 h-12 border-4 border-golden-wheat-lighter border-t-golden-wheat-dark rounded-full animate-spin"></div>
-        <p class="text-neutral-600 mt-4">Loading hero banners...</p>
-      </div>
-    </div>
+    <!-- Loading State - Skeleton Loader -->
+    <app-hero-skeleton />
   } @else if ((heroBannersError$ | async)) {
     <!-- Error State -->
     <div class="h-[450px] bg-red-50 border border-red-200 flex items-center justify-center">
@@ -80,9 +76,9 @@
   <div class="container mx-auto px-4">
     <!-- Section Header -->
     <div class="text-center mb-12">
-      <h2 class="text-3xl md:text-4xl font-bold text-charcoal-dark mb-2 font-display">
+      <h3 class="text-3xl md:text-4xl font-bold text-charcoal-dark mb-2 font-display">
         Shop by Category
-      </h2>
+      </h3>
       <p class="text-lg text-neutral-600">
         Explore our curated collection of Syrian heritage products
       </p>
@@ -299,7 +295,10 @@
       </form>
 
       <p class="text-sm text-neutral-500 mt-4">
-        By subscribing, you agree to our Privacy Policy and Terms of Service
+        By subscribing, you agree to our
+        <a routerLink="/privacy" class="underline hover:text-golden-wheat-dark">Privacy Policy</a>
+        and
+        <a routerLink="/terms" class="underline hover:text-golden-wheat-dark">Terms of Service</a>
       </p>
     </div>
   </div>

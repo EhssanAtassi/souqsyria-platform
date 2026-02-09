@@ -319,6 +319,18 @@ export const routes: Routes = [
     pathMatch: 'full'
   },
 
+  // Legal pages
+  {
+    path: 'privacy',
+    loadComponent: () => import('./features/pages/privacy.component').then(m => m.PrivacyComponent),
+    title: 'Privacy Policy - SouqSyria | سياسة الخصوصية'
+  },
+  {
+    path: 'terms',
+    loadComponent: () => import('./features/pages/terms.component').then(m => m.TermsComponent),
+    title: 'Terms of Service - SouqSyria | شروط الخدمة'
+  },
+
   // 404 fallback
   {
     path: '**',

@@ -1,7 +1,8 @@
 import { Component, ChangeDetectionStrategy, OnInit, DestroyRef, inject } from '@angular/core';
-import { Router, RouterOutlet } from '@angular/router';
+import { NavigationEnd, Router, RouterOutlet } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
+import { filter, map } from 'rxjs/operators';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
@@ -12,14 +13,15 @@ import { FlexLayoutModule } from '@angular/flex-layout';
 
 // Local imports
 import { HeaderComponent } from './shared/components/header/header.component';
+import { FooterComponent } from './shared/components/footer/footer.component';
 import { NavigationDataService } from './shared/services/navigation-data.service';
-import { 
-  Category, 
-  UserInfo, 
-  CartInfo, 
-  Location, 
-  NavigationConfig, 
-  SearchFilters 
+import {
+  Category,
+  UserInfo,
+  CartInfo,
+  Location,
+  NavigationConfig,
+  SearchFilters
 } from './shared/interfaces/navigation.interface';
 
 /**
@@ -28,7 +30,7 @@ import {
  * - Tailwind CSS utility classes for styling
  * - Angular Flex Layout for responsive design
  * - Modern Angular standalone components architecture
- * 
+ *
  * @swagger
  * components:
  *   schemas:
@@ -53,7 +55,8 @@ import {
     MatChipsModule,
     MatRippleModule,
     FlexLayoutModule,
-    HeaderComponent
+    HeaderComponent,
+    FooterComponent
   ],
   templateUrl: './app.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -92,6 +95,21 @@ export class AppComponent implements OnInit {
 
   /** DestroyRef for automatic subscription cleanup */
   private destroyRef = inject(DestroyRef);
+
+  /** @description Angular router for route detection and navigation */
+  private readonly router = inject(Router);
+
+  /**
+   * Whether the current route is an auth route (/auth/*)
+   * @description Hides the main commerce header on auth pages
+   */
+  readonly isAuthRoute = toSignal(
+    this.router.events.pipe(
+      filter((e): e is NavigationEnd => e instanceof NavigationEnd),
+      map(e => e.urlAfterRedirects.startsWith('/auth')),
+    ),
+    { initialValue: this.router.url.startsWith('/auth') },
+  );
 
   //#endregion
 
@@ -152,7 +170,6 @@ export class AppComponent implements OnInit {
    */
   constructor(
     private navigationDataService: NavigationDataService,
-    private router: Router,
   ) {}
 
   /**

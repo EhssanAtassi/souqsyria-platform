@@ -1,24 +1,29 @@
 <!-- SouqSyria Enterprise Storefront - Main Application -->
-<!-- Integrated with the new header navigation component -->
 
-<!-- Header Navigation Component -->
-<app-header
-  [config]="navigationConfig"
-  [user]="currentUser"
-  [cart]="cartData"
-  [categories]="categories"
-  [locations]="locations"
-  (searchSubmit)="onSearchSubmit($event)"
-  (loginClick)="onLoginClick()"
-  (logoutClick)="onLogoutClick()"
-  (cartClick)="onCartClick()"
-  (locationChange)="onLocationChange($event)"
-  (categoryClick)="onCategoryClick($event)"
-  (mobileMenuToggle)="onMobileMenuToggle($event)"
-></app-header>
+<!-- Header Navigation: hidden on auth routes where AuthLayoutComponent provides its own minimal header -->
+@if (!isAuthRoute()) {
+  <app-header
+    [config]="navigationConfig"
+    [user]="currentUser"
+    [cart]="cartData"
+    [categories]="categories"
+    [locations]="locations"
+    (searchSubmit)="onSearchSubmit($event)"
+    (loginClick)="onLoginClick()"
+    (logoutClick)="onLogoutClick()"
+    (cartClick)="onCartClick()"
+    (locationChange)="onLocationChange($event)"
+    (categoryClick)="onCategoryClick($event)"
+    (mobileMenuToggle)="onMobileMenuToggle($event)"
+  ></app-header>
+}
 
 <!-- Main Content Area with Router Outlet -->
 <main class="min-h-screen">
-  <!-- Router outlet displays the homepage and other routed components -->
   <router-outlet />
 </main>
+
+<!-- Global Footer: hidden on auth routes -->
+@if (!isAuthRoute()) {
+  <app-footer />
+}
