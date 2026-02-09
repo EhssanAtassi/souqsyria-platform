@@ -1,0 +1,18 @@
+<!-- Auth Layout: minimal header with logo + language toggle -->
+<div class="auth-layout" [dir]="languageService.direction()">
+
+  <!-- Minimal header: logo (left) + language toggle (right) -->
+  <header class="auth-minimal-header">
+    <app-logo />
+    <app-language-toggle
+      [activeLanguage]="languageService.language()"
+      (languageChange)="onLanguageChange($event)"
+    />
+  </header>
+
+  <!-- Auth page content (child routes render here) -->
+  <main class="auth-layout__content">
+    <router-outlet />
+  </main>
+
+</div>

@@ -1,0 +1,75 @@
+/**
+ * Auth Layout Styles
+ *
+ * @description Styles for the minimal auth layout wrapper.
+ * Provides a full-viewport gradient background, a slim translucent header,
+ * and a centered content area for auth cards.
+ *
+ * @architecture
+ * The gradient background and min-height previously lived in _auth-shared.scss
+ * on `.auth-page`. Moving them here means individual auth pages only need to
+ * style their card content, and the layout handles the viewport chrome.
+ */
+
+// Color variables aliased from CSS custom properties
+$color-bg-gradient-start: var(--color-surface-neutral);
+$color-bg-gradient-end: var(--golden-wheat-light);
+
+// =============================================================================
+// Auth Layout Root
+// =============================================================================
+.auth-layout {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background: linear-gradient(135deg, $color-bg-gradient-start 0%, $color-bg-gradient-end 100%);
+}
+
+// =============================================================================
+// Minimal Header
+// =============================================================================
+/**
+ * Slim translucent header with backdrop blur.
+ * Logo on the inline-start side, language toggle on inline-end.
+ * Uses logical properties for automatic RTL support.
+ */
+.auth-minimal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 56px;
+  padding-inline: 1.5rem;
+  background: rgba(255, 255, 255, 0.75);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+
+  // Override the language toggle border-left that's designed for the main header top-bar
+  ::ng-deep app-language-toggle .flex.items-center {
+    border-left: none;
+    padding-left: 0;
+    margin-left: 0;
+  }
+}
+
+// =============================================================================
+// Content Area
+// =============================================================================
+/**
+ * Flex-grow content area that centers auth cards vertically and horizontally.
+ */
+.auth-layout__content {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding-top: 2rem;
+
+  @media (min-height: 600px) {
+    align-items: center;
+    padding-top: 0;
+  }
+}

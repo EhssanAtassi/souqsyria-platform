@@ -58,7 +58,6 @@ import {
   selectError,
   selectResetEmailSent,
 } from '../../store/auth.selectors';
-import { LanguageService } from '../../../../shared/services/language.service';
 
 /**
  * ForgotPasswordComponent
@@ -88,8 +87,11 @@ import { LanguageService } from '../../../../shared/services/language.service';
     MatProgressSpinnerModule,
   ],
   template: `
-    <div class="auth-page" [dir]="languageService.direction()">
+    <div class="auth-page">
       <div class="auth-card">
+        <div class="auth-brand-mark">
+          <div class="auth-brand-icon"><span>س</span></div>
+        </div>
         @if (resetEmailSent()) {
           <!-- Success state: email sent -->
           <div class="success-card">
@@ -165,9 +167,6 @@ import { LanguageService } from '../../../../shared/services/language.service';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ForgotPasswordComponent implements OnInit {
-  /** @description Language service for RTL direction binding */
-  readonly languageService = inject(LanguageService);
-
   /** @description NgRx store for dispatching auth actions and selecting state */
   private readonly store = inject(Store);
 

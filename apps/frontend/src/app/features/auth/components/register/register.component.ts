@@ -29,7 +29,6 @@ import {
   Component,
   ChangeDetectionStrategy,
   OnInit,
-  OnDestroy,
   inject,
   signal,
 } from '@angular/core';
@@ -60,7 +59,6 @@ import {
   passwordMatch,
   strongPassword,
 } from '../../validators/auth.validators';
-import { LanguageService } from '../../../../shared/services/language.service';
 
 /**
  * RegisterComponent
@@ -90,8 +88,11 @@ import { LanguageService } from '../../../../shared/services/language.service';
     MatProgressSpinnerModule,
   ],
   template: `
-    <div class="auth-page" [dir]="languageService.direction()">
+    <div class="auth-page">
       <div class="auth-card">
+        <div class="auth-brand-mark">
+          <div class="auth-brand-icon"><span>س</span></div>
+        </div>
         <div class="auth-header">
           <h1>{{ 'auth.register.title' | translate }}</h1>
           <p>{{ 'auth.register.subtitle' | translate }}</p>
@@ -232,9 +233,6 @@ import { LanguageService } from '../../../../shared/services/language.service';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class RegisterComponent implements OnInit {
-  /** @description Language service for RTL direction binding */
-  readonly languageService = inject(LanguageService);
-
   /** @description NgRx store for dispatching auth actions and selecting state */
   private readonly store = inject(Store);
 
