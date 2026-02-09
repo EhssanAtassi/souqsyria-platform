@@ -11,7 +11,7 @@
  *
  * ENDPOINTS:
  * - GET /users/profile - Get user profile
- * - PUT /users/profile - Update user profile
+ * - PATCH /users/profile - Update user profile
  * - POST /users/change-password - Change password
  * - GET /users/addresses - Get user addresses
  * - GET /users/statistics - Get account statistics
