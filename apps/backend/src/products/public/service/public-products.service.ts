@@ -117,11 +117,12 @@ export class PublicProductsService {
       .andWhere('pricing.isActive = true');
 
     // Full-text search across multiple fields
+    // Use FULLTEXT index for product names (fast), fallback to LIKE for other fields
     if (searchQuery && searchQuery.trim()) {
       const searchTerm = `%${searchQuery.trim()}%`;
       query.andWhere(
-        '(product.nameEn LIKE :search OR product.nameAr LIKE :search OR descriptions.shortDescription LIKE :search OR descriptions.fullDescription LIKE :search OR category.nameEn LIKE :search OR category.nameAr LIKE :search OR manufacturer.name LIKE :search)',
-        { search: searchTerm },
+        '(MATCH(product.nameEn, product.nameAr) AGAINST(:ftSearch IN BOOLEAN MODE) OR descriptions.shortDescription LIKE :search OR descriptions.fullDescription LIKE :search OR category.nameEn LIKE :search OR category.nameAr LIKE :search OR manufacturer.name LIKE :search)',
+        { ftSearch: searchQuery.trim(), search: searchTerm },
       );
     }
 
@@ -150,17 +151,19 @@ export class PublicProductsService {
       );
     }
 
-    // Sort by relevance (products with name matches first, then description matches)
+    // Sort by relevance using FULLTEXT relevance score
+    // Products with FULLTEXT name matches ranked highest, then category/manufacturer matches
     if (searchQuery && searchQuery.trim()) {
       query.orderBy(
-        `CASE 
-          WHEN product.nameEn LIKE :nameSearch OR product.nameAr LIKE :nameSearch THEN 1
-          WHEN category.nameEn LIKE :nameSearch OR category.nameAr LIKE :nameSearch THEN 2  
+        `CASE
+          WHEN MATCH(product.nameEn, product.nameAr) AGAINST(:ftSearch IN BOOLEAN MODE) THEN 1
+          WHEN category.nameEn LIKE :nameSearch OR category.nameAr LIKE :nameSearch THEN 2
           WHEN manufacturer.name LIKE :nameSearch THEN 3
-          ELSE 4 
+          ELSE 4
         END`,
         'ASC',
       );
+      query.setParameter('ftSearch', searchQuery.trim());
       query.setParameter('nameSearch', `%${searchQuery.trim()}%`);
     } else {
       query.orderBy('product.createdAt', 'DESC');
@@ -246,11 +249,14 @@ export class PublicProductsService {
       )
       .andWhere('pricing.isActive = true');
 
-    // Apply search filter (supports English and Arabic)
+    // Apply search filter using FULLTEXT index for product names
+    // Keep LIKE as fallback for short queries that FULLTEXT might not match well
     if (filters.search) {
-      query.andWhere('product.nameEn LIKE :search OR product.nameAr LIKE :search', {
-        search: `%${filters.search}%`,
-      });
+      const searchTerm = `%${filters.search}%`;
+      query.andWhere(
+        '(MATCH(product.nameEn, product.nameAr) AGAINST(:ftSearch IN BOOLEAN MODE) OR product.nameEn LIKE :search OR product.nameAr LIKE :search)',
+        { ftSearch: filters.search, search: searchTerm },
+      );
     }
 
     // Apply category filter
@@ -557,25 +563,39 @@ export class PublicProductsService {
    * GET SEARCH SUGGESTIONS
    *
    * Retrieves search suggestions for autocomplete dropdown.
-   * Returns product names (limit 5) and category names (limit 3) that match the query.
+   * Returns product names (limit 5) with thumbnails and prices, and category names (limit 3) that match the query.
+   * Uses FULLTEXT index for high-performance product name search.
    *
    * @param query - Search query string (minimum 2 characters)
-   * @returns Object containing suggestions array with text, textAr, type, and slug
+   * @returns Object containing suggestions array with text, textAr, type, slug, imageUrl, price, and currency
    */
   async getSearchSuggestions(query: string) {
     const searchTerm = `%${query}%`;
 
-    // Search product names (limit 5)
+    // Search product names with pricing and images (limit 5)
+    // Use FULLTEXT index for fast product name matching
     const products = await this.productRepo
       .createQueryBuilder('product')
-      .select(['product.nameEn', 'product.nameAr', 'product.slug'])
+      .leftJoinAndSelect('product.pricing', 'pricing')
+      .leftJoinAndSelect('product.images', 'images')
+      .select([
+        'product.nameEn',
+        'product.nameAr',
+        'product.slug',
+        'pricing.basePrice',
+        'pricing.discountPrice',
+        'pricing.currency',
+        'images.imageUrl',
+      ])
       .where(
         'product.isActive = true AND product.isPublished = true AND product.is_deleted = false',
       )
       .andWhere(
-        '(product.nameEn LIKE :search OR product.nameAr LIKE :search)',
-        { search: searchTerm },
+        '(MATCH(product.nameEn, product.nameAr) AGAINST(:ftSearch IN BOOLEAN MODE) OR product.nameEn LIKE :search OR product.nameAr LIKE :search)',
+        { ftSearch: query, search: searchTerm },
       )
+      .andWhere('pricing.isActive = true')
+      .orderBy('product.salesCount', 'DESC')
       .limit(5)
       .getMany();
 
@@ -596,6 +616,9 @@ export class PublicProductsService {
         textAr: p.nameAr,
         type: 'product' as const,
         slug: p.slug,
+        imageUrl: p.images?.[0]?.imageUrl ?? null,
+        price: p.pricing?.discountPrice ?? p.pricing?.basePrice ?? null,
+        currency: p.pricing?.currency ?? 'SYP',
       })),
       ...categories.map((c) => ({
         text: c.cat_name_en,

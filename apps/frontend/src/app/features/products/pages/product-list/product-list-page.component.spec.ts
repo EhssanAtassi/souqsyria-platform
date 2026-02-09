@@ -188,6 +188,7 @@ describe('ProductListPageComponent', () => {
           provide: ActivatedRoute,
           useValue: {
             queryParams: queryParams$.asObservable(),
+            snapshot: { queryParams: { page: '1', limit: '20' } },
           },
         },
       ],
@@ -459,11 +460,13 @@ describe('ProductListPageComponent', () => {
 
       createComponent(true);
 
-      expect(productServiceSpy.getProducts).toHaveBeenCalledWith({
-        page: 1,
-        limit: 20,
-        sortBy: 'newest',
-      });
+      expect(productServiceSpy.getProducts).toHaveBeenCalledWith(
+        jasmine.objectContaining({
+          page: 1,
+          limit: 20,
+          sortBy: 'newest',
+        })
+      );
     });
 
     /**
@@ -482,11 +485,13 @@ describe('ProductListPageComponent', () => {
       queryParams$.next({ page: '2', limit: '20' });
 
       expect(productServiceSpy.getProducts).toHaveBeenCalledTimes(2);
-      expect(productServiceSpy.getProducts).toHaveBeenCalledWith({
-        page: 2,
-        limit: 20,
-        sortBy: 'newest',
-      });
+      expect(productServiceSpy.getProducts).toHaveBeenCalledWith(
+        jasmine.objectContaining({
+          page: 2,
+          limit: 20,
+          sortBy: 'newest',
+        })
+      );
     });
   });
 

@@ -73,10 +73,32 @@ export interface ProductDetailRelated {
   stockStatus: 'in_stock' | 'low_stock' | 'out_of_stock';
 }
 
+/** @description Option group for variant selectors (from /variant-options endpoint) */
+export interface VariantOptionGroup {
+  optionName: string;
+  optionNameAr: string | null;
+  type: string;
+  values: VariantOptionValue[];
+}
+
+/** @description Single option value within a variant option group */
+export interface VariantOptionValue {
+  value: string;
+  valueAr: string | null;
+  colorHex: string | null;
+  displayOrder: number;
+}
+
 /** @description Search suggestion from API */
 export interface SearchSuggestionItem {
   text: string;
   textAr: string;
   type: 'product' | 'category';
   slug: string | null;
+  /** Thumbnail image URL (product suggestions only) */
+  imageUrl?: string | null;
+  /** Product price (discount or base, product suggestions only) */
+  price?: number | null;
+  /** Currency code (default: SYP) */
+  currency?: string;
 }

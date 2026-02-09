@@ -153,6 +153,10 @@ export interface SearchSuggestion {
   imageUrl?: string;
   /** Direct navigation URL (if clicking should navigate directly) */
   url?: string;
+  /** Product price for display in suggestion dropdown */
+  price?: number | null;
+  /** Currency code for price formatting */
+  currency?: string;
 }
 
 /**

@@ -1,0 +1,122 @@
+<div class="image-gallery" [class.rtl]="language() === 'ar'">
+  @if (images().length === 0) {
+    <!-- Empty state -->
+    <div class="image-gallery__empty">
+      <mat-icon>image</mat-icon>
+      <p>{{ language() === 'ar' ? 'لا توجد صور' : 'No images available' }}</p>
+    </div>
+  } @else {
+    <!-- Desktop: Static gallery with zoom -->
+    <div class="image-gallery__desktop">
+      <!-- Main image with zoom lens -->
+      <div
+        class="image-gallery__main"
+        (mouseenter)="onMainImageMouseEnter()"
+        (mouseleave)="onMainImageMouseLeave()"
+        (mousemove)="onMainImageMouseMove($event)"
+      >
+        <!-- Skeleton placeholder -->
+        @if (!isImageLoaded(currentIndex())) {
+          <div class="image-gallery__skeleton"></div>
+        }
+
+        @if (currentImage()) {
+          <img
+            [src]="currentImage()!.imageUrl"
+            [alt]="currentImage()!.altText || productName()"
+            class="image-gallery__main-image"
+            [class.image-gallery__main-image--loaded]="isImageLoaded(currentIndex())"
+            (load)="onImageLoad(currentIndex())"
+            loading="lazy"
+          />
+        }
+
+        <!-- Zoom lens overlay (desktop only) -->
+        @if (isZoomActive() && currentImage()) {
+          <div
+            class="image-gallery__zoom-lens"
+            [style.background-image]="'url(' + currentImage()!.imageUrl + ')'"
+            [style.background-position]="zoomPosition().x + ' ' + zoomPosition().y"
+          ></div>
+        }
+      </div>
+
+      <!-- Thumbnail strip -->
+      @if (hasMultipleImages()) {
+        <div class="image-gallery__thumbnails" [dir]="language() === 'ar' ? 'rtl' : 'ltr'">
+          @for (image of images(); track image.id; let i = $index) {
+            <button
+              class="image-gallery__thumbnail"
+              [class.image-gallery__thumbnail--active]="currentIndex() === i"
+              (click)="selectThumbnail(i)"
+              [attr.aria-label]="(language() === 'ar' ? 'صورة ' : 'Image ') + (i + 1)"
+            >
+              <img
+                [src]="image.imageUrl"
+                [alt]="image.altText || productName()"
+                loading="lazy"
+              />
+            </button>
+          }
+        </div>
+      }
+    </div>
+
+    <!-- Mobile: Swiper carousel -->
+    <div class="image-gallery__mobile">
+      <swiper-container
+        #swiperContainer
+        init="false"
+        class="image-gallery__swiper"
+        (click)="openFullscreen()"
+      >
+        @for (image of images(); track image.id; let i = $index) {
+          <swiper-slide>
+            @if (!isImageLoaded(i)) {
+              <div class="image-gallery__skeleton"></div>
+            }
+            <img
+              [src]="image.imageUrl"
+              [alt]="image.altText || productName()"
+              class="image-gallery__slide-image"
+              [class.image-gallery__slide-image--loaded]="isImageLoaded(i)"
+              (load)="onImageLoad(i)"
+              loading="lazy"
+            />
+          </swiper-slide>
+        }
+      </swiper-container>
+    </div>
+
+    <!-- Fullscreen overlay (mobile pinch-to-zoom) -->
+    @if (isFullscreenOpen()) {
+      <div class="image-gallery__fullscreen" (click)="closeFullscreen()">
+        <button
+          class="image-gallery__fullscreen-close"
+          (click)="closeFullscreen(); $event.stopPropagation()"
+          [attr.aria-label]="language() === 'ar' ? 'إغلاق' : 'Close'"
+        >
+          <mat-icon>close</mat-icon>
+        </button>
+
+        <swiper-container
+          #fullscreenSwiper
+          init="false"
+          class="image-gallery__fullscreen-swiper"
+          (click)="$event.stopPropagation()"
+        >
+          @for (image of images(); track image.id) {
+            <swiper-slide>
+              <div class="swiper-zoom-container">
+                <img
+                  [src]="image.imageUrl"
+                  [alt]="image.altText || productName()"
+                />
+              </div>
+            </swiper-slide>
+          }
+        </swiper-container>
+      </div>
+    }
+  }
+</div>

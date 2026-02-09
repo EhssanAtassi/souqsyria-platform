@@ -34,47 +34,26 @@
 
     <!-- Main Product Section -->
     <div class="product-detail">
-      <!-- Image Gallery -->
+      <!-- Image Gallery Component -->
       <div class="product-detail__gallery">
-        <!-- Main Image -->
-        <div class="gallery__main">
-          @if (currentImage()) {
-            <img
-              [src]="currentImage()!.imageUrl"
-              [alt]="currentImage()!.altText || productName()"
-              class="gallery__main-image"
-              loading="lazy"
-            />
-          } @else {
-            <div class="gallery__placeholder">
-              <mat-icon>image</mat-icon>
-            </div>
-          }
-        </div>
-
-        <!-- Thumbnail Strip -->
-        @if (product()!.images.length > 1) {
-          <div class="gallery__thumbnails">
-            @for (image of product()!.images; track image.id) {
-              <button
-                class="gallery__thumbnail"
-                [class.gallery__thumbnail--active]="selectedImageIndex() === $index"
-                (click)="onImageSelect($index)"
-              >
-                <img [src]="image.imageUrl" [alt]="image.altText || productName()" loading="lazy" />
-              </button>
-            }
-          </div>
-        }
+        <app-image-gallery
+          [images]="product()!.images"
+          [productName]="productName()"
+          [language]="language()"
+          [selectedIndex]="variantImageIndex()"
+          (imageChange)="onGalleryImageChange($event)"
+        />
       </div>
 
       <!-- Product Info -->
       <div class="product-detail__info">
         <h1 class="info__title">{{ productName() }}</h1>
 
-        <!-- Price -->
+        <!-- Price (variant-aware) -->
         <div class="info__pricing">
-          @if (hasDiscount()) {
+          @if (selectedVariant()) {
+            <span class="info__price">{{ formattedEffectivePrice() }}</span>
+          } @else if (hasDiscount()) {
             <span class="info__price info__price--discounted">{{ formattedDiscountPrice() }}</span>
             <span class="info__price info__price--original">{{ formattedBasePrice() }}</span>
           } @else {
@@ -82,10 +61,10 @@
           }
         </div>
 
-        <!-- Stock Badge -->
+        <!-- Stock Badge (variant-aware) -->
         <div class="info__stock">
-          <span class="stock-badge" [class]="stockClass()">
-            {{ stockLabel() }}
+          <span class="stock-badge" [class]="effectiveStockClass()">
+            {{ effectiveStockLabel() }}
           </span>
         </div>
 
@@ -100,6 +79,7 @@
             <app-variant-selector
               [variants]="product()!.variants"
               [language]="language()"
+              [attributes]="product()!.attributes"
               (variantSelect)="onVariantSelect($event)"
             />
           </div>
@@ -136,7 +116,7 @@
             color="primary"
             class="info__add-to-cart"
             (click)="onAddToCart()"
-            [disabled]="product()!.stockStatus === 'out_of_stock'"
+            [disabled]="effectiveStockStatus() === 'out_of_stock'"
           >
             <mat-icon>shopping_cart</mat-icon>
             <span>{{ addToCartLabel }}</span>
@@ -199,7 +179,9 @@
     <!-- Mobile Sticky Add to Cart -->
     <div class="product-detail__sticky-cart">
       <div class="sticky-cart__price">
-        @if (hasDiscount()) {
+        @if (selectedVariant()) {
+          <span class="sticky-cart__price-text">{{ formattedEffectivePrice() }}</span>
+        } @else if (hasDiscount()) {
           <span class="sticky-cart__discount-price">{{ formattedDiscountPrice() }}</span>
         } @else {
           <span class="sticky-cart__price-text">{{ formattedBasePrice() }}</span>
@@ -210,7 +192,7 @@
         color="primary"
         class="sticky-cart__button"
         (click)="onAddToCart()"
-        [disabled]="product()!.stockStatus === 'out_of_stock'"
+        [disabled]="effectiveStockStatus() === 'out_of_stock'"
       >
         <mat-icon>shopping_cart</mat-icon>
         {{ addToCartLabel }}

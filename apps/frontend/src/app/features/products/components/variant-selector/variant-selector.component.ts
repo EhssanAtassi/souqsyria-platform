@@ -1,12 +1,12 @@
 /**
  * @file variant-selector.component.ts
- * @description Component for selecting product variants based on attributes
- * Extracts unique attribute keys and allows user to select options
+ * @description Enhanced variant selector with color swatches, availability filtering,
+ * Arabic labels, and option groups enriched from the variant-options API.
  *
  * @swagger
  * tags:
  *   - name: VariantSelector
- *     description: Product variant selection with attribute chips
+ *     description: Product variant selection with color swatches and availability
  */
 import {
   Component,
@@ -17,11 +17,16 @@ import {
   computed,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ProductDetailVariant } from '../../models/product-detail.interface';
+import {
+  ProductDetailVariant,
+  ProductDetailAttribute,
+  VariantOptionGroup,
+} from '../../models/product-detail.interface';
 
 /**
- * @description Variant selector component
- * Displays variant options as chips and emits selected variant
+ * @description Enhanced variant selector component
+ * Renders option groups as chip buttons or color swatches,
+ * with disabled state for unavailable combinations
  */
 @Component({
   selector: 'app-variant-selector',
@@ -38,6 +43,12 @@ export class VariantSelectorComponent {
   /** Display language for labels */
   language = input<'en' | 'ar'>('en');
 
+  /** Product attributes for colorHex/Arabic fallback */
+  attributes = input<ProductDetailAttribute[]>([]);
+
+  /** Option groups from the variant-options API endpoint */
+  optionGroups = input<VariantOptionGroup[]>([]);
+
   /** Emits when a variant is selected */
   variantSelect = output<ProductDetailVariant>();
 
@@ -45,38 +56,63 @@ export class VariantSelectorComponent {
   selectedOptions = signal<Record<string, string>>({});
 
   /**
-   * @description Extracts unique attribute keys from all variants
-   * Returns array of unique keys like ['Color', 'Size']
+   * @description Enriched option groups: uses API optionGroups if available,
+   * otherwise falls back to deriving from variantData keys + attributes
    */
-  attributeKeys = computed(() => {
-    const variants = this.variants();
-    const allKeys = new Set<string>();
+  enrichedOptionGroups = computed((): VariantOptionGroup[] => {
+    const apiGroups = this.optionGroups();
+    if (apiGroups && apiGroups.length > 0) {
+      return apiGroups;
+    }
 
-    variants.forEach(variant => {
-      Object.keys(variant.variantData).forEach(key => allKeys.add(key));
-    });
-
-    return Array.from(allKeys);
+    // Fallback: derive option groups from variant data
+    return this.deriveOptionGroups();
   });
 
   /**
-   * @description Gets unique values for a given attribute key
-   * @param key - Attribute key (e.g., 'Color')
-   * @returns Array of unique values for that key
+   * @description For each option key, returns the set of values that have at least
+   * one matching active variant given the current selections in other keys.
+   * Used to disable unavailable combinations.
    */
-  getOptionsForKey = computed(() => (key: string): string[] => {
+  availableValues = computed((): Record<string, Set<string>> => {
     const variants = this.variants();
-    const values = new Set<string>();
+    const selected = this.selectedOptions();
+    const result: Record<string, Set<string>> = {};
 
-    variants.forEach(variant => {
-      const value = variant.variantData[key];
-      if (value) {
-        values.add(value);
+    for (const group of this.enrichedOptionGroups()) {
+      const key = group.optionName;
+      const available = new Set<string>();
+
+      for (const variant of variants) {
+        if (!variant.isActive) continue;
+
+        // Check if this variant matches all other selected options (except the current key)
+        const matchesOther = Object.entries(selected).every(([k, v]) => {
+          if (k === key) return true;
+          return variant.variantData[k] === v;
+        });
+
+        if (matchesOther && variant.variantData[key]) {
+          available.add(variant.variantData[key]);
+        }
       }
-    });
 
-    return Array.from(values);
+      result[key] = available;
+    }
+
+    return result;
   });
+
+  /**
+   * @description Checks if an option value is available given current selections
+   * @param key - Attribute key (e.g., 'Color')
+   * @param value - Option value (e.g., 'Red')
+   * @returns True if there is at least one active variant matching this combination
+   */
+  isAvailable(key: string, value: string): boolean {
+    const available = this.availableValues()[key];
+    return available ? available.has(value) : false;
+  }
 
   /**
    * @description Handles option selection for an attribute
@@ -85,17 +121,27 @@ export class VariantSelectorComponent {
    * @param value - Selected value (e.g., 'Red')
    */
   selectOption(key: string, value: string): void {
-    // Update selected options
+    if (!this.isAvailable(key, value)) return;
+
     this.selectedOptions.update(options => ({
       ...options,
       [key]: value,
     }));
 
-    // Find matching variant
     const matchingVariant = this.findMatchingVariant();
     if (matchingVariant) {
       this.variantSelect.emit(matchingVariant);
     }
+  }
+
+  /**
+   * @description Checks if an option is currently selected
+   * @param key - Attribute key
+   * @param value - Option value
+   * @returns True if this option is selected
+   */
+  isSelected(key: string, value: string): boolean {
+    return this.selectedOptions()[key] === value;
   }
 
   /**
@@ -114,12 +160,42 @@ export class VariantSelectorComponent {
   }
 
   /**
-   * @description Checks if an option is currently selected
-   * @param key - Attribute key
-   * @param value - Option value
-   * @returns True if this option is selected
+   * @description Derives option groups from variant data when the API
+   * optionGroups input is not provided. Uses attributes for colorHex/Arabic enrichment.
+   * @returns Array of VariantOptionGroup derived from variant data
    */
-  isSelected(key: string, value: string): boolean {
-    return this.selectedOptions()[key] === value;
+  private deriveOptionGroups(): VariantOptionGroup[] {
+    const variants = this.variants();
+    const attrs = this.attributes();
+    const keyValuesMap = new Map<string, Set<string>>();
+
+    variants.forEach(variant => {
+      Object.entries(variant.variantData).forEach(([key, value]) => {
+        if (!keyValuesMap.has(key)) {
+          keyValuesMap.set(key, new Set());
+        }
+        keyValuesMap.get(key)!.add(value);
+      });
+    });
+
+    return Array.from(keyValuesMap.entries()).map(([key, values]) => {
+      // Look up attribute metadata for this key
+      const matchingAttrs = attrs.filter(a => a.attributeNameEn === key);
+
+      return {
+        optionName: key,
+        optionNameAr: matchingAttrs.length > 0 ? matchingAttrs[0].attributeNameAr : null,
+        type: matchingAttrs.some(a => a.colorHex) ? 'color' : 'select',
+        values: Array.from(values).map(val => {
+          const attrMatch = matchingAttrs.find(a => a.valueEn === val);
+          return {
+            value: val,
+            valueAr: attrMatch?.valueAr || null,
+            colorHex: attrMatch?.colorHex || null,
+            displayOrder: 0,
+          };
+        }),
+      };
+    });
   }
 }

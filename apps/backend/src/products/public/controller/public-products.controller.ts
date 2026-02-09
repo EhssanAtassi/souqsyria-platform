@@ -321,6 +321,9 @@ export class PublicProductsController {
             textAr: 'سكين الطهاة من الفولاذ الدمشقي',
             type: 'product',
             slug: 'damascus-steel-chef-knife',
+            imageUrl: 'https://placehold.co/60x60?text=Knife',
+            price: 450000,
+            currency: 'SYP',
           },
           {
             text: 'Damascus Steel',

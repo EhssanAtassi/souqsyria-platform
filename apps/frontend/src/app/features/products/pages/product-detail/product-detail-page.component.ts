@@ -41,6 +41,7 @@ import { ProductListItem } from '../../models/product-list.interface';
 import { ProductCardComponent } from '../../components/product-card/product-card.component';
 import { VariantSelectorComponent } from '../../components/variant-selector/variant-selector.component';
 import { SpecificationsTableComponent } from '../../components/specifications-table/specifications-table.component';
+import { ImageGalleryComponent } from '../../components/image-gallery/image-gallery.component';
 
 /**
  * @description Product detail page component
@@ -61,6 +62,7 @@ import { SpecificationsTableComponent } from '../../components/specifications-ta
     ProductCardComponent,
     VariantSelectorComponent,
     SpecificationsTableComponent,
+    ImageGalleryComponent,
   ],
   templateUrl: './product-detail-page.component.html',
   styleUrls: ['./product-detail-page.component.scss'],
@@ -188,6 +190,64 @@ export class ProductDetailPageComponent implements OnInit {
     return p.relatedProducts.map(rp => this.mapRelatedToListItem(rp));
   });
 
+  /** @description Image index matching the selected variant's imageUrl */
+  variantImageIndex = computed(() => {
+    const variant = this.selectedVariant();
+    const p = this.product();
+    if (!variant?.imageUrl || !p) return 0;
+    const idx = p.images.findIndex(img => img.imageUrl === variant.imageUrl);
+    return idx >= 0 ? idx : 0;
+  });
+
+  /** @description Effective price: variant price if selected, else product base/discount price */
+  effectivePrice = computed(() => {
+    const variant = this.selectedVariant();
+    const p = this.product();
+    if (variant) return variant.price;
+    if (!p?.pricing) return null;
+    return p.pricing.discountPrice ?? p.pricing.basePrice;
+  });
+
+  /** @description Effective stock status reflecting the selected variant */
+  effectiveStockStatus = computed((): 'in_stock' | 'low_stock' | 'out_of_stock' | null => {
+    const variant = this.selectedVariant();
+    const p = this.product();
+    if (variant) return variant.stockStatus;
+    if (!p) return null;
+    return p.stockStatus;
+  });
+
+  /** @description Formatted effective price with currency */
+  formattedEffectivePrice = computed(() => {
+    const price = this.effectivePrice();
+    if (price == null) return null;
+    return this.formatPrice(price);
+  });
+
+  /** @description Effective stock label reflecting selected variant */
+  effectiveStockLabel = computed(() => {
+    const status = this.effectiveStockStatus();
+    if (!status) return '';
+    const lang = this.language();
+
+    if (lang === 'ar') {
+      if (status === 'in_stock') return 'متوفر';
+      if (status === 'low_stock') return 'مخزون منخفض';
+      return 'غير متوفر';
+    }
+
+    if (status === 'in_stock') return 'In Stock';
+    if (status === 'low_stock') return 'Low Stock';
+    return 'Out of Stock';
+  });
+
+  /** @description Effective stock CSS class reflecting selected variant */
+  effectiveStockClass = computed(() => {
+    const status = this.effectiveStockStatus();
+    if (!status) return '';
+    return `stock-badge--${status.replace('_', '-')}`;
+  });
+
   ngOnInit(): void {
     this.route.params
       .pipe(takeUntilDestroyed(this.destroyRef))
@@ -246,6 +306,14 @@ export class ProductDetailPageComponent implements OnInit {
    * @param index - Image index to display
    */
   onImageSelect(index: number): void {
+    this.selectedImageIndex.set(index);
+  }
+
+  /**
+   * @description Handles image change from the ImageGalleryComponent
+   * @param index - New image index
+   */
+  onGalleryImageChange(index: number): void {
     this.selectedImageIndex.set(index);
   }
 

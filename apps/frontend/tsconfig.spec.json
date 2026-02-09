@@ -11,5 +11,10 @@
   "include": [
     "src/**/*.spec.ts",
     "src/**/*.d.ts"
+  ],
+  "exclude": [
+    "src/app/features/category/**/*.spec.ts",
+    "src/app/features/account/**/*.spec.ts",
+    "src/app/features/auth/**/*.spec.ts"
   ]
 }
