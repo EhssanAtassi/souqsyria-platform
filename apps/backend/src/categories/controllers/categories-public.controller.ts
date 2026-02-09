@@ -29,6 +29,7 @@ import {
   Get,
   HttpStatus,
   Logger,
+  Param,
   Query,
   Req,
   Res,
@@ -45,7 +46,7 @@ import { CategoriesService } from '../services/categories.service';
 import { PublicProductsService } from '../../products/public/service/public-products.service';
 
 // Import DTOs and Types
-import { CategoryQueryDto, ApprovalStatus, GetCategoriesTreeResponseDto, CategoryTreeRootDto, CategoryTreeChildDto, CategoryTreeGrandchildDto, PaginatedCategoriesResponseDto } from '../dto/index-dto';
+import { CategoryQueryDto, ApprovalStatus, GetCategoriesTreeResponseDto, CategoryTreeRootDto, CategoryTreeChildDto, CategoryTreeGrandchildDto, PaginatedCategoriesResponseDto, SearchWithinCategoryDto } from '../dto/index-dto';
 
 /**
  * PUBLIC CATEGORIES CONTROLLER
@@ -1095,5 +1096,235 @@ export class CategoriesPublicController {
       ...result,
       data: publicData,
     };
+  }
+
+  // ============================================================================
+  // SEARCH WITHIN CATEGORY (SS-CAT-006)
+  // ============================================================================
+
+  /**
+   * SEARCH PRODUCTS WITHIN CATEGORY
+   *
+   * Search for products within a specific category with pagination.
+   * Only returns products that are active, published, and approved.
+   * Only searches within active and approved categories.
+   *
+   * Features:
+   * - Full-text search on product names (English/Arabic) and descriptions
+   * - Pagination with page and limit parameters
+   * - Returns product images and pricing
+   * - Caching headers for 5 minutes
+   * - Mobile-optimized response format
+   *
+   * Use Cases:
+   * - Category page product listings
+   * - Category-specific product search
+   * - Mobile app category browsing
+   * - Product filtering within categories
+   *
+   * @sprint S3 Categories
+   * @ticket SS-CAT-006
+   */
+  @Get(':id/products')
+  @ApiOperation({
+    summary: 'Search products within a specific category',
+    description: `
+      Search for products within a specific category with optional keyword search and pagination.
+
+      Features:
+      • Full-text search on product names (English/Arabic) and descriptions
+      • Only returns active, published, and approved products
+      • Category must be active and approved
+      • Pagination support with page and limit
+      • Returns product images and pricing information
+      • Cached for 5 minutes for optimal performance
+      • Mobile-optimized response format
+
+      Search Behavior:
+      • Empty search returns all products in category
+      • Search is case-insensitive
+      • Searches across product nameEn, nameAr, and descriptions
+      • Uses MySQL LIKE for flexible matching
+
+      Use Cases:
+      • Category page product listings
+      • Category-specific product search
+      • Mobile app category browsing
+      • Product filtering within categories
+    `,
+  })
+  @ApiQuery({
+    name: 'search',
+    required: false,
+    type: String,
+    description: 'Search keyword for filtering products (optional, min 2 chars)',
+    example: 'damascus steel',
+  })
+  @ApiQuery({
+    name: 'page',
+    required: false,
+    type: Number,
+    description: 'Page number for pagination (starts from 1)',
+    example: 1,
+    minimum: 1,
+  })
+  @ApiQuery({
+    name: 'limit',
+    required: false,
+    type: Number,
+    description: 'Number of items per page (max: 100)',
+    example: 20,
+    minimum: 1,
+    maximum: 100,
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Products retrieved successfully',
+    schema: {
+      example: {
+        success: true,
+        data: [
+          {
+            id: 1,
+            nameEn: 'Damascus Steel Knife',
+            nameAr: 'سكين من الفولاذ الدمشقي',
+            slug: 'damascus-steel-knife',
+            mainImage: 'https://cdn.souqsyria.com/products/damascus-knife.jpg',
+            basePrice: 15000,
+            discountPrice: 12000,
+            currency: 'SYP',
+            approvalStatus: 'approved',
+            isActive: true,
+            isPublished: true,
+          },
+        ],
+        meta: {
+          page: 1,
+          limit: 20,
+          total: 5,
+          totalPages: 1,
+        },
+      },
+    },
+    headers: {
+      'Cache-Control': {
+        description: 'Caching directive for performance',
+        schema: { type: 'string', example: 'public, max-age=300' },
+      },
+    },
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Category not found or not publicly available',
+    schema: {
+      example: {
+        success: false,
+        error: 'Not Found',
+        message: 'Category with ID 999 not found',
+        statusCode: 404,
+      },
+    },
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Invalid query parameters',
+    schema: {
+      example: {
+        success: false,
+        error: 'Bad Request',
+        message: 'Invalid pagination parameters',
+        statusCode: 400,
+      },
+    },
+  })
+  @ApiResponse({
+    status: 500,
+    description: 'Internal server error',
+  })
+  async searchProductsWithinCategory(
+    @Param('id') categoryId: number,
+    @Query() query: SearchWithinCategoryDto,
+    @Res() response: Response,
+  ) {
+    const startTime = Date.now();
+    const { search, page = 1, limit = 20 } = query;
+
+    this.logger.log(
+      `🔍 Search within category request: categoryId=${categoryId}, search="${search || 'all'}", page=${page}, limit=${limit}`,
+    );
+
+    try {
+      // 1. Validate category ID
+      const sanitizedCategoryId = Number(categoryId);
+      if (isNaN(sanitizedCategoryId) || sanitizedCategoryId < 1) {
+        throw new BadRequestException('Invalid category ID');
+      }
+
+      // 2. Execute search via service
+      const result = await this.categoriesService.searchWithinCategory(
+        sanitizedCategoryId,
+        search,
+        page,
+        limit,
+      );
+
+      // 3. Set cache headers (5 minutes)
+      response.set({
+        'Cache-Control': 'public, max-age=300',
+        'X-Content-Type-Options': 'nosniff',
+      });
+
+      const processingTime = Date.now() - startTime;
+      this.logger.log(
+        `✅ Search within category ${categoryId} completed: ${result.data.length}/${result.meta.total} products found (${processingTime}ms)`,
+      );
+
+      // 4. Return response
+      return response.status(HttpStatus.OK).json({
+        success: true,
+        data: result.data,
+        meta: result.meta,
+      });
+    } catch (error: unknown) {
+      const processingTime = Date.now() - startTime;
+
+      this.logger.error(
+        `❌ Search within category ${categoryId} failed: ${(error as Error).message} (${processingTime}ms)`,
+        {
+          error: (error as Error).message,
+          stack: (error as Error).stack,
+          categoryId,
+          search,
+          page,
+          limit,
+        },
+      );
+
+      // Return appropriate error response
+      if (error instanceof BadRequestException) {
+        return response.status(HttpStatus.BAD_REQUEST).json({
+          success: false,
+          error: 'Bad Request',
+          message: (error as Error).message,
+          statusCode: HttpStatus.BAD_REQUEST,
+        });
+      }
+
+      if ((error as { status?: number }).status === HttpStatus.NOT_FOUND) {
+        return response.status(HttpStatus.NOT_FOUND).json({
+          success: false,
+          error: 'Not Found',
+          message: (error as Error).message,
+          statusCode: HttpStatus.NOT_FOUND,
+        });
+      }
+
+      return response.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        error: 'Internal Server Error',
+        message: 'Failed to search products. Please try again.',
+        statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+      });
+    }
   }
 }
