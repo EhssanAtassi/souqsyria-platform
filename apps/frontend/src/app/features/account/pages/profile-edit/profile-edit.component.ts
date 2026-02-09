@@ -93,7 +93,7 @@ export class ProfileEditComponent implements OnInit {
           Validators.maxLength(100),
         ],
       ],
-      phone: ['', [Validators.pattern(/^\d{9,10}$/)]],
+      phone: ['', [Validators.pattern(/^\d{9}$/)]],
     });
   }
 
@@ -197,7 +197,7 @@ export class ProfileEditComponent implements OnInit {
    */
   removeAvatar(): void {
     this.avatarPreview.set(null);
-    this.avatarData.set(null);
+    this.avatarData.set('');
   }
 
   /**
@@ -240,9 +240,14 @@ export class ProfileEditComponent implements OnInit {
 
     // Include avatar if it has been modified (including removal)
     const avatarValue = this.avatarData();
-    if (avatarValue !== undefined) {
+    if (avatarValue === '') {
+      // Empty string signals explicit removal
+      updateData.avatar = null;
+    } else if (avatarValue !== null) {
+      // Non-empty string is base64 data
       updateData.avatar = avatarValue;
     }
+    // If avatarValue is null, don't include avatar in request (unchanged)
 
     this.accountApi.updateProfile(updateData).subscribe({
       next: () => {

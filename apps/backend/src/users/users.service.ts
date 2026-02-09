@@ -203,9 +203,20 @@ export class UsersService {
     // Handle avatar upload/update/removal
     if (updateProfileDto.avatar !== undefined) {
       if (updateProfileDto.avatar === null || updateProfileDto.avatar === '') {
-        // Explicit removal
+        // Explicit removal - also delete old file if exists
+        if (user.avatar && user.avatar.startsWith('/avatars/')) {
+          await fs
+            .unlink(path.join(process.cwd(), 'public', user.avatar))
+            .catch(() => {});
+        }
         user.avatar = null;
       } else {
+        // Delete old avatar file before uploading new one
+        if (user.avatar && user.avatar.startsWith('/avatars/')) {
+          await fs
+            .unlink(path.join(process.cwd(), 'public', user.avatar))
+            .catch(() => {});
+        }
         // Upload new avatar
         user.avatar = await this.processAvatarUpload(
           userId,

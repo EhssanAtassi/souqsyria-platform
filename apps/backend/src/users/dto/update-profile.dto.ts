@@ -93,9 +93,9 @@ export class UpdateProfileDto {
   })
   @IsOptional()
   @IsString()
-  @Matches(/^\+963\d{9,10}$/, {
+  @Matches(/^\+963\d{9}$/, {
     message:
-      'Phone must be in Syrian format: +963XXXXXXXXX (9-10 digits after +963)',
+      'Phone must be in Syrian format: +963XXXXXXXXX (9 digits after +963)',
   })
   phone?: string;
 

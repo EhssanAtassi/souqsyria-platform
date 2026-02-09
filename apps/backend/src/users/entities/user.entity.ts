@@ -24,6 +24,7 @@ import {
 import { Role } from '../../roles/entities/role.entity';
 import { Wishlist } from '../../wishlist/entities/wishlist.entity';
 import { Address } from '../../addresses/entities/address.entity';
+import { RefreshToken } from '../../auth/entity/refresh-token.entity';
 
 @Entity('users')
 @Index(['email'], { unique: true })
@@ -38,7 +39,8 @@ export class User {
   @Column({ nullable: true })
   email: string;
 
-  @Column({ nullable: true })
+  @Index()
+  @Column({ nullable: true, unique: true })
   phone: string;
   /**
    * * All addresses belonging to this user (address book)
@@ -96,6 +98,11 @@ export class User {
   metadata: Record<string, any>; // 🧠 Optional dynamic data
   @OneToMany(() => Wishlist, (wishlist) => wishlist.user)
   wishlist: Wishlist[];
+  /**
+   * All refresh tokens belonging to this user (multi-device sessions)
+   */
+  @OneToMany(() => RefreshToken, (refreshToken) => refreshToken.user)
+  refreshTokens: RefreshToken[];
   @DeleteDateColumn({ name: 'deleted_at', nullable: true })
   deletedAt?: Date; // 🧹 Soft delete support
   /**

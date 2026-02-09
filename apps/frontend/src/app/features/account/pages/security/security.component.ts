@@ -26,6 +26,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatDialog, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Store } from '@ngrx/store';
 import { AccountApiService } from '../../services/account-api.service';
@@ -49,6 +50,7 @@ import { AuthActions } from '../../../auth/store/auth.actions';
     MatInputModule,
     MatProgressSpinnerModule,
     MatSnackBarModule,
+    MatDialogModule,
     TranslateModule,
     PasswordStrengthComponent,
   ],
@@ -74,6 +76,9 @@ export class SecurityComponent {
 
   /** Store for dispatching logout action */
   private store = inject(Store);
+
+  /** Dialog service */
+  private dialog = inject(MatDialog);
 
   /** Submitting state signal */
   submitting = signal<boolean>(false);
@@ -139,7 +144,7 @@ export class SecurityComponent {
    */
   private specialCharValidator(control: AbstractControl): ValidationErrors | null {
     if (!control.value) return null;
-    return /[@$!%*?&]/.test(control.value) ? null : { specialChar: true };
+    return /[!@#$%^&*()_+\-=\[\]{}|;:'",.<>?\/\\~`]/.test(control.value) ? null : { specialChar: true };
   }
 
   /**
@@ -217,39 +222,43 @@ export class SecurityComponent {
       error: (err) => {
         console.error('Failed to change password:', err);
         this.submitting.set(false);
-        this.showError('account.security.error');
+        // Parse backend error message or use generic fallback
+        const errorMessage = err.error?.message || 'account.security.error';
+        this.showError(errorMessage);
       },
     });
   }
 
   /**
-   * @description Shows success message and logs out user
+   * @description Shows success dialog and logs out user
    * @returns {void}
    */
   private showSuccessAndLogout(): void {
-    this.translate.get('account.security.success').subscribe((message) => {
-      this.snackBar.open(message, '', {
-        duration: 5000,
-        horizontalPosition: 'center',
-        verticalPosition: 'top',
-        panelClass: ['success-snackbar'],
-      });
+    const dialogRef = this.dialog.open(PasswordChangeSuccessDialog, {
+      width: '400px',
+      disableClose: true,
+    });
 
-      setTimeout(() => {
-        this.store.dispatch(AuthActions.logout());
-        this.router.navigate(['/auth/login']);
-      }, 2000);
+    dialogRef.afterClosed().subscribe(() => {
+      this.store.dispatch(AuthActions.logout());
+      this.router.navigate(['/auth/login']);
     });
   }
 
   /**
    * @description Shows error snackbar message
-   * @param {string} messageKey - Translation key for message
+   * @param {string} messageKeyOrText - Translation key or direct error message
    * @returns {void}
    */
-  private showError(messageKey: string): void {
-    this.translate.get(messageKey).subscribe((message) => {
-      this.snackBar.open(message, '', {
+  private showError(messageKeyOrText: string): void {
+    // Try to translate first, if it fails use the text directly
+    this.translate.get(messageKeyOrText).subscribe((message) => {
+      // If translation returns the same key, it means no translation exists, use original text
+      const displayMessage = message === messageKeyOrText && !messageKeyOrText.startsWith('account.')
+        ? messageKeyOrText
+        : message;
+
+      this.snackBar.open(displayMessage, '', {
         duration: 3000,
         horizontalPosition: 'center',
         verticalPosition: 'top',
@@ -302,4 +311,33 @@ export class SecurityComponent {
     }
     return '';
   }
+}
+
+/**
+ * @description Dialog component for password change success confirmation
+ * @class PasswordChangeSuccessDialog
+ */
+@Component({
+  selector: 'app-password-change-success-dialog',
+  standalone: true,
+  imports: [MatDialogModule, MatButtonModule, TranslateModule],
+  template: `
+    <h2 mat-dialog-title>{{ 'account.security.successTitle' | translate }}</h2>
+    <mat-dialog-content>
+      <p>{{ 'account.security.successMessage' | translate }}</p>
+    </mat-dialog-content>
+    <mat-dialog-actions align="end">
+      <button mat-raised-button color="primary" [mat-dialog-close]="true">
+        {{ 'account.security.okButton' | translate }}
+      </button>
+    </mat-dialog-actions>
+  `,
+  styles: [`
+    mat-dialog-content {
+      padding: 20px 0;
+    }
+  `]
+})
+export class PasswordChangeSuccessDialog {
+  dialogRef = inject(MatDialogRef<PasswordChangeSuccessDialog>);
 }

@@ -78,7 +78,7 @@ export class PasswordStrengthComponent {
    * @returns {boolean} True if password contains at least one special character
    */
   hasSpecialChar = computed(() => {
-    return /[@$!%*?&]/.test(this.passwordSignal());
+    return /[!@#$%^&*()_+\-=\[\]{}|;:'",.<>?\/\\~`]/.test(this.passwordSignal());
   });
 
   /**
