@@ -13,7 +13,9 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   constructor(private readonly configService: ConfigService) {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-      secretOrKey: configService.get<string>('JWT_SECRET'), // ✅ use your env secret
+      secretOrKey: configService.get<string>('JWT_SECRET'),
+      issuer: 'souqsyria-api',
+      audience: 'souqsyria-client',
     });
   }
 
