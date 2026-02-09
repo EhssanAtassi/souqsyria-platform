@@ -1,0 +1,125 @@
+/**
+ * @fileoverview Styles for delete confirmation dialog
+ * @description Warning dialog with address preview and validation messages
+ */
+
+.delete-confirmation-dialog {
+  min-width: 400px;
+
+  h2[mat-dialog-title] {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: #d32f2f;
+
+    .warning-icon {
+      font-size: 1.5rem;
+      width: 1.5rem;
+      height: 1.5rem;
+    }
+  }
+
+  mat-dialog-content {
+    .confirmation-message {
+      margin-bottom: 1rem;
+      color: rgba(0, 0, 0, 0.87);
+    }
+
+    .warning-box {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.75rem;
+      padding: 1rem;
+      margin-bottom: 1rem;
+      background-color: #fff3e0;
+      border-left: 4px solid #ff9800;
+      border-radius: 4px;
+
+      mat-icon {
+        color: #f57c00;
+        flex-shrink: 0;
+      }
+
+      p {
+        margin: 0;
+        color: rgba(0, 0, 0, 0.87);
+        font-size: 0.875rem;
+      }
+    }
+
+    .address-preview {
+      padding: 1rem;
+      background-color: #f5f5f5;
+      border-radius: 4px;
+      margin-top: 1rem;
+
+      .address-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 0.5rem;
+
+        strong {
+          font-size: 1rem;
+          color: rgba(0, 0, 0, 0.87);
+        }
+
+        .badge {
+          display: inline-flex;
+          align-items: center;
+          gap: 0.25rem;
+          padding: 0.25rem 0.5rem;
+          font-size: 0.75rem;
+          border-radius: 12px;
+
+          mat-icon {
+            font-size: 0.875rem;
+            width: 0.875rem;
+            height: 0.875rem;
+          }
+        }
+
+        .default-badge {
+          background-color: #ffd54f;
+          color: rgba(0, 0, 0, 0.87);
+        }
+      }
+
+      .address-line {
+        margin: 0.25rem 0;
+        font-size: 0.875rem;
+        color: rgba(0, 0, 0, 0.6);
+      }
+    }
+  }
+
+  mat-dialog-actions {
+    padding: 1rem 1.5rem;
+
+    button {
+      min-width: 100px;
+    }
+  }
+}
+
+// Responsive adjustments
+@media (max-width: 600px) {
+  .delete-confirmation-dialog {
+    min-width: unset;
+    width: 100%;
+
+    h2[mat-dialog-title] {
+      font-size: 1.25rem;
+    }
+
+    mat-dialog-content {
+      .address-preview {
+        .address-header {
+          flex-direction: column;
+          align-items: flex-start;
+          gap: 0.5rem;
+        }
+      }
+    }
+  }
+}

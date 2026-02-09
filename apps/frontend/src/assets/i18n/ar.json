@@ -315,5 +315,54 @@
       "good": "جيدة",
       "strong": "قوية"
     }
+  },
+  "addresses": {
+    "title": "عناويني",
+    "addNew": "إضافة عنوان جديد",
+    "editAddress": "تعديل العنوان",
+    "noAddresses": "لا توجد عناوين بعد",
+    "noAddressesDesc": "أضف عنوان التوصيل الأول لتبدأ",
+    "governorate": "المحافظة",
+    "selectGovernorate": "اختر المحافظة",
+    "city": "المدينة",
+    "selectCity": "اختر المدينة",
+    "district": "المنطقة",
+    "selectDistrict": "اختر المنطقة",
+    "fullName": "الاسم الكامل",
+    "phone": "رقم الهاتف",
+    "phonePlaceholder": "+963XXXXXXXXX",
+    "street": "عنوان الشارع",
+    "building": "المبنى",
+    "floor": "الطابق",
+    "additionalDetails": "تفاصيل إضافية",
+    "label": "تصنيف العنوان",
+    "labelHome": "المنزل",
+    "labelWork": "العمل",
+    "labelFamily": "العائلة",
+    "labelOther": "أخرى",
+    "setAsDefault": "تعيين كافتراضي",
+    "defaultAddress": "الافتراضي",
+    "save": "حفظ العنوان",
+    "cancel": "إلغاء",
+    "delete": "حذف",
+    "deleteConfirmTitle": "حذف العنوان",
+    "deleteConfirmMessage": "هل أنت متأكد من حذف هذا العنوان؟",
+    "deleteDefaultWarning": "هذا هو عنوانك الافتراضي. يرجى تعيين عنوان آخر كافتراضي أولاً.",
+    "deleteOnlyWarning": "لا يمكنك حذف عنوانك الوحيد.",
+    "setDefault": "تعيين كافتراضي",
+    "validation": {
+      "fullNameRequired": "الاسم الكامل مطلوب",
+      "phoneRequired": "رقم الهاتف مطلوب",
+      "phoneInvalid": "يرجى إدخال رقم هاتف سوري صحيح (+963XXXXXXXXX)",
+      "streetRequired": "عنوان الشارع مطلوب",
+      "governorateRequired": "يرجى اختيار المحافظة",
+      "cityRequired": "يرجى اختيار المدينة"
+    },
+    "messages": {
+      "created": "تمت إضافة العنوان بنجاح",
+      "updated": "تم تحديث العنوان بنجاح",
+      "deleted": "تم حذف العنوان بنجاح",
+      "defaultSet": "تم تحديث العنوان الافتراضي"
+    }
   }
 }

@@ -1,0 +1,130 @@
+<div class="address-list-container">
+  <!-- Page Header -->
+  <div class="page-header">
+    <h1 class="page-title">{{ 'addresses.title' | translate }}</h1>
+    <button
+      mat-raised-button
+      color="primary"
+      (click)="onAddNewAddress()"
+      *ngIf="!showForm()"
+    >
+      <mat-icon>add</mat-icon>
+      {{ 'addresses.addNew' | translate }}
+    </button>
+  </div>
+
+  <!-- Loading State -->
+  <div class="loading-container" *ngIf="isLoading() && isEmpty()">
+    <mat-spinner diameter="50"></mat-spinner>
+    <p>Loading addresses...</p>
+  </div>
+
+  <!-- Address Form (Create/Edit) -->
+  <div class="form-section" *ngIf="showForm()">
+    <app-address-form
+      [address]="editingAddress()"
+      [mode]="formMode()"
+      (saved)="onFormSaved()"
+      (cancelled)="onFormCancelled()"
+    />
+  </div>
+
+  <!-- Empty State -->
+  <div class="empty-state" *ngIf="isEmpty() && !isLoading() && !showForm()">
+    <mat-icon class="empty-icon">location_off</mat-icon>
+    <h2>{{ 'addresses.noAddresses' | translate }}</h2>
+    <p>{{ 'addresses.noAddressesDesc' | translate }}</p>
+    <button mat-raised-button color="primary" (click)="onAddNewAddress()">
+      <mat-icon>add</mat-icon>
+      {{ 'addresses.addNew' | translate }}
+    </button>
+  </div>
+
+  <!-- Address Cards Grid -->
+  <div class="address-grid" *ngIf="!isEmpty() && !showForm()">
+    <mat-card *ngFor="let address of addresses()" class="address-card">
+      <!-- Card Header -->
+      <mat-card-header>
+        <div class="card-header-content">
+          <!-- Label Badge -->
+          <div class="label-badge">
+            <mat-icon>{{ getLabelIcon(address.label) }}</mat-icon>
+            <span>{{ 'addresses.label' + (address.label || 'other' | titlecase) | translate }}</span>
+          </div>
+
+          <!-- Default Badge -->
+          <div class="default-badge" *ngIf="address.isDefault">
+            <mat-icon>star</mat-icon>
+            <span>{{ 'addresses.defaultAddress' | translate }}</span>
+          </div>
+        </div>
+      </mat-card-header>
+
+      <!-- Card Content -->
+      <mat-card-content>
+        <div class="address-info">
+          <!-- Full Name -->
+          <div class="info-row">
+            <mat-icon class="info-icon">person</mat-icon>
+            <span class="info-text">{{ address.fullName }}</span>
+          </div>
+
+          <!-- Phone -->
+          <div class="info-row">
+            <mat-icon class="info-icon">phone</mat-icon>
+            <span class="info-text">{{ address.phone }}</span>
+          </div>
+
+          <!-- Full Address -->
+          <div class="info-row">
+            <mat-icon class="info-icon">location_on</mat-icon>
+            <span class="info-text">{{ getFullAddress(address) }}</span>
+          </div>
+
+          <!-- Building & Floor -->
+          <div class="info-row" *ngIf="address.building || address.floor">
+            <mat-icon class="info-icon">apartment</mat-icon>
+            <span class="info-text">{{ getBuildingFloorInfo(address) }}</span>
+          </div>
+
+          <!-- Additional Details -->
+          <div class="info-row" *ngIf="address.additionalDetails">
+            <mat-icon class="info-icon">notes</mat-icon>
+            <span class="info-text additional-details">{{ address.additionalDetails }}</span>
+          </div>
+        </div>
+      </mat-card-content>
+
+      <!-- Card Actions -->
+      <mat-card-actions>
+        <button
+          mat-button
+          color="primary"
+          (click)="onEditAddress(address)"
+        >
+          <mat-icon>edit</mat-icon>
+          {{ 'addresses.editAddress' | translate }}
+        </button>
+
+        <button
+          mat-button
+          color="accent"
+          (click)="onSetDefault(address)"
+          *ngIf="!address.isDefault"
+        >
+          <mat-icon>star_border</mat-icon>
+          {{ 'addresses.setDefault' | translate }}
+        </button>
+
+        <button
+          mat-button
+          color="warn"
+          (click)="onDeleteAddress(address)"
+        >
+          <mat-icon>delete</mat-icon>
+          {{ 'addresses.delete' | translate }}
+        </button>
+      </mat-card-actions>
+    </mat-card>
+  </div>
+</div>

@@ -1,0 +1,152 @@
+/**
+ * @fileoverview Styles for address form component
+ * @description Responsive layout for address input form with Material Design
+ */
+
+.address-form-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 1.5rem;
+
+  .form-title {
+    font-size: 1.5rem;
+    font-weight: 500;
+    margin-bottom: 1.5rem;
+    color: rgba(0, 0, 0, 0.87);
+  }
+
+  .address-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+
+    .full-width {
+      width: 100%;
+    }
+
+    .form-row {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+
+      .half-width {
+        flex: 1;
+        min-width: 200px;
+      }
+    }
+
+    .location-errors {
+      margin-top: -0.5rem;
+      margin-bottom: 0.5rem;
+
+      mat-error {
+        font-size: 0.875rem;
+        color: #f44336;
+      }
+    }
+
+    .form-section {
+      margin: 1rem 0;
+
+      .section-label {
+        display: block;
+        font-size: 0.875rem;
+        font-weight: 500;
+        color: rgba(0, 0, 0, 0.6);
+        margin-bottom: 0.5rem;
+      }
+
+      .label-toggle {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+
+        mat-button-toggle {
+          mat-icon {
+            margin-right: 0.5rem;
+          }
+        }
+      }
+    }
+
+    .form-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 1rem;
+      margin-top: 1.5rem;
+
+      button {
+        min-width: 120px;
+
+        mat-spinner {
+          display: inline-block;
+          margin-right: 0.5rem;
+        }
+      }
+    }
+  }
+}
+
+// RTL support
+[dir='rtl'] {
+  .address-form-container {
+    .address-form {
+      .form-section {
+        .label-toggle {
+          mat-button-toggle {
+            mat-icon {
+              margin-right: 0;
+              margin-left: 0.5rem;
+            }
+          }
+        }
+      }
+
+      .form-actions {
+        button {
+          mat-spinner {
+            margin-right: 0;
+            margin-left: 0.5rem;
+          }
+        }
+      }
+    }
+  }
+}
+
+// Responsive adjustments
+@media (max-width: 600px) {
+  .address-form-container {
+    padding: 1rem;
+
+    .form-title {
+      font-size: 1.25rem;
+    }
+
+    .address-form {
+      .form-row {
+        flex-direction: column;
+
+        .half-width {
+          width: 100%;
+        }
+      }
+
+      .form-section {
+        .label-toggle {
+          mat-button-toggle {
+            font-size: 0.875rem;
+          }
+        }
+      }
+
+      .form-actions {
+        flex-direction: column;
+
+        button {
+          width: 100%;
+        }
+      }
+    }
+  }
+}

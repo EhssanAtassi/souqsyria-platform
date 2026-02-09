@@ -1,0 +1,314 @@
+/**
+ * @fileoverview Styles for address list page component
+ * @description Responsive grid layout for address cards with Material Design
+ */
+
+.address-list-container {
+  padding: 2rem;
+  max-width: 1400px;
+  margin: 0 auto;
+
+  .page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+
+    .page-title {
+      font-size: 2rem;
+      font-weight: 500;
+      color: rgba(0, 0, 0, 0.87);
+      margin: 0;
+    }
+
+    button {
+      mat-icon {
+        margin-right: 0.5rem;
+      }
+    }
+  }
+
+  .loading-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 4rem 0;
+    gap: 1rem;
+
+    p {
+      color: rgba(0, 0, 0, 0.6);
+    }
+  }
+
+  .form-section {
+    margin-bottom: 2rem;
+    padding: 2rem;
+    background-color: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+
+  .empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 4rem 2rem;
+    text-align: center;
+
+    .empty-icon {
+      font-size: 5rem;
+      width: 5rem;
+      height: 5rem;
+      color: rgba(0, 0, 0, 0.3);
+      margin-bottom: 1rem;
+    }
+
+    h2 {
+      font-size: 1.5rem;
+      font-weight: 500;
+      color: rgba(0, 0, 0, 0.87);
+      margin: 0.5rem 0;
+    }
+
+    p {
+      font-size: 1rem;
+      color: rgba(0, 0, 0, 0.6);
+      margin-bottom: 2rem;
+    }
+
+    button {
+      mat-icon {
+        margin-right: 0.5rem;
+      }
+    }
+  }
+
+  .address-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap: 1.5rem;
+
+    .address-card {
+      position: relative;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+      &:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      }
+
+      mat-card-header {
+        margin-bottom: 1rem;
+
+        .card-header-content {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          width: 100%;
+          gap: 0.5rem;
+
+          .label-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+            padding: 0.25rem 0.75rem;
+            background-color: #e3f2fd;
+            color: #1976d2;
+            border-radius: 16px;
+            font-size: 0.875rem;
+            font-weight: 500;
+
+            mat-icon {
+              font-size: 1rem;
+              width: 1rem;
+              height: 1rem;
+            }
+          }
+
+          .default-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+            padding: 0.25rem 0.75rem;
+            background-color: #ffd54f;
+            color: rgba(0, 0, 0, 0.87);
+            border-radius: 16px;
+            font-size: 0.875rem;
+            font-weight: 500;
+
+            mat-icon {
+              font-size: 1rem;
+              width: 1rem;
+              height: 1rem;
+            }
+          }
+        }
+      }
+
+      mat-card-content {
+        padding: 1rem 0;
+
+        .address-info {
+          display: flex;
+          flex-direction: column;
+          gap: 0.75rem;
+
+          .info-row {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+
+            .info-icon {
+              color: rgba(0, 0, 0, 0.54);
+              font-size: 1.25rem;
+              width: 1.25rem;
+              height: 1.25rem;
+              flex-shrink: 0;
+              margin-top: 0.125rem;
+            }
+
+            .info-text {
+              flex: 1;
+              color: rgba(0, 0, 0, 0.87);
+              font-size: 0.875rem;
+              line-height: 1.5;
+              word-break: break-word;
+
+              &.additional-details {
+                color: rgba(0, 0, 0, 0.6);
+                font-style: italic;
+              }
+            }
+          }
+        }
+      }
+
+      mat-card-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        padding: 1rem 1rem 0.5rem;
+        border-top: 1px solid rgba(0, 0, 0, 0.12);
+
+        button {
+          mat-icon {
+            margin-right: 0.25rem;
+            font-size: 1.125rem;
+            width: 1.125rem;
+            height: 1.125rem;
+          }
+        }
+      }
+    }
+  }
+}
+
+// RTL Support
+[dir='rtl'] {
+  .address-list-container {
+    .page-header {
+      button {
+        mat-icon {
+          margin-right: 0;
+          margin-left: 0.5rem;
+        }
+      }
+    }
+
+    .empty-state {
+      button {
+        mat-icon {
+          margin-right: 0;
+          margin-left: 0.5rem;
+        }
+      }
+    }
+
+    .address-grid {
+      .address-card {
+        mat-card-actions {
+          button {
+            mat-icon {
+              margin-right: 0;
+              margin-left: 0.25rem;
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+// Responsive adjustments
+@media (max-width: 768px) {
+  .address-list-container {
+    padding: 1rem;
+
+    .page-header {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 1rem;
+
+      .page-title {
+        font-size: 1.5rem;
+      }
+
+      button {
+        width: 100%;
+      }
+    }
+
+    .form-section {
+      padding: 1rem;
+    }
+
+    .address-grid {
+      grid-template-columns: 1fr;
+      gap: 1rem;
+
+      .address-card {
+        mat-card-header {
+          .card-header-content {
+            flex-direction: column;
+            align-items: flex-start;
+          }
+        }
+
+        mat-card-actions {
+          flex-direction: column;
+
+          button {
+            width: 100%;
+            justify-content: flex-start;
+          }
+        }
+      }
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .address-list-container {
+    .page-header {
+      .page-title {
+        font-size: 1.25rem;
+      }
+    }
+
+    .empty-state {
+      padding: 2rem 1rem;
+
+      .empty-icon {
+        font-size: 4rem;
+        width: 4rem;
+        height: 4rem;
+      }
+
+      h2 {
+        font-size: 1.25rem;
+      }
+    }
+  }
+}

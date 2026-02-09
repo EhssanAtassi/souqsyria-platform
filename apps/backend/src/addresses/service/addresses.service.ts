@@ -15,6 +15,14 @@ import { Region } from '../region/entities/region.entity';
 import { City } from '../city/entities/city.entity';
 import { UpdateAddressDto } from '../dto/update-address.dto';
 import { SetDefaultAddressDto } from '../dto/set-default-address.dto';
+import { CreateSyrianAddressDto } from '../dto/create-syrian-address.dto';
+import { UpdateSyrianAddressDto } from '../dto/update-syrian-address.dto';
+import {
+  SyrianGovernorateEntity,
+  SyrianCityEntity,
+  SyrianDistrictEntity,
+} from '../entities';
+import { GovernorateCityValidator } from '../validators/valid-governorate-city.validator';
 
 @Injectable()
 export class AddressesService {
@@ -31,6 +39,13 @@ export class AddressesService {
     private readonly regionRepo: Repository<Region>,
     @InjectRepository(City)
     private readonly cityRepo: Repository<City>,
+    @InjectRepository(SyrianGovernorateEntity)
+    private readonly govRepo: Repository<SyrianGovernorateEntity>,
+    @InjectRepository(SyrianCityEntity)
+    private readonly syrianCityRepo: Repository<SyrianCityEntity>,
+    @InjectRepository(SyrianDistrictEntity)
+    private readonly districtRepo: Repository<SyrianDistrictEntity>,
+    private readonly validator: GovernorateCityValidator,
   ) {}
 
   /**
@@ -148,7 +163,7 @@ export class AddressesService {
   async findAll(user: User, type?: AddressType): Promise<Address[]> {
     return this.addressRepo.find({
       where: { user: { id: user.id }, ...(type ? { addressType: type } : {}) },
-      relations: ['country', 'region', 'city'],
+      relations: ['country', 'region', 'city', 'governorate', 'syrianCity', 'district'],
       order: { isDefault: 'DESC', createdAt: 'DESC' },
     });
   }
@@ -176,7 +191,7 @@ export class AddressesService {
   async findOne(user: User, addressId: number): Promise<Address> {
     const address = await this.addressRepo.findOne({
       where: { id: addressId, user: { id: user.id } },
-      relations: ['country', 'region', 'city'],
+      relations: ['country', 'region', 'city', 'governorate', 'syrianCity', 'district'],
     });
     if (!address) throw new NotFoundException('Address not found');
     return address;
@@ -477,5 +492,317 @@ export class AddressesService {
       where: { region: { name: governorateName } },
       relations: ['user', 'country', 'region', 'city'],
     });
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════
+  // SYRIAN ADDRESS METHODS (MVP1)
+  // ═══════════════════════════════════════════════════════════════════════
+
+  /**
+   * Create a Syrian address with full validation
+   *
+   * @param user - The user creating the address
+   * @param dto - Syrian address data
+   * @returns Created address entity with Syrian relations
+   *
+   * VALIDATION:
+   * - Validates governorate → city → district hierarchy
+   * - Ensures delivery is supported in the area
+   * - Validates Syrian phone number format
+   * - Handles default address logic
+   *
+   * @example
+   * ```typescript
+   * const address = await service.createSyrianAddress(user, {
+   *   fullName: 'أحمد محمد',
+   *   phone: '+963912345678',
+   *   governorateId: 1,
+   *   cityId: 5,
+   *   street: 'شارع الثورة',
+   *   isDefault: true
+   * });
+   * ```
+   */
+  async createSyrianAddress(
+    user: User,
+    dto: CreateSyrianAddressDto,
+  ): Promise<Address> {
+    // Step 1: Validate Syrian administrative hierarchy
+    const validationResult = await this.validator.validate(
+      dto.governorateId,
+      dto.cityId,
+      dto.districtId,
+    );
+
+    if (!validationResult.valid) {
+      throw new BadRequestException(
+        `Address validation failed: ${validationResult.errors.join(', ')}`,
+      );
+    }
+
+    // Step 2: Fetch Syrian entities
+    const governorate = await this.govRepo.findOne({
+      where: { id: dto.governorateId },
+    });
+    const syrianCity = await this.syrianCityRepo.findOne({
+      where: { id: dto.cityId },
+    });
+    const district = dto.districtId
+      ? await this.districtRepo.findOne({ where: { id: dto.districtId } })
+      : null;
+
+    // Step 3: Handle default address logic
+    if (dto.isDefault) {
+      await this.addressRepo.update(
+        { user: { id: user.id } },
+        { isDefault: false },
+      );
+    }
+
+    // Step 4: Create address entity
+    const address = this.addressRepo.create({
+      user,
+      fullName: dto.fullName,
+      phone: dto.phone,
+      governorate,
+      syrianCity,
+      district,
+      addressLine1: dto.street, // Map street to addressLine1 for backward compatibility
+      building: dto.building,
+      floor: dto.floor,
+      additionalDetails: dto.additionalDetails,
+      isDefault: dto.isDefault || false,
+      label: dto.label || 'home',
+      addressType: 'shipping', // Default for Syrian addresses
+    });
+
+    const savedAddress = await this.addressRepo.save(address);
+
+    this.logger.log(
+      `Created Syrian address ${savedAddress.id} for user ${user.id} ` +
+        `in ${governorate?.nameEn} → ${syrianCity?.nameEn}`,
+    );
+
+    return savedAddress;
+  }
+
+  /**
+   * Update a Syrian address
+   *
+   * @param user - The user updating the address
+   * @param id - Address ID to update
+   * @param dto - Updated Syrian address data
+   * @returns Updated address entity
+   *
+   * VALIDATION:
+   * - Verifies user ownership
+   * - Re-validates hierarchy if governorate/city/district changed
+   * - Handles default address logic
+   *
+   * @throws NotFoundException if address not found or not owned by user
+   * @throws BadRequestException if validation fails
+   */
+  async updateSyrianAddress(
+    user: User,
+    id: number,
+    dto: UpdateSyrianAddressDto,
+  ): Promise<Address> {
+    // Step 1: Find and verify ownership
+    const address = await this.addressRepo.findOne({
+      where: { id, user: { id: user.id } },
+      relations: ['governorate', 'syrianCity', 'district'],
+    });
+
+    if (!address) {
+      throw new NotFoundException('Address not found');
+    }
+
+    // Step 2: Validate hierarchy if geographic fields are being updated
+    if (dto.governorateId || dto.cityId || dto.districtId) {
+      const governorateId = dto.governorateId || address.governorate?.id;
+      const cityId = dto.cityId || address.syrianCity?.id;
+      const districtId = dto.districtId || address.district?.id;
+
+      if (governorateId && cityId) {
+        const validationResult = await this.validator.validate(
+          governorateId,
+          cityId,
+          districtId,
+        );
+
+        if (!validationResult.valid) {
+          throw new BadRequestException(
+            `Address validation failed: ${validationResult.errors.join(', ')}`,
+          );
+        }
+      }
+    }
+
+    // Step 3: Update Syrian entity relations if provided
+    if (dto.governorateId) {
+      address.governorate = await this.govRepo.findOne({
+        where: { id: dto.governorateId },
+      });
+    }
+    if (dto.cityId) {
+      address.syrianCity = await this.syrianCityRepo.findOne({
+        where: { id: dto.cityId },
+      });
+    }
+    if (dto.districtId) {
+      address.district = await this.districtRepo.findOne({
+        where: { id: dto.districtId },
+      });
+    }
+
+    // Step 4: Update simple fields
+    if (dto.fullName !== undefined) address.fullName = dto.fullName;
+    if (dto.phone !== undefined) address.phone = dto.phone;
+    if (dto.street !== undefined) {
+      address.addressLine1 = dto.street; // Map street to addressLine1 for backward compatibility
+    }
+    if (dto.building !== undefined) address.building = dto.building;
+    if (dto.floor !== undefined) address.floor = dto.floor;
+    if (dto.additionalDetails !== undefined)
+      address.additionalDetails = dto.additionalDetails;
+    if (dto.label !== undefined) address.label = dto.label;
+
+    // Step 5: Handle default address logic
+    if (dto.isDefault === true) {
+      await this.addressRepo.update(
+        { user: { id: user.id } },
+        { isDefault: false },
+      );
+      address.isDefault = true;
+    } else if (dto.isDefault === false) {
+      address.isDefault = false;
+    }
+
+    const updatedAddress = await this.addressRepo.save(address);
+
+    this.logger.log(`Updated Syrian address ${id} for user ${user.id}`);
+
+    return updatedAddress;
+  }
+
+  /**
+   * Delete a Syrian address (soft delete)
+   *
+   * @param user - The user deleting the address
+   * @param id - Address ID to delete
+   *
+   * VALIDATION:
+   * - Verifies user ownership
+   * - Prevents deletion if it's the only address
+   * - Prevents deletion of default address (must set another as default first)
+   *
+   * @throws NotFoundException if address not found
+   * @throws BadRequestException if validation fails
+   */
+  async deleteSyrianAddress(user: User, id: number): Promise<void> {
+    // Step 1: Find and verify ownership
+    const address = await this.addressRepo.findOne({
+      where: { id, user: { id: user.id } },
+    });
+
+    if (!address) {
+      throw new NotFoundException('Address not found');
+    }
+
+    // Step 2: Check if this is the only address
+    const addressCount = await this.countUserAddresses(user.id);
+    if (addressCount === 1) {
+      throw new BadRequestException(
+        'Cannot delete your only address. Please add another address first.',
+      );
+    }
+
+    // Step 3: Prevent deletion of default address
+    if (address.isDefault) {
+      throw new BadRequestException(
+        'Cannot delete default address. Please set another address as default first.',
+      );
+    }
+
+    // Step 4: Soft delete
+    await this.addressRepo.softRemove(address);
+
+    this.logger.log(`Deleted Syrian address ${id} for user ${user.id}`);
+  }
+
+  /**
+   * Set a Syrian address as default
+   *
+   * @param user - The user setting the default address
+   * @param id - Address ID to set as default
+   * @returns Updated address entity
+   *
+   * LOGIC:
+   * - Unsets all other default addresses for the user
+   * - Sets the specified address as default
+   * - Returns the updated address
+   *
+   * @throws NotFoundException if address not found or not owned by user
+   */
+  async setDefaultSyrianAddress(user: User, id: number): Promise<Address> {
+    // Step 1: Find and verify ownership
+    const address = await this.addressRepo.findOne({
+      where: { id, user: { id: user.id } },
+      relations: ['governorate', 'syrianCity', 'district'],
+    });
+
+    if (!address) {
+      throw new NotFoundException('Address not found');
+    }
+
+    // Step 2: Unset all other defaults for this user
+    await this.addressRepo.update(
+      { user: { id: user.id } },
+      { isDefault: false },
+    );
+
+    // Step 3: Set this address as default
+    address.isDefault = true;
+    const updatedAddress = await this.addressRepo.save(address);
+
+    this.logger.log(`Set address ${id} as default for user ${user.id}`);
+
+    return updatedAddress;
+  }
+
+  /**
+   * Find all Syrian addresses for a user with full relations
+   *
+   * @param user - The user whose addresses to retrieve
+   * @returns Array of addresses sorted by default status and creation date
+   */
+  async findAllSyrianAddresses(user: User): Promise<Address[]> {
+    return this.addressRepo.find({
+      where: { user: { id: user.id } },
+      relations: ['governorate', 'syrianCity', 'district'],
+      order: { isDefault: 'DESC', createdAt: 'DESC' },
+    });
+  }
+
+  /**
+   * Find a single Syrian address by ID with full relations
+   *
+   * @param user - The user requesting the address
+   * @param id - Address ID
+   * @returns Address entity with Syrian relations
+   *
+   * @throws NotFoundException if address not found or not owned by user
+   */
+  async findOneSyrianAddress(user: User, id: number): Promise<Address> {
+    const address = await this.addressRepo.findOne({
+      where: { id, user: { id: user.id } },
+      relations: ['governorate', 'syrianCity', 'district'],
+    });
+
+    if (!address) {
+      throw new NotFoundException('Address not found');
+    }
+
+    return address;
   }
 }

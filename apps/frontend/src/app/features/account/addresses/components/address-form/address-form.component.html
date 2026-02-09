@@ -1,0 +1,129 @@
+<div class="address-form-container">
+  <h2 class="form-title">
+    {{ mode() === 'edit' ? ('addresses.editAddress' | translate) : ('addresses.addNew' | translate) }}
+  </h2>
+
+  <form [formGroup]="form" (ngSubmit)="onSubmit()" class="address-form">
+
+    <!-- Full Name -->
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>{{ 'addresses.fullName' | translate }}</mat-label>
+      <input matInput formControlName="fullName" type="text" />
+      <mat-error *ngIf="hasError('fullName', 'required')">
+        {{ 'addresses.validation.fullNameRequired' | translate }}
+      </mat-error>
+    </mat-form-field>
+
+    <!-- Phone Number -->
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>{{ 'addresses.phone' | translate }}</mat-label>
+      <input
+        matInput
+        formControlName="phone"
+        type="tel"
+        [placeholder]="'addresses.phonePlaceholder' | translate"
+      />
+      <mat-icon matPrefix>phone</mat-icon>
+      <mat-error *ngIf="hasError('phone', 'required')">
+        {{ 'addresses.validation.phoneRequired' | translate }}
+      </mat-error>
+      <mat-error *ngIf="hasError('phone', 'pattern')">
+        {{ 'addresses.validation.phoneInvalid' | translate }}
+      </mat-error>
+    </mat-form-field>
+
+    <!-- Governorate/City/District Cascading Dropdowns -->
+    <app-governorate-dropdown
+      [selectedGovernorateId]="selectedGovernorateId()"
+      [selectedCityId]="selectedCityId()"
+      [selectedDistrictId]="selectedDistrictId()"
+      (governorateChange)="onGovernorateChange($event)"
+      (cityChange)="onCityChange($event)"
+      (districtChange)="onDistrictChange($event)"
+    />
+
+    <!-- Validation errors for location -->
+    <div class="location-errors" *ngIf="form.get('governorateId')?.touched || form.get('cityId')?.touched">
+      <mat-error *ngIf="hasError('governorateId', 'required')">
+        {{ 'addresses.validation.governorateRequired' | translate }}
+      </mat-error>
+      <mat-error *ngIf="hasError('cityId', 'required')">
+        {{ 'addresses.validation.cityRequired' | translate }}
+      </mat-error>
+    </div>
+
+    <!-- Street Address -->
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>{{ 'addresses.street' | translate }}</mat-label>
+      <input matInput formControlName="street" type="text" />
+      <mat-error *ngIf="hasError('street', 'required')">
+        {{ 'addresses.validation.streetRequired' | translate }}
+      </mat-error>
+    </mat-form-field>
+
+    <!-- Building and Floor (side by side) -->
+    <div class="form-row">
+      <mat-form-field appearance="outline" class="half-width">
+        <mat-label>{{ 'addresses.building' | translate }}</mat-label>
+        <input matInput formControlName="building" type="text" />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="half-width">
+        <mat-label>{{ 'addresses.floor' | translate }}</mat-label>
+        <input matInput formControlName="floor" type="text" />
+      </mat-form-field>
+    </div>
+
+    <!-- Additional Details -->
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>{{ 'addresses.additionalDetails' | translate }}</mat-label>
+      <textarea
+        matInput
+        formControlName="additionalDetails"
+        rows="3"
+      ></textarea>
+    </mat-form-field>
+
+    <!-- Address Label -->
+    <div class="form-section">
+      <label class="section-label">{{ 'addresses.label' | translate }}</label>
+      <mat-button-toggle-group formControlName="label" class="label-toggle">
+        <mat-button-toggle *ngFor="let label of labelOptions" [value]="label">
+          <mat-icon>
+            {{ label === 'home' ? 'home' : label === 'work' ? 'business' : label === 'family' ? 'people' : 'location_on' }}
+          </mat-icon>
+          {{ 'addresses.label' + (label | titlecase) | translate }}
+        </mat-button-toggle>
+      </mat-button-toggle-group>
+    </div>
+
+    <!-- Set as Default -->
+    <div class="form-section">
+      <mat-checkbox formControlName="isDefault">
+        {{ 'addresses.setAsDefault' | translate }}
+      </mat-checkbox>
+    </div>
+
+    <!-- Form Actions -->
+    <div class="form-actions">
+      <button
+        mat-stroked-button
+        type="button"
+        (click)="onCancel()"
+        [disabled]="isSubmitting()"
+      >
+        {{ 'addresses.cancel' | translate }}
+      </button>
+
+      <button
+        mat-raised-button
+        color="primary"
+        type="submit"
+        [disabled]="isSubmitting()"
+      >
+        <mat-spinner *ngIf="isSubmitting()" diameter="20"></mat-spinner>
+        <span *ngIf="!isSubmitting()">{{ 'addresses.save' | translate }}</span>
+      </button>
+    </div>
+  </form>
+</div>
