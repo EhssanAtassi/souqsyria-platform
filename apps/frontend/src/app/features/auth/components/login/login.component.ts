@@ -103,19 +103,19 @@ import { LanguageService } from '../../../../shared/services/language.service';
         </div>
 
         @if (showVerifiedMessage()) {
-          <div class="success-message">
+          <div class="success-message" role="status" aria-live="polite">
             {{ 'auth.login.verifiedSuccess' | translate }}
           </div>
         }
 
         @if (showPasswordResetMessage()) {
-          <div class="success-message">
+          <div class="success-message" role="status" aria-live="polite">
             {{ 'auth.login.passwordResetSuccess' | translate }}
           </div>
         }
 
         @if (error()) {
-          <div class="error-message">
+          <div class="error-message" role="alert" aria-live="polite">
             {{ error() }}
           </div>
         }
@@ -129,6 +129,7 @@ import { LanguageService } from '../../../../shared/services/language.service';
               formControlName="email"
               type="email"
               autocomplete="email"
+              autofocus
             />
             <mat-icon matSuffix>email</mat-icon>
             @if (form.get('email')?.hasError('required') && form.get('email')?.touched) {

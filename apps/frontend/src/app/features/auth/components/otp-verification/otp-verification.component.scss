@@ -1,190 +1,240 @@
 /**
  * OTP Verification Component Styles for SouqSyria marketplace
  *
- * @description SCSS styles for the OTP email verification form.
- * Uses the SouqSyria Golden Wheat design palette with a centered
- * card layout, countdown timer styling, and RTL compatibility.
+ * @description Component-specific SCSS styles for the OTP email verification form.
+ * Imports shared auth styles and adds OTP-specific styles for input, timer, and resend.
+ *
+ * @architecture
+ * RTL Strategy:
+ * - OTP input digits are forced to LTR (`direction: ltr; unicode-bidi: embed`)
+ *   because numeric sequences are always read left-to-right, even in Arabic.
+ * - Email addresses are forced to LTR for the same reason (email addresses
+ *   are ASCII and always read left-to-right).
+ * - Timer and resend sections use `text-align: center` (direction-agnostic).
+ * - The flex-based timer layout uses `gap` instead of margins, which is
+ *   direction-agnostic and works identically in both LTR and RTL.
+ * - All vertical spacing uses logical properties (margin-block-start/end).
+ * - Redundant `:host-context([dir="rtl"])` blocks that only set `direction: rtl`
+ *   have been removed -- the parent `.auth-page[dir="rtl"]` already provides this.
  *
  * @swagger
  * components:
  *   schemas:
  *     OtpVerificationComponentStyles:
  *       type: object
- *       description: SCSS styling for the OTP verification auth form
+ *       description: SCSS styling for the OTP verification auth form (component-specific)
  */
 
-.auth-page {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: calc(100vh - 64px);
-  padding: 24px;
-  background: linear-gradient(135deg, #f5f5f5 0%, #edebe0 100%);
-}
+// Import shared auth styles
+@import '../../styles/auth-shared';
 
-.auth-card {
-  width: 100%;
-  max-width: 420px;
-  background: white;
-  border-radius: 12px;
-  padding: 40px;
-  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
-}
+// =============================================================================
+// OTP Verification-Specific Styles
+// =============================================================================
 
-.auth-header {
-  text-align: center;
-  margin-bottom: 32px;
-
-  h1 {
-    font-size: 28px;
-    font-weight: 600;
-    color: #002623;
-    margin: 0 0 8px;
+/**
+ * Smooth fade-slide animation for error messages
+ * @description Provides visual feedback when error messages appear dynamically
+ */
+@keyframes fadeSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
   }
-
-  p {
-    color: #666;
-    margin: 0;
-    font-size: 14px;
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 
+/**
+ * Error message styling with animation
+ */
+.error-message {
+  animation: fadeSlideIn 0.3s ease-out;
+}
+
+/**
+ * Email display showing where OTP was sent.
+ *
+ * @description
+ * The email address inside `<strong>` is forced to LTR with `unicode-bidi: embed`
+ * because email addresses are always ASCII left-to-right strings. Without this,
+ * the email could render incorrectly in RTL mode (e.g., "com.example@user"
+ * instead of "user@example.com"). Uses `margin-block-end` (logical property).
+ */
 .email-display {
   text-align: center;
-  margin-bottom: 24px;
-  font-size: 14px;
-  color: #333;
+  margin-block-end: $spacing-6;  // 1.5rem (24px) - logical property
+  font-size: 0.875rem;  // 14px
+  color: var(--charcoal-dark);
 
   strong {
-    color: #002623;
+    color: $color-text-primary;
     font-weight: 600;
-  }
-}
-
-mat-form-field {
-  width: 100%;
-  margin-bottom: 8px;
-}
-
-.otp-input {
-  ::ng-deep input {
-    text-align: center;
-    font-size: 24px;
-    letter-spacing: 8px;
-    font-weight: 600;
-  }
-}
-
-.submit-btn {
-  width: 100%;
-  height: 48px;
-  font-size: 16px;
-  margin-top: 16px;
-  background-color: #988561 !important;
-
-  mat-spinner {
+    /**
+     * Force LTR for email addresses in RTL context.
+     * Email addresses are ASCII and must always render left-to-right.
+     * `unicode-bidi: embed` creates an isolated LTR run within the
+     * surrounding RTL text flow without breaking the parent direction.
+     */
+    direction: ltr;
+    unicode-bidi: embed;
     display: inline-block;
   }
 }
 
+/**
+ * OTP input field with centered, spaced numbers.
+ * NOTE: ::ng-deep is required here to override Angular Material's encapsulated input styles.
+ * The Angular team recommends this approach for Material component style overrides.
+ * @see https://angular.io/guide/component-styles#deprecated-deep--and-ng-deep
+ *
+ * @description
+ * The input is forced to `direction: ltr` because OTP codes are always
+ * numeric sequences that read left-to-right. `unicode-bidi: embed` ensures
+ * the cursor moves left-to-right when typing digits, even when the page
+ * is in RTL mode. This matches user expectation: Arabic users still type
+ * numbers left-to-right on their keyboards.
+ *
+ * `letter-spacing` is preserved here (unlike Arabic body text) because the OTP
+ * input uses it for visual digit separation, not for Arabic ligatures.
+ */
+.otp-input {
+  ::ng-deep input {
+    text-align: center;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    direction: ltr;
+    unicode-bidi: embed;
+
+    // Mobile: 20px font, 6px letter spacing
+    font-size: 1.25rem;
+    letter-spacing: 6px;
+
+    @media (min-width: $breakpoint-sm) {
+      // Large mobile+: 24px font, 8px letter spacing
+      font-size: 1.5rem;
+      letter-spacing: 8px;
+    }
+  }
+}
+
+/**
+ * OTP validity countdown timer banner.
+ *
+ * @description
+ * Uses flex with `justify-content: center` and `gap` for layout.
+ * Both `center` and `gap` are direction-agnostic and work identically
+ * in LTR and RTL. The timer text (MM:SS) uses `font-variant-numeric: tabular-nums`
+ * for fixed-width digits that prevent layout shifts during countdown.
+ * Padding uses logical properties (padding-block/padding-inline).
+ * Margin uses `margin-block` for direction-agnostic vertical spacing.
+ */
 .otp-validity-timer {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  margin: 16px 0;
-  padding: 10px 16px;
-  background: #f0ece4;
-  border-radius: 8px;
-  font-size: 14px;
-  color: #5a4a32;
+  gap: $spacing-2;  // 0.5rem (8px) - direction-agnostic
+  margin-block: $spacing-4;  // 1rem (16px) vertical - logical property
+  padding-block: $spacing-2;     // 0.5rem (8px) vertical
+  padding-inline: $spacing-4;    // 1rem (16px) horizontal - logical property
+  background: var(--golden-wheat-light);
+  border-radius: 0.5rem;  // Tailwind rounded-lg
+  font-size: 0.875rem;  // 14px (Tailwind text-sm)
+  color: var(--golden-wheat-primary);
+  transition: background-color 0.3s ease, color 0.3s ease;
+
+  @media (min-width: $breakpoint-sm) {
+    padding-block: 0.625rem;  // 10px vertical
+  }
 
   .timer-icon {
-    font-size: 20px;
-    width: 20px;
-    height: 20px;
-    color: #988561;
+    font-size: 1.25rem;  // 20px
+    width: 1.25rem;
+    height: 1.25rem;
+    color: $color-primary;
+    flex-shrink: 0;
   }
 
   strong {
-    color: #988561;
+    color: $color-primary;
     font-weight: 600;
     font-variant-numeric: tabular-nums;
   }
 
   &.expired {
-    background: #fdecea;
-    color: #d32f2f;
+    background: $color-error-bg;
+    color: $color-error;
 
     .timer-icon {
-      color: #d32f2f;
+      color: $color-error;
+    }
+
+    strong {
+      color: $color-error;
     }
   }
 }
 
+/**
+ * Resend OTP section with countdown or button.
+ * Uses `margin-block-start` (logical) instead of `margin-top`.
+ */
 .resend-section {
   text-align: center;
-  margin-top: 24px;
-  font-size: 14px;
-  color: #666;
+  margin-block-start: $spacing-6;  // 1.5rem (24px) - logical property
+  font-size: 0.875rem;  // 14px
+  color: $color-text-secondary;
 }
 
 .countdown {
-  color: #988561;
+  color: $color-primary;
   font-weight: 500;
+  font-variant-numeric: tabular-nums;
 }
 
 .resend-btn {
-  color: #988561 !important;
+  color: $color-primary;
   font-weight: 500;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  min-height: $spacing-11;  // 2.75rem (44px) - touch target
+  transition: text-decoration 0.2s ease;
 
-  &:hover {
+  &:hover:not(:disabled) {
     text-decoration: underline;
   }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
 }
 
-.auth-footer {
-  text-align: center;
-  margin-top: 24px;
-  font-size: 14px;
-  color: #666;
+/**
+ * Arabic typography tuning for OTP-specific elements.
+ * Timer numbers remain LTR (they are numeric), but surrounding Arabic
+ * text gets the Cairo font and relaxed line-height.
+ */
+[dir="rtl"] {
+  .otp-validity-timer {
+    font-family: 'Cairo', 'Noto Sans Arabic', sans-serif;
+    line-height: 1.625;
 
-  a {
-    color: #988561;
-    text-decoration: none;
-    font-weight: 500;
-
-    &:hover {
-      text-decoration: underline;
+    /**
+     * Timer digits (MM:SS) stay LTR even in Arabic mode.
+     * Numeric countdown values must always read left-to-right.
+     */
+    strong {
+      direction: ltr;
+      unicode-bidi: embed;
     }
   }
-}
 
-.error-message {
-  color: #d32f2f;
-  font-size: 13px;
-  text-align: center;
-  margin-bottom: 16px;
-  padding: 8px 12px;
-  background: #fdecea;
-  border-radius: 4px;
-}
-
-// RTL support
-:host-context([dir="rtl"]) {
-  .auth-footer,
-  .resend-section,
-  .email-display {
-    direction: rtl;
-  }
-}
-
-@media (max-width: 480px) {
-  .auth-card {
-    padding: 24px 20px;
-  }
-
-  .auth-header h1 {
-    font-size: 24px;
+  .resend-section {
+    line-height: 1.625;
   }
 }

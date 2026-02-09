@@ -98,7 +98,7 @@ import { LanguageService } from '../../../../shared/services/language.service';
         </div>
 
         @if (error()) {
-          <div class="error-message">
+          <div class="error-message" role="alert" aria-live="polite">
             {{ error() }}
           </div>
         }
@@ -112,6 +112,7 @@ import { LanguageService } from '../../../../shared/services/language.service';
               formControlName="fullName"
               type="text"
               autocomplete="name"
+              autofocus
             />
             <mat-icon matSuffix>person</mat-icon>
             @if (form.get('fullName')?.hasError('required') && form.get('fullName')?.touched) {
@@ -214,9 +215,9 @@ import { LanguageService } from '../../../../shared/services/language.service';
         <!-- Terms text -->
         <div class="terms-text">
           {{ 'auth.register.termsPrefix' | translate }}
-          <a href="javascript:void(0)">{{ 'auth.register.termsLink' | translate }}</a>
+          <a routerLink="/terms">{{ 'auth.register.termsLink' | translate }}</a>
           {{ 'auth.register.termsAnd' | translate }}
-          <a href="javascript:void(0)">{{ 'auth.register.privacyLink' | translate }}</a>
+          <a routerLink="/privacy">{{ 'auth.register.privacyLink' | translate }}</a>
         </div>
 
         <!-- Footer with login link -->
