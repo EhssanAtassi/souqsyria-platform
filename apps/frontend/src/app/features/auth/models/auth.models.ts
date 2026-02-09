@@ -125,6 +125,8 @@ export interface LoginRequest {
   email: string;
   /** User password */
   password: string;
+  /** When true, extends refresh token expiry from 7 to 30 days */
+  rememberMe?: boolean;
 }
 
 /**
@@ -245,6 +247,22 @@ export interface LogoutResponse {
   message: string;
 }
 
+// ─── Login Error Detail ──────────────────────────────────
+
+/**
+ * Structured login error detail from the backend
+ *
+ * @description Parsed from 401/403 responses for ACCOUNT_LOCKED and INVALID_CREDENTIALS
+ */
+export interface AuthLoginError {
+  /** Structured error code: ACCOUNT_LOCKED | INVALID_CREDENTIALS */
+  errorCode?: string;
+  /** Remaining login attempts before lockout (only for INVALID_CREDENTIALS) */
+  remainingAttempts?: number;
+  /** Minutes until lockout expires (only for ACCOUNT_LOCKED) */
+  lockedUntilMinutes?: number;
+}
+
 // ─── Error Response ──────────────────────────────────────────
 
 /**
@@ -289,4 +307,10 @@ export interface AuthState {
   resetEmailSent: boolean;
   /** Whether password was successfully reset */
   passwordResetSuccess: boolean;
+  /** Structured login error code (ACCOUNT_LOCKED | INVALID_CREDENTIALS) */
+  loginErrorCode: string | null;
+  /** Remaining login attempts before lockout */
+  remainingAttempts: number | null;
+  /** Minutes until lockout expires */
+  lockedUntilMinutes: number | null;
 }

@@ -216,7 +216,7 @@ describe('FeaturedCategoriesComponent', () => {
      * Validates: onCategoryClick method emits the correct slug
      */
     it('should emit categoryClicked when card is clicked', () => {
-      const emitSpy = jest.spyOn(component.categoryClicked, 'emit');
+      const emitSpy = spyOn(component.categoryClicked, 'emit');
       component.categories = MOCK_FEATURED_CATEGORIES;
       component.isLoading = false;
       fixture.detectChanges();
@@ -231,7 +231,7 @@ describe('FeaturedCategoriesComponent', () => {
      * Validates: Click handler on card element triggers emission
      */
     it('should emit event from DOM click on category card', () => {
-      const emitSpy = jest.spyOn(component.categoryClicked, 'emit');
+      const emitSpy = spyOn(component.categoryClicked, 'emit');
       component.categories = MOCK_FEATURED_CATEGORIES;
       component.isLoading = false;
       fixture.detectChanges();

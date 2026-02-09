@@ -2,15 +2,12 @@
  * Login Component Styles for SouqSyria marketplace
  *
  * @description Component-specific SCSS styles for the user login form.
- * Imports shared auth styles and adds login-specific styles for form options.
+ * Imports shared auth styles and adds login-specific styles for form options,
+ * lockout/warning messages, and remember-me hint.
  *
  * @architecture
  * RTL Strategy: Uses CSS logical properties and flexbox auto-reversal
  * instead of explicit `:host-context([dir="rtl"])` overrides.
- * - `margin-block-end` replaces `margin-bottom` for direction-agnostic spacing
- * - Flexbox automatically reverses in RTL mode (space-between flips)
- * - On mobile column stacking: `align-items` switches from `flex-start`
- *   to `flex-end` in RTL so stacked items align to the right edge
  *
  * @swagger
  * components:
@@ -128,5 +125,73 @@
       outline-offset: 2px;
       border-radius: 2px;
     }
+  }
+}
+
+// =============================================================================
+// S2 Auth Enhancements: Warning, Lockout, and Remember-Me styles
+// =============================================================================
+
+/**
+ * Warning message for low remaining login attempts
+ * @description Shown when user has <= 2 attempts before account lockout
+ */
+.warning-message {
+  color: #e65100;
+  font-size: 0.875rem;
+  text-align: center;
+  margin-block-end: $spacing-4;
+  padding-block: $spacing-2;
+  padding-inline: $spacing-3;
+  background: #fff3e0;
+  border-radius: 0.5rem;
+  border-inline-start: 4px solid #ff9800;
+  animation: fadeSlideIn 0.3s ease-out;
+}
+
+/**
+ * Lockout message with countdown timer
+ * @description Shown when account is locked after too many failed attempts
+ */
+.lockout-message {
+  color: #c62828;
+  font-size: 0.875rem;
+  text-align: center;
+  margin-block-end: $spacing-4;
+  padding-block: $spacing-3;
+  padding-inline: $spacing-3;
+  background: #ffebee;
+  border-radius: 0.5rem;
+  border-inline-start: 4px solid #f44336;
+  animation: fadeSlideIn 0.3s ease-out;
+
+  strong {
+    display: block;
+    margin-bottom: $spacing-1;
+    font-size: 0.875rem;
+  }
+
+  p {
+    margin: 0;
+  }
+}
+
+/**
+ * Remember-me hint text below checkbox
+ */
+.remember-me-hint {
+  display: block;
+  font-size: 0.6875rem;  // 11px
+  color: $color-text-tertiary;
+  margin-top: -$spacing-1;
+}
+
+/**
+ * RTL additions for login-specific elements
+ */
+[dir="rtl"] {
+  .warning-message,
+  .lockout-message {
+    line-height: 1.625;
   }
 }

@@ -317,7 +317,7 @@ describe('ProfileEditComponent', () => {
         },
         onload: null as (() => void) | null,
       };
-      spyOn(window, 'FileReader' as any).and.returnValue(mockReader as any);
+      spyOn(window as any, 'FileReader').and.returnValue(mockReader as any);
 
       const event = {
         target: { files: [mockFile] },

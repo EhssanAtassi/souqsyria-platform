@@ -440,7 +440,16 @@ export class CartSyncService {
    * @param items - Cart items
    * @returns Serialized cart items
    */
-  private serializeCartItems(items: CartItem[]): any[] {
+  private serializeCartItems(items: CartItem[]): {
+    id: string;
+    productId: string | number;
+    quantity: number;
+    variantId?: string | number;
+    shippingMethodId?: string;
+    priceAtAdd?: number;
+    addedAt?: Date;
+    notes?: string;
+  }[] {
     return items.map(item => ({
       id: item.id,
       productId: item.product.id,
@@ -466,8 +475,9 @@ export class CartSyncService {
     console.log(`[Analytics] cart.sync.${operation}.latency: ${latency}ms`);
 
     // Send to analytics service (if available)
-    if ((window as any).analytics) {
-      (window as any).analytics.track('cart_sync_latency', {
+    const windowWithAnalytics = window as Window & { analytics?: { track: (event: string, data: Record<string, unknown>) => void } };
+    if (windowWithAnalytics.analytics) {
+      windowWithAnalytics.analytics.track('cart_sync_latency', {
         operation,
         latency,
         timestamp: new Date().toISOString()

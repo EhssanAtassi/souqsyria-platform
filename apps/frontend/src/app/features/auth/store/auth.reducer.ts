@@ -44,6 +44,9 @@ export const initialAuthState: AuthState = {
   otpSent: false,
   resetEmailSent: false,
   passwordResetSuccess: false,
+  loginErrorCode: null,
+  remainingAttempts: null,
+  lockedUntilMinutes: null,
 };
 
 /**
@@ -66,6 +69,9 @@ export const authReducer = createReducer(
     ...state,
     isLoading: true,
     error: null,
+    loginErrorCode: null,
+    remainingAttempts: null,
+    lockedUntilMinutes: null,
   })),
 
   /**
@@ -81,13 +87,20 @@ export const authReducer = createReducer(
   })),
 
   /**
-   * @description Captures the login error message and stops the loading spinner.
+   * @description Captures the login error message and structured error details.
+   * Stores errorCode, remainingAttempts, lockedUntilMinutes for UI rendering.
    */
-  on(AuthActions.loginFailure, (state, { error }): AuthState => ({
-    ...state,
-    error,
-    isLoading: false,
-  })),
+  on(
+    AuthActions.loginFailure,
+    (state, { error, errorCode, remainingAttempts, lockedUntilMinutes }): AuthState => ({
+      ...state,
+      error,
+      isLoading: false,
+      loginErrorCode: errorCode ?? null,
+      remainingAttempts: remainingAttempts ?? null,
+      lockedUntilMinutes: lockedUntilMinutes ?? null,
+    }),
+  ),
 
   // ─── Register ─────────────────────────────────────────────────
 
@@ -319,6 +332,9 @@ export const authReducer = createReducer(
   on(AuthActions.clearError, (state): AuthState => ({
     ...state,
     error: null,
+    loginErrorCode: null,
+    remainingAttempts: null,
+    lockedUntilMinutes: null,
   })),
 
   // ─── Load User From Token ─────────────────────────────────────

@@ -42,6 +42,10 @@ import { RefreshTokenDto } from './dto/refresh-token.dto';
 import { ResendOtpDto } from './dto/resend-otp.dto';
 import { DeleteAccountDto } from './dto/delete-account.dto';
 import { RefreshToken } from './entity/refresh-token.entity';
+import {
+  SecurityAudit,
+  SecurityEventType,
+} from './entity/security-audit.entity';
 import { EncryptionService } from '../common/utils/encryption.util';
 import { RateLimiterService } from '../common/services/rate-limiter.service';
 
@@ -69,7 +73,7 @@ export class AuthService {
   /**
    * Account lockout duration in minutes after max failed attempts
    */
-  private readonly LOCKOUT_DURATION_MINUTES = 15;
+  private readonly LOCKOUT_DURATION_MINUTES = 30;
 
   constructor(
     @InjectRepository(User)
@@ -82,6 +86,8 @@ export class AuthService {
     private readonly tokenBlacklistRepository: Repository<TokenBlacklist>,
     @InjectRepository(RefreshToken)
     private readonly refreshTokenRepository: Repository<RefreshToken>,
+    @InjectRepository(SecurityAudit)
+    private readonly securityAuditRepository: Repository<SecurityAudit>,
     private readonly jwtService: JwtService,
     private readonly emailService: EmailService,
     private readonly encryptionService: EncryptionService,
@@ -92,15 +98,17 @@ export class AuthService {
    * Generate JWT access and refresh tokens for a user
    * Implements secure token rotation pattern:
    * - Access token: Short-lived (15 minutes) for API access
-   * - Refresh token: Longer-lived (7 days) stored in database with hash
+   * - Refresh token: 7 days (default) or 30 days (remember me) stored in database with hash
    *
    * @param user - User entity to generate tokens for
    * @param request - Express request object for device info and IP
+   * @param rememberMe - When true, extends refresh token expiry to 30 days
    * @returns Object containing accessToken and refreshToken strings
    */
   private async generateTokens(
     user: User,
     request?: Request,
+    rememberMe = false,
   ): Promise<{ accessToken: string; refreshToken: string }> {
     // Create JWT payload with user information
     const payload = {
@@ -115,12 +123,16 @@ export class AuthService {
       expiresIn: '15m',
     });
 
-    // Generate long-lived refresh token (7 days)
+    // Refresh token expiry: 30 days for remember-me, 7 days otherwise
+    const refreshExpiry = rememberMe ? '30d' : '7d';
+    const refreshExpiryMs = rememberMe
+      ? 30 * 24 * 60 * 60 * 1000
+      : 7 * 24 * 60 * 60 * 1000;
+
+    // Generate refresh token with conditional expiry
     const refreshToken = this.jwtService.sign(
       { ...payload, type: 'refresh' },
-      {
-        expiresIn: '7d',
-      },
+      { expiresIn: refreshExpiry },
     );
 
     // Hash the refresh token before storing in database (security best practice)
@@ -136,12 +148,15 @@ export class AuthService {
       user,
       deviceInfo: request?.headers['user-agent'] || 'unknown',
       ipAddress: request?.ip || 'unknown',
-      expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days
+      expiresAt: new Date(Date.now() + refreshExpiryMs),
+      rememberMe,
     });
 
     await this.refreshTokenRepository.save(refreshTokenEntity);
 
-    this.logger.log(`Tokens generated for user ID: ${user.id}`);
+    this.logger.log(
+      `Tokens generated for user ID: ${user.id} (rememberMe: ${rememberMe})`,
+    );
 
     return { accessToken, refreshToken };
   }
@@ -270,8 +285,9 @@ export class AuthService {
     loginDto: LoginDto,
     request: Request,
   ): Promise<{ accessToken: string; refreshToken: string }> {
-    const { email, password } = loginDto;
+    const { email, password, rememberMe } = loginDto;
     const clientIp = this.getClientIp(request);
+    const userAgent = (request.headers['user-agent'] as string) || 'unknown';
     this.logger.log(`Login attempt for email: ${email} from IP: ${clientIp}`);
 
     // Check rate limit before processing login
@@ -305,13 +321,18 @@ export class AuthService {
 
     // SEC-H06: Check if account is locked due to failed attempts
     if (user.isAccountLocked()) {
-      const remainingMinutes = Math.ceil(
+      const lockedUntilMinutes = Math.ceil(
         (user.accountLockedUntil.getTime() - Date.now()) / 60000,
       );
       this.logger.warn(`Login blocked for locked account: ${email}`);
-      throw new UnauthorizedException(
-        `Account is temporarily locked due to too many failed login attempts. ` +
-          `Please try again in ${remainingMinutes} minutes.`,
+      throw new HttpException(
+        {
+          statusCode: HttpStatus.FORBIDDEN,
+          message: `Account is temporarily locked due to too many failed login attempts. Please try again in ${lockedUntilMinutes} minutes.`,
+          errorCode: 'ACCOUNT_LOCKED',
+          lockedUntilMinutes,
+        },
+        HttpStatus.FORBIDDEN,
       );
     }
 
@@ -333,17 +354,58 @@ export class AuthService {
         `Invalid password for ${email}. Failed attempts: ${user.failedLoginAttempts}/${this.MAX_FAILED_ATTEMPTS}`,
       );
 
+      // Log LOGIN_FAILURE security event (fire-and-forget)
+      this.logSecurityEvent({
+        eventType: 'LOGIN_FAILURE',
+        email,
+        userId: user.id,
+        ipAddress: clientIp,
+        userAgent,
+        failedAttemptNumber: user.failedLoginAttempts,
+        metadata: { remainingAttempts },
+      });
+
       if (user.isAccountLocked()) {
-        throw new UnauthorizedException(
-          `Account locked due to too many failed login attempts. ` +
-            `Please try again in ${this.LOCKOUT_DURATION_MINUTES} minutes.`,
+        // Log ACCOUNT_LOCKED event (fire-and-forget)
+        this.logSecurityEvent({
+          eventType: 'ACCOUNT_LOCKED',
+          email,
+          userId: user.id,
+          ipAddress: clientIp,
+          userAgent,
+          failedAttemptNumber: user.failedLoginAttempts,
+          metadata: { lockoutMinutes: this.LOCKOUT_DURATION_MINUTES },
+        });
+
+        // Send lockout notification email (fire-and-forget)
+        this.emailService
+          .sendAccountLockoutEmail(email, this.LOCKOUT_DURATION_MINUTES, clientIp)
+          .catch((err) =>
+            this.logger.error(`Failed to send lockout email: ${err.message}`),
+          );
+
+        throw new HttpException(
+          {
+            statusCode: HttpStatus.FORBIDDEN,
+            message: `Account locked due to too many failed login attempts. Please try again in ${this.LOCKOUT_DURATION_MINUTES} minutes.`,
+            errorCode: 'ACCOUNT_LOCKED',
+            lockedUntilMinutes: this.LOCKOUT_DURATION_MINUTES,
+          },
+          HttpStatus.FORBIDDEN,
         );
       }
 
-      throw new UnauthorizedException(
-        remainingAttempts > 0
-          ? `Invalid credentials. ${remainingAttempts} attempts remaining before account lockout.`
-          : 'Invalid credentials.',
+      throw new HttpException(
+        {
+          statusCode: HttpStatus.UNAUTHORIZED,
+          message:
+            remainingAttempts > 0
+              ? `Invalid credentials. ${remainingAttempts} attempts remaining before account lockout.`
+              : 'Invalid credentials.',
+          errorCode: 'INVALID_CREDENTIALS',
+          remainingAttempts: Math.max(0, remainingAttempts),
+        },
+        HttpStatus.UNAUTHORIZED,
       );
     }
 
@@ -366,10 +428,21 @@ export class AuthService {
     user.resetFailedAttempts();
     await this.rateLimiterService.recordSuccess('login', `${email}:${clientIp}`);
 
-    // Generate both access and refresh tokens using the shared method
-    const tokens = await this.generateTokens(user, request);
+    // Generate both access and refresh tokens with rememberMe flag
+    const tokens = await this.generateTokens(user, request, !!rememberMe);
 
     this.logger.log(`Login successful for user ID: ${user.id}`);
+
+    // Log LOGIN_SUCCESS security event (fire-and-forget)
+    this.logSecurityEvent({
+      eventType: 'LOGIN_SUCCESS',
+      email,
+      userId: user.id,
+      ipAddress: clientIp,
+      userAgent,
+      failedAttemptNumber: null,
+      metadata: { rememberMe: !!rememberMe },
+    });
 
     /**
      * Update the user's last login timestamp and prepare to save the login audit log.
@@ -379,7 +452,7 @@ export class AuthService {
     await this.loginLogRepository.save({
       user,
       ipAddress: clientIp,
-      userAgent: request.headers['user-agent'] || 'unknown',
+      userAgent,
     });
 
     // Update lastLoginAt
@@ -726,10 +799,16 @@ export class AuthService {
       expiresIn: '15m',
     });
 
-    // Step 6: Generate a NEW refresh token (7 days) for token rotation
+    // Step 6: Generate a NEW refresh token — inherit rememberMe from old token
+    const inheritedRememberMe = storedToken.rememberMe || false;
+    const refreshExpiry = inheritedRememberMe ? '30d' : '7d';
+    const refreshExpiryMs = inheritedRememberMe
+      ? 30 * 24 * 60 * 60 * 1000
+      : 7 * 24 * 60 * 60 * 1000;
+
     const newRefreshToken = this.jwtService.sign(
       { ...newPayload, type: 'refresh' },
-      { expiresIn: '7d' },
+      { expiresIn: refreshExpiry },
     );
 
     // Step 7: Hash and store the new refresh token
@@ -744,7 +823,8 @@ export class AuthService {
       user,
       deviceInfo: storedToken.deviceInfo || 'unknown',
       ipAddress: storedToken.ipAddress || 'unknown',
-      expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+      expiresAt: new Date(Date.now() + refreshExpiryMs),
+      rememberMe: inheritedRememberMe,
     });
 
     await this.refreshTokenRepository.save(newRefreshTokenEntity);
@@ -932,6 +1012,29 @@ export class AuthService {
     // Get 6 digits (100000 to 999999)
     const otp = (randomNumber % 900000) + 100000;
     return otp.toString();
+  }
+
+  /**
+   * Log a security event to the security_audit table (fire-and-forget).
+   * Never blocks the login flow — errors are caught and logged.
+   *
+   * @param event - Security event data to persist
+   */
+  private logSecurityEvent(event: {
+    eventType: SecurityEventType;
+    email: string;
+    userId: number | null;
+    ipAddress: string;
+    userAgent: string;
+    failedAttemptNumber: number | null;
+    metadata: Record<string, any> | null;
+  }): void {
+    const auditEntry = this.securityAuditRepository.create(event);
+    this.securityAuditRepository.save(auditEntry).catch((err) => {
+      this.logger.error(
+        `Failed to log security event [${event.eventType}]: ${err.message}`,
+      );
+    });
   }
 
   /**

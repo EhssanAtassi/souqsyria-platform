@@ -126,7 +126,7 @@ export class User {
   failedLoginAttempts: number;
   /**
    * Timestamp when account will be unlocked after failed attempts.
-   * Account is locked for 15 minutes after 5 failed logins.
+   * Account is locked for 30 minutes after 5 failed logins.
    */
   @Column({ name: 'account_locked_until', type: 'timestamp', nullable: true })
   accountLockedUntil: Date;
@@ -180,7 +180,7 @@ export class User {
 
   /**
    * Check if account is currently locked due to failed login attempts.
-   * Account gets locked for 15 minutes after 5 failed attempts.
+   * Account gets locked for 30 minutes after 5 failed attempts.
    * @returns true if account is locked, false if unlocked
    */
   isAccountLocked(): boolean {
@@ -226,15 +226,15 @@ export class User {
 
   /**
    * Increment failed login attempts and lock account if threshold reached.
-   * Implements progressive security: locks account for 15 minutes after 5 failed attempts.
+   * Implements progressive security: locks account for 30 minutes after 5 failed attempts.
    * This prevents brute force attacks while allowing legitimate retry attempts.
    */
   incrementFailedAttempts(): void {
     this.failedLoginAttempts += 1;
 
-    // Lock account after 5 failed attempts for 15 minutes
+    // Lock account after 5 failed attempts for 30 minutes
     if (this.failedLoginAttempts >= 5) {
-      this.accountLockedUntil = new Date(Date.now() + 15 * 60 * 1000);
+      this.accountLockedUntil = new Date(Date.now() + 30 * 60 * 1000);
     }
   }
 

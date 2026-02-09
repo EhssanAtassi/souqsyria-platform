@@ -44,17 +44,24 @@ export class CartSessionService {
   /** Cached session ID */
   private cachedSessionId: string | null = null;
 
+  /** Cache timestamp for TTL-based invalidation */
+  private cacheTimestamp = 0;
+
+  /** Cache TTL in milliseconds (5 seconds) */
+  private readonly CACHE_TTL_MS = 5000;
+
   /**
    * Get Guest Session ID
    *
-   * Reads session ID from browser cookie.
-   * Caches the value to avoid repeated cookie parsing.
+   * Reads session ID from browser cookie with TTL-based cache.
+   * Cache expires after 5 seconds to ensure fresh reads when backend sets/updates cookie.
    *
    * @returns Session ID or null if not found
    */
   getSessionId(): string | null {
-    // Return cached value if available
-    if (this.cachedSessionId) {
+    const now = Date.now();
+    // Return cached value if within TTL
+    if (this.cachedSessionId && (now - this.cacheTimestamp) < this.CACHE_TTL_MS) {
       return this.cachedSessionId;
     }
 
@@ -63,10 +70,27 @@ export class CartSessionService {
 
     if (sessionId) {
       this.cachedSessionId = sessionId;
+      this.cacheTimestamp = now;
       console.log('Guest session ID:', sessionId);
+    } else {
+      this.cachedSessionId = null;
+      this.cacheTimestamp = 0; // Don't cache null values
     }
 
     return sessionId;
+  }
+
+  /**
+   * Refresh Session ID
+   *
+   * Forces a re-read of the guest session cookie, bypassing cache.
+   * Call this after login/logout to pick up cookie changes from backend.
+   *
+   * @returns Refreshed session ID or null
+   */
+  refreshSessionId(): string | null {
+    this.clearCachedSession();
+    return this.getSessionId();
   }
 
   /**
@@ -114,6 +138,7 @@ export class CartSessionService {
    */
   setSessionIdForTesting(sessionId: string): void {
     this.cachedSessionId = sessionId;
+    this.cacheTimestamp = Date.now();
     console.warn('Session ID set manually (testing only):', sessionId);
   }
 

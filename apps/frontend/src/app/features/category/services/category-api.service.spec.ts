@@ -145,9 +145,9 @@ describe('CategoryApiService', () => {
       service.getTree().subscribe((response) => {
         expect(response.data).toBeDefined();
         expect(Array.isArray(response.data)).toBe(true);
-        expect(response.data).toHaveLength(2);
+        expect(response.data).toHaveSize(2);
         expect(response.data[0].name).toBe('Electronics');
-        expect(response.data[0].children).toHaveLength(1);
+        expect(response.data[0].children).toHaveSize(1);
       });
 
       const req = httpMock.expectOne(`${environment.apiUrl}/categories/tree`);
@@ -280,7 +280,7 @@ describe('CategoryApiService', () => {
       service.getFeatured(6).subscribe((response) => {
         expect(response.data).toBeDefined();
         expect(Array.isArray(response.data)).toBe(true);
-        expect(response.data).toHaveLength(2);
+        expect(response.data).toHaveSize(2);
         expect(response.data[0].productCount).toBe(45);
         expect(response.data[1].slug).toBe('fashion');
       });
