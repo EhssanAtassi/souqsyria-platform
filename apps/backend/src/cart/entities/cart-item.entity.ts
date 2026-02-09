@@ -81,6 +81,10 @@ export class CartItem {
   @Column({ type: 'varchar', length: 100, nullable: true })
   added_from_campaign?: string;
 
+  // 🗑️ Soft-delete timestamp for undo-remove feature (5-second undo window)
+  @Column({ type: 'datetime', nullable: true })
+  removed_at?: Date;
+
   // ══════════════════════════════════════════════════════════════════════════
   // 🏭 INVENTORY RESERVATION (Week 4 Enterprise Feature)
   // ══════════════════════════════════════════════════════════════════════════
