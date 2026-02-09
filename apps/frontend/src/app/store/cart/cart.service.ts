@@ -126,7 +126,7 @@ export class CartService {
           totalPrice: product.price.amount * quantity,
           discount: 0,
           shipping: 0,
-          currency: 'USD'
+          currency: 'SYP'
         },
         selectedShippingMethod: product.shipping.methods[0]?.id || '',
         addedAt: new Date()
@@ -242,7 +242,7 @@ export class CartService {
           name: code === 'SYRIA10' ? '10% Off' : '15% Off First Order',
           type: 'percentage',
           value: code === 'SYRIA10' ? 10 : 15,
-          currency: 'USD',
+          currency: 'SYP',
           isValid: true
         }
       });
@@ -300,7 +300,7 @@ export class CartService {
         shipping,
         discount,
         total,
-        currency: 'USD',
+        currency: 'SYP',
         itemCount
       }
     });
@@ -542,7 +542,7 @@ export class CartService {
           totalPrice: (isCartItem ? cartItem.price.unitPrice : (backendItem.priceAtAdd || backendItem.price?.unitPrice || 0)) * item.quantity,
           discount: 0,
           shipping: 0,
-          currency: 'USD'
+          currency: 'SYP'
         },
         addedAt: isCartItem ? cartItem.addedAt : new Date(backendItem.addedAt || backendItem.createdAt || Date.now()),
         notes: isCartItem ? cartItem.notes : backendItem.notes

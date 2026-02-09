@@ -448,21 +448,26 @@ describe('CartService', () => {
     });
   });
 
-  describe('🗑️ Removing Items from Cart', () => {
+  describe('🗑️ Removing Items from Cart (Soft-Delete)', () => {
     beforeEach(() => {
       cartRepository.findOne.mockResolvedValue(mockCart);
-      cartItemRepository.remove.mockResolvedValue(undefined);
+      cartItemRepository.save.mockResolvedValue(mockCartItem);
       auditLogService.logSimple.mockResolvedValue(undefined);
     });
 
-    it('should remove item from cart successfully', async () => {
-      await service.removeItem(mockUser, 101);
+    it('should soft-delete item by setting removed_at timestamp', async () => {
+      const result = await service.removeItem(mockUser, 101);
 
-      expect(cartItemRepository.remove).toHaveBeenCalledWith(mockCartItem);
+      expect(result).toEqual({ itemId: mockCartItem.id });
+      expect(cartItemRepository.save).toHaveBeenCalledWith(
+        expect.objectContaining({
+          removed_at: expect.any(Date),
+        }),
+      );
       expect(auditLogService.logSimple).toHaveBeenCalledWith(
         expect.objectContaining({
           action: 'CART_ITEM_REMOVED',
-          description: 'Removed 2x variant 101 from shopping cart',
+          description: expect.stringContaining('Soft-removed'),
         }),
       );
     });
@@ -482,18 +487,118 @@ describe('CartService', () => {
       );
     });
 
-    it('should handle removal errors gracefully', async () => {
-      cartItemRepository.remove.mockRejectedValue(new Error('Database error'));
+    it('should not find already soft-deleted items', async () => {
+      const cartWithSoftDeleted = {
+        ...mockCart,
+        items: [{ ...mockCartItem, removed_at: new Date() }],
+      };
+      cartRepository.findOne.mockResolvedValue(cartWithSoftDeleted as any);
 
       await expect(service.removeItem(mockUser, 101)).rejects.toThrow(
-        'Database error',
+        NotFoundException,
       );
+    });
+  });
 
+  describe('↩️ Undo Remove Item', () => {
+    beforeEach(() => {
+      auditLogService.logSimple.mockResolvedValue(undefined);
+    });
+
+    it('should restore a soft-deleted item within 5s window', async () => {
+      const recentlyRemoved = {
+        ...mockCartItem,
+        removed_at: new Date(), // Just now
+        cart: { ...mockCart, userId: mockUser.id },
+      };
+      cartItemRepository.findOne.mockResolvedValue(recentlyRemoved as any);
+      cartItemRepository.save.mockResolvedValue({ ...recentlyRemoved, removed_at: null } as any);
+
+      const result = await service.undoRemoveItem(mockUser, mockCartItem.id);
+
+      expect(result.removed_at).toBeNull();
+      expect(cartItemRepository.save).toHaveBeenCalledWith(
+        expect.objectContaining({ removed_at: null }),
+      );
       expect(auditLogService.logSimple).toHaveBeenCalledWith(
         expect.objectContaining({
-          action: 'CART_ITEM_REMOVE_FAILED',
+          action: 'CART_ITEM_RESTORED',
         }),
       );
+    });
+
+    it('should reject undo after 5s window expires', async () => {
+      const expiredRemoval = {
+        ...mockCartItem,
+        removed_at: new Date(Date.now() - 6000), // 6 seconds ago
+        cart: { ...mockCart, userId: mockUser.id },
+      };
+      cartItemRepository.findOne.mockResolvedValue(expiredRemoval as any);
+
+      await expect(
+        service.undoRemoveItem(mockUser, mockCartItem.id),
+      ).rejects.toThrow(BadRequestException);
+    });
+
+    it('should reject undo for items that are not removed', async () => {
+      const notRemovedItem = {
+        ...mockCartItem,
+        removed_at: null, // Not removed
+        cart: { ...mockCart, userId: mockUser.id },
+      };
+      cartItemRepository.findOne.mockResolvedValue(notRemovedItem as any);
+
+      await expect(
+        service.undoRemoveItem(mockUser, mockCartItem.id),
+      ).rejects.toThrow(BadRequestException);
+    });
+
+    it('should reject undo for items not owned by user', async () => {
+      const otherUserItem = {
+        ...mockCartItem,
+        removed_at: new Date(),
+        cart: { ...mockCart, userId: 999 }, // Different user
+      };
+      cartItemRepository.findOne.mockResolvedValue(otherUserItem as any);
+
+      await expect(
+        service.undoRemoveItem(mockUser, mockCartItem.id),
+      ).rejects.toThrow(BadRequestException);
+    });
+  });
+
+  describe('📦 Stock Validation in updateCartItem', () => {
+    it('should validate stock when updating quantity', async () => {
+      const itemWithStocks = {
+        ...mockCartItem,
+        variant: {
+          ...mockVariant,
+          stocks: [{ quantity: 5 }], // Only 5 in stock
+        },
+        cart: mockCart,
+      };
+      cartItemRepository.findOne.mockResolvedValue(itemWithStocks as any);
+
+      await expect(
+        service.updateCartItem(1, { quantity: 10 }),
+      ).rejects.toThrow(BadRequestException);
+    });
+
+    it('should allow quantity within stock limits', async () => {
+      const itemWithStocks = {
+        ...mockCartItem,
+        variant: {
+          ...mockVariant,
+          stocks: [{ quantity: 50 }, { quantity: 30 }], // 80 total
+        },
+        cart: mockCart,
+      };
+      cartItemRepository.findOne.mockResolvedValue(itemWithStocks as any);
+      cartItemRepository.save.mockResolvedValue({ ...itemWithStocks, quantity: 10 } as any);
+
+      const result = await service.updateCartItem(1, { quantity: 10 });
+
+      expect(result.quantity).toBe(10);
     });
   });
 

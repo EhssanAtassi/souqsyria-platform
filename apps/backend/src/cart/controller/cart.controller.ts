@@ -362,6 +362,58 @@ export class CartController {
   }
 
   /**
+   * UNDO REMOVE ITEM
+   *
+   * Restores a soft-deleted cart item within the 5-second undo window.
+   */
+  @Post('item/:itemId/undo-remove')
+  @RateLimit({
+    maxRequests: 25,
+    windowSizeInSeconds: 300,
+    message: 'Too many undo requests. Please wait before trying again.'
+  })
+  @ApiOperation({
+    summary: 'Undo remove cart item (5s window)',
+    description:
+      'Restores a recently removed cart item within 5 seconds of removal. ' +
+      'Returns 400 if the undo window has expired.',
+  })
+  @ApiParam({
+    name: 'itemId',
+    description: 'Cart item ID returned from the remove operation',
+    type: 'integer',
+    example: 789,
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Item restored successfully',
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Undo window expired or item not removed',
+    schema: {
+      example: {
+        message: 'Undo window has expired (5 seconds)',
+        error: 'Bad Request',
+        statusCode: 400,
+      },
+    },
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Cart item not found',
+  })
+  async undoRemoveItem(
+    @CurrentUser() user: UserFromToken,
+    @Param('itemId', ParseIntPipe) itemId: number,
+  ) {
+    this.logger.log(
+      `↩️ User ${user.id} undoing remove for cart item ${itemId}`,
+    );
+    return this.cartService.undoRemoveItem(user, itemId);
+  }
+
+  /**
    * CLEAR ENTIRE CART
    *
    * Removes all items from the user's cart and resets totals to zero.

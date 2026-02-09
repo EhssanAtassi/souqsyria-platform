@@ -27,8 +27,11 @@ import { MatBadgeModule } from '@angular/material/badge';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatDividerModule } from '@angular/material/divider';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { Router } from '@angular/router';
 import { ProductService } from '../../services/product.service';
 import { LanguageService } from '../../../../shared/services/language.service';
+import { CartApiService } from '../../../../core/api/cart-api.service';
 import {
   ProductDetailResponse,
   ProductDetailVariant,
@@ -54,7 +57,7 @@ import { SpecificationsTableComponent } from '../../components/specifications-ta
     MatBadgeModule,
     MatTabsModule,
     MatDividerModule,
-    CurrencyPipe,
+    MatSnackBarModule,
     ProductCardComponent,
     VariantSelectorComponent,
     SpecificationsTableComponent,
@@ -69,6 +72,9 @@ export class ProductDetailPageComponent implements OnInit {
   private readonly destroyRef = inject(DestroyRef);
   private readonly languageService = inject(LanguageService);
   private readonly sanitizer = inject(DomSanitizer);
+  private readonly cartApiService = inject(CartApiService);
+  private readonly snackBar = inject(MatSnackBar);
+  private readonly router = inject(Router);
 
   /** Current UI language from shared LanguageService */
   readonly language = this.languageService.language;
@@ -254,9 +260,43 @@ export class ProductDetailPageComponent implements OnInit {
   /**
    * @description Placeholder for add to cart action
    */
+  /**
+   * @description Adds selected variant + quantity to cart via backend API.
+   * Shows snackbar with "View Cart" action on success.
+   */
   onAddToCart(): void {
-    // TODO: Integrate with cart service in a later story
-    // Intentionally left blank to avoid noisy console logging in production
+    const variant = this.selectedVariant();
+    if (!variant) return;
+
+    const qty = this.quantity();
+    this.cartApiService.addToCart(String(variant.id), qty)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          const name = this.productName();
+          const message = this.language() === 'ar'
+            ? `تمت إضافة ${name} إلى السلة`
+            : `${name} added to cart`;
+          const action = this.language() === 'ar' ? 'عرض السلة' : 'View Cart';
+
+          const ref = this.snackBar.open(message, action, {
+            duration: 4000,
+            panelClass: 'success-snackbar',
+          });
+
+          ref.onAction().subscribe(() => {
+            this.router.navigate(['/cart']);
+          });
+        },
+        error: (err) => {
+          const message = err?.error?.message
+            || (this.language() === 'ar' ? 'فشل إضافة المنتج' : 'Failed to add to cart');
+          this.snackBar.open(message, '✕', {
+            duration: 4000,
+            panelClass: 'error-snackbar',
+          });
+        },
+      });
   }
 
   /**
