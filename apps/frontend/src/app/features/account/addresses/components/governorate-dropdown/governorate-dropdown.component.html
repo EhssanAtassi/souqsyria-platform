@@ -1,0 +1,45 @@
+<div class="governorate-dropdown-container">
+  <!-- Governorate Selector -->
+  <mat-form-field appearance="outline" class="full-width">
+    <mat-label>{{ 'addresses.governorate' | translate }}</mat-label>
+    <mat-select
+      [value]="selectedGov()"
+      (selectionChange)="onGovernorateChange($event)"
+      [placeholder]="'addresses.selectGovernorate' | translate"
+    >
+      <mat-option *ngFor="let gov of governorates()" [value]="gov.id">
+        {{ lang() === 'ar' ? gov.nameAr : gov.nameEn }}
+      </mat-option>
+    </mat-select>
+  </mat-form-field>
+
+  <!-- City Selector (enabled only if governorate is selected) -->
+  <mat-form-field appearance="outline" class="full-width">
+    <mat-label>{{ 'addresses.city' | translate }}</mat-label>
+    <mat-select
+      [value]="selectedCity()"
+      (selectionChange)="onCityChange($event)"
+      [disabled]="!selectedGov()"
+      [placeholder]="'addresses.selectCity' | translate"
+    >
+      <mat-option *ngFor="let city of cities()" [value]="city.id">
+        {{ lang() === 'ar' ? city.nameAr : city.nameEn }}
+      </mat-option>
+    </mat-select>
+  </mat-form-field>
+
+  <!-- District Selector (enabled only if city is selected) -->
+  <mat-form-field appearance="outline" class="full-width">
+    <mat-label>{{ 'addresses.district' | translate }}</mat-label>
+    <mat-select
+      [value]="selectedDist()"
+      (selectionChange)="onDistrictChange($event)"
+      [disabled]="!selectedCity()"
+      [placeholder]="'addresses.selectDistrict' | translate"
+    >
+      <mat-option *ngFor="let district of districts()" [value]="district.id">
+        {{ lang() === 'ar' ? district.nameAr : district.nameEn }}
+      </mat-option>
+    </mat-select>
+  </mat-form-field>
+</div>

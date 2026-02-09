@@ -43,7 +43,7 @@ export const accountRoutes: Routes = [
   },
   {
     path: 'addresses',
-    loadComponent: () => import('./address-book.component').then(m => m.AddressBookComponent),
+    loadComponent: () => import('./addresses/pages/address-list/address-list.component').then(m => m.AddressListComponent),
     title: 'Address Book - SouqSyria'
   },
   {

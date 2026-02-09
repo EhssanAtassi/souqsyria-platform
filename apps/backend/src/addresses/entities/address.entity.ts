@@ -12,6 +12,7 @@ import { User } from '../../users/entities/user.entity';
 import { Region } from '../region/entities/region.entity';
 import { Country } from '../country/entities/country.entity';
 import { City } from '../city/entities/city.entity';
+import { SyrianGovernorateEntity, SyrianCityEntity, SyrianDistrictEntity } from './index';
 
 /**
  * @file address.entity.ts
@@ -45,7 +46,7 @@ export class Address {
   /**
    * Country relation (normalized)
    */
-  @ManyToOne(() => Country, { nullable: false })
+  @ManyToOne(() => Country, { nullable: true })
   @JoinColumn({ name: 'country_id' })
   country: Country;
 
@@ -65,8 +66,9 @@ export class Address {
 
   /**
    * Main address line (street, building, etc.)
+   * For Syrian addresses, this stores the street from the form
    */
-  @Column()
+  @Column({ nullable: true })
   addressLine1: string;
 
   /**
@@ -84,7 +86,7 @@ export class Address {
   /**
    * Contact phone for delivery
    */
-  @Column()
+  @Column({ nullable: true })
   phone: string;
 
   /**
@@ -110,6 +112,64 @@ export class Address {
    */
   @Column('decimal', { nullable: true, precision: 10, scale: 7 })
   longitude: number;
+
+  // ═══════════════════════════════════════════════════════════════════════
+  // SYRIAN-SPECIFIC ADDRESS FIELDS
+  // ═══════════════════════════════════════════════════════════════════════
+
+  /**
+   * Full name of the recipient (supports Arabic names)
+   * Example: "أحمد محمد الخطيب" or "Ahmad Mohammad Al-Khatib"
+   */
+  @Column({ name: 'full_name', nullable: true, length: 128 })
+  fullName: string;
+
+  /**
+   * Syrian governorate relation (محافظة)
+   * Links to Syrian administrative division system
+   */
+  @ManyToOne(() => SyrianGovernorateEntity, { nullable: true, eager: false })
+  @JoinColumn({ name: 'governorate_id' })
+  governorate: SyrianGovernorateEntity;
+
+  /**
+   * Syrian city relation (مدينة/بلدة)
+   * Part of Syrian administrative structure
+   * Note: Separate from generic 'city' field for Syrian-specific addresses
+   */
+  @ManyToOne(() => SyrianCityEntity, { nullable: true, eager: false })
+  @JoinColumn({ name: 'city_id_syrian' })
+  syrianCity: SyrianCityEntity;
+
+  /**
+   * Syrian district/neighborhood relation (حي/منطقة)
+   * Finest granularity in Syrian address system
+   * Example: "Old Damascus", "Al-Hamidiyah", etc.
+   */
+  @ManyToOne(() => SyrianDistrictEntity, { nullable: true, eager: false })
+  @JoinColumn({ name: 'district_id' })
+  district: SyrianDistrictEntity;
+
+  /**
+   * Building name or number
+   * Example: "بناء السلام", "Building 42", "مجمع الفردوس"
+   */
+  @Column({ nullable: true, length: 64 })
+  building: string;
+
+  /**
+   * Floor number or description
+   * Example: "3", "الطابق الثالث", "Ground Floor"
+   */
+  @Column({ nullable: true, length: 16 })
+  floor: string;
+
+  /**
+   * Additional delivery details and instructions
+   * Example: "بجانب الصيدلية", "Near the pharmacy", "Last building on the left"
+   */
+  @Column({ name: 'additional_details', nullable: true, length: 256 })
+  additionalDetails: string;
 
   /**
    * Soft delete column

@@ -1,0 +1,55 @@
+<div class="delete-confirmation-dialog">
+  <!-- Dialog Title -->
+  <h2 mat-dialog-title>
+    <mat-icon class="warning-icon">warning</mat-icon>
+    {{ 'addresses.deleteConfirmTitle' | translate }}
+  </h2>
+
+  <!-- Dialog Content -->
+  <mat-dialog-content>
+    <!-- Standard confirmation message -->
+    <p class="confirmation-message">
+      {{ 'addresses.deleteConfirmMessage' | translate }}
+    </p>
+
+    <!-- Warning for default address -->
+    <div class="warning-box" *ngIf="data.isDefault">
+      <mat-icon>error</mat-icon>
+      <p>{{ 'addresses.deleteDefaultWarning' | translate }}</p>
+    </div>
+
+    <!-- Warning for only address -->
+    <div class="warning-box" *ngIf="data.isOnlyAddress">
+      <mat-icon>error</mat-icon>
+      <p>{{ 'addresses.deleteOnlyWarning' | translate }}</p>
+    </div>
+
+    <!-- Address details -->
+    <div class="address-preview">
+      <div class="address-header">
+        <strong>{{ data.address.fullName }}</strong>
+        <span class="badge default-badge" *ngIf="data.address.isDefault">
+          <mat-icon>star</mat-icon>
+          {{ 'addresses.defaultAddress' | translate }}
+        </span>
+      </div>
+      <p class="address-line">{{ data.address.phone }}</p>
+      <p class="address-line">{{ data.address.addressLine1 }}</p>
+    </div>
+  </mat-dialog-content>
+
+  <!-- Dialog Actions -->
+  <mat-dialog-actions align="end">
+    <button mat-button (click)="onCancel()">
+      {{ 'addresses.cancel' | translate }}
+    </button>
+    <button
+      mat-raised-button
+      color="warn"
+      (click)="onConfirm()"
+      [disabled]="isDeletionBlocked"
+    >
+      {{ 'addresses.delete' | translate }}
+    </button>
+  </mat-dialog-actions>
+</div>
