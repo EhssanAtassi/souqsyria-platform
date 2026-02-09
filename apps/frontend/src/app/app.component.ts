@@ -1,5 +1,5 @@
 import { Component, ChangeDetectionStrategy, OnInit, DestroyRef, inject } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
+import { Router, RouterOutlet } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatToolbarModule } from '@angular/material/toolbar';
@@ -150,7 +150,10 @@ export class AppComponent implements OnInit {
    * @description Injects required services
    * @param navigationDataService - Service for navigation data and state management
    */
-  constructor(private navigationDataService: NavigationDataService) {}
+  constructor(
+    private navigationDataService: NavigationDataService,
+    private router: Router,
+  ) {}
 
   /**
    * Component initialization
@@ -178,12 +181,10 @@ export class AppComponent implements OnInit {
 
   /**
    * Handles login button click
-   * @description Triggers user authentication flow
+   * @description Navigates to the login page for real authentication
    */
   onLoginClick(): void {
-    console.log('Login clicked');
-    // Simulate login for demo purposes
-    this.navigationDataService.simulateLogin();
+    this.router.navigate(['/auth/login']);
   }
 
   /**

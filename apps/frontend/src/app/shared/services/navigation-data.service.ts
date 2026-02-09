@@ -194,9 +194,11 @@ export class NavigationDataService {
   
   /**
    * Logs out the current user
-   * @description Dispatches NgRx logout action to clear auth state
+   * @description Dispatches NgRx logout action and resets local user state.
+   * Resets userSubject directly in case login was done outside NgRx.
    */
   simulateLogout(): void {
+    this.userSubject.next({ isLoggedIn: false });
     this.store.dispatch(AuthActions.logout());
   }
   
