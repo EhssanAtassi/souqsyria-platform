@@ -21,7 +21,7 @@
     "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,json,md,yml,yaml,css,scss,html}\"",
     "type-check": "tsc --noEmit --project apps/backend/tsconfig.json && tsc --noEmit --project apps/frontend/tsconfig.json",
     "prepare": "husky install",
-    "postinstall": "husky install"
+    "postinstall": "rm -rf apps/backend/node_modules/rxjs apps/frontend/node_modules/rxjs; husky install"
   },
   "devDependencies": {
     "@commitlint/cli": "^18.4.3",
