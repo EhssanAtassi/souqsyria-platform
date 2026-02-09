@@ -33,6 +33,16 @@ import { UpdateProfileDto } from './dto/update-profile.dto';
 import { ChangePasswordDto } from './dto/change-password.dto';
 
 /**
+ * Mock app-root-path to prevent worktree resolution errors in Jest
+ */
+jest.mock('app-root-path', () => ({
+  path: process.cwd(),
+  resolve: (p: string) => p,
+  require: (p: string) => require(p),
+  toString: () => process.cwd(),
+}));
+
+/**
  * Mock fs module for avatar processing tests
  */
 jest.mock('fs');
@@ -887,6 +897,82 @@ describe('UsersService', () => {
           lastActivityAt: expect.any(Date),
         }),
       );
+    });
+  });
+
+  describe('updatePreferences', () => {
+    /**
+     * Test: updatePreferences should merge new preferences with existing ones
+     * Verifies partial update merges correctly
+     */
+    it('should merge new preferences with existing ones', async () => {
+      const userWithPrefs = {
+        ...mockUser,
+        metadata: { preferences: { language: 'ar', currency: 'SYP' } },
+      };
+      const savedUser = {
+        ...userWithPrefs,
+        metadata: {
+          preferences: { language: 'en', currency: 'SYP' },
+        },
+      };
+
+      userRepository.findOne.mockResolvedValue(userWithPrefs);
+      userRepository.save.mockResolvedValue(savedUser);
+
+      const result = await service.updatePreferences(1, {
+        language: 'en',
+      } as any);
+
+      expect(result.language).toBe('en');
+      expect(result.currency).toBe('SYP');
+      expect(userRepository.save).toHaveBeenCalled();
+    });
+
+    /**
+     * Test: updatePreferences should initialize preferences if none exist
+     * Verifies clean state when user has no prior preferences
+     */
+    it('should initialize preferences when user has none', async () => {
+      const userNoPrefs = {
+        ...mockUser,
+        metadata: null,
+      };
+
+      userRepository.findOne.mockResolvedValue(userNoPrefs);
+      userRepository.save.mockResolvedValue(userNoPrefs);
+
+      const result = await service.updatePreferences(1, {
+        language: 'ar',
+        currency: 'SYP',
+      } as any);
+
+      expect(result.language).toBe('ar');
+      expect(result.currency).toBe('SYP');
+    });
+
+    /**
+     * Test: updatePreferences should throw NotFoundException when user not found
+     */
+    it('should throw NotFoundException when user not found', async () => {
+      userRepository.findOne.mockResolvedValue(null);
+
+      await expect(
+        service.updatePreferences(999, { language: 'en' } as any),
+      ).rejects.toThrow(NotFoundException);
+    });
+
+    /**
+     * Test: updatePreferences should update lastActivityAt timestamp
+     */
+    it('should update lastActivityAt timestamp', async () => {
+      userRepository.findOne.mockResolvedValue(mockUser);
+      userRepository.save.mockResolvedValue(mockUser);
+
+      await service.updatePreferences(1, { language: 'en' } as any);
+
+      const savedUser = userRepository.save.mock.calls[0][0];
+      expect(savedUser.lastActivityAt).toBeInstanceOf(Date);
     });
   });
 

@@ -1,29 +1,12 @@
 /* Address Book Component Styles - Syrian Marketplace */
-/* Cultural branding with Damascus gold (#D4AF37) and Aleppo green */
 
 :host {
   display: block;
   min-height: 100vh;
   background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-
-  // RTL support
-  &[dir="rtl"] {
-    .address-book-content {
-      direction: rtl;
-    }
-    
-    .grid {
-      direction: rtl;
-    }
-    
-    .flex {
-      flex-direction: row-reverse;
-    }
-  }
 }
 
-// Address Book Header Styles
+// Header
 .address-book-header {
   background: linear-gradient(135deg, #D4AF37 0%, #B8941F 100%);
   color: white;
@@ -32,7 +15,7 @@
   .header-content {
     h1 {
       text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-      
+
       &::after {
         content: '';
         display: block;
@@ -49,130 +32,38 @@
     }
   }
 
-  .header-actions {
-    .language-toggle {
-      background: rgba(255, 255, 255, 0.1);
-      color: white;
-      border-radius: 50%;
-      transition: all 0.3s ease;
+  .add-address-btn {
+    background: linear-gradient(135deg, #16a085 0%, #27ae60 100%);
+    border: none;
+    border-radius: 25px;
+    padding: 12px 24px;
+    font-weight: 600;
+    text-transform: none;
+    box-shadow: 0 4px 15px rgba(22, 160, 133, 0.3);
+    transition: all 0.3s ease;
 
-      &:hover {
-        background: rgba(255, 255, 255, 0.2);
-        transform: scale(1.05);
-      }
-    }
-
-    .add-address-btn {
-      background: linear-gradient(135deg, #16a085 0%, #27ae60 100%);
-      border: none;
-      border-radius: 25px;
-      padding: 12px 24px;
-      font-weight: 600;
-      text-transform: none;
-      box-shadow: 0 4px 15px rgba(22, 160, 133, 0.3);
-      transition: all 0.3s ease;
-
-      &:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 6px 20px rgba(22, 160, 133, 0.4);
-      }
-
-      mat-icon {
-        margin-right: 8px;
-      }
-    }
-  }
-
-  // Address Statistics Cards
-  .address-stats {
-    .stat-card {
-      background: rgba(255, 255, 255, 0.95);
-      backdrop-filter: blur(10px);
-      border-radius: 16px;
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      transition: all 0.3s ease;
-      cursor: pointer;
-
-      &:hover {
-        transform: translateY(-4px);
-        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
-        background: rgba(255, 255, 255, 1);
-      }
-
-      .stat-icon {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        width: 48px;
-        height: 48px;
-        border-radius: 12px;
-        background: rgba(255, 255, 255, 0.8);
-        
-        mat-icon {
-          font-size: 24px;
-          width: 24px;
-          height: 24px;
-        }
-      }
-
-      .stat-value {
-        line-height: 1;
-        margin-bottom: 4px;
-      }
-
-      .stat-label {
-        font-weight: 500;
-        line-height: 1.2;
-      }
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(22, 160, 133, 0.4);
     }
   }
 }
 
-// Loading State
+// Loading
 .loading-container {
   background: white;
   border-radius: 16px;
   margin: 20px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-
-  mat-progress-bar {
-    border-radius: 4px;
-  }
 }
 
-// Main Content Area
-.address-book-content {
-  &.rtl {
-    .grid {
-      direction: rtl;
-    }
-
-    .flex {
-      flex-direction: row-reverse;
-    }
-
-    .addresses-grid {
-      .address-card {
-        .mat-card-header {
-          flex-direction: row-reverse;
-          
-          .mat-card-header-text {
-            margin-left: 0;
-            margin-right: 16px;
-          }
-        }
-      }
-    }
-  }
-}
-
-// Address Form Modal Styles
+// Form Modal
 .address-form-overlay {
   backdrop-filter: blur(5px);
   animation: fadeIn 0.3s ease;
 
   .address-form-modal {
-    max-width: 900px;
+    max-width: 640px;
     border-radius: 20px;
     overflow: hidden;
     animation: slideUp 0.3s ease;
@@ -180,16 +71,9 @@
 
     .modal-header {
       background: linear-gradient(135deg, #D4AF37 0%, #B8941F 100%);
-      
+
       h3 {
         font-weight: 600;
-        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-      }
-
-      button {
-        &:hover {
-          background: rgba(255, 255, 255, 0.1);
-        }
       }
     }
 
@@ -197,109 +81,18 @@
       max-height: calc(90vh - 120px);
       overflow-y: auto;
 
-      // Form Section Headers
-      h4 {
-        color: #2d3748;
-        border-bottom: 2px solid #D4AF37;
-        padding-bottom: 8px;
-        position: relative;
-
-        &::after {
-          content: '';
-          position: absolute;
-          bottom: -2px;
-          left: 0;
-          width: 40px;
-          height: 2px;
-          background: #16a085;
+      .label-presets {
+        .preset-btn {
+          border-radius: 20px;
+          font-size: 13px;
+          text-transform: none;
         }
       }
 
-      // Form Fields
-      mat-form-field {
-        &.mat-form-field-appearance-outline {
-          .mat-form-field-outline {
-            border-radius: 12px;
-          }
-
-          &.mat-focused .mat-form-field-outline-thick {
-            color: #D4AF37;
-          }
-
-          .mat-form-field-label {
-            color: #4a5568;
-            font-weight: 500;
-          }
-        }
-
-        mat-select {
-          .mat-select-value {
-            color: #2d3748;
-          }
-        }
-
-        textarea {
-          resize: vertical;
-          min-height: 80px;
-        }
-      }
-
-      // Checkboxes
-      .default-checkbox {
-        .mat-checkbox-frame {
-          border-radius: 4px;
-          border-color: #D4AF37;
-        }
-
-        .mat-checkbox-checked .mat-checkbox-background {
-          background-color: #D4AF37;
-        }
-
-        .mat-checkbox-label {
-          font-weight: 500;
-          color: #2d3748;
-        }
-      }
-
-      // Validation Results
-      .validation-results {
-        border-radius: 12px;
-        
-        mat-icon {
-          font-size: 20px;
-          width: 20px;
-          height: 20px;
-        }
-
-        ul {
-          margin-top: 8px;
-          margin-bottom: 0;
-        }
-      }
-
-      // Form Actions
       .form-actions {
         padding-top: 20px;
         border-top: 1px solid #e2e8f0;
         margin-top: 20px;
-
-        .cancel-btn {
-          color: #718096;
-          border-color: #e2e8f0;
-        }
-
-        .validate-btn {
-          color: #3182ce;
-          border-color: #3182ce;
-
-          &:hover {
-            background: rgba(49, 130, 206, 0.05);
-          }
-
-          mat-icon.animate-spin {
-            animation: spin 1s linear infinite;
-          }
-        }
 
         .save-btn {
           background: linear-gradient(135deg, #D4AF37 0%, #B8941F 100%);
@@ -309,15 +102,13 @@
           font-weight: 600;
           box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3);
 
-          &:hover {
+          &:hover:not(:disabled) {
             transform: translateY(-1px);
             box-shadow: 0 6px 20px rgba(212, 175, 55, 0.4);
           }
 
           &:disabled {
             opacity: 0.6;
-            transform: none;
-            box-shadow: none;
           }
         }
       }
@@ -325,84 +116,23 @@
   }
 }
 
-// Default Addresses Section
+// Default Address
 .default-addresses {
   .default-address-card {
     border-radius: 16px;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    border-top: 4px solid #3182ce;
     transition: all 0.3s ease;
-    overflow: hidden;
 
     &:hover {
       transform: translateY(-4px);
       box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
     }
 
-    &.shipping-card {
-      border-top: 4px solid #3182ce;
-      
-      .shipping-icon {
-        background: linear-gradient(135deg, #3182ce, #2c5aa0);
-        color: white;
-      }
-    }
-
-    &.billing-card {
-      border-top: 4px solid #16a085;
-      
-      .billing-icon {
-        background: linear-gradient(135deg, #16a085, #138d75);
-        color: white;
-      }
-    }
-
-    .mat-card-header {
-      background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
-      padding: 20px;
-
-      .mat-card-title {
-        font-size: 18px;
-        font-weight: 600;
-        color: #2d3748;
-        margin-bottom: 4px;
-      }
-
-      .mat-card-subtitle {
-        color: #718096;
-        font-weight: 500;
-      }
-    }
-
-    .mat-card-content {
-      padding: 20px;
-
-      .address-info {
-        .recipient-name {
-          color: #2d3748;
-          font-size: 16px;
-          margin-bottom: 8px;
-        }
-
-        .address-text {
-          line-height: 1.5;
-          margin-bottom: 8px;
-        }
-
-        .phone-number {
-          font-weight: 500;
-        }
-      }
-    }
-
-    .mat-card-actions {
-      padding: 16px 20px;
-      background: #fafafa;
-      border-top: 1px solid #e2e8f0;
-
-      button {
-        border-radius: 20px;
-        font-weight: 500;
-      }
+    .shipping-icon {
+      background: linear-gradient(135deg, #3182ce, #2c5aa0);
+      color: white;
+      border-radius: 12px;
     }
   }
 }
@@ -413,7 +143,6 @@
     border-radius: 16px;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
     transition: all 0.3s ease;
-    position: relative;
     overflow: hidden;
 
     &:hover {
@@ -423,283 +152,26 @@
 
     &.default-shipping {
       border-left: 4px solid #3182ce;
-      
-      &::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        height: 2px;
-        background: linear-gradient(90deg, #3182ce, transparent);
-      }
     }
 
-    &.default-billing {
-      border-right: 4px solid #16a085;
-      
-      &::after {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        height: 2px;
-        background: linear-gradient(90deg, transparent, #16a085);
-      }
-    }
-
-    .address-type-icon {
-      width: 48px;
-      height: 48px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: linear-gradient(135deg, #f7fafc, #edf2f7);
-      border: 2px solid #e2e8f0;
-
-      &.type-home {
-        background: linear-gradient(135deg, #fed7d7, #fbb6ce);
-        color: #c53030;
-        border-color: #feb2b2;
-      }
-
-      &.type-work {
-        background: linear-gradient(135deg, #bee3f8, #90cdf4);
-        color: #2b6cb0;
-        border-color: #90cdf4;
-      }
-
-      &.type-family {
-        background: linear-gradient(135deg, #c6f6d5, #9ae6b4);
-        color: #276749;
-        border-color: #9ae6b4;
-      }
-
-      &.type-pickup_point {
-        background: linear-gradient(135deg, #feebc8, #fbd38d);
-        color: #c05621;
-        border-color: #fbd38d;
-      }
-
-      &.type-temporary {
-        background: linear-gradient(135deg, #e9d8fd, #d6bcfa);
-        color: #6b46c1;
-        border-color: #d6bcfa;
-      }
-
-      mat-icon {
-        font-size: 24px;
-        width: 24px;
-        height: 24px;
-      }
-    }
-
-    .mat-card-header {
-      padding: 20px 20px 12px 20px;
-
-      .mat-card-title {
-        font-size: 18px;
-        font-weight: 600;
-        color: #2d3748;
-        line-height: 1.3;
-        margin-bottom: 4px;
-
-        .address-badges {
-          .default-chip {
-            border-radius: 12px;
-            font-weight: 500;
-            font-size: 11px;
-
-            &.shipping-chip {
-              background: linear-gradient(135deg, #bee3f8, #90cdf4);
-              color: #2b6cb0;
-            }
-
-            &.billing-chip {
-              background: linear-gradient(135deg, #c6f6d5, #9ae6b4);
-              color: #276749;
-            }
-
-            mat-icon {
-              font-size: 14px !important;
-              width: 14px !important;
-              height: 14px !important;
-            }
-          }
-        }
-      }
-
-      .mat-card-subtitle {
-        color: #718096;
-        font-weight: 500;
-      }
-    }
-
-    .mat-card-content {
-      padding: 0 20px 16px 20px;
-
-      .address-details {
-        .recipient-name {
-          color: #2d3748;
-          margin-bottom: 8px;
-        }
-
-        .address-text {
-          line-height: 1.5;
-          margin-bottom: 8px;
-        }
-
-        .contact-info {
-          span {
-            display: flex;
-            align-items: center;
-            gap: 4px;
-
-            mat-icon {
-              font-size: 16px !important;
-              width: 16px !important;
-              height: 16px !important;
-            }
-          }
-        }
-
-        .landmark {
-          display: flex;
-          align-items: center;
-          gap: 4px;
-          font-weight: 500;
-
-          mat-icon {
-            font-size: 16px !important;
-            width: 16px !important;
-            height: 16px !important;
-          }
-        }
-
-        .last-used {
-          font-style: italic;
-        }
-      }
-    }
-
-    .mat-card-actions {
-      padding: 12px 20px;
-      background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
-      border-top: 1px solid rgba(226, 232, 240, 0.5);
-
-      button {
-        border-radius: 20px;
-        font-weight: 500;
-        margin-right: 8px;
-
-        &:last-child {
-          margin-right: 0;
-        }
-      }
+    .default-chip {
+      font-size: 11px;
+      font-weight: 500;
+      background: linear-gradient(135deg, #bee3f8, #90cdf4);
+      color: #2b6cb0;
+      margin-left: 8px;
     }
   }
 }
 
-// Recently Used Addresses
-.recent-addresses {
-  .recent-addresses-list {
-    // Custom scrollbar for horizontal scroll
-    &::-webkit-scrollbar {
-      height: 6px;
-    }
-
-    &::-webkit-scrollbar-track {
-      background: #f1f5f9;
-      border-radius: 3px;
-    }
-
-    &::-webkit-scrollbar-thumb {
-      background: #D4AF37;
-      border-radius: 3px;
-    }
-
-    .recent-address-card {
-      border-radius: 12px;
-      transition: all 0.3s ease;
-      border: 1px solid #e2e8f0;
-
-      &:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
-        border-color: #D4AF37;
-      }
-
-      .address-type {
-        mat-icon {
-          font-size: 18px;
-          width: 18px;
-          height: 18px;
-        }
-      }
-
-      button {
-        &:hover {
-          background: rgba(212, 175, 55, 0.1);
-        }
-      }
-    }
-  }
-}
-
-// Empty States
-.empty-state,
-.empty-state-full {
-  .empty-icon,
+// Empty State
+.empty-state {
   mat-icon {
     opacity: 0.4;
   }
-
-  h2,
-  h3 {
-    color: #4a5568;
-  }
-
-  p {
-    line-height: 1.6;
-  }
-
-  .add-first-address-btn {
-    background: linear-gradient(135deg, #D4AF37 0%, #B8941F 100%);
-    border: none;
-    border-radius: 30px;
-    padding: 16px 32px;
-    font-size: 16px;
-    font-weight: 600;
-    text-transform: none;
-    box-shadow: 0 6px 20px rgba(212, 175, 55, 0.3);
-    transition: all 0.3s ease;
-
-    &:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 10px 30px rgba(212, 175, 55, 0.4);
-    }
-
-    mat-icon {
-      margin-right: 12px;
-      font-size: 20px;
-      width: 20px;
-      height: 20px;
-    }
-  }
 }
 
-// Verification Status Colors
-.text-green-600 {
-  color: #16a085 !important;
-}
-
-.text-orange-500 {
-  color: #f39c12 !important;
-}
-
-// Snackbar Styles
+// Snackbar
 ::ng-deep {
   .success-snackbar {
     background: linear-gradient(135deg, #27ae60, #16a085) !important;
@@ -710,227 +182,36 @@
     background: linear-gradient(135deg, #e74c3c, #c0392b) !important;
     color: white !important;
   }
-
-  .warning-snackbar {
-    background: linear-gradient(135deg, #f39c12, #e67e22) !important;
-    color: white !important;
-  }
 }
 
 // Animations
 @keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
 @keyframes slideUp {
-  from {
-    opacity: 0;
-    transform: translateY(30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
-@keyframes spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-// Responsive Design
+// Responsive
 @media (max-width: 768px) {
-  .address-book-header {
-    .container {
-      .flex {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 16px;
-      }
-
-      .header-actions {
-        width: 100%;
-        justify-content: space-between;
-      }
-    }
-
-    .address-stats {
-      grid-template-columns: repeat(2, 1fr);
-      gap: 12px;
-
-      .stat-card {
-        padding: 16px;
-
-        .stat-value {
-          font-size: 1.5rem;
-        }
-      }
-    }
-  }
-
-  .address-form-modal {
-    max-width: calc(100vw - 20px) !important;
-    max-height: calc(100vh - 40px) !important;
-    margin: 10px;
-
-    .modal-body {
-      max-height: calc(100vh - 160px);
-      
-      .grid {
-        grid-template-columns: 1fr !important;
-        gap: 16px;
-      }
-    }
+  .address-book-header .container .flex {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
   }
 
   .addresses-grid {
     grid-template-columns: 1fr !important;
-    gap: 16px;
-  }
-
-  .default-addresses .grid {
-    grid-template-columns: 1fr !important;
-    gap: 16px;
-  }
-
-  .recent-addresses-list {
-    gap: 12px;
-
-    .recent-address-card {
-      min-width: 250px;
-    }
   }
 }
 
-@media (max-width: 480px) {
-  .address-book-header {
-    .address-stats {
-      grid-template-columns: 1fr;
-    }
-  }
-
-  .address-form-modal {
-    .modal-header {
-      padding: 16px;
-      
-      h3 {
-        font-size: 1.25rem;
-      }
-    }
-
-    .modal-body {
-      padding: 20px;
-
-      .form-actions {
-        .flex {
-          flex-direction: column;
-          gap: 12px;
-
-          button {
-            width: 100%;
-            justify-content: center;
-          }
-        }
-      }
-    }
-  }
-}
-
-// Arabic RTL Specific Styles
-:host[dir="rtl"] {
-  .address-form-modal {
-    .modal-body {
-      h4 {
-        &::after {
-          right: 0;
-          left: auto;
-        }
-      }
-    }
-  }
-
-  .address-card {
-    &.default-shipping {
-      border-left: none;
-      border-right: 4px solid #3182ce;
-    }
-
-    &.default-billing {
-      border-right: none;
-      border-left: 4px solid #16a085;
-    }
-
-    .mat-card-actions {
-      button {
-        margin-right: 0;
-        margin-left: 8px;
-
-        &:first-child {
-          margin-left: 0;
-        }
-      }
-    }
-  }
-
-  .header-actions {
-    .add-address-btn {
-      mat-icon {
-        margin-right: 0;
-        margin-left: 8px;
-      }
-    }
-  }
-
-  .contact-info {
-    span {
-      flex-direction: row-reverse;
-    }
-  }
-
-  .landmark {
-    flex-direction: row-reverse;
-  }
-
-  .recent-address-card {
-    .address-type {
-      flex-direction: row-reverse;
-    }
-  }
-}
-
-// High contrast mode support
-@media (prefers-contrast: high) {
-  .address-book-header {
-    background: #000;
-    color: #fff;
-  }
-
-  .address-card,
-  .default-address-card {
-    border: 2px solid #000;
-  }
-
-  .stat-card {
-    border: 2px solid #666;
-  }
-}
-
-// Reduced motion support
+// Reduced motion
 @media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
+  *, *::before, *::after {
     animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
 }

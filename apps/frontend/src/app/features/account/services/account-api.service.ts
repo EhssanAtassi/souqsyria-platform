@@ -9,6 +9,7 @@ import { Observable } from 'rxjs';
 import { environment } from '../../../../environments/environment';
 import {
   UserProfile,
+  UserPreferences,
   UpdateProfileRequest,
   ChangePasswordRequest,
 } from '../models/user-profile.interface';
@@ -55,6 +56,20 @@ export class AccountApiService {
     return this.http.post<{ message: string }>(
       `${this.apiUrl}/change-password`,
       dto
+    );
+  }
+
+  /**
+   * @description Updates the current user's preferences (language, currency, notifications)
+   * @param {UserPreferences} prefs - Preferences to update
+   * @returns {Observable<{ message: string; preferences: UserPreferences }>} Observable with updated preferences
+   */
+  updatePreferences(
+    prefs: UserPreferences
+  ): Observable<{ message: string; preferences: UserPreferences }> {
+    return this.http.patch<{ message: string; preferences: UserPreferences }>(
+      `${this.apiUrl}/preferences`,
+      prefs
     );
   }
 }

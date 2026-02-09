@@ -1,0 +1,121 @@
+<!-- Preferences Page -->
+
+<!-- Loading State -->
+@if (loading()) {
+  <div class="preferences-loading">
+    <mat-spinner diameter="40"></mat-spinner>
+    <p>{{ 'account.preferences.loading' | translate }}</p>
+  </div>
+}
+
+<!-- Error State -->
+@if (error(); as errorKey) {
+  <div class="preferences-error">
+    <mat-icon>error_outline</mat-icon>
+    <p>{{ errorKey | translate }}</p>
+    <button mat-stroked-button color="primary" (click)="loadPreferences()">
+      {{ 'account.profile.retry' | translate }}
+    </button>
+  </div>
+}
+
+<!-- Preferences Form -->
+@if (!loading() && !error()) {
+  <div class="preferences-container">
+    <h1 class="preferences-title">{{ 'account.preferences.title' | translate }}</h1>
+    <p class="preferences-subtitle">{{ 'account.preferences.subtitle' | translate }}</p>
+
+    <form [formGroup]="form" (ngSubmit)="savePreferences()">
+
+      <!-- Language & Currency Section -->
+      <mat-card class="preferences-section">
+        <mat-card-header>
+          <mat-icon mat-card-avatar class="section-icon">language</mat-icon>
+          <mat-card-title>{{ 'account.preferences.languageSection' | translate }}</mat-card-title>
+        </mat-card-header>
+
+        <mat-card-content>
+          <div class="form-row">
+            <mat-form-field appearance="outline" class="form-field">
+              <mat-label>{{ 'account.preferences.language' | translate }}</mat-label>
+              <mat-select formControlName="language" (selectionChange)="onLanguageChange($event.value)">
+                @for (lang of languages; track lang.value) {
+                  <mat-option [value]="lang.value">
+                    {{ lang.icon }} {{ lang.label }}
+                  </mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="form-field">
+              <mat-label>{{ 'account.preferences.currency' | translate }}</mat-label>
+              <mat-select formControlName="currency">
+                @for (curr of currencies; track curr.value) {
+                  <mat-option [value]="curr.value">
+                    {{ curr.value }} - {{ curr.label | translate }}
+                  </mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <!-- Notifications Section -->
+      <mat-card class="preferences-section">
+        <mat-card-header>
+          <mat-icon mat-card-avatar class="section-icon">notifications</mat-icon>
+          <mat-card-title>{{ 'account.preferences.notificationsSection' | translate }}</mat-card-title>
+        </mat-card-header>
+
+        <mat-card-content>
+          <div class="toggle-row">
+            <div class="toggle-info">
+              <span class="toggle-label">{{ 'account.preferences.emailNotifications' | translate }}</span>
+              <span class="toggle-desc">{{ 'account.preferences.emailNotificationsDesc' | translate }}</span>
+            </div>
+            <mat-slide-toggle formControlName="emailNotifications" color="primary"></mat-slide-toggle>
+          </div>
+
+          <mat-divider></mat-divider>
+
+          <div class="toggle-row">
+            <div class="toggle-info">
+              <span class="toggle-label">{{ 'account.preferences.smsNotifications' | translate }}</span>
+              <span class="toggle-desc">{{ 'account.preferences.smsNotificationsDesc' | translate }}</span>
+            </div>
+            <mat-slide-toggle formControlName="smsNotifications" color="primary"></mat-slide-toggle>
+          </div>
+
+          <mat-divider></mat-divider>
+
+          <div class="toggle-row">
+            <div class="toggle-info">
+              <span class="toggle-label">{{ 'account.preferences.marketingEmails' | translate }}</span>
+              <span class="toggle-desc">{{ 'account.preferences.marketingEmailsDesc' | translate }}</span>
+            </div>
+            <mat-slide-toggle formControlName="marketingEmails" color="primary"></mat-slide-toggle>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <!-- Save Button -->
+      <div class="preferences-actions">
+        <button
+          mat-raised-button
+          color="primary"
+          type="submit"
+          [disabled]="saving()"
+          class="save-btn"
+        >
+          @if (saving()) {
+            <mat-spinner diameter="20" class="btn-spinner"></mat-spinner>
+          }
+          <mat-icon>save</mat-icon>
+          {{ (saving() ? 'account.preferences.saving' : 'account.preferences.save') | translate }}
+        </button>
+      </div>
+
+    </form>
+  </div>
+}

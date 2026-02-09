@@ -1,84 +1,24 @@
 <!-- Address Book Header -->
-<div class="address-book-header" [class.rtl]="currentLanguage() === 'ar'">
+<div class="address-book-header">
   <div class="container mx-auto px-4 py-6">
     <div class="flex items-center justify-between">
       <div class="header-content">
         <h1 class="text-2xl font-bold text-gray-900">
-          {{ currentLanguage() === 'ar' ? 'دفتر العناوين' : 'Address Book' }}
+          {{ 'account.addresses.title' | translate }}
         </h1>
         <p class="text-gray-600 mt-1">
-          {{ currentLanguage() === 'ar' 
-            ? 'إدارة عناوين الشحن والفواتير الخاصة بك' 
-            : 'Manage your shipping and billing addresses' }}
+          {{ 'account.addresses.subtitle' | translate }}
         </p>
       </div>
-      
-      <div class="header-actions flex items-center gap-3">
-        <!-- Language Toggle -->
-        <button mat-icon-button 
-                (click)="toggleLanguage()" 
-                [matTooltip]="currentLanguage() === 'ar' ? 'Switch to English' : 'التبديل إلى العربية'"
-                class="language-toggle">
-          <mat-icon>{{ currentLanguage() === 'ar' ? 'translate' : 'g_translate' }}</mat-icon>
-        </button>
 
-        <!-- Add New Address Button -->
-        <button mat-raised-button 
-                color="primary"
-                (click)="showNewAddressForm()"
-                class="add-address-btn">
-          <mat-icon>add</mat-icon>
-          {{ currentLanguage() === 'ar' ? 'إضافة عنوان جديد' : 'Add New Address' }}
-        </button>
-      </div>
+      <button mat-raised-button
+              color="primary"
+              (click)="openNewForm()"
+              class="add-address-btn">
+        <mat-icon>add</mat-icon>
+        {{ 'account.addresses.addNew' | translate }}
+      </button>
     </div>
-
-    <!-- Address Stats -->
-    @if (addressBookConfig(); as config) {
-      <div class="address-stats mt-6 grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div class="stat-card bg-gradient-to-br from-blue-50 to-blue-100 p-4 rounded-lg border border-blue-200">
-          <div class="stat-icon text-blue-600 mb-2">
-            <mat-icon class="text-2xl">location_on</mat-icon>
-          </div>
-          <div class="stat-value text-2xl font-bold text-blue-800">{{ config.totalAddresses }}</div>
-          <div class="stat-label text-blue-600 text-sm">
-            {{ currentLanguage() === 'ar' ? 'إجمالي العناوين' : 'Total Addresses' }}
-          </div>
-        </div>
-
-        <div class="stat-card bg-gradient-to-br from-green-50 to-green-100 p-4 rounded-lg border border-green-200">
-          <div class="stat-icon text-green-600 mb-2">
-            <mat-icon class="text-2xl">verified</mat-icon>
-          </div>
-          <div class="stat-value text-2xl font-bold text-green-800">
-            {{ config.totalAddresses - config.unverifiedCount }}
-          </div>
-          <div class="stat-label text-green-600 text-sm">
-            {{ currentLanguage() === 'ar' ? 'العناوين المتحققة' : 'Verified Addresses' }}
-          </div>
-        </div>
-
-        <div class="stat-card bg-gradient-to-br from-amber-50 to-yellow-100 p-4 rounded-lg border border-amber-200">
-          <div class="stat-icon text-amber-700 mb-2">
-            <mat-icon class="text-2xl">local_shipping</mat-icon>
-          </div>
-          <div class="stat-value text-2xl font-bold text-amber-800">1</div>
-          <div class="stat-label text-amber-700 text-sm">
-            {{ currentLanguage() === 'ar' ? 'عنوان الشحن الافتراضي' : 'Default Shipping' }}
-          </div>
-        </div>
-
-        <div class="stat-card bg-gradient-to-br from-purple-50 to-purple-100 p-4 rounded-lg border border-purple-200">
-          <div class="stat-icon text-purple-600 mb-2">
-            <mat-icon class="text-2xl">recent_actors</mat-icon>
-          </div>
-          <div class="stat-value text-2xl font-bold text-purple-800">{{ config.recentlyUsed.length }}</div>
-          <div class="stat-label text-purple-600 text-sm">
-            {{ currentLanguage() === 'ar' ? 'المستخدمة مؤخراً' : 'Recently Used' }}
-          </div>
-        </div>
-      </div>
-    }
   </div>
 </div>
 
@@ -86,580 +26,211 @@
 @if (isLoading()) {
   <div class="loading-container p-8 text-center">
     <mat-progress-bar mode="indeterminate" class="mb-4"></mat-progress-bar>
-    <p class="text-gray-600">
-      {{ currentLanguage() === 'ar' ? 'جاري تحميل العناوين...' : 'Loading addresses...' }}
-    </p>
+    <p class="text-gray-600">{{ 'account.addresses.loading' | translate }}</p>
+  </div>
+}
+
+<!-- Address Form Modal -->
+@if (showForm()) {
+  <div class="address-form-overlay fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+    <div class="address-form-modal bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-screen overflow-y-auto">
+      <div class="modal-header bg-gradient-to-r from-amber-400 to-yellow-500 p-4 text-white">
+        <div class="flex items-center justify-between">
+          <h3 class="text-xl font-semibold">{{ formTitle() }}</h3>
+          <button mat-icon-button (click)="closeForm()" class="text-white">
+            <mat-icon>close</mat-icon>
+          </button>
+        </div>
+      </div>
+
+      <form [formGroup]="addressForm" (ngSubmit)="saveAddress()" class="modal-body p-6">
+        <!-- Label -->
+        <div class="mb-4">
+          <mat-form-field appearance="outline" class="w-full">
+            <mat-label>{{ 'account.addresses.label' | translate }}</mat-label>
+            <input matInput formControlName="label" placeholder="Home, Work...">
+          </mat-form-field>
+          <div class="label-presets flex gap-2 mb-4">
+            @for (preset of labelPresets; track preset.value) {
+              <button type="button"
+                      mat-stroked-button
+                      (click)="addressForm.patchValue({ label: preset.value })"
+                      class="preset-btn">
+                <mat-icon>{{ preset.icon }}</mat-icon>
+                {{ preset.value }}
+              </button>
+            }
+          </div>
+        </div>
+
+        <!-- Address Lines -->
+        <mat-form-field appearance="outline" class="w-full mb-4">
+          <mat-label>{{ 'account.addresses.addressLine1' | translate }}</mat-label>
+          <input matInput formControlName="addressLine1">
+          @if (addressForm.get('addressLine1')?.hasError('required') && addressForm.get('addressLine1')?.touched) {
+            <mat-error>{{ 'account.addresses.addressRequired' | translate }}</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="w-full mb-4">
+          <mat-label>{{ 'account.addresses.addressLine2' | translate }}</mat-label>
+          <input matInput formControlName="addressLine2">
+          <mat-hint>{{ 'account.addresses.optional' | translate }}</mat-hint>
+        </mat-form-field>
+
+        <!-- Phone -->
+        <mat-form-field appearance="outline" class="w-full mb-4">
+          <mat-label>{{ 'account.addresses.phone' | translate }}</mat-label>
+          <input matInput formControlName="phone" placeholder="+963XXXXXXXXX">
+          @if (addressForm.get('phone')?.hasError('required') && addressForm.get('phone')?.touched) {
+            <mat-error>{{ 'account.addresses.phoneRequired' | translate }}</mat-error>
+          }
+          @if (addressForm.get('phone')?.hasError('pattern') && addressForm.get('phone')?.touched) {
+            <mat-error>{{ 'account.addresses.phoneInvalid' | translate }}</mat-error>
+          }
+        </mat-form-field>
+
+        <!-- Notes -->
+        <mat-form-field appearance="outline" class="w-full mb-4">
+          <mat-label>{{ 'account.addresses.notes' | translate }}</mat-label>
+          <textarea matInput formControlName="notes" rows="2"></textarea>
+          <mat-hint>{{ 'account.addresses.notesHint' | translate }}</mat-hint>
+        </mat-form-field>
+
+        <!-- Default checkbox -->
+        <div class="mb-6">
+          <mat-checkbox formControlName="isDefault">
+            {{ 'account.addresses.setAsDefault' | translate }}
+          </mat-checkbox>
+        </div>
+
+        <!-- Form Actions -->
+        <div class="form-actions flex justify-end gap-3">
+          <button type="button" mat-button (click)="closeForm()">
+            {{ 'cancel' | translate }}
+          </button>
+          <button type="submit"
+                  mat-raised-button
+                  color="primary"
+                  [disabled]="addressForm.invalid"
+                  class="save-btn">
+            <mat-icon>save</mat-icon>
+            {{ 'save' | translate }}
+          </button>
+        </div>
+      </form>
+    </div>
   </div>
 }
 
 <!-- Main Content -->
-@if (!isLoading() && addressBookConfig(); as config) {
-  <div class="address-book-content container mx-auto px-4 py-6" [class.rtl]="currentLanguage() === 'ar'">
-    
-    <!-- Address Form Modal -->
-    @if (showAddressForm()) {
-      <div class="address-form-overlay fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-        <div class="address-form-modal bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-screen overflow-y-auto">
-          <div class="modal-header bg-gradient-to-r from-amber-400 to-yellow-500 p-4 text-white">
-            <div class="flex items-center justify-between">
-              <h3 class="text-xl font-semibold">{{ getFormTitle() }}</h3>
-              <button mat-icon-button (click)="hideAddressForm()" class="text-white">
-                <mat-icon>close</mat-icon>
-              </button>
-            </div>
-          </div>
+@if (!isLoading()) {
+  <div class="address-book-content container mx-auto px-4 py-6">
 
-          <form [formGroup]="addressForm" (ngSubmit)="saveAddress()" class="modal-body p-6">
-            <!-- Address Type and Title -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-              <mat-form-field appearance="outline">
-                <mat-label>{{ currentLanguage() === 'ar' ? 'نوع العنوان' : 'Address Type' }}</mat-label>
-                <mat-select formControlName="type">
-                  @for (type of addressTypes; track type.value) {
-                    <mat-option [value]="type.value">
-                      <div class="flex items-center gap-2">
-                        <mat-icon>{{ type.icon }}</mat-icon>
-                        <span>{{ currentLanguage() === 'ar' ? type.labelAr : type.labelEn }}</span>
-                      </div>
-                    </mat-option>
-                  }
-                </mat-select>
-                @if (addressForm.get('type')?.invalid && addressForm.get('type')?.touched) {
-                  <mat-error>{{ currentLanguage() === 'ar' ? 'نوع العنوان مطلوب' : 'Address type is required' }}</mat-error>
-                }
-              </mat-form-field>
-
-              <mat-form-field appearance="outline">
-                <mat-label>{{ currentLanguage() === 'ar' ? 'عنوان بالإنجليزية' : 'Title (English)' }}</mat-label>
-                <input matInput formControlName="titleEn" placeholder="e.g., Home, Office">
-                @if (addressForm.get('titleEn')?.invalid && addressForm.get('titleEn')?.touched) {
-                  <mat-error>{{ currentLanguage() === 'ar' ? 'العنوان بالإنجليزية مطلوب' : 'English title is required' }}</mat-error>
-                }
-              </mat-form-field>
-            </div>
-
-            <!-- Arabic Title (Optional) -->
-            <div class="mb-6">
-              <mat-form-field appearance="outline" class="w-full">
-                <mat-label>{{ currentLanguage() === 'ar' ? 'العنوان بالعربية' : 'Title (Arabic)' }}</mat-label>
-                <input matInput formControlName="titleAr" placeholder="مثال: المنزل، المكتب" dir="rtl">
-              </mat-form-field>
-            </div>
-
-            <!-- Recipient Information -->
-            <div class="recipient-section mb-6">
-              <h4 class="text-lg font-semibold mb-4 text-gray-800">
-                {{ currentLanguage() === 'ar' ? 'معلومات المستلم' : 'Recipient Information' }}
-              </h4>
-              
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <mat-form-field appearance="outline">
-                  <mat-label>{{ currentLanguage() === 'ar' ? 'اسم المستلم' : 'Recipient Name' }}</mat-label>
-                  <input matInput formControlName="recipientName" placeholder="Full name">
-                  @if (addressForm.get('recipientName')?.invalid && addressForm.get('recipientName')?.touched) {
-                    <mat-error>{{ currentLanguage() === 'ar' ? 'اسم المستلم مطلوب' : 'Recipient name is required' }}</mat-error>
-                  }
-                </mat-form-field>
-
-                <mat-form-field appearance="outline">
-                  <mat-label>{{ currentLanguage() === 'ar' ? 'الاسم بالعربية' : 'Name (Arabic)' }}</mat-label>
-                  <input matInput formControlName="recipientNameAr" placeholder="الاسم الكامل" dir="rtl">
-                </mat-form-field>
-              </div>
-
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <mat-form-field appearance="outline">
-                  <mat-label>{{ currentLanguage() === 'ar' ? 'رقم الهاتف' : 'Phone Number' }}</mat-label>
-                  <input matInput formControlName="phoneNumber" placeholder="+963XXXXXXXXX">
-                  <mat-hint>{{ currentLanguage() === 'ar' ? 'مطلوب رقم سوري (+963)' : 'Syrian number required (+963)' }}</mat-hint>
-                  @if (addressForm.get('phoneNumber')?.invalid && addressForm.get('phoneNumber')?.touched) {
-                    <mat-error>{{ currentLanguage() === 'ar' ? 'رقم هاتف سوري صحيح مطلوب' : 'Valid Syrian phone number required' }}</mat-error>
-                  }
-                </mat-form-field>
-
-                <mat-form-field appearance="outline">
-                  <mat-label>{{ currentLanguage() === 'ar' ? 'رقم بديل' : 'Alternative Phone' }}</mat-label>
-                  <input matInput formControlName="alternatePhone" placeholder="+XXXXXXXXXXX">
-                  <mat-hint>{{ currentLanguage() === 'ar' ? 'اختياري' : 'Optional' }}</mat-hint>
-                </mat-form-field>
-              </div>
-            </div>
-
-            <!-- Address Details -->
-            <div class="address-section mb-6">
-              <h4 class="text-lg font-semibold mb-4 text-gray-800">
-                {{ currentLanguage() === 'ar' ? 'تفاصيل العنوان' : 'Address Details' }}
-              </h4>
-
-              <!-- Address Lines -->
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                <mat-form-field appearance="outline">
-                  <mat-label>{{ currentLanguage() === 'ar' ? 'العنوان الأول' : 'Address Line 1' }}</mat-label>
-                  <input matInput formControlName="addressLine1" placeholder="Street name and number">
-                  @if (addressForm.get('addressLine1')?.invalid && addressForm.get('addressLine1')?.touched) {
-                    <mat-error>{{ currentLanguage() === 'ar' ? 'العنوان الأول مطلوب' : 'Address line 1 is required' }}</mat-error>
-                  }
-                </mat-form-field>
-
-                <mat-form-field appearance="outline">
-                  <mat-label>{{ currentLanguage() === 'ar' ? 'العنوان بالعربية' : 'Address Line 1 (Arabic)' }}</mat-label>
-                  <input matInput formControlName="addressLine1Ar" placeholder="اسم الشارع والرقم" dir="rtl">
-                </mat-form-field>
-              </div>
-
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                <mat-form-field appearance="outline">
-                  <mat-label>{{ currentLanguage() === 'ar' ? 'العنوان الثاني' : 'Address Line 2' }}</mat-label>
-                  <input matInput formControlName="addressLine2" placeholder="Apartment, floor, building">
-                  <mat-hint>{{ currentLanguage() === 'ar' ? 'اختياري' : 'Optional' }}</mat-hint>
-                </mat-form-field>
-
-                <mat-form-field appearance="outline">
-                  <mat-label>{{ currentLanguage() === 'ar' ? 'العنوان الثاني بالعربية' : 'Address Line 2 (Arabic)' }}</mat-label>
-                  <input matInput formControlName="addressLine2Ar" placeholder="الشقة، الطابق، المبنى" dir="rtl">
-                </mat-form-field>
-              </div>
-
-              <!-- Neighborhood -->
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                <mat-form-field appearance="outline">
-                  <mat-label>{{ currentLanguage() === 'ar' ? 'الحي' : 'Neighborhood' }}</mat-label>
-                  <input matInput formControlName="neighborhood" placeholder="District or neighborhood">
-                </mat-form-field>
-
-                <mat-form-field appearance="outline">
-                  <mat-label>{{ currentLanguage() === 'ar' ? 'الحي بالعربية' : 'Neighborhood (Arabic)' }}</mat-label>
-                  <input matInput formControlName="neighborhoodAr" placeholder="المنطقة أو الحي" dir="rtl">
-                </mat-form-field>
-              </div>
-
-              <!-- City and Governorate -->
-              <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-                <mat-form-field appearance="outline">
-                  <mat-label>{{ currentLanguage() === 'ar' ? 'المدينة' : 'City' }}</mat-label>
-                  <input matInput formControlName="city" placeholder="City name">
-                  @if (addressForm.get('city')?.invalid && addressForm.get('city')?.touched) {
-                    <mat-error>{{ currentLanguage() === 'ar' ? 'المدينة مطلوبة' : 'City is required' }}</mat-error>
-                  }
-                </mat-form-field>
-
-                <mat-form-field appearance="outline">
-                  <mat-label>{{ currentLanguage() === 'ar' ? 'المدينة بالعربية' : 'City (Arabic)' }}</mat-label>
-                  <input matInput formControlName="cityAr" placeholder="اسم المدينة" dir="rtl">
-                </mat-form-field>
-
-                <mat-form-field appearance="outline">
-                  <mat-label>{{ currentLanguage() === 'ar' ? 'المحافظة' : 'Governorate' }}</mat-label>
-                  <mat-select formControlName="governorate">
-                    @for (governorate of syrianGovernorates; track governorate) {
-                      <mat-option [value]="governorate">{{ governorate }}</mat-option>
-                    }
-                  </mat-select>
-                  @if (addressForm.get('governorate')?.invalid && addressForm.get('governorate')?.touched) {
-                    <mat-error>{{ currentLanguage() === 'ar' ? 'المحافظة مطلوبة' : 'Governorate is required' }}</mat-error>
-                  }
-                </mat-form-field>
-              </div>
-
-              <!-- Postal Code and Country -->
-              <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-                <mat-form-field appearance="outline">
-                  <mat-label>{{ currentLanguage() === 'ar' ? 'الرمز البريدي' : 'Postal Code' }}</mat-label>
-                  <input matInput formControlName="postalCode" placeholder="12345">
-                  <mat-hint>{{ currentLanguage() === 'ar' ? 'اختياري' : 'Optional' }}</mat-hint>
-                </mat-form-field>
-
-                <mat-form-field appearance="outline">
-                  <mat-label>{{ currentLanguage() === 'ar' ? 'البلد' : 'Country' }}</mat-label>
-                  <input matInput formControlName="country" readonly>
-                </mat-form-field>
-
-                <mat-form-field appearance="outline">
-                  <mat-label>{{ currentLanguage() === 'ar' ? 'رمز البلد' : 'Country Code' }}</mat-label>
-                  <input matInput formControlName="countryCode" readonly>
-                </mat-form-field>
-              </div>
-            </div>
-
-            <!-- Additional Information -->
-            <div class="additional-section mb-6">
-              <h4 class="text-lg font-semibold mb-4 text-gray-800">
-                {{ currentLanguage() === 'ar' ? 'معلومات إضافية' : 'Additional Information' }}
-              </h4>
-
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                <mat-form-field appearance="outline">
-                  <mat-label>{{ currentLanguage() === 'ar' ? 'معلم مميز' : 'Landmark' }}</mat-label>
-                  <input matInput formControlName="landmark" placeholder="Near mosque, school, etc.">
-                  <mat-hint>{{ currentLanguage() === 'ar' ? 'لتسهيل الوصول' : 'To help with directions' }}</mat-hint>
-                </mat-form-field>
-
-                <mat-form-field appearance="outline">
-                  <mat-label>{{ currentLanguage() === 'ar' ? 'المعلم بالعربية' : 'Landmark (Arabic)' }}</mat-label>
-                  <input matInput formControlName="landmarkAr" placeholder="قرب المسجد، المدرسة، إلخ" dir="rtl">
-                </mat-form-field>
-              </div>
-
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                <mat-form-field appearance="outline">
-                  <mat-label>{{ currentLanguage() === 'ar' ? 'تعليمات التوصيل' : 'Delivery Instructions' }}</mat-label>
-                  <textarea matInput formControlName="instructions" rows="3" 
-                            placeholder="Special delivery instructions"></textarea>
-                  <mat-hint>{{ currentLanguage() === 'ar' ? 'اختياري' : 'Optional' }}</mat-hint>
-                </mat-form-field>
-
-                <mat-form-field appearance="outline">
-                  <mat-label>{{ currentLanguage() === 'ar' ? 'التعليمات بالعربية' : 'Instructions (Arabic)' }}</mat-label>
-                  <textarea matInput formControlName="instructionsAr" rows="3" 
-                            placeholder="تعليمات خاصة للتوصيل" dir="rtl"></textarea>
-                </mat-form-field>
-              </div>
-            </div>
-
-            <!-- Default Address Options -->
-            <div class="default-options mb-6">
-              <h4 class="text-lg font-semibold mb-4 text-gray-800">
-                {{ currentLanguage() === 'ar' ? 'خيارات افتراضية' : 'Default Options' }}
-              </h4>
-
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <mat-checkbox formControlName="isDefault" class="default-checkbox">
-                  {{ currentLanguage() === 'ar' ? 'عنوان الشحن الافتراضي' : 'Default shipping address' }}
-                </mat-checkbox>
-
-                <mat-checkbox formControlName="isDefaultBilling" class="default-checkbox">
-                  {{ currentLanguage() === 'ar' ? 'عنوان الفواتير الافتراضي' : 'Default billing address' }}
-                </mat-checkbox>
-              </div>
-            </div>
-
-            <!-- Validation Results -->
-            @if (validationResult(); as result) {
-              <div class="validation-results mb-6 p-4 rounded-lg border" 
-                   [class]="result.isValid ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200'">
-                <div class="flex items-center gap-2 mb-2">
-                  <mat-icon [class]="result.isValid ? 'text-green-600' : 'text-red-600'">
-                    {{ result.isValid ? 'check_circle' : 'error' }}
-                  </mat-icon>
-                  <span class="font-medium" [class]="result.isValid ? 'text-green-800' : 'text-red-800'">
-                    {{ result.isValid 
-                        ? (currentLanguage() === 'ar' ? 'العنوان صحيح' : 'Address is valid')
-                        : (currentLanguage() === 'ar' ? 'مشاكل في العنوان' : 'Address issues found') }}
-                  </span>
-                </div>
-
-                @if (result.errors.length > 0) {
-                  <ul class="text-sm text-red-700 list-disc list-inside">
-                    @for (error of result.errors; track error.field) {
-                      <li>{{ currentLanguage() === 'ar' ? error.messageAr : error.messageEn }}</li>
-                    }
-                  </ul>
-                }
-
-                @if (result.suggestions.length > 0) {
-                  <div class="mt-2">
-                    <p class="text-sm font-medium text-blue-800">
-                      {{ currentLanguage() === 'ar' ? 'اقتراحات:' : 'Suggestions:' }}
-                    </p>
-                    <ul class="text-sm text-blue-700 list-disc list-inside">
-                      @for (suggestion of result.suggestions; track suggestion.field) {
-                        <li>{{ suggestion.field }}: {{ suggestion.suggestedValue }}</li>
-                      }
-                    </ul>
-                  </div>
-                }
-
-                @if (result.estimatedDeliveryDays) {
-                  <div class="mt-2 text-sm text-gray-600">
-                    <mat-icon class="text-sm align-middle">local_shipping</mat-icon>
-                    {{ currentLanguage() === 'ar' 
-                        ? 'التوصيل المقدر: ' + result.estimatedDeliveryDays + ' أيام'
-                        : 'Estimated delivery: ' + result.estimatedDeliveryDays + ' days' }}
-                  </div>
-                }
-              </div>
-            }
-
-            <!-- Form Actions -->
-            <div class="form-actions flex justify-end gap-3">
-              <button type="button" 
-                      mat-button 
-                      (click)="hideAddressForm()"
-                      class="cancel-btn">
-                {{ currentLanguage() === 'ar' ? 'إلغاء' : 'Cancel' }}
-              </button>
-
-              <button type="button" 
-                      mat-stroked-button 
-                      color="primary"
-                      (click)="validateAddress()"
-                      [disabled]="addressForm.invalid || isValidatingAddress()"
-                      class="validate-btn">
-                @if (isValidatingAddress()) {
-                  <mat-icon class="animate-spin">refresh</mat-icon>
-                }
-                {{ currentLanguage() === 'ar' ? 'تحقق من العنوان' : 'Validate Address' }}
-              </button>
-
-              <button type="submit" 
-                      mat-raised-button 
-                      color="primary"
-                      [disabled]="addressForm.invalid"
-                      class="save-btn">
-                <mat-icon>save</mat-icon>
-                {{ currentLanguage() === 'ar' ? 'حفظ العنوان' : 'Save Address' }}
-              </button>
-            </div>
-          </form>
-        </div>
-      </div>
-    }
-
-    <!-- Default Addresses Section -->
-    @if (getDefaultShippingAddress() || getDefaultBillingAddress()) {
+    <!-- Default Address Highlight -->
+    @if (defaultAddress(); as defAddr) {
       <div class="default-addresses mb-8">
-        <h2 class="text-xl font-semibold mb-4 text-gray-900">
-          {{ currentLanguage() === 'ar' ? 'العناوين الافتراضية' : 'Default Addresses' }}
+        <h2 class="text-lg font-semibold mb-4 text-gray-900">
+          {{ 'account.addresses.defaultAddress' | translate }}
         </h2>
-
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <!-- Default Shipping -->
-          @if (getDefaultShippingAddress(); as defaultShipping) {
-            <mat-card class="default-address-card shipping-card">
-              <mat-card-header>
-                <mat-icon mat-card-avatar class="shipping-icon">local_shipping</mat-icon>
-                <mat-card-title>
-                  {{ currentLanguage() === 'ar' ? 'عنوان الشحن الافتراضي' : 'Default Shipping Address' }}
-                </mat-card-title>
-                <mat-card-subtitle>{{ getAddressTitle(defaultShipping) }}</mat-card-subtitle>
-              </mat-card-header>
-              <mat-card-content>
-                <div class="address-info">
-                  <p class="recipient-name font-medium">{{ getRecipientName(defaultShipping) }}</p>
-                  <p class="address-text text-gray-600">{{ formatAddress(defaultShipping) }}</p>
-                  <p class="phone-number text-gray-500">{{ defaultShipping.phoneNumber }}</p>
-                </div>
-              </mat-card-content>
-              <mat-card-actions>
-                <button mat-button color="primary" (click)="editAddress(defaultShipping)">
-                  <mat-icon>edit</mat-icon>
-                  {{ currentLanguage() === 'ar' ? 'تعديل' : 'Edit' }}
-                </button>
-              </mat-card-actions>
-            </mat-card>
-          }
-
-          <!-- Default Billing -->
-          @if (getDefaultBillingAddress(); as defaultBilling) {
-            <mat-card class="default-address-card billing-card">
-              <mat-card-header>
-                <mat-icon mat-card-avatar class="billing-icon">receipt</mat-icon>
-                <mat-card-title>
-                  {{ currentLanguage() === 'ar' ? 'عنوان الفواتير الافتراضي' : 'Default Billing Address' }}
-                </mat-card-title>
-                <mat-card-subtitle>{{ getAddressTitle(defaultBilling) }}</mat-card-subtitle>
-              </mat-card-header>
-              <mat-card-content>
-                <div class="address-info">
-                  <p class="recipient-name font-medium">{{ getRecipientName(defaultBilling) }}</p>
-                  <p class="address-text text-gray-600">{{ formatAddress(defaultBilling) }}</p>
-                  <p class="phone-number text-gray-500">{{ defaultBilling.phoneNumber }}</p>
-                </div>
-              </mat-card-content>
-              <mat-card-actions>
-                <button mat-button color="primary" (click)="editAddress(defaultBilling)">
-                  <mat-icon>edit</mat-icon>
-                  {{ currentLanguage() === 'ar' ? 'تعديل' : 'Edit' }}
-                </button>
-              </mat-card-actions>
-            </mat-card>
-          }
-        </div>
+        <mat-card class="default-address-card shipping-card">
+          <mat-card-header>
+            <mat-icon mat-card-avatar class="shipping-icon">local_shipping</mat-icon>
+            <mat-card-title>{{ defAddr.label || 'Default' }}</mat-card-title>
+            <mat-card-subtitle>{{ formatAddress(defAddr) }}</mat-card-subtitle>
+          </mat-card-header>
+          <mat-card-content>
+            <p class="text-gray-500 mt-2">{{ defAddr.phone }}</p>
+            @if (defAddr.notes) {
+              <p class="text-sm text-blue-600 mt-1">
+                <mat-icon class="text-sm align-middle">info</mat-icon>
+                {{ defAddr.notes }}
+              </p>
+            }
+          </mat-card-content>
+          <mat-card-actions>
+            <button mat-button color="primary" (click)="openEditForm(defAddr)">
+              <mat-icon>edit</mat-icon>
+              {{ 'edit' | translate }}
+            </button>
+          </mat-card-actions>
+        </mat-card>
       </div>
     }
 
-    <!-- All Addresses Section -->
-    <div class="all-addresses">
-      <h2 class="text-xl font-semibold mb-6 text-gray-900">
-        {{ currentLanguage() === 'ar' ? 'جميع العناوين' : 'All Addresses' }}
-      </h2>
-
-      @if (getActiveAddresses().length === 0) {
-        <div class="empty-state text-center py-12">
-          <mat-icon class="text-6xl text-gray-400 mb-4">location_off</mat-icon>
-          <h3 class="text-lg font-medium text-gray-600 mb-2">
-            {{ currentLanguage() === 'ar' ? 'لا توجد عناوين' : 'No addresses found' }}
-          </h3>
-          <p class="text-gray-500 mb-6">
-            {{ currentLanguage() === 'ar' 
-                ? 'أضف عنوانك الأول لبدء التسوق'
-                : 'Add your first address to start shopping' }}
-          </p>
-          <button mat-raised-button color="primary" (click)="showNewAddressForm()">
-            <mat-icon>add</mat-icon>
-            {{ currentLanguage() === 'ar' ? 'إضافة عنوان جديد' : 'Add New Address' }}
-          </button>
-        </div>
-      } @else {
-        <!-- Address Cards Grid -->
-        <div class="addresses-grid grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          @for (address of getActiveAddresses(); track trackByAddressId($index, address)) {
-            <mat-card class="address-card" [class.default-shipping]="address.isDefault" [class.default-billing]="address.isDefaultBilling">
-              <mat-card-header>
-                <div class="address-type-icon" mat-card-avatar [class]="'type-' + address.type">
-                  <mat-icon>{{ getAddressTypeIcon(address.type) }}</mat-icon>
-                </div>
-                <mat-card-title class="flex items-center justify-between">
-                  <span>{{ getAddressTitle(address) }}</span>
-                  <div class="address-badges flex gap-1">
-                    @if (address.isDefault) {
-                      <mat-chip class="default-chip shipping-chip" size="small">
-                        <mat-icon matChipAvatar>local_shipping</mat-icon>
-                        {{ currentLanguage() === 'ar' ? 'افتراضي' : 'Default' }}
-                      </mat-chip>
-                    }
-                    @if (address.isDefaultBilling) {
-                      <mat-chip class="default-chip billing-chip" size="small">
-                        <mat-icon matChipAvatar>receipt</mat-icon>
-                        {{ currentLanguage() === 'ar' ? 'فواتير' : 'Billing' }}
-                      </mat-chip>
-                    }
-                    <mat-chip [class]="getVerificationColor(address)" size="small">
-                      <mat-icon matChipAvatar>{{ getVerificationIcon(address) }}</mat-icon>
-                      {{ address.isVerified 
-                          ? (currentLanguage() === 'ar' ? 'متحقق' : 'Verified')
-                          : (currentLanguage() === 'ar' ? 'غير متحقق' : 'Unverified') }}
-                    </mat-chip>
-                  </div>
-                </mat-card-title>
-                <mat-card-subtitle>{{ getAddressTypeLabel(address.type) }}</mat-card-subtitle>
-              </mat-card-header>
-
-              <mat-card-content>
-                <div class="address-details">
-                  <p class="recipient-name font-medium mb-2">{{ getRecipientName(address) }}</p>
-                  <p class="address-text text-gray-600 mb-2">{{ formatAddress(address) }}</p>
-                  <div class="contact-info flex items-center gap-4 text-sm text-gray-500">
-                    <span class="flex items-center gap-1">
-                      <mat-icon class="text-sm">phone</mat-icon>
-                      {{ address.phoneNumber }}
-                    </span>
-                  </div>
-                  
-                  @if (address.landmark || address.landmarkAr) {
-                    <div class="landmark mt-2 text-sm text-blue-600">
-                      <mat-icon class="text-sm">place</mat-icon>
-                      {{ currentLanguage() === 'ar' && address.landmarkAr ? address.landmarkAr : address.landmark }}
-                    </div>
-                  }
-
-                  @if (address.lastUsedAt) {
-                    <div class="last-used mt-2 text-xs text-gray-400">
-                      {{ currentLanguage() === 'ar' ? 'آخر استخدام:' : 'Last used:' }} 
-                      {{ formatLastUsed(address.lastUsedAt) }}
-                    </div>
-                  }
-                </div>
-              </mat-card-content>
-
-              <mat-card-actions>
-                <button mat-button color="primary" (click)="editAddress(address)">
-                  <mat-icon>edit</mat-icon>
-                  {{ currentLanguage() === 'ar' ? 'تعديل' : 'Edit' }}
-                </button>
-
-                <button mat-button [matMenuTriggerFor]="addressMenu">
-                  <mat-icon>more_vert</mat-icon>
-                </button>
-
-                <mat-menu #addressMenu="matMenu">
-                  @if (!address.isDefault) {
-                    <button mat-menu-item (click)="setDefaultShipping(address)">
-                      <mat-icon>local_shipping</mat-icon>
-                      <span>{{ currentLanguage() === 'ar' ? 'تعيين كشحن افتراضي' : 'Set as default shipping' }}</span>
-                    </button>
-                  }
-
-                  @if (!address.isDefaultBilling) {
-                    <button mat-menu-item (click)="setDefaultBilling(address)">
-                      <mat-icon>receipt</mat-icon>
-                      <span>{{ currentLanguage() === 'ar' ? 'تعيين كفواتير افتراضي' : 'Set as default billing' }}</span>
-                    </button>
-                  }
-
-                  <mat-divider></mat-divider>
-
-                  <button mat-menu-item (click)="toggleAddressStatus(address)">
-                    <mat-icon>{{ address.isActive ? 'visibility_off' : 'visibility' }}</mat-icon>
-                    <span>
-                      {{ address.isActive 
-                          ? (currentLanguage() === 'ar' ? 'إخفاء العنوان' : 'Deactivate address')
-                          : (currentLanguage() === 'ar' ? 'تفعيل العنوان' : 'Activate address') }}
-                    </span>
-                  </button>
-
-                  <button mat-menu-item (click)="deleteAddress(address)" class="text-red-600">
-                    <mat-icon>delete</mat-icon>
-                    <span>{{ currentLanguage() === 'ar' ? 'حذف العنوان' : 'Delete address' }}</span>
-                  </button>
-                </mat-menu>
-              </mat-card-actions>
-            </mat-card>
-          }
-        </div>
-      }
-    </div>
-
-    <!-- Recently Used Addresses -->
-    @if (getRecentlyUsedAddresses().length > 0) {
-      <div class="recent-addresses mt-12">
-        <h3 class="text-lg font-medium mb-4 text-gray-800">
-          {{ currentLanguage() === 'ar' ? 'العناوين المستخدمة مؤخراً' : 'Recently Used Addresses' }}
-        </h3>
-        
-        <div class="recent-addresses-list flex gap-4 overflow-x-auto pb-4">
-          @for (address of getRecentlyUsedAddresses(); track address.id) {
-            <div class="recent-address-card flex-shrink-0 bg-gray-50 p-4 rounded-lg border min-w-64">
-              <div class="flex items-start justify-between mb-2">
-                <div class="address-type flex items-center gap-2">
-                  <mat-icon class="text-blue-600">{{ getAddressTypeIcon(address.type) }}</mat-icon>
-                  <span class="font-medium">{{ getAddressTitle(address) }}</span>
-                </div>
-                <button mat-icon-button size="small" (click)="editAddress(address)">
-                  <mat-icon>edit</mat-icon>
-                </button>
-              </div>
-              <p class="text-sm text-gray-600 mb-1">{{ getRecipientName(address) }}</p>
-              <p class="text-xs text-gray-500">{{ formatAddress(address) }}</p>
-            </div>
-          }
-        </div>
-      </div>
-    }
-  </div>
-}
-
-<!-- Empty State (No addresses at all) -->
-@if (!isLoading() && (!addressBookConfig() || addressBookConfig()!.totalAddresses === 0)) {
-  <div class="empty-state-full container mx-auto px-4 py-20 text-center">
-    <div class="empty-icon mb-8">
-      <mat-icon class="text-8xl text-gray-300">add_location</mat-icon>
-    </div>
-    <h2 class="text-2xl font-bold text-gray-600 mb-4">
-      {{ currentLanguage() === 'ar' ? 'لا توجد عناوين محفوظة' : 'No saved addresses' }}
+    <!-- All Addresses -->
+    <h2 class="text-lg font-semibold mb-4 text-gray-900">
+      {{ 'account.addresses.allAddresses' | translate }}
     </h2>
-    <p class="text-gray-500 mb-8 max-w-md mx-auto">
-      {{ currentLanguage() === 'ar' 
-          ? 'أضف عناوين الشحن والفواتير الخاصة بك لتسريع عملية الطلب'
-          : 'Add your shipping and billing addresses to speed up the checkout process' }}
-    </p>
-    <button mat-raised-button 
-            color="primary" 
-            size="large"
-            (click)="showNewAddressForm()"
-            class="add-first-address-btn">
-      <mat-icon>add</mat-icon>
-      {{ currentLanguage() === 'ar' ? 'إضافة أول عنوان' : 'Add Your First Address' }}
-    </button>
+
+    @if (addresses().length === 0) {
+      <!-- Empty State -->
+      <div class="empty-state text-center py-12">
+        <mat-icon class="text-6xl text-gray-400 mb-4">location_off</mat-icon>
+        <h3 class="text-lg font-medium text-gray-600 mb-2">
+          {{ 'account.addresses.empty' | translate }}
+        </h3>
+        <p class="text-gray-500 mb-6">
+          {{ 'account.addresses.emptyDesc' | translate }}
+        </p>
+        <button mat-raised-button color="primary" (click)="openNewForm()">
+          <mat-icon>add</mat-icon>
+          {{ 'account.addresses.addNew' | translate }}
+        </button>
+      </div>
+    } @else {
+      <!-- Address Cards Grid -->
+      <div class="addresses-grid grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        @for (address of addresses(); track address.id) {
+          <mat-card class="address-card" [class.default-shipping]="address.isDefault">
+            <mat-card-header>
+              <mat-icon mat-card-avatar>location_on</mat-icon>
+              <mat-card-title>
+                {{ address.label || ('account.addresses.noLabel' | translate) }}
+                @if (address.isDefault) {
+                  <mat-chip class="default-chip">
+                    {{ 'account.addresses.default' | translate }}
+                  </mat-chip>
+                }
+              </mat-card-title>
+              <mat-card-subtitle>{{ address.addressType }}</mat-card-subtitle>
+            </mat-card-header>
+
+            <mat-card-content>
+              <p class="address-text text-gray-600 mb-2">{{ formatAddress(address) }}</p>
+              <p class="text-gray-500 text-sm">{{ address.phone }}</p>
+              @if (address.notes) {
+                <p class="text-sm text-blue-600 mt-1">{{ address.notes }}</p>
+              }
+            </mat-card-content>
+
+            <mat-card-actions>
+              <button mat-button color="primary" (click)="openEditForm(address)">
+                <mat-icon>edit</mat-icon>
+                {{ 'edit' | translate }}
+              </button>
+
+              <button mat-button [matMenuTriggerFor]="addressMenu">
+                <mat-icon>more_vert</mat-icon>
+              </button>
+
+              <mat-menu #addressMenu="matMenu">
+                @if (!address.isDefault) {
+                  <button mat-menu-item (click)="setDefault(address)">
+                    <mat-icon>star</mat-icon>
+                    <span>{{ 'account.addresses.setAsDefault' | translate }}</span>
+                  </button>
+                }
+                <mat-divider></mat-divider>
+                <button mat-menu-item (click)="deleteAddress(address)">
+                  <mat-icon color="warn">delete</mat-icon>
+                  <span>{{ 'account.addresses.delete' | translate }}</span>
+                </button>
+              </mat-menu>
+            </mat-card-actions>
+          </mat-card>
+        }
+      </div>
+    }
   </div>
 }

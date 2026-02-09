@@ -57,6 +57,11 @@ export const accountRoutes: Routes = [
     title: 'Address Book - SouqSyria'
   },
   {
+    path: 'preferences',
+    loadComponent: () => import('./pages/preferences/preferences.component').then(m => m.PreferencesComponent),
+    title: 'Preferences - SouqSyria'
+  },
+  {
     path: 'offers',
     loadComponent: () => import('./promotional-offers.component').then(m => m.PromotionalOffersComponent),
     title: 'Promotional Offers - SouqSyria'
