@@ -13,7 +13,11 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../../environments/environment';
 import { ProductListResponse } from '../models/product-list.interface';
-import { ProductDetailResponse, SearchSuggestionItem } from '../models/product-detail.interface';
+import {
+  ProductDetailResponse,
+  SearchSuggestionItem,
+  VariantOptionGroup,
+} from '../models/product-detail.interface';
 
 /**
  * @description Query parameters accepted by the product listing API
@@ -105,6 +109,26 @@ export class ProductService {
    * this.productService.getSearchSuggestions('damascus')
    *   .subscribe(response => console.log(response.suggestions));
    */
+  /**
+   * @description Fetches active variants for a product by ID
+   * @param productId - Numeric product ID
+   * @returns Observable with data array of variants
+   */
+  getVariantsByProduct(productId: number): Observable<{ data: any[] }> {
+    return this.http.get<{ data: any[] }>(`${this.apiUrl}/${productId}/variants`);
+  }
+
+  /**
+   * @description Fetches variant option groups enriched with Arabic names and color hex
+   * @param productId - Numeric product ID
+   * @returns Observable with data array of VariantOptionGroup
+   */
+  getVariantOptions(productId: number): Observable<{ data: VariantOptionGroup[] }> {
+    return this.http.get<{ data: VariantOptionGroup[] }>(
+      `${this.apiUrl}/${productId}/variants/options`
+    );
+  }
+
   getSearchSuggestions(query: string): Observable<{ suggestions: SearchSuggestionItem[] }> {
     const httpParams = new HttpParams().set('q', query);
     return this.http.get<{ suggestions: SearchSuggestionItem[] }>(

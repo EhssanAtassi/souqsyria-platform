@@ -14,7 +14,7 @@ import { provideRouter } from '@angular/router';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { ActivatedRoute } from '@angular/router';
 import { of, throwError, Subject } from 'rxjs';
-import { signal, computed } from '@angular/core';
+import { signal, computed, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 
 import { ProductDetailPageComponent } from './product-detail-page.component';
 import { ProductService } from '../../services/product.service';
@@ -124,6 +124,7 @@ describe('ProductDetailPageComponent', () => {
           },
         },
       ],
+      schemas: [CUSTOM_ELEMENTS_SCHEMA],
     }).compileComponents();
 
     fixture = TestBed.createComponent(ProductDetailPageComponent);
@@ -253,57 +254,78 @@ describe('ProductDetailPageComponent', () => {
     });
   });
 
-  describe('Image Gallery', () => {
+  describe('Image Gallery (S3)', () => {
     /**
-     * @description Verifies the main image is displayed
+     * @description Verifies ImageGalleryComponent is rendered
      */
-    it('should display the first image as the main image', () => {
+    it('should render app-image-gallery component', () => {
       fixture.detectChanges();
       paramsSubject.next({ productSlug: 'test-product' });
       fixture.detectChanges();
 
       const compiled: HTMLElement = fixture.nativeElement;
-      const mainImg = compiled.querySelector('.gallery__main-image') as HTMLImageElement;
-
-      expect(mainImg).toBeTruthy();
-      expect(mainImg.src).toContain('/img1.jpg');
+      const gallery = compiled.querySelector('app-image-gallery');
+      expect(gallery).toBeTruthy();
     });
 
     /**
-     * @description Verifies thumbnails are rendered when multiple images exist
+     * @description Verifies gallery is not rendered in inline mode (old gallery removed)
      */
-    it('should render thumbnails when multiple images exist', () => {
+    it('should not render old inline gallery elements', () => {
       fixture.detectChanges();
       paramsSubject.next({ productSlug: 'test-product' });
       fixture.detectChanges();
 
       const compiled: HTMLElement = fixture.nativeElement;
-      const thumbnails = compiled.querySelectorAll('.gallery__thumbnail');
-
-      expect(thumbnails.length).toBe(2);
+      expect(compiled.querySelector('.gallery__main-image')).toBeNull();
+      expect(compiled.querySelector('.gallery__thumbnail')).toBeNull();
     });
 
     /**
-     * @description Verifies clicking a thumbnail changes the selected image index
+     * @description Verifies onGalleryImageChange updates selectedImageIndex
      */
-    it('should change selected image index on thumbnail click', () => {
+    it('should update selectedImageIndex on gallery image change', () => {
       fixture.detectChanges();
       paramsSubject.next({ productSlug: 'test-product' });
-      fixture.detectChanges();
 
-      component.onImageSelect(1);
+      component.onGalleryImageChange(1);
       expect(component.selectedImageIndex()).toBe(1);
     });
 
     /**
-     * @description Verifies the currentImage computed updates when selectedImageIndex changes
+     * @description Verifies variantImageIndex computed tracks variant imageUrl
      */
-    it('should update currentImage when selectedImageIndex changes', () => {
+    it('should compute variantImageIndex from selected variant imageUrl', () => {
+      const product = createMockProductDetail({
+        images: [
+          { id: 1, imageUrl: '/img1.jpg', sortOrder: 0 },
+          { id: 2, imageUrl: '/img2.jpg', sortOrder: 1 },
+        ],
+        variants: [
+          {
+            id: 1, sku: 'V1', price: 100, variantData: { Color: 'Red' },
+            imageUrl: '/img2.jpg', stockStatus: 'in_stock', totalStock: 10, isActive: true,
+          },
+        ],
+      });
+      productServiceSpy.getProductBySlug.and.returnValue(of(product));
+
       fixture.detectChanges();
       paramsSubject.next({ productSlug: 'test-product' });
 
-      component.onImageSelect(1);
-      expect(component.currentImage()?.imageUrl).toBe('/img2.jpg');
+      // Auto-selected first variant with imageUrl '/img2.jpg' → index 1
+      expect(component.variantImageIndex()).toBe(1);
+    });
+
+    /**
+     * @description Verifies variantImageIndex returns 0 when no matching image
+     */
+    it('should return 0 for variantImageIndex when variant has no matching image', () => {
+      fixture.detectChanges();
+      paramsSubject.next({ productSlug: 'test-product' });
+
+      // Default variant has imageUrl: null → index 0
+      expect(component.variantImageIndex()).toBe(0);
     });
   });
 
@@ -650,6 +672,107 @@ describe('ProductDetailPageComponent', () => {
 
       // Reset language for other tests
       mockLanguageService.language.set('en');
+    });
+  });
+
+  describe('Effective Price/Stock (S3 Variant-Aware)', () => {
+    /**
+     * @description Verifies effectivePrice uses variant price when variant is selected
+     */
+    it('should use variant price for effectivePrice when variant is selected', () => {
+      const product = createMockProductDetail({
+        pricing: { basePrice: 200, discountPrice: 150, currency: 'USD' },
+        variants: [
+          { id: 1, sku: 'V1', price: 180, variantData: { Color: 'Red' },
+            imageUrl: null, stockStatus: 'in_stock', totalStock: 10, isActive: true },
+        ],
+      });
+      productServiceSpy.getProductBySlug.and.returnValue(of(product));
+
+      fixture.detectChanges();
+      paramsSubject.next({ productSlug: 'test-product' });
+
+      // Auto-selects first variant with price 180
+      expect(component.effectivePrice()).toBe(180);
+    });
+
+    /**
+     * @description Verifies effectivePrice falls back to base product price when no variant selected
+     */
+    it('should use product discount price for effectivePrice when no variant selected', () => {
+      const product = createMockProductDetail({
+        pricing: { basePrice: 200, discountPrice: 150, currency: 'USD' },
+        variants: [],
+      });
+      productServiceSpy.getProductBySlug.and.returnValue(of(product));
+
+      fixture.detectChanges();
+      paramsSubject.next({ productSlug: 'test-product' });
+
+      expect(component.effectivePrice()).toBe(150);
+    });
+
+    /**
+     * @description Verifies effectiveStockStatus uses variant stock when selected
+     */
+    it('should use variant stock status for effectiveStockStatus', () => {
+      const product = createMockProductDetail({
+        stockStatus: 'in_stock',
+        variants: [
+          { id: 1, sku: 'V1', price: 100, variantData: { Color: 'Red' },
+            imageUrl: null, stockStatus: 'out_of_stock', totalStock: 0, isActive: true },
+        ],
+      });
+      productServiceSpy.getProductBySlug.and.returnValue(of(product));
+
+      fixture.detectChanges();
+      paramsSubject.next({ productSlug: 'test-product' });
+
+      // Variant stock overrides product stock
+      expect(component.effectiveStockStatus()).toBe('out_of_stock');
+    });
+
+    /**
+     * @description Verifies effectiveStockStatus falls back to product stock when no variant
+     */
+    it('should use product stock status when no variant selected', () => {
+      const product = createMockProductDetail({
+        stockStatus: 'low_stock',
+        variants: [],
+      });
+      productServiceSpy.getProductBySlug.and.returnValue(of(product));
+
+      fixture.detectChanges();
+      paramsSubject.next({ productSlug: 'test-product' });
+
+      expect(component.effectiveStockStatus()).toBe('low_stock');
+    });
+
+    /**
+     * @description Verifies variant selection updates effective values
+     */
+    it('should update effectivePrice on variant selection', () => {
+      const product = createMockProductDetail({
+        pricing: { basePrice: 200, discountPrice: null, currency: 'USD' },
+        variants: [
+          { id: 1, sku: 'V1', price: 150, variantData: { Color: 'Red' },
+            imageUrl: null, stockStatus: 'in_stock', totalStock: 10, isActive: true },
+          { id: 2, sku: 'V2', price: 250, variantData: { Color: 'Blue' },
+            imageUrl: null, stockStatus: 'low_stock', totalStock: 3, isActive: true },
+        ],
+      });
+      productServiceSpy.getProductBySlug.and.returnValue(of(product));
+
+      fixture.detectChanges();
+      paramsSubject.next({ productSlug: 'test-product' });
+
+      // Auto-selects first variant (price 150)
+      expect(component.effectivePrice()).toBe(150);
+
+      // Select second variant
+      component.onVariantSelect(product.variants[1]);
+      expect(component.effectivePrice()).toBe(250);
+      expect(component.effectiveStockStatus()).toBe('low_stock');
     });
   });
 });

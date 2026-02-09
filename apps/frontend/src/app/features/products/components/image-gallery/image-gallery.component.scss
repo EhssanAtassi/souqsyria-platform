@@ -1,0 +1,262 @@
+@import '../../../../shared/styles/variables';
+
+/**
+ * Image Gallery Component Styles
+ * Desktop: static gallery with CSS zoom lens
+ * Mobile: Swiper carousel with fullscreen overlay
+ */
+
+.image-gallery {
+  display: flex;
+  flex-direction: column;
+  gap: $space-4;
+
+  &.rtl {
+    direction: rtl;
+  }
+}
+
+// ============================================================================
+// Empty state
+// ============================================================================
+
+.image-gallery__empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  aspect-ratio: 1;
+  background: $golden-wheat-light;
+  border-radius: $border-radius-lg;
+  color: $charcoal-medium;
+
+  mat-icon {
+    font-size: 80px;
+    width: 80px;
+    height: 80px;
+    opacity: 0.3;
+  }
+
+  p {
+    margin-top: $space-3;
+    font-size: $font-size-base;
+  }
+}
+
+// ============================================================================
+// Desktop gallery (hidden on mobile)
+// ============================================================================
+
+.image-gallery__desktop {
+  display: none;
+
+  @media (min-width: $breakpoint-md) {
+    display: flex;
+    flex-direction: column;
+    gap: $space-4;
+  }
+}
+
+.image-gallery__main {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1;
+  border-radius: $border-radius-lg;
+  overflow: hidden;
+  background: $golden-wheat-light;
+  cursor: zoom-in;
+}
+
+.image-gallery__main-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0;
+  transition: opacity $transition-normal;
+
+  &--loaded {
+    opacity: 1;
+  }
+}
+
+// CSS-driven zoom lens
+.image-gallery__zoom-lens {
+  position: absolute;
+  inset: 0;
+  background-size: 200%;
+  background-repeat: no-repeat;
+  z-index: 2;
+  pointer-events: none;
+}
+
+// Skeleton loading placeholder
+.image-gallery__skeleton {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    $golden-wheat-light 25%,
+    darken($golden-wheat-light, 3%) 50%,
+    $golden-wheat-light 75%
+  );
+  background-size: 200% 100%;
+  animation: skeleton-shimmer 1.5s infinite;
+  border-radius: $border-radius-lg;
+}
+
+@keyframes skeleton-shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+// ============================================================================
+// Thumbnail strip
+// ============================================================================
+
+.image-gallery__thumbnails {
+  display: flex;
+  gap: $space-3;
+  overflow-x: auto;
+  padding: $space-2 0;
+  scroll-snap-type: x mandatory;
+
+  // Hide scrollbar
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+.image-gallery__thumbnail {
+  flex-shrink: 0;
+  width: 72px;
+  height: 72px;
+  border-radius: $border-radius-md;
+  border: 2px solid transparent;
+  overflow: hidden;
+  background: $golden-wheat-light;
+  cursor: pointer;
+  transition: border-color $transition-fast;
+  padding: 0;
+  scroll-snap-align: start;
+
+  &:hover {
+    border-color: $golden-wheat-medium;
+  }
+
+  &--active {
+    border-color: $golden-wheat-primary;
+  }
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+}
+
+// ============================================================================
+// Mobile Swiper (hidden on desktop)
+// ============================================================================
+
+.image-gallery__mobile {
+  display: block;
+
+  @media (min-width: $breakpoint-md) {
+    display: none;
+  }
+}
+
+.image-gallery__swiper {
+  width: 100%;
+  aspect-ratio: 1;
+  border-radius: $border-radius-lg;
+  overflow: hidden;
+  background: $golden-wheat-light;
+
+  swiper-slide {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+}
+
+.image-gallery__slide-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0;
+  transition: opacity $transition-normal;
+
+  &--loaded {
+    opacity: 1;
+  }
+}
+
+// ============================================================================
+// Fullscreen overlay (mobile pinch-to-zoom)
+// ============================================================================
+
+.image-gallery__fullscreen {
+  position: fixed;
+  inset: 0;
+  z-index: $z-index-modal;
+  background: rgba(0, 0, 0, 0.95);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.image-gallery__fullscreen-close {
+  position: absolute;
+  top: $space-4;
+  right: $space-4;
+  z-index: $z-index-modal + 1;
+  width: 44px;
+  height: 44px;
+  border: none;
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: $border-radius-full;
+  color: white;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  .rtl & {
+    right: auto;
+    left: $space-4;
+  }
+}
+
+.image-gallery__fullscreen-swiper {
+  width: 100%;
+  height: 100%;
+
+  swiper-slide {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .swiper-zoom-container {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    img {
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+    }
+  }
+}

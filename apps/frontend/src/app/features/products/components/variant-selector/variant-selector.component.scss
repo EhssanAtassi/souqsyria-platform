@@ -2,7 +2,8 @@
 
 /**
  * Variant Selector Component Styles
- * Displays product variants as selectable chip buttons
+ * Chip buttons for standard options + color swatches for color attributes
+ * With disabled state for unavailable combinations
  */
 
 .variant-selector {
@@ -35,6 +36,7 @@
   gap: $space-2;
 }
 
+// Standard chip button
 .variant-option {
   padding: $space-2 $space-4;
   border: 2px solid $charcoal-medium;
@@ -46,7 +48,7 @@
   cursor: pointer;
   transition: all $transition-fast;
 
-  &:hover {
+  &:hover:not(:disabled) {
     border-color: $golden-wheat-primary;
     background: $golden-wheat-light;
   }
@@ -56,16 +58,79 @@
     background: $golden-wheat-primary;
     color: $charcoal-light;
 
-    &:hover {
+    &:hover:not(:disabled) {
       background: $golden-wheat-dark;
       border-color: $golden-wheat-dark;
     }
   }
 
-  &:disabled {
-    opacity: 0.5;
+  &--disabled {
+    opacity: 0.3;
     cursor: not-allowed;
-    border-color: $charcoal-medium;
-    background: $golden-wheat-light;
+    text-decoration: line-through;
   }
+}
+
+// Color swatch button
+.variant-option--color {
+  width: 40px;
+  height: 40px;
+  border-radius: $border-radius-full;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 3px solid transparent;
+  background: transparent;
+
+  &:hover:not(:disabled) {
+    border-color: $golden-wheat-medium;
+    background: transparent;
+  }
+
+  &.variant-option--selected {
+    border-color: $golden-wheat-primary;
+    box-shadow: 0 0 0 2px $golden-wheat-primary;
+    background: transparent;
+
+    &:hover:not(:disabled) {
+      border-color: $golden-wheat-dark;
+      box-shadow: 0 0 0 2px $golden-wheat-dark;
+      background: transparent;
+    }
+  }
+
+  &.variant-option--disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+    text-decoration: none;
+
+    // Diagonal strikethrough line for disabled color swatches
+    position: relative;
+    &::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(
+        to top right,
+        transparent 45%,
+        $charcoal-medium 45%,
+        $charcoal-medium 55%,
+        transparent 55%
+      );
+      border-radius: $border-radius-full;
+      pointer-events: none;
+    }
+  }
+}
+
+.variant-option__swatch {
+  display: block;
+  width: 28px;
+  height: 28px;
+  border-radius: $border-radius-full;
+  border: 1px solid rgba(0, 0, 0, 0.1);
 }

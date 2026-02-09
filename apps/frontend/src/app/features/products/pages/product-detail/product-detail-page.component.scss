@@ -131,88 +131,12 @@
 }
 
 /**
- * Image Gallery
+ * Image Gallery Container
+ * Gallery internals are in image-gallery component
  */
 .product-detail__gallery {
   display: flex;
   flex-direction: column;
-  gap: $space-4;
-}
-
-.gallery__main {
-  width: 100%;
-  aspect-ratio: 1;
-  border-radius: $border-radius-lg;
-  overflow: hidden;
-  background: $golden-wheat-light;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.gallery__main-image {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  transition: transform 0.3s ease;
-  cursor: zoom-in;
-}
-
-.gallery__placeholder {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  height: 100%;
-  color: $charcoal-medium;
-
-  mat-icon {
-    font-size: 80px;
-    width: 80px;
-    height: 80px;
-    opacity: 0.3;
-  }
-}
-
-// Zoom effect on hover (desktop only)
-@media (min-width: 768px) {
-  .gallery__main:hover .gallery__main-image {
-    transform: scale(1.15);
-  }
-}
-
-.gallery__thumbnails {
-  display: flex;
-  gap: $space-3;
-  overflow-x: auto;
-  padding: $space-2 0;
-}
-
-.gallery__thumbnail {
-  flex-shrink: 0;
-  width: 80px;
-  height: 80px;
-  border-radius: $border-radius-md;
-  border: 2px solid transparent;
-  overflow: hidden;
-  background: $golden-wheat-light;
-  cursor: pointer;
-  transition: border-color $transition-fast;
-  padding: 0;
-
-  &:hover {
-    border-color: $golden-wheat-medium;
-  }
-
-  &--active {
-    border-color: $golden-wheat-primary;
-  }
-
-  img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
 }
 
 /**

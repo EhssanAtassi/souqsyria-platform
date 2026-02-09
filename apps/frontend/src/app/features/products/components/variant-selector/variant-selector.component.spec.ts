@@ -1,24 +1,18 @@
 /**
  * @file variant-selector.component.spec.ts
- * @description Unit tests for VariantSelectorComponent.
- * Validates rendering of variant option chips, selection state,
- * and emission of variantSelect output event.
- *
- * @swagger
- * tags:
- *   - name: VariantSelectorComponent Tests
- *     description: Verifies variant attribute chip rendering and selection behavior
+ * @description Unit tests for VariantSelectorComponent (S2 + S3)
+ * Tests enriched option groups, color swatches, availability, and Arabic labels
  */
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { VariantSelectorComponent } from './variant-selector.component';
-import { ProductDetailVariant } from '../../models/product-detail.interface';
+import {
+  ProductDetailVariant,
+  ProductDetailAttribute,
+  VariantOptionGroup,
+} from '../../models/product-detail.interface';
 
-/**
- * @description Creates a mock ProductDetailVariant with sensible defaults
- * @param overrides - Partial fields to override
- * @returns Complete ProductDetailVariant
- */
+/** Creates a mock ProductDetailVariant */
 function createMockVariant(
   overrides: Partial<ProductDetailVariant> = {}
 ): ProductDetailVariant {
@@ -39,7 +33,6 @@ describe('VariantSelectorComponent', () => {
   let component: VariantSelectorComponent;
   let fixture: ComponentFixture<VariantSelectorComponent>;
 
-  /** @description Default mock variants used across tests */
   const defaultVariants: ProductDetailVariant[] = [
     createMockVariant({ id: 1, sku: 'V1', variantData: { Color: 'Red', Size: 'M' } }),
     createMockVariant({ id: 2, sku: 'V2', variantData: { Color: 'Blue', Size: 'M' } }),
@@ -56,122 +49,197 @@ describe('VariantSelectorComponent', () => {
     component = fixture.componentInstance;
   });
 
-  /**
-   * @description Sets the required variants input and triggers change detection
-   * @param variants - Variant data to set
-   * @param language - Optional language override
-   */
   function setInputs(
     variants: ProductDetailVariant[] = defaultVariants,
-    language?: 'en' | 'ar'
+    options?: {
+      language?: 'en' | 'ar';
+      attributes?: ProductDetailAttribute[];
+      optionGroups?: VariantOptionGroup[];
+    }
   ): void {
     fixture.componentRef.setInput('variants', variants);
-    if (language) {
-      fixture.componentRef.setInput('language', language);
+    if (options?.language) {
+      fixture.componentRef.setInput('language', options.language);
+    }
+    if (options?.attributes) {
+      fixture.componentRef.setInput('attributes', options.attributes);
+    }
+    if (options?.optionGroups) {
+      fixture.componentRef.setInput('optionGroups', options.optionGroups);
     }
     fixture.detectChanges();
   }
 
-  /**
-   * @description Verifies the component instantiates successfully
-   */
   it('should create', () => {
     setInputs();
     expect(component).toBeTruthy();
   });
 
-  describe('Attribute Keys Extraction', () => {
-    /**
-     * @description Verifies unique attribute keys are extracted from variant data
-     */
-    it('should extract unique attribute keys from variants', () => {
+  describe('Enriched Option Groups', () => {
+    it('should derive option groups from variant data when no optionGroups provided', () => {
       setInputs();
-      const keys = component.attributeKeys();
-      expect(keys).toContain('Color');
-      expect(keys).toContain('Size');
-      expect(keys.length).toBe(2);
+      const groups = component.enrichedOptionGroups();
+      expect(groups.length).toBe(2);
+
+      const names = groups.map(g => g.optionName);
+      expect(names).toContain('Color');
+      expect(names).toContain('Size');
     });
 
-    /**
-     * @description Verifies no attribute keys for empty variants
-     */
-    it('should return empty keys for empty variants array', () => {
-      setInputs([]);
-      expect(component.attributeKeys().length).toBe(0);
+    it('should use API optionGroups when provided', () => {
+      const apiGroups: VariantOptionGroup[] = [
+        {
+          optionName: 'Color',
+          optionNameAr: 'اللون',
+          type: 'color',
+          values: [{ value: 'Red', valueAr: 'أحمر', colorHex: '#FF0000', displayOrder: 1 }],
+        },
+      ];
+
+      setInputs(defaultVariants, { optionGroups: apiGroups });
+      const groups = component.enrichedOptionGroups();
+
+      expect(groups.length).toBe(1);
+      expect(groups[0].optionNameAr).toBe('اللون');
+      expect(groups[0].type).toBe('color');
+    });
+
+    it('should fall back to deriving from attributes for colorHex enrichment', () => {
+      const attributes: ProductDetailAttribute[] = [
+        { id: 1, attributeNameEn: 'Color', attributeNameAr: 'اللون', valueEn: 'Red', valueAr: 'أحمر', colorHex: '#FF0000' },
+        { id: 2, attributeNameEn: 'Color', attributeNameAr: 'اللون', valueEn: 'Blue', valueAr: 'أزرق', colorHex: '#0000FF' },
+      ];
+
+      setInputs(defaultVariants, { attributes });
+      const groups = component.enrichedOptionGroups();
+      const colorGroup = groups.find(g => g.optionName === 'Color');
+
+      expect(colorGroup).toBeTruthy();
+      expect(colorGroup!.type).toBe('color');
+      expect(colorGroup!.values.find(v => v.value === 'Red')?.colorHex).toBe('#FF0000');
     });
   });
 
-  describe('Option Values', () => {
-    /**
-     * @description Verifies unique option values are returned for a given key
-     */
-    it('should return unique option values for Color key', () => {
-      setInputs();
-      const colorOptions = component.getOptionsForKey()('Color');
-      expect(colorOptions).toContain('Red');
-      expect(colorOptions).toContain('Blue');
-      expect(colorOptions.length).toBe(2);
+  describe('Color Swatch Rendering', () => {
+    it('should render color swatches when colorHex is present', () => {
+      const apiGroups: VariantOptionGroup[] = [
+        {
+          optionName: 'Color',
+          optionNameAr: 'اللون',
+          type: 'color',
+          values: [
+            { value: 'Red', valueAr: 'أحمر', colorHex: '#FF0000', displayOrder: 1 },
+            { value: 'Blue', valueAr: 'أزرق', colorHex: '#0000FF', displayOrder: 2 },
+          ],
+        },
+      ];
+
+      setInputs(defaultVariants, { optionGroups: apiGroups });
+      const el: HTMLElement = fixture.nativeElement;
+      const swatches = el.querySelectorAll('.variant-option__swatch');
+
+      expect(swatches.length).toBe(2);
+      expect((swatches[0] as HTMLElement).style.backgroundColor).toBeTruthy();
     });
 
-    /**
-     * @description Verifies unique option values for Size key
-     */
-    it('should return unique option values for Size key', () => {
+    it('should render standard chip buttons for non-color options', () => {
       setInputs();
-      const sizeOptions = component.getOptionsForKey()('Size');
-      expect(sizeOptions).toContain('M');
-      expect(sizeOptions).toContain('L');
-      expect(sizeOptions.length).toBe(2);
+      const el: HTMLElement = fixture.nativeElement;
+      const buttons = el.querySelectorAll('.variant-option:not(.variant-option--color)');
+      expect(buttons.length).toBeGreaterThan(0);
     });
   });
 
-  describe('Rendering', () => {
-    /**
-     * @description Verifies that variant attribute groups are rendered in the DOM
-     */
-    it('should render attribute group labels', () => {
-      setInputs();
-      const compiled: HTMLElement = fixture.nativeElement;
-      const labels = compiled.querySelectorAll('.variant-selector__label');
-      expect(labels.length).toBe(2);
+  describe('Disabled State (Unavailable Combinations)', () => {
+    it('should disable unavailable option values', () => {
+      // Only Red/M and Blue/M exist, no Blue/L
+      const variants: ProductDetailVariant[] = [
+        createMockVariant({ id: 1, variantData: { Color: 'Red', Size: 'M' }, isActive: true }),
+        createMockVariant({ id: 2, variantData: { Color: 'Blue', Size: 'M' }, isActive: true }),
+        createMockVariant({ id: 3, variantData: { Color: 'Red', Size: 'L' }, isActive: true }),
+      ];
 
-      const labelTexts = Array.from(labels).map(l => l.textContent?.trim());
-      expect(labelTexts).toContain('Color');
-      expect(labelTexts).toContain('Size');
+      setInputs(variants);
+
+      // Select Blue → L should still be available because we haven't constrained yet
+      component.selectOption('Color', 'Blue');
+      fixture.detectChanges();
+
+      // L is not available with Blue (no Blue/L variant)
+      expect(component.isAvailable('Size', 'M')).toBeTrue();
+      expect(component.isAvailable('Size', 'L')).toBeFalse();
     });
 
-    /**
-     * @description Verifies that variant option buttons are rendered
-     */
-    it('should render variant option buttons', () => {
-      setInputs();
-      const compiled: HTMLElement = fixture.nativeElement;
-      const buttons = compiled.querySelectorAll('.variant-option');
+    it('should add disabled CSS class to unavailable options', () => {
+      // Red/M, Blue/M, Red/L — so selecting Blue makes L unavailable
+      const variants: ProductDetailVariant[] = [
+        createMockVariant({ id: 1, variantData: { Color: 'Red', Size: 'M' }, isActive: true }),
+        createMockVariant({ id: 2, variantData: { Color: 'Blue', Size: 'M' }, isActive: true }),
+        createMockVariant({ id: 3, variantData: { Color: 'Red', Size: 'L' }, isActive: true }),
+      ];
 
-      // 2 colors + 2 sizes = 4 buttons
-      expect(buttons.length).toBe(4);
+      setInputs(variants);
+      component.selectOption('Color', 'Blue');
+      fixture.detectChanges();
+
+      const el: HTMLElement = fixture.nativeElement;
+      const disabledButtons = el.querySelectorAll('.variant-option--disabled');
+      // L should be disabled (no Blue/L variant)
+      expect(disabledButtons.length).toBeGreaterThanOrEqual(1);
     });
 
-    /**
-     * @description Verifies variant data labels are shown on buttons
-     */
-    it('should display variant data labels on option buttons', () => {
-      setInputs();
-      const compiled: HTMLElement = fixture.nativeElement;
-      const buttons = compiled.querySelectorAll('.variant-option');
-      const buttonTexts = Array.from(buttons).map(b => b.textContent?.trim());
+    it('should not allow selection of disabled options', () => {
+      const variants: ProductDetailVariant[] = [
+        createMockVariant({ id: 1, variantData: { Color: 'Red', Size: 'M' } }),
+      ];
 
-      expect(buttonTexts).toContain('Red');
-      expect(buttonTexts).toContain('Blue');
-      expect(buttonTexts).toContain('M');
-      expect(buttonTexts).toContain('L');
+      setInputs(variants);
+      component.selectOption('Color', 'Red');
+
+      // Try to select L which doesn't exist
+      component.selectOption('Size', 'L');
+      expect(component.selectedOptions()['Size']).toBeUndefined();
+    });
+  });
+
+  describe('Arabic Labels', () => {
+    it('should display Arabic labels when language is ar', () => {
+      const apiGroups: VariantOptionGroup[] = [
+        {
+          optionName: 'Color',
+          optionNameAr: 'اللون',
+          type: 'select',
+          values: [{ value: 'Red', valueAr: 'أحمر', colorHex: null, displayOrder: 1 }],
+        },
+      ];
+
+      setInputs(defaultVariants, { language: 'ar', optionGroups: apiGroups });
+      const el: HTMLElement = fixture.nativeElement;
+      const label = el.querySelector('.variant-selector__label');
+
+      expect(label?.textContent?.trim()).toBe('اللون');
+    });
+
+    it('should display Arabic option values when language is ar', () => {
+      const apiGroups: VariantOptionGroup[] = [
+        {
+          optionName: 'Color',
+          optionNameAr: 'اللون',
+          type: 'select',
+          values: [{ value: 'Red', valueAr: 'أحمر', colorHex: null, displayOrder: 1 }],
+        },
+      ];
+
+      setInputs(defaultVariants, { language: 'ar', optionGroups: apiGroups });
+      const el: HTMLElement = fixture.nativeElement;
+      const buttons = el.querySelectorAll('.variant-option');
+      const text = Array.from(buttons).map(b => b.textContent?.trim());
+
+      expect(text).toContain('أحمر');
     });
   });
 
   describe('Selection Behavior', () => {
-    /**
-     * @description Verifies that clicking an option updates the selected state
-     */
     it('should mark option as selected after clicking', () => {
       setInputs();
       component.selectOption('Color', 'Red');
@@ -179,91 +247,50 @@ describe('VariantSelectorComponent', () => {
       expect(component.isSelected('Color', 'Blue')).toBeFalse();
     });
 
-    /**
-     * @description Verifies clicking updates selectedOptions signal
-     */
-    it('should update selectedOptions signal on click', () => {
-      setInputs();
-      component.selectOption('Color', 'Blue');
-      expect(component.selectedOptions()['Color']).toBe('Blue');
-    });
-
-    /**
-     * @description Verifies the selected CSS class is applied after selection
-     */
-    it('should add selected CSS class to clicked option', () => {
-      setInputs();
-      component.selectOption('Color', 'Red');
-      fixture.detectChanges();
-
-      const compiled: HTMLElement = fixture.nativeElement;
-      const selectedBtns = compiled.querySelectorAll('.variant-option--selected');
-      expect(selectedBtns.length).toBeGreaterThanOrEqual(1);
-
-      const selectedText = Array.from(selectedBtns).map(b => b.textContent?.trim());
-      expect(selectedText).toContain('Red');
-    });
-  });
-
-  describe('variantSelect Output', () => {
-    /**
-     * @description Verifies variantSelect emits matching variant when option is clicked
-     */
-    it('should emit variantSelect with matching variant on option selection', () => {
+    it('should emit variantSelect with matching variant', () => {
       setInputs();
       spyOn(component.variantSelect, 'emit');
 
-      // Select both attributes to fully match a variant
       component.selectOption('Color', 'Red');
       component.selectOption('Size', 'M');
 
       expect(component.variantSelect.emit).toHaveBeenCalled();
-      const emittedVariant = (component.variantSelect.emit as jasmine.Spy).calls.mostRecent().args[0];
-      expect(emittedVariant.variantData['Color']).toBe('Red');
-      expect(emittedVariant.variantData['Size']).toBe('M');
+      const emitted = (component.variantSelect.emit as jasmine.Spy).calls.mostRecent().args[0];
+      expect(emitted.variantData['Color']).toBe('Red');
+      expect(emitted.variantData['Size']).toBe('M');
     });
 
-    /**
-     * @description Verifies variantSelect emits on partial match if a variant matches
-     */
-    it('should emit variantSelect even on partial match when variant matches', () => {
-      const singleKeyVariants: ProductDetailVariant[] = [
-        createMockVariant({ id: 1, variantData: { Color: 'Red' } }),
-        createMockVariant({ id: 2, variantData: { Color: 'Blue' } }),
-      ];
-      setInputs(singleKeyVariants);
-
-      spyOn(component.variantSelect, 'emit');
-      component.selectOption('Color', 'Blue');
-
-      expect(component.variantSelect.emit).toHaveBeenCalledWith(
-        jasmine.objectContaining({ variantData: { Color: 'Blue' } })
-      );
-    });
-
-    /**
-     * @description Verifies DOM click on option button triggers emission
-     */
-    it('should emit variantSelect when option button is clicked in DOM', () => {
-      const singleKeyVariants: ProductDetailVariant[] = [
-        createMockVariant({ id: 1, variantData: { Color: 'Red' } }),
-        createMockVariant({ id: 2, variantData: { Color: 'Blue' } }),
-      ];
-      setInputs(singleKeyVariants);
-
-      spyOn(component.variantSelect, 'emit');
-
-      const compiled: HTMLElement = fixture.nativeElement;
-      const buttons = compiled.querySelectorAll('.variant-option');
-      const blueButton = Array.from(buttons).find(
-        b => b.textContent?.trim() === 'Blue'
-      ) as HTMLButtonElement;
-
-      expect(blueButton).toBeTruthy();
-      blueButton.click();
+    it('should add selected CSS class', () => {
+      setInputs();
+      component.selectOption('Color', 'Red');
       fixture.detectChanges();
 
-      expect(component.variantSelect.emit).toHaveBeenCalled();
+      const el: HTMLElement = fixture.nativeElement;
+      const selected = el.querySelectorAll('.variant-option--selected');
+      expect(selected.length).toBeGreaterThanOrEqual(1);
+    });
+  });
+
+  describe('Rendering', () => {
+    it('should render group labels', () => {
+      setInputs();
+      const el: HTMLElement = fixture.nativeElement;
+      const labels = el.querySelectorAll('.variant-selector__label');
+      expect(labels.length).toBe(2);
+    });
+
+    it('should render option buttons', () => {
+      setInputs();
+      const el: HTMLElement = fixture.nativeElement;
+      const buttons = el.querySelectorAll('.variant-option');
+      // 2 colors + 2 sizes = 4
+      expect(buttons.length).toBe(4);
+    });
+
+    it('should apply rtl class when language is ar', () => {
+      setInputs(defaultVariants, { language: 'ar' });
+      const el: HTMLElement = fixture.nativeElement;
+      expect(el.querySelector('.variant-selector.rtl')).toBeTruthy();
     });
   });
 });
