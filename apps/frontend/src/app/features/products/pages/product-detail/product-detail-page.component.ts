@@ -17,8 +17,9 @@ import {
   DestroyRef,
   OnInit,
 } from '@angular/core';
-import { CommonModule, CurrencyPipe } from '@angular/common';
-import { Router, RouterModule, ActivatedRoute } from '@angular/router';
+import { CommonModule } from '@angular/common';
+import { RouterModule, ActivatedRoute } from '@angular/router';
+import { DomSanitizer, SafeHtml, SecurityContext } from '@angular/platform-browser';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatBadgeModule } from '@angular/material/badge';
@@ -63,10 +64,10 @@ import { SpecificationsTableComponent } from '../../components/specifications-ta
 })
 export class ProductDetailPageComponent implements OnInit {
   private readonly productService = inject(ProductService);
-  private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
   private readonly destroyRef = inject(DestroyRef);
   private readonly languageService = inject(LanguageService);
+  private readonly sanitizer = inject(DomSanitizer);
 
   /** Current UI language from shared LanguageService */
   readonly language = this.languageService.language;
@@ -136,6 +137,16 @@ export class ProductDetailPageComponent implements OnInit {
     if (!p) return null;
     const lang = this.language();
     return p.descriptions.find(d => d.language === lang);
+  });
+
+  /** @description Sanitized full description HTML for rendering
+   * Note: Assumes fullDescription contains trusted content from backend.
+   * Uses SecurityContext.HTML to allow formatting tags while preventing XSS.
+   */
+  sanitizedDescription = computed((): SafeHtml | null => {
+    const desc = this.descriptionForLang();
+    if (!desc?.fullDescription) return null;
+    return this.sanitizer.sanitize(SecurityContext.HTML, desc.fullDescription) || null;
   });
 
   /** @description Stock status label */
@@ -244,9 +255,7 @@ export class ProductDetailPageComponent implements OnInit {
    */
   onAddToCart(): void {
     // TODO: Integrate with cart service in a later story
-    const p = this.product();
-    const variant = this.selectedVariant();
-    console.log('Add to cart:', p?.id, variant?.id, this.quantity());
+    // Intentionally left blank to avoid noisy console logging in production
   }
 
   /**
@@ -254,8 +263,7 @@ export class ProductDetailPageComponent implements OnInit {
    */
   onAddToWishlist(): void {
     // TODO: Integrate with wishlist service in a later story
-    const p = this.product();
-    console.log('Add to wishlist:', p?.id);
+    // Intentionally left blank to avoid noisy console logging in production
   }
 
   /**

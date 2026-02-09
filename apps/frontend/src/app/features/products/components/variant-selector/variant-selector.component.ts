@@ -17,7 +17,6 @@ import {
   computed,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { MatChipsModule } from '@angular/material/chips';
 import { ProductDetailVariant } from '../../models/product-detail.interface';
 
 /**
@@ -27,7 +26,7 @@ import { ProductDetailVariant } from '../../models/product-detail.interface';
 @Component({
   selector: 'app-variant-selector',
   standalone: true,
-  imports: [CommonModule, MatChipsModule],
+  imports: [CommonModule],
   templateUrl: './variant-selector.component.html',
   styleUrls: ['./variant-selector.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

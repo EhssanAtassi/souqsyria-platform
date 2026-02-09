@@ -252,10 +252,10 @@
               <div class="pt-4">
                 <mat-slider [min]="0" [max]="1000000" [step]="1000"
                            [displayWith]="formatSliderValue.bind(this)">
-                  <input matSliderStartThumb [(ngModel)]="priceRange" [ngModelOptions]="{updateOn: 'change'}"
-                         [value]="priceRange().min">
-                  <input matSliderEndThumb [(ngModel)]="priceRange" [ngModelOptions]="{updateOn: 'change'}"
-                         [value]="priceRange().max">
+                  <input matSliderStartThumb [(ngModel)]="priceMin" [ngModelOptions]="{updateOn: 'change'}"
+                         (ngModelChange)="onPriceMinChange($event)">
+                  <input matSliderEndThumb [(ngModel)]="priceMax" [ngModelOptions]="{updateOn: 'change'}"
+                         (ngModelChange)="onPriceMaxChange($event)">
                 </mat-slider>
                 <div class="flex justify-between text-sm text-gray-600 mt-2">
                   <span>{{ priceRange().min.toLocaleString() }} ل.س</span>
