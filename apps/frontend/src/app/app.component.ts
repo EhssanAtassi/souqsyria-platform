@@ -12,6 +12,7 @@ import { FlexLayoutModule } from '@angular/flex-layout';
 
 // Local imports
 import { HeaderComponent } from './shared/components/header/header.component';
+import { FooterComponent } from './shared/components/footer/footer.component';
 import { NavigationDataService } from './shared/services/navigation-data.service';
 import { 
   Category, 
@@ -53,7 +54,8 @@ import {
     MatChipsModule,
     MatRippleModule,
     FlexLayoutModule,
-    HeaderComponent
+    HeaderComponent,
+    FooterComponent
   ],
   templateUrl: './app.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,

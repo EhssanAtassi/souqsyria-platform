@@ -1,0 +1,63 @@
+<footer class="bg-charcoal-dark text-neutral-300 pt-12 pb-6">
+  <div class="container mx-auto px-4">
+    <!-- Footer Grid -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 mb-10">
+
+      <!-- Company Info -->
+      <div>
+        <h3 class="text-xl font-bold text-white mb-4">
+          SouqSyria <span class="font-arabic text-golden-wheat">سوق سوريا</span>
+        </h3>
+        <p class="text-sm leading-relaxed mb-4">
+          Authentic Syrian marketplace connecting artisans with the world.
+          Preserving heritage, empowering communities.
+        </p>
+        <p class="text-sm leading-relaxed font-arabic" dir="rtl">
+          سوق سوري أصيل يربط الحرفيين بالعالم. نحافظ على التراث ونمكّن المجتمعات.
+        </p>
+      </div>
+
+      <!-- Quick Links -->
+      <div>
+        <h4 class="text-base font-semibold text-white mb-4">Quick Links</h4>
+        <nav aria-label="Footer quick links">
+          <ul class="space-y-2 text-sm">
+            <li><a routerLink="/about" class="hover:text-golden-wheat transition-colors">About Us</a></li>
+            <li><a routerLink="/contact" class="hover:text-golden-wheat transition-colors">Contact</a></li>
+            <li><a routerLink="/help" class="hover:text-golden-wheat transition-colors">Help Center</a></li>
+            <li><a routerLink="/products" class="hover:text-golden-wheat transition-colors">All Products</a></li>
+          </ul>
+        </nav>
+      </div>
+
+      <!-- Customer Service -->
+      <div>
+        <h4 class="text-base font-semibold text-white mb-4">Customer Service</h4>
+        <nav aria-label="Footer customer service links">
+          <ul class="space-y-2 text-sm">
+            <li><a routerLink="/help" class="hover:text-golden-wheat transition-colors">Shipping &amp; Delivery</a></li>
+            <li><a routerLink="/help" class="hover:text-golden-wheat transition-colors">Returns &amp; Refunds</a></li>
+            <li><a routerLink="/help" class="hover:text-golden-wheat transition-colors">FAQ</a></li>
+          </ul>
+        </nav>
+      </div>
+
+      <!-- Legal -->
+      <div>
+        <h4 class="text-base font-semibold text-white mb-4">Legal</h4>
+        <nav aria-label="Footer legal links">
+          <ul class="space-y-2 text-sm">
+            <li><a routerLink="/privacy" class="hover:text-golden-wheat transition-colors">Privacy Policy</a></li>
+            <li><a routerLink="/terms" class="hover:text-golden-wheat transition-colors">Terms of Service</a></li>
+          </ul>
+        </nav>
+      </div>
+    </div>
+
+    <!-- Divider + Copyright -->
+    <div class="border-t border-neutral-700 pt-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-neutral-500">
+      <p>&copy; {{ currentYear }} SouqSyria. All rights reserved.</p>
+      <p class="font-arabic" dir="rtl">&copy; {{ currentYear }} سوق سوريا. جميع الحقوق محفوظة.</p>
+    </div>
+  </div>
+</footer>
