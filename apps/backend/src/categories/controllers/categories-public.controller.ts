@@ -36,6 +36,7 @@ import {
 import { ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Request, Response } from 'express';
 import { IsNull } from 'typeorm';
+import { Public } from '../../common/decorators/public.decorator';
 
 // Import Services
 import { CategorySearchService } from '../services/category-search.service';
@@ -58,6 +59,7 @@ import { CategoryQueryDto, ApprovalStatus, GetCategoriesTreeResponseDto, Categor
  * Caching: Aggressive caching for performance
  */
 @ApiTags('Public Categories')
+@Public()
 @Controller('categories')
 export class CategoriesPublicController {
   private readonly logger = new Logger(CategoriesPublicController.name);
