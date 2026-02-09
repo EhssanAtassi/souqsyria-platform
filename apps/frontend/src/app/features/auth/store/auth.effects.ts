@@ -50,21 +50,26 @@ export const login$ = createEffect(
   ) =>
     actions$.pipe(
       ofType(AuthActions.login),
-      exhaustMap(({ email, password }) =>
-        authApiService.login({ email, password }).pipe(
+      exhaustMap(({ email, password, rememberMe }) =>
+        authApiService.login({ email, password, rememberMe }).pipe(
           map((response) => {
             tokenService.setTokens(response.accessToken, response.refreshToken);
+            tokenService.setRememberMe(rememberMe);
             return AuthActions.loginSuccess({
               accessToken: response.accessToken,
             });
           }),
-          catchError((error) =>
-            of(
+          catchError((error) => {
+            const body = error.error;
+            return of(
               AuthActions.loginFailure({
-                error: error.error?.message || error.message || 'Login failed',
+                error: body?.message || error.message || 'Login failed',
+                errorCode: body?.errorCode,
+                remainingAttempts: body?.remainingAttempts,
+                lockedUntilMinutes: body?.lockedUntilMinutes,
               }),
-            ),
-          ),
+            );
+          }),
         ),
       ),
     ),

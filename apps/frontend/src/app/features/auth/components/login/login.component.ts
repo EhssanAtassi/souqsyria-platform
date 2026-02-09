@@ -7,6 +7,12 @@
  * validation errors, and displays success banners for post-verification
  * or post-password-reset redirects via query parameters.
  *
+ * S2 Enhancements:
+ * - Warning banner when <= 2 login attempts remain
+ * - Lockout banner with countdown timer when account is locked
+ * - Remember-me preference restored from localStorage
+ * - Submit button disabled during lockout
+ *
  * @swagger
  * components:
  *   schemas:
@@ -38,6 +44,7 @@ import {
   OnInit,
   inject,
   signal,
+  DestroyRef,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
@@ -63,7 +70,11 @@ import { AuthActions } from '../../store/auth.actions';
 import {
   selectIsLoading,
   selectError,
+  selectRemainingAttempts,
+  selectLockedUntilMinutes,
+  selectIsAccountLocked,
 } from '../../store/auth.selectors';
+import { TokenService } from '../../services/token.service';
 import { LanguageService } from '../../../../shared/services/language.service';
 
 /**
@@ -114,7 +125,22 @@ import { LanguageService } from '../../../../shared/services/language.service';
           </div>
         }
 
-        @if (error()) {
+        <!-- Lockout banner with countdown -->
+        @if (isAccountLocked()) {
+          <div class="lockout-message" role="alert" aria-live="assertive">
+            <strong>{{ 'auth.errors.accountLockedTitle' | translate }}</strong>
+            <p>{{ 'auth.errors.accountLockedCountdown' | translate:{ minutes: lockoutCountdown() } }}</p>
+          </div>
+        }
+
+        <!-- Warning banner when <= 2 attempts remain -->
+        @if (!isAccountLocked() && remainingAttempts() !== null && remainingAttempts()! <= 2 && remainingAttempts()! > 0) {
+          <div class="warning-message" role="alert" aria-live="polite">
+            {{ 'auth.errors.attemptsWarning' | translate:{ count: remainingAttempts() } }}
+          </div>
+        }
+
+        @if (error() && !isAccountLocked()) {
           <div class="error-message" role="alert" aria-live="polite">
             {{ error() }}
           </div>
@@ -168,6 +194,9 @@ import { LanguageService } from '../../../../shared/services/language.service';
             <mat-checkbox formControlName="rememberMe" color="primary">
               {{ 'auth.login.rememberMe' | translate }}
             </mat-checkbox>
+            <span class="remember-me-hint" *ngIf="form.get('rememberMe')?.value">
+              {{ 'auth.login.rememberMeHint' | translate }}
+            </span>
             <a routerLink="/auth/forgot-password">
               {{ 'auth.login.forgotPassword' | translate }}
             </a>
@@ -179,7 +208,7 @@ import { LanguageService } from '../../../../shared/services/language.service';
             color="primary"
             class="submit-btn"
             type="submit"
-            [disabled]="form.invalid || isLoading()"
+            [disabled]="form.invalid || isLoading() || isAccountLocked()"
           >
             @if (isLoading()) {
               <mat-spinner diameter="20"></mat-spinner>
@@ -216,6 +245,12 @@ export class LoginComponent implements OnInit {
   /** @description Router for clearing query params after display (L2 fix) */
   private readonly router = inject(Router);
 
+  /** @description Token service for reading remember-me preference */
+  private readonly tokenService = inject(TokenService);
+
+  /** @description DestroyRef for cleanup of countdown timer */
+  private readonly destroyRef = inject(DestroyRef);
+
   /**
    * Loading state signal from NgRx store
    * @description Converted from Observable to Signal via toSignal for template binding
@@ -231,6 +266,24 @@ export class LoginComponent implements OnInit {
   readonly error = toSignal(this.store.select(selectError), {
     initialValue: null,
   });
+
+  /**
+   * Remaining login attempts before lockout
+   * @description Shows warning when <= 2 attempts remain
+   */
+  readonly remainingAttempts = toSignal(
+    this.store.select(selectRemainingAttempts),
+    { initialValue: null },
+  );
+
+  /**
+   * Whether the account is currently locked
+   * @description Derived from NgRx state: errorCode === 'ACCOUNT_LOCKED'
+   */
+  readonly isAccountLocked = toSignal(
+    this.store.select(selectIsAccountLocked),
+    { initialValue: false },
+  );
 
   /**
    * Show verified success message
@@ -259,6 +312,12 @@ export class LoginComponent implements OnInit {
   /** @description Controls password field visibility toggle */
   readonly hidePassword = signal(true);
 
+  /** @description Lockout countdown in minutes, updated every 60s */
+  readonly lockoutCountdown = signal<number>(0);
+
+  /** @description Reference to the countdown interval for cleanup */
+  private countdownInterval: ReturnType<typeof setInterval> | null = null;
+
   /**
    * Login reactive form
    * @description FormGroup with email, password, and rememberMe fields
@@ -268,16 +327,34 @@ export class LoginComponent implements OnInit {
   /**
    * Initialize the login form
    * @description Creates the reactive form with email and password validation.
+   * Restores remember-me preference from localStorage.
+   * Starts lockout countdown timer when lockedUntilMinutes changes.
    * Clears any previous auth errors on component initialization.
    */
   ngOnInit(): void {
+    // Restore remember-me preference from localStorage
+    const savedRememberMe = this.tokenService.getRememberMe();
+
     this.form = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required]],
-      rememberMe: [false],
+      rememberMe: [savedRememberMe],
     });
 
     this.store.dispatch(AuthActions.clearError());
+
+    // Subscribe to lockedUntilMinutes to start countdown timer
+    this.store.select(selectLockedUntilMinutes).subscribe((minutes) => {
+      this.clearCountdownTimer();
+      if (minutes != null && minutes > 0) {
+        this.startCountdown(minutes);
+      }
+    });
+
+    // Cleanup timer on component destroy
+    this.destroyRef.onDestroy(() => {
+      this.clearCountdownTimer();
+    });
 
     // L2 fix: Clear success query params after displaying the message
     const params = this.route.snapshot.queryParams;
@@ -300,15 +377,45 @@ export class LoginComponent implements OnInit {
 
   /**
    * Handle form submission
-   * @description Validates the form and dispatches AuthActions.login with email and password.
-   * If form is invalid, marks all controls as touched to trigger validation display.
+   * @description Validates the form and dispatches AuthActions.login with email,
+   * password, and rememberMe. If form is invalid, marks all controls as touched.
    */
   onSubmit(): void {
     if (this.form.valid) {
-      const { email, password } = this.form.value;
-      this.store.dispatch(AuthActions.login({ email, password }));
+      const { email, password, rememberMe } = this.form.value;
+      this.store.dispatch(
+        AuthActions.login({ email, password, rememberMe: !!rememberMe }),
+      );
     } else {
       this.form.markAllAsTouched();
+    }
+  }
+
+  /**
+   * Start the lockout countdown timer
+   * @description Initializes the countdown signal and creates an interval
+   * that decrements every 60 seconds until lockout expires.
+   */
+  private startCountdown(minutes: number): void {
+    this.lockoutCountdown.set(minutes);
+    this.countdownInterval = setInterval(() => {
+      const current = this.lockoutCountdown();
+      if (current <= 1) {
+        this.lockoutCountdown.set(0);
+        this.clearCountdownTimer();
+        // Clear the lockout state so user can try again
+        this.store.dispatch(AuthActions.clearError());
+      } else {
+        this.lockoutCountdown.set(current - 1);
+      }
+    }, 60_000);
+  }
+
+  /** @description Clear the countdown interval timer */
+  private clearCountdownTimer(): void {
+    if (this.countdownInterval) {
+      clearInterval(this.countdownInterval);
+      this.countdownInterval = null;
     }
   }
 }

@@ -76,6 +76,14 @@ export class RefreshToken {
   revokedAt: Date;
 
   /**
+   * Whether this session was created with "remember me" enabled.
+   * When true, refresh token expiry is extended from 7 days to 30 days.
+   * Persisted so that token rotation preserves the extended lifetime.
+   */
+  @Column({ name: 'remember_me', default: false })
+  rememberMe: boolean;
+
+  /**
    * Timestamp when the token was created.
    * Used for tracking session duration and security audits.
    */

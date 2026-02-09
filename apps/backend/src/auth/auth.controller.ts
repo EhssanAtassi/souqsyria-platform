@@ -83,6 +83,7 @@ export class AuthController {
       message: 'Login successful.',
       accessToken: tokens.accessToken,
       refreshToken: tokens.refreshToken,
+      rememberMe: !!loginDto.rememberMe,
     };
   }
 
