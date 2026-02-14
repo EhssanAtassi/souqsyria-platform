@@ -32,6 +32,7 @@ import {
   ProductListMeta,
 } from '../../models/product-list.interface';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ProductService } from '../../services/product.service';
 import { LanguageService } from '../../../../shared/services/language.service';
 import { CartService } from '../../../../store/cart/cart.service';
@@ -62,6 +63,7 @@ import { FilterState } from '../../../../shared/components/filter-sidebar/filter
     ProductsPaginationComponent,
     FilterSidebarComponent,
     MatSnackBarModule,
+    TranslateModule,
   ],
   templateUrl: './product-list-page.component.html',
   styleUrls: ['./product-list-page.component.scss'],
@@ -75,6 +77,7 @@ export class ProductListPageComponent implements OnInit {
   private readonly languageService = inject(LanguageService);
   private readonly cartService = inject(CartService);
   private readonly snackBar = inject(MatSnackBar);
+  private readonly translateService = inject(TranslateService);
 
   /** Product list items from API */
   products = signal<ProductListItem[]>([]);
@@ -222,9 +225,7 @@ export class ProductListPageComponent implements OnInit {
           const message =
             err?.error?.message ||
             err?.message ||
-            (this.language() === 'ar'
-              ? 'فشل تحميل المنتجات'
-              : 'Failed to load products');
+            this.translateService.instant('products_error_loading');
           this.error.set(message);
           this.loading.set(false);
         },
@@ -383,38 +384,35 @@ export class ProductListPageComponent implements OnInit {
     return this.language() === 'ar' ? option.labelAr : option.labelEn;
   }
 
-  /** @description Page title based on current language */
+  /** @description Page title from i18n translation */
   get pageTitle(): string {
-    return this.language() === 'ar' ? 'جميع المنتجات' : 'All Products';
+    return this.translateService.instant('products_page_title');
   }
 
-  /** @description Aria label for view mode toggle button */
+  /** @description Aria label for view mode toggle button from i18n */
   get viewModeLabel(): string {
     const mode = this.viewMode() === 'grid' ? 'list' : 'grid';
-    if (this.language() === 'ar') {
-      return mode === 'grid' ? 'عرض شبكي' : 'عرض قائمة';
-    }
-    return mode === 'grid' ? 'Grid view' : 'List view';
+    return this.translateService.instant(mode === 'grid' ? 'products_view_grid' : 'products_view_list');
   }
 
-  /** @description Localized retry button label */
+  /** @description Localized retry button label from i18n */
   get retryLabel(): string {
-    return this.language() === 'ar' ? 'إعادة المحاولة' : 'Try Again';
+    return this.translateService.instant('products_retry');
   }
 
-  /** @description Localized empty state message */
+  /** @description Localized empty state message from i18n */
   get emptyMessage(): string {
-    return this.language() === 'ar' ? 'لا توجد منتجات' : 'No products found';
+    return this.translateService.instant('products_empty');
   }
 
-  /** @description Localized browse all button label */
+  /** @description Localized browse all button label from i18n */
   get browseAllLabel(): string {
-    return this.language() === 'ar' ? 'تصفح الكل' : 'Browse All';
+    return this.translateService.instant('products_browse_all');
   }
 
-  /** @description Localized sort dropdown label */
+  /** @description Localized sort dropdown label from i18n */
   get sortLabel(): string {
-    return this.language() === 'ar' ? 'ترتيب حسب' : 'Sort by';
+    return this.translateService.instant('products_sort_by');
   }
 
   /** @description Array of skeleton card indices for ngFor */
