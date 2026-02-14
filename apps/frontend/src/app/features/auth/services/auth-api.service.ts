@@ -158,4 +158,18 @@ export class AuthApiService {
       map(response => response.data)
     );
   }
+
+  /**
+   * @method exchangeOAuthCode
+   * @description Exchanges a short-lived OAuth authorization code for JWT tokens.
+   * Called by the OAuthCallbackComponent after OAuth redirect (C1 security fix).
+   * @param {string} code - The authorization code from the OAuth callback redirect
+   * @returns {Observable<{accessToken: string, refreshToken: string}>} Observable emitting token pair
+   */
+  exchangeOAuthCode(code: string): Observable<{ accessToken: string; refreshToken: string }> {
+    return this.http.post<{ accessToken: string; refreshToken: string }>(
+      `${this.apiUrl}/oauth/exchange`,
+      { code },
+    );
+  }
 }

@@ -21,7 +21,10 @@ import {
 export type SecurityEventType =
   | 'LOGIN_SUCCESS'
   | 'LOGIN_FAILURE'
-  | 'ACCOUNT_LOCKED';
+  | 'ACCOUNT_LOCKED'
+  | 'OAUTH_LOGIN_SUCCESS'
+  | 'OAUTH_ACCOUNT_CREATED'
+  | 'OAUTH_ACCOUNT_LINKED';
 
 @Entity('security_audit')
 @Index(['email', 'createdAt'])
@@ -36,6 +39,9 @@ export class SecurityAudit {
    * LOGIN_SUCCESS: Successful authentication
    * LOGIN_FAILURE: Failed password check
    * ACCOUNT_LOCKED: Account locked after max failed attempts
+   * OAUTH_LOGIN_SUCCESS: Successful OAuth login with existing account
+   * OAUTH_ACCOUNT_CREATED: New account created via OAuth provider
+   * OAUTH_ACCOUNT_LINKED: Existing email account linked to OAuth provider
    */
   @Column({ name: 'event_type', length: 30 })
   eventType: SecurityEventType;
