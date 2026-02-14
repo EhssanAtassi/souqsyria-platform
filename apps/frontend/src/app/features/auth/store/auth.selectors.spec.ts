@@ -2,7 +2,9 @@
  * Unit tests for Auth NgRx Selectors
  *
  * @description Tests all memoized selectors for the auth state slice
- * including primary state, OTP flow, password reset, and derived selectors.
+ * using the .projector() method to avoid cross-test memoization issues.
+ * This approach tests each selector's transformation logic in isolation
+ * without relying on the memoization chain.
  */
 import {
   selectAuthState,
@@ -57,72 +59,72 @@ describe('Auth Selectors', () => {
     lockedUntilMinutes: null,
   };
 
-  // Helper to create root state object with auth slice
-  const createState = (authState: AuthState) => ({ auth: authState });
-
   // ─── Feature Selector ─────────────────────────────────────────
 
   describe('selectAuthState', () => {
     it('should select the auth feature state', () => {
-      const result = selectAuthState(createState(authenticatedState));
+      const result = selectAuthState.projector(authenticatedState);
       expect(result).toEqual(authenticatedState);
     });
   });
 
-  // ─── Primary State Selectors ──────────────────────────────────
+  // ─── Primary State Selectors (use projector with AuthState) ──
 
   describe('selectUser', () => {
     it('should return the user when authenticated', () => {
-      expect(selectUser(createState(authenticatedState))).toEqual(mockUser);
+      expect(selectUser.projector(authenticatedState)).toEqual(mockUser);
     });
 
     it('should return null when not authenticated', () => {
-      expect(selectUser(createState(initialAuthState))).toBeNull();
+      expect(selectUser.projector(initialAuthState)).toBeNull();
     });
   });
 
   describe('selectIsAuthenticated', () => {
     it('should return true when authenticated', () => {
-      expect(selectIsAuthenticated(createState(authenticatedState))).toBeTrue();
+      expect(selectIsAuthenticated.projector(authenticatedState)).toBeTrue();
     });
 
     it('should return false when not authenticated', () => {
-      expect(selectIsAuthenticated(createState(initialAuthState))).toBeFalse();
+      expect(selectIsAuthenticated.projector(initialAuthState)).toBeFalse();
     });
   });
 
   describe('selectIsLoading', () => {
-    it('should return the loading state', () => {
+    it('should return true when loading', () => {
       const loadingState = { ...initialAuthState, isLoading: true };
-      expect(selectIsLoading(createState(loadingState))).toBeTrue();
-      expect(selectIsLoading(createState(initialAuthState))).toBeFalse();
+      expect(selectIsLoading.projector(loadingState)).toBeTrue();
+    });
+
+    it('should return false when not loading', () => {
+      expect(selectIsLoading.projector(initialAuthState)).toBeFalse();
     });
   });
 
   describe('selectError', () => {
     it('should return null when no error', () => {
-      expect(selectError(createState(initialAuthState))).toBeNull();
+      expect(selectError.projector(initialAuthState)).toBeNull();
     });
 
     it('should return the error message', () => {
       const errorState = { ...initialAuthState, error: 'Login failed' };
-      expect(selectError(createState(errorState))).toBe('Login failed');
+      expect(selectError.projector(errorState)).toBe('Login failed');
     });
   });
 
   describe('selectAccessToken', () => {
     it('should return the access token', () => {
-      expect(selectAccessToken(createState(authenticatedState))).toBe('jwt-access');
+      expect(selectAccessToken.projector(authenticatedState)).toBe('jwt-access');
     });
 
     it('should return null when no token', () => {
-      expect(selectAccessToken(createState(initialAuthState))).toBeNull();
+      expect(selectAccessToken.projector(initialAuthState)).toBeNull();
     });
   });
 
   describe('selectRefreshToken', () => {
     it('should return the refresh token', () => {
-      expect(selectRefreshToken(createState(authenticatedState))).toBe('jwt-refresh');
+      expect(selectRefreshToken.projector(authenticatedState)).toBe('jwt-refresh');
     });
   });
 
@@ -130,21 +132,21 @@ describe('Auth Selectors', () => {
 
   describe('selectOtpEmail', () => {
     it('should return the OTP email', () => {
-      expect(selectOtpEmail(createState(authenticatedState))).toBe('test@souq.sy');
+      expect(selectOtpEmail.projector(authenticatedState)).toBe('test@souq.sy');
     });
 
     it('should return null when no OTP email set', () => {
-      expect(selectOtpEmail(createState(initialAuthState))).toBeNull();
+      expect(selectOtpEmail.projector(initialAuthState)).toBeNull();
     });
   });
 
   describe('selectOtpSent', () => {
     it('should return true when OTP has been sent', () => {
-      expect(selectOtpSent(createState(authenticatedState))).toBeTrue();
+      expect(selectOtpSent.projector(authenticatedState)).toBeTrue();
     });
 
     it('should return false initially', () => {
-      expect(selectOtpSent(createState(initialAuthState))).toBeFalse();
+      expect(selectOtpSent.projector(initialAuthState)).toBeFalse();
     });
   });
 
@@ -153,48 +155,44 @@ describe('Auth Selectors', () => {
   describe('selectResetEmailSent', () => {
     it('should return true when reset email sent', () => {
       const state = { ...initialAuthState, resetEmailSent: true };
-      expect(selectResetEmailSent(createState(state))).toBeTrue();
+      expect(selectResetEmailSent.projector(state)).toBeTrue();
     });
 
     it('should return false initially', () => {
-      expect(selectResetEmailSent(createState(initialAuthState))).toBeFalse();
+      expect(selectResetEmailSent.projector(initialAuthState)).toBeFalse();
     });
   });
 
   describe('selectPasswordResetSuccess', () => {
     it('should return true after successful reset', () => {
       const state = { ...initialAuthState, passwordResetSuccess: true };
-      expect(selectPasswordResetSuccess(createState(state))).toBeTrue();
+      expect(selectPasswordResetSuccess.projector(state)).toBeTrue();
     });
   });
 
-  // ─── Derived Selectors ────────────────────────────────────────
+  // ─── Derived Selectors (projector receives parent selector output) ──
 
   describe('selectUserEmail', () => {
     it('should return user email when user exists', () => {
-      expect(selectUserEmail(createState(authenticatedState))).toBe('test@souq.sy');
+      expect(selectUserEmail.projector(mockUser)).toBe('test@souq.sy');
     });
 
     it('should return null when user is null', () => {
-      expect(selectUserEmail(createState(initialAuthState))).toBeNull();
+      expect(selectUserEmail.projector(null)).toBeNull();
     });
   });
 
   describe('selectIsVerified', () => {
     it('should return true when user is verified', () => {
-      expect(selectIsVerified(createState(authenticatedState))).toBeTrue();
+      expect(selectIsVerified.projector(mockUser)).toBeTrue();
     });
 
     it('should return false when user is not verified', () => {
-      const unverifiedState = {
-        ...authenticatedState,
-        user: { ...mockUser, isVerified: false },
-      };
-      expect(selectIsVerified(createState(unverifiedState))).toBeFalse();
+      expect(selectIsVerified.projector({ ...mockUser, isVerified: false })).toBeFalse();
     });
 
     it('should return false when no user', () => {
-      expect(selectIsVerified(createState(initialAuthState))).toBeFalse();
+      expect(selectIsVerified.projector(null)).toBeFalse();
     });
   });
 
@@ -202,76 +200,56 @@ describe('Auth Selectors', () => {
 
   describe('selectLoginErrorCode', () => {
     it('should return null initially', () => {
-      expect(selectLoginErrorCode(createState(initialAuthState))).toBeNull();
+      expect(selectLoginErrorCode.projector(initialAuthState)).toBeNull();
     });
 
     it('should return the error code when set', () => {
       const state = { ...initialAuthState, loginErrorCode: 'ACCOUNT_LOCKED' };
-      expect(selectLoginErrorCode(createState(state))).toBe('ACCOUNT_LOCKED');
+      expect(selectLoginErrorCode.projector(state)).toBe('ACCOUNT_LOCKED');
     });
   });
 
   describe('selectRemainingAttempts', () => {
     it('should return null initially', () => {
-      expect(selectRemainingAttempts(createState(initialAuthState))).toBeNull();
+      expect(selectRemainingAttempts.projector(initialAuthState)).toBeNull();
     });
 
     it('should return the remaining attempts count', () => {
       const state = { ...initialAuthState, remainingAttempts: 2 };
-      expect(selectRemainingAttempts(createState(state))).toBe(2);
+      expect(selectRemainingAttempts.projector(state)).toBe(2);
     });
   });
 
   describe('selectLockedUntilMinutes', () => {
     it('should return null initially', () => {
-      expect(selectLockedUntilMinutes(createState(initialAuthState))).toBeNull();
+      expect(selectLockedUntilMinutes.projector(initialAuthState)).toBeNull();
     });
 
     it('should return the lockout minutes', () => {
       const state = { ...initialAuthState, lockedUntilMinutes: 30 };
-      expect(selectLockedUntilMinutes(createState(state))).toBe(30);
+      expect(selectLockedUntilMinutes.projector(state)).toBe(30);
     });
   });
 
   describe('selectIsAccountLocked', () => {
-    it('should return false initially', () => {
-      expect(selectIsAccountLocked(createState(initialAuthState))).toBeFalse();
+    it('should return false when no error code and no minutes', () => {
+      expect(selectIsAccountLocked.projector(null, null)).toBeFalse();
     });
 
     it('should return true when errorCode is ACCOUNT_LOCKED and minutes > 0', () => {
-      const state = {
-        ...initialAuthState,
-        loginErrorCode: 'ACCOUNT_LOCKED',
-        lockedUntilMinutes: 30,
-      };
-      expect(selectIsAccountLocked(createState(state))).toBeTrue();
+      expect(selectIsAccountLocked.projector('ACCOUNT_LOCKED', 30)).toBeTrue();
     });
 
     it('should return false when errorCode is ACCOUNT_LOCKED but minutes is null', () => {
-      const state = {
-        ...initialAuthState,
-        loginErrorCode: 'ACCOUNT_LOCKED',
-        lockedUntilMinutes: null,
-      };
-      expect(selectIsAccountLocked(createState(state))).toBeFalse();
+      expect(selectIsAccountLocked.projector('ACCOUNT_LOCKED', null)).toBeFalse();
     });
 
     it('should return false when errorCode is INVALID_CREDENTIALS', () => {
-      const state = {
-        ...initialAuthState,
-        loginErrorCode: 'INVALID_CREDENTIALS',
-        remainingAttempts: 2,
-      };
-      expect(selectIsAccountLocked(createState(state))).toBeFalse();
+      expect(selectIsAccountLocked.projector('INVALID_CREDENTIALS', null)).toBeFalse();
     });
 
     it('should return false when lockedUntilMinutes is 0', () => {
-      const state = {
-        ...initialAuthState,
-        loginErrorCode: 'ACCOUNT_LOCKED',
-        lockedUntilMinutes: 0,
-      };
-      expect(selectIsAccountLocked(createState(state))).toBeFalse();
+      expect(selectIsAccountLocked.projector('ACCOUNT_LOCKED', 0)).toBeFalse();
     });
   });
 });
