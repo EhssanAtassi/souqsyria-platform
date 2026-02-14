@@ -137,6 +137,19 @@ export class PublicProductsService {
       });
     }
 
+    // Apply brand filter (supports multiple brand IDs)
+    if (filters.brandIds) {
+      const brandIdArray = filters.brandIds
+        .split(',')
+        .map((id) => parseInt(id.trim(), 10))
+        .filter((id) => !isNaN(id));
+      if (brandIdArray.length > 0) {
+        query.andWhere('product.brand_id IN (:...brandIds)', {
+          brandIds: brandIdArray,
+        });
+      }
+    }
+
     if (filters.minPrice) {
       query.andWhere(
         '(pricing.discountPrice IS NOT NULL AND pricing.discountPrice >= :min) OR (pricing.discountPrice IS NULL AND pricing.basePrice >= :min)',
@@ -269,6 +282,19 @@ export class PublicProductsService {
       query.andWhere('product.manufacturer_id = :mid', {
         mid: filters.manufacturerId,
       });
+    }
+
+    // Apply brand filter (supports multiple brand IDs)
+    if (filters.brandIds) {
+      const brandIdArray = filters.brandIds
+        .split(',')
+        .map((id) => parseInt(id.trim(), 10))
+        .filter((id) => !isNaN(id));
+      if (brandIdArray.length > 0) {
+        query.andWhere('product.brand_id IN (:...brandIds)', {
+          brandIds: brandIdArray,
+        });
+      }
     }
 
     // Apply minimum price filter (considers discount price if available)

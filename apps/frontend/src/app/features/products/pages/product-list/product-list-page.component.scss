@@ -204,6 +204,10 @@
     grid-template-columns: repeat(3, 1fr);
   }
 
+  @media (min-width: $breakpoint-lg) {
+    grid-template-columns: repeat(4, 1fr);
+  }
+
   // List mode - single column with larger cards
   &--list {
     grid-template-columns: 1fr;

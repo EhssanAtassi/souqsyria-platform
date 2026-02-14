@@ -114,6 +114,22 @@ export class GetPublicProductsDto {
   manufacturerId?: number;
 
   /**
+   * Filter products by multiple brand IDs.
+   * Comma-separated list of brand IDs (e.g., "1,2,5").
+   * Returns products matching any of the specified brands.
+   *
+   * @example "1,2,5"
+   */
+  @ApiPropertyOptional({
+    description: 'Comma-separated brand IDs to filter by',
+    example: '1,2,5',
+    type: String,
+  })
+  @IsOptional()
+  @IsString()
+  brandIds?: string;
+
+  /**
    * Minimum price filter in SYP (Syrian Pounds).
    * Returns products with final price >= minPrice.
    *

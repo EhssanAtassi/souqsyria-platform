@@ -374,5 +374,13 @@
       "deleted": "تم حذف العنوان بنجاح",
       "defaultSet": "تم تحديث العنوان الافتراضي"
     }
-  }
+  },
+  "products_page_title": "جميع المنتجات",
+  "products_empty": "لا توجد منتجات",
+  "products_retry": "إعادة المحاولة",
+  "products_browse_all": "تصفح الكل",
+  "products_sort_by": "ترتيب حسب",
+  "products_view_grid": "عرض شبكي",
+  "products_view_list": "عرض قائمة",
+  "products_error_loading": "فشل تحميل المنتجات"
 }
