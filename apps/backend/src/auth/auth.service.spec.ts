@@ -8,6 +8,7 @@ import { Role } from '../roles/entities/role.entity';
 import { LoginLog } from './entity/login-log.entity';
 import { TokenBlacklist } from './entity/token-blacklist.entity';
 import { RefreshToken } from './entity/refresh-token.entity';
+import { SecurityAudit } from './entity/security-audit.entity';
 import { EmailService } from './service/email.service';
 import { EncryptionService } from '../common/utils/encryption.util';
 import { RateLimiterService } from '../common/services/rate-limiter.service';
@@ -40,6 +41,7 @@ describe('AuthService', () => {
   let loginLogRepository: any;
   let tokenBlacklistRepository: any;
   let refreshTokenRepository: any;
+  let securityAuditRepository: any;
 
   // Mock services
   let jwtService: any;
@@ -70,6 +72,7 @@ describe('AuthService', () => {
     metadata: {},
     // User entity methods for security and account management
     isResetTokenValid: jest.fn().mockReturnValue(true),
+    isOtpValid: jest.fn().mockReturnValue(true),
     resetFailedAttempts: jest.fn(),
     isAccountLocked: jest.fn().mockReturnValue(false),
     incrementFailedAttempts: jest.fn(), // SEC-H06: Track failed login attempts
@@ -92,6 +95,10 @@ describe('AuthService', () => {
     loginLogRepository = createMockRepository();
     tokenBlacklistRepository = createMockRepository();
     refreshTokenRepository = createMockRepository();
+    securityAuditRepository = createMockRepository();
+    // SecurityAudit uses fire-and-forget .save().catch() — needs default resolved promise
+    securityAuditRepository.create.mockReturnValue({});
+    securityAuditRepository.save.mockResolvedValue({});
 
     jwtService = {
       sign: jest.fn().mockReturnValue('mock.jwt.token'),
@@ -102,6 +109,7 @@ describe('AuthService', () => {
     emailService = {
       sendVerificationEmail: jest.fn().mockResolvedValue(true),
       sendPasswordResetEmail: jest.fn().mockResolvedValue(true),
+      sendAccountLockoutEmail: jest.fn().mockResolvedValue(true),
     };
 
     const encryptionService = {
@@ -155,6 +163,10 @@ describe('AuthService', () => {
           useValue: refreshTokenRepository,
         },
         {
+          provide: getRepositoryToken(SecurityAudit),
+          useValue: securityAuditRepository,
+        },
+        {
           provide: JwtService,
           useValue: jwtService,
         },
@@ -190,6 +202,7 @@ describe('AuthService', () => {
     const registerDto = {
       email: 'newuser@souqsyria.com',
       password: 'SecurePass123!',
+      fullName: 'New User',
     };
 
     const mockRequest = {
@@ -335,6 +348,146 @@ describe('AuthService', () => {
         'Invalid credentials.',
       );
     });
+
+    // ─── C4: Lockout flow tests ──────────────────────────────────────
+
+    /**
+     * @description Verifies login is blocked when the account is already locked
+     * (isAccountLocked returns true before password check).
+     */
+    it('should throw FORBIDDEN when account is already locked', async () => {
+      // Arrange — locked user with 30 min remaining
+      const lockedUser = {
+        ...mockUser,
+        failedLoginAttempts: 5,
+        accountLockedUntil: new Date(Date.now() + 30 * 60 * 1000),
+        isAccountLocked: jest.fn().mockReturnValue(true),
+      };
+      userRepository.findOne.mockResolvedValue(lockedUser);
+
+      // Act & Assert
+      await expect(service.login(loginDto, mockRequest)).rejects.toMatchObject({
+        response: expect.objectContaining({
+          statusCode: 403,
+          errorCode: 'ACCOUNT_LOCKED',
+          lockedUntilMinutes: expect.any(Number),
+        }),
+      });
+      // Password should never be checked for locked accounts
+      expect(bcrypt.compare).not.toHaveBeenCalled();
+    });
+
+    /**
+     * @description Verifies incrementFailedAttempts is called on wrong password
+     * and remainingAttempts is included in the error response.
+     */
+    it('should increment failed attempts on wrong password', async () => {
+      // Arrange — user with 3 prior failures (2 remaining)
+      const userWithFailures = {
+        ...mockUser,
+        failedLoginAttempts: 3,
+        isAccountLocked: jest.fn().mockReturnValue(false),
+        incrementFailedAttempts: jest.fn(),
+      };
+      userRepository.findOne.mockResolvedValue(userWithFailures);
+      userRepository.save.mockResolvedValue(userWithFailures);
+      (bcrypt.compare as jest.Mock).mockResolvedValueOnce(false);
+
+      // Act & Assert
+      await expect(service.login(loginDto, mockRequest)).rejects.toMatchObject({
+        response: expect.objectContaining({
+          errorCode: 'INVALID_CREDENTIALS',
+          remainingAttempts: 2,
+        }),
+      });
+      expect(userWithFailures.incrementFailedAttempts).toHaveBeenCalled();
+      expect(userRepository.save).toHaveBeenCalledWith(userWithFailures);
+    });
+
+    /**
+     * @description Verifies lockout email is sent when the 5th failed attempt
+     * triggers account lockout (isAccountLocked becomes true after increment).
+     */
+    it('should send lockout email when account becomes locked on 5th failure', async () => {
+      // Arrange — user at 4 failures; after increment isAccountLocked returns true
+      const userAtThreshold = {
+        ...mockUser,
+        failedLoginAttempts: 4,
+        isAccountLocked: jest
+          .fn()
+          .mockReturnValueOnce(false) // first check: not locked yet
+          .mockReturnValueOnce(true), // second check (after increment): now locked
+        incrementFailedAttempts: jest.fn(),
+      };
+      userRepository.findOne.mockResolvedValue(userAtThreshold);
+      userRepository.save.mockResolvedValue(userAtThreshold);
+      (bcrypt.compare as jest.Mock).mockResolvedValueOnce(false);
+
+      // Act & Assert
+      await expect(service.login(loginDto, mockRequest)).rejects.toMatchObject({
+        response: expect.objectContaining({
+          statusCode: 403,
+          errorCode: 'ACCOUNT_LOCKED',
+          lockedUntilMinutes: 30,
+        }),
+      });
+      expect(emailService.sendAccountLockoutEmail).toHaveBeenCalledWith(
+        loginDto.email,
+        30,
+        expect.any(String),
+      );
+    });
+
+    // ─── C5: Remember-me TTL tests ───────────────────────────────────
+
+    /**
+     * @description Verifies refresh token uses 30-day expiry when rememberMe is true.
+     */
+    it('should generate 30-day refresh token when rememberMe is true', async () => {
+      // Arrange
+      userRepository.findOne.mockResolvedValue(mockUser);
+      loginLogRepository.save.mockResolvedValue({ id: 1 });
+      userRepository.save.mockResolvedValue(mockUser);
+      refreshTokenRepository.create.mockReturnValue({});
+      refreshTokenRepository.save.mockResolvedValue({});
+      const rememberDto = { ...loginDto, rememberMe: true };
+
+      // Act
+      await service.login(rememberDto, mockRequest);
+
+      // Assert — jwtService.sign called twice: 1st=access (15m), 2nd=refresh
+      const signCalls = jwtService.sign.mock.calls;
+      expect(signCalls.length).toBeGreaterThanOrEqual(2);
+      // Second call is the refresh token with 30d expiry
+      expect(signCalls[1][1]).toEqual(expect.objectContaining({ expiresIn: '30d' }));
+      // Verify rememberMe flag stored in refresh token entity
+      expect(refreshTokenRepository.create).toHaveBeenCalledWith(
+        expect.objectContaining({ rememberMe: true }),
+      );
+    });
+
+    /**
+     * @description Verifies refresh token uses 7-day expiry when rememberMe is false/absent.
+     */
+    it('should generate 7-day refresh token when rememberMe is false', async () => {
+      // Arrange
+      userRepository.findOne.mockResolvedValue(mockUser);
+      loginLogRepository.save.mockResolvedValue({ id: 1 });
+      userRepository.save.mockResolvedValue(mockUser);
+      refreshTokenRepository.create.mockReturnValue({});
+      refreshTokenRepository.save.mockResolvedValue({});
+
+      // Act — loginDto has no rememberMe field
+      await service.login(loginDto, mockRequest);
+
+      // Assert — refresh token sign call uses 7d
+      const signCalls = jwtService.sign.mock.calls;
+      expect(signCalls.length).toBeGreaterThanOrEqual(2);
+      expect(signCalls[1][1]).toEqual(expect.objectContaining({ expiresIn: '7d' }));
+      expect(refreshTokenRepository.create).toHaveBeenCalledWith(
+        expect.objectContaining({ rememberMe: false }),
+      );
+    });
   });
 
   describe('verifyOtp', () => {
@@ -443,17 +596,23 @@ describe('AuthService', () => {
     });
 
     it('should successfully reset password with valid token', async () => {
-      // Arrange
+      // Arrange — resetPasswordToken stored as hashed value
       const userWithResetToken = {
         ...mockUser,
-        resetPasswordToken: 'valid.reset.token',
+        resetPasswordToken: 'hashed_valid.reset.token',
         resetPasswordExpires: new Date(Date.now() + 15 * 60 * 1000),
         isResetTokenValid: jest.fn().mockReturnValue(true),
         resetFailedAttempts: jest.fn(),
       };
       userRepository.findOne.mockResolvedValue(userWithResetToken);
       userRepository.save.mockResolvedValue(userWithResetToken);
-      jwtService.verify.mockReturnValue({ sub: 1, email: 'test@souqsyria.com' });
+      // Mock createQueryBuilder for revoking refresh tokens
+      refreshTokenRepository.createQueryBuilder = jest.fn().mockReturnValue({
+        update: jest.fn().mockReturnThis(),
+        set: jest.fn().mockReturnThis(),
+        where: jest.fn().mockReturnThis(),
+        execute: jest.fn().mockResolvedValue({ affected: 0 }),
+      });
 
       // Act
       const result = await service.resetPassword(resetDto);
@@ -556,6 +715,13 @@ describe('AuthService', () => {
       tokenBlacklistRepository.create.mockReturnValue({ id: 1, tokenHash: 'hash' });
       tokenBlacklistRepository.save.mockResolvedValue({ id: 1 });
       userRepository.update.mockResolvedValue({ affected: 1 });
+      // Mock createQueryBuilder for revoking refresh tokens
+      refreshTokenRepository.createQueryBuilder = jest.fn().mockReturnValue({
+        update: jest.fn().mockReturnThis(),
+        set: jest.fn().mockReturnThis(),
+        where: jest.fn().mockReturnThis(),
+        execute: jest.fn().mockResolvedValue({ affected: 0 }),
+      });
 
       // Act
       const result = await service.logout(1, 'mock.jwt.token', '192.168.1.1');
@@ -590,13 +756,29 @@ describe('AuthService', () => {
   describe('refreshToken', () => {
     const refreshDto = { token: 'valid.refresh.token' };
 
+    /**
+     * @description Helper to create a mock stored RefreshToken entity
+     * that mirrors the real entity shape with user relation and isValid()
+     */
+    const createMockStoredToken = (overrides: Record<string, any> = {}) => ({
+      id: 1,
+      tokenHash: 'sha256hash',
+      userId: mockUser.id,
+      user: { ...mockUser },
+      rememberMe: false,
+      isValid: jest.fn().mockReturnValue(true),
+      revoke: jest.fn(),
+      revokedAt: null,
+      expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+      ...overrides,
+    });
+
     it('should successfully refresh token', async () => {
-      // Arrange
-      tokenBlacklistRepository.findOne.mockResolvedValue(null);
-      userRepository.findOne.mockResolvedValue(mockUser);
-      tokenBlacklistRepository.create.mockReturnValue({ id: 1 });
-      tokenBlacklistRepository.save.mockResolvedValue({ id: 1 });
-      userRepository.save.mockResolvedValue(mockUser);
+      // Arrange — stored token found with valid user
+      const storedToken = createMockStoredToken();
+      refreshTokenRepository.findOne.mockResolvedValue(storedToken);
+      refreshTokenRepository.create.mockReturnValue({ id: 2 });
+      refreshTokenRepository.save.mockResolvedValue({ id: 2 });
 
       // Act
       const result = await service.refreshToken(refreshDto);
@@ -606,51 +788,50 @@ describe('AuthService', () => {
       expect(result.message).toContain('refreshed');
     });
 
-    it('should throw UnauthorizedException for blacklisted token', async () => {
-      // Arrange
-      tokenBlacklistRepository.findOne.mockResolvedValue({ id: 1 }); // Token is blacklisted
+    it('should throw UnauthorizedException when token not found in DB', async () => {
+      // Arrange — no stored token matches the hash
+      refreshTokenRepository.findOne.mockResolvedValue(null);
 
       // Act & Assert
       await expect(service.refreshToken(refreshDto)).rejects.toThrow(
-        'invalidated',
+        'Invalid refresh token',
+      );
+    });
+
+    it('should throw UnauthorizedException for revoked/expired stored token', async () => {
+      // Arrange — stored token exists but isValid() returns false
+      const revokedToken = createMockStoredToken({
+        isValid: jest.fn().mockReturnValue(false),
+      });
+      refreshTokenRepository.findOne.mockResolvedValue(revokedToken);
+
+      // Act & Assert
+      await expect(service.refreshToken(refreshDto)).rejects.toThrow(
+        'expired or been revoked',
       );
     });
 
     it('should throw UnauthorizedException for deleted user', async () => {
-      // Arrange
-      tokenBlacklistRepository.findOne.mockResolvedValue(null);
+      // Arrange — user associated with token is soft-deleted
       const deletedUser = { ...mockUser, deletedAt: new Date() };
-      userRepository.findOne.mockResolvedValue(deletedUser);
+      const storedToken = createMockStoredToken({ user: deletedUser });
+      refreshTokenRepository.findOne.mockResolvedValue(storedToken);
 
       // Act & Assert
       await expect(service.refreshToken(refreshDto)).rejects.toThrow(
-        UnauthorizedException,
+        'not found or account deleted',
       );
     });
 
     it('should throw UnauthorizedException for banned user', async () => {
-      // Arrange
-      tokenBlacklistRepository.findOne.mockResolvedValue(null);
+      // Arrange — user associated with token is banned
       const bannedUser = { ...mockUser, isBanned: true };
-      userRepository.findOne.mockResolvedValue(bannedUser);
+      const storedToken = createMockStoredToken({ user: bannedUser });
+      refreshTokenRepository.findOne.mockResolvedValue(storedToken);
 
       // Act & Assert
       await expect(service.refreshToken(refreshDto)).rejects.toThrow(
         'banned',
-      );
-    });
-
-    it('should throw UnauthorizedException for expired token', async () => {
-      // Arrange
-      jwtService.verify.mockImplementation(() => {
-        const error = new Error('Token expired');
-        error.name = 'TokenExpiredError';
-        throw error;
-      });
-
-      // Act & Assert
-      await expect(service.refreshToken(refreshDto)).rejects.toThrow(
-        'expired',
       );
     });
   });
@@ -782,16 +963,17 @@ describe('AuthService', () => {
     });
   });
 
-  describe('handleGoogleUser', () => {
-    const googleProfile = {
-      googleId: 'google123',
-      email: 'google@test.com',
-      firstName: 'Google',
-      lastName: 'User',
-      fullName: 'Google User',
-      profilePictureUrl: 'https://example.com/pic.jpg',
-      accessToken: 'google_access_token',
-      refreshToken: 'google_refresh_token',
+  // ─── OAuth: validateOrCreateOAuthUser ───────────────────────────
+
+  describe('validateOrCreateOAuthUser', () => {
+    /**
+     * @description Unified profile shape used by both Google and Facebook strategies
+     */
+    const oauthProfile = {
+      providerId: 'google123',
+      email: 'oauth@test.com',
+      fullName: 'OAuth User',
+      avatar: 'https://example.com/pic.jpg',
     };
 
     const mockRequest = {
@@ -799,74 +981,116 @@ describe('AuthService', () => {
       headers: { 'user-agent': 'Mozilla/5.0' },
     } as any;
 
-    it('should login existing user by Google ID', async () => {
-      // Arrange
-      userRepository.findOne.mockResolvedValueOnce({ ...mockUser, googleId: 'google123' });
-      refreshTokenRepository.create.mockReturnValue({ id: 1 });
-      refreshTokenRepository.save.mockResolvedValue({ id: 1 });
-      loginLogRepository.save.mockResolvedValue({ id: 1 });
-      userRepository.save.mockResolvedValue(mockUser);
+    it('should return existing user found by Google provider ID', async () => {
+      // Arrange — user already has googleId linked
+      const existingUser = { ...mockUser, googleId: 'google123', role: mockRole };
+      userRepository.findOne.mockResolvedValueOnce(existingUser);
+      securityAuditRepository.create.mockReturnValue({});
+      securityAuditRepository.save.mockResolvedValue({});
 
       // Act
-      const result = await service.handleGoogleUser(googleProfile, mockRequest);
+      const result = await service.validateOrCreateOAuthUser(
+        'google',
+        oauthProfile,
+        mockRequest,
+      );
 
-      // Assert
-      expect(result).toHaveProperty('accessToken');
-      expect(result).toHaveProperty('refreshToken');
-      expect(result.isNewUser).toBe(false);
+      // Assert — returns the existing user without creating a new one
+      expect(result).toEqual(existingUser);
+      expect(userRepository.findOne).toHaveBeenCalledWith({
+        where: { googleId: 'google123' },
+        relations: ['role'],
+      });
+      expect(userRepository.create).not.toHaveBeenCalled();
     });
 
-    it('should link account when email exists but no Google ID', async () => {
-      // Arrange
-      userRepository.findOne
-        .mockResolvedValueOnce(null) // No user by Google ID
-        .mockResolvedValueOnce(mockUser); // User found by email
-      userRepository.save.mockResolvedValue(mockUser);
-      refreshTokenRepository.create.mockReturnValue({ id: 1 });
-      refreshTokenRepository.save.mockResolvedValue({ id: 1 });
-      loginLogRepository.save.mockResolvedValue({ id: 1 });
+    it('should return existing user found by Facebook provider ID', async () => {
+      // Arrange — user already has facebookId linked
+      const fbProfile = { ...oauthProfile, providerId: 'fb456' };
+      const existingUser = { ...mockUser, facebookId: 'fb456', role: mockRole };
+      userRepository.findOne.mockResolvedValueOnce(existingUser);
+      securityAuditRepository.create.mockReturnValue({});
+      securityAuditRepository.save.mockResolvedValue({});
 
       // Act
-      const result = await service.handleGoogleUser(googleProfile, mockRequest);
+      const result = await service.validateOrCreateOAuthUser(
+        'facebook',
+        fbProfile,
+        mockRequest,
+      );
 
-      // Assert
-      expect(result.isNewUser).toBe(false);
-      expect(userRepository.save).toHaveBeenCalled();
+      // Assert — lookup uses facebookId column
+      expect(result).toEqual(existingUser);
+      expect(userRepository.findOne).toHaveBeenCalledWith({
+        where: { facebookId: 'fb456' },
+        relations: ['role'],
+      });
     });
 
-    it('should create new user when no existing account', async () => {
-      // Arrange
+    it('should link Google ID to existing account found by email', async () => {
+      // Arrange — no match by googleId, but email exists
+      const existingByEmail = { ...mockUser, googleId: null, role: mockRole };
       userRepository.findOne
-        .mockResolvedValueOnce(null) // No user by Google ID
+        .mockResolvedValueOnce(null) // No user by googleId
+        .mockResolvedValueOnce(existingByEmail); // Found by email
+      userRepository.save.mockResolvedValue(existingByEmail);
+      securityAuditRepository.create.mockReturnValue({});
+      securityAuditRepository.save.mockResolvedValue({});
+
+      // Act
+      const result = await service.validateOrCreateOAuthUser(
+        'google',
+        oauthProfile,
+        mockRequest,
+      );
+
+      // Assert — provider ID linked to existing account
+      expect(result.googleId).toBe('google123');
+      expect(userRepository.save).toHaveBeenCalledWith(
+        expect.objectContaining({ googleId: 'google123' }),
+      );
+    });
+
+    it('should create new user when no existing account found', async () => {
+      // Arrange — neither provider ID nor email match
+      userRepository.findOne
+        .mockResolvedValueOnce(null) // No user by googleId
         .mockResolvedValueOnce(null); // No user by email
       roleRepository.findOne.mockResolvedValue(mockRole);
-      userRepository.create.mockReturnValue({ id: 2, ...googleProfile, role: mockRole });
-      userRepository.save.mockResolvedValue({ id: 2, ...googleProfile, role: mockRole });
-      refreshTokenRepository.create.mockReturnValue({ id: 1 });
-      refreshTokenRepository.save.mockResolvedValue({ id: 1 });
-      loginLogRepository.save.mockResolvedValue({ id: 1 });
+      const newUser = {
+        id: 2,
+        email: oauthProfile.email,
+        fullName: oauthProfile.fullName,
+        googleId: oauthProfile.providerId,
+        isVerified: true,
+        role: mockRole,
+      };
+      userRepository.create.mockReturnValue(newUser);
+      userRepository.save.mockResolvedValue(newUser);
+      securityAuditRepository.create.mockReturnValue({});
+      securityAuditRepository.save.mockResolvedValue({});
 
       // Act
-      const result = await service.handleGoogleUser(googleProfile, mockRequest);
+      const result = await service.validateOrCreateOAuthUser(
+        'google',
+        oauthProfile,
+        mockRequest,
+      );
 
-      // Assert
-      expect(result.isNewUser).toBe(true);
-      expect(userRepository.create).toHaveBeenCalled();
+      // Assert — new user created with auto-verified flag and buyer role
+      expect(result.id).toBe(2);
+      expect(userRepository.create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          email: 'oauth@test.com',
+          isVerified: true,
+          oauthProvider: 'google',
+          role: mockRole,
+        }),
+      );
     });
 
-    it('should throw UnauthorizedException for banned Google user', async () => {
-      // Arrange
-      const bannedUser = { ...mockUser, googleId: 'google123', isBanned: true };
-      userRepository.findOne.mockResolvedValueOnce(bannedUser);
-
-      // Act & Assert
-      await expect(
-        service.handleGoogleUser(googleProfile, mockRequest),
-      ).rejects.toThrow('banned');
-    });
-
-    it('should throw error when default role not found', async () => {
-      // Arrange
+    it('should throw error when default buyer role not found', async () => {
+      // Arrange — no matches, and role lookup returns null
       userRepository.findOne
         .mockResolvedValueOnce(null)
         .mockResolvedValueOnce(null);
@@ -874,61 +1098,179 @@ describe('AuthService', () => {
 
       // Act & Assert
       await expect(
-        service.handleGoogleUser(googleProfile, mockRequest),
+        service.validateOrCreateOAuthUser('google', oauthProfile, mockRequest),
       ).rejects.toThrow('Default role');
     });
   });
 
-  describe('handleFacebookUser', () => {
-    const facebookProfile = {
-      facebookId: 'fb123',
-      email: 'facebook@test.com',
-      firstName: 'Facebook',
-      lastName: 'User',
-      fullName: 'Facebook User',
-      profilePictureUrl: 'https://example.com/fbpic.jpg',
-      accessToken: 'fb_access_token',
-      refreshToken: 'fb_refresh_token',
-    };
+  // ─── OAuth: generateOAuthTokens ───────────────────────────────
+
+  describe('generateOAuthTokens', () => {
+    /**
+     * @description Tests the public wrapper around generateTokens()
+     * that also updates lastLoginAt timestamp
+     */
+    const oauthUser = {
+      ...mockUser,
+      googleId: 'google123',
+      role: mockRole,
+    } as any;
 
     const mockRequest = {
       ip: '192.168.1.1',
       headers: { 'user-agent': 'Mozilla/5.0' },
     } as any;
 
-    it('should login existing user by Facebook ID', async () => {
-      // Arrange
-      userRepository.findOne.mockResolvedValueOnce({ ...mockUser, facebookId: 'fb123' });
+    it('should return access and refresh tokens for OAuth user', async () => {
+      // Arrange — mock the token generation dependencies
       refreshTokenRepository.create.mockReturnValue({ id: 1 });
       refreshTokenRepository.save.mockResolvedValue({ id: 1 });
-      loginLogRepository.save.mockResolvedValue({ id: 1 });
-      userRepository.save.mockResolvedValue(mockUser);
+      userRepository.save.mockResolvedValue(oauthUser);
+      securityAuditRepository.create.mockReturnValue({});
+      securityAuditRepository.save.mockResolvedValue({});
 
       // Act
-      const result = await service.handleFacebookUser(facebookProfile, mockRequest);
+      const result = await service.generateOAuthTokens(oauthUser, mockRequest);
 
-      // Assert
+      // Assert — returns JWT token pair
       expect(result).toHaveProperty('accessToken');
-      expect(result.isNewUser).toBe(false);
+      expect(result).toHaveProperty('refreshToken');
+      expect(typeof result.accessToken).toBe('string');
+      expect(typeof result.refreshToken).toBe('string');
     });
 
-    it('should create new user when no existing Facebook account', async () => {
+    it('should update user lastLoginAt timestamp', async () => {
       // Arrange
-      userRepository.findOne
-        .mockResolvedValueOnce(null)
-        .mockResolvedValueOnce(null);
-      roleRepository.findOne.mockResolvedValue(mockRole);
-      userRepository.create.mockReturnValue({ id: 2, ...facebookProfile, role: mockRole });
-      userRepository.save.mockResolvedValue({ id: 2, ...facebookProfile, role: mockRole });
       refreshTokenRepository.create.mockReturnValue({ id: 1 });
       refreshTokenRepository.save.mockResolvedValue({ id: 1 });
-      loginLogRepository.save.mockResolvedValue({ id: 1 });
+      userRepository.save.mockResolvedValue(oauthUser);
+      securityAuditRepository.create.mockReturnValue({});
+      securityAuditRepository.save.mockResolvedValue({});
 
       // Act
-      const result = await service.handleFacebookUser(facebookProfile, mockRequest);
+      await service.generateOAuthTokens(oauthUser, mockRequest);
 
-      // Assert
-      expect(result.isNewUser).toBe(true);
+      // Assert — save called with updated lastLoginAt
+      expect(userRepository.save).toHaveBeenCalledWith(
+        expect.objectContaining({ lastLoginAt: expect.any(Date) }),
+      );
+    });
+  });
+
+  // ─── C1: OAuth Code Exchange ──────────────────────────────────
+
+  describe('generateOAuthCode / exchangeOAuthCode', () => {
+    const mockTokens = {
+      accessToken: 'mock.access.token',
+      refreshToken: 'mock.refresh.token',
+    };
+
+    /**
+     * @description Verifies that generateOAuthCode returns a hex string code
+     * that can be subsequently exchanged for the original tokens.
+     */
+    it('should generate a code and exchange it for tokens', () => {
+      const code = service.generateOAuthCode(mockTokens);
+
+      expect(typeof code).toBe('string');
+      expect(code.length).toBe(64); // 32 bytes = 64 hex chars
+
+      const result = service.exchangeOAuthCode(code);
+
+      expect(result.accessToken).toBe(mockTokens.accessToken);
+      expect(result.refreshToken).toBe(mockTokens.refreshToken);
+    });
+
+    /**
+     * @description Verifies codes are single-use — second exchange attempt throws.
+     */
+    it('should reject reuse of an already-exchanged code', () => {
+      const code = service.generateOAuthCode(mockTokens);
+      service.exchangeOAuthCode(code);
+
+      expect(() => service.exchangeOAuthCode(code)).toThrow(
+        BadRequestException,
+      );
+    });
+
+    /**
+     * @description Verifies an invalid code throws BadRequestException.
+     */
+    it('should throw BadRequestException for invalid code', () => {
+      expect(() => service.exchangeOAuthCode('invalid_code')).toThrow(
+        BadRequestException,
+      );
+    });
+
+    /**
+     * @description Verifies that expired codes are rejected.
+     */
+    it('should throw BadRequestException for expired code', () => {
+      const code = service.generateOAuthCode(mockTokens);
+
+      // Manually expire the code by overwriting expiresAt
+      const store = (service as any).oauthCodeStore as Map<string, any>;
+      const entry = store.get(code);
+      entry.expiresAt = Date.now() - 1000;
+
+      expect(() => service.exchangeOAuthCode(code)).toThrow(
+        'OAuth code has expired.',
+      );
+    });
+  });
+
+  // ─── C2: OAuth State CSRF Protection ──────────────────────────
+
+  describe('generateOAuthState / validateOAuthState', () => {
+    /**
+     * @description Verifies that a freshly generated state passes validation.
+     */
+    it('should generate a valid state that passes validation', () => {
+      const state = service.generateOAuthState();
+
+      expect(typeof state).toBe('string');
+      expect(state).toContain('.');
+
+      const isValid = service.validateOAuthState(state);
+      expect(isValid).toBe(true);
+    });
+
+    /**
+     * @description Verifies that a tampered state (modified HMAC) fails validation.
+     */
+    it('should reject state with tampered HMAC', () => {
+      const state = service.generateOAuthState();
+      const [timestamp] = state.split('.');
+      const tamperedState = `${timestamp}.${'a'.repeat(64)}`;
+
+      const isValid = service.validateOAuthState(tamperedState);
+      expect(isValid).toBe(false);
+    });
+
+    /**
+     * @description Verifies that an expired state (>10 minutes old) is rejected.
+     */
+    it('should reject expired state (older than 10 minutes)', () => {
+      const oldTimestamp = (Date.now() - 11 * 60 * 1000).toString();
+      const crypto = require('crypto');
+      const secret = jwtService.options?.secret || 'oauth-state-secret';
+      const hmac = crypto
+        .createHmac('sha256', secret)
+        .update(oldTimestamp)
+        .digest('hex');
+      const expiredState = `${oldTimestamp}.${hmac}`;
+
+      const isValid = service.validateOAuthState(expiredState);
+      expect(isValid).toBe(false);
+    });
+
+    /**
+     * @description Verifies that null/empty/malformed state returns false.
+     */
+    it('should reject null, empty, or malformed state', () => {
+      expect(service.validateOAuthState('')).toBe(false);
+      expect(service.validateOAuthState('no-dot-here')).toBe(false);
+      expect(service.validateOAuthState('abc.def')).toBe(false);
     });
   });
 });

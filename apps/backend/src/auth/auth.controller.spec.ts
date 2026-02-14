@@ -6,6 +6,7 @@
  */
 import { Test, TestingModule } from '@nestjs/testing';
 import { BadRequestException, UnauthorizedException } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { AuthController } from './auth.controller';
 import { UsersService } from '../users/users.service';
 import { AuthService } from './auth.service';
@@ -32,6 +33,7 @@ describe('AuthController', () => {
       refreshToken: jest.fn(),
       resendOtp: jest.fn(),
       deleteAccount: jest.fn(),
+      exchangeOAuthCode: jest.fn(),
     };
 
     const module: TestingModule = await Test.createTestingModule({
@@ -44,6 +46,10 @@ describe('AuthController', () => {
         {
           provide: AuthService,
           useValue: authService,
+        },
+        {
+          provide: ConfigService,
+          useValue: { get: jest.fn().mockReturnValue('http://localhost:4200') },
         },
       ],
     })
@@ -320,6 +326,36 @@ describe('AuthController', () => {
         '192.168.1.1',
       );
       expect(result.message).toContain('successfully deleted');
+    });
+  });
+
+  // ─── POST /auth/oauth/exchange (C1 fix) ─────────────────────
+
+  describe('exchangeOAuthCode', () => {
+    it('should exchange code for tokens', async () => {
+      const tokens = { accessToken: 'at', refreshToken: 'rt' };
+      authService.exchangeOAuthCode!.mockReturnValue(tokens);
+
+      const result = await controller.exchangeOAuthCode({ code: 'valid-code' });
+
+      expect(authService.exchangeOAuthCode).toHaveBeenCalledWith('valid-code');
+      expect(result).toEqual(tokens);
+    });
+
+    it('should throw BadRequestException when code is missing', async () => {
+      await expect(
+        controller.exchangeOAuthCode({ code: '' }),
+      ).rejects.toThrow(BadRequestException);
+    });
+
+    it('should propagate BadRequestException for invalid code', async () => {
+      authService.exchangeOAuthCode!.mockImplementation(() => {
+        throw new BadRequestException('Invalid or expired OAuth code.');
+      });
+
+      await expect(
+        controller.exchangeOAuthCode({ code: 'invalid' }),
+      ).rejects.toThrow(BadRequestException);
     });
   });
 });

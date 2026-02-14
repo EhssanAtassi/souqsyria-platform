@@ -314,6 +314,16 @@
       "fair": "مقبولة",
       "good": "جيدة",
       "strong": "قوية"
+    },
+    "oauth": {
+      "divider": "أو المتابعة عبر",
+      "google": "المتابعة مع جوجل",
+      "facebook": "المتابعة مع فيسبوك",
+      "googleAriaLabel": "تسجيل الدخول بحساب جوجل",
+      "facebookAriaLabel": "تسجيل الدخول بحساب فيسبوك",
+      "processing": "جاري تسجيل الدخول...",
+      "errorTitle": "فشل تسجيل الدخول",
+      "redirectingToLogin": "جاري إعادة التوجيه إلى صفحة تسجيل الدخول..."
     }
   },
   "addresses": {
