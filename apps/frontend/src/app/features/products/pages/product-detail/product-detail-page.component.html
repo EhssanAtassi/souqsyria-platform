@@ -22,15 +22,7 @@
   <!-- Product Content -->
   @else if (product()) {
     <!-- Breadcrumb -->
-    <nav class="breadcrumb">
-      <a routerLink="/" class="breadcrumb__link">{{ language() === 'ar' ? 'الرئيسية' : 'Home' }}</a>
-      <mat-icon class="breadcrumb__separator">chevron_right</mat-icon>
-      @if (product()!.category) {
-        <a [routerLink]="['/category', product()!.category!.slug]" class="breadcrumb__link">{{ categoryName() }}</a>
-        <mat-icon class="breadcrumb__separator">chevron_right</mat-icon>
-      }
-      <span class="breadcrumb__current">{{ productName() }}</span>
-    </nav>
+    <app-breadcrumb [items]="breadcrumbItems()" [language]="language()"></app-breadcrumb>
 
     <!-- Main Product Section -->
     <div class="product-detail">
@@ -131,6 +123,17 @@
             <mat-icon>favorite_border</mat-icon>
           </button>
         </div>
+
+        <!-- Notify Me for out-of-stock products -->
+        @if (effectiveStockStatus() === 'out_of_stock') {
+          <button mat-stroked-button
+                  color="primary"
+                  class="product-detail__notify-btn"
+                  (click)="onNotifyMe()">
+            <mat-icon>notifications_active</mat-icon>
+            {{ language() === 'ar' ? 'أبلغني عند التوفر' : 'Notify Me When Available' }}
+          </button>
+        }
 
         <!-- Short Description -->
         @if (descriptionForLang()?.shortDescription) {
