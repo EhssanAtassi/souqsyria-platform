@@ -49,9 +49,32 @@ import {
 import { EncryptionService } from '../common/utils/encryption.util';
 import { RateLimiterService } from '../common/services/rate-limiter.service';
 
+/** @description Shape of a stored OAuth authorization code entry */
+interface OAuthCodeEntry {
+  /** @description JWT access token */
+  accessToken: string;
+  /** @description JWT refresh token */
+  refreshToken: string;
+  /** @description Expiry timestamp in ms (60s TTL) */
+  expiresAt: number;
+}
+
 @Injectable()
 export class AuthService {
   private readonly logger = new Logger(AuthService.name);
+
+  /**
+   * @description In-memory store for OAuth authorization codes.
+   * Maps code → {accessToken, refreshToken, expiresAt}.
+   * Codes expire after 60 seconds and are single-use (deleted on exchange).
+   */
+  private readonly oauthCodeStore = new Map<string, OAuthCodeEntry>();
+
+  /** @description OAuth code TTL in milliseconds (60 seconds) */
+  private readonly OAUTH_CODE_TTL_MS = 60_000;
+
+  /** @description OAuth state token max age in milliseconds (10 minutes) */
+  private readonly OAUTH_STATE_MAX_AGE_MS = 10 * 60 * 1000;
 
   /**
    * Bcrypt cost factor - SEC-M01 fix: increased from 10 to 12 for production
@@ -995,6 +1018,146 @@ export class AuthService {
   }
 
   // =============================================================================
+  // OAUTH METHODS
+  // =============================================================================
+
+  /**
+   * Validate or create a user from an OAuth provider profile.
+   *
+   * Three scenarios handled:
+   * 1. User found by provider ID (googleId/facebookId) → return existing user
+   * 2. User found by email → link provider ID to existing account
+   * 3. No user found → create new auto-verified user with buyer role
+   *
+   * @param provider - OAuth provider name ('google' | 'facebook')
+   * @param profile - Normalized OAuth profile with providerId, email, fullName, avatar
+   * @param request - Express request for IP/user-agent logging
+   * @returns The existing or newly created User entity with role loaded
+   */
+  async validateOrCreateOAuthUser(
+    provider: 'google' | 'facebook',
+    profile: {
+      providerId: string;
+      email: string | null;
+      fullName: string | null;
+      avatar: string | null;
+    },
+    request?: Request,
+  ): Promise<User> {
+    const providerIdField = provider === 'google' ? 'googleId' : 'facebookId';
+    const clientIp = request ? this.getClientIp(request) : 'unknown';
+    const userAgent = (request?.headers['user-agent'] as string) || 'unknown';
+
+    // 1. Lookup by provider ID
+    const existingByProvider = await this.userRepository.findOne({
+      where: { [providerIdField]: profile.providerId },
+      relations: ['role'],
+    });
+
+    if (existingByProvider) {
+      this.logger.log(
+        `OAuth login: existing ${provider} user ID: ${existingByProvider.id}`,
+      );
+      this.logSecurityEvent({
+        eventType: 'OAUTH_LOGIN_SUCCESS',
+        email: existingByProvider.email,
+        userId: existingByProvider.id,
+        ipAddress: clientIp,
+        userAgent,
+        failedAttemptNumber: null,
+        metadata: { provider },
+      });
+      return existingByProvider;
+    }
+
+    // 2. Lookup by email → link provider
+    if (profile.email) {
+      const existingByEmail = await this.userRepository.findOne({
+        where: { email: profile.email },
+        relations: ['role'],
+      });
+
+      if (existingByEmail) {
+        existingByEmail[providerIdField] = profile.providerId;
+        if (!existingByEmail.avatar && profile.avatar) {
+          existingByEmail.avatar = profile.avatar;
+        }
+        await this.userRepository.save(existingByEmail);
+
+        this.logger.log(
+          `OAuth link: ${provider} linked to existing user ID: ${existingByEmail.id}`,
+        );
+        this.logSecurityEvent({
+          eventType: 'OAUTH_ACCOUNT_LINKED',
+          email: existingByEmail.email,
+          userId: existingByEmail.id,
+          ipAddress: clientIp,
+          userAgent,
+          failedAttemptNumber: null,
+          metadata: { provider },
+        });
+        return existingByEmail;
+      }
+    }
+
+    // 3. Create new user (auto-verified, no password)
+    const defaultRole = await this.roleRepository.findOne({
+      where: { name: 'buyer' },
+    });
+    if (!defaultRole) {
+      throw new Error('Default role buyer not found');
+    }
+
+    const newUser = this.userRepository.create({
+      email: profile.email,
+      fullName: profile.fullName,
+      avatar: profile.avatar,
+      [providerIdField]: profile.providerId,
+      oauthProvider: provider,
+      isVerified: true, // OAuth providers verify email
+      role: defaultRole,
+    });
+
+    await this.userRepository.save(newUser);
+
+    this.logger.log(
+      `OAuth create: new ${provider} user ID: ${newUser.id}, email: ${profile.email}`,
+    );
+    this.logSecurityEvent({
+      eventType: 'OAUTH_ACCOUNT_CREATED',
+      email: profile.email || 'no-email',
+      userId: newUser.id,
+      ipAddress: clientIp,
+      userAgent,
+      failedAttemptNumber: null,
+      metadata: { provider },
+    });
+
+    return newUser;
+  }
+
+  /**
+   * Generate JWT tokens for an OAuth-authenticated user.
+   * Wraps the private generateTokens() with request context and logging.
+   *
+   * @param user - Authenticated User entity with role loaded
+   * @param request - Express request for device/IP tracking
+   * @returns Object containing accessToken and refreshToken
+   */
+  async generateOAuthTokens(
+    user: User,
+    request?: Request,
+  ): Promise<{ accessToken: string; refreshToken: string }> {
+    const tokens = await this.generateTokens(user, request);
+
+    // Update last login timestamp
+    user.lastLoginAt = new Date();
+    await this.userRepository.save(user);
+
+    return tokens;
+  }
+
+  // =============================================================================
   // SECURITY HELPER METHODS
   // =============================================================================
 
@@ -1057,6 +1220,143 @@ export class AuthService {
     }
 
     return request.ip || request.connection?.remoteAddress || 'unknown';
+  }
+
+  // =============================================================================
+  // OAUTH SECURITY: AUTH CODE EXCHANGE (C1) + STATE CSRF PROTECTION (C2)
+  // =============================================================================
+
+  /**
+   * @description Generates a short-lived OAuth authorization code mapped to tokens.
+   * The code is stored in-memory with a 60-second TTL and is single-use.
+   * This prevents JWT tokens from appearing in URL query parameters.
+   *
+   * @param tokens - The access and refresh tokens to store
+   * @returns The generated authorization code string
+   */
+  generateOAuthCode(tokens: {
+    accessToken: string;
+    refreshToken: string;
+  }): string {
+    // Purge expired codes to prevent memory leaks
+    this.purgeExpiredOAuthCodes();
+
+    const code = crypto.randomBytes(32).toString('hex');
+    this.oauthCodeStore.set(code, {
+      ...tokens,
+      expiresAt: Date.now() + this.OAUTH_CODE_TTL_MS,
+    });
+
+    this.logger.log(`OAuth code generated (expires in 60s)`);
+    return code;
+  }
+
+  /**
+   * @description Exchanges a single-use OAuth authorization code for JWT tokens.
+   * The code is deleted after successful exchange to prevent replay attacks.
+   *
+   * @param code - The authorization code from the OAuth callback redirect
+   * @returns Object containing accessToken and refreshToken
+   * @throws BadRequestException if code is invalid, expired, or already used
+   */
+  exchangeOAuthCode(code: string): {
+    accessToken: string;
+    refreshToken: string;
+  } {
+    const entry = this.oauthCodeStore.get(code);
+
+    if (!entry) {
+      throw new BadRequestException('Invalid or expired OAuth code.');
+    }
+
+    if (Date.now() > entry.expiresAt) {
+      this.oauthCodeStore.delete(code);
+      throw new BadRequestException('OAuth code has expired.');
+    }
+
+    // Single-use: delete immediately after exchange
+    this.oauthCodeStore.delete(code);
+
+    this.logger.log('OAuth code exchanged for tokens');
+    return {
+      accessToken: entry.accessToken,
+      refreshToken: entry.refreshToken,
+    };
+  }
+
+  /**
+   * @description Generates an HMAC-signed OAuth state parameter for CSRF protection.
+   * Uses a stateless approach: state = timestamp.hmac(timestamp, jwtSecret).
+   * No server-side session storage needed.
+   *
+   * @returns The state string to include in the OAuth redirect
+   */
+  generateOAuthState(): string {
+    const timestamp = Date.now().toString();
+    const secret = this.jwtService['options']?.secret || 'oauth-state-secret';
+    const hmac = crypto
+      .createHmac('sha256', secret)
+      .update(timestamp)
+      .digest('hex');
+
+    return `${timestamp}.${hmac}`;
+  }
+
+  /**
+   * @description Validates an HMAC-signed OAuth state parameter.
+   * Checks both the HMAC signature and the timestamp freshness (10-minute window).
+   *
+   * @param state - The state string from the OAuth callback query params
+   * @returns true if state is valid and fresh
+   */
+  validateOAuthState(state: string): boolean {
+    if (!state || !state.includes('.')) {
+      return false;
+    }
+
+    const [timestamp, receivedHmac] = state.split('.');
+    const ts = parseInt(timestamp, 10);
+
+    if (isNaN(ts)) {
+      return false;
+    }
+
+    // Check freshness (10-minute window)
+    if (Date.now() - ts > this.OAUTH_STATE_MAX_AGE_MS) {
+      this.logger.warn('OAuth state expired');
+      return false;
+    }
+
+    // Verify HMAC signature
+    const secret = this.jwtService['options']?.secret || 'oauth-state-secret';
+    const expectedHmac = crypto
+      .createHmac('sha256', secret)
+      .update(timestamp)
+      .digest('hex');
+
+    const isValid = crypto.timingSafeEqual(
+      Buffer.from(receivedHmac, 'hex'),
+      Buffer.from(expectedHmac, 'hex'),
+    );
+
+    if (!isValid) {
+      this.logger.warn('OAuth state HMAC mismatch (possible CSRF)');
+    }
+
+    return isValid;
+  }
+
+  /**
+   * @description Purges expired OAuth codes from the in-memory store.
+   * Called automatically before generating new codes.
+   */
+  private purgeExpiredOAuthCodes(): void {
+    const now = Date.now();
+    for (const [code, entry] of this.oauthCodeStore.entries()) {
+      if (now > entry.expiresAt) {
+        this.oauthCodeStore.delete(code);
+      }
+    }
   }
 
 }

@@ -676,6 +676,16 @@
       "fair": "Fair",
       "good": "Good",
       "strong": "Strong"
+    },
+    "oauth": {
+      "divider": "or continue with",
+      "google": "Continue with Google",
+      "facebook": "Continue with Facebook",
+      "googleAriaLabel": "Sign in with your Google account",
+      "facebookAriaLabel": "Sign in with your Facebook account",
+      "processing": "Signing you in...",
+      "errorTitle": "Sign In Failed",
+      "redirectingToLogin": "Redirecting to login page..."
     }
   },
   "addresses": {

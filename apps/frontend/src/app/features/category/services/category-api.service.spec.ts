@@ -16,7 +16,15 @@ import { TestBed } from '@angular/core/testing';
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 
 import { CategoryApiService } from './category-api.service';
-import { CategoryTreeResponse, FeaturedCategoriesResponse, CategoryTreeNode, FeaturedCategory } from '../models/category-tree.interface';
+import {
+  CategoryTreeResponse,
+  FeaturedCategoriesResponse,
+  CategoryTreeNode,
+  FeaturedCategory,
+  SearchInCategoryResponse,
+  CategoryDetailResponse,
+  CategoryHierarchyResponse,
+} from '../models/category-tree.interface';
 import { environment } from '../../../../environments/environment';
 
 // =============================================================================
@@ -524,12 +532,12 @@ describe('CategoryApiService', () => {
       };
 
       service.searchInCategory(1, 'product', 1, 20).subscribe((response) => {
-        expect(response.data[0]).toHaveProperty('id');
-        expect(response.data[0]).toHaveProperty('nameEn');
-        expect(response.data[0]).toHaveProperty('nameAr');
-        expect(response.data[0]).toHaveProperty('mainImage');
-        expect(response.data[0]).toHaveProperty('basePrice');
-        expect(response.data[0]).toHaveProperty('discountPrice');
+        expect(response.data[0].id).toBeDefined();
+        expect(response.data[0].nameEn).toBeDefined();
+        expect(response.data[0].nameAr).toBeDefined();
+        expect(response.data[0].mainImage).toBeDefined();
+        expect(response.data[0].basePrice).toBeDefined();
+        expect(response.data[0].discountPrice).toBeDefined();
       });
 
       const req = httpMock.expectOne(
@@ -537,6 +545,236 @@ describe('CategoryApiService', () => {
           request.url === `${environment.apiUrl}/categories/1/products`
       );
       req.flush(mockResponse);
+    });
+  });
+
+  // ===========================================================================
+  // GET CATEGORY (SS-CAT-002)
+  // ===========================================================================
+
+  /** @description Tests for the getCategory(id, language) method */
+  describe('getCategory', () => {
+    /** Mock category detail response */
+    const MOCK_CATEGORY_DETAIL: CategoryDetailResponse = {
+      success: true,
+      data: {
+        id: 5,
+        nameEn: 'Electronics',
+        nameAr: 'إلكترونيات',
+        displayName: 'Electronics',
+        slug: 'electronics',
+        displayDescription: 'Electronic devices',
+        iconUrl: 'electronics.svg',
+        bannerUrl: 'electronics.jpg',
+        themeColor: '#2196F3',
+        isActive: true,
+        approvalStatus: 'approved',
+        depthLevel: 0,
+        productCount: 150,
+        hasChildren: true,
+        breadcrumbs: [
+          { id: 5, name: 'Electronics', slug: 'electronics', url: '/en/categories/electronics', isActive: true, depthLevel: 0 },
+        ],
+      },
+    };
+
+    /**
+     * Should call GET /categories/:id with language param
+     * Validates: Correct HTTP method, URL, and query params
+     */
+    it('should call GET /categories/:id with language param', () => {
+      service.getCategory(5, 'en').subscribe((response) => {
+        expect(response).toEqual(MOCK_CATEGORY_DETAIL);
+      });
+
+      const req = httpMock.expectOne(
+        (request) =>
+          request.url === `${environment.apiUrl}/categories/5` &&
+          request.params.get('language') === 'en',
+      );
+      expect(req.request.method).toBe('GET');
+      req.flush(MOCK_CATEGORY_DETAIL);
+    });
+
+    /**
+     * Should return CategoryDetailResponse with data object
+     * Validates: Response shape matches interface
+     */
+    it('should return CategoryDetailResponse with data object', () => {
+      service.getCategory(5).subscribe((response) => {
+        expect(response.success).toBe(true);
+        expect(response.data).toBeDefined();
+        expect(response.data.id).toBe(5);
+        expect(response.data.displayName).toBe('Electronics');
+        expect(response.data.breadcrumbs).toBeDefined();
+      });
+
+      const req = httpMock.expectOne(
+        (request) => request.url === `${environment.apiUrl}/categories/5`,
+      );
+      req.flush(MOCK_CATEGORY_DETAIL);
+    });
+
+    /**
+     * Should default to 'en' language
+     * Validates: Default parameter value
+     */
+    it('should default to en language', () => {
+      service.getCategory(5).subscribe();
+
+      const req = httpMock.expectOne(
+        (request) =>
+          request.url === `${environment.apiUrl}/categories/5` &&
+          request.params.get('language') === 'en',
+      );
+      req.flush(MOCK_CATEGORY_DETAIL);
+    });
+
+    /**
+     * Should propagate 404 errors
+     * Validates: Not found error stream
+     */
+    it('should propagate 404 errors', () => {
+      service.getCategory(99999).subscribe({
+        next: () => fail('Should have errored'),
+        error: (error) => {
+          expect(error.status).toBe(404);
+        },
+      });
+
+      const req = httpMock.expectOne(
+        (request) => request.url === `${environment.apiUrl}/categories/99999`,
+      );
+      req.flush('Not Found', { status: 404, statusText: 'Not Found' });
+    });
+
+    /**
+     * Should propagate server errors
+     * Validates: 500 error stream
+     */
+    it('should propagate server errors', () => {
+      service.getCategory(5).subscribe({
+        next: () => fail('Should have errored'),
+        error: (error) => {
+          expect(error.status).toBe(500);
+        },
+      });
+
+      const req = httpMock.expectOne(
+        (request) => request.url === `${environment.apiUrl}/categories/5`,
+      );
+      req.flush('Server Error', { status: 500, statusText: 'Internal Server Error' });
+    });
+  });
+
+  // ===========================================================================
+  // GET CATEGORY HIERARCHY (SS-CAT-003)
+  // ===========================================================================
+
+  /** @description Tests for the getCategoryHierarchy(id, language) method */
+  describe('getCategoryHierarchy', () => {
+    /** Mock hierarchy response */
+    const MOCK_HIERARCHY_RESPONSE: CategoryHierarchyResponse = {
+      success: true,
+      data: {
+        breadcrumbs: [
+          { id: 1, name: 'Electronics', slug: 'electronics', url: '/en/categories/electronics', isActive: true, depthLevel: 0 },
+          { id: 5, name: 'Smartphones', slug: 'smartphones', url: '/en/categories/smartphones', isActive: true, depthLevel: 1 },
+        ],
+        children: [
+          { id: 20, name: 'iPhones', nameAr: 'آيفون', slug: 'iphones', iconUrl: 'iphone.svg', productCount: 15 },
+          { id: 21, name: 'Android', nameAr: 'أندرويد', slug: 'android', iconUrl: 'android.svg', productCount: 25 },
+        ],
+        depthLevel: 1,
+        categoryPath: 'Electronics > Smartphones',
+      },
+    };
+
+    /**
+     * Should call GET /categories/:id/hierarchy with language param
+     * Validates: Correct URL and query params
+     */
+    it('should call GET /categories/:id/hierarchy with language param', () => {
+      service.getCategoryHierarchy(5, 'en').subscribe((response) => {
+        expect(response).toEqual(MOCK_HIERARCHY_RESPONSE);
+      });
+
+      const req = httpMock.expectOne(
+        (request) =>
+          request.url === `${environment.apiUrl}/categories/5/hierarchy` &&
+          request.params.get('language') === 'en',
+      );
+      expect(req.request.method).toBe('GET');
+      req.flush(MOCK_HIERARCHY_RESPONSE);
+    });
+
+    /**
+     * Should return breadcrumbs and children in response
+     * Validates: Response shape matches interface
+     */
+    it('should return breadcrumbs and children in response', () => {
+      service.getCategoryHierarchy(5).subscribe((response) => {
+        expect(response.data.breadcrumbs).toHaveSize(2);
+        expect(response.data.children).toHaveSize(2);
+        expect(response.data.depthLevel).toBe(1);
+        expect(response.data.categoryPath).toBe('Electronics > Smartphones');
+      });
+
+      const req = httpMock.expectOne(
+        (request) => request.url === `${environment.apiUrl}/categories/5/hierarchy`,
+      );
+      req.flush(MOCK_HIERARCHY_RESPONSE);
+    });
+
+    /**
+     * Should default to 'en' language
+     * Validates: Default parameter value
+     */
+    it('should default to en language', () => {
+      service.getCategoryHierarchy(5).subscribe();
+
+      const req = httpMock.expectOne(
+        (request) =>
+          request.url === `${environment.apiUrl}/categories/5/hierarchy` &&
+          request.params.get('language') === 'en',
+      );
+      req.flush(MOCK_HIERARCHY_RESPONSE);
+    });
+
+    /**
+     * Should propagate 404 errors
+     * Validates: Not found error stream
+     */
+    it('should propagate 404 errors', () => {
+      service.getCategoryHierarchy(99999).subscribe({
+        next: () => fail('Should have errored'),
+        error: (error) => {
+          expect(error.status).toBe(404);
+        },
+      });
+
+      const req = httpMock.expectOne(
+        (request) => request.url === `${environment.apiUrl}/categories/99999/hierarchy`,
+      );
+      req.flush('Not Found', { status: 404, statusText: 'Not Found' });
+    });
+
+    /**
+     * Should propagate server errors
+     * Validates: 500 error stream
+     */
+    it('should propagate server errors', () => {
+      service.getCategoryHierarchy(5).subscribe({
+        next: () => fail('Should have errored'),
+        error: (error) => {
+          expect(error.status).toBe(500);
+        },
+      });
+
+      const req = httpMock.expectOne(
+        (request) => request.url === `${environment.apiUrl}/categories/5/hierarchy`,
+      );
+      req.flush('Server Error', { status: 500, statusText: 'Internal Server Error' });
     });
   });
 });

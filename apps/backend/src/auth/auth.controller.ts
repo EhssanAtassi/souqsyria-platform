@@ -8,13 +8,16 @@ import {
   UseGuards,
   Logger,
   Post,
+  Get,
   Body,
   Req,
+  Res,
   Put,
   BadRequestException,
   Delete,
 } from '@nestjs/common';
-import { Request } from 'express';
+import { Request, Response } from 'express';
+import { ConfigService } from '@nestjs/config';
 import { UsersService } from '../users/users.service';
 import { AuthService } from './auth.service';
 import { RegisterDto } from './dto/register.dto';
@@ -27,6 +30,8 @@ import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
+import { GoogleAuthGuard } from './guards/google-auth.guard';
+import { FacebookAuthGuard } from './guards/facebook-auth.guard';
 import { ChangePasswordDto } from './dto/change-password.dto';
 import { LogoutDto } from './dto/logout.dto';
 import { RefreshTokenDto } from './dto/refresh-token.dto';
@@ -39,6 +44,7 @@ export class AuthController {
   constructor(
     private readonly usersService: UsersService,
     private readonly authService: AuthService,
+    private readonly configService: ConfigService,
   ) {}
   /**
    * @route POST /auth/register
@@ -207,5 +213,168 @@ export class AuthController {
       deleteAccountDto,
       request.ip || 'unknown',
     );
+  }
+
+  // ─── Google OAuth ───────────────────────────────────────────
+
+  /**
+   * @route GET /auth/google
+   * @description Initiates the Google OAuth 2.0 consent flow.
+   * Redirects the user to Google's authorization page.
+   */
+  @Public()
+  @ApiOperation({ summary: 'Initiate Google OAuth login' })
+  @ApiResponse({ status: 302, description: 'Redirects to Google consent screen' })
+  @UseGuards(GoogleAuthGuard)
+  @Get('google')
+  async googleLogin(): Promise<void> {
+    // Guard triggers redirect — this method body is never reached
+  }
+
+  /**
+   * @route GET /auth/google/callback
+   * @description Handles the Google OAuth callback after user consent.
+   * Creates/links user account and redirects to frontend with tokens.
+   */
+  @Public()
+  @ApiOperation({ summary: 'Google OAuth callback handler' })
+  @UseGuards(GoogleAuthGuard)
+  @Get('google/callback')
+  async googleCallback(
+    @Req() request: Request,
+    @Res() res: Response,
+  ): Promise<void> {
+    await this.handleOAuthCallback('google', request, res);
+  }
+
+  // ─── Facebook OAuth ─────────────────────────────────────────
+
+  /**
+   * @route GET /auth/facebook
+   * @description Initiates the Facebook OAuth flow.
+   * Redirects the user to Facebook's authorization page.
+   */
+  @Public()
+  @ApiOperation({ summary: 'Initiate Facebook OAuth login' })
+  @ApiResponse({ status: 302, description: 'Redirects to Facebook consent screen' })
+  @UseGuards(FacebookAuthGuard)
+  @Get('facebook')
+  async facebookLogin(): Promise<void> {
+    // Guard triggers redirect — this method body is never reached
+  }
+
+  /**
+   * @route GET /auth/facebook/callback
+   * @description Handles the Facebook OAuth callback after user consent.
+   * Creates/links user account and redirects to frontend with tokens.
+   */
+  @Public()
+  @ApiOperation({ summary: 'Facebook OAuth callback handler' })
+  @UseGuards(FacebookAuthGuard)
+  @Get('facebook/callback')
+  async facebookCallback(
+    @Req() request: Request,
+    @Res() res: Response,
+  ): Promise<void> {
+    await this.handleOAuthCallback('facebook', request, res);
+  }
+
+  // ─── OAuth Code Exchange ────────────────────────────────────
+
+  /**
+   * @route POST /auth/oauth/exchange
+   * @description Exchanges a short-lived OAuth authorization code for JWT tokens.
+   * The code is single-use and expires after 60 seconds. This endpoint replaces
+   * the previous pattern of passing tokens directly in URL query parameters (C1 fix).
+   *
+   * @param body.code - The authorization code from the OAuth callback redirect
+   * @returns Object containing accessToken and refreshToken
+   */
+  @Public()
+  @ApiOperation({ summary: 'Exchange OAuth authorization code for tokens' })
+  @ApiResponse({ status: 200, description: 'Tokens returned' })
+  @ApiResponse({ status: 400, description: 'Invalid or expired code' })
+  @Post('oauth/exchange')
+  async exchangeOAuthCode(
+    @Body() body: { code: string },
+  ): Promise<{ accessToken: string; refreshToken: string }> {
+    if (!body.code) {
+      throw new BadRequestException('Authorization code is required.');
+    }
+    return this.authService.exchangeOAuthCode(body.code);
+  }
+
+  // ─── OAuth Helper ───────────────────────────────────────────
+
+  /**
+   * @description Shared handler for OAuth callbacks. Validates/creates the user,
+   * generates tokens, stores them behind a short-lived authorization code,
+   * and redirects to the frontend with the code (not raw tokens).
+   * Also validates the HMAC-signed state parameter for CSRF protection (C2 fix).
+   *
+   * @param provider - OAuth provider name ('google' | 'facebook')
+   * @param request - Express request containing req.user from Passport
+   * @param res - Express response for redirect
+   */
+  private async handleOAuthCallback(
+    provider: 'google' | 'facebook',
+    request: Request,
+    res: Response,
+  ): Promise<void> {
+    const frontendUrl = this.configService.get<string>('FRONTEND_URL') || 'http://localhost:4200';
+
+    try {
+      // C2: Validate OAuth state parameter for CSRF protection
+      const state = (request.query as any).state as string;
+      if (!state || !this.authService.validateOAuthState(state)) {
+        this.logger.warn(`OAuth ${provider} callback: invalid state parameter (possible CSRF)`);
+        res.redirect(
+          `${frontendUrl}/auth/callback/${provider}?error=invalid_state`,
+        );
+        return;
+      }
+
+      const oauthProfile = request.user as {
+        providerId: string;
+        email: string | null;
+        fullName: string | null;
+        avatar: string | null;
+        provider: string;
+      };
+
+      if (!oauthProfile) {
+        this.logger.warn(`OAuth ${provider} callback: no user profile returned`);
+        res.redirect(
+          `${frontendUrl}/auth/callback/${provider}?error=no_profile`,
+        );
+        return;
+      }
+
+      const user = await this.authService.validateOrCreateOAuthUser(
+        provider,
+        oauthProfile,
+        request,
+      );
+
+      const tokens = await this.authService.generateOAuthTokens(user, request);
+
+      // C1: Generate auth code instead of passing tokens in URL
+      const code = this.authService.generateOAuthCode(tokens);
+
+      this.logger.log(
+        `OAuth ${provider} callback success for user ID: ${user.id}`,
+      );
+
+      res.redirect(
+        `${frontendUrl}/auth/callback/${provider}?code=${code}`,
+      );
+    } catch (error: unknown) {
+      this.logger.error(
+        `OAuth ${provider} callback failed: ${(error as Error).message}`,
+      );
+      res.redirect(
+        `${frontendUrl}/auth/callback/${provider}?error=auth_failed`,
+      );
+    }
   }
 }

@@ -75,6 +75,7 @@ import {
   selectIsAccountLocked,
 } from '../../store/auth.selectors';
 import { TokenService } from '../../services/token.service';
+import { SocialAuthButtonsComponent } from '../social-auth-buttons/social-auth-buttons.component';
 
 /**
  * LoginComponent
@@ -103,6 +104,7 @@ import { TokenService } from '../../services/token.service';
     MatIconModule,
     MatProgressSpinnerModule,
     MatCheckboxModule,
+    SocialAuthButtonsComponent,
   ],
   template: `
     <div class="auth-page">
@@ -219,6 +221,9 @@ import { TokenService } from '../../services/token.service';
             }
           </button>
         </form>
+
+        <!-- Social OAuth login buttons -->
+        <app-social-auth-buttons></app-social-auth-buttons>
 
         <!-- Footer with register link -->
         <div class="auth-footer">

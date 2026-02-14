@@ -190,6 +190,156 @@ export interface FeaturedCategoriesResponse {
 }
 
 /**
+ * Breadcrumb item in category hierarchy
+ *
+ * @description Rich breadcrumb object returned by GET /categories/:id/hierarchy.
+ * Contains full navigation data for each level in the category path.
+ *
+ * @interface CategoryBreadcrumbItem
+ */
+export interface CategoryBreadcrumbItem {
+  /** Category ID */
+  id: number;
+
+  /** Display name (localized) */
+  name: string;
+
+  /** URL-friendly slug */
+  slug: string;
+
+  /** Full URL path */
+  url: string;
+
+  /** Whether category is active */
+  isActive: boolean;
+
+  /** Hierarchy depth (0 = root) */
+  depthLevel: number;
+}
+
+/**
+ * Category hierarchy child item
+ *
+ * @description Simplified child category returned in hierarchy response
+ *
+ * @interface CategoryHierarchyChild
+ */
+export interface CategoryHierarchyChild {
+  /** Child category ID */
+  id: number;
+
+  /** Display name (localized) */
+  name: string;
+
+  /** Arabic name */
+  nameAr: string;
+
+  /** URL-friendly slug */
+  slug: string;
+
+  /** Icon URL */
+  iconUrl: string;
+
+  /** Product count in this child */
+  productCount: number;
+}
+
+/**
+ * Category hierarchy API response
+ *
+ * @description Response from GET /categories/:id/hierarchy endpoint.
+ * Provides navigation data for breadcrumbs and sub-category links.
+ *
+ * @interface CategoryHierarchyResponse
+ */
+export interface CategoryHierarchyResponse {
+  /** Request success status */
+  success: boolean;
+
+  /** Hierarchy data */
+  data: {
+    /** Breadcrumb path from root to current */
+    breadcrumbs: CategoryBreadcrumbItem[];
+
+    /** Direct children of current category */
+    children: CategoryHierarchyChild[];
+
+    /** Depth level of current category (0 = root) */
+    depthLevel: number;
+
+    /** Human-readable category path string */
+    categoryPath: string;
+  };
+}
+
+/**
+ * Category detail API response
+ *
+ * @description Response from GET /categories/:id endpoint.
+ * Provides full category details for category detail pages.
+ *
+ * @interface CategoryDetailResponse
+ */
+export interface CategoryDetailResponse {
+  /** Request success status */
+  success: boolean;
+
+  /** Category detail data */
+  data: {
+    /** Category ID */
+    id: number;
+
+    /** English name */
+    nameEn: string;
+
+    /** Arabic name */
+    nameAr: string;
+
+    /** Localized display name */
+    displayName: string;
+
+    /** URL slug */
+    slug: string;
+
+    /** Localized description */
+    displayDescription?: string;
+
+    /** Icon URL */
+    iconUrl?: string;
+
+    /** Banner image URL */
+    bannerUrl?: string;
+
+    /** Theme color hex */
+    themeColor?: string;
+
+    /** Whether category is active */
+    isActive: boolean;
+
+    /** Approval status */
+    approvalStatus: string;
+
+    /** Depth in hierarchy */
+    depthLevel: number;
+
+    /** Product count */
+    productCount: number;
+
+    /** Has child categories */
+    hasChildren: boolean;
+
+    /** Navigation breadcrumbs */
+    breadcrumbs?: CategoryBreadcrumbItem[];
+
+    /** Parent category summary */
+    parent?: { id: number; name: string; slug: string };
+
+    /** Children summaries */
+    children?: { id: number; name: string; slug: string; isActive: boolean; productCount: number }[];
+  };
+}
+
+/**
  * Product search result item
  *
  * @description Product information returned from category search endpoint.

@@ -1,0 +1,127 @@
+/**
+ * Social Auth Buttons Styles for SouqSyria marketplace
+ *
+ * @description Styles for the Google and Facebook OAuth login buttons
+ * with an "Or continue with" divider. Uses the shared auth design tokens
+ * and CSS logical properties for RTL support.
+ */
+
+@import '../../styles/auth-shared';
+
+// =============================================================================
+// "Or continue with" Divider
+// =============================================================================
+
+.social-divider {
+  display: flex;
+  align-items: center;
+  margin-block: $spacing-6;
+  gap: $spacing-3;
+
+  &::before,
+  &::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--color-border, #e0e0e0);
+  }
+
+  span {
+    font-size: 0.8125rem; // 13px
+    color: $color-text-tertiary;
+    white-space: nowrap;
+    text-transform: lowercase;
+  }
+}
+
+// =============================================================================
+// Social Buttons Container
+// =============================================================================
+
+.social-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-3;
+}
+
+// =============================================================================
+// Individual Social Button
+// =============================================================================
+
+.social-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: $spacing-3;
+  width: 100%;
+  min-height: $spacing-11; // 44px touch target
+  height: $spacing-12;     // 48px comfortable height
+  padding-inline: $spacing-4;
+  border: 1px solid var(--color-border, #e0e0e0);
+  border-radius: 0.5rem;
+  background: $color-white;
+  cursor: pointer;
+  font-size: 0.9375rem; // 15px
+  font-weight: 500;
+  color: $color-text-primary;
+  transition: background-color 0.2s ease,
+              border-color 0.2s ease,
+              box-shadow 0.2s ease;
+
+  &:hover:not(:disabled) {
+    background: var(--color-surface-neutral, #f5f5f5);
+    border-color: var(--color-border-hover, #bdbdbd);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  }
+
+  &:active:not(:disabled) {
+    transform: scale(0.99);
+  }
+
+  &:focus-visible {
+    outline: 2px solid $color-primary;
+    outline-offset: 2px;
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+}
+
+// =============================================================================
+// Social Icon
+// =============================================================================
+
+.social-icon {
+  width: 1.25rem;  // 20px
+  height: 1.25rem;
+  flex-shrink: 0;
+}
+
+// =============================================================================
+// Provider-specific hover colors
+// =============================================================================
+
+.google-btn:hover:not(:disabled) {
+  border-color: #4285f4;
+}
+
+.facebook-btn:hover:not(:disabled) {
+  border-color: #1877f2;
+}
+
+// =============================================================================
+// RTL Adjustments
+// =============================================================================
+
+[dir="rtl"] {
+  .social-divider span {
+    font-family: 'Cairo', 'Noto Sans Arabic', sans-serif;
+  }
+
+  .social-btn {
+    font-family: 'Cairo', 'Noto Sans Arabic', sans-serif;
+    letter-spacing: normal;
+  }
+}

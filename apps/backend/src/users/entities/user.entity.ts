@@ -59,6 +59,32 @@ export class User {
   @Column({ nullable: true })
   avatar: string;
 
+  /**
+   * OAuth provider that created this account.
+   * 'local' for email/password registration, 'google' or 'facebook' for OAuth.
+   * Used to determine login flow and UI display.
+   */
+  @Column({ name: 'oauth_provider', default: 'local' })
+  oauthProvider: 'local' | 'google' | 'facebook';
+
+  /**
+   * Google OAuth subject ID for linking Google accounts.
+   * Populated on first Google OAuth login; nullable for non-Google users.
+   * Unique constraint allows only one SouqSyria account per Google account.
+   */
+  @Index({ unique: true })
+  @Column({ name: 'google_id', nullable: true, unique: true })
+  googleId: string;
+
+  /**
+   * Facebook OAuth subject ID for linking Facebook accounts.
+   * Populated on first Facebook OAuth login; nullable for non-Facebook users.
+   * Unique constraint allows only one SouqSyria account per Facebook account.
+   */
+  @Index({ unique: true })
+  @Column({ name: 'facebook_id', nullable: true, unique: true })
+  facebookId: string;
+
   @Column({ name: 'password_hash', nullable: true })
   passwordHash: string; // ✅ For email/password login
 
