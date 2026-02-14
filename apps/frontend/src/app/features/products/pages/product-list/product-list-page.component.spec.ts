@@ -19,12 +19,16 @@ import {
   ChangeDetectionStrategy,
   input,
   output,
+  signal,
+  computed,
 } from '@angular/core';
 import { provideRouter, Router, ActivatedRoute } from '@angular/router';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { of, throwError, Subject, BehaviorSubject } from 'rxjs';
 import { ProductListPageComponent } from './product-list-page.component';
 import { ProductService } from '../../services/product.service';
+import { LanguageService } from '../../../../shared/services/language.service';
+import { CartService } from '../../../../store/cart/cart.service';
 import { ProductCardComponent } from '../../components/product-card/product-card.component';
 import { ProductSkeletonComponent } from '../../components/product-skeleton/product-skeleton.component';
 import { ProductsPaginationComponent } from '../../components/pagination/products-pagination.component';
@@ -165,6 +169,16 @@ describe('ProductListPageComponent', () => {
   let routerSpy: jasmine.SpyObj<Router>;
   let queryParams$: BehaviorSubject<Record<string, string>>;
 
+  /** @description Mock LanguageService with English defaults */
+  const mockLanguageService = {
+    language: signal<'en' | 'ar'>('en'),
+    isRtl: computed(() => false),
+    direction: computed(() => 'ltr' as const),
+  };
+
+  /** @description Mock CartService with spy for addToCart */
+  const mockCartService = jasmine.createSpyObj('CartService', ['addToCart']);
+
   beforeEach(async () => {
     productServiceSpy = jasmine.createSpyObj('ProductService', [
       'getProducts',
@@ -184,6 +198,8 @@ describe('ProductListPageComponent', () => {
         provideNoopAnimations(),
         { provide: ProductService, useValue: productServiceSpy },
         { provide: Router, useValue: routerSpy },
+        { provide: LanguageService, useValue: mockLanguageService },
+        { provide: CartService, useValue: mockCartService },
         {
           provide: ActivatedRoute,
           useValue: {

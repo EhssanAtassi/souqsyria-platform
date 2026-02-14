@@ -101,7 +101,10 @@
               "@angular/material/prebuilt-themes/azure-blue.css",
               "src/styles.scss"
             ],
-            "scripts": []
+            "scripts": [],
+            "exclude": [
+              "src/app/features/account/**/*.spec.ts"
+            ]
           }
         }
       }

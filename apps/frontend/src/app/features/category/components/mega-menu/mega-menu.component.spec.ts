@@ -178,9 +178,9 @@ describe('MegaMenuComponent', () => {
   /** @description Tests for desktop hover-based category navigation */
   describe('Desktop Hover Behavior', () => {
     beforeEach(() => {
-      // Ensure desktop mode
-      component.isMobile.set(false);
+      // Trigger ngOnInit first, then override isMobile
       fixture.detectChanges();
+      component.isMobile.set(false);
     });
 
     /**
@@ -475,8 +475,8 @@ describe('MegaMenuComponent', () => {
   /** @description Tests for desktop click navigation */
   describe('Desktop Click Behavior', () => {
     beforeEach(() => {
-      component.isMobile.set(false);
       fixture.detectChanges();
+      component.isMobile.set(false);
     });
 
     /**

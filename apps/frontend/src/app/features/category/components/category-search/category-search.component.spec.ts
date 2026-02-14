@@ -21,7 +21,7 @@ import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testin
 import { CategorySearchComponent } from './category-search.component';
 import { CategoryApiService } from '../../services/category-api.service';
 import { SearchInCategoryResponse } from '../../models/category-tree.interface';
-import { of, throwError } from 'rxjs';
+import { of, throwError, Subject } from 'rxjs';
 
 // =============================================================================
 // TEST DATA
@@ -256,33 +256,38 @@ describe('CategorySearchComponent', () => {
     /**
      * Should show placeholder with category name
      * Validates: Placeholder includes category name
+     * Note: Uses fresh component so computed evaluates with inputs set
      */
     it('should show placeholder with category name', () => {
-      component.categoryName = 'Electronics';
-      component.categoryNameAr = 'إلكترونيات';
+      const freshFixture = TestBed.createComponent(CategorySearchComponent);
+      const freshComponent = freshFixture.componentInstance;
+      freshComponent.categoryId = 1;
+      freshComponent.categoryName = 'Electronics';
+      freshComponent.categoryNameAr = 'إلكترونيات';
+      freshFixture.detectChanges();
 
-      // Force computed signal re-evaluation
-      fixture.detectChanges();
-      const placeholder = component.placeholder();
-
-      expect(placeholder).toContain('Electronics');
+      expect(freshComponent.placeholder()).toContain('Electronics');
+      freshFixture.destroy();
     });
 
     /**
      * Should show Arabic placeholder in RTL mode
      * Validates: RTL mode uses Arabic name
+     * Note: Sets dir before component creation so isRtl computed captures RTL
      */
     it('should show Arabic placeholder in RTL mode', () => {
       document.documentElement.dir = 'rtl';
-      component.categoryName = 'Electronics';
-      component.categoryNameAr = 'إلكترونيات';
 
-      fixture.detectChanges();
-      const placeholder = component.placeholder();
+      const freshFixture = TestBed.createComponent(CategorySearchComponent);
+      const freshComponent = freshFixture.componentInstance;
+      freshComponent.categoryId = 1;
+      freshComponent.categoryName = 'Electronics';
+      freshComponent.categoryNameAr = 'إلكترونيات';
+      freshFixture.detectChanges();
 
-      expect(placeholder).toContain('إلكترونيات');
+      expect(freshComponent.placeholder()).toContain('إلكترونيات');
 
-      // Reset
+      freshFixture.destroy();
       document.documentElement.dir = 'ltr';
     });
 
@@ -314,13 +319,17 @@ describe('CategorySearchComponent', () => {
      * Validates: Loading indicator shown during API call
      */
     it('should set isSearching to true during search', fakeAsync(() => {
-      categoryApiService.searchInCategory.and.returnValue(of(MOCK_SEARCH_RESPONSE));
+      const response$ = new Subject<SearchInCategoryResponse>();
+      categoryApiService.searchInCategory.and.returnValue(response$.asObservable());
 
       component.onSearchInput('damascus');
+      tick(300); // Debounce fires, switchMap enters, isSearching=true
 
       expect(component.isSearching()).toBe(true);
-      tick(300);
-      tick(0); // For async completion
+
+      response$.next(MOCK_SEARCH_RESPONSE);
+      response$.complete();
+      tick(0);
     }));
 
     /**
@@ -450,7 +459,7 @@ describe('CategorySearchComponent', () => {
 
       const event = new KeyboardEvent('keydown', { key: 'Enter' });
       component.onEnterPress(event);
-      tick(0); // Async execution
+      tick(300); // Debounce delay
 
       expect(categoryApiService.searchInCategory).toHaveBeenCalled();
     }));
@@ -588,14 +597,19 @@ describe('CategorySearchComponent', () => {
     /**
      * Should detect RTL mode
      * Validates: isRtl computed signal
+     * Note: Fresh component needed so computed evaluates with RTL dir
      */
     it('should detect RTL mode', () => {
       document.documentElement.dir = 'rtl';
-      fixture.detectChanges();
 
-      expect(component.isRtl()).toBe(true);
+      const freshFixture = TestBed.createComponent(CategorySearchComponent);
+      const freshComponent = freshFixture.componentInstance;
+      freshComponent.categoryId = 1;
+      freshFixture.detectChanges();
 
-      // Reset
+      expect(freshComponent.isRtl()).toBe(true);
+
+      freshFixture.destroy();
       document.documentElement.dir = 'ltr';
     });
 

@@ -37,7 +37,6 @@ const MOCK_CATEGORIES: CategoryTreeNode[] = [
     slug: 'electronics',
     icon: 'devices',
     image: 'electronics.jpg',
-    productCount: 150,
     children: [
       {
         id: 10,
@@ -46,7 +45,6 @@ const MOCK_CATEGORIES: CategoryTreeNode[] = [
         slug: 'mobile-phones',
         icon: 'smartphone',
         image: 'phones.jpg',
-        productCount: 50,
         children: [
           {
             id: 100,
@@ -55,7 +53,7 @@ const MOCK_CATEGORIES: CategoryTreeNode[] = [
             slug: 'iphones',
             icon: 'apple',
             image: 'iphones.jpg',
-            productCount: 25,
+            children: [],
           },
         ],
       },
@@ -66,7 +64,7 @@ const MOCK_CATEGORIES: CategoryTreeNode[] = [
         slug: 'laptops',
         icon: 'laptop',
         image: 'laptops.jpg',
-        productCount: 40,
+        children: [],
       },
     ],
   },
@@ -77,7 +75,6 @@ const MOCK_CATEGORIES: CategoryTreeNode[] = [
     slug: 'fashion',
     icon: 'checkroom',
     image: 'fashion.jpg',
-    productCount: 200,
     children: [],
   },
 ];
@@ -479,6 +476,9 @@ describe('MobileCategoryNavComponent', () => {
         name: 'Test',
         nameAr: 'اختبار',
         slug: 'test',
+        icon: 'test',
+        image: 'test.jpg',
+        children: [],
       };
 
       expect(component.hasChildren(categoryWithoutChildren)).toBe(false);

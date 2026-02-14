@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, signal, computed, ChangeDetectionStrategy } from '@angular/core';
+import { Component, OnInit, OnDestroy, signal, computed, ChangeDetectionStrategy, WritableSignal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -143,7 +143,7 @@ export class CartComponent implements OnInit, OnDestroy {
   private readonly RECOMMENDATION_DEBOUNCE_MS = 500;
 
   /** Current UI language signal */
-  readonly language: ReturnType<LanguageService['language']>;
+  readonly language: WritableSignal<'en' | 'ar'>;
 
   constructor(
     private cartService: CartService,
