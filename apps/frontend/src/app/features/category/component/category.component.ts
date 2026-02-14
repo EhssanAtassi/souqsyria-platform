@@ -66,6 +66,7 @@ import { FilterSidebarComponent, FilterState } from '../../../shared/components/
 import { ProductsToolbarComponent, SortOption } from '../../../shared/components/products-toolbar/products-toolbar.component';
 import { ActiveFiltersChipsComponent } from '../../../shared/components/active-filters-chips/active-filters-chips.component';
 import { ProductRecommendationsCarouselComponent } from '../../../shared/components/product-recommendations-carousel/product-recommendations-carousel.component';
+import { BreadcrumbComponent, BreadcrumbItem } from '../../../shared/components/ui/breadcrumb/breadcrumb.component';
 
 // Services
 import { CategoryFacadeService } from '../services/category-facade.service';
@@ -161,7 +162,8 @@ import {
     FilterSidebarComponent,
     ProductsToolbarComponent,
     ActiveFiltersChipsComponent,
-    ProductRecommendationsCarouselComponent
+    ProductRecommendationsCarouselComponent,
+    BreadcrumbComponent
   ],
   templateUrl: './category.component.html',
   styleUrls: ['./category.component.scss']
@@ -235,6 +237,17 @@ export class CategoryComponent implements OnInit {
     return currentSlug ? getRelatedCategories(currentSlug, 4) : [];
   });
 
+  /** Breadcrumb items for navigation */
+  readonly breadcrumbItems = computed<BreadcrumbItem[]>(() => {
+    const response = this.productListingResponse();
+    if (!response?.category?.breadcrumb) return [];
+
+    return response.category.breadcrumb.map((label: string, index: number, arr: string[]) => ({
+      label,
+      url: index < arr.length - 1 ? (index === 0 ? '/' : `/category/${this.categorySlug()}`) : undefined
+    }));
+  });
+
   /** Current filters as FilterState */
   readonly currentFilters = computed<FilterState>(() => {
     const filters: FilterState = {};
@@ -249,7 +262,7 @@ export class CategoryComponent implements OnInit {
       filters.ratings = ratings;
     }
 
-    const authenticity: any = {};
+    const authenticity: { unesco?: boolean; handmade?: boolean; regional?: boolean } = {};
     if (this.onlyUnesco()) authenticity.unesco = true;
 
     const heritage = this.selectedHeritage();
@@ -260,7 +273,7 @@ export class CategoryComponent implements OnInit {
       filters.authenticity = authenticity;
     }
 
-    const availability: any = {};
+    const availability: { inStock?: boolean; outOfStock?: boolean } = {};
     const avail = this.selectedAvailability();
     if (avail.includes('in_stock')) availability.inStock = true;
     if (avail.includes('out_of_stock')) availability.outOfStock = true;
@@ -607,8 +620,15 @@ export class CategoryComponent implements OnInit {
 
   /**
    * Update SEO meta tags
+   * @param category Category information object with name, description, and slug
+   * @param products Array of products for the category
+   * @param totalProducts Total count of products
    */
-  private updateSEOTags(category: any, products: Product[], totalProducts: number): void {
+  private updateSEOTags(
+    category: { nameEn?: string; name?: string; nameAr?: string; nameArabic?: string; descriptionEn?: string; description?: string; slug: string },
+    products: Product[],
+    totalProducts: number
+  ): void {
     const seoTags = this.categoryFacade.generateSEOMetaTags(category, products, totalProducts);
 
     this.titleService.setTitle(seoTags.title);
@@ -635,8 +655,13 @@ export class CategoryComponent implements OnInit {
 
   /**
    * Update JSON-LD structured data
+   * @param category Category information object with name, description, and slug
+   * @param products Array of products for structured data
    */
-  private updateStructuredData(category: any, products: Product[]): void {
+  private updateStructuredData(
+    category: { nameEn?: string; name?: string; nameAr?: string; nameArabic?: string; descriptionEn?: string; description?: string; slug: string },
+    products: Product[]
+  ): void {
     if (!isPlatformBrowser(this.platformId)) return;
 
     // Remove existing structured data

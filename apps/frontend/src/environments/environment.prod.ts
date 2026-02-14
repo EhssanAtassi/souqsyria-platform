@@ -11,6 +11,7 @@ export const environment = {
   apiUrl: 'https://api.souqsyria.com',
   productApiUrl: 'https://api.souqsyria.com/products',
   userApiUrl: 'https://api.souqsyria.com/users',
+  categoryApiUrl: 'https://api.souqsyria.com/categories',
   apiVersion: 'v1',
 
   // Performance Configuration

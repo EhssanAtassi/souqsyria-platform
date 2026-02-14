@@ -32,7 +32,7 @@ export {
   CategoryParentDto,
   CategoryChildDto,
 } from './category-response.dto';
-export { SearchWithinCategoryDto } from './search-within-category.dto';
+export { SearchWithinCategoryDto, ProductSortBy } from './search-within-category.dto';
 
 // ============================================================================
 // DELETION AND RESTORATION DTOs (Comment out until files are created)

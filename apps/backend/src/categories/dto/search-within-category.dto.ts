@@ -15,14 +15,32 @@
  */
 
 import { ApiProperty } from '@nestjs/swagger';
-import { IsString, IsOptional, IsInt, Min, Max } from 'class-validator';
+import { IsString, IsOptional, IsInt, Min, Max, IsEnum, IsNumber } from 'class-validator';
 import { Type } from 'class-transformer';
+
+/**
+ * Product sort order options for category search
+ *
+ * Supported sorting strategies:
+ * - newest: Recently added products first (default)
+ * - price_asc: Lowest price first
+ * - price_desc: Highest price first
+ * - popularity: Most viewed products first
+ * - rating: Highest rated products first
+ */
+export enum ProductSortBy {
+  NEWEST = 'newest',
+  PRICE_ASC = 'price_asc',
+  PRICE_DESC = 'price_desc',
+  POPULARITY = 'popularity',
+  RATING = 'rating',
+}
 
 /**
  * Search Within Category Query Parameters
  *
  * Used for GET /api/categories/:id/products endpoint
- * Provides flexible search with pagination for products in a specific category
+ * Provides flexible search with pagination, sorting, and price filtering for products in a specific category
  */
 export class SearchWithinCategoryDto {
   /**
@@ -82,4 +100,65 @@ export class SearchWithinCategoryDto {
   @Max(100)
   @IsOptional()
   limit?: number = 20;
+
+  /**
+   * Sort order for product results
+   * Controls the order in which products are returned
+   *
+   * Options:
+   * - newest: Most recently added products first (createdAt DESC)
+   * - price_asc: Lowest price first (basePrice ASC)
+   * - price_desc: Highest price first (basePrice DESC)
+   * - popularity: Most viewed products first (viewCount DESC)
+   * - rating: Highest rated products first (averageRating DESC)
+   */
+  @ApiProperty({
+    description: 'Sort order for product results',
+    required: false,
+    enum: ProductSortBy,
+    default: ProductSortBy.NEWEST,
+    example: ProductSortBy.PRICE_ASC,
+    enumName: 'ProductSortBy',
+  })
+  @IsEnum(ProductSortBy)
+  @IsOptional()
+  sortBy?: ProductSortBy = ProductSortBy.NEWEST;
+
+  /**
+   * Minimum price filter (inclusive)
+   * Filters products with basePrice >= minPrice
+   * Must be greater than or equal to 0
+   * If provided with maxPrice, must be <= maxPrice
+   */
+  @ApiProperty({
+    description: 'Minimum price filter in SYP (inclusive)',
+    required: false,
+    type: Number,
+    minimum: 0,
+    example: 10000,
+  })
+  @Type(() => Number)
+  @IsNumber()
+  @Min(0)
+  @IsOptional()
+  minPrice?: number;
+
+  /**
+   * Maximum price filter (inclusive)
+   * Filters products with basePrice <= maxPrice
+   * Must be greater than or equal to 0
+   * If provided with minPrice, must be >= minPrice
+   */
+  @ApiProperty({
+    description: 'Maximum price filter in SYP (inclusive)',
+    required: false,
+    type: Number,
+    minimum: 0,
+    example: 50000,
+  })
+  @Type(() => Number)
+  @IsNumber()
+  @Min(0)
+  @IsOptional()
+  maxPrice?: number;
 }
