@@ -205,4 +205,118 @@ describe('AuthApiService', () => {
       req.flush(wrapResponse({ message: 'ok' }));
     });
   });
+
+  // ─── Error handling ────────────────────────────────────────────
+
+  describe('Error handling', () => {
+    it('should propagate 400 Bad Request error on register', () => {
+      service.register({ email: 'dup@souq.sy', password: 'Pass123', fullName: 'X' }).subscribe({
+        error: (error) => {
+          expect(error.status).toBe(400);
+        },
+      });
+
+      const req = httpMock.expectOne(`${apiUrl}/register`);
+      req.flush(
+        { message: 'Email already registered', statusCode: 400 },
+        { status: 400, statusText: 'Bad Request' },
+      );
+    });
+
+    it('should propagate 401 Unauthorized error on login', () => {
+      service.login({ email: 'user@souq.sy', password: 'wrong' }).subscribe({
+        error: (error) => {
+          expect(error.status).toBe(401);
+        },
+      });
+
+      const req = httpMock.expectOne(`${apiUrl}/login`);
+      req.flush(
+        { message: 'Invalid credentials.', errorCode: 'INVALID_CREDENTIALS', remainingAttempts: 3 },
+        { status: 401, statusText: 'Unauthorized' },
+      );
+    });
+
+    it('should propagate 403 Forbidden error when account locked', () => {
+      service.login({ email: 'locked@souq.sy', password: 'Pass123' }).subscribe({
+        error: (error) => {
+          expect(error.status).toBe(403);
+          expect(error.error.errorCode).toBe('ACCOUNT_LOCKED');
+        },
+      });
+
+      const req = httpMock.expectOne(`${apiUrl}/login`);
+      req.flush(
+        { message: 'Account locked', errorCode: 'ACCOUNT_LOCKED', lockedUntilMinutes: 30 },
+        { status: 403, statusText: 'Forbidden' },
+      );
+    });
+
+    it('should propagate 429 Too Many Requests error', () => {
+      service.resendOtp({ email: 'spam@souq.sy' }).subscribe({
+        error: (error) => {
+          expect(error.status).toBe(429);
+        },
+      });
+
+      const req = httpMock.expectOne(`${apiUrl}/resend-otp`);
+      req.flush(
+        { message: 'Please wait before requesting another OTP', retryAfter: 60 },
+        { status: 429, statusText: 'Too Many Requests' },
+      );
+    });
+
+    it('should propagate 500 Internal Server Error', () => {
+      service.forgotPassword({ email: 'user@souq.sy' }).subscribe({
+        error: (error) => {
+          expect(error.status).toBe(500);
+        },
+      });
+
+      const req = httpMock.expectOne(`${apiUrl}/forgot-password`);
+      req.flush(
+        { message: 'Internal server error' },
+        { status: 500, statusText: 'Internal Server Error' },
+      );
+    });
+
+    it('should propagate network error on refresh token', () => {
+      service.refreshToken({ token: 'rt' }).subscribe({
+        error: (error) => {
+          expect(error.status).toBe(0);
+        },
+      });
+
+      const req = httpMock.expectOne(`${apiUrl}/refresh-token`);
+      req.error(new ProgressEvent('error'), { status: 0, statusText: 'Unknown Error' });
+    });
+
+    it('should propagate 401 on expired reset token', () => {
+      service.resetPassword({ resetToken: 'expired', newPassword: 'New123' }).subscribe({
+        error: (error) => {
+          expect(error.status).toBe(400);
+        },
+      });
+
+      const req = httpMock.expectOne(`${apiUrl}/reset-password`);
+      req.flush(
+        { message: 'Invalid or expired reset token' },
+        { status: 400, statusText: 'Bad Request' },
+      );
+    });
+
+    it('should propagate 400 on invalid OTP code', () => {
+      service.verifyOtp({ email: 'user@souq.sy', otpCode: '000000' }).subscribe({
+        error: (error) => {
+          expect(error.status).toBe(400);
+        },
+      });
+
+      const req = httpMock.expectOne(`${apiUrl}/verify-otp`);
+      req.flush(
+        { message: 'Invalid OTP code.' },
+        { status: 400, statusText: 'Bad Request' },
+      );
+    });
+  });
 });
