@@ -29,6 +29,7 @@ import {
   Get,
   HttpStatus,
   Logger,
+  NotFoundException,
   Param,
   Query,
   Req,
@@ -1099,6 +1100,192 @@ export class CategoriesPublicController {
   }
 
   // ============================================================================
+  // CATEGORY HIERARCHY (SS-CAT-003)
+  // ============================================================================
+
+  /**
+   * GET CATEGORY HIERARCHY WITH BREADCRUMBS AND CHILDREN
+   *
+   * Returns navigation hierarchy for a category including breadcrumbs
+   * (path from root to current) and direct children.
+   * Used for category detail page navigation components.
+   *
+   * @param categoryId - Category ID to get hierarchy for
+   * @param language - Language preference for display names
+   * @returns Breadcrumbs, children, depth level, and category path
+   *
+   * @sprint S2 Categories
+   * @ticket SS-CAT-003
+   */
+  @Get(':id/hierarchy')
+  @ApiParam({
+    name: 'id',
+    type: Number,
+    description: 'Category ID to get hierarchy for',
+    example: 1,
+  })
+  @ApiOperation({
+    summary: 'Get category hierarchy with breadcrumbs and children',
+    description: `
+      Retrieve navigation hierarchy for a specific category.
+
+      Returns:
+      • Breadcrumbs: Full path from root to current category
+      • Children: Direct child categories (active + approved only)
+      • Depth level and category path string
+
+      Use Cases:
+      • Category detail page breadcrumb navigation
+      • Sidebar sub-category navigation
+      • Mobile category drill-down
+    `,
+  })
+  @ApiQuery({
+    name: 'language',
+    required: false,
+    enum: ['en', 'ar'],
+    example: 'en',
+    description: 'Response language preference (default: en)',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Category hierarchy retrieved successfully',
+    headers: {
+      'Cache-Control': {
+        description: 'Cache directive for hierarchy data',
+        schema: { type: 'string', example: 'public, max-age=600' },
+      },
+    },
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Category not found or not publicly available',
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Invalid category ID',
+  })
+  @ApiResponse({
+    status: 500,
+    description: 'Internal server error',
+  })
+  async getCategoryHierarchy(
+    @Param('id') categoryId: number,
+    @Query('language') language: 'en' | 'ar' = 'en',
+    @Res() response: Response,
+  ) {
+    const startTime = Date.now();
+
+    this.logger.log(
+      `🏗️ Category hierarchy request: id=${categoryId}, lang=${language}`,
+    );
+
+    try {
+      // 1. Validate category ID
+      const sanitizedId = Number(categoryId);
+      if (isNaN(sanitizedId) || sanitizedId < 1) {
+        throw new BadRequestException('Invalid category ID');
+      }
+
+      // 2. Fetch category
+      const category = await this.categoriesService.findOne(sanitizedId);
+
+      // 3. Verify category is publicly visible
+      if (!category.isActive || category.approvalStatus !== 'approved') {
+        throw new NotFoundException(
+          `Category with ID ${sanitizedId} is not publicly available`,
+        );
+      }
+
+      // 4. Generate breadcrumbs
+      const sanitizedLanguage = ['en', 'ar'].includes(language)
+        ? language
+        : 'en';
+      const breadcrumbs =
+        await this.categoryHierarchyService.generateBreadcrumbs(
+          category,
+          sanitizedLanguage,
+        );
+
+      // 5. Get direct children (active + approved only)
+      const children =
+        await this.categoryHierarchyService.getCategoryChildren(
+          sanitizedId,
+          true,
+        );
+
+      // 6. Transform children for response
+      const childrenResponse = children.map((child) => ({
+        id: child.id,
+        name: sanitizedLanguage === 'ar' ? child.nameAr : child.nameEn,
+        nameAr: child.nameAr,
+        slug: child.slug,
+        iconUrl: child.iconUrl,
+        productCount: child.productCount || 0,
+      }));
+
+      // 7. Set cache headers (10 minutes)
+      response.set({
+        'Cache-Control': 'public, max-age=600',
+        'Content-Language': sanitizedLanguage,
+        'X-Content-Type-Options': 'nosniff',
+      });
+
+      const processingTime = Date.now() - startTime;
+      this.logger.log(
+        `✅ Category hierarchy served: ${breadcrumbs.length} breadcrumbs, ${childrenResponse.length} children (${processingTime}ms)`,
+      );
+
+      return response.status(HttpStatus.OK).json({
+        success: true,
+        data: {
+          breadcrumbs,
+          children: childrenResponse,
+          depthLevel: category.depthLevel,
+          categoryPath: category.categoryPath || '',
+        },
+      });
+    } catch (error: unknown) {
+      const processingTime = Date.now() - startTime;
+
+      this.logger.error(
+        `❌ Category hierarchy failed: ${(error as Error).message} (${processingTime}ms)`,
+        {
+          error: (error as Error).message,
+          stack: (error as Error).stack,
+          categoryId,
+          language,
+        },
+      );
+
+      if (error instanceof BadRequestException) {
+        return response.status(HttpStatus.BAD_REQUEST).json({
+          success: false,
+          error: 'Bad Request',
+          message: (error as Error).message,
+          statusCode: HttpStatus.BAD_REQUEST,
+        });
+      }
+
+      if (error instanceof NotFoundException) {
+        return response.status(HttpStatus.NOT_FOUND).json({
+          success: false,
+          error: 'Not Found',
+          message: (error as Error).message,
+          statusCode: HttpStatus.NOT_FOUND,
+        });
+      }
+
+      return response.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        error: 'Internal Server Error',
+        message: 'Failed to retrieve category hierarchy. Please try again.',
+        statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+      });
+    }
+  }
+
+  // ============================================================================
   // SEARCH WITHIN CATEGORY (SS-CAT-006)
   // ============================================================================
 
@@ -1329,6 +1516,176 @@ export class CategoriesPublicController {
         success: false,
         error: 'Internal Server Error',
         message: 'Failed to search products. Please try again.',
+        statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+      });
+    }
+  }
+
+  // ============================================================================
+  // CATEGORY DETAIL (SS-CAT-002) — MUST BE LAST (catch-all :id)
+  // ============================================================================
+
+  /**
+   * GET SINGLE CATEGORY BY ID
+   *
+   * Returns full category details for the category detail page.
+   * Only returns active and approved categories (public visibility).
+   *
+   * IMPORTANT: This route MUST be the last parameterized route in the controller
+   * because `:id` is a catch-all pattern that would match other sub-paths.
+   *
+   * @param categoryId - Category ID
+   * @param language - Language preference for display names
+   * @returns Category detail with full DTO transformation
+   *
+   * @sprint S2 Categories
+   * @ticket SS-CAT-002
+   */
+  @Get(':id')
+  @ApiParam({
+    name: 'id',
+    type: Number,
+    description: 'Category ID to retrieve',
+    example: 1,
+  })
+  @ApiOperation({
+    summary: 'Get single category by ID',
+    description: `
+      Retrieve full category details for category detail pages.
+
+      Features:
+      • Only returns active and approved categories
+      • Bilingual support (Arabic/English)
+      • Includes breadcrumbs for navigation
+      • Cached for 5 minutes
+      • SEO-optimized response with meta fields
+
+      Use Cases:
+      • Category detail pages
+      • Category header banners
+      • Mobile app category screens
+      • SEO landing pages
+    `,
+  })
+  @ApiQuery({
+    name: 'language',
+    required: false,
+    enum: ['en', 'ar'],
+    example: 'en',
+    description: 'Response language preference (default: en)',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Category retrieved successfully',
+    headers: {
+      'Cache-Control': {
+        description: 'Caching directive for performance',
+        schema: { type: 'string', example: 'public, max-age=300' },
+      },
+    },
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Category not found or not publicly available',
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Invalid category ID',
+  })
+  @ApiResponse({
+    status: 500,
+    description: 'Internal server error',
+  })
+  async getCategoryById(
+    @Param('id') categoryId: number,
+    @Query('language') language: 'en' | 'ar' = 'en',
+    @Res() response: Response,
+  ) {
+    const startTime = Date.now();
+
+    this.logger.log(
+      `📋 Category detail request: id=${categoryId}, lang=${language}`,
+    );
+
+    try {
+      // 1. Validate category ID
+      const sanitizedId = Number(categoryId);
+      if (isNaN(sanitizedId) || sanitizedId < 1) {
+        throw new BadRequestException('Invalid category ID');
+      }
+
+      // 2. Fetch category via service (includes breadcrumbs)
+      const sanitizedLanguage = ['en', 'ar'].includes(language)
+        ? language
+        : 'en';
+      const categoryDto = await this.categoriesService.findById(
+        sanitizedId,
+        sanitizedLanguage,
+      );
+
+      // 3. Verify category is publicly visible
+      if (!categoryDto.isActive) {
+        throw new NotFoundException(
+          `Category with ID ${sanitizedId} is not publicly available`,
+        );
+      }
+      if (categoryDto.approvalStatus !== 'approved') {
+        throw new NotFoundException(
+          `Category with ID ${sanitizedId} is not publicly available`,
+        );
+      }
+
+      // 4. Set cache headers (5 minutes)
+      response.set({
+        'Cache-Control': 'public, max-age=300',
+        'Content-Language': sanitizedLanguage,
+        'X-Content-Type-Options': 'nosniff',
+      });
+
+      const processingTime = Date.now() - startTime;
+      this.logger.log(
+        `✅ Category detail served: id=${sanitizedId}, name="${categoryDto.displayName}" (${processingTime}ms)`,
+      );
+
+      return response.status(HttpStatus.OK).json({
+        success: true,
+        data: categoryDto,
+      });
+    } catch (error: unknown) {
+      const processingTime = Date.now() - startTime;
+
+      this.logger.error(
+        `❌ Category detail failed: ${(error as Error).message} (${processingTime}ms)`,
+        {
+          error: (error as Error).message,
+          stack: (error as Error).stack,
+          categoryId,
+          language,
+        },
+      );
+
+      if (error instanceof BadRequestException) {
+        return response.status(HttpStatus.BAD_REQUEST).json({
+          success: false,
+          error: 'Bad Request',
+          message: (error as Error).message,
+          statusCode: HttpStatus.BAD_REQUEST,
+        });
+      }
+
+      if (error instanceof NotFoundException) {
+        return response.status(HttpStatus.NOT_FOUND).json({
+          success: false,
+          error: 'Not Found',
+          message: (error as Error).message,
+          statusCode: HttpStatus.NOT_FOUND,
+        });
+      }
+
+      return response.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        error: 'Internal Server Error',
+        message: 'Failed to retrieve category. Please try again.',
         statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
       });
     }
