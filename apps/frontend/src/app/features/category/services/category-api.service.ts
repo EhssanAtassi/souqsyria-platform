@@ -30,6 +30,8 @@ import {
   CategoryTreeResponse,
   FeaturedCategoriesResponse,
   SearchInCategoryResponse,
+  CategoryDetailResponse,
+  CategoryHierarchyResponse,
 } from '../models/category-tree.interface';
 
 /**
@@ -125,6 +127,44 @@ export class CategoryApiService {
           limit: limit.toString(),
         },
       }
+    );
+  }
+
+  /**
+   * Fetch single category by ID
+   *
+   * @description Retrieves full category details for category detail pages.
+   * Only returns active and approved categories.
+   *
+   * @param id - Category ID
+   * @param language - Language preference (default: 'en')
+   * @returns Observable of category detail response
+   *
+   * @ticket SS-CAT-002
+   */
+  getCategory(id: number, language: 'en' | 'ar' = 'en'): Observable<CategoryDetailResponse> {
+    return this.http.get<CategoryDetailResponse>(
+      `${this.apiUrl}/categories/${id}`,
+      { params: { language } }
+    );
+  }
+
+  /**
+   * Fetch category hierarchy (breadcrumbs + children)
+   *
+   * @description Retrieves navigation hierarchy including breadcrumb path
+   * from root to current category and direct child categories.
+   *
+   * @param id - Category ID
+   * @param language - Language preference (default: 'en')
+   * @returns Observable of hierarchy response with breadcrumbs and children
+   *
+   * @ticket SS-CAT-003
+   */
+  getCategoryHierarchy(id: number, language: 'en' | 'ar' = 'en'): Observable<CategoryHierarchyResponse> {
+    return this.http.get<CategoryHierarchyResponse>(
+      `${this.apiUrl}/categories/${id}/hierarchy`,
+      { params: { language } }
     );
   }
 }
