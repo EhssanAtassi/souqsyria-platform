@@ -207,21 +207,21 @@ export class CartComponent implements OnInit, OnDestroy {
   /**
    * Updates quantity for a cart item
    *
-   * @param productId - Product ID
+   * @param itemId - Cart item ID (not product ID)
    * @param newQuantity - New quantity
    */
-  updateQuantity(productId: string, newQuantity: number): void {
-    this.cartService.updateQuantity(productId, newQuantity);
+  updateQuantity(itemId: string, newQuantity: number): void {
+    this.cartService.updateQuantity(itemId, newQuantity);
     this.showSnackBar('Quantity updated', 'success');
   }
 
   /**
    * Removes item from cart with undo snackbar (5-second window)
    *
-   * @param productId - Product ID
+   * @param item - Cart item to remove (needs both item.id for store removal and item.product.id for undo API)
    */
-  removeItem(productId: string): void {
-    this.cartService.removeFromCart(productId);
+  removeItem(item: CartItem): void {
+    this.cartService.removeFromCart(item.id);
 
     // Show snackbar with Undo action (5-second duration matching backend window)
     const ref = this.snackBar.open('Item removed from cart', 'Undo', {
@@ -230,8 +230,8 @@ export class CartComponent implements OnInit, OnDestroy {
     });
 
     ref.onAction().subscribe(() => {
-      // Call backend undo endpoint
-      this.cartApiService.undoRemove(productId).subscribe({
+      // Call backend undo endpoint (uses product ID, not cart item ID)
+      this.cartApiService.undoRemove(item.product.id).subscribe({
         next: () => {
           // Re-fetch cart to restore the item in local state
           const userId = this.getUserId();
@@ -250,6 +250,7 @@ export class CartComponent implements OnInit, OnDestroy {
 
   /**
    * Applies coupon code
+   * CartService.applyCoupon returns boolean (true = valid, false = invalid)
    */
   applyCoupon(): void {
     const code = this.couponCode().trim();
@@ -261,16 +262,17 @@ export class CartComponent implements OnInit, OnDestroy {
     this.isApplyingCoupon.set(true);
     this.couponError.set(null);
 
-    try {
-      this.cartService.applyCoupon(code);
+    const success = this.cartService.applyCoupon(code);
+
+    if (success) {
       this.showSnackBar('Coupon applied successfully!', 'success');
       this.couponCode.set('');
-      this.isApplyingCoupon.set(false);
-    } catch (error) {
+    } else {
       this.couponError.set('Invalid or expired coupon code');
       this.showSnackBar('Invalid coupon code', 'error');
-      this.isApplyingCoupon.set(false);
     }
+
+    this.isApplyingCoupon.set(false);
   }
 
   /**

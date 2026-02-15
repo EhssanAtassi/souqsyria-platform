@@ -65,7 +65,7 @@
               <!-- Product Image -->
               <div class="cart-item__image">
                 <img
-                  [src]="item.product.images[0].url || '/assets/images/placeholder.svg'"
+                  [src]="item.product.images?.[0]?.url || '/assets/images/placeholder.svg'"
                   [alt]="item.product.name"
                   loading="lazy">
               </div>
@@ -97,15 +97,15 @@
                   <div class="cart-item__quantity-controls">
                     <button
                       mat-icon-button
-                      (click)="updateQuantity(item.product.id, item.quantity - 1)"
+                      (click)="updateQuantity(item.id, item.quantity - 1)"
                       [disabled]="item.quantity <= 1">
                       <mat-icon>remove</mat-icon>
                     </button>
                     <span class="cart-item__quantity-value">{{ item.quantity }}</span>
                     <button
                       mat-icon-button
-                      (click)="updateQuantity(item.product.id, item.quantity + 1)"
-                      [disabled]="item.quantity >= (item.product.inventory.quantity || 0)">
+                      (click)="updateQuantity(item.id, item.quantity + 1)"
+                      [disabled]="item.quantity >= (item.product.inventory?.quantity || 0)">
                       <mat-icon>add</mat-icon>
                     </button>
                   </div>
@@ -126,7 +126,7 @@
                   mat-icon-button
                   color="warn"
                   class="cart-item__remove"
-                  (click)="removeItem(item.product.id)"
+                  (click)="removeItem(item)"
                   [matTooltip]="language() === 'ar' ? 'إزالة من السلة' : 'Remove from cart'">
                   <mat-icon>delete</mat-icon>
                 </button>
@@ -162,7 +162,8 @@
                   <mat-label>{{ language() === 'ar' ? 'رمز الكوبون' : 'Coupon Code' }}</mat-label>
                   <input
                     matInput
-                    [(ngModel)]="couponCode"
+                    [ngModel]="couponCode()"
+                    (ngModelChange)="couponCode.set($event)"
                     [placeholder]="language() === 'ar' ? 'أدخل الرمز' : 'Enter code'"
                     [disabled]="isApplyingCoupon()">
                 </mat-form-field>
