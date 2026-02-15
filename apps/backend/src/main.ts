@@ -10,6 +10,7 @@ import { Logger, ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 
 import helmet from 'helmet';
+import cookieParser from 'cookie-parser';
 import { AuditInterceptor } from './common/interceptors/audit.interceptor';
 import { ResponseInterceptor } from './common/interceptors/response.interceptor';
 import { GlobalExceptionFilter } from './common/filters/global-exception.filter';
@@ -23,6 +24,10 @@ async function bootstrap() {
 
   // Security headers via Helmet (X-Content-Type-Options, HSTS, X-Frame-Options, etc.)
   app.use(helmet());
+
+  // Cookie parser middleware for guest session management
+  // Required for reading guest_session_id cookie in controllers and middleware
+  app.use(cookieParser());
 
   // CSRF note: Not applicable for this API — authentication is JWT Bearer-token only.
   // JWT tokens are not automatically attached by browsers (unlike cookies), so CSRF
@@ -99,13 +104,15 @@ async function bootstrap() {
   // ========================================
   
   // Global validation pipe with detailed error messages
+  // SECURITY: enableImplicitConversion disabled to prevent prototype pollution
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,           // Strip non-whitelisted properties
       forbidNonWhitelisted: true, // Throw error on non-whitelisted properties
       transform: true,           // Auto-transform payloads to DTO instances
       transformOptions: {
-        enableImplicitConversion: true, // Enable implicit type conversion
+        enableImplicitConversion: false, // SECURITY: Prevent prototype pollution attacks
+        // Use explicit @Type() decorators in DTOs instead
       },
       validationError: {
         target: false,            // Don't include target object in errors

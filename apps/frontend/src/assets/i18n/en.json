@@ -728,5 +728,11 @@
       "deleted": "Address deleted successfully",
       "defaultSet": "Default address updated"
     }
+  },
+  "guest": {
+    "sessionExpired": "Your session has expired. A new session has been created.",
+    "sessionCreated": "Welcome! Your guest session has been created.",
+    "sessionError": "Unable to create guest session. Please try again.",
+    "cartAssociated": "Your cart has been saved to your session."
   }
 }
