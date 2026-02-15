@@ -1,157 +1,125 @@
 <!-- Mobile Category Navigation Overlay -->
 <div
   *ngIf="isOpen"
-  class="mobile-nav-backdrop fixed inset-0 z-50 bg-black/50"
+  class="mobile-nav-backdrop fixed inset-0 z-50 bg-black/50 dark:bg-black/70 backdrop-blur-sm touch-none"
   (click)="onBackdropClick($event)"
   [@fadeIn]
+  role="dialog"
+  aria-modal="true"
+  [attr.aria-label]="isRtl ? 'قائمة التصنيفات' : 'Categories menu'"
 >
   <!-- Mobile Navigation Panel -->
   <div
-    class="mobile-nav-panel fixed top-0 bottom-0 w-[85%] max-w-sm bg-white shadow-2xl overflow-y-auto"
-    [class.right-0]="!isRtl()"
-    [class.left-0]="isRtl()"
-    [@slideIn]="!isRtl()"
-    [@slideInRtl]="isRtl()"
+    class="mobile-nav-panel fixed top-0 bottom-0 w-[85%] max-w-sm bg-white dark:bg-gray-900 shadow-2xl overflow-y-auto ltr:right-0 ltr:rounded-l-lg rtl:left-0 rtl:rounded-r-lg"
+    [@slideIn]="!isRtl ? 'open' : ''"
+    [@slideInRtl]="isRtl ? 'open' : ''"
     (click)="$event.stopPropagation()"
+    role="navigation"
   >
     <!-- Header -->
-    <div class="sticky top-0 z-10 bg-white border-b border-gray-200 px-4 py-3 flex items-center justify-between">
-      <h2 class="text-lg font-semibold text-gray-900">
-        {{ isRtl() ? 'التصنيفات' : 'Categories' }}
+    <div
+      class="sticky top-0 z-10 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 px-4 py-3 flex items-center gap-2 rtl:flex-row-reverse"
+    >
+      <!-- Back Button (shown when in drill-down mode) -->
+      <button
+        *ngIf="isInDrillDown()"
+        type="button"
+        class="p-2 -m-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 active:bg-gray-200 dark:active:bg-gray-700 transition-colors duration-200 touch-manipulation"
+        (click)="goBack()"
+        [attr.aria-label]="isRtl ? 'رجوع إلى المستوى السابق' : 'Back to previous level'"
+      >
+        <mat-icon class="text-gray-700 dark:text-gray-200 w-6 h-6 ltr:rotate-0 rtl:rotate-180">
+          arrow_back
+        </mat-icon>
+      </button>
+
+      <!-- Title -->
+      <h2
+        class="text-lg font-semibold text-gray-900 dark:text-white flex-1 truncate ltr:text-left rtl:text-right"
+      >
+        <ng-container *ngIf="!isInDrillDown()">
+          {{ isRtl ? 'التصنيفات' : 'Categories' }}
+        </ng-container>
+        <ng-container *ngIf="isInDrillDown() && currentParent()">
+          {{ getCategoryName(currentParent()!) }}
+        </ng-container>
       </h2>
+
+      <!-- Close Button -->
       <button
         type="button"
-        class="p-2 rounded-full hover:bg-gray-100 transition-colors"
+        class="p-2 -m-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 active:bg-gray-200 dark:active:bg-gray-700 transition-colors duration-200 touch-manipulation flex-shrink-0"
         (click)="closeMenu()"
-        [attr.aria-label]="isRtl() ? 'إغلاق القائمة' : 'Close menu'"
+        [attr.aria-label]="isRtl ? 'إغلاق قائمة التصنيفات' : 'Close categories menu'"
       >
-        <mat-icon class="text-gray-600">close</mat-icon>
+        <mat-icon class="text-gray-700 dark:text-gray-200 w-6 h-6">close</mat-icon>
       </button>
     </div>
 
     <!-- Loading Skeleton -->
-    <div *ngIf="isLoading" class="p-4 space-y-3">
+    <div *ngIf="isLoading" class="p-4 space-y-3" role="status" [attr.aria-label]="isRtl ? 'جاري التحميل' : 'Loading categories'">
       <div
-        *ngFor="let item of skeletonItems()"
-        class="h-12 bg-gray-200 rounded-lg animate-pulse"
+        *ngFor="let item of skeletonItems(); trackBy: trackById"
+        class="h-14 bg-gray-200 dark:bg-gray-700 rounded-lg animate-pulse"
       ></div>
+      <span class="sr-only">{{ isRtl ? 'جاري تحميل التصنيفات...' : 'Loading categories...' }}</span>
     </div>
 
-    <!-- Category Accordion -->
-    <mat-accordion *ngIf="!isLoading && categories.length > 0" class="mobile-category-accordion">
-      <!-- Top-level Categories -->
-      <mat-expansion-panel
-        *ngFor="let category of categories; trackBy: trackById"
-        class="category-panel"
-        [class.rtl]="isRtl()"
+    <!-- Category List (Drill-down approach) -->
+    <div
+      *ngIf="!isLoading && currentCategories().length > 0"
+      class="category-list"
+      [@fadeIn]
+    >
+      <!-- Category Items -->
+      <button
+        *ngFor="let category of currentCategories(); trackBy: trackById"
+        type="button"
+        class="w-full flex items-center gap-3 px-4 py-4 min-h-[56px] hover:bg-gray-50 dark:hover:bg-gray-800 active:bg-gray-100 dark:active:bg-gray-700 transition-colors duration-200 border-b border-gray-100 dark:border-gray-700 touch-manipulation rtl:flex-row-reverse"
+        matRipple
+        (click)="hasChildren(category) ? drillInto(category) : onCategoryClick(category.slug)"
+        [attr.aria-label]="getCategoryName(category) + (hasChildren(category) ? (isRtl ? ' - لديه فئات فرعية' : ' - has subcategories') : '')"
       >
-        <!-- Panel Header -->
-        <mat-expansion-panel-header class="category-header">
-          <mat-panel-title class="flex items-center gap-3">
-            <!-- Category Icon -->
-            <mat-icon *ngIf="category.icon" class="text-primary-600">
-              {{ category.icon }}
-            </mat-icon>
-            <!-- Category Name -->
-            <span class="font-medium text-gray-900">
-              {{ getCategoryName(category) }}
-            </span>
-          </mat-panel-title>
-        </mat-expansion-panel-header>
+        <!-- Category Icon -->
+        <mat-icon
+          *ngIf="category.icon"
+          class="text-primary-600 dark:text-primary-400 flex-shrink-0 w-6 h-6"
+        >
+          {{ category.icon }}
+        </mat-icon>
 
-        <!-- Panel Content -->
-        <div class="category-content">
-          <!-- Top-level Category Link (if clickable) -->
-          <button
-            type="button"
-            class="w-full text-left px-4 py-3 hover:bg-gray-50 transition-colors border-b border-gray-100"
-            [class.text-right]="isRtl()"
-            matRipple
-            (click)="onCategoryClick(category.slug)"
-          >
-            <span class="text-sm font-medium text-primary-600">
-              {{ isRtl() ? 'عرض الكل' : 'View All' }}
-            </span>
-          </button>
+        <!-- Category Name -->
+        <span
+          class="font-medium text-gray-900 dark:text-white flex-1 ltr:text-left rtl:text-right"
+        >
+          {{ getCategoryName(category) }}
+        </span>
 
-          <!-- Subcategories (Level 2) -->
-          <div *ngIf="hasChildren(category)">
-            <!-- Simple list for Level 2 without children -->
-            <ng-container *ngFor="let subCategory of category.children; trackBy: trackById">
-              <!-- Level 2 without children -->
-              <button
-                *ngIf="!hasChildren(subCategory)"
-                type="button"
-                class="w-full text-left px-4 py-3 hover:bg-gray-50 transition-colors border-b border-gray-100"
-                [class.text-right]="isRtl()"
-                matRipple
-                (click)="onCategoryClick(subCategory.slug)"
-              >
-                <span class="text-sm text-gray-700">
-                  {{ getCategoryName(subCategory) }}
-                </span>
-              </button>
-
-              <!-- Level 2 with children (nested accordion) -->
-              <mat-expansion-panel
-                *ngIf="hasChildren(subCategory)"
-                class="nested-category-panel"
-              >
-                <mat-expansion-panel-header class="nested-category-header">
-                  <mat-panel-title class="flex items-center justify-between w-full">
-                    <span class="text-sm text-gray-700">
-                      {{ getCategoryName(subCategory) }}
-                    </span>
-                    <mat-icon class="text-gray-400 text-base">
-                      {{ isRtl() ? 'chevron_left' : 'chevron_right' }}
-                    </mat-icon>
-                  </mat-panel-title>
-                </mat-expansion-panel-header>
-
-                <!-- Level 3 Subcategories -->
-                <div class="nested-category-content">
-                  <!-- Level 2 View All Link -->
-                  <button
-                    type="button"
-                    class="w-full text-left px-6 py-2.5 hover:bg-gray-50 transition-colors border-b border-gray-100"
-                    [class.text-right]="isRtl()"
-                    matRipple
-                    (click)="onCategoryClick(subCategory.slug)"
-                  >
-                    <span class="text-xs font-medium text-primary-600">
-                      {{ isRtl() ? 'عرض الكل' : 'View All' }}
-                    </span>
-                  </button>
-
-                  <!-- Level 3 Items -->
-                  <button
-                    *ngFor="let subSubCategory of subCategory.children; trackBy: trackById"
-                    type="button"
-                    class="w-full text-left px-6 py-2.5 hover:bg-gray-50 transition-colors border-b border-gray-100"
-                    [class.text-right]="isRtl()"
-                    matRipple
-                    (click)="onCategoryClick(subSubCategory.slug)"
-                  >
-                    <span class="text-xs text-gray-600">
-                      {{ getCategoryName(subSubCategory) }}
-                    </span>
-                  </button>
-                </div>
-              </mat-expansion-panel>
-            </ng-container>
-          </div>
-        </div>
-      </mat-expansion-panel>
-    </mat-accordion>
+        <!-- Chevron for categories with children -->
+        <mat-icon
+          *ngIf="hasChildren(category)"
+          class="text-gray-400 dark:text-gray-500 flex-shrink-0 w-5 h-5 ltr:rotate-0 rtl:rotate-180"
+        >
+          chevron_right
+        </mat-icon>
+      </button>
+    </div>
 
     <!-- Empty State -->
     <div
-      *ngIf="!isLoading && categories.length === 0"
-      class="flex flex-col items-center justify-center py-12 px-4"
+      *ngIf="!isLoading && currentCategories().length === 0"
+      class="flex flex-col items-center justify-center py-16 px-6 text-center animate-fade-in"
+      [@fadeIn]
+      role="status"
     >
-      <mat-icon class="text-gray-300 text-6xl mb-4">category</mat-icon>
-      <p class="text-gray-500 text-center">
-        {{ isRtl() ? 'لا توجد تصنيفات متاحة' : 'No categories available' }}
+      <mat-icon class="text-gray-300 dark:text-gray-600 mb-4" style="font-size: 64px; width: 64px; height: 64px;">
+        category
+      </mat-icon>
+      <p class="text-gray-600 dark:text-gray-300 font-medium text-base">
+        {{ isRtl ? 'لا توجد تصنيفات متاحة' : 'No categories available' }}
+      </p>
+      <p class="text-gray-400 dark:text-gray-500 text-sm mt-2">
+        {{ isRtl ? 'يرجى المحاولة مرة أخرى لاحقاً' : 'Please try again later' }}
       </p>
     </div>
   </div>

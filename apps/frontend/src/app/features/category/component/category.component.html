@@ -104,7 +104,7 @@
           <!-- Products Toolbar -->
           <app-products-toolbar
             [totalProducts]="pagination()?.total || 0"
-            [currentSort]="getCurrentSortValue()"
+            [currentSort]="currentSortValue()"
             [currentView]="currentViewMode().mode"
             [language]="'en'"
             (sortChange)="onSortChangeFromToolbar($event)"
@@ -180,7 +180,7 @@
                 [pageSize]="itemsPerPage()"
                 [pageIndex]="currentPage() - 1"
                 [pageSizeOptions]="[12, 20, 40, 60]"
-                (page)="onPageChange($event.pageIndex + 1); onPageSizeChange($event.pageSize)"
+                (page)="onPaginatorEvent($event)"
                 showFirstLastButtons>
               </mat-paginator>
             </div>

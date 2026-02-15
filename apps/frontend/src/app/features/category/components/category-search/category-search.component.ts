@@ -11,14 +11,16 @@
  * - OnPush change detection
  *
  * @features
+ * - Material Design form field with outline appearance
  * - Debounced search input (300ms)
  * - Minimum 2 characters to trigger search
- * - Loading state indicator
- * - Clear search button
+ * - Loading state indicator with Material spinner
+ * - Clear search button (Material icon button)
  * - Empty state message
  * - Bilingual placeholder (English/Arabic)
- * - RTL layout support
+ * - RTL layout support with Material Directionality
  * - Keyboard support (Enter to search, Escape to clear)
+ * - WCAG 2.1 AA accessibility compliance
  *
  * @swagger
  * components:
@@ -51,8 +53,11 @@ import {
   OnInit,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
 import { MatIconModule } from '@angular/material/icon';
+import { MatButtonModule } from '@angular/material/button';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Subject } from 'rxjs';
@@ -64,7 +69,7 @@ import { ProductSearchResult } from '../../models/category-tree.interface';
  * Category Search Component
  *
  * @description Provides search functionality within a category with
- * debounced input and loading states.
+ * debounced input, Material Design styling, and loading states.
  *
  * @component
  */
@@ -74,7 +79,11 @@ import { ProductSearchResult } from '../../models/category-tree.interface';
   imports: [
     CommonModule,
     FormsModule,
+    ReactiveFormsModule,
+    MatFormFieldModule,
+    MatInputModule,
     MatIconModule,
+    MatButtonModule,
     MatProgressSpinnerModule,
   ],
   templateUrl: './category-search.component.html',
@@ -162,24 +171,21 @@ export class CategorySearchComponent implements OnInit {
   hasSearched = signal(false);
 
   /**
-   * RTL mode detection
+   * RTL mode provided by parent component
    *
-   * @description Computed signal that detects if the document is in RTL mode
+   * @description Input for RTL mode. A computed() with no signal deps would
+   * evaluate only once and become stale. Accept from parent instead.
    */
-  isRtl = computed(() => {
-    if (typeof document !== 'undefined') {
-      return document.documentElement.dir === 'rtl';
-    }
-    return false;
-  });
+  @Input() isRtl = false;
 
   /**
    * Search placeholder text
    *
-   * @description Computed placeholder based on language and category name
+   * @description Returns placeholder based on language and category name.
+   * Uses a method instead of computed since isRtl is a plain @Input.
    */
-  placeholder = computed(() => {
-    const isRtl = this.isRtl();
+  get placeholder(): string {
+    const isRtl = this.isRtl;
     const categoryName = isRtl ? this.categoryNameAr : this.categoryName;
 
     if (categoryName) {
@@ -189,7 +195,7 @@ export class CategorySearchComponent implements OnInit {
     }
 
     return isRtl ? 'بحث عن منتجات' : 'Search for products';
-  });
+  }
 
   /**
    * Show clear button

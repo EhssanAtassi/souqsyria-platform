@@ -1,98 +1,127 @@
 /**
- * Category Search Styles
+ * Category Search Component Styles
  *
- * @description Custom styles for category search component
- * with focus states, transitions, and RTL support.
+ * @description Material Design styled search component with RTL support.
+ * Uses Angular Material form field with custom theme integration.
  */
 
-// Search container
 .category-search-container {
   width: 100%;
-  max-width: 600px;
-  margin: 0 auto;
+  max-width: 672px; // 2xl equivalent
+  margin-left: auto;
+  margin-right: auto;
 
-  // RTL support
+  // Material form field customization
+  .search-form-field {
+    width: 100%;
+
+    // Remove Material's default bottom margin
+    ::ng-deep .mat-mdc-form-field-subscript-wrapper {
+      margin-top: 4px;
+    }
+
+    // Input wrapper background
+    ::ng-deep .mat-mdc-text-field-wrapper {
+      background-color: #ffffff;
+      border-radius: 8px;
+    }
+
+    // Focused state - primary color
+    ::ng-deep .mat-mdc-form-field.mat-focused {
+      .mat-mdc-notched-outline-thick {
+        border-color: #1e3a8a; // Primary color
+        border-width: 2px;
+      }
+    }
+
+    // Icon prefix/suffix alignment
+    ::ng-deep .mat-mdc-form-field-icon-prefix,
+    ::ng-deep .mat-mdc-form-field-icon-suffix {
+      display: flex;
+      align-items: center;
+      color: #9ca3af; // gray-400
+    }
+
+    // Spinner in suffix position
+    ::ng-deep mat-spinner {
+      display: inline-block;
+    }
+
+    // Clear button styling
+    ::ng-deep button[mat-icon-button] {
+      &:hover {
+        background-color: #f3f4f6; // gray-100
+      }
+
+      &:active {
+        transform: scale(0.95);
+      }
+    }
+  }
+
+  // RTL-specific adjustments
   &.rtl {
     direction: rtl;
+
+    .search-form-field {
+      ::ng-deep .mat-mdc-text-field-wrapper {
+        .mat-mdc-form-field-flex {
+          flex-direction: row-reverse;
+        }
+      }
+
+      ::ng-deep input {
+        text-align: right;
+      }
+
+      ::ng-deep .mat-mdc-form-field-icon-prefix {
+        margin-left: 8px;
+        margin-right: 0;
+      }
+
+      ::ng-deep .mat-mdc-form-field-icon-suffix {
+        margin-right: 8px;
+        margin-left: 0;
+      }
+    }
+  }
+
+  // Empty state styling
+  [role="status"] {
+    min-height: 200px;
+
+    mat-icon {
+      font-size: 64px;
+      width: 64px;
+      height: 64px;
+      color: #d1d5db; // gray-300
+    }
+
+    p {
+      max-width: 320px;
+      line-height: 1.5;
+
+      &:first-of-type {
+        color: #6b7280; // gray-500
+        font-weight: 500;
+      }
+
+      &:last-of-type {
+        color: #9ca3af; // gray-400
+        font-size: 0.875rem;
+      }
+    }
+
+    // Fade in animation
+    animation: fadeInUp 0.3s ease-out;
   }
 }
 
-// Search input field
-.search-input {
-  // Remove default browser styles
-  appearance: none;
-  -webkit-appearance: none;
-
-  // Custom styling
-  font-size: 0.875rem;
-  line-height: 1.25rem;
-
-  // Placeholder styling
-  &::placeholder {
-    color: #9ca3af;
-    opacity: 1;
-  }
-
-  // RTL padding adjustment
-  &.text-right {
-    padding-right: 2.75rem;
-    padding-left: 2.75rem;
-  }
-
-  // Focus state
-  &:focus {
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-  }
-
-  // Disabled state
-  &:disabled {
-    background-color: #f3f4f6;
-    cursor: not-allowed;
-    opacity: 0.6;
-  }
-
-  // Smooth transitions
-  transition: all 0.2s ease-out;
-}
-
-// Loading spinner override
-::ng-deep {
-  .mat-progress-spinner circle,
-  .mat-spinner circle {
-    stroke: currentColor;
-  }
-}
-
-// Clear button
-button[aria-label*='clear'],
-button[aria-label*='مسح'] {
-  // Ensure circular shape
-  width: 28px;
-  height: 28px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  // Smooth transitions
-  transition: background-color 0.2s ease-out;
-
-  // Hover effect
-  &:hover {
-    background-color: #e5e7eb;
-  }
-
-  // Active state
-  &:active {
-    background-color: #d1d5db;
-    transform: scale(0.95);
-  }
-}
-
-// Empty state animation
-@keyframes fadeIn {
+// Fade in animation
+@keyframes fadeInUp {
   from {
     opacity: 0;
-    transform: translateY(-10px);
+    transform: translateY(10px);
   }
   to {
     opacity: 1;
@@ -100,51 +129,118 @@ button[aria-label*='مسح'] {
   }
 }
 
-.mt-8 {
-  animation: fadeIn 0.3s ease-out;
-}
+// Responsive adjustments
+@media (max-width: 768px) {
+  .category-search-container {
+    max-width: 100%;
+    padding: 0 16px;
 
-// Accessibility: Focus states
-input:focus-visible {
-  outline: 2px solid #3b82f6;
-  outline-offset: 2px;
-}
+    .search-form-field {
+      ::ng-deep .mat-mdc-text-field-wrapper {
+        font-size: 14px;
+      }
 
-button:focus-visible {
-  outline: 2px solid #3b82f6;
-  outline-offset: 2px;
-  border-radius: 9999px;
-}
-
-// Mobile responsiveness
-@media (max-width: 640px) {
-  .search-input {
-    font-size: 0.875rem;
-    padding-top: 0.625rem;
-    padding-bottom: 0.625rem;
-  }
-}
-
-// High contrast mode support
-@media (prefers-contrast: high) {
-  .search-input {
-    border-width: 2px;
-    border-color: #000;
-
-    &:focus {
-      border-color: #0066cc;
+      ::ng-deep .mat-mdc-form-field-hint {
+        font-size: 12px;
+      }
     }
   }
 }
 
-// Reduced motion support
+// Dark theme support
+.dark-theme {
+  .category-search-container {
+    .search-form-field {
+      ::ng-deep .mat-mdc-text-field-wrapper {
+        background-color: #424242;
+      }
+
+      ::ng-deep .mat-mdc-notched-outline {
+        border-color: rgba(255, 255, 255, 0.12);
+      }
+
+      ::ng-deep .mat-mdc-form-field.mat-focused {
+        .mat-mdc-notched-outline-thick {
+          border-color: #64b5f6; // Lighter primary for dark theme
+        }
+      }
+
+      ::ng-deep input {
+        color: rgba(255, 255, 255, 0.87);
+      }
+
+      ::ng-deep .mat-mdc-form-field-label {
+        color: rgba(255, 255, 255, 0.6);
+      }
+
+      ::ng-deep .mat-mdc-form-field-icon-prefix,
+      ::ng-deep .mat-mdc-form-field-icon-suffix {
+        color: rgba(255, 255, 255, 0.5);
+      }
+
+      ::ng-deep button[mat-icon-button]:hover {
+        background-color: rgba(255, 255, 255, 0.08);
+      }
+    }
+
+    [role="status"] {
+      mat-icon {
+        color: rgba(255, 255, 255, 0.3);
+      }
+
+      p:first-of-type {
+        color: rgba(255, 255, 255, 0.6);
+      }
+
+      p:last-of-type {
+        color: rgba(255, 255, 255, 0.4);
+      }
+    }
+  }
+}
+
+// Accessibility: high contrast mode
+@media (prefers-contrast: high) {
+  .category-search-container {
+    .search-form-field {
+      ::ng-deep .mat-mdc-notched-outline {
+        border-width: 2px;
+        border-color: currentColor;
+      }
+
+      ::ng-deep .mat-mdc-form-field.mat-focused {
+        .mat-mdc-notched-outline-thick {
+          border-width: 3px;
+        }
+      }
+    }
+  }
+}
+
+// Accessibility: reduced motion
 @media (prefers-reduced-motion: reduce) {
-  .search-input,
-  button {
-    transition: none;
+  .category-search-container {
+    [role="status"] {
+      animation: none;
+    }
+
+    ::ng-deep * {
+      animation-duration: 0.01ms !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}
+
+// Accessibility: focus visible states
+.search-form-field {
+  ::ng-deep input:focus-visible {
+    outline: 2px solid #1e3a8a;
+    outline-offset: 2px;
   }
 
-  .mt-8 {
-    animation: none;
+  ::ng-deep button:focus-visible {
+    outline: 2px solid #1e3a8a;
+    outline-offset: 2px;
+    border-radius: 50%;
   }
 }
