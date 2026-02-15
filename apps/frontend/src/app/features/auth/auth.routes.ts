@@ -59,12 +59,6 @@ export const authRoutes: Routes = [
         loadComponent: () =>
           import('./components/reset-password/reset-password.component').then(m => m.ResetPasswordComponent),
         title: 'Reset Password - SouqSyria | إعادة تعيين كلمة المرور'
-      },
-      {
-        path: 'callback/:provider',
-        loadComponent: () =>
-          import('./components/oauth-callback/oauth-callback.component').then(m => m.OAuthCallbackComponent),
-        title: 'Logging In - SouqSyria | تسجيل الدخول'
       }
     ]
   }

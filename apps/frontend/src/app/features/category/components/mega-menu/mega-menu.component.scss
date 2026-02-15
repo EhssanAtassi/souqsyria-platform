@@ -22,6 +22,17 @@
   animation: slideDown 200ms ease-out;
 }
 
+// Dropdown mode: positioned below nav bar, not full-screen overlay
+.mega-menu-dropdown {
+  animation: slideDown 200ms ease-out;
+
+  // Invisible bridge above dropdown to prevent hover flickering
+  .mega-menu-bridge {
+    pointer-events: auto;
+    background: transparent;
+  }
+}
+
 @keyframes slideDown {
   from {
     opacity: 0;

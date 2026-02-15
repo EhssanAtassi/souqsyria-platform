@@ -216,6 +216,8 @@
       "noAccount": "ليس لديك حساب؟",
       "registerLink": "إنشاء حساب",
       "togglePassword": "تبديل رؤية كلمة المرور",
+      "showPassword": "إظهار كلمة المرور",
+      "hidePassword": "إخفاء كلمة المرور",
       "verifiedSuccess": "تم التحقق من البريد الإلكتروني بنجاح! يمكنك الآن تسجيل الدخول.",
       "passwordResetSuccess": "تم إعادة تعيين كلمة المرور بنجاح! سجل الدخول بكلمة المرور الجديدة."
     },
@@ -234,7 +236,11 @@
       "termsAnd": "و",
       "privacyLink": "سياسة الخصوصية",
       "togglePassword": "تبديل رؤية كلمة المرور",
-      "toggleConfirmPassword": "تبديل رؤية تأكيد كلمة المرور"
+      "showPassword": "إظهار كلمة المرور",
+      "hidePassword": "إخفاء كلمة المرور",
+      "toggleConfirmPassword": "تبديل رؤية تأكيد كلمة المرور",
+      "showConfirmPassword": "إظهار تأكيد كلمة المرور",
+      "hideConfirmPassword": "إخفاء تأكيد كلمة المرور"
     },
     "otp": {
       "title": "تحقق من بريدك الإلكتروني",
@@ -299,7 +305,8 @@
       "attemptsWarning": "تحذير: متبقي {{count}} محاولة(محاولات) فقط قبل قفل الحساب.",
       "emailNotVerified": "يرجى التحقق من بريدك الإلكتروني أولاً",
       "accountBanned": "تم تعليق هذا الحساب",
-      "tokenExpired": "انتهت صلاحية جلستك. يرجى تسجيل الدخول مرة أخرى."
+      "tokenExpired": "انتهت صلاحية جلستك. يرجى تسجيل الدخول مرة أخرى.",
+      "rateLimited": "محاولات كثيرة جداً. يرجى الانتظار {{seconds}} ثانية قبل المحاولة مجدداً."
     },
     "logout": {
       "success": "تم تسجيل الخروج بنجاح"
@@ -308,7 +315,11 @@
       "weak": "ضعيفة",
       "fair": "مقبولة",
       "good": "جيدة",
-      "strong": "قوية"
+      "strong": "قوية",
+      "minLength": "8 أحرف على الأقل",
+      "uppercase": "حرف كبير واحد على الأقل",
+      "number": "رقم واحد على الأقل",
+      "specialChar": "رمز خاص واحد على الأقل"
     },
     "oauth": {
       "divider": "أو المتابعة عبر",
@@ -370,6 +381,20 @@
       "defaultSet": "تم تحديث العنوان الافتراضي"
     }
   },
+  "guest": {
+    "sessionExpired": "انتهت صلاحية جلستك. تم إنشاء جلسة جديدة.",
+    "sessionCreated": "مرحباً! تم إنشاء جلسة الضيف الخاصة بك.",
+    "sessionError": "تعذر إنشاء جلسة الضيف. يرجى المحاولة مرة أخرى.",
+    "cartAssociated": "تم حفظ سلة التسوق الخاصة بك إلى جلستك."
+  },
+  "products_page_title": "جميع المنتجات",
+  "products_empty": "لا توجد منتجات",
+  "products_retry": "إعادة المحاولة",
+  "products_browse_all": "تصفح الكل",
+  "products_sort_by": "ترتيب حسب",
+  "products_view_grid": "عرض شبكي",
+  "products_view_list": "عرض قائمة",
+  "products_error_loading": "فشل تحميل المنتجات",
   "categories": "التصنيفات",
   "category": "تصنيف",
   "no_category": "لم يتم العثور على تصنيف",

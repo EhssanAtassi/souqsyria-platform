@@ -42,6 +42,7 @@ import { ProductCardComponent } from '../../components/product-card/product-card
 import { VariantSelectorComponent } from '../../components/variant-selector/variant-selector.component';
 import { SpecificationsTableComponent } from '../../components/specifications-table/specifications-table.component';
 import { ImageGalleryComponent } from '../../components/image-gallery/image-gallery.component';
+import { BreadcrumbComponent, BreadcrumbItem } from '../../../../shared/components/ui/breadcrumb/breadcrumb.component';
 
 /**
  * @description Product detail page component
@@ -63,6 +64,7 @@ import { ImageGalleryComponent } from '../../components/image-gallery/image-gall
     VariantSelectorComponent,
     SpecificationsTableComponent,
     ImageGalleryComponent,
+    BreadcrumbComponent,
   ],
   templateUrl: './product-detail-page.component.html',
   styleUrls: ['./product-detail-page.component.scss'],
@@ -246,6 +248,32 @@ export class ProductDetailPageComponent implements OnInit {
     const status = this.effectiveStockStatus();
     if (!status) return '';
     return `stock-badge--${status.replace('_', '-')}`;
+  });
+
+  /** @description Breadcrumb navigation items */
+  breadcrumbItems = computed(() => {
+    const product = this.product();
+    if (!product) return [];
+
+    const items: BreadcrumbItem[] = [
+      { label: 'Products', labelArabic: 'المنتجات', url: '/products' }
+    ];
+
+    if (product.category) {
+      items.push({
+        label: product.category.nameEn,
+        labelArabic: product.category.nameAr,
+        url: `/category/${product.category.slug}`
+      });
+    }
+
+    items.push({
+      label: product.nameEn,
+      labelArabic: product.nameAr
+      // No url = current page (not clickable)
+    });
+
+    return items;
   });
 
   ngOnInit(): void {
@@ -449,5 +477,14 @@ export class ProductDetailPageComponent implements OnInit {
   /** @description Localized related products heading */
   get relatedProductsHeading(): string {
     return this.language() === 'ar' ? 'منتجات ذات صلة' : 'Related Products';
+  }
+
+  /** @description Placeholder for stock notification signup — full implementation in S3 */
+  onNotifyMe(): void {
+    // TODO: Implement notification subscription in S3
+    const message = this.language() === 'ar'
+      ? 'سنبلغك عندما يتوفر هذا المنتج'
+      : 'We will notify you when this product is available';
+    this.snackBar.open(message, '✓', { duration: 3000 });
   }
 }

@@ -8,7 +8,6 @@ import { ConfigModule } from "@nestjs/config";
 import { ScheduleModule } from '@nestjs/schedule';
 import { GuestSessionMiddleware } from './common/middleware/guest-session.middleware';
 import { IdempotencyMiddleware } from './common/middleware/idempotency.middleware';
-import { GuestSession } from './cart/entities/guest-session.entity';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -23,6 +22,7 @@ import { ProductionLoggerService } from './common/services/logger.service';
 
 // MVP1 Core Modules
 import { AuthModule } from './auth/auth.module';
+import { GuestSessionModule } from './auth/guest-session.module';
 import { UsersModule } from './users/users.module';
 import { RolesModule } from './roles/roles.module';
 import { AccessControlModule } from './access-control/access-control.module';
@@ -67,10 +67,12 @@ import { HealthModule } from './health';
     // Shared Domain Module - Event-driven architecture for breaking circular dependencies
     SharedDomainModule,
     TypeOrmModule.forRoot(typeOrmConfig),
-    TypeOrmModule.forFeature([GuestSession]),
+    // NOTE: GuestSession entity is registered in GuestSessionModule and CartModule only
+    // Do NOT register it here to avoid TypeORM conflicts
 
     // MVP1 Core
     AuthModule,
+    GuestSessionModule,
     UsersModule,
     RolesModule,
     AccessControlModule,
@@ -153,7 +155,7 @@ export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
     consumer
       .apply(GuestSessionMiddleware)
-      .forRoutes('cart', 'cart/guest');
+      .forRoutes('cart', 'cart/guest', 'auth/guest-session');
 
     consumer
       .apply(IdempotencyMiddleware)

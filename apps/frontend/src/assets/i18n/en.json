@@ -241,6 +241,14 @@
   "my_cart": "My Cart",
   "product": "Product",
   "products": "Products",
+  "products_page_title": "All Products",
+  "products_empty": "No products found",
+  "products_retry": "Try Again",
+  "products_browse_all": "Browse All",
+  "products_sort_by": "Sort by",
+  "products_view_grid": "Grid view",
+  "products_view_list": "List view",
+  "products_error_loading": "Failed to load products",
   "view_cart": "View Cart",
   "checkout": "Check Out",
   "language": "Language",
@@ -575,6 +583,8 @@
       "noAccount": "Don't have an account?",
       "registerLink": "Create Account",
       "togglePassword": "Toggle password visibility",
+      "showPassword": "Show password",
+      "hidePassword": "Hide password",
       "verifiedSuccess": "Email verified successfully! You can now sign in.",
       "passwordResetSuccess": "Password reset successful! Sign in with your new password."
     },
@@ -593,7 +603,11 @@
       "termsAnd": "and",
       "privacyLink": "Privacy Policy",
       "togglePassword": "Toggle password visibility",
-      "toggleConfirmPassword": "Toggle confirm password visibility"
+      "showPassword": "Show password",
+      "hidePassword": "Hide password",
+      "toggleConfirmPassword": "Toggle confirm password visibility",
+      "showConfirmPassword": "Show confirm password",
+      "hideConfirmPassword": "Hide confirm password"
     },
     "otp": {
       "title": "Verify Your Email",
@@ -658,7 +672,8 @@
       "attemptsWarning": "Warning: Only {{count}} login attempt(s) remaining before your account is locked.",
       "emailNotVerified": "Please verify your email first",
       "accountBanned": "This account has been suspended",
-      "tokenExpired": "Your session has expired. Please sign in again."
+      "tokenExpired": "Your session has expired. Please sign in again.",
+      "rateLimited": "Too many attempts. Please wait {{seconds}} second(s) before trying again."
     },
     "logout": {
       "success": "You have been logged out successfully"
@@ -667,7 +682,11 @@
       "weak": "Weak",
       "fair": "Fair",
       "good": "Good",
-      "strong": "Strong"
+      "strong": "Strong",
+      "minLength": "At least 8 characters",
+      "uppercase": "At least 1 uppercase letter",
+      "number": "At least 1 number",
+      "specialChar": "At least 1 special character"
     },
     "oauth": {
       "divider": "or continue with",
@@ -728,5 +747,11 @@
       "deleted": "Address deleted successfully",
       "defaultSet": "Default address updated"
     }
+  },
+  "guest": {
+    "sessionExpired": "Your session has expired. A new session has been created.",
+    "sessionCreated": "Welcome! Your guest session has been created.",
+    "sessionError": "Unable to create guest session. Please try again.",
+    "cartAssociated": "Your cart has been saved to your session."
   }
 }

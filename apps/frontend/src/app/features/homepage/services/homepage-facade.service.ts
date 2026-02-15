@@ -33,6 +33,7 @@ import { Campaign } from '../../../shared/interfaces/campaign.interface';
 import { CategoryShowcaseSection } from '../../../shared/interfaces/category-showcase.interface';
 import { ProductOffer } from '../../../shared/interfaces/product-offer.interface';
 import { HomepageDataState } from '../models/homepage.interface';
+import { environment } from '../../../../environments/environment';
 
 /**
  * Homepage Facade Service
@@ -149,7 +150,7 @@ export class HomepageFacadeService {
         }
         return products;
       }),
-      tap(products => console.log(`Loaded ${products.length} products`)),
+      tap(products => { if (!environment.production) console.log(`Loaded ${products.length} products`); }),
       catchError(error => {
         console.error('Failed to load products:', error);
         return of([]);
@@ -241,7 +242,7 @@ export class HomepageFacadeService {
    */
   private loadCampaigns(): Observable<Campaign[]> {
     return this.homepageService.getActiveCampaigns().pipe(
-      tap(campaigns => console.log(`Loaded ${campaigns.length} campaigns`)),
+      tap(campaigns => { if (!environment.production) console.log(`Loaded ${campaigns.length} campaigns`); }),
       catchError(error => {
         console.error('Failed to load campaigns:', error);
         return of([]);
@@ -256,7 +257,7 @@ export class HomepageFacadeService {
    */
   handleCampaignClick(campaign: Campaign): void {
     this.analyticsService.trackCampaignInteraction(campaign.id, 'click');
-    console.log('Campaign clicked:', campaign.name);
+    if (!environment.production) console.log('Campaign clicked:', campaign.name);
   }
 
   /**
@@ -279,7 +280,7 @@ export class HomepageFacadeService {
    */
   private loadCategoryShowcaseSections(): Observable<CategoryShowcaseSection[]> {
     return this.homepageSectionsService.getVisibleSections().pipe(
-      tap(sections => console.log(`Loaded ${sections.length} showcase sections`)),
+      tap(sections => { if (!environment.production) console.log(`Loaded ${sections.length} showcase sections`); }),
       catchError(error => {
         console.error('Failed to load showcase sections:', error);
         return of([]);
@@ -306,8 +307,10 @@ export class HomepageFacadeService {
       )
     }).pipe(
       tap(offers => {
-        console.log(`Loaded ${offers.featured.length} featured offers`);
-        console.log(`Loaded ${offers.flashSale.length} flash sale offers`);
+        if (!environment.production) {
+          console.log(`Loaded ${offers.featured.length} featured offers`);
+          console.log(`Loaded ${offers.flashSale.length} flash sale offers`);
+        }
       })
     );
   }
@@ -339,7 +342,7 @@ export class HomepageFacadeService {
     // Track analytics
     this.analyticsService.trackAddToCart(product, quantity, source);
 
-    console.log(`Added ${product.name} to cart (qty: ${quantity}, source: ${source})`);
+    if (!environment.production) console.log(`Added ${product.name} to cart (qty: ${quantity}, source: ${source})`);
   }
 
   //#endregion

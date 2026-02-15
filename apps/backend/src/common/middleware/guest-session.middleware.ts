@@ -37,9 +37,9 @@ import {
   HttpStatus,
 } from '@nestjs/common';
 import { Request, Response, NextFunction } from 'express';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
 import { GuestSession } from '../../cart/entities/guest-session.entity';
+import { extractIpAddress } from '../utils/request.utils';
+import { GuestSessionService } from '../../auth/service/guest-session.service';
 
 /**
  * Extended Request interface to include guest session
@@ -62,8 +62,7 @@ export class GuestSessionMiddleware implements NestMiddleware {
   private readonly COOKIE_MAX_AGE = 30 * 24 * 60 * 60 * 1000; // 30 days in milliseconds
 
   constructor(
-    @InjectRepository(GuestSession)
-    private readonly guestSessionRepo: Repository<GuestSession>,
+    private readonly guestSessionService: GuestSessionService,
   ) {
     this.logger.log('🍪 Guest Session Middleware initialized');
   }
@@ -122,6 +121,9 @@ export class GuestSessionMiddleware implements NestMiddleware {
   /**
    * Validate existing guest session from cookie
    *
+   * Uses GuestSessionService to ensure consistent validation logic
+   * across the application.
+   *
    * @param req - Express Request object
    * @param res - Express Response object
    * @param sessionId - Session ID from cookie
@@ -133,55 +135,26 @@ export class GuestSessionMiddleware implements NestMiddleware {
   ): Promise<void> {
     this.logger.debug(`🔍 Validating guest session: ${sessionId}`);
 
-    // Find session in database
-    const session = await this.guestSessionRepo.findOne({
-      where: { id: sessionId },
-    });
+    // Use service layer for session retrieval
+    const session = await this.guestSessionService.getSession(sessionId);
 
     if (!session) {
-      this.logger.warn(`⚠️ Guest session not found: ${sessionId}`);
+      this.logger.warn(`⚠️ Guest session not found or expired: ${sessionId}`);
       // Clear invalid cookie and create new session
       res.clearCookie(this.COOKIE_NAME);
       await this.createNewSession(req, res);
       return;
     }
 
-    // Check if session has expired
-    if (session.isExpired() && !session.isInGracePeriod()) {
-      this.logger.warn(
-        `⏰ Guest session expired: ${sessionId}`,
-      );
-      // Mark as expired and create new session
-      session.status = 'expired';
-      await this.guestSessionRepo.save(session);
-      res.clearCookie(this.COOKIE_NAME);
-      await this.createNewSession(req, res);
-      return;
-    }
-
-    // Session is valid - refresh expiration (sliding window)
-    session.refreshExpiration();
-
-    // Update device fingerprint if changed
+    // Refresh session activity with current IP and fingerprint
+    // Service will log warnings if significant changes detected (hijacking indicator)
+    const currentIp = extractIpAddress(req);
     const currentFingerprint = this.extractDeviceFingerprint(req);
-    if (
-      JSON.stringify(session.deviceFingerprint) !==
-      JSON.stringify(currentFingerprint)
-    ) {
-      session.deviceFingerprint = currentFingerprint;
-    }
-
-    // Update IP address if changed
-    const currentIp = this.extractIpAddress(req);
-    if (session.ipAddress !== currentIp) {
-      this.logger.log(
-        `🔄 IP address changed for session ${sessionId}: ${session.ipAddress} → ${currentIp}`,
-      );
-      session.ipAddress = currentIp;
-    }
-
-    // Save updated session
-    await this.guestSessionRepo.save(session);
+    await this.guestSessionService.refreshActivity(
+      sessionId,
+      currentIp,
+      currentFingerprint,
+    );
 
     // Attach session to request
     req.guestSession = session;
@@ -195,6 +168,8 @@ export class GuestSessionMiddleware implements NestMiddleware {
   /**
    * Create new guest session for anonymous user
    *
+   * Uses GuestSessionService to ensure consistent session creation logic.
+   *
    * @param req - Express Request object
    * @param res - Express Response object
    */
@@ -204,15 +179,16 @@ export class GuestSessionMiddleware implements NestMiddleware {
   ): Promise<void> {
     this.logger.log('🆕 Creating new guest session');
 
-    // Create new session entity
-    const session = this.guestSessionRepo.create({
-      ipAddress: this.extractIpAddress(req),
-      deviceFingerprint: this.extractDeviceFingerprint(req),
-      status: 'active',
-    });
+    // Prepare session metadata
+    const metadata = {
+      ...this.extractDeviceFingerprint(req),
+      ipAddress: extractIpAddress(req),
+    };
 
-    // Save to database
-    await this.guestSessionRepo.save(session);
+    // Use service layer for session creation
+    const session = await this.guestSessionService.createSession({
+      metadata,
+    });
 
     // Set secure HTTP-only cookie
     res.cookie(this.COOKIE_NAME, session.id, {
@@ -230,33 +206,6 @@ export class GuestSessionMiddleware implements NestMiddleware {
     this.logger.log(
       `✅ New guest session created: ${session.id}`,
     );
-  }
-
-  /**
-   * Extract client IP address from request
-   * Handles proxies and load balancers
-   *
-   * @param req - Express Request object
-   * @returns IP address string
-   */
-  private extractIpAddress(req: Request): string {
-    // Check for proxy headers first
-    const forwardedFor = req.headers['x-forwarded-for'];
-    if (forwardedFor) {
-      const ips = Array.isArray(forwardedFor)
-        ? forwardedFor[0]
-        : forwardedFor;
-      return ips.split(',')[0].trim();
-    }
-
-    // Check for real IP header
-    const realIp = req.headers['x-real-ip'];
-    if (realIp) {
-      return Array.isArray(realIp) ? realIp[0] : realIp;
-    }
-
-    // Fallback to socket IP
-    return req.ip || req.socket.remoteAddress || 'unknown';
   }
 
   /**

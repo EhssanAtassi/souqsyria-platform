@@ -33,6 +33,8 @@ import {
   ProductListMeta,
   ProductListResponse,
 } from '../../models/product-list.interface';
+import { TranslateService } from '@ngx-translate/core';
+import { CartService } from '../../../../store/cart/cart.service';
 
 // ---------------------------------------------------------------------------
 // Stub components to replace real children and avoid RouterLink issues
@@ -164,12 +166,30 @@ describe('ProductListPageComponent', () => {
   let productServiceSpy: jasmine.SpyObj<ProductService>;
   let routerSpy: jasmine.SpyObj<Router>;
   let queryParams$: BehaviorSubject<Record<string, string>>;
+  let translateServiceSpy: jasmine.SpyObj<TranslateService>;
+
+  /** @description i18n key-to-value map for mock translations */
+  const translations: Record<string, string> = {
+    products_page_title: 'All Products',
+    products_empty: 'No products found',
+    products_retry: 'Try Again',
+    products_browse_all: 'Browse All',
+    products_sort_by: 'Sort by',
+    products_view_grid: 'Grid view',
+    products_view_list: 'List view',
+    products_error_loading: 'Failed to load products',
+  };
 
   beforeEach(async () => {
     productServiceSpy = jasmine.createSpyObj('ProductService', [
       'getProducts',
     ]);
     routerSpy = jasmine.createSpyObj('Router', ['navigate']);
+    translateServiceSpy = jasmine.createSpyObj('TranslateService', ['instant']);
+    translateServiceSpy.instant.and.callFake(
+      (key: string) => translations[key] || key
+    );
+    const cartServiceSpy = jasmine.createSpyObj('CartService', ['addToCart']);
 
     /** @description BehaviorSubject to simulate ActivatedRoute queryParams */
     queryParams$ = new BehaviorSubject<Record<string, string>>({
@@ -184,6 +204,8 @@ describe('ProductListPageComponent', () => {
         provideNoopAnimations(),
         { provide: ProductService, useValue: productServiceSpy },
         { provide: Router, useValue: routerSpy },
+        { provide: TranslateService, useValue: translateServiceSpy },
+        { provide: CartService, useValue: cartServiceSpy },
         {
           provide: ActivatedRoute,
           useValue: {

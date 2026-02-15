@@ -27,6 +27,15 @@ export class TokenService {
   /** LocalStorage key for the remember-me preference */
   private readonly REMEMBER_ME_KEY = 'auth_remember_me';
 
+  /** LocalStorage key for session start timestamp (absolute timeout) */
+  private readonly SESSION_STARTED_AT_KEY = 'auth_session_started_at';
+
+  /** Maximum session duration in days for remember-me sessions */
+  private readonly MAX_SESSION_DAYS = 30;
+
+  /** Maximum session duration in days for non-remember-me sessions */
+  private readonly DEFAULT_SESSION_DAYS = 1;
+
   /**
    * Get the stored access token
    *
@@ -62,15 +71,17 @@ export class TokenService {
   }
 
   /**
-   * Clear all stored tokens and remember-me preference
+   * Clear all stored tokens and session data
    *
-   * @description Removes access token, refresh token, and remember-me flag
-   * from localStorage. Called on logout or when tokens are invalidated.
+   * @description Removes access token, refresh token, remember-me flag,
+   * and session start timestamp from localStorage.
+   * Called on logout or when tokens are invalidated.
    */
   clearTokens(): void {
     localStorage.removeItem(this.ACCESS_TOKEN_KEY);
     localStorage.removeItem(this.REFRESH_TOKEN_KEY);
     localStorage.removeItem(this.REMEMBER_ME_KEY);
+    localStorage.removeItem(this.SESSION_STARTED_AT_KEY);
   }
 
   /**
@@ -166,6 +177,38 @@ export class TokenService {
 
     const remaining = (payload['exp'] * 1000) - Date.now();
     return Math.max(0, Math.floor(remaining / 1000));
+  }
+
+  /**
+   * Record the current time as the session start
+   *
+   * @description Stores a Unix timestamp in localStorage. Used in conjunction
+   * with isSessionExpired() to enforce an absolute session ceiling.
+   * Called once when the user logs in.
+   */
+  setSessionStartedAt(): void {
+    localStorage.setItem(this.SESSION_STARTED_AT_KEY, String(Date.now()));
+  }
+
+  /**
+   * Check if the session has exceeded its absolute maximum duration
+   *
+   * @description Compares the stored session start timestamp against the
+   * configured maximum duration. Remember-me sessions last 30 days;
+   * regular sessions last 1 day.
+   * @returns true if the session has expired or no start timestamp exists
+   */
+  isSessionExpired(): boolean {
+    const startedAt = localStorage.getItem(this.SESSION_STARTED_AT_KEY);
+    if (!startedAt) {
+      return false; // No timestamp means legacy session — let JWT expiry handle it
+    }
+
+    const maxDays = this.getRememberMe()
+      ? this.MAX_SESSION_DAYS
+      : this.DEFAULT_SESSION_DAYS;
+    const maxMs = maxDays * 24 * 60 * 60 * 1000;
+    return Date.now() - Number(startedAt) > maxMs;
   }
 
   /**

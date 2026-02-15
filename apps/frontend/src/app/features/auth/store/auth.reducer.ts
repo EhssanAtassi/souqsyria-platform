@@ -47,6 +47,7 @@ export const initialAuthState: AuthState = {
   loginErrorCode: null,
   remainingAttempts: null,
   lockedUntilMinutes: null,
+  rateLimitRetryAfter: null,
 };
 
 /**
@@ -72,6 +73,7 @@ export const authReducer = createReducer(
     loginErrorCode: null,
     remainingAttempts: null,
     lockedUntilMinutes: null,
+    rateLimitRetryAfter: null,
   })),
 
   /**
@@ -92,13 +94,14 @@ export const authReducer = createReducer(
    */
   on(
     AuthActions.loginFailure,
-    (state, { error, errorCode, remainingAttempts, lockedUntilMinutes }): AuthState => ({
+    (state, { error, errorCode, remainingAttempts, lockedUntilMinutes, retryAfterSeconds }): AuthState => ({
       ...state,
       error,
       isLoading: false,
       loginErrorCode: errorCode ?? null,
       remainingAttempts: remainingAttempts ?? null,
       lockedUntilMinutes: lockedUntilMinutes ?? null,
+      rateLimitRetryAfter: retryAfterSeconds ?? null,
     }),
   ),
 
@@ -335,6 +338,7 @@ export const authReducer = createReducer(
     loginErrorCode: null,
     remainingAttempts: null,
     lockedUntilMinutes: null,
+    rateLimitRetryAfter: null,
   })),
 
   // ─── Load User From Token ─────────────────────────────────────
