@@ -34,59 +34,59 @@
       [class.right-3]="!isRtl()"
       [class.left-3]="isRtl()"
     >
-      <!-- Loading Spinner -->
-      <mat-spinner
-        *ngIf="isSearching()"
-        [diameter]="20"
-        [strokeWidth]="2"
-        class="text-primary-500"
-      ></mat-spinner>
-
-      <!-- Clear Button -->
-      <button
-        *ngIf="!isSearching() && showClearButton()"
-        type="button"
-        class="p-1 rounded-full hover:bg-gray-100 transition-colors"
-        (click)="clearSearch()"
-        [attr.aria-label]="isRtl() ? 'مسح البحث' : 'Clear search'"
-      >
-        <mat-icon class="text-gray-400 text-xl">close</mat-icon>
-      </button>
+      @if (isSearching()) {
+        <!-- Loading Spinner -->
+        <mat-spinner
+          [diameter]="20"
+          [strokeWidth]="2"
+          class="text-primary-500"
+        ></mat-spinner>
+      } @else if (showClearButton()) {
+        <!-- Clear Button -->
+        <button
+          type="button"
+          class="p-1 rounded-full hover:bg-gray-100 transition-colors"
+          (click)="clearSearch()"
+          [attr.aria-label]="isRtl() ? 'مسح البحث' : 'Clear search'"
+        >
+          <mat-icon class="text-gray-400 text-xl">close</mat-icon>
+        </button>
+      }
     </div>
   </div>
 
   <!-- Search Hint (Minimum characters) -->
-  <div
-    *ngIf="searchQuery().length > 0 && searchQuery().length < 2"
-    class="mt-2 text-xs text-gray-500"
-    [class.text-right]="isRtl()"
-  >
-    {{
-      isRtl()
-        ? 'الرجاء إدخال حرفين على الأقل للبحث'
-        : 'Please enter at least 2 characters to search'
-    }}
-  </div>
+  @if (searchQuery().length > 0 && searchQuery().length < 2) {
+    <div
+      class="mt-2 text-xs text-gray-500"
+      [class.text-right]="isRtl()"
+    >
+      {{
+        isRtl()
+          ? 'الرجاء إدخال حرفين على الأقل للبحث'
+          : 'Please enter at least 2 characters to search'
+      }}
+    </div>
+  }
 
   <!-- Empty State -->
-  <div
-    *ngIf="showEmptyState()"
-    class="mt-8 flex flex-col items-center justify-center py-8"
-  >
-    <mat-icon class="text-gray-300 text-6xl mb-3">search_off</mat-icon>
-    <p class="text-gray-500 text-center font-medium">
-      {{
-        isRtl()
-          ? 'لم يتم العثور على نتائج'
-          : 'No results found'
-      }}
-    </p>
-    <p class="text-gray-400 text-sm text-center mt-1">
-      {{
-        isRtl()
-          ? 'حاول استخدام كلمات مفتاحية مختلفة'
-          : 'Try using different keywords'
-      }}
-    </p>
-  </div>
+  @if (showEmptyState()) {
+    <div class="mt-8 flex flex-col items-center justify-center py-8">
+      <mat-icon class="text-gray-300 text-6xl mb-3">search_off</mat-icon>
+      <p class="text-gray-500 text-center font-medium">
+        {{
+          isRtl()
+            ? 'لم يتم العثور على نتائج'
+            : 'No results found'
+        }}
+      </p>
+      <p class="text-gray-400 text-sm text-center mt-1">
+        {{
+          isRtl()
+            ? 'حاول استخدام كلمات مفتاحية مختلفة'
+            : 'Try using different keywords'
+        }}
+      </p>
+    </div>
+  }
 </div>

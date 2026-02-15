@@ -172,17 +172,20 @@ export class AddressesService {
    * Set an address as default for a user (per type).
    */
   async setDefault(user: User, addressId: number): Promise<Address> {
-    const address = await this.addressRepo.findOne({
-      where: { id: addressId, user: { id: user.id } },
-    });
-    if (!address) throw new NotFoundException('Address not found');
+    return this.addressRepo.manager.transaction(async (manager) => {
+      const address = await manager.findOne(Address, {
+        where: { id: addressId, user: { id: user.id } },
+      });
+      if (!address) throw new NotFoundException('Address not found');
 
-    await this.addressRepo.update(
-      { user: { id: user.id }, addressType: address.addressType },
-      { isDefault: false },
-    );
-    address.isDefault = true;
-    return this.addressRepo.save(address);
+      await manager.update(
+        Address,
+        { user: { id: user.id }, addressType: address.addressType },
+        { isDefault: false },
+      );
+      address.isDefault = true;
+      return manager.save(address);
+    });
   }
 
   /**
@@ -211,7 +214,9 @@ export class AddressesService {
   }
 
   /**
-   * Find address by ID (without user restriction - for admin/testing)
+   * Find address by ID without user restriction.
+   * @internal Admin/testing only - not exposed via any controller route.
+   * Do NOT call from user-facing code without adding ownership checks.
    */
   async findOneById(id: number): Promise<Address | null> {
     return this.addressRepo.findOne({
@@ -282,7 +287,9 @@ export class AddressesService {
   }
 
   /**
-   * Update address by ID (admin/testing method)
+   * Update address by ID without user restriction.
+   * @internal Admin/testing only - not exposed via any controller route.
+   * Do NOT call from user-facing code without adding ownership checks.
    */
   async updateById(
     id: number,
@@ -368,7 +375,9 @@ export class AddressesService {
   }
 
   /**
-   * Remove address by ID (for testing - returns boolean)
+   * Remove address by ID without user restriction.
+   * @internal Admin/testing only - not exposed via any controller route.
+   * Do NOT call from user-facing code without adding ownership checks.
    */
   async removeById(id: number): Promise<boolean> {
     const address = await this.addressRepo.findOne({ where: { id } })!;
@@ -451,7 +460,9 @@ export class AddressesService {
   }
 
   /**
-   * Find addresses within radius
+   * Find addresses within radius (geo-proximity search).
+   * @internal Admin/testing only - not exposed via any controller route.
+   * Do NOT call from user-facing code without adding ownership checks.
    */
   async findAddressesNearby(
     latitude: number,
@@ -485,7 +496,9 @@ export class AddressesService {
   }
 
   /**
-   * Find addresses by governorate name
+   * Find addresses by governorate name.
+   * @internal Admin/testing only - not exposed via any controller route.
+   * Do NOT call from user-facing code without adding ownership checks.
    */
   async findByGovernorate(governorateName: string): Promise<Address[]> {
     return this.addressRepo.find({
@@ -551,32 +564,38 @@ export class AddressesService {
       ? await this.districtRepo.findOne({ where: { id: dto.districtId } })
       : null;
 
-    // Step 3: Handle default address logic
-    if (dto.isDefault) {
-      await this.addressRepo.update(
-        { user: { id: user.id } },
-        { isDefault: false },
-      );
-    }
+    // Step 3: Create address within a transaction to prevent default-flag race conditions
+    const savedAddress = await this.addressRepo.manager.transaction(
+      async (manager) => {
+        // Unset existing defaults if new address should be default
+        if (dto.isDefault) {
+          await manager.update(
+            Address,
+            { user: { id: user.id } },
+            { isDefault: false },
+          );
+        }
 
-    // Step 4: Create address entity
-    const address = this.addressRepo.create({
-      user,
-      fullName: dto.fullName,
-      phone: dto.phone,
-      governorate,
-      syrianCity,
-      district,
-      addressLine1: dto.street, // Map street to addressLine1 for backward compatibility
-      building: dto.building,
-      floor: dto.floor,
-      additionalDetails: dto.additionalDetails,
-      isDefault: dto.isDefault || false,
-      label: dto.label || 'home',
-      addressType: 'shipping', // Default for Syrian addresses
-    });
+        // Create address entity
+        const address = manager.create(Address, {
+          user,
+          fullName: dto.fullName,
+          phone: dto.phone,
+          governorate,
+          syrianCity,
+          district,
+          addressLine1: dto.street, // Map street to addressLine1 for backward compatibility
+          building: dto.building,
+          floor: dto.floor,
+          additionalDetails: dto.additionalDetails,
+          isDefault: dto.isDefault || false,
+          label: dto.label || 'home',
+          addressType: 'shipping', // Default for Syrian addresses
+        });
 
-    const savedAddress = await this.addressRepo.save(address);
+        return manager.save(address);
+      },
+    );
 
     this.logger.log(
       `Created Syrian address ${savedAddress.id} for user ${user.id} ` +
@@ -667,18 +686,23 @@ export class AddressesService {
       address.additionalDetails = dto.additionalDetails;
     if (dto.label !== undefined) address.label = dto.label;
 
-    // Step 5: Handle default address logic
-    if (dto.isDefault === true) {
-      await this.addressRepo.update(
-        { user: { id: user.id } },
-        { isDefault: false },
-      );
-      address.isDefault = true;
-    } else if (dto.isDefault === false) {
-      address.isDefault = false;
-    }
+    // Step 5: Handle default address logic within a transaction
+    const updatedAddress = await this.addressRepo.manager.transaction(
+      async (manager) => {
+        if (dto.isDefault === true) {
+          await manager.update(
+            Address,
+            { user: { id: user.id } },
+            { isDefault: false },
+          );
+          address.isDefault = true;
+        } else if (dto.isDefault === false) {
+          address.isDefault = false;
+        }
 
-    const updatedAddress = await this.addressRepo.save(address);
+        return manager.save(address);
+      },
+    );
 
     this.logger.log(`Updated Syrian address ${id} for user ${user.id}`);
 
@@ -745,29 +769,32 @@ export class AddressesService {
    * @throws NotFoundException if address not found or not owned by user
    */
   async setDefaultSyrianAddress(user: User, id: number): Promise<Address> {
-    // Step 1: Find and verify ownership
-    const address = await this.addressRepo.findOne({
-      where: { id, user: { id: user.id } },
-      relations: ['governorate', 'syrianCity', 'district'],
+    return this.addressRepo.manager.transaction(async (manager) => {
+      // Step 1: Find and verify ownership
+      const address = await manager.findOne(Address, {
+        where: { id, user: { id: user.id } },
+        relations: ['governorate', 'syrianCity', 'district'],
+      });
+
+      if (!address) {
+        throw new NotFoundException('Address not found');
+      }
+
+      // Step 2: Unset all other defaults for this user (atomic within transaction)
+      await manager.update(
+        Address,
+        { user: { id: user.id } },
+        { isDefault: false },
+      );
+
+      // Step 3: Set this address as default
+      address.isDefault = true;
+      const updatedAddress = await manager.save(address);
+
+      this.logger.log(`Set address ${id} as default for user ${user.id}`);
+
+      return updatedAddress;
     });
-
-    if (!address) {
-      throw new NotFoundException('Address not found');
-    }
-
-    // Step 2: Unset all other defaults for this user
-    await this.addressRepo.update(
-      { user: { id: user.id } },
-      { isDefault: false },
-    );
-
-    // Step 3: Set this address as default
-    address.isDefault = true;
-    const updatedAddress = await this.addressRepo.save(address);
-
-    this.logger.log(`Set address ${id} as default for user ${user.id}`);
-
-    return updatedAddress;
   }
 
   /**

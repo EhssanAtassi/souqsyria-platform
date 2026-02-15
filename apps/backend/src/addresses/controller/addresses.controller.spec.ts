@@ -113,6 +113,7 @@ describe('AddressesController', () => {
       findAll: jest.fn(),
       findOne: jest.fn(),
       update: jest.fn(),
+      setDefault: jest.fn(),
       setAsDefault: jest.fn(),
     } as any;
 
@@ -441,20 +442,20 @@ describe('AddressesController', () => {
     });
   });
 
-  describe('setDefault', () => {
-    it('should set address as default for user/type', async () => {
+  describe('setDefault (deprecated POST route)', () => {
+    it('should delegate to setDefaultSyrianAddress', async () => {
       // Arrange
       const addressId = 1;
       const dto: any = { addressType: 'shipping' };
       const defaultAddress = { ...mockAddress, isDefault: true };
-      mockAddressesService.setAsDefault.mockResolvedValue(defaultAddress);
+      mockAddressesService.setDefaultSyrianAddress.mockResolvedValue(defaultAddress);
 
       // Act
       const result = await controller.setDefault(mockUser, addressId, dto);
 
       // Assert
       expect(result).toEqual(defaultAddress);
-      expect(mockAddressesService.setAsDefault).toHaveBeenCalledWith(1, dto);
+      expect(mockAddressesService.setDefaultSyrianAddress).toHaveBeenCalledWith(mockUser, 1);
     });
   });
 });

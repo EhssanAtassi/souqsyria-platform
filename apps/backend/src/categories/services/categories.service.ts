@@ -925,11 +925,11 @@ export class CategoriesService {
         })
         .andWhere('product.is_deleted = :isDeleted', { isDeleted: false });
 
-      // 4. Apply search filter if provided
+      // 4. Apply case-insensitive search filter if provided
       if (search && search.trim().length > 0) {
-        const searchTerm = `%${search.trim()}%`;
+        const searchTerm = `%${search.trim().toLowerCase()}%`;
         queryBuilder.andWhere(
-          '(product.nameEn LIKE :search OR product.nameAr LIKE :search OR description.description LIKE :search)',
+          '(LOWER(product.nameEn) LIKE :search OR LOWER(product.nameAr) LIKE :search OR LOWER(description.description) LIKE :search)',
           { search: searchTerm },
         );
       }

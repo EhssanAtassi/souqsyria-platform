@@ -219,17 +219,23 @@ export class AddressesController {
   /**
    * @route POST /addresses/:id/set-default
    * @description Set an address as default (per type, for the user).
-   * Validates that the address belongs to the current user before updating.
+   * @deprecated Use PATCH /addresses/:id/default instead. This endpoint
+   * will be removed in a future version.
    */
   @Post(':id/set-default')
-  @ApiOperation({ summary: 'Set default address for user/type' })
+  @ApiOperation({
+    summary: 'Set default address for user/type',
+    deprecated: true,
+    description: 'Deprecated: Use PATCH /addresses/:id/default instead.',
+  })
   @ApiParam({ name: 'id', description: 'Address ID' })
   async setDefault(
     @CurrentUser() user: User,
     @Param('id') addressId: number,
     @Body() dto: SetDefaultAddressDto,
   ) {
-    return this.addressesService.setDefault(user, Number(addressId));
+    // Delegate to the transaction-safe Syrian implementation
+    return this.addressesService.setDefaultSyrianAddress(user, Number(addressId));
   }
 
   /**
