@@ -13,13 +13,14 @@ import {
   HttpStatus,
 } from '@nestjs/common';
 import { AddressesService } from '../service/addresses.service';
+import { SyrianAddressCrudService } from '../service/syrian-address-crud.service';
 import { CreateAddressDto } from '../dto/create-address.dto';
 import { UpdateAddressDto } from '../dto/update-address.dto';
-import { SetDefaultAddressDto } from '../dto/set-default-address.dto';
 import { CreateSyrianAddressDto } from '../dto/create-syrian-address.dto';
 import { UpdateSyrianAddressDto } from '../dto/update-syrian-address.dto';
 import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
+import { Public } from '../../common/decorators/public.decorator';
 import { User } from '../../users/entities/user.entity';
 import {
   ApiTags,
@@ -28,6 +29,7 @@ import {
   ApiParam,
   ApiQuery,
   ApiResponse,
+  ApiBody,
 } from '@nestjs/swagger';
 import { AddressType } from '../dto/create-address.dto';
 import { SyrianAddressService } from '../service/syrian-address.service';
@@ -39,13 +41,16 @@ import { SyrianAddressService } from '../service/syrian-address.service';
 export class AddressesController {
   constructor(
     private readonly addressesService: AddressesService,
+    private readonly syrianAddressCrudService: SyrianAddressCrudService,
     private readonly syrianAddressService: SyrianAddressService,
   ) {}
 
   /**
    * @route GET /addresses/governorates
-   * @description Get all Syrian governorates (must be before :id routes)
+   * @description Get all Syrian governorates (must be before :id routes).
+   * Public endpoint - no JWT required so guest users can browse locations.
    */
+  @Public()
   @Get('governorates')
   @ApiOperation({
     summary: 'Get all Syrian governorates',
@@ -61,8 +66,10 @@ export class AddressesController {
 
   /**
    * @route GET /addresses/governorates/:id/cities
-   * @description Get cities for a specific governorate
+   * @description Get cities for a specific governorate.
+   * Public endpoint - no JWT required so guest users can browse locations.
    */
+  @Public()
   @Get('governorates/:id/cities')
   @ApiOperation({
     summary: 'Get cities by governorate',
@@ -79,8 +86,10 @@ export class AddressesController {
 
   /**
    * @route GET /addresses/cities/:id/districts
-   * @description Get districts for a specific city
+   * @description Get districts for a specific city.
+   * Public endpoint - no JWT required so guest users can browse locations.
    */
+  @Public()
   @Get('cities/:id/districts')
   @ApiOperation({
     summary: 'Get districts by city',
@@ -105,13 +114,18 @@ export class AddressesController {
     summary: 'Add a new Syrian address',
     description: 'Creates a new address with Syrian governorate/city/district hierarchy',
   })
+  @ApiBody({
+    type: CreateSyrianAddressDto,
+    description: 'Syrian address creation data with governorate/city/district hierarchy',
+    required: true,
+  })
   @ApiResponse({ status: 201, description: 'Address created successfully' })
   @ApiResponse({ status: 400, description: 'Validation failed' })
   async create(
     @CurrentUser() user: User,
     @Body() dto: CreateSyrianAddressDto,
   ) {
-    return this.addressesService.createSyrianAddress(user, dto);
+    return this.syrianAddressCrudService.createSyrianAddress(user, dto);
   }
 
   /**
@@ -121,6 +135,11 @@ export class AddressesController {
   @Put(':id')
   @ApiOperation({ summary: 'Update an address' })
   @ApiParam({ name: 'id', description: 'Address ID' })
+  @ApiBody({
+    type: UpdateAddressDto,
+    description: 'Address update data',
+    required: true,
+  })
   async update(
     @CurrentUser() user: User,
     @Param('id') id: number,
@@ -148,7 +167,7 @@ export class AddressesController {
     description: 'Address not found',
   })
   async setDefaultAddress(@CurrentUser() user: User, @Param('id') id: number) {
-    return this.addressesService.setDefaultSyrianAddress(user, Number(id));
+    return this.syrianAddressCrudService.setDefaultSyrianAddress(user, Number(id));
   }
 
   /**
@@ -161,6 +180,11 @@ export class AddressesController {
     description: 'Partial update of a Syrian address with validation',
   })
   @ApiParam({ name: 'id', description: 'Address ID', type: 'number' })
+  @ApiBody({
+    type: UpdateSyrianAddressDto,
+    description: 'Partial Syrian address update data',
+    required: true,
+  })
   @ApiResponse({
     status: 200,
     description: 'Address updated successfully',
@@ -178,7 +202,7 @@ export class AddressesController {
     @Param('id') id: number,
     @Body() dto: UpdateSyrianAddressDto,
   ) {
-    return this.addressesService.updateSyrianAddress(user, Number(id), dto);
+    return this.syrianAddressCrudService.updateSyrianAddress(user, Number(id), dto);
   }
 
   /**
@@ -196,7 +220,7 @@ export class AddressesController {
   @ApiResponse({ status: 400, description: 'Cannot delete default or only address' })
   @HttpCode(HttpStatus.NO_CONTENT)
   async remove(@CurrentUser() user: User, @Param('id') id: number) {
-    await this.addressesService.deleteSyrianAddress(user, Number(id));
+    await this.syrianAddressCrudService.deleteSyrianAddress(user, Number(id));
     return;
   }
 
@@ -214,28 +238,6 @@ export class AddressesController {
   })
   async findAll(@CurrentUser() user: User, @Query('type') type?: AddressType) {
     return this.addressesService.findAll(user, type);
-  }
-
-  /**
-   * @route POST /addresses/:id/set-default
-   * @description Set an address as default (per type, for the user).
-   * @deprecated Use PATCH /addresses/:id/default instead. This endpoint
-   * will be removed in a future version.
-   */
-  @Post(':id/set-default')
-  @ApiOperation({
-    summary: 'Set default address for user/type',
-    deprecated: true,
-    description: 'Deprecated: Use PATCH /addresses/:id/default instead.',
-  })
-  @ApiParam({ name: 'id', description: 'Address ID' })
-  async setDefault(
-    @CurrentUser() user: User,
-    @Param('id') addressId: number,
-    @Body() dto: SetDefaultAddressDto,
-  ) {
-    // Delegate to the transaction-safe Syrian implementation
-    return this.addressesService.setDefaultSyrianAddress(user, Number(addressId));
   }
 
   /**

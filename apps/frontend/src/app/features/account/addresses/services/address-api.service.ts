@@ -1,5 +1,7 @@
-import { Injectable, inject, signal } from '@angular/core';
+import { Injectable, inject, signal, computed } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { TranslateService } from '@ngx-translate/core';
 import { environment } from '../../../../../environments/environment';
 import {
   AddressResponse,
@@ -15,7 +17,7 @@ import { of } from 'rxjs';
 /**
  * @description Address API Service for Syrian address management
  * Provides CRUD operations for addresses and hierarchical location data (governorates, cities, districts).
- * Uses Angular signals for reactive state management.
+ * Uses Angular signals for reactive state management with granular loading states.
  *
  * @swagger
  * components:
@@ -38,6 +40,8 @@ import { of } from 'rxjs';
 })
 export class AddressApiService {
   private readonly http = inject(HttpClient);
+  private readonly snackBar = inject(MatSnackBar);
+  private readonly translate = inject(TranslateService);
   private readonly baseUrl = `${environment.apiUrl}/addresses`;
 
   /** Signal: List of user addresses */
@@ -52,32 +56,65 @@ export class AddressApiService {
   /** Signal: List of districts (filtered by selected city) */
   readonly districts = signal<District[]>([]);
 
-  /** Signal: Loading state for async operations */
-  readonly isLoading = signal<boolean>(false);
+  /** Signal: Loading state for addresses list */
+  readonly isLoadingAddresses = signal<boolean>(false);
+
+  /** Signal: Loading state for governorates */
+  readonly isLoadingGovernorates = signal<boolean>(false);
+
+  /** Signal: Loading state for cities */
+  readonly isLoadingCities = signal<boolean>(false);
+
+  /** Signal: Loading state for districts */
+  readonly isLoadingDistricts = signal<boolean>(false);
+
+  /** Signal: Loading state for save operations (create/update/delete) */
+  readonly isSaving = signal<boolean>(false);
+
+  /** Computed: Any loading operation is in progress (backward compatible) */
+  readonly isLoading = computed<boolean>(() =>
+    this.isLoadingAddresses() ||
+    this.isLoadingGovernorates() ||
+    this.isLoadingCities() ||
+    this.isLoadingDistricts() ||
+    this.isSaving()
+  );
 
   /** Signal: Error message for failed operations */
   readonly error = signal<string | null>(null);
 
   /**
+   * @description Show a translated error notification to the user
+   * @param translationKey - i18n key for the error message
+   */
+  private showError(translationKey: string): void {
+    const message = this.translate.instant(translationKey);
+    this.snackBar.open(message, this.translate.instant('addresses.dismiss'), {
+      duration: 5000,
+      panelClass: ['error-snackbar'],
+    });
+  }
+
+  /**
    * @description Load all addresses for the authenticated user
-   * @returns Observable that completes when addresses are loaded
+   * @returns Observable that emits the loaded addresses array
    */
   loadAddresses() {
-    this.isLoading.set(true);
+    this.isLoadingAddresses.set(true);
     this.error.set(null);
 
     return this.http.get<AddressResponse[]>(this.baseUrl).pipe(
       tap((data) => {
         this.addresses.set(data);
-        this.isLoading.set(false);
+        this.isLoadingAddresses.set(false);
       }),
       catchError((err) => {
         this.error.set('Failed to load addresses');
-        this.isLoading.set(false);
-        console.error('Error loading addresses:', err);
+        this.isLoadingAddresses.set(false);
+        this.showError('addresses.errors.loadFailed');
         return of([]);
       })
-    ).subscribe();
+    );
   }
 
   /**
@@ -86,18 +123,18 @@ export class AddressApiService {
    * @returns Observable that emits the created address
    */
   createAddress(dto: CreateAddressRequest) {
-    this.isLoading.set(true);
+    this.isSaving.set(true);
     this.error.set(null);
 
     return this.http.post<AddressResponse>(this.baseUrl, dto).pipe(
       tap((newAddress) => {
         this.addresses.update((current) => [...current, newAddress]);
-        this.isLoading.set(false);
+        this.isSaving.set(false);
       }),
       catchError((err) => {
         this.error.set('Failed to create address');
-        this.isLoading.set(false);
-        console.error('Error creating address:', err);
+        this.isSaving.set(false);
+        this.showError('addresses.errors.createFailed');
         throw err;
       })
     );
@@ -110,7 +147,7 @@ export class AddressApiService {
    * @returns Observable that emits the updated address
    */
   updateAddress(id: number, dto: UpdateAddressRequest) {
-    this.isLoading.set(true);
+    this.isSaving.set(true);
     this.error.set(null);
 
     return this.http.patch<AddressResponse>(`${this.baseUrl}/${id}`, dto).pipe(
@@ -118,12 +155,12 @@ export class AddressApiService {
         this.addresses.update((current) =>
           current.map((addr) => (addr.id === id ? updatedAddress : addr))
         );
-        this.isLoading.set(false);
+        this.isSaving.set(false);
       }),
       catchError((err) => {
         this.error.set('Failed to update address');
-        this.isLoading.set(false);
-        console.error('Error updating address:', err);
+        this.isSaving.set(false);
+        this.showError('addresses.errors.updateFailed');
         throw err;
       })
     );
@@ -135,18 +172,18 @@ export class AddressApiService {
    * @returns Observable that completes when address is deleted
    */
   deleteAddress(id: number) {
-    this.isLoading.set(true);
+    this.isSaving.set(true);
     this.error.set(null);
 
     return this.http.delete<void>(`${this.baseUrl}/${id}`).pipe(
       tap(() => {
         this.addresses.update((current) => current.filter((addr) => addr.id !== id));
-        this.isLoading.set(false);
+        this.isSaving.set(false);
       }),
       catchError((err) => {
         this.error.set('Failed to delete address');
-        this.isLoading.set(false);
-        console.error('Error deleting address:', err);
+        this.isSaving.set(false);
+        this.showError('addresses.errors.deleteFailed');
         throw err;
       })
     );
@@ -158,7 +195,7 @@ export class AddressApiService {
    * @returns Observable that emits the updated address
    */
   setDefault(id: number) {
-    this.isLoading.set(true);
+    this.isSaving.set(true);
     this.error.set(null);
 
     return this.http.patch<AddressResponse>(`${this.baseUrl}/${id}/default`, {}).pipe(
@@ -169,12 +206,12 @@ export class AddressApiService {
             isDefault: addr.id === id
           }))
         );
-        this.isLoading.set(false);
+        this.isSaving.set(false);
       }),
       catchError((err) => {
         this.error.set('Failed to set default address');
-        this.isLoading.set(false);
-        console.error('Error setting default address:', err);
+        this.isSaving.set(false);
+        this.showError('addresses.errors.setDefaultFailed');
         throw err;
       })
     );
@@ -182,70 +219,70 @@ export class AddressApiService {
 
   /**
    * @description Load all Syrian governorates
-   * @returns Observable that completes when governorates are loaded
+   * @returns Observable that emits the loaded governorates array
    */
   loadGovernorates() {
-    this.isLoading.set(true);
+    this.isLoadingGovernorates.set(true);
     this.error.set(null);
 
     return this.http.get<Governorate[]>(`${this.baseUrl}/governorates`).pipe(
       tap((data) => {
         this.governorates.set(data);
-        this.isLoading.set(false);
+        this.isLoadingGovernorates.set(false);
       }),
       catchError((err) => {
         this.error.set('Failed to load governorates');
-        this.isLoading.set(false);
-        console.error('Error loading governorates:', err);
+        this.isLoadingGovernorates.set(false);
+        this.showError('addresses.errors.governoratesLoadFailed');
         return of([]);
       })
-    ).subscribe();
+    );
   }
 
   /**
    * @description Load cities for a specific governorate
    * @param governorateId - Governorate ID
-   * @returns Observable that completes when cities are loaded
+   * @returns Observable that emits the loaded cities array
    */
   loadCities(governorateId: number) {
-    this.isLoading.set(true);
+    this.isLoadingCities.set(true);
     this.error.set(null);
 
     return this.http.get<City[]>(`${this.baseUrl}/governorates/${governorateId}/cities`).pipe(
       tap((data) => {
         this.cities.set(data);
-        this.isLoading.set(false);
+        this.isLoadingCities.set(false);
       }),
       catchError((err) => {
         this.error.set('Failed to load cities');
-        this.isLoading.set(false);
-        console.error('Error loading cities:', err);
+        this.isLoadingCities.set(false);
+        this.showError('addresses.errors.citiesLoadFailed');
         return of([]);
       })
-    ).subscribe();
+    );
   }
 
   /**
    * @description Load districts for a specific city
    * @param cityId - City ID
-   * @returns Observable that completes when districts are loaded
+   * @returns Observable that emits the loaded districts array
    */
   loadDistricts(cityId: number) {
-    this.isLoading.set(true);
+    this.isLoadingDistricts.set(true);
     this.error.set(null);
 
     return this.http.get<District[]>(`${this.baseUrl}/cities/${cityId}/districts`).pipe(
       tap((data) => {
         this.districts.set(data);
-        this.isLoading.set(false);
+        this.isLoadingDistricts.set(false);
       }),
       catchError((err) => {
         this.error.set('Failed to load districts');
-        this.isLoading.set(false);
-        console.error('Error loading districts:', err);
+        this.isLoadingDistricts.set(false);
+        this.showError('addresses.errors.districtsLoadFailed');
         return of([]);
       })
-    ).subscribe();
+    );
   }
 
   /**

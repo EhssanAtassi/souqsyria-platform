@@ -1,6 +1,7 @@
 import {
   Component,
   ChangeDetectionStrategy,
+  DestroyRef,
   OnInit,
   inject,
   input,
@@ -8,6 +9,7 @@ import {
   signal,
   effect
 } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -63,6 +65,7 @@ import { GovernorateDropdownComponent } from '../governorate-dropdown/governorat
 export class AddressFormComponent implements OnInit {
   private readonly fb = inject(FormBuilder);
   private readonly addressService = inject(AddressApiService);
+  private readonly destroyRef = inject(DestroyRef);
 
   /** Input: Address data for edit mode */
   address = input<AddressResponse | undefined>(undefined);
@@ -230,15 +233,17 @@ export class AddressFormComponent implements OnInit {
         isDefault: formValue.isDefault
       };
 
-      this.addressService.updateAddress(this.address()!.id, updateDto).subscribe({
-        next: () => {
-          this.isSubmitting.set(false);
-          this.saved.emit();
-        },
-        error: () => {
-          this.isSubmitting.set(false);
-        }
-      });
+      this.addressService.updateAddress(this.address()!.id, updateDto)
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe({
+          next: () => {
+            this.isSubmitting.set(false);
+            this.saved.emit();
+          },
+          error: () => {
+            this.isSubmitting.set(false);
+          }
+        });
     } else {
       // Create new address
       const createDto: CreateAddressRequest = {
@@ -255,15 +260,17 @@ export class AddressFormComponent implements OnInit {
         isDefault: formValue.isDefault
       };
 
-      this.addressService.createAddress(createDto).subscribe({
-        next: () => {
-          this.isSubmitting.set(false);
-          this.saved.emit();
-        },
-        error: () => {
-          this.isSubmitting.set(false);
-        }
-      });
+      this.addressService.createAddress(createDto)
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe({
+          next: () => {
+            this.isSubmitting.set(false);
+            this.saved.emit();
+          },
+          error: () => {
+            this.isSubmitting.set(false);
+          }
+        });
     }
   }
 
@@ -307,5 +314,10 @@ export class AddressFormComponent implements OnInit {
     }
 
     return '';
+  }
+
+  /** @description Track label options by value */
+  trackByLabel(index: number, label: string): string {
+    return label;
   }
 }

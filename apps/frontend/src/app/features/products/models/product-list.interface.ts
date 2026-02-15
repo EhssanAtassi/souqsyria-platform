@@ -3,6 +3,8 @@
  * Maps to GET /products?page=1&limit=20 backend response
  */
 
+import { CurrencyCode } from './product-detail.interface';
+
 /**
  * @description Single product item in the listing response
  */
@@ -21,8 +23,8 @@ export interface ProductListItem {
   basePrice: number;
   /** Discounted price if applicable */
   discountPrice: number | null;
-  /** Currency code (e.g., 'SYP') */
-  currency: string;
+  /** @description Currency code matching backend ProductPriceEntity enum (e.g., 'SYP') */
+  currency: CurrencyCode;
   /** Category identifier */
   categoryId: number | null;
   /** Category name in English */

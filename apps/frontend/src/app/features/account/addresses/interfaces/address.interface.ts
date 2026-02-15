@@ -71,6 +71,7 @@ export interface AddressResponse {
   fullName: string;
   phone: string;
   label?: string;
+  /** Sent as 'street' in create/update requests. Backend maps the 'street' DTO field to this entity field. */
   addressLine1: string;
   building?: string;
   floor?: string;
@@ -92,6 +93,7 @@ export interface CreateAddressRequest {
   governorateId: number;
   cityId: number;
   districtId?: number;
+  /** Maps to `addressLine1` in the AddressResponse. Backend maps this to the address entity's addressLine1 field. */
   street: string;
   building?: string;
   floor?: string;

@@ -117,10 +117,11 @@
           <button
             mat-icon-button
             class="info__wishlist"
+            [class.info__wishlist--active]="isInWishlist()"
             (click)="onAddToWishlist()"
             [attr.aria-label]="addToWishlistLabel"
           >
-            <mat-icon>favorite_border</mat-icon>
+            <mat-icon>{{ isInWishlist() ? 'favorite' : 'favorite_border' }}</mat-icon>
           </button>
         </div>
 

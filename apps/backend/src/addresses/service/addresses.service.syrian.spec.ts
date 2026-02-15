@@ -2,6 +2,9 @@
  * @file addresses.service.syrian.spec.ts
  * @description Unit tests for Syrian-specific address management methods
  *
+ * After the God Service refactor, these tests now target
+ * SyrianAddressCrudService instead of AddressesService.
+ *
  * Tests cover:
  * - createSyrianAddress with validation and default flag handling
  * - updateSyrianAddress with ownership and hierarchy validation
@@ -10,19 +13,17 @@
  * - findAllSyrianAddresses and findOneSyrianAddress queries
  *
  * @author SouqSyria Development Team
- * @version 1.0.0
+ * @version 2.0.0 - Updated for God Service Refactor
  */
 
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, DataSource } from 'typeorm';
 import { BadRequestException, NotFoundException } from '@nestjs/common';
-import { AddressesService } from './addresses.service';
+import { SyrianAddressCrudService } from './syrian-address-crud.service';
+import { AddressQueryService } from './address-query.service';
 import { Address } from '../entities/address.entity';
 import { User } from '../../users/entities/user.entity';
-import { Country } from '../country/entities/country.entity';
-import { Region } from '../region/entities/region.entity';
-import { City } from '../city/entities/city.entity';
 import {
   SyrianGovernorateEntity,
   SyrianCityEntity,
@@ -32,24 +33,14 @@ import { GovernorateCityValidator } from '../validators/valid-governorate-city.v
 import { CreateSyrianAddressDto } from '../dto/create-syrian-address.dto';
 import { UpdateSyrianAddressDto } from '../dto/update-syrian-address.dto';
 
-describe('AddressesService - Syrian Methods', () => {
-  let service: AddressesService;
+describe('SyrianAddressCrudService - Syrian Methods', () => {
+  let service: SyrianAddressCrudService;
   let mockAddressRepo: jest.Mocked<Repository<Address>>;
-  let mockUserRepo: jest.Mocked<Repository<User>>;
-  let mockCountryRepo: jest.Mocked<Repository<Country>>;
-  let mockRegionRepo: jest.Mocked<Repository<Region>>;
-  let mockCityRepo: jest.Mocked<Repository<City>>;
   let mockGovRepo: jest.Mocked<Repository<SyrianGovernorateEntity>>;
   let mockSyrianCityRepo: jest.Mocked<Repository<SyrianCityEntity>>;
   let mockDistrictRepo: jest.Mocked<Repository<SyrianDistrictEntity>>;
   let mockValidator: jest.Mocked<GovernorateCityValidator>;
-  /** Mock EntityManager returned inside addressRepo.manager.transaction() */
-  let mockManager: {
-    findOne: jest.Mock;
-    update: jest.Mock;
-    save: jest.Mock;
-    create: jest.Mock;
-  };
+  let mockAddressQueryService: jest.Mocked<AddressQueryService>;
 
   const mockUser: User = {
     id: 1,
@@ -98,13 +89,6 @@ describe('AddressesService - Syrian Methods', () => {
   } as SyrianDistrictEntity;
 
   beforeEach(async () => {
-    mockManager = {
-      findOne: jest.fn(),
-      update: jest.fn(),
-      save: jest.fn(),
-      create: jest.fn(),
-    };
-
     mockAddressRepo = {
       create: jest.fn(),
       save: jest.fn(),
@@ -113,25 +97,6 @@ describe('AddressesService - Syrian Methods', () => {
       update: jest.fn(),
       softRemove: jest.fn(),
       count: jest.fn(),
-      manager: {
-        transaction: jest.fn((cb: any) => cb(mockManager)),
-      },
-    } as any;
-
-    mockUserRepo = {
-      findOne: jest.fn(),
-    } as any;
-
-    mockCountryRepo = {
-      findOne: jest.fn(),
-    } as any;
-
-    mockRegionRepo = {
-      findOne: jest.fn(),
-    } as any;
-
-    mockCityRepo = {
-      findOne: jest.fn(),
     } as any;
 
     mockGovRepo = {
@@ -150,31 +115,39 @@ describe('AddressesService - Syrian Methods', () => {
       validate: jest.fn(),
     } as any;
 
+    mockAddressQueryService = {
+      countUserAddresses: jest.fn(),
+    } as any;
+
+    const mockDataSource = {
+      createQueryRunner: jest.fn().mockReturnValue({
+        connect: jest.fn(),
+        startTransaction: jest.fn(),
+        commitTransaction: jest.fn(),
+        rollbackTransaction: jest.fn(),
+        release: jest.fn(),
+        manager: {
+          findOne: jest.fn(),
+          update: jest.fn(),
+          save: jest.fn(),
+        },
+      }),
+    };
+
     const module: TestingModule = await Test.createTestingModule({
       providers: [
-        AddressesService,
+        SyrianAddressCrudService,
         { provide: getRepositoryToken(Address), useValue: mockAddressRepo },
-        { provide: getRepositoryToken(User), useValue: mockUserRepo },
-        { provide: getRepositoryToken(Country), useValue: mockCountryRepo },
-        { provide: getRepositoryToken(Region), useValue: mockRegionRepo },
-        { provide: getRepositoryToken(City), useValue: mockCityRepo },
-        {
-          provide: getRepositoryToken(SyrianGovernorateEntity),
-          useValue: mockGovRepo,
-        },
-        {
-          provide: getRepositoryToken(SyrianCityEntity),
-          useValue: mockSyrianCityRepo,
-        },
-        {
-          provide: getRepositoryToken(SyrianDistrictEntity),
-          useValue: mockDistrictRepo,
-        },
+        { provide: getRepositoryToken(SyrianGovernorateEntity), useValue: mockGovRepo },
+        { provide: getRepositoryToken(SyrianCityEntity), useValue: mockSyrianCityRepo },
+        { provide: getRepositoryToken(SyrianDistrictEntity), useValue: mockDistrictRepo },
         { provide: GovernorateCityValidator, useValue: mockValidator },
+        { provide: DataSource, useValue: mockDataSource },
+        { provide: AddressQueryService, useValue: mockAddressQueryService },
       ],
     }).compile();
 
-    service = module.get<AddressesService>(AddressesService);
+    service = module.get<SyrianAddressCrudService>(SyrianAddressCrudService);
   });
 
   describe('createSyrianAddress', () => {
@@ -218,8 +191,8 @@ describe('AddressesService - Syrian Methods', () => {
         updatedAt: new Date(),
       } as Address;
 
-      mockManager.create.mockReturnValue(savedAddress);
-      mockManager.save.mockResolvedValue(savedAddress);
+      mockAddressRepo.create.mockReturnValue(savedAddress);
+      mockAddressRepo.save.mockResolvedValue(savedAddress);
 
       // Act
       const result = await service.createSyrianAddress(mockUser, dto);
@@ -286,15 +259,14 @@ describe('AddressesService - Syrian Methods', () => {
         updatedAt: new Date(),
       } as Address;
 
-      mockManager.create.mockReturnValue(savedAddress);
-      mockManager.save.mockResolvedValue(savedAddress);
+      mockAddressRepo.create.mockReturnValue(savedAddress);
+      mockAddressRepo.save.mockResolvedValue(savedAddress);
 
       // Act
       await service.createSyrianAddress(mockUser, dto);
 
-      // Assert — update runs inside the transaction manager
-      expect(mockManager.update).toHaveBeenCalledWith(
-        Address,
+      // Assert
+      expect(mockAddressRepo.update).toHaveBeenCalledWith(
         { user: { id: mockUser.id } },
         { isDefault: false },
       );
@@ -331,8 +303,8 @@ describe('AddressesService - Syrian Methods', () => {
         updatedAt: new Date(),
       } as Address;
 
-      mockManager.create.mockReturnValue(savedAddress);
-      mockManager.save.mockResolvedValue(savedAddress);
+      mockAddressRepo.create.mockReturnValue(savedAddress);
+      mockAddressRepo.save.mockResolvedValue(savedAddress);
 
       // Act
       const result = await service.createSyrianAddress(mockUser, dto);
@@ -373,7 +345,7 @@ describe('AddressesService - Syrian Methods', () => {
       };
 
       mockAddressRepo.findOne.mockResolvedValue(existingAddress);
-      mockManager.save.mockResolvedValue(updatedAddress);
+      mockAddressRepo.save.mockResolvedValue(updatedAddress);
 
       // Act
       const result = await service.updateSyrianAddress(mockUser, addressId, dto);
@@ -478,14 +450,13 @@ describe('AddressesService - Syrian Methods', () => {
       };
 
       mockAddressRepo.findOne.mockResolvedValue(existingAddress);
-      mockManager.save.mockResolvedValue(updatedAddress);
+      mockAddressRepo.save.mockResolvedValue(updatedAddress);
 
       // Act
       const result = await service.updateSyrianAddress(mockUser, addressId, dto);
 
-      // Assert — update runs inside the transaction manager
-      expect(mockManager.update).toHaveBeenCalledWith(
-        Address,
+      // Assert
+      expect(mockAddressRepo.update).toHaveBeenCalledWith(
         { user: { id: mockUser.id } },
         { isDefault: false },
       );
@@ -514,7 +485,7 @@ describe('AddressesService - Syrian Methods', () => {
       } as Address;
 
       mockAddressRepo.findOne.mockResolvedValue(address);
-      mockAddressRepo.count.mockResolvedValue(2);
+      mockAddressQueryService.countUserAddresses.mockResolvedValue(2);
 
       // Act
       await service.deleteSyrianAddress(mockUser, addressId);
@@ -523,9 +494,7 @@ describe('AddressesService - Syrian Methods', () => {
       expect(mockAddressRepo.findOne).toHaveBeenCalledWith({
         where: { id: addressId, user: { id: mockUser.id } },
       });
-      expect(mockAddressRepo.count).toHaveBeenCalledWith({
-        where: { user: { id: mockUser.id } },
-      });
+      expect(mockAddressQueryService.countUserAddresses).toHaveBeenCalledWith(mockUser.id);
       expect(mockAddressRepo.softRemove).toHaveBeenCalledWith(address);
     });
 
@@ -549,7 +518,7 @@ describe('AddressesService - Syrian Methods', () => {
       } as Address;
 
       mockAddressRepo.findOne.mockResolvedValue(address);
-      mockAddressRepo.count.mockResolvedValue(1);
+      mockAddressQueryService.countUserAddresses.mockResolvedValue(1);
 
       // Act & Assert
       await expect(
@@ -578,7 +547,7 @@ describe('AddressesService - Syrian Methods', () => {
       } as Address;
 
       mockAddressRepo.findOne.mockResolvedValue(address);
-      mockAddressRepo.count.mockResolvedValue(2);
+      mockAddressQueryService.countUserAddresses.mockResolvedValue(2);
 
       // Act & Assert
       await expect(
@@ -625,15 +594,17 @@ describe('AddressesService - Syrian Methods', () => {
         isDefault: true,
       };
 
-      // All operations happen inside the transaction manager
-      mockManager.findOne.mockResolvedValue(address);
-      mockManager.save.mockResolvedValue(updatedAddress);
+      // Get mock queryRunner from DataSource
+      const mockDataSource = (service as any).dataSource;
+      const queryRunner = mockDataSource.createQueryRunner();
+      queryRunner.manager.findOne.mockResolvedValue(address);
+      queryRunner.manager.save.mockResolvedValue(updatedAddress);
 
       // Act
       const result = await service.setDefaultSyrianAddress(mockUser, addressId);
 
       // Assert
-      expect(mockManager.update).toHaveBeenCalledWith(
+      expect(queryRunner.manager.update).toHaveBeenCalledWith(
         Address,
         { user: { id: mockUser.id } },
         { isDefault: false },
@@ -641,51 +612,13 @@ describe('AddressesService - Syrian Methods', () => {
       expect(result.isDefault).toBe(true);
     });
 
-    it('should unmark previous default address', async () => {
-      // Arrange
-      const addressId = 2;
-
-      const address: Address = {
-        id: addressId,
-        user: mockUser,
-        fullName: 'محمد أحمد',
-        phone: '+963987654321',
-        governorate: mockGovernorate,
-        syrianCity: mockCity,
-        district: mockDistrict,
-        addressLine1: 'شارع جديد',
-        isDefault: false,
-        addressType: 'shipping',
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      } as Address;
-
-      const updatedAddress: Address = {
-        ...address,
-        isDefault: true,
-      };
-
-      // All operations happen inside the transaction manager
-      mockManager.findOne.mockResolvedValue(address);
-      mockManager.save.mockResolvedValue(updatedAddress);
-
-      // Act
-      await service.setDefaultSyrianAddress(mockUser, addressId);
-
-      // Assert
-      expect(mockManager.update).toHaveBeenCalledWith(
-        Address,
-        { user: { id: mockUser.id } },
-        { isDefault: false },
-      );
-    });
-
     it('should throw NotFoundException for non-existent address', async () => {
       // Arrange
       const addressId = 999;
 
-      // findOne is inside the transaction manager
-      mockManager.findOne.mockResolvedValue(null);
+      const mockDataSource = (service as any).dataSource;
+      const queryRunner = mockDataSource.createQueryRunner();
+      queryRunner.manager.findOne.mockResolvedValue(null);
 
       // Act & Assert
       await expect(

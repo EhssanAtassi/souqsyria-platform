@@ -814,6 +814,73 @@
   }
 }
 
+// Address selection list styling
+.address-selection-list {
+  .address-option {
+    border: 2px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 16px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+
+    &:hover {
+      border-color: #fbbf24;
+      background-color: #fffbeb;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(251, 191, 36, 0.15);
+    }
+
+    &--selected {
+      border-color: #d97706;
+      background: linear-gradient(135deg, #fef7cd, #fde68a);
+      box-shadow: 0 4px 16px rgba(217, 119, 6, 0.2);
+
+      .radio-inner {
+        background-color: #d97706;
+      }
+    }
+  }
+}
+
+// Custom radio indicator for address selection
+.address-radio-indicator {
+  flex-shrink: 0;
+
+  .radio-outer {
+    width: 20px;
+    height: 20px;
+    border: 2px solid #9ca3af;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: border-color 0.2s ease;
+  }
+
+  .radio-inner {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background-color: transparent;
+    transition: background-color 0.2s ease;
+  }
+}
+
+.address-option--selected .radio-outer {
+  border-color: #d97706;
+}
+
+// Address form card within checkout
+.address-form-card {
+  border: 2px solid #d97706;
+  border-radius: 12px;
+
+  .mat-mdc-card-header {
+    background: linear-gradient(135deg, #fef7cd, #fde68a);
+    border-radius: 10px 10px 0 0;
+  }
+}
+
 // Print styles
 @media print {
   .navigation-buttons,

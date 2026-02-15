@@ -69,6 +69,9 @@
         },
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
+          "options": {
+            "port": 4301
+          },
           "configurations": {
             "production": {
               "buildTarget": "souq-syria-storefront:build:production"
