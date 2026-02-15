@@ -1,95 +1,165 @@
 /**
  * @file guest-session.guard.ts
- * @description Guest Session Guard for SS-AUTH-009
+ * @description Guest Session Guard for SouqSyria E-commerce Platform
  *
  * RESPONSIBILITIES:
- * - Validate guest session from cookie
- * - Skip validation if user is authenticated (JWT exists)
- * - Attach guest session to request object
- * - Allow unauthenticated access with valid guest session
+ * - Validate guest session cookies on cart and checkout routes
+ * - Allow authenticated users to bypass guest session requirement
+ * - Attach session to request object for controller access
+ * - Block requests without valid session or authentication
+ *
+ * AUTHENTICATION PRIORITY:
+ * - If user is authenticated (JWT token), skip guest session check
+ * - If user is not authenticated, require valid guest session
+ * - Enables seamless transition from guest to authenticated user
  *
  * USAGE:
- * Apply to routes that support both authenticated and guest users:
- * @UseGuards(GuestSessionGuard)
+ * Apply to routes that require either authentication OR guest session:
+ * - Cart operations (add to cart, update quantity)
+ * - Checkout initiation
+ * - Order creation
  *
- * FLOW:
- * 1. Check if user is authenticated via JWT (req.user exists)
- * 2. If authenticated, skip guest session validation
- * 3. If not authenticated, extract session UUID from cookie
- * 4. Validate session and attach to request
- * 5. Allow request to proceed
+ * DO NOT apply to:
+ * - Public product browsing
+ * - Category listings
+ * - Search endpoints
+ *
+ * @author SouqSyria Development Team
+ * @since 2026-02-15
+ * @version 1.0.0
  */
 
 import {
   Injectable,
   CanActivate,
   ExecutionContext,
+  BadRequestException,
   Logger,
-  UnauthorizedException,
 } from '@nestjs/common';
 import { Request } from 'express';
 import { GuestSessionService } from '../service/guest-session.service';
 import { GuestSession } from '../../cart/entities/guest-session.entity';
 
 /**
- * Extended Request interface with guest session
+ * JWT User Interface
+ * Standard structure of authenticated user from JWT token
  */
-export interface RequestWithGuestSession extends Request {
-  user?: { id: number; email: string }; // JWT user from JwtAuthGuard
-  guestSession?: GuestSession;
-  guestSessionId?: string;
+interface JwtUser {
+  id: string;
+  email: string;
+  role: string;
 }
 
 /**
- * Guest Session Guard
+ * Extended Request interface with guest session
+ * Properly typed for guest session and authenticated user
+ */
+interface RequestWithGuestSession extends Request {
+  guestSession?: GuestSession;
+  user?: JwtUser;
+}
+
+/**
+ * GuestSessionGuard
  *
- * Validates guest sessions from cookies for unauthenticated users.
- * Skips validation if user is already authenticated via JWT.
+ * Ensures that cart and checkout operations have either:
+ * 1. Authenticated user (req.user from JWT)
+ * 2. Valid guest session (cookie-based)
+ *
+ * This allows both authenticated and anonymous users to use cart functionality.
  */
 @Injectable()
 export class GuestSessionGuard implements CanActivate {
   private readonly logger = new Logger(GuestSessionGuard.name);
   private readonly COOKIE_NAME = 'guest_session_id';
 
-  constructor(private readonly guestSessionService: GuestSessionService) {}
+  constructor(private readonly guestSessionService: GuestSessionService) {
+    this.logger.log('✅ GuestSessionGuard initialized');
+  }
 
   /**
-   * Guard execution method
+   * Guard activation method
    *
-   * @param context - Execution context
-   * @returns True if authenticated user OR valid guest session exists
-   * @throws UnauthorizedException if no valid session
+   * Validates that request has either authenticated user or valid guest session.
+   * Attaches session to request object for controller access.
+   *
+   * @param context - Execution context with request object
+   * @returns boolean - True if request can proceed, throws error otherwise
+   * @throws BadRequestException if no valid session or authentication
+   *
+   * @example
+   * ```typescript
+   * // In controller:
+   * @UseGuards(GuestSessionGuard)
+   * @Post('cart/add')
+   * async addToCart(@Req() req: Request, @Body() dto: AddToCartDto) {
+   *   // Either req.user (authenticated) or req.guestSession exists
+   *   const userId = req.user?.id;
+   *   const guestSessionId = req.guestSession?.id;
+   * }
+   * ```
    */
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    const request = context.switchToHttp().getRequest<RequestWithGuestSession>();
+    const request = context
+      .switchToHttp()
+      .getRequest<RequestWithGuestSession>();
 
-    // Skip guest session validation if user is authenticated
-    if (request.user && request.user.id) {
-      this.logger.debug('User is authenticated, skipping guest session validation');
+    // PRIORITY 1: If user is authenticated, skip guest session requirement
+    if (request.user) {
+      this.logger.debug(
+        `✅ Authenticated user detected (ID: ${request.user.id}), skipping guest session check`,
+      );
       return true;
     }
 
-    // Extract session UUID from cookie
-    const sessionUUID = request.cookies?.[this.COOKIE_NAME];
+    // PRIORITY 2: Validate guest session for anonymous users
+    const sessionIdFromCookie = request.cookies?.[this.COOKIE_NAME];
 
-    if (!sessionUUID) {
-      this.logger.warn('No guest session cookie found');
-      throw new UnauthorizedException('Guest session required. Please create a session first.');
+    if (!sessionIdFromCookie) {
+      this.logger.warn('❌ No guest session cookie found and user not authenticated');
+      throw new BadRequestException(
+        'No valid session found. Please initialize a guest session or login.',
+      );
     }
 
     try {
-      // Validate guest session
-      const session = await this.guestSessionService.getSession(sessionUUID);
+      // Validate session exists and is not expired
+      const session = await this.guestSessionService.getSession(
+        sessionIdFromCookie,
+      );
 
-      // Attach session to request
+      if (!session) {
+        this.logger.warn(
+          `❌ Guest session not found or expired: ${sessionIdFromCookie}`,
+        );
+        throw new BadRequestException(
+          'Guest session has expired. Please refresh the page to start a new session.',
+        );
+      }
+
+      // Attach session to request for controller access
       request.guestSession = session;
-      request.guestSessionId = session.id;
 
-      this.logger.debug(`Guest session validated: ${session.id}`);
+      this.logger.debug(
+        `✅ Guest session validated: ${session.id}`,
+      );
+
       return true;
     } catch (error) {
-      this.logger.error(`Guest session validation failed: ${error.message}`);
-      throw new UnauthorizedException('Invalid or expired guest session');
+      this.logger.error(
+        `❌ Guest session validation error: ${error.message}`,
+        error.stack,
+      );
+
+      // Re-throw BadRequestException as-is
+      if (error instanceof BadRequestException) {
+        throw error;
+      }
+
+      // Wrap other errors
+      throw new BadRequestException(
+        'Failed to validate guest session. Please try again.',
+      );
     }
   }
 }

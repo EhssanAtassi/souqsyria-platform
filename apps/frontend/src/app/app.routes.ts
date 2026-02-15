@@ -1,4 +1,5 @@
 import { Routes } from '@angular/router';
+import { guestSessionGuard } from './features/auth/guards/guest-session.guard';
 
 /**
  * Application routing configuration
@@ -239,6 +240,7 @@ export const routes: Routes = [
   // Shopping cart
   {
     path: 'cart',
+    canActivate: [guestSessionGuard],
     loadComponent: () => import('./features/cart/cart.component').then(m => m.CartComponent),
     title: 'Shopping Cart - SouqSyria'
   },
@@ -267,6 +269,7 @@ export const routes: Routes = [
   // Checkout
   {
     path: 'checkout',
+    canActivate: [guestSessionGuard],
     loadComponent: () => import('./features/checkout/checkout.component').then(m => m.CheckoutComponent),
     title: 'Checkout - SouqSyria'
   },

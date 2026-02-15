@@ -37,6 +37,8 @@ export interface ProductQueryParams {
   minPrice?: number;
   /** Maximum price filter */
   maxPrice?: number;
+  /** Comma-separated brand IDs to filter by */
+  brandIds?: string;
 }
 
 /**
@@ -82,6 +84,9 @@ export class ProductService {
     }
     if (params.maxPrice) {
       httpParams = httpParams.set('maxPrice', params.maxPrice.toString());
+    }
+    if (params.brandIds) {
+      httpParams = httpParams.set('brandIds', params.brandIds);
     }
 
     return this.http.get<ProductListResponse>(this.apiUrl, { params: httpParams });

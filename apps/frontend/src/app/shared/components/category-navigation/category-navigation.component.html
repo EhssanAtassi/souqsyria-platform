@@ -1,6 +1,5 @@
 <!-- SouqSyria Category Navigation Component -->
-<!-- Row 3: Desktop category navigation with mega menu integration -->
-<!-- Prototype match: bg-surface, border-outline/30, h-12, text-[14px] font-medium, px-5 links -->
+<!-- Row 3: Desktop category navigation bar with hover events for S1 mega menu -->
 
 <nav
   class="sq-category-nav bg-surface border-b border-outline/30 hidden lg:block relative"
@@ -12,7 +11,7 @@
   <div class="sq-container max-w-[1400px] mx-auto px-6">
     <div class="flex items-center h-12">
 
-      <!-- All Categories Button (S1 Categories Sprint Integration) -->
+      <!-- All Categories Button (triggers S1 overlay mega menu) -->
       <button
         class="sq-all-categories-btn flex items-center gap-2 h-full px-5 text-[14px] font-semibold text-primary-600 hover:text-primary-400 hover:bg-primary-50 transition-all duration-200"
         (click)="onAllCategoriesClick()"
@@ -25,13 +24,12 @@
       <!-- Vertical Divider -->
       <div class="h-6 w-px bg-outline/30 mx-2"></div>
 
-      <!-- Featured Categories Navigation (prototype: text-only with underline hover) -->
+      <!-- Featured Categories Navigation (hover triggers S1 dropdown mega menu) -->
       <div
         class="flex items-center h-full"
         role="menubar"
         [attr.aria-label]="config.language === 'ar' ? 'الفئات المميزة' : 'Featured Categories'"
       >
-        <!-- Category Items (prototype: text-[14px] font-medium text-on-surface, px-5) -->
         <div
           *ngFor="let category of featuredCategories; trackBy: trackByCategory"
           class="sq-category-trigger relative h-full flex items-center"
@@ -49,7 +47,7 @@
           >
             {{ getCategoryText(category) }}
           </a>
-          <!-- Underline Indicator (prototype: h-[3px] bg-primary-400 rounded-t) -->
+          <!-- Underline Indicator -->
           <div
             class="sq-cat-underline absolute bottom-0 left-5 right-5 h-[3px] bg-primary-400 rounded-t transition-all duration-200"
             [class.w-full]="isMegaMenuActive(category.id)"
@@ -76,35 +74,6 @@
 
     </div>
   </div>
-
-  <!-- Mega Menu Integration - Conditional by type -->
-
-  <!-- Sidebar Mega Menu (Damascus Steel, Food, Crafts, Jewelry, Nuts, Sweets) -->
-  <ng-container *ngIf="activeMegaMenu && currentHoveredCategory && getMegaMenuType(activeMegaMenu) === 'sidebar'">
-    <app-mega-menu-sidebar
-      [category]="currentHoveredCategory"
-      [config]="config"
-      (subcategoryClick)="onMegaMenuSubcategoryClick($event)"
-      (viewAllClick)="onMegaMenuViewAllClick($event)"
-      (menuMouseEnter)="onMegaMenuMouseEnter()"
-      (menuMouseLeave)="onMegaMenuMouseLeave()"
-      class="sq-mega-menu-container"
-    ></app-mega-menu-sidebar>
-  </ng-container>
-
-  <!-- Fullwidth Mega Menu (Beauty & Wellness, Textiles & Fabrics) -->
-  <ng-container *ngIf="activeMegaMenu && currentHoveredCategory && getMegaMenuType(activeMegaMenu) === 'fullwidth'">
-    <app-mega-menu-fullwidth
-      [category]="currentHoveredCategory"
-      [config]="config"
-      (subcategoryClick)="onMegaMenuSubcategoryClick($event)"
-      (viewAllClick)="onMegaMenuViewAllClick($event)"
-      (menuMouseEnter)="onMegaMenuMouseEnter()"
-      (menuMouseLeave)="onMegaMenuMouseLeave()"
-      class="sq-mega-menu-container"
-    ></app-mega-menu-fullwidth>
-  </ng-container>
-
 </nav>
 
 <!-- Accessibility Skip Link -->

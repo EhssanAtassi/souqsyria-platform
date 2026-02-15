@@ -1,11 +1,16 @@
 /**
  * Language toggle styles
- * @description Pill button active/inactive states with smooth transitions
+ * @description Pill button active/inactive states with smooth transitions.
+ * Consumes optional CSS custom properties set by parent layouts
+ * (e.g. auth-layout) for contextual styling overrides.
  */
 :host {
   display: contents;
 }
 
 button {
+  border: var(--language-toggle-border, 1px solid #e0e0e0);
+  padding-inline-start: var(--language-toggle-padding-start, 0.5rem);
+  margin-inline-start: var(--language-toggle-margin-start, 0);
   transition: background-color 0.15s ease, color 0.15s ease;
 }

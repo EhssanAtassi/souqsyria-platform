@@ -1,0 +1,14 @@
+/**
+ * Auth Styles Barrel File
+ *
+ * @description Forwards all shared auth SCSS partials as a single entry point.
+ * Components import via `@use '../../styles' as *` to get all variables,
+ * mixins, and shared styles without namespace prefix.
+ *
+ * @architecture
+ * Uses the modern SCSS module system (@use/@forward) instead of deprecated @import.
+ * Order matters: _auth-shared must come first as _animations depends on its tokens.
+ */
+
+@forward 'auth-shared';
+@forward 'animations';

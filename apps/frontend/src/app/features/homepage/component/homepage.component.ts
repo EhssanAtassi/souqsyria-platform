@@ -27,11 +27,14 @@
 import {
   Component,
   OnInit,
+  AfterViewInit,
   ChangeDetectionStrategy,
   signal,
   computed,
   inject,
-  DestroyRef
+  DestroyRef,
+  ElementRef,
+  NgZone
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -73,6 +76,7 @@ import {
   QuickNavigationItemConfig,
   getQuickNavigationMutableCopy
 } from '../config/quick-navigation.config';
+import { environment } from '../../../../environments/environment';
 
 /**
  * Homepage Component
@@ -113,7 +117,7 @@ import {
   templateUrl: '../homepage.component.html',
   styleUrl: '../homepage.component.scss'
 })
-export class HomepageComponent implements OnInit {
+export class HomepageComponent implements OnInit, AfterViewInit {
   //#region Dependency Injection
 
   private readonly router = inject(Router);
@@ -124,6 +128,8 @@ export class HomepageComponent implements OnInit {
   readonly heroBannersService = inject(HeroBannersService);
   private readonly heroBannersQuery = inject(HeroBannersQuery);
   private readonly categoryApi = inject(CategoryApiService);
+  private readonly el = inject(ElementRef);
+  private readonly ngZone = inject(NgZone);
 
   //#endregion
 
@@ -165,6 +171,13 @@ export class HomepageComponent implements OnInit {
   /** Error states */
   readonly productsError = signal<string | null>(null);
 
+  /** Trust stats animated counters */
+  readonly trustStatsAnimated = signal(false);
+  readonly animatedProducts = signal(0);
+  readonly animatedArtisans = signal(0);
+  readonly animatedCountries = signal(0);
+  readonly animatedRating = signal('0.0');
+
   //#endregion
 
   //#region Hero Banners State (Akita Store Integration)
@@ -199,7 +212,7 @@ export class HomepageComponent implements OnInit {
   ngOnInit(): void {
     // Load hero banners via Akita store (limit to 5 banners)
     this.heroBannersService.loadActiveBanners(5);
-    console.log('✅ Hero banners loading initiated via Akita store');
+    if (!environment.production) console.log('✅ Hero banners loading initiated via Akita store');
 
     this.loadFeaturedCategories();
     this.initializeHomepage();
@@ -221,10 +234,30 @@ export class HomepageComponent implements OnInit {
           this.isLoadingFeaturedCategories.set(false);
         },
         error: (error) => {
-          console.error('Failed to load featured categories:', error);
+          console.warn('⚠️ Backend unavailable for featured categories, using config fallback');
+          this.featuredCategoriesFromApi.set(this.mapConfigToFeaturedCategories());
           this.isLoadingFeaturedCategories.set(false);
         }
       });
+  }
+
+  /**
+   * Map static config to FeaturedCategory[] for API fallback
+   * @description Converts FeaturedCategoryConfig entries to the FeaturedCategory
+   * interface expected by the template when the backend is unavailable
+   * @returns Array of FeaturedCategory objects derived from static config
+   */
+  private mapConfigToFeaturedCategories(): FeaturedCategory[] {
+    return FEATURED_CATEGORIES_CONFIG.map((cat, index) => ({
+      id: index + 1,
+      name: cat.name,
+      nameAr: cat.nameAr,
+      slug: cat.route.replace('/category/', ''),
+      image: '',
+      icon: cat.icon,
+      productCount: 0,
+      sortOrder: index
+    }));
   }
 
   /**
@@ -249,7 +282,7 @@ export class HomepageComponent implements OnInit {
           this.isLoadingOffers.set(false);
           this.productsError.set(null);
 
-          console.log(`✅ Homepage initialized: ${data.allProducts.length} products`);
+          if (!environment.production) console.log(`✅ Homepage initialized: ${data.allProducts.length} products`);
         },
         error: (error) => {
           console.error('Failed to initialize homepage:', error);
@@ -363,7 +396,7 @@ export class HomepageComponent implements OnInit {
    * @description Retries loading homepage data
    */
   onRetryLoadProducts(): void {
-    console.log('User requested retry for loading products');
+    if (!environment.production) console.log('User requested retry for loading products');
     this.initializeHomepage();
   }
 
@@ -508,6 +541,71 @@ export class HomepageComponent implements OnInit {
   getProductTestId(productId: number | string, prefix: string = 'product-card'): string {
     if (!productId) return prefix;
     return `${prefix}-${productId}`;
+  }
+
+  //#endregion
+
+  //#region Trust Stats Animation
+
+  /**
+   * Initialize intersection observer for trust stats count-up animation
+   * @description Watches the trust-stats section and triggers counter animation
+   * when it scrolls into view
+   */
+  ngAfterViewInit(): void {
+    this.setupTrustStatsObserver();
+  }
+
+  /**
+   * Set up IntersectionObserver for the trust stats section
+   * @description Runs outside Angular zone for performance, then re-enters
+   * zone to update signals during animation
+   */
+  private setupTrustStatsObserver(): void {
+    const trustSection = this.el.nativeElement.querySelector('#trust-stats-section');
+    if (!trustSection) return;
+
+    this.ngZone.runOutsideAngular(() => {
+      const observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach(entry => {
+            if (entry.isIntersecting && !this.trustStatsAnimated()) {
+              this.ngZone.run(() => this.animateTrustStats());
+              observer.unobserve(entry.target);
+            }
+          });
+        },
+        { threshold: 0.3 }
+      );
+      observer.observe(trustSection);
+    });
+  }
+
+  /**
+   * Animate trust stat counters from 0 to target values
+   * @description Uses requestAnimationFrame for smooth 60fps count-up animation
+   * over ~1.5 seconds. Handles both integer and decimal targets.
+   */
+  private animateTrustStats(): void {
+    this.trustStatsAnimated.set(true);
+    const duration = 1500;
+    const start = performance.now();
+
+    const animate = (now: number) => {
+      const progress = Math.min((now - start) / duration, 1);
+      const eased = 1 - Math.pow(1 - progress, 3);
+
+      this.animatedProducts.set(Math.round(eased * 2000));
+      this.animatedArtisans.set(Math.round(eased * 500));
+      this.animatedCountries.set(Math.round(eased * 50));
+      this.animatedRating.set((eased * 4.8).toFixed(1));
+
+      if (progress < 1) {
+        requestAnimationFrame(animate);
+      }
+    };
+
+    requestAnimationFrame(animate);
   }
 
   //#endregion

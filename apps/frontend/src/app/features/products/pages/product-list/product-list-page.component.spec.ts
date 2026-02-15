@@ -19,16 +19,12 @@ import {
   ChangeDetectionStrategy,
   input,
   output,
-  signal,
-  computed,
 } from '@angular/core';
 import { provideRouter, Router, ActivatedRoute } from '@angular/router';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { of, throwError, Subject, BehaviorSubject } from 'rxjs';
 import { ProductListPageComponent } from './product-list-page.component';
 import { ProductService } from '../../services/product.service';
-import { LanguageService } from '../../../../shared/services/language.service';
-import { CartService } from '../../../../store/cart/cart.service';
 import { ProductCardComponent } from '../../components/product-card/product-card.component';
 import { ProductSkeletonComponent } from '../../components/product-skeleton/product-skeleton.component';
 import { ProductsPaginationComponent } from '../../components/pagination/products-pagination.component';
@@ -37,6 +33,8 @@ import {
   ProductListMeta,
   ProductListResponse,
 } from '../../models/product-list.interface';
+import { TranslateService } from '@ngx-translate/core';
+import { CartService } from '../../../../store/cart/cart.service';
 
 // ---------------------------------------------------------------------------
 // Stub components to replace real children and avoid RouterLink issues
@@ -168,22 +166,30 @@ describe('ProductListPageComponent', () => {
   let productServiceSpy: jasmine.SpyObj<ProductService>;
   let routerSpy: jasmine.SpyObj<Router>;
   let queryParams$: BehaviorSubject<Record<string, string>>;
+  let translateServiceSpy: jasmine.SpyObj<TranslateService>;
 
-  /** @description Mock LanguageService with English defaults */
-  const mockLanguageService = {
-    language: signal<'en' | 'ar'>('en'),
-    isRtl: computed(() => false),
-    direction: computed(() => 'ltr' as const),
+  /** @description i18n key-to-value map for mock translations */
+  const translations: Record<string, string> = {
+    products_page_title: 'All Products',
+    products_empty: 'No products found',
+    products_retry: 'Try Again',
+    products_browse_all: 'Browse All',
+    products_sort_by: 'Sort by',
+    products_view_grid: 'Grid view',
+    products_view_list: 'List view',
+    products_error_loading: 'Failed to load products',
   };
-
-  /** @description Mock CartService with spy for addToCart */
-  const mockCartService = jasmine.createSpyObj('CartService', ['addToCart']);
 
   beforeEach(async () => {
     productServiceSpy = jasmine.createSpyObj('ProductService', [
       'getProducts',
     ]);
     routerSpy = jasmine.createSpyObj('Router', ['navigate']);
+    translateServiceSpy = jasmine.createSpyObj('TranslateService', ['instant']);
+    translateServiceSpy.instant.and.callFake(
+      (key: string) => translations[key] || key
+    );
+    const cartServiceSpy = jasmine.createSpyObj('CartService', ['addToCart']);
 
     /** @description BehaviorSubject to simulate ActivatedRoute queryParams */
     queryParams$ = new BehaviorSubject<Record<string, string>>({
@@ -198,8 +204,8 @@ describe('ProductListPageComponent', () => {
         provideNoopAnimations(),
         { provide: ProductService, useValue: productServiceSpy },
         { provide: Router, useValue: routerSpy },
-        { provide: LanguageService, useValue: mockLanguageService },
-        { provide: CartService, useValue: mockCartService },
+        { provide: TranslateService, useValue: translateServiceSpy },
+        { provide: CartService, useValue: cartServiceSpy },
         {
           provide: ActivatedRoute,
           useValue: {

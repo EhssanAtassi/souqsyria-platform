@@ -106,6 +106,14 @@ export class MegaMenuComponent implements OnInit, OnDestroy {
   @Input() isOpen = false;
 
   /**
+   * Display mode: 'overlay' (full screen click) or 'dropdown' (positioned below nav bar on hover)
+   *
+   * @input
+   * @default 'overlay'
+   */
+  @Input() displayMode: 'overlay' | 'dropdown' = 'overlay';
+
+  /**
    * Event emitted when user selects a category
    *
    * @output
@@ -119,6 +127,20 @@ export class MegaMenuComponent implements OnInit, OnDestroy {
    * @output
    */
   @Output() menuClosed = new EventEmitter<void>();
+
+  /**
+   * Event emitted when mouse enters the mega menu container (for hover intent)
+   *
+   * @output
+   */
+  @Output() menuMouseEnter = new EventEmitter<void>();
+
+  /**
+   * Event emitted when mouse leaves the mega menu container (for hover intent)
+   *
+   * @output
+   */
+  @Output() menuMouseLeave = new EventEmitter<void>();
 
   /** Currently active/hovered category */
   activeCategory = signal<CategoryTreeNode | null>(null);
@@ -152,13 +174,16 @@ export class MegaMenuComponent implements OnInit, OnDestroy {
     return this.categories;
   });
 
+  /** Bound resize handler for proper cleanup (avoids .bind() identity mismatch) */
+  private resizeHandler = () => this.checkMobileView();
+
   constructor(
     private router: Router,
     @Inject(PLATFORM_ID) private platformId: object
   ) {}
 
   /**
-   * Initialize component
+   * Initialize component — detect viewport and RTL, attach resize listener
    *
    * @lifecycle
    */
@@ -166,18 +191,18 @@ export class MegaMenuComponent implements OnInit, OnDestroy {
     if (isPlatformBrowser(this.platformId)) {
       this.checkMobileView();
       this.detectRTL();
-      window.addEventListener('resize', this.checkMobileView.bind(this));
+      window.addEventListener('resize', this.resizeHandler);
     }
   }
 
   /**
-   * Cleanup on component destroy
+   * Cleanup resize listener on destroy
    *
    * @lifecycle
    */
   ngOnDestroy(): void {
     if (isPlatformBrowser(this.platformId)) {
-      window.removeEventListener('resize', this.checkMobileView.bind(this));
+      window.removeEventListener('resize', this.resizeHandler);
     }
   }
 

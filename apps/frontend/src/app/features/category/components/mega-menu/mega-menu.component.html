@@ -1,193 +1,229 @@
-<!-- Mega Menu Overlay -->
-<div
-  *ngIf="isOpen"
-  class="mega-menu-overlay fixed inset-0 z-50 bg-black/30 backdrop-blur-sm"
-  (click)="close()"
-  [@fadeIn]
-  role="presentation"
-  aria-label="Category navigation menu"
->
-  <!-- Desktop Mega Menu -->
+<!-- Mega Menu: Overlay Mode (click "All Categories") -->
+<ng-container *ngIf="displayMode === 'overlay'">
   <div
-    *ngIf="!isMobile()"
-    class="mega-menu-container bg-white shadow-xl rounded-lg max-w-5xl mx-auto mt-16"
-    (click)="$event.stopPropagation()"
-    role="navigation"
-    aria-label="Desktop category navigation"
+    *ngIf="isOpen"
+    class="mega-menu-overlay fixed inset-0 z-50 bg-black/30 backdrop-blur-sm"
+    (click)="close()"
+    [@fadeIn]
+    role="presentation"
+    aria-label="Category navigation menu"
   >
-    <div class="flex" [class.flex-row-reverse]="isRtl()">
-      <!-- Left Column: Category List -->
-      <nav
-        class="category-list w-64 border-gray-200 py-4"
-        [class.border-r]="!isRtl()"
-        [class.border-l]="isRtl()"
-        role="menubar"
-      >
-        <button
-          *ngFor="let cat of categories; let i = index"
-          type="button"
-          class="w-full flex items-center gap-3 px-4 py-3 text-left transition-all duration-200
-                 hover:bg-gray-50 focus:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-primary-500"
-          [class.rtl:text-right]="isRtl()"
-          [class.rtl:flex-row-reverse]="isRtl()"
-          [class.active]="activeCategory()?.id === cat.id"
-          [class.bg-gray-50]="activeCategory()?.id === cat.id"
-          (mouseenter)="onCategoryHover(cat)"
-          (click)="navigateToCategory(cat.slug)"
-          [attr.tabindex]="0"
-          role="menuitem"
-          [attr.aria-expanded]="activeCategory()?.id === cat.id"
-        >
-          <mat-icon class="text-gray-600 text-xl">{{ cat.icon || 'category' }}</mat-icon>
-          <span class="flex-1 text-sm font-medium text-gray-900">
-            {{ getCategoryName(cat) }}
-          </span>
-          <mat-icon
-            *ngIf="cat.children && cat.children.length > 0"
-            class="text-gray-400 text-base"
-            [class.rotate-180]="isRtl()"
-          >
-            chevron_right
-          </mat-icon>
-        </button>
-      </nav>
+    <!-- Desktop Mega Menu -->
+    <div
+      *ngIf="!isMobile()"
+      class="mega-menu-container bg-white shadow-xl rounded-lg max-w-5xl mx-auto mt-16"
+      (click)="$event.stopPropagation()"
+      role="navigation"
+      aria-label="Desktop category navigation"
+    >
+      <ng-container *ngTemplateOutlet="desktopMenuContent"></ng-container>
+    </div>
 
-      <!-- Right Panel: Subcategories -->
-      <div
-        class="subcategories-panel flex-1 p-6 overflow-y-auto max-h-[calc(100vh-8rem)]"
-        [@fadeIn]
-        *ngIf="activeCategory() && activeCategory()?.children && activeCategory()!.children.length > 0"
-        role="menu"
-      >
-        <div class="subcategory-grid grid grid-cols-3 gap-6">
-          <div
-            *ngFor="let sub of activeCategory()!.children"
-            class="subcategory-group"
-          >
-            <!-- Subcategory Title -->
-            <a
-              [routerLink]="['/categories', sub.slug]"
-              class="subcategory-title block font-semibold text-gray-900 hover:text-primary-600
-                     transition-colors duration-200 mb-3"
-              [class.rtl:text-right]="isRtl()"
-              (click)="close()"
-              role="menuitem"
-            >
-              {{ getCategoryName(sub) }}
-            </a>
-
-            <!-- Third-level Categories -->
-            <ul
-              *ngIf="sub.children && sub.children.length > 0"
-              class="space-y-2"
-              [class.rtl:text-right]="isRtl()"
-            >
-              <li *ngFor="let child of sub.children">
-                <a
-                  [routerLink]="['/categories', child.slug]"
-                  class="text-sm text-gray-600 hover:text-primary-600 transition-colors duration-200"
-                  (click)="close()"
-                  role="menuitem"
-                >
-                  {{ getCategoryName(child) }}
-                </a>
-              </li>
-            </ul>
-          </div>
-        </div>
-      </div>
+    <!-- Mobile Full-Screen Menu -->
+    <div
+      *ngIf="isMobile()"
+      class="mobile-menu-container fixed inset-0 bg-white z-50 overflow-y-auto"
+      (click)="$event.stopPropagation()"
+      [@slideIn]="{ value: '', params: slideAnimationParams() }"
+      role="navigation"
+      aria-label="Mobile category navigation"
+    >
+      <ng-container *ngTemplateOutlet="mobileMenuContent"></ng-container>
     </div>
   </div>
+</ng-container>
 
-  <!-- Mobile Full-Screen Menu -->
+<!-- Mega Menu: Dropdown Mode (hover over category nav bar) -->
+<ng-container *ngIf="displayMode === 'dropdown'">
   <div
-    *ngIf="isMobile()"
-    class="mobile-menu-container fixed inset-0 bg-white z-50 overflow-y-auto"
+    *ngIf="isOpen && !isMobile()"
+    class="mega-menu-dropdown absolute left-1/2 -translate-x-1/2 z-40 w-full max-w-5xl
+           bg-white shadow-xl rounded-b-lg border-t-4 border-primary-500"
+    (mouseenter)="menuMouseEnter.emit()"
+    (mouseleave)="menuMouseLeave.emit()"
     (click)="$event.stopPropagation()"
-    [@slideIn]="{ value: '', params: slideAnimationParams() }"
+    [@fadeIn]
     role="navigation"
-    aria-label="Mobile category navigation"
+    aria-label="Category mega menu"
   >
-    <!-- Mobile Header -->
-    <div
-      class="mobile-menu-header sticky top-0 z-10 bg-white border-b border-gray-200 px-4 py-3
-             flex items-center justify-between shadow-sm"
-      [class.flex-row-reverse]="isRtl()"
+    <!-- Invisible bridge to prevent hover flickering -->
+    <div class="mega-menu-bridge absolute -top-2 left-0 right-0 h-2" aria-hidden="true"></div>
+    <ng-container *ngTemplateOutlet="desktopMenuContent"></ng-container>
+  </div>
+</ng-container>
+
+<!-- ============================================ -->
+<!-- Shared Template: Desktop Two-Panel Layout    -->
+<!-- ============================================ -->
+<ng-template #desktopMenuContent>
+  <div class="flex" [class.flex-row-reverse]="isRtl()">
+    <!-- Left Column: Category List -->
+    <nav
+      class="category-list w-64 border-gray-200 py-4"
+      [class.border-r]="!isRtl()"
+      [class.border-l]="isRtl()"
+      role="menubar"
     >
       <button
-        *ngIf="categoryStack().length > 0"
+        *ngFor="let cat of categories; let i = index"
         type="button"
-        class="p-2 rounded-full hover:bg-gray-100 transition-colors"
-        (click)="goBack()"
-        aria-label="Go back"
-      >
-        <mat-icon [class.rotate-180]="isRtl()">arrow_back</mat-icon>
-      </button>
-
-      <h2
-        class="text-lg font-semibold text-gray-900 flex-1"
-        [class.text-center]="categoryStack().length === 0"
+        class="w-full flex items-center gap-3 px-4 py-3 text-left transition-all duration-200
+               hover:bg-gray-50 focus:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-primary-500"
         [class.rtl:text-right]="isRtl()"
-      >
-        <ng-container *ngIf="currentMobileCategory(); else allCategories">
-          {{ getCategoryName(currentMobileCategory()!) }}
-        </ng-container>
-        <ng-template #allCategories>
-          {{ isRtl() ? 'الفئات' : 'Categories' }}
-        </ng-template>
-      </h2>
-
-      <button
-        type="button"
-        class="p-2 rounded-full hover:bg-gray-100 transition-colors"
-        (click)="close()"
-        aria-label="Close menu"
-      >
-        <mat-icon>close</mat-icon>
-      </button>
-    </div>
-
-    <!-- Mobile Category List -->
-    <nav class="mobile-category-list p-4 space-y-2" role="menu">
-      <button
-        *ngFor="let cat of displayCategories(); let i = index"
-        type="button"
-        class="w-full flex items-center gap-3 p-4 rounded-lg border border-gray-200
-               hover:border-primary-500 hover:bg-primary-50 transition-all duration-200
-               focus:outline-none focus:ring-2 focus:ring-primary-500"
         [class.rtl:flex-row-reverse]="isRtl()"
-        [class.rtl:text-right]="isRtl()"
-        (click)="onCategoryClick(cat)"
-        role="menuitem"
+        [class.active]="activeCategory()?.id === cat.id"
+        [class.bg-gray-50]="activeCategory()?.id === cat.id"
+        (mouseenter)="onCategoryHover(cat)"
+        (click)="navigateToCategory(cat.slug)"
         [attr.tabindex]="0"
+        role="menuitem"
+        [attr.aria-expanded]="activeCategory()?.id === cat.id"
       >
-        <div
-          class="icon-container w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center"
-        >
-          <mat-icon class="text-gray-600">{{ cat.icon || 'category' }}</mat-icon>
-        </div>
-
-        <div class="flex-1">
-          <span class="block font-medium text-gray-900">
-            {{ getCategoryName(cat) }}
-          </span>
-          <span
-            *ngIf="cat.children && cat.children.length > 0"
-            class="text-xs text-gray-500"
-          >
-            {{ cat.children.length }}
-            {{ isRtl() ? 'فئات فرعية' : 'subcategories' }}
-          </span>
-        </div>
-
+        <mat-icon class="text-gray-600 text-xl">{{ cat.icon || 'category' }}</mat-icon>
+        <span class="flex-1 text-sm font-medium text-gray-900">
+          {{ getCategoryName(cat) }}
+        </span>
         <mat-icon
           *ngIf="cat.children && cat.children.length > 0"
-          class="text-gray-400"
+          class="text-gray-400 text-base"
           [class.rotate-180]="isRtl()"
+          aria-hidden="true"
         >
           chevron_right
         </mat-icon>
       </button>
     </nav>
+
+    <!-- Right Panel: Subcategories -->
+    <div
+      class="subcategories-panel flex-1 p-6 overflow-y-auto max-h-[calc(100vh-8rem)]"
+      [@fadeIn]
+      *ngIf="activeCategory() && activeCategory()?.children && activeCategory()!.children.length > 0"
+      role="menu"
+    >
+      <div class="subcategory-grid grid grid-cols-3 gap-6">
+        <div
+          *ngFor="let sub of activeCategory()!.children"
+          class="subcategory-group"
+        >
+          <!-- Subcategory Title -->
+          <a
+            [routerLink]="['/categories', sub.slug]"
+            class="subcategory-title block font-semibold text-gray-900 hover:text-primary-600
+                   transition-colors duration-200 mb-3"
+            [class.rtl:text-right]="isRtl()"
+            (click)="close()"
+            role="menuitem"
+          >
+            {{ getCategoryName(sub) }}
+          </a>
+
+          <!-- Third-level Categories -->
+          <ul
+            *ngIf="sub.children && sub.children.length > 0"
+            class="space-y-2"
+            [class.rtl:text-right]="isRtl()"
+          >
+            <li *ngFor="let child of sub.children">
+              <a
+                [routerLink]="['/categories', child.slug]"
+                class="text-sm text-gray-600 hover:text-primary-600 transition-colors duration-200"
+                (click)="close()"
+                role="menuitem"
+              >
+                {{ getCategoryName(child) }}
+              </a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
   </div>
-</div>
+</ng-template>
+
+<!-- ============================================ -->
+<!-- Shared Template: Mobile Full-Screen Menu     -->
+<!-- ============================================ -->
+<ng-template #mobileMenuContent>
+  <!-- Mobile Header -->
+  <div
+    class="mobile-menu-header sticky top-0 z-10 bg-white border-b border-gray-200 px-4 py-3
+           flex items-center justify-between shadow-sm"
+    [class.flex-row-reverse]="isRtl()"
+  >
+    <button
+      *ngIf="categoryStack().length > 0"
+      type="button"
+      class="p-2 rounded-full hover:bg-gray-100 transition-colors"
+      (click)="goBack()"
+      aria-label="Go back"
+    >
+      <mat-icon [class.rotate-180]="isRtl()">arrow_back</mat-icon>
+    </button>
+
+    <h2
+      class="text-lg font-semibold text-gray-900 flex-1"
+      [class.text-center]="categoryStack().length === 0"
+      [class.rtl:text-right]="isRtl()"
+    >
+      <ng-container *ngIf="currentMobileCategory(); else allCategories">
+        {{ getCategoryName(currentMobileCategory()!) }}
+      </ng-container>
+      <ng-template #allCategories>
+        {{ isRtl() ? 'الفئات' : 'Categories' }}
+      </ng-template>
+    </h2>
+
+    <button
+      type="button"
+      class="p-2 rounded-full hover:bg-gray-100 transition-colors"
+      (click)="close()"
+      aria-label="Close menu"
+    >
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+
+  <!-- Mobile Category List -->
+  <nav class="mobile-category-list p-4 space-y-2" role="menu">
+    <button
+      *ngFor="let cat of displayCategories(); let i = index"
+      type="button"
+      class="w-full flex items-center gap-3 p-4 rounded-lg border border-gray-200
+             hover:border-primary-500 hover:bg-primary-50 transition-all duration-200
+             focus:outline-none focus:ring-2 focus:ring-primary-500"
+      [class.rtl:flex-row-reverse]="isRtl()"
+      [class.rtl:text-right]="isRtl()"
+      (click)="onCategoryClick(cat)"
+      role="menuitem"
+      [attr.tabindex]="0"
+    >
+      <div
+        class="icon-container w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center"
+      >
+        <mat-icon class="text-gray-600">{{ cat.icon || 'category' }}</mat-icon>
+      </div>
+
+      <div class="flex-1">
+        <span class="block font-medium text-gray-900">
+          {{ getCategoryName(cat) }}
+        </span>
+        <span
+          *ngIf="cat.children && cat.children.length > 0"
+          class="text-xs text-gray-500"
+        >
+          {{ cat.children.length }}
+          {{ isRtl() ? 'فئات فرعية' : 'subcategories' }}
+        </span>
+      </div>
+
+      <mat-icon
+        *ngIf="cat.children && cat.children.length > 0"
+        class="text-gray-400"
+        [class.rotate-180]="isRtl()"
+      >
+        chevron_right
+      </mat-icon>
+    </button>
+  </nav>
+</ng-template>

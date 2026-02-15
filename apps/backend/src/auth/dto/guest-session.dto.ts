@@ -1,206 +1,246 @@
 /**
  * @file guest-session.dto.ts
- * @description DTOs for Guest Session Management (SS-AUTH-009)
+ * @description Guest Session DTOs for SouqSyria E-commerce Platform
  *
- * Provides data transfer objects for guest session creation, validation, and response mapping.
+ * VALIDATION RULES:
+ * - Device metadata must be a valid JSON object
+ * - Session responses include ID, expiration, and status
+ * - Swagger decorators for comprehensive API documentation
+ *
+ * USE CASES:
+ * - POST /auth/guest-session/init - Create new guest session
+ * - GET /auth/guest-session/validate - Validate existing session
+ *
+ * @author SouqSyria Development Team
+ * @since 2026-02-15
+ * @version 1.0.0
  */
 
-import { IsOptional, IsObject, IsString, IsUUID, IsEnum, IsInt, IsDate } from 'class-validator';
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { Type } from 'class-transformer';
+import { ApiProperty } from '@nestjs/swagger';
+import { IsObject, IsOptional } from 'class-validator';
 
 /**
- * Device fingerprint metadata for session tracking
+ * Guest Session Status Enum
+ *
+ * Represents the lifecycle states of a guest session:
+ * - ACTIVE: Session is valid and can be used
+ * - EXPIRED: Session has exceeded 30-day limit (not in grace period)
+ * - CONVERTED: Session was converted to authenticated user account
  */
-export class DeviceFingerprintDto {
-  @ApiPropertyOptional({
-    description: 'User agent string from browser',
-    example: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)',
-  })
-  @IsOptional()
-  @IsString()
-  userAgent?: string;
-
-  @ApiPropertyOptional({
-    description: 'Platform identifier',
-    example: 'macOS',
-  })
-  @IsOptional()
-  @IsString()
-  platform?: string;
-
-  @ApiPropertyOptional({
-    description: 'Preferred language',
-    example: 'ar-SY',
-  })
-  @IsOptional()
-  @IsString()
-  language?: string;
-
-  @ApiPropertyOptional({
-    description: 'Screen resolution',
-    example: '1920x1080',
-  })
-  @IsOptional()
-  @IsString()
-  screenResolution?: string;
-
-  @ApiPropertyOptional({
-    description: 'Timezone offset',
-    example: 'Asia/Damascus',
-  })
-  @IsOptional()
-  @IsString()
-  timezone?: string;
-
-  @ApiPropertyOptional({
-    description: 'Whether cookies are enabled',
-    example: true,
-  })
-  @IsOptional()
-  cookiesEnabled?: boolean;
+export enum GuestSessionStatus {
+  ACTIVE = 'active',
+  EXPIRED = 'expired',
+  CONVERTED = 'converted',
 }
 
 /**
- * DTO for creating a new guest session
+ * CreateGuestSessionDto
+ *
+ * DTO for creating a new guest session with optional device metadata.
+ * Used when initializing a guest browsing session for anonymous users.
  */
 export class CreateGuestSessionDto {
-  @ApiPropertyOptional({
-    description: 'Device fingerprint metadata for security and analytics',
-    type: DeviceFingerprintDto,
+  /**
+   * Device and browser metadata for fingerprinting
+   *
+   * Optional JSON object containing:
+   * - userAgent: Browser user agent string
+   * - platform: Operating system platform
+   * - language: Browser language preference
+   * - screenResolution: Screen dimensions (e.g., "1920x1080")
+   * - timezone: User's timezone offset
+   * - cookiesEnabled: Whether cookies are enabled
+   *
+   * Used for security (fraud detection) and analytics.
+   */
+  @ApiProperty({
+    description:
+      'Device fingerprint metadata for security and analytics tracking',
+    example: {
+      userAgent:
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+      platform: 'Win32',
+      language: 'en-US',
+      screenResolution: '1920x1080',
+      timezone: 'Asia/Damascus',
+      cookiesEnabled: true,
+    },
+    required: false,
   })
   @IsOptional()
   @IsObject()
-  @Type(() => DeviceFingerprintDto)
-  deviceFingerprint?: DeviceFingerprintDto;
-
-  @ApiPropertyOptional({
-    description: 'Client IP address (auto-extracted from request)',
-    example: '192.168.1.100',
-  })
-  @IsOptional()
-  @IsString()
-  ipAddress?: string;
+  metadata?: {
+    userAgent?: string;
+    platform?: string;
+    language?: string;
+    screenResolution?: string;
+    timezone?: string;
+    cookiesEnabled?: boolean;
+  };
 }
 
 /**
- * DTO for guest session response
+ * GuestSessionDto
+ *
+ * Response DTO for guest session operations.
+ * Returns session information to the client after creation or validation.
+ *
+ * NOTE: This is a RESPONSE DTO - validation decorators are not needed.
+ * Validation only applies to REQUEST DTOs processed by ValidationPipe.
  */
 export class GuestSessionDto {
+  /**
+   * Unique session identifier (UUID)
+   *
+   * This ID is stored in HTTP-only cookie as 'guest_session_id'.
+   * The actual session token is SHA256 hashed for security.
+   */
   @ApiProperty({
     description: 'Unique session identifier (UUID)',
     example: '550e8400-e29b-41d4-a716-446655440000',
+    type: String,
   })
-  @IsUUID()
-  id: string;
+  sessionId: string;
 
+  /**
+   * Session expiration timestamp
+   *
+   * UTC datetime when session will expire (30 days from last activity).
+   * Sessions have sliding expiration - renewed on every request.
+   */
   @ApiProperty({
-    description: 'SHA256 hashed session token (stored in cookie)',
-    example: 'a3f5b2c1d4e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2',
+    description:
+      'Session expiration timestamp (UTC) - 30 days from last activity',
+    example: '2026-03-17T12:00:00.000Z',
+    type: Date,
   })
-  @IsString()
-  sessionToken: string;
-
-  @ApiProperty({
-    description: 'Session status',
-    enum: ['active', 'expired', 'converted'],
-    example: 'active',
-  })
-  @IsEnum(['active', 'expired', 'converted'])
-  status: 'active' | 'expired' | 'converted';
-
-  @ApiProperty({
-    description: 'Whether session has expired',
-    example: false,
-  })
-  isExpired: boolean;
-
-  @ApiProperty({
-    description: 'Whether session is within 7-day grace period',
-    example: false,
-  })
-  isInGracePeriod: boolean;
-
-  @ApiProperty({
-    description: 'Last activity timestamp',
-    example: '2026-02-15T10:30:00Z',
-  })
-  @IsDate()
-  @Type(() => Date)
-  lastActivityAt: Date;
-
-  @ApiProperty({
-    description: 'Session expiration timestamp (30 days from last activity)',
-    example: '2026-03-17T10:30:00Z',
-  })
-  @IsDate()
-  @Type(() => Date)
   expiresAt: Date;
 
-  @ApiPropertyOptional({
-    description: 'Client IP address',
-    example: '192.168.1.100',
-  })
-  @IsOptional()
-  @IsString()
-  ipAddress?: string;
-
-  @ApiPropertyOptional({
+  /**
+   * Device and browser metadata
+   *
+   * Contains device fingerprint information collected during session creation.
+   * Used for security analysis and user experience optimization.
+   */
+  @ApiProperty({
     description: 'Device fingerprint metadata',
-    type: DeviceFingerprintDto,
+    example: {
+      userAgent:
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+      platform: 'Win32',
+      language: 'en-US',
+    },
+    required: false,
   })
   @IsOptional()
   @IsObject()
-  deviceFingerprint?: DeviceFingerprintDto;
+  metadata?: Record<string, any>;
 
+  /**
+   * Session lifecycle status
+   *
+   * - active: Session is valid and can be used
+   * - expired: Session has exceeded 30-day limit (not in grace period)
+   * - converted: Session was converted to authenticated user account
+   */
   @ApiProperty({
-    description: 'Whether session has an associated cart',
+    description: 'Session lifecycle status',
+    enum: GuestSessionStatus,
+    example: GuestSessionStatus.ACTIVE,
+    type: String,
+  })
+  status: GuestSessionStatus;
+
+  /**
+   * Session validation flag
+   *
+   * True if session is currently valid and usable.
+   * False if session is expired or corrupted.
+   */
+  @ApiProperty({
+    description: 'Whether the session is currently valid',
     example: true,
-  })
-  hasCart: boolean;
-
-  @ApiPropertyOptional({
-    description: 'User ID if session was converted to registered user',
-    example: 12345,
-  })
-  @IsOptional()
-  @IsInt()
-  convertedUserId?: number;
-}
-
-/**
- * DTO for associating a cart with guest session
- */
-export class AssociateCartDto {
-  @ApiProperty({
-    description: 'Cart ID to associate with session',
-    example: 789,
-  })
-  @IsInt()
-  cartId: number;
-}
-
-/**
- * DTO for guest session validation response
- */
-export class ValidateGuestSessionDto {
-  @ApiProperty({
-    description: 'Whether the session is valid',
-    example: true,
+    type: Boolean,
   })
   isValid: boolean;
 
+  /**
+   * Cart association indicator
+   *
+   * True if this guest session has an associated shopping cart.
+   * Used to determine if cart data should be preserved on conversion.
+   */
   @ApiProperty({
-    description: 'Validation message',
-    example: 'Session is active and valid',
-  })
-  @IsString()
-  message: string;
-
-  @ApiPropertyOptional({
-    description: 'Guest session details if valid',
-    type: GuestSessionDto,
+    description: 'Whether the session has an associated cart',
+    example: false,
+    type: Boolean,
+    required: false,
   })
   @IsOptional()
-  session?: GuestSessionDto;
+  hasCart?: boolean;
+}
+
+/**
+ * GuestSessionValidationDto
+ *
+ * Response DTO for session validation endpoint.
+ * Provides detailed session status information.
+ *
+ * NOTE: This is a RESPONSE DTO - validation decorators are not needed.
+ */
+export class GuestSessionValidationDto {
+  /**
+   * Session existence flag
+   *
+   * True if session was found in database.
+   * False if session cookie references non-existent session.
+   */
+  @ApiProperty({
+    description: 'Whether the session exists in the database',
+    example: true,
+    type: Boolean,
+  })
+  exists: boolean;
+
+  /**
+   * Session validity flag
+   *
+   * True if session exists and is not expired.
+   * False if session is expired or doesn't exist.
+   */
+  @ApiProperty({
+    description: 'Whether the session is valid and not expired',
+    example: true,
+    type: Boolean,
+  })
+  isValid: boolean;
+
+  /**
+   * Expiration timestamp
+   *
+   * When the session will expire (if valid).
+   * Null if session doesn't exist.
+   */
+  @ApiProperty({
+    description: 'Session expiration timestamp (UTC)',
+    example: '2026-03-17T12:00:00.000Z',
+    type: Date,
+    required: false,
+  })
+  @IsOptional()
+  expiresAt?: Date;
+
+  /**
+   * Current session status
+   *
+   * Lifecycle state of the session.
+   * Null if session doesn't exist.
+   */
+  @ApiProperty({
+    description: 'Current session lifecycle status',
+    enum: GuestSessionStatus,
+    example: GuestSessionStatus.ACTIVE,
+    required: false,
+  })
+  status?: GuestSessionStatus;
 }

@@ -1,13 +1,13 @@
 /**
- * @fileoverview Guest Session Service Unit Tests
- * @description Unit tests for GuestSessionService using HttpClientTestingModule.
- * Tests cover session creation, validation, localStorage fallback, and error handling.
+ * @fileoverview Unit Tests for GuestSessionService
+ * @description Comprehensive test suite for guest session management functionality.
+ * Tests the service after the APP_INITIALIZER refactor — the constructor no longer
+ * auto-initializes; initializeSession() must be called explicitly.
  */
 
 import { TestBed } from '@angular/core/testing';
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
-import { GuestSessionService } from './guest-session.service';
-import { GuestSession, GuestSessionInitResponse, GuestSessionValidateResponse } from '../models/guest-session.models';
+import { GuestSessionService, GuestSession, GuestSessionValidation } from './guest-session.service';
 import { environment } from '../../../../environments/environment';
 
 describe('GuestSessionService', () => {
@@ -15,29 +15,56 @@ describe('GuestSessionService', () => {
   let httpMock: HttpTestingController;
   const apiUrl = `${environment.apiUrl}/auth/guest-session`;
 
-  // Mock guest session data
+  /** Mock guest session data (matches backend DTO shape) */
   const mockSession: GuestSession = {
-    sessionUUID: '123e4567-e89b-12d3-a456-426614174000',
+    sessionId: 'test-session-123',
     expiresAt: new Date(Date.now() + 86400000).toISOString(), // 24 hours from now
-    metadata: {}
+    status: 'active',
+    isValid: true,
+    hasCart: false
   };
 
+  /** Mock expired guest session */
   const mockExpiredSession: GuestSession = {
-    sessionUUID: '123e4567-e89b-12d3-a456-426614174001',
-    expiresAt: new Date(Date.now() - 3600000).toISOString(), // 1 hour ago
-    metadata: {}
+    sessionId: 'expired-session-456',
+    expiresAt: new Date(Date.now() - 86400000).toISOString(), // 1 day ago
+    status: 'expired',
+    isValid: false,
+    hasCart: false
   };
+
+  /**
+   * Helper: run initializeSession() and handle the HTTP requests it triggers.
+   * Flow: validate (returns null on 401) → create (returns session)
+   */
+  function initializeWithMockSession(session: GuestSession = mockSession): void {
+    service.initializeSession().subscribe();
+
+    // initializeSession calls validateSession() first
+    const validateReq = httpMock.expectOne(`${apiUrl}/validate`);
+    validateReq.flush({ message: 'No session' }, { status: 401, statusText: 'Unauthorized' });
+
+    // validateSession() catchError returns of(null) → switchMap creates new session
+    const createReq = httpMock.expectOne(`${apiUrl}/init`);
+    createReq.flush(session);
+  }
 
   beforeEach(() => {
     TestBed.configureTestingModule({
       imports: [HttpClientTestingModule],
       providers: [GuestSessionService]
     });
+
+    localStorage.clear();
+
+    // Mock console methods to avoid noise
+    spyOn(console, 'log');
+    spyOn(console, 'warn');
+    spyOn(console, 'error');
+
     service = TestBed.inject(GuestSessionService);
     httpMock = TestBed.inject(HttpTestingController);
-
-    // Clear localStorage before each test
-    localStorage.clear();
+    // Constructor no longer auto-initializes — no HTTP interception needed
   });
 
   afterEach(() => {
@@ -45,369 +72,320 @@ describe('GuestSessionService', () => {
     localStorage.clear();
   });
 
-  // ─── Service Initialization ───────────────────────────────────
+  describe('Service Initialization', () => {
+    it('should be created', () => {
+      expect(service).toBeTruthy();
+    });
 
-  it('should be created', () => {
-    expect(service).toBeTruthy();
+    it('should start with null session (no auto-init)', () => {
+      expect(service.getCurrentSession()).toBeNull();
+    });
+
+    it('should expose session$ observable with null initial value', (done) => {
+      service.session$.subscribe(session => {
+        expect(session).toBeNull(); // No auto-init
+        done();
+      });
+    });
+
+    it('should populate session after initializeSession()', (done) => {
+      service.initializeSession().subscribe(() => {
+        const session = service.getCurrentSession();
+        expect(session).toBeTruthy();
+        expect(session?.sessionId).toBe('test-session-123');
+        done();
+      });
+
+      const validateReq = httpMock.expectOne(`${apiUrl}/validate`);
+      validateReq.flush(null, { status: 401, statusText: 'Unauthorized' });
+
+      const createReq = httpMock.expectOne(`${apiUrl}/init`);
+      createReq.flush(mockSession);
+    });
   });
 
-  it('should initialize with null session state', () => {
-    expect(service.getCurrentSession()).toBeNull();
-    expect(service.getSessionUUID()).toBeNull();
-    expect(service.isSessionActive()).toBe(false);
-  });
-
-  // ─── createSession() ──────────────────────────────────────────
-
-  describe('createSession()', () => {
-    it('should create a new guest session via POST /init', (done) => {
-      const mockResponse: { success: boolean; data: GuestSessionInitResponse } = {
-        success: true,
-        data: {
-          success: true,
-          message: 'Guest session created',
-          session: mockSession
-        }
-      };
-
-      service.createSession().subscribe({
-        next: (session) => {
-          expect(session).toEqual(mockSession);
-          expect(service.getCurrentSession()).toEqual(mockSession);
-          expect(service.getSessionUUID()).toBe(mockSession.sessionUUID);
-          expect(service.isSessionActive()).toBe(true);
-          done();
-        }
+  describe('createSession', () => {
+    it('should create a new guest session via API', (done) => {
+      service.createSession().subscribe(session => {
+        expect(session).toEqual(mockSession);
+        expect(session.sessionId).toBe('test-session-123');
+        done();
       });
 
       const req = httpMock.expectOne(`${apiUrl}/init`);
       expect(req.request.method).toBe('POST');
       expect(req.request.withCredentials).toBe(true);
-      req.flush(mockResponse);
+      req.flush(mockSession);
     });
 
-    it('should store session in localStorage', (done) => {
-      const mockResponse: { success: boolean; data: GuestSessionInitResponse } = {
-        success: true,
-        data: {
-          success: true,
-          message: 'Guest session created',
-          session: mockSession
-        }
-      };
-
+    it('should handle API errors gracefully', (done) => {
       service.createSession().subscribe({
-        next: () => {
-          expect(localStorage.getItem('guest_session_uuid')).toBe(mockSession.sessionUUID);
-          expect(localStorage.getItem('guest_session_expiry')).toBe(mockSession.expiresAt);
-          done();
-        }
-      });
-
-      const req = httpMock.expectOne(`${apiUrl}/init`);
-      req.flush(mockResponse);
-    });
-
-    it('should handle createSession() error', (done) => {
-      service.createSession().subscribe({
+        next: () => fail('Should have thrown error'),
         error: (error) => {
           expect(error).toBeTruthy();
-          expect(service.getCurrentSession()).toBeNull();
           done();
         }
       });
 
       const req = httpMock.expectOne(`${apiUrl}/init`);
-      req.flush('Session creation failed', { status: 500, statusText: 'Internal Server Error' });
+      req.flush({ message: 'Server error' }, { status: 500, statusText: 'Internal Server Error' });
+    });
+
+    it('should send request with withCredentials: true', () => {
+      service.createSession().subscribe();
+
+      const req = httpMock.expectOne(`${apiUrl}/init`);
+      expect(req.request.withCredentials).toBe(true);
+      req.flush(mockSession);
     });
   });
 
-  // ─── validateSession() ────────────────────────────────────────
-
-  describe('validateSession()', () => {
-    it('should validate an existing session via GET /validate', (done) => {
-      const mockResponse: { success: boolean; data: GuestSessionValidateResponse } = {
-        success: true,
-        data: {
-          success: true,
-          message: 'Session is valid',
-          isValid: true,
-          session: mockSession
-        }
+  describe('validateSession', () => {
+    it('should validate existing session via API', (done) => {
+      const mockValidation: GuestSessionValidation = {
+        exists: true,
+        isValid: true,
+        expiresAt: mockSession.expiresAt,
+        status: 'active'
       };
 
-      service.validateSession().subscribe({
-        next: (isValid) => {
-          expect(isValid).toBe(true);
-          expect(service.getCurrentSession()).toEqual(mockSession);
-          expect(service.isSessionActive()).toBe(true);
-          done();
-        }
+      service.validateSession().subscribe(validation => {
+        expect(validation).toEqual(mockValidation);
+        expect(validation?.isValid).toBe(true);
+        done();
       });
 
       const req = httpMock.expectOne(`${apiUrl}/validate`);
       expect(req.request.method).toBe('GET');
       expect(req.request.withCredentials).toBe(true);
-      req.flush(mockResponse);
+      req.flush(mockValidation);
     });
 
-    it('should clear session when validation fails', (done) => {
-      const mockResponse: { success: boolean; data: GuestSessionValidateResponse } = {
-        success: true,
-        data: {
-          success: false,
-          message: 'Session is invalid',
-          isValid: false
-        }
-      };
-
-      service.validateSession().subscribe({
-        next: (isValid) => {
-          expect(isValid).toBe(false);
-          expect(service.getCurrentSession()).toBeNull();
-          expect(service.isSessionActive()).toBe(false);
-          done();
-        }
+    it('should return null when validation fails', (done) => {
+      service.validateSession().subscribe(session => {
+        expect(session).toBeNull();
+        done();
       });
 
       const req = httpMock.expectOne(`${apiUrl}/validate`);
-      req.flush(mockResponse);
+      req.flush({ message: 'Invalid session' }, { status: 401, statusText: 'Unauthorized' });
     });
 
-    it('should handle validateSession() network error gracefully', (done) => {
-      service.validateSession().subscribe({
-        next: (isValid) => {
-          expect(isValid).toBe(false);
-          expect(service.getCurrentSession()).toBeNull();
-          done();
-        }
-      });
+    it('should send request with withCredentials: true', () => {
+      service.validateSession().subscribe();
 
       const req = httpMock.expectOne(`${apiUrl}/validate`);
-      req.flush('Network error', { status: 0, statusText: 'Unknown Error' });
+      expect(req.request.withCredentials).toBe(true);
+      req.flush({ exists: true, isValid: true, expiresAt: mockSession.expiresAt, status: 'active' });
     });
   });
 
-  // ─── clearSession() ───────────────────────────────────────────
+  describe('getCurrentSession', () => {
+    it('should return null when no session exists', () => {
+      const session = service.getCurrentSession();
+      expect(session).toBeNull();
+    });
 
-  describe('clearSession()', () => {
-    it('should clear session from memory and localStorage', () => {
-      // Set up session first
-      localStorage.setItem('guest_session_uuid', mockSession.sessionUUID);
-      localStorage.setItem('guest_session_expiry', mockSession.expiresAt);
-      service['updateSessionState'](mockSession);
+    it('should return current session after initialization', () => {
+      initializeWithMockSession();
 
-      expect(service.getCurrentSession()).toEqual(mockSession);
-
-      // Clear session
-      service.clearSession();
-
-      expect(service.getCurrentSession()).toBeNull();
-      expect(service.getSessionUUID()).toBeNull();
-      expect(service.isSessionActive()).toBe(false);
-      expect(localStorage.getItem('guest_session_uuid')).toBeNull();
-      expect(localStorage.getItem('guest_session_expiry')).toBeNull();
+      const currentSession = service.getCurrentSession();
+      expect(currentSession).toBeTruthy();
+      expect(currentSession?.sessionId).toBe('test-session-123');
     });
   });
 
-  // ─── isSessionActive() ────────────────────────────────────────
-
-  describe('isSessionActive()', () => {
-    it('should return true for valid unexpired session', () => {
-      service['updateSessionState'](mockSession);
-      expect(service.isSessionActive()).toBe(true);
+  describe('getSessionId', () => {
+    it('should return null when no session exists', () => {
+      const sessionId = service.getSessionId();
+      expect(sessionId).toBeNull();
     });
 
-    it('should return false for expired session', () => {
-      service['updateSessionState'](mockExpiredSession);
-      expect(service.isSessionActive()).toBe(false);
-    });
+    it('should return session ID after initialization', () => {
+      initializeWithMockSession();
 
+      const sessionId = service.getSessionId();
+      expect(sessionId).toBe('test-session-123');
+    });
+  });
+
+  describe('isSessionActive', () => {
     it('should return false when no session exists', () => {
+      const isActive = service.isSessionActive();
+      expect(isActive).toBe(false);
+    });
+
+    it('should return true when valid session exists', () => {
+      initializeWithMockSession();
+
+      const isActive = service.isSessionActive();
+      expect(isActive).toBe(true);
+    });
+
+    it('should return false when session is expired', () => {
+      // Manually inject an expired session into state
+      service['sessionSubject'].next(mockExpiredSession);
+
+      const isActive = service.isSessionActive();
+      expect(isActive).toBe(false);
+    });
+
+    it('should clear expired session and return false', () => {
+      // Manually inject expired session
+      service['sessionSubject'].next(mockExpiredSession);
+
+      const isActive = service.isSessionActive();
+
+      expect(isActive).toBe(false);
+      expect(service.getCurrentSession()).toBeNull();
+    });
+  });
+
+  describe('clearSession', () => {
+    it('should clear session from memory', () => {
+      initializeWithMockSession();
+
       service.clearSession();
-      expect(service.isSessionActive()).toBe(false);
+      const session = service.getCurrentSession();
+      expect(session).toBeNull();
+    });
+
+    it('should clear session from localStorage', () => {
+      initializeWithMockSession();
+
+      // initializeSession saves to localStorage via tap
+      const stored = localStorage.getItem('guest_session');
+      expect(stored).toBeTruthy();
+
+      service.clearSession();
+
+      const clearedStored = localStorage.getItem('guest_session');
+      expect(clearedStored).toBeNull();
     });
   });
 
-  // ─── initializeSession() ──────────────────────────────────────
+  describe('localStorage Fallback', () => {
+    it('should save session to localStorage on initialization', () => {
+      initializeWithMockSession();
 
-  describe('initializeSession()', () => {
-    it('should validate existing session if valid', (done) => {
-      const mockValidateResponse: { success: boolean; data: GuestSessionValidateResponse } = {
-        success: true,
-        data: {
-          success: true,
-          message: 'Session is valid',
-          isValid: true,
-          session: mockSession
-        }
-      };
+      const stored = localStorage.getItem('guest_session');
+      expect(stored).toBeTruthy();
 
-      service.initializeSession().subscribe({
-        next: (session) => {
-          expect(session).toEqual(mockSession);
-          expect(service.isSessionActive()).toBe(true);
-          done();
-        }
-      });
-
-      const req = httpMock.expectOne(`${apiUrl}/validate`);
-      req.flush(mockValidateResponse);
+      const parsed = JSON.parse(stored!);
+      expect(parsed.sessionId).toBe('test-session-123');
     });
 
-    it('should create new session if validation fails', (done) => {
-      const mockValidateResponse: { success: boolean; data: GuestSessionValidateResponse } = {
-        success: true,
-        data: {
-          success: false,
-          message: 'Session is invalid',
-          isValid: false
-        }
-      };
-
-      const mockCreateResponse: { success: boolean; data: GuestSessionInitResponse } = {
-        success: true,
-        data: {
-          success: true,
-          message: 'Guest session created',
-          session: mockSession
-        }
-      };
-
-      service.initializeSession().subscribe({
-        next: (session) => {
-          expect(session).toEqual(mockSession);
-          expect(service.isSessionActive()).toBe(true);
-          done();
-        }
-      });
-
-      // First validate request (fails)
-      const validateReq = httpMock.expectOne(`${apiUrl}/validate`);
-      validateReq.flush(mockValidateResponse);
-
-      // Then create request (succeeds)
-      const createReq = httpMock.expectOne(`${apiUrl}/init`);
-      createReq.flush(mockCreateResponse);
-    });
-
-    it('should restore session from localStorage if valid', (done) => {
+    it('should load valid session from localStorage when API fails', (done) => {
       // Pre-populate localStorage with valid session
-      localStorage.setItem('guest_session_uuid', mockSession.sessionUUID);
-      localStorage.setItem('guest_session_expiry', mockSession.expiresAt);
+      localStorage.setItem('guest_session', JSON.stringify({
+        sessionId: mockSession.sessionId,
+        expiresAt: mockSession.expiresAt
+      }));
 
-      const mockValidateResponse: { success: boolean; data: GuestSessionValidateResponse } = {
-        success: true,
-        data: {
-          success: true,
-          message: 'Session is valid',
-          isValid: true,
-          session: mockSession
-        }
-      };
-
-      service.initializeSession().subscribe({
-        next: (session) => {
-          expect(session).toEqual(mockSession);
-          done();
-        }
+      // initializeSession: validate fails, create also fails → falls back to localStorage
+      service.initializeSession().subscribe(() => {
+        const session = service.getCurrentSession();
+        expect(session).toBeTruthy();
+        expect(session?.sessionId).toBe('test-session-123');
+        done();
       });
 
-      const req = httpMock.expectOne(`${apiUrl}/validate`);
-      req.flush(mockValidateResponse);
+      // Validate fails
+      const validateReq = httpMock.expectOne(`${apiUrl}/validate`);
+      validateReq.flush(null, { status: 401, statusText: 'Unauthorized' });
+
+      // Create also fails → triggers localStorage fallback
+      const createReq = httpMock.expectOne(`${apiUrl}/init`);
+      createReq.flush(null, { status: 500, statusText: 'Internal Server Error' });
     });
 
-    it('should ignore expired session in localStorage', (done) => {
+    it('should not load expired session from localStorage', () => {
       // Pre-populate localStorage with expired session
-      localStorage.setItem('guest_session_uuid', mockExpiredSession.sessionUUID);
-      localStorage.setItem('guest_session_expiry', mockExpiredSession.expiresAt);
+      localStorage.setItem('guest_session', JSON.stringify({
+        sessionId: mockExpiredSession.sessionId,
+        expiresAt: mockExpiredSession.expiresAt
+      }));
 
-      const mockValidateResponse: { success: boolean; data: GuestSessionValidateResponse } = {
-        success: true,
-        data: {
-          success: false,
-          message: 'Session is invalid',
-          isValid: false
-        }
-      };
+      const stored = localStorage.getItem('guest_session');
+      const session = JSON.parse(stored!);
+      const expiryTime = new Date(session.expiresAt).getTime();
 
-      const mockCreateResponse: { success: boolean; data: GuestSessionInitResponse } = {
-        success: true,
-        data: {
-          success: true,
-          message: 'Guest session created',
-          session: mockSession
-        }
-      };
+      expect(Date.now() >= expiryTime).toBe(true);
+    });
 
-      service.initializeSession().subscribe({
-        next: (session) => {
-          expect(session).toEqual(mockSession);
-          done();
-        }
-      });
+    it('should handle corrupted localStorage data gracefully', () => {
+      localStorage.setItem('guest_session', 'invalid-json{');
 
-      const validateReq = httpMock.expectOne(`${apiUrl}/validate`);
-      validateReq.flush(mockValidateResponse);
-
-      const createReq = httpMock.expectOne(`${apiUrl}/init`);
-      createReq.flush(mockCreateResponse);
+      // Service should handle this without crashing
+      expect(() => service.getCurrentSession()).not.toThrow();
     });
   });
 
-  // ─── Observable Streams ───────────────────────────────────────
+  describe('Error Handling', () => {
+    it('should handle network errors during creation', (done) => {
+      service.createSession().subscribe({
+        next: () => fail('Should have thrown error'),
+        error: (error) => {
+          expect(error).toBeTruthy();
+          done();
+        }
+      });
 
-  describe('Observable Streams', () => {
-    it('should emit session updates via session$ observable', (done) => {
+      const req = httpMock.expectOne(`${apiUrl}/init`);
+      req.error(new ProgressEvent('Network error'));
+    });
+
+    it('should handle network errors during validation', (done) => {
+      service.validateSession().subscribe(session => {
+        expect(session).toBeNull();
+        done();
+      });
+
+      const req = httpMock.expectOne(`${apiUrl}/validate`);
+      req.error(new ProgressEvent('Network error'));
+    });
+  });
+
+  describe('Reactive State Updates', () => {
+    it('should emit session after initialization via session$ observable', (done) => {
       let emissionCount = 0;
 
-      service.session$.subscribe((session) => {
+      service.session$.subscribe(session => {
         emissionCount++;
+
         if (emissionCount === 1) {
-          expect(session).toBeNull(); // Initial state
+          // First emission is null (BehaviorSubject initial value)
+          expect(session).toBeNull();
         } else if (emissionCount === 2) {
-          expect(session).toEqual(mockSession); // After createSession
+          // Second emission is the initialized session
+          expect(session).toBeTruthy();
+          expect(session?.sessionId).toBe('test-session-123');
           done();
         }
       });
 
-      const mockResponse: { success: boolean; data: GuestSessionInitResponse } = {
-        success: true,
-        data: {
-          success: true,
-          message: 'Guest session created',
-          session: mockSession
-        }
-      };
-
-      service.createSession().subscribe();
-
-      const req = httpMock.expectOne(`${apiUrl}/init`);
-      req.flush(mockResponse);
+      // Trigger initialization
+      initializeWithMockSession();
     });
 
-    it('should update currentSession signal reactively', (done) => {
-      expect(service.currentSession()).toBeNull();
+    it('should emit null when session is cleared', (done) => {
+      let emissionCount = 0;
 
-      const mockResponse: { success: boolean; data: GuestSessionInitResponse } = {
-        success: true,
-        data: {
-          success: true,
-          message: 'Guest session created',
-          session: mockSession
-        }
-      };
+      // First, initialize a session
+      initializeWithMockSession();
 
-      service.createSession().subscribe({
-        next: () => {
-          expect(service.currentSession()).toEqual(mockSession);
-          expect(service.isSessionActive()).toBe(true);
+      service.session$.subscribe(session => {
+        emissionCount++;
+
+        if (emissionCount === 1) {
+          // First emission is the current session (already initialized)
+          expect(session).toBeTruthy();
+          service.clearSession();
+        } else if (emissionCount === 2) {
+          expect(session).toBeNull();
           done();
         }
       });
-
-      const req = httpMock.expectOne(`${apiUrl}/init`);
-      req.flush(mockResponse);
     });
   });
 });

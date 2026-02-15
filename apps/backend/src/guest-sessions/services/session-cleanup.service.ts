@@ -24,6 +24,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, LessThan, In, Between } from 'typeorm';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { GuestSession } from '../../cart/entities/guest-session.entity';
+import { GuestSessionStatus } from '../../auth/dto/guest-session.dto';
 import { Cart } from '../../cart/entities/cart.entity';
 import { AuditLogService } from '../../audit-log/service/audit-log.service';
 
@@ -353,7 +354,7 @@ export class SessionCleanupService {
       // Active sessions (within 30-day window)
       this.guestSessionRepository.count({
         where: {
-          status: 'active',
+          status: GuestSessionStatus.ACTIVE,
           lastActivityAt: LessThan(sessionExpiryDate),
         },
       }),
@@ -361,7 +362,7 @@ export class SessionCleanupService {
       // Expired sessions (beyond 30 days but within grace period)
       this.guestSessionRepository.count({
         where: {
-          status: 'expired',
+          status: GuestSessionStatus.EXPIRED,
         },
       }),
 
@@ -369,14 +370,14 @@ export class SessionCleanupService {
       this.guestSessionRepository.count({
         where: {
           lastActivityAt: Between(gracePeriodExpiryDate, sessionExpiryDate),
-          status: In(['active', 'expired']),
+          status: In([GuestSessionStatus.ACTIVE, GuestSessionStatus.EXPIRED]),
         },
       }),
 
       // Converted sessions
       this.guestSessionRepository.count({
         where: {
-          status: 'converted',
+          status: GuestSessionStatus.CONVERTED,
         },
       }),
 

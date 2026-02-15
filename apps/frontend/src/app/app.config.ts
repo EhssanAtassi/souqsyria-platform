@@ -1,4 +1,4 @@
-import { ApplicationConfig, provideZoneChangeDetection, isDevMode, APP_INITIALIZER } from '@angular/core';
+import { ApplicationConfig, provideZoneChangeDetection, isDevMode } from '@angular/core';
 import { provideRouter } from '@angular/router';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { importProvidersFrom } from '@angular/core';
@@ -15,7 +15,7 @@ import { authInterceptor } from './features/auth/interceptors/auth.interceptor';
 import { offlineInterceptor } from './core/interceptors/offline.interceptor';
 import { authReducer, authFeatureKey } from './features/auth/store/auth.reducer';
 import * as authEffects from './features/auth/store/auth.effects';
-import { initializeGuestSession } from './core/initializers/guest-session.initializer';
+import { guestSessionInitializerProvider } from './features/auth/initializers/guest-session.initializer';
 
 /**
  * Main application configuration for Syrian marketplace
@@ -56,13 +56,6 @@ export const appConfig: ApplicationConfig = {
       ])
     ),
 
-    // Guest Session Initialization - runs on app bootstrap
-    {
-      provide: APP_INITIALIZER,
-      useFactory: initializeGuestSession,
-      multi: true
-    },
-
     // NgRx Store - centralized state management for auth
     provideStore({ [authFeatureKey]: authReducer }),
 
@@ -87,6 +80,9 @@ export const appConfig: ApplicationConfig = {
       fallbackLang: 'en',
       lang: 'en',
     }),
+
+    // Guest Session Initializer - ensures guest session exists on app startup
+    guestSessionInitializerProvider,
 
     // Akita DevTools - enabled in development mode only (for legacy stores)
     ...(isDevMode() ? [

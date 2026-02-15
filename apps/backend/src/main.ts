@@ -22,20 +22,43 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const configService = app.get(ConfigService);
 
+  // SEC-H04 FIX: Strict CORS configuration
+  // Removed null origin bypass which allowed cross-origin attacks
+  const isDevelopment = process.env.NODE_ENV !== 'production';
+
   // Cookie parser middleware for guest session management (SS-AUTH-009)
   // Must be applied BEFORE other middleware that depend on cookies
   app.use(cookieParser());
 
   // Security headers via Helmet (X-Content-Type-Options, HSTS, X-Frame-Options, etc.)
-  app.use(helmet());
+  // Explicit CSP configuration for the SouqSyria REST API
+  app.use(
+    helmet({
+      contentSecurityPolicy: {
+        directives: {
+          defaultSrc: ["'self'"],
+          scriptSrc: ["'self'"],
+          styleSrc: ["'self'", "'unsafe-inline'"],
+          imgSrc: ["'self'", 'data:'],
+          connectSrc: [
+            "'self'",
+            ...(isDevelopment
+              ? ['http://localhost:4200']
+              : ['https://souqsyria.com', 'https://www.souqsyria.com']),
+          ],
+          fontSrc: ["'self'"],
+          objectSrc: ["'none'"],
+          frameAncestors: ["'none'"],
+          baseUri: ["'self'"],
+          formAction: ["'self'"],
+        },
+      },
+    }),
+  );
 
   // CSRF note: Not applicable for this API — authentication is JWT Bearer-token only.
   // JWT tokens are not automatically attached by browsers (unlike cookies), so CSRF
   // attacks cannot forge authenticated requests. No CSRF middleware is needed.
-
-  // SEC-H04 FIX: Strict CORS configuration
-  // Removed null origin bypass which allowed cross-origin attacks
-  const isDevelopment = process.env.NODE_ENV !== 'production';
 
   app.enableCors({
     origin: (origin, callback) => {
@@ -104,13 +127,15 @@ async function bootstrap() {
   // ========================================
   
   // Global validation pipe with detailed error messages
+  // SECURITY: enableImplicitConversion disabled to prevent prototype pollution
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,           // Strip non-whitelisted properties
       forbidNonWhitelisted: true, // Throw error on non-whitelisted properties
       transform: true,           // Auto-transform payloads to DTO instances
       transformOptions: {
-        enableImplicitConversion: true, // Enable implicit type conversion
+        enableImplicitConversion: false, // SECURITY: Prevent prototype pollution attacks
+        // Use explicit @Type() decorators in DTOs instead
       },
       validationError: {
         target: false,            // Don't include target object in errors

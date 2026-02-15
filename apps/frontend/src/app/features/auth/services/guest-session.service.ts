@@ -1,280 +1,317 @@
 /**
- * @fileoverview Guest Session Service
- * @description Service responsible for managing guest user sessions in the SouqSyria marketplace.
- * Handles session initialization, validation, cookie-based state management, and localStorage fallback.
- * All guest sessions are tracked via HttpOnly cookies on the backend, with localStorage as backup
- * for offline scenarios or cookie-disabled browsers.
+ * @fileoverview Guest Session Management Service
+ * @description Service responsible for managing anonymous guest sessions for unauthenticated users.
+ * Handles session creation, validation, and lifecycle management using HTTP-only cookies.
+ * Provides localStorage fallback for offline session tracking.
  * @module GuestSessionService
  * @requires HttpClient
  * @requires environment
  */
 
-import { Injectable, inject, signal, computed } from '@angular/core';
+import { Injectable, inject, DestroyRef } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { BehaviorSubject, Observable, of, throwError } from 'rxjs';
-import { map, catchError, tap } from 'rxjs/operators';
+import { BehaviorSubject, Observable, of } from 'rxjs';
+import { map, catchError, tap, switchMap } from 'rxjs/operators';
 import { environment } from '../../../../environments/environment';
-import {
-  GuestSession,
-  GuestSessionInitResponse,
-  GuestSessionValidateResponse
-} from '../models/guest-session.models';
 
 /**
- * Backend API response wrapper
- * @description All backend responses are wrapped in this structure by NestJS global interceptor
+ * @interface GuestSession
+ * @description Represents a guest session object returned from the backend.
+ * Matches the backend DTO shape exactly (sessionId, not id).
  */
-interface ApiResponse<T> {
-  success: boolean;
-  data: T;
-  meta?: Record<string, unknown>;
-  timestamp?: string;
-  path?: string;
+export interface GuestSession {
+  /** Unique guest session identifier */
+  sessionId: string;
+  /** ISO timestamp when session expires */
+  expiresAt: string;
+  /** Additional session metadata */
+  metadata?: Record<string, any>;
+  /** Session status */
+  status: 'active' | 'expired' | 'converted';
+  /** Whether the session is currently valid */
+  isValid: boolean;
+  /** Whether the session has an associated cart */
+  hasCart?: boolean;
+}
+
+/**
+ * @interface GuestSessionValidation
+ * @description Response from session validation endpoint
+ */
+export interface GuestSessionValidation {
+  /** Whether the session exists */
+  exists: boolean;
+  /** Whether the session is valid */
+  isValid: boolean;
+  /** ISO timestamp when session expires */
+  expiresAt?: string;
+  /** Session status */
+  status?: 'active' | 'expired' | 'converted';
 }
 
 /**
  * @class GuestSessionService
- * @description Manages guest user sessions for unauthenticated shopping experiences.
- * Provides reactive state management via signals and BehaviorSubject for session tracking.
- * Uses HttpOnly cookies as primary storage with localStorage fallback.
+ * @description Manages guest sessions for unauthenticated users in the SouqSyria marketplace.
+ * Uses HTTP-only cookies for security and provides localStorage fallback for offline access.
+ * Automatically initializes on service instantiation.
+ *
+ * Features:
+ * - Automatic session initialization on service creation
+ * - HTTP-only cookie-based session management
+ * - LocalStorage fallback for offline tracking
+ * - Session validation and renewal
+ * - Reactive session state updates
+ *
+ * @example
+ * ```typescript
+ * // Inject the service
+ * private guestSessionService = inject(GuestSessionService);
+ *
+ * // Get current session (reactive)
+ * this.guestSessionService.session$.subscribe(session => {
+ *   console.log('Current session:', session);
+ * });
+ *
+ * // Check if session is active
+ * const isActive = this.guestSessionService.isSessionActive();
+ *
+ * // Get session ID
+ * const sessionId = this.guestSessionService.getSessionId();
+ * ```
  */
 @Injectable({
   providedIn: 'root'
 })
 export class GuestSessionService {
   private readonly http = inject(HttpClient);
+  private readonly destroyRef = inject(DestroyRef);
   private readonly apiUrl = `${environment.apiUrl}/auth/guest-session`;
 
-  /** LocalStorage key for guest session UUID fallback */
-  private readonly GUEST_SESSION_KEY = 'guest_session_uuid';
-
-  /** LocalStorage key for guest session expiry fallback */
-  private readonly GUEST_SESSION_EXPIRY_KEY = 'guest_session_expiry';
+  /** LocalStorage key for guest session fallback */
+  private readonly STORAGE_KEY = 'guest_session';
 
   /**
-   * BehaviorSubject holding the current guest session state
-   * @description Emits null when no session exists or session is expired
+   * @property {BehaviorSubject<GuestSession | null>} sessionSubject
+   * @description Reactive state holder for current guest session
    */
   private readonly sessionSubject = new BehaviorSubject<GuestSession | null>(null);
 
   /**
-   * Observable stream of session state changes
-   * @description Subscribe to this to react to session state updates
+   * @property {Observable<GuestSession | null>} session$
+   * @description Observable stream of guest session state changes
+   * @public
    */
   public readonly session$ = this.sessionSubject.asObservable();
 
   /**
-   * Signal holding the current guest session state
-   * @description Reactive signal for use in components with modern Angular patterns
+   * @constructor
+   * @description Initializes the service. Session initialization is handled by APP_INITIALIZER.
    */
-  public readonly currentSession = signal<GuestSession | null>(null);
+  constructor() {
+    // Session initialization is handled by APP_INITIALIZER to avoid race conditions
+  }
 
   /**
-   * Computed signal indicating whether a valid session is active
-   * @description Returns true if session exists and is not expired
+   * @method initializeSession
+   * @description Initializes guest session by first validating existing session,
+   * then creating a new one if validation fails, and finally falling back to localStorage.
+   * Uses RxJS operators to avoid nested subscriptions and memory leaks.
+   * @returns {Observable<void>} Observable that completes when initialization finishes
    */
-  public readonly isSessionActive = computed(() => {
-    const session = this.currentSession();
-    if (!session) {
-      return false;
-    }
-    return !this.isSessionExpired(session);
-  });
+  public initializeSession(): Observable<void> {
+    return this.validateSession().pipe(
+      switchMap((validation) => {
+        if (validation && validation.exists && validation.isValid) {
+          // Valid session exists - convert validation to session for state
+          const session: GuestSession = {
+            sessionId: '', // Backend doesn't return ID on validation
+            expiresAt: validation.expiresAt || '',
+            status: validation.status || 'active',
+            isValid: validation.isValid,
+            metadata: {}
+          };
+          this.sessionSubject.next(session);
+          this.saveToLocalStorage(session);
+          return of(void 0);
+        } else {
+          // No valid session, create a new one
+          return this.createSession().pipe(
+            tap((newSession) => {
+              this.sessionSubject.next(newSession);
+              this.saveToLocalStorage(newSession);
+            }),
+            map(() => void 0),
+            catchError(() => {
+              // If creation fails, try localStorage fallback
+              this.loadFromLocalStorage();
+              return of(void 0);
+            })
+          );
+        }
+      }),
+      catchError(() => {
+        // Validation failed, try creating new session
+        return this.createSession().pipe(
+          tap((newSession) => {
+            this.sessionSubject.next(newSession);
+            this.saveToLocalStorage(newSession);
+          }),
+          map(() => void 0),
+          catchError(() => {
+            // If creation also fails, use localStorage fallback
+            this.loadFromLocalStorage();
+            return of(void 0);
+          })
+        );
+      })
+    );
+  }
 
   /**
    * @method createSession
-   * @description Initializes a new guest session with the backend.
-   * Sends a POST request to /auth/guest-session/init with withCredentials: true
-   * to enable HttpOnly cookie storage. Also stores session in localStorage as fallback.
-   * @returns {Observable<GuestSession>} Observable emitting the newly created guest session
+   * @description Creates a new guest session by calling the backend API.
+   * The backend sets an HTTP-only cookie named 'guest_session_id'.
+   * @returns {Observable<GuestSession>} Observable emitting the created session
    */
-  createSession(): Observable<GuestSession> {
-    return this.http.post<ApiResponse<GuestSessionInitResponse>>(
+  public createSession(): Observable<GuestSession> {
+    return this.http.post<GuestSession>(
       `${this.apiUrl}/init`,
       {},
-      { withCredentials: true }
+      { withCredentials: true } // Required to send/receive HTTP-only cookies
     ).pipe(
-      map(response => response.data.session),
-      tap(session => {
-        this.updateSessionState(session);
-        this.storeSessionInLocalStorage(session);
-        console.log('[GuestSessionService] Session created:', session.sessionUUID);
-      }),
-      catchError(error => {
-        console.error('[GuestSessionService] Failed to create session:', error);
-        return throwError(() => error);
+      catchError((error) => {
+        throw error;
       })
     );
   }
 
   /**
    * @method validateSession
-   * @description Validates the current guest session with the backend.
-   * Sends a GET request to /auth/guest-session/validate with withCredentials: true.
-   * If valid, updates local state. If invalid, clears session.
-   * @returns {Observable<boolean>} Observable emitting true if session is valid, false otherwise
+   * @description Validates the current guest session by calling the backend.
+   * The backend reads the HTTP-only cookie to validate the session.
+   * @returns {Observable<GuestSessionValidation | null>} Observable emitting validation result or null
    */
-  validateSession(): Observable<boolean> {
-    return this.http.get<ApiResponse<GuestSessionValidateResponse>>(
+  public validateSession(): Observable<GuestSessionValidation | null> {
+    return this.http.get<GuestSessionValidation>(
       `${this.apiUrl}/validate`,
-      { withCredentials: true }
+      { withCredentials: true } // Required to send HTTP-only cookie
     ).pipe(
-      map(response => {
-        const { isValid, session } = response.data;
-        if (isValid && session) {
-          this.updateSessionState(session);
-          this.storeSessionInLocalStorage(session);
-          console.log('[GuestSessionService] Session validated:', session.sessionUUID);
-          return true;
-        } else {
-          this.clearSession();
-          console.warn('[GuestSessionService] Session validation failed');
-          return false;
-        }
-      }),
-      catchError(error => {
-        console.error('[GuestSessionService] Session validation error:', error);
-        this.clearSession();
-        return of(false);
+      catchError((error) => {
+        // Return null instead of throwing to allow fallback
+        return of(null);
       })
     );
   }
 
   /**
    * @method getCurrentSession
-   * @description Gets the current guest session from the signal.
+   * @description Synchronously retrieves the current guest session state.
    * @returns {GuestSession | null} The current session or null if none exists
    */
-  getCurrentSession(): GuestSession | null {
-    return this.currentSession();
+  public getCurrentSession(): GuestSession | null {
+    return this.sessionSubject.getValue();
   }
 
   /**
-   * @method getSessionUUID
-   * @description Gets the current session UUID from the signal.
-   * @returns {string | null} The session UUID or null if no session exists
+   * @method getSessionId
+   * @description Synchronously retrieves the current guest session ID.
+   * @returns {string | null} The session ID or null if no session exists
    */
-  getSessionUUID(): string | null {
-    const session = this.currentSession();
-    return session?.sessionUUID ?? null;
+  public getSessionId(): string | null {
+    const session = this.getCurrentSession();
+    return session?.sessionId || null;
+  }
+
+  /**
+   * @method isSessionActive
+   * @description Checks if a guest session exists and is not expired.
+   * @returns {boolean} True if an active session exists, false otherwise
+   */
+  public isSessionActive(): boolean {
+    const session = this.getCurrentSession();
+
+    if (!session) {
+      return false;
+    }
+
+    // Check if session has expired
+    const expiryTime = new Date(session.expiresAt).getTime();
+    const now = Date.now();
+
+    if (now >= expiryTime || !session.isValid) {
+      this.clearSession();
+      return false;
+    }
+
+    return true;
   }
 
   /**
    * @method clearSession
-   * @description Clears the guest session from both memory and localStorage.
-   * Does NOT call the backend to invalidate the session (cookies expire naturally).
+   * @description Clears the current guest session from memory and localStorage.
+   * Note: Cannot clear HTTP-only cookie from frontend - backend must handle expiration.
    * @returns {void}
    */
-  clearSession(): void {
+  public clearSession(): void {
     this.sessionSubject.next(null);
-    this.currentSession.set(null);
-    localStorage.removeItem(this.GUEST_SESSION_KEY);
-    localStorage.removeItem(this.GUEST_SESSION_EXPIRY_KEY);
-    console.log('[GuestSessionService] Session cleared');
+    localStorage.removeItem(this.STORAGE_KEY);
   }
 
   /**
-   * @method initializeSession
-   * @description Initializes the guest session on app bootstrap.
-   * First attempts to validate existing session (from cookie or localStorage).
-   * If validation fails or no session exists, creates a new session.
-   * @returns {Observable<GuestSession>} Observable emitting the active guest session
+   * @method saveToLocalStorage
+   * @description Persists minimal guest session data to localStorage as offline-only fallback.
+   * Only stores sessionId and expiresAt to minimize XSS exposure.
+   * Never store metadata or sensitive data in localStorage.
+   * @param {GuestSession} session - The session to save
+   * @returns {void}
+   * @private
    */
-  initializeSession(): Observable<GuestSession> {
-    // First, try to restore from localStorage (offline fallback)
-    const localSession = this.restoreSessionFromLocalStorage();
-    if (localSession && !this.isSessionExpired(localSession)) {
-      console.log('[GuestSessionService] Restored session from localStorage:', localSession.sessionUUID);
-      this.updateSessionState(localSession);
+  private saveToLocalStorage(session: GuestSession): void {
+    try {
+      // Only store minimal session info for offline checks
+      const minimalSession = {
+        sessionId: session.sessionId,
+        expiresAt: session.expiresAt
+      };
+      localStorage.setItem(this.STORAGE_KEY, JSON.stringify(minimalSession));
+    } catch (error) {
+      // Silent fail - localStorage is optional fallback
     }
+  }
 
-    // Then validate with backend (cookie-based or localStorage-based)
-    return this.validateSession().pipe(
-      switchMap(isValid => {
-        if (isValid) {
-          // Session is valid, return current session
-          const session = this.currentSession();
-          return of(session!);
+  /**
+   * @method loadFromLocalStorage
+   * @description Loads guest session from localStorage as offline-only fallback.
+   * Used when network requests fail. Only reconstructs minimal session state.
+   * @returns {void}
+   * @private
+   */
+  private loadFromLocalStorage(): void {
+    try {
+      const stored = localStorage.getItem(this.STORAGE_KEY);
+      if (stored) {
+        const minimalSession = JSON.parse(stored);
+
+        // Check if stored session is still valid
+        const expiryTime = new Date(minimalSession.expiresAt).getTime();
+        const now = Date.now();
+
+        if (now < expiryTime) {
+          // Reconstruct full session object
+          const session: GuestSession = {
+            sessionId: minimalSession.sessionId,
+            expiresAt: minimalSession.expiresAt,
+            status: 'active',
+            isValid: true,
+            metadata: {}
+          };
+          this.sessionSubject.next(session);
         } else {
-          // No valid session, create new one
-          console.log('[GuestSessionService] No valid session, creating new one');
-          return this.createSession();
+          localStorage.removeItem(this.STORAGE_KEY);
         }
-      }),
-      catchError(() => {
-        // Fallback: create new session if validation fails
-        console.warn('[GuestSessionService] Validation failed, creating new session');
-        return this.createSession();
-      })
-    );
-  }
-
-  /**
-   * @method updateSessionState
-   * @description Updates both the BehaviorSubject and signal with new session state.
-   * @param {GuestSession | null} session - The new session state
-   * @returns {void}
-   * @private
-   */
-  private updateSessionState(session: GuestSession | null): void {
-    this.sessionSubject.next(session);
-    this.currentSession.set(session);
-  }
-
-  /**
-   * @method storeSessionInLocalStorage
-   * @description Stores guest session in localStorage as fallback for offline scenarios.
-   * @param {GuestSession} session - The session to store
-   * @returns {void}
-   * @private
-   */
-  private storeSessionInLocalStorage(session: GuestSession): void {
-    try {
-      localStorage.setItem(this.GUEST_SESSION_KEY, session.sessionUUID);
-      localStorage.setItem(this.GUEST_SESSION_EXPIRY_KEY, session.expiresAt);
-    } catch (error) {
-      console.warn('[GuestSessionService] Failed to store session in localStorage:', error);
-    }
-  }
-
-  /**
-   * @method restoreSessionFromLocalStorage
-   * @description Restores guest session from localStorage fallback.
-   * @returns {GuestSession | null} The restored session or null if not found/invalid
-   * @private
-   */
-  private restoreSessionFromLocalStorage(): GuestSession | null {
-    try {
-      const sessionUUID = localStorage.getItem(this.GUEST_SESSION_KEY);
-      const expiresAt = localStorage.getItem(this.GUEST_SESSION_EXPIRY_KEY);
-
-      if (sessionUUID && expiresAt) {
-        return {
-          sessionUUID,
-          expiresAt,
-          metadata: {}
-        };
       }
-      return null;
     } catch (error) {
-      console.warn('[GuestSessionService] Failed to restore session from localStorage:', error);
-      return null;
+      // Silent fail - localStorage is optional fallback
     }
-  }
-
-  /**
-   * @method isSessionExpired
-   * @description Checks if a guest session is expired based on expiresAt timestamp.
-   * @param {GuestSession} session - The session to check
-   * @returns {boolean} True if session is expired, false otherwise
-   * @private
-   */
-  private isSessionExpired(session: GuestSession): boolean {
-    const expiryTime = new Date(session.expiresAt).getTime();
-    const now = Date.now();
-    return now >= expiryTime;
   }
 }
-
-// Import for pipe operator
-import { switchMap } from 'rxjs/operators';
