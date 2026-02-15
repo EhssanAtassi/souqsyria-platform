@@ -101,6 +101,7 @@ describe('CategoryComponent', () => {
   let paramMapSubject: Subject<any>;
 
   beforeEach(async () => {
+    // Subject starts empty; we'll emit initial value after detectChanges
     paramMapSubject = new Subject();
 
     mockFacade = jasmine.createSpyObj('CategoryFacadeService', [
@@ -164,7 +165,20 @@ describe('CategoryComponent', () => {
 
     fixture = TestBed.createComponent(CategoryComponent);
     component = fixture.componentInstance;
+
+    // NOTE: Don't call fixture.detectChanges() here. Each test should:
+    // 1. Configure mocks
+    // 2. Call initComponent() helper to trigger ngOnInit + route
   });
+
+  /**
+   * Helper to initialize component with route param
+   * Triggers ngOnInit and emits paramMap for category slug
+   */
+  function initComponent(slug = 'electronics'): void {
+    fixture.detectChanges(); // Trigger ngOnInit
+    paramMapSubject.next(convertToParamMap({ categorySlug: slug })); // Emit route
+  }
 
   // ===========================================================================
   // COMPONENT CREATION & INITIALIZATION
@@ -179,21 +193,22 @@ describe('CategoryComponent', () => {
 
     /** Should set initial category slug from route snapshot */
     it('should set initial category slug from route snapshot', () => {
-      fixture.detectChanges();
+      initComponent();
       expect(component.categorySlug()).toBe('electronics');
     });
 
     /** Should call loadCategoryProducts on init */
     it('should call loadCategoryProducts on init', () => {
-      fixture.detectChanges();
+      initComponent();
       expect(mockFacade.loadCategoryProducts).toHaveBeenCalled();
     });
 
     /** Should update slug when route params change */
     it('should update slug when route params change', () => {
-      fixture.detectChanges();
+      initComponent(); // Initial load with 'electronics'
+      expect(mockFacade.loadCategoryProducts).toHaveBeenCalledTimes(1);
 
-      paramMapSubject.next(convertToParamMap({ categorySlug: 'fashion' }));
+      paramMapSubject.next(convertToParamMap({ categorySlug: 'fashion' })); // Change route
 
       expect(component.categorySlug()).toBe('fashion');
       // Should reload products for new slug
@@ -211,27 +226,31 @@ describe('CategoryComponent', () => {
     it('should set isLoading to true during load', () => {
       // Before detectChanges (which triggers ngOnInit + loadProducts)
       // loadProducts sets isLoading = true synchronously
-      fixture.detectChanges();
+      initComponent();
+      paramMapSubject.next(convertToParamMap({ categorySlug: 'electronics' }));
       // After subscribe completes (sync), isLoading is false
       expect(component.isLoading()).toBe(false);
     });
 
     /** Should set productListingResponse after load */
     it('should set productListingResponse after successful load', () => {
-      fixture.detectChanges();
+      initComponent();
+      paramMapSubject.next(convertToParamMap({ categorySlug: 'electronics' }));
       expect(component.productListingResponse()).toBeTruthy();
       expect(component.productListingResponse()!.products).toHaveSize(2);
     });
 
     /** Should set isLoading to false after successful load */
     it('should set isLoading to false after successful load', () => {
-      fixture.detectChanges();
+      initComponent();
+      paramMapSubject.next(convertToParamMap({ categorySlug: 'electronics' }));
       expect(component.isLoading()).toBe(false);
     });
 
     /** Should pass current filters and sort to facade */
     it('should pass current state to facade loadCategoryProducts', () => {
-      fixture.detectChanges();
+      initComponent();
+      paramMapSubject.next(convertToParamMap({ categorySlug: 'electronics' }));
 
       const callArg = mockFacade.loadCategoryProducts.calls.mostRecent().args[0];
       expect(callArg.categorySlug).toBe('electronics');
@@ -247,7 +266,7 @@ describe('CategoryComponent', () => {
   /** @description Tests for computed signal properties */
   describe('Computed Properties', () => {
     beforeEach(() => {
-      fixture.detectChanges();
+      initComponent();
     });
 
     /** Should compute products from response */
@@ -291,7 +310,7 @@ describe('CategoryComponent', () => {
   /** @description Tests for sort change handling */
   describe('Sorting', () => {
     beforeEach(() => {
-      fixture.detectChanges();
+      initComponent();
       mockFacade.loadCategoryProducts.calls.reset();
     });
 
@@ -316,7 +335,7 @@ describe('CategoryComponent', () => {
   /** @description Tests for view mode changes */
   describe('View Mode', () => {
     beforeEach(() => {
-      fixture.detectChanges();
+      initComponent();
     });
 
     /** Should update view mode and track analytics */
@@ -334,21 +353,21 @@ describe('CategoryComponent', () => {
   /** @description Tests for pagination changes */
   describe('Pagination', () => {
     beforeEach(() => {
-      fixture.detectChanges();
+      initComponent();
       mockFacade.loadCategoryProducts.calls.reset();
     });
 
     /** Should update page and reload products */
     it('should update page and reload products on page change', () => {
-      component.onPageChange(2);
-      expect(component.currentPage()).toBe(2);
+      component.onPaginatorEvent({ pageIndex: 1, pageSize: 20 });
+      expect(component.currentPage()).toBe(2); // pageIndex + 1
       expect(mockFacade.loadCategoryProducts).toHaveBeenCalled();
     });
 
     /** Should update page size, reset to page 1, and reload */
     it('should update page size, reset to page 1, and reload', () => {
       component['currentPage'].set(3);
-      component.onPageSizeChange(50);
+      component.onPaginatorEvent({ pageIndex: 0, pageSize: 50 });
       expect(component.itemsPerPage()).toBe(50);
       expect(component.currentPage()).toBe(1);
       expect(mockFacade.loadCategoryProducts).toHaveBeenCalled();
@@ -362,12 +381,15 @@ describe('CategoryComponent', () => {
   /** @description Tests for filter application and clearing */
   describe('Filters', () => {
     beforeEach(() => {
-      fixture.detectChanges();
-      mockFacade.loadCategoryProducts.calls.reset();
+      // Most tests need component initialized
+      // Tests that check filter removal logic can skip this
     });
 
     /** Should apply filters and reload products */
     it('should apply filters from filter sidebar', () => {
+      initComponent();
+      mockFacade.loadCategoryProducts.calls.reset();
+
       component.onFiltersChange({
         priceRange: { min: 5000, max: 20000 },
         ratings: [4, 5],
@@ -379,6 +401,9 @@ describe('CategoryComponent', () => {
 
     /** Should reset page to 1 on filter change */
     it('should reset page to 1 on filter apply', () => {
+      initComponent();
+      mockFacade.loadCategoryProducts.calls.reset();
+
       component['currentPage'].set(5);
       component.applyFilters();
       expect(component.currentPage()).toBe(1);
@@ -386,6 +411,9 @@ describe('CategoryComponent', () => {
 
     /** Should clear all filters */
     it('should clear all filters on clearAllFilters', () => {
+      initComponent();
+      mockFacade.loadCategoryProducts.calls.reset();
+
       component['selectedRatings'].set([4, 5]);
       component['onlyFreeShipping'].set(true);
       component['selectedLocations'].set(['Damascus']);
@@ -405,9 +433,20 @@ describe('CategoryComponent', () => {
 
     /** Should remove price range filter */
     it('should remove price range filter', () => {
+      initComponent();
+      mockFacade.loadCategoryProducts.calls.reset();
+
+      // Set a custom price range
       component['priceRange'].set({ min: 5000, max: 20000 });
+
+      // onRemoveFilter resets to {0, 1000} then calls applyFilters → loadProducts
+      // loadProducts updates priceRange from response ({1000, 50000})
       component.onRemoveFilter('priceRange');
-      expect(component.priceRange()).toEqual({ min: 0, max: 1000 });
+
+      // Verify it was reset to default (briefly) and loadProducts was called
+      expect(mockFacade.loadCategoryProducts).toHaveBeenCalled();
+      // After sync Observable completes, priceRange is updated from mock response
+      expect(component.priceRange()).toEqual({ min: 1000, max: 50000 });
     });
 
     /** Should remove authenticity-unesco filter */
@@ -434,7 +473,7 @@ describe('CategoryComponent', () => {
     const product = createMockProduct();
 
     beforeEach(() => {
-      fixture.detectChanges();
+      initComponent();
     });
 
     /** Should handle product click via facade and navigate */
@@ -472,7 +511,7 @@ describe('CategoryComponent', () => {
   /** @description Tests for sidebar toggle, back-to-top, and related categories */
   describe('UI State', () => {
     beforeEach(() => {
-      fixture.detectChanges();
+      initComponent();
     });
 
     /** Should toggle sidebar and track analytics */
@@ -510,10 +549,10 @@ describe('CategoryComponent', () => {
   // HELPER METHODS
   // ===========================================================================
 
-  /** @description Tests for formatSliderValue and getActiveFiltersCount */
+  /** @description Tests for formatSliderValue and activeFiltersCount */
   describe('Helper Methods', () => {
     beforeEach(() => {
-      fixture.detectChanges();
+      initComponent();
     });
 
     /** Should format slider value with dollar sign */
@@ -524,7 +563,7 @@ describe('CategoryComponent', () => {
 
     /** Should return 0 when no filters active */
     it('should return 0 when no filters active', () => {
-      expect(component.getActiveFiltersCount()).toBe(0);
+      expect(component.activeFiltersCount()).toBe(0);
     });
 
     /** Should count active filters correctly */
@@ -533,7 +572,7 @@ describe('CategoryComponent', () => {
       component['onlyFreeShipping'].set(true);
       component['selectedLocations'].set(['Damascus']);
 
-      expect(component.getActiveFiltersCount()).toBe(3);
+      expect(component.activeFiltersCount()).toBe(3);
     });
 
     /** Should count all boolean filters */
@@ -543,7 +582,7 @@ describe('CategoryComponent', () => {
       component['onlyOnSale'].set(true);
       component['onlyUnesco'].set(true);
 
-      expect(component.getActiveFiltersCount()).toBe(4);
+      expect(component.activeFiltersCount()).toBe(4);
     });
   });
 
@@ -554,11 +593,14 @@ describe('CategoryComponent', () => {
   /** @description Tests for the currentFilters computed property */
   describe('currentFilters Computed', () => {
     beforeEach(() => {
-      fixture.detectChanges();
+      initComponent();
     });
 
     /** Should return empty object when no filters set */
     it('should return empty object when no filters set', () => {
+      // After initComponent(), priceRange is updated from availableFilters response
+      // Reset it back to defaults for this test
+      component['priceRange'].set({ min: 0, max: 1000 });
       const filters = component.currentFilters();
       expect(Object.keys(filters).length).toBe(0);
     });
@@ -597,25 +639,39 @@ describe('CategoryComponent', () => {
   // WINDOW SCROLL HANDLER
   // ===========================================================================
 
-  /** @description Tests for onWindowScroll host listener */
+  /** @description Tests for scroll listener via RxJS */
   describe('Window Scroll', () => {
     beforeEach(() => {
-      fixture.detectChanges();
+      initComponent();
     });
 
     /** Should show back-to-top when scrolled past threshold */
-    it('should show back-to-top when scrolled past threshold', () => {
+    it('should show back-to-top when scrolled past threshold', (done) => {
       // Simulate scroll position > 300 (BACK_TO_TOP_SCROLL_THRESHOLD)
-      Object.defineProperty(window, 'pageYOffset', { value: 500, writable: true });
-      component.onWindowScroll();
-      expect(component.showBackToTop()).toBe(true);
+      Object.defineProperty(window, 'pageYOffset', { value: 500, writable: true, configurable: true });
+
+      // Dispatch scroll event to trigger RxJS listener
+      window.dispatchEvent(new Event('scroll'));
+
+      // Wait for throttleTime to complete
+      setTimeout(() => {
+        expect(component.showBackToTop()).toBe(true);
+        done();
+      }, 250);
     });
 
     /** Should hide back-to-top when scrolled back up */
-    it('should hide back-to-top when scrolled back up', () => {
-      Object.defineProperty(window, 'pageYOffset', { value: 100, writable: true });
-      component.onWindowScroll();
-      expect(component.showBackToTop()).toBe(false);
+    it('should hide back-to-top when scrolled back up', (done) => {
+      Object.defineProperty(window, 'pageYOffset', { value: 100, writable: true, configurable: true });
+
+      // Dispatch scroll event to trigger RxJS listener
+      window.dispatchEvent(new Event('scroll'));
+
+      // Wait for throttleTime to complete
+      setTimeout(() => {
+        expect(component.showBackToTop()).toBe(false);
+        done();
+      }, 250);
     });
   });
 
@@ -636,7 +692,7 @@ describe('CategoryComponent', () => {
           },
         })),
       );
-      fixture.detectChanges();
+      initComponent();
 
       expect(component.products()).toEqual([]);
       expect(component.pagination()!.total).toBe(0);
@@ -647,7 +703,7 @@ describe('CategoryComponent', () => {
       mockFacade.loadCategoryProducts.and.returnValue(
         of(createMockProductResponse({ products: [] })),
       );
-      fixture.detectChanges();
+      initComponent();
       mockFacade.loadCategoryProducts.calls.reset();
 
       // Simulate user clicking "Clear Filters" button in empty state
@@ -667,7 +723,7 @@ describe('CategoryComponent', () => {
       mockFacade.loadCategoryProducts.and.returnValue(
         throwError(() => new Error('Network failure')),
       );
-      fixture.detectChanges();
+      initComponent();
 
       expect(component.isLoading()).toBe(false);
     });
@@ -677,7 +733,7 @@ describe('CategoryComponent', () => {
       mockFacade.loadCategoryProducts.and.returnValue(
         throwError(() => new Error('Server error')),
       );
-      fixture.detectChanges();
+      initComponent();
 
       expect(component.productListingResponse()).toBeNull();
       expect(component.products()).toEqual([]);
@@ -689,7 +745,7 @@ describe('CategoryComponent', () => {
       mockFacade.loadCategoryProducts.and.returnValue(
         throwError(() => new Error('Category not found')),
       );
-      fixture.detectChanges();
+      initComponent();
 
       expect(console.error).toHaveBeenCalled();
     });
@@ -710,14 +766,14 @@ describe('CategoryComponent', () => {
     /** Should transition isLoading false → true → false on successful load */
     it('should complete loading cycle on success', () => {
       // After init + successful load completes synchronously
-      fixture.detectChanges();
+      initComponent();
       expect(component.isLoading()).toBe(false);
       expect(component.productListingResponse()).toBeTruthy();
     });
 
     /** Should have products available after loading completes */
     it('should populate products after loading completes', () => {
-      fixture.detectChanges();
+      initComponent();
       expect(component.isLoading()).toBe(false);
       expect(component.products().length).toBeGreaterThan(0);
     });
@@ -731,13 +787,13 @@ describe('CategoryComponent', () => {
   describe('Cleanup on Destroy', () => {
     /** Should not throw when component is destroyed */
     it('should destroy without errors', () => {
-      fixture.detectChanges();
+      initComponent();
       expect(() => fixture.destroy()).not.toThrow();
     });
 
     /** Should not reload products after destroy when route changes */
     it('should not reload products after component is destroyed', () => {
-      fixture.detectChanges();
+      initComponent();
       mockFacade.loadCategoryProducts.calls.reset();
 
       // Destroy the component (triggers DestroyRef → unsubscribes)

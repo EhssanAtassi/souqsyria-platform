@@ -18,6 +18,7 @@
  */
 
 import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
+import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { CategorySearchComponent } from './category-search.component';
 import { CategoryApiService } from '../../services/category-api.service';
 import { SearchInCategoryResponse } from '../../models/category-tree.interface';
@@ -84,7 +85,7 @@ describe('CategorySearchComponent', () => {
     const apiServiceSpy = jasmine.createSpyObj('CategoryApiService', ['searchInCategory']);
 
     await TestBed.configureTestingModule({
-      imports: [CategorySearchComponent],
+      imports: [CategorySearchComponent, NoopAnimationsModule],
       providers: [
         { provide: CategoryApiService, useValue: apiServiceSpy },
       ],
@@ -256,7 +257,7 @@ describe('CategorySearchComponent', () => {
     /**
      * Should show placeholder with category name
      * Validates: Placeholder includes category name
-     * Note: Uses fresh component so computed evaluates with inputs set
+     * Note: Uses fresh component so getter evaluates with inputs set
      */
     it('should show placeholder with category name', () => {
       const freshFixture = TestBed.createComponent(CategorySearchComponent);
@@ -266,29 +267,27 @@ describe('CategorySearchComponent', () => {
       freshComponent.categoryNameAr = 'إلكترونيات';
       freshFixture.detectChanges();
 
-      expect(freshComponent.placeholder()).toContain('Electronics');
+      expect(freshComponent.placeholder).toContain('Electronics');
       freshFixture.destroy();
     });
 
     /**
      * Should show Arabic placeholder in RTL mode
      * Validates: RTL mode uses Arabic name
-     * Note: Sets dir before component creation so isRtl computed captures RTL
+     * Note: Sets isRtl input to true for RTL mode
      */
     it('should show Arabic placeholder in RTL mode', () => {
-      document.documentElement.dir = 'rtl';
-
       const freshFixture = TestBed.createComponent(CategorySearchComponent);
       const freshComponent = freshFixture.componentInstance;
       freshComponent.categoryId = 1;
       freshComponent.categoryName = 'Electronics';
       freshComponent.categoryNameAr = 'إلكترونيات';
+      freshComponent.isRtl = true;
       freshFixture.detectChanges();
 
-      expect(freshComponent.placeholder()).toContain('إلكترونيات');
+      expect(freshComponent.placeholder).toContain('إلكترونيات');
 
       freshFixture.destroy();
-      document.documentElement.dir = 'ltr';
     });
 
     /**
@@ -300,7 +299,7 @@ describe('CategorySearchComponent', () => {
       component.categoryNameAr = '';
 
       fixture.detectChanges();
-      const placeholder = component.placeholder();
+      const placeholder = component.placeholder;
 
       expect(placeholder).toBe('Search for products');
     });
@@ -596,21 +595,13 @@ describe('CategorySearchComponent', () => {
   describe('RTL Layout', () => {
     /**
      * Should detect RTL mode
-     * Validates: isRtl computed signal
-     * Note: Fresh component needed so computed evaluates with RTL dir
+     * Validates: isRtl input property
      */
     it('should detect RTL mode', () => {
-      document.documentElement.dir = 'rtl';
+      component.isRtl = true;
+      fixture.detectChanges();
 
-      const freshFixture = TestBed.createComponent(CategorySearchComponent);
-      const freshComponent = freshFixture.componentInstance;
-      freshComponent.categoryId = 1;
-      freshFixture.detectChanges();
-
-      expect(freshComponent.isRtl()).toBe(true);
-
-      freshFixture.destroy();
-      document.documentElement.dir = 'ltr';
+      expect(component.isRtl).toBe(true);
     });
 
     /**
@@ -618,10 +609,10 @@ describe('CategorySearchComponent', () => {
      * Validates: isRtl returns false for LTR
      */
     it('should detect LTR mode', () => {
-      document.documentElement.dir = 'ltr';
+      component.isRtl = false;
       fixture.detectChanges();
 
-      expect(component.isRtl()).toBe(false);
+      expect(component.isRtl).toBe(false);
     });
   });
 });

@@ -241,17 +241,13 @@ describe('MobileCategoryNavComponent', () => {
   describe('RTL Layout Detection', () => {
     /**
      * Should detect RTL mode from document
-     * Validates: RTL computed signal works correctly
+     * Validates: RTL input property works correctly
      */
     it('should detect RTL mode', () => {
-      // Set document direction to RTL
-      document.documentElement.dir = 'rtl';
+      component.isRtl = true;
       fixture.detectChanges();
 
-      expect(component.isRtl()).toBe(true);
-
-      // Reset to default
-      document.documentElement.dir = 'ltr';
+      expect(component.isRtl).toBe(true);
     });
 
     /**
@@ -259,16 +255,13 @@ describe('MobileCategoryNavComponent', () => {
      * Validates: getCategoryName returns correct name based on RTL
      */
     it('should return Arabic name in RTL mode', () => {
-      document.documentElement.dir = 'rtl';
+      component.isRtl = true;
       const category = MOCK_CATEGORIES[0];
 
       fixture.detectChanges();
       const name = component.getCategoryName(category);
 
       expect(name).toBe(category.nameAr);
-
-      // Reset
-      document.documentElement.dir = 'ltr';
     });
 
     /**
@@ -276,7 +269,7 @@ describe('MobileCategoryNavComponent', () => {
      * Validates: getCategoryName returns English in LTR
      */
     it('should return English name in LTR mode', () => {
-      document.documentElement.dir = 'ltr';
+      component.isRtl = false;
       const category = MOCK_CATEGORIES[0];
 
       fixture.detectChanges();
@@ -494,6 +487,201 @@ describe('MobileCategoryNavComponent', () => {
 
       expect(deepestChild).toBeDefined();
       expect(deepestChild.nameAr).toBe('آيفونات');
+    });
+  });
+
+  // ===========================================================================
+  // DRILL-DOWN NAVIGATION (SS-CAT-005)
+  // ===========================================================================
+
+  /**
+   * @description Tests for drill-down navigation flow
+   * @ticket SS-CAT-005
+   */
+  describe('Drill-Down Navigation', () => {
+    /**
+     * Should drill into category with children
+     * Validates: drillInto pushes category to navigation stack
+     */
+    it('should drill into category and push to navigation stack', () => {
+      component.categories = MOCK_CATEGORIES;
+      const parentCategory = MOCK_CATEGORIES[0]; // Electronics with children
+      fixture.detectChanges();
+
+      expect(component.navigationStack().length).toBe(0);
+      expect(component.isInDrillDown()).toBe(false);
+
+      component.drillInto(parentCategory);
+
+      expect(component.navigationStack().length).toBe(1);
+      expect(component.navigationStack()[0]).toBe(parentCategory);
+    });
+
+    /**
+     * Should update currentCategories to show children after drill
+     * Validates: currentCategories computed signal returns children
+     */
+    it('should show children of drilled-into category', () => {
+      component.categories = MOCK_CATEGORIES;
+      const parentCategory = MOCK_CATEGORIES[0]; // Electronics
+      fixture.detectChanges();
+
+      component.drillInto(parentCategory);
+
+      const displayedCategories = component.currentCategories();
+      expect(displayedCategories).toBe(parentCategory.children);
+      expect(displayedCategories.length).toBe(2); // Mobile Phones, Laptops
+    });
+
+    /**
+     * Should set isInDrillDown to true after drilling in
+     * Validates: isInDrillDown computed signal
+     */
+    it('should set isInDrillDown to true when in drill-down mode', () => {
+      component.categories = MOCK_CATEGORIES;
+      const parentCategory = MOCK_CATEGORIES[0];
+      fixture.detectChanges();
+
+      expect(component.isInDrillDown()).toBe(false);
+
+      component.drillInto(parentCategory);
+
+      expect(component.isInDrillDown()).toBe(true);
+    });
+
+    /**
+     * Should set currentParent to drilled-into category
+     * Validates: currentParent computed signal
+     */
+    it('should set currentParent to the drilled category', () => {
+      component.categories = MOCK_CATEGORIES;
+      const parentCategory = MOCK_CATEGORIES[0]; // Electronics
+      fixture.detectChanges();
+
+      expect(component.currentParent()).toBeNull();
+
+      component.drillInto(parentCategory);
+
+      expect(component.currentParent()).toBe(parentCategory);
+    });
+
+    /**
+     * Should pop from stack when goBack is called
+     * Validates: goBack removes last item from stack
+     */
+    it('should go back to parent level when goBack is called', () => {
+      component.categories = MOCK_CATEGORIES;
+      const parentCategory = MOCK_CATEGORIES[0];
+      fixture.detectChanges();
+
+      component.drillInto(parentCategory);
+      expect(component.navigationStack().length).toBe(1);
+
+      component.goBack();
+
+      expect(component.navigationStack().length).toBe(0);
+      expect(component.isInDrillDown()).toBe(false);
+      expect(component.currentCategories()).toBe(component.categories);
+    });
+
+    /**
+     * Should support multiple drill levels
+     * Validates: Stack handles root → L1 → L2 navigation
+     */
+    it('should support drilling multiple levels deep', () => {
+      component.categories = MOCK_CATEGORIES;
+      const level1 = MOCK_CATEGORIES[0]; // Electronics
+      const level2 = level1.children![0]; // Mobile Phones
+      fixture.detectChanges();
+
+      // Drill to L1
+      component.drillInto(level1);
+      expect(component.navigationStack().length).toBe(1);
+      expect(component.currentCategories()).toBe(level1.children);
+
+      // Drill to L2
+      component.drillInto(level2);
+      expect(component.navigationStack().length).toBe(2);
+      expect(component.currentCategories()).toBe(level2.children);
+      expect(component.currentParent()).toBe(level2);
+    });
+
+    /**
+     * Should navigate back through multiple levels
+     * Validates: Multiple goBack() calls traverse hierarchy correctly
+     */
+    it('should navigate back through multiple levels correctly', () => {
+      component.categories = MOCK_CATEGORIES;
+      const level1 = MOCK_CATEGORIES[0]; // Electronics
+      const level2 = level1.children![0]; // Mobile Phones
+      fixture.detectChanges();
+
+      component.drillInto(level1);
+      component.drillInto(level2);
+      expect(component.navigationStack().length).toBe(2);
+
+      // Go back from L2 to L1
+      component.goBack();
+      expect(component.navigationStack().length).toBe(1);
+      expect(component.currentParent()).toBe(level1);
+      expect(component.currentCategories()).toBe(level1.children);
+
+      // Go back from L1 to root
+      component.goBack();
+      expect(component.navigationStack().length).toBe(0);
+      expect(component.isInDrillDown()).toBe(false);
+      expect(component.currentCategories()).toBe(component.categories);
+    });
+
+    /**
+     * Should not drill into category without children
+     * Validates: drillInto only works for categories with children
+     */
+    it('should not drill into category without children', () => {
+      component.categories = MOCK_CATEGORIES;
+      const categoryWithoutChildren = MOCK_CATEGORIES[1]; // Fashion (no children)
+      fixture.detectChanges();
+
+      expect(component.hasChildren(categoryWithoutChildren)).toBe(false);
+
+      component.drillInto(categoryWithoutChildren);
+
+      expect(component.navigationStack().length).toBe(0);
+      expect(component.isInDrillDown()).toBe(false);
+    });
+
+    /**
+     * Should handle goBack on empty stack gracefully
+     * Validates: goBack is a no-op when stack is empty
+     */
+    it('should handle goBack on empty stack as no-op', () => {
+      component.categories = MOCK_CATEGORIES;
+      fixture.detectChanges();
+
+      expect(component.navigationStack().length).toBe(0);
+
+      component.goBack();
+
+      expect(component.navigationStack().length).toBe(0);
+      expect(component.currentCategories()).toBe(component.categories);
+    });
+
+    /**
+     * Should reset navigation stack when menu is closed
+     * Validates: closeMenu clears drill-down state
+     */
+    it('should reset navigation stack when menu is closed', () => {
+      component.categories = MOCK_CATEGORIES;
+      const parentCategory = MOCK_CATEGORIES[0];
+      fixture.detectChanges();
+
+      component.drillInto(parentCategory);
+      expect(component.navigationStack().length).toBe(1);
+
+      component.closeMenu();
+
+      expect(component.navigationStack().length).toBe(0);
+      expect(component.isInDrillDown()).toBe(false);
     });
   });
 });
