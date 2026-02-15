@@ -88,6 +88,7 @@
             matBadgeColor="accent"
             [matBadgeHidden]="cart.itemCount === 0"
             matBadgeSize="small"
+            [matBadgeDescription]="config.language === 'ar' ? cart.itemCount + ' عناصر في السلة' : cart.itemCount + ' items in cart'"
           >
             shopping_cart
           </mat-icon>
