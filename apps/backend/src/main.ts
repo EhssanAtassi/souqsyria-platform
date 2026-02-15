@@ -22,6 +22,14 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const configService = app.get(ConfigService);
 
+  // SEC-H04 FIX: Strict CORS configuration
+  // Removed null origin bypass which allowed cross-origin attacks
+  const isDevelopment = process.env.NODE_ENV !== 'production';
+
+  // Cookie parser middleware for guest session management (SS-AUTH-009)
+  // Must be applied BEFORE other middleware that depend on cookies
+  app.use(cookieParser());
+
   // Security headers via Helmet (X-Content-Type-Options, HSTS, X-Frame-Options, etc.)
   // Explicit CSP configuration for the SouqSyria REST API
   app.use(
@@ -48,17 +56,9 @@ async function bootstrap() {
     }),
   );
 
-  // Cookie parser middleware for guest session management
-  // Required for reading guest_session_id cookie in controllers and middleware
-  app.use(cookieParser());
-
   // CSRF note: Not applicable for this API — authentication is JWT Bearer-token only.
   // JWT tokens are not automatically attached by browsers (unlike cookies), so CSRF
   // attacks cannot forge authenticated requests. No CSRF middleware is needed.
-
-  // SEC-H04 FIX: Strict CORS configuration
-  // Removed null origin bypass which allowed cross-origin attacks
-  const isDevelopment = process.env.NODE_ENV !== 'production';
 
   app.enableCors({
     origin: (origin, callback) => {

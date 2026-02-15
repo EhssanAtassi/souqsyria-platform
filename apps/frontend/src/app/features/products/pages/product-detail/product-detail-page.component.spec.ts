@@ -19,6 +19,7 @@ import { signal, computed, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { ProductDetailPageComponent } from './product-detail-page.component';
 import { ProductService } from '../../services/product.service';
 import { LanguageService } from '../../../../shared/services/language.service';
+import { CartApiService } from '../../../../core/api/cart-api.service';
 import { ProductDetailResponse } from '../../models/product-detail.interface';
 
 /**
@@ -103,9 +104,13 @@ describe('ProductDetailPageComponent', () => {
     direction: computed(() => 'ltr' as const),
   };
 
+  /** @description Mock CartApiService with spy for addToCart */
+  const mockCartApiService = jasmine.createSpyObj('CartApiService', ['addToCart', 'getCart']);
+
   beforeEach(async () => {
     productServiceSpy = jasmine.createSpyObj('ProductService', ['getProductBySlug']);
     productServiceSpy.getProductBySlug.and.returnValue(of(mockProduct));
+    mockCartApiService.addToCart.and.returnValue(of({}));
 
     paramsSubject = new Subject<Record<string, string>>();
 
@@ -116,6 +121,7 @@ describe('ProductDetailPageComponent', () => {
         provideNoopAnimations(),
         { provide: ProductService, useValue: productServiceSpy },
         { provide: LanguageService, useValue: mockLanguageService },
+        { provide: CartApiService, useValue: mockCartApiService },
         {
           provide: ActivatedRoute,
           useValue: {

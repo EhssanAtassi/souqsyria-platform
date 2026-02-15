@@ -13,6 +13,7 @@
     "src/**/*.d.ts"
   ],
   "exclude": [
+    "src/app/features/account/**/*.spec.ts",
     "src/app/features/category/components/mega-menu/mega-menu.component.spec.ts",
     "src/app/features/category/services/category-api.service.spec.ts",
     "src/app/features/category/components/featured-categories/featured-categories.component.spec.ts",

@@ -36,8 +36,9 @@ import {
   Res,
 } from '@nestjs/common';
 import { ApiOperation, ApiParam, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { InjectRepository } from '@nestjs/typeorm';
 import { Request, Response } from 'express';
-import { IsNull } from 'typeorm';
+import { IsNull, Repository } from 'typeorm';
 import { Public } from '../../common/decorators/public.decorator';
 
 // Import Services
@@ -48,6 +49,9 @@ import { PublicProductsService } from '../../products/public/service/public-prod
 
 // Import DTOs and Types
 import { CategoryQueryDto, ApprovalStatus, GetCategoriesTreeResponseDto, CategoryTreeRootDto, CategoryTreeChildDto, CategoryTreeGrandchildDto, PaginatedCategoriesResponseDto, SearchWithinCategoryDto } from '../dto/index-dto';
+
+// Import Entities
+import { Category } from '../entities/category.entity';
 
 /**
  * PUBLIC CATEGORIES CONTROLLER
@@ -71,6 +75,8 @@ export class CategoriesPublicController {
     private readonly categorySearchService: CategorySearchService,
     private readonly categoryHierarchyService: CategoryHierarchyService,
     private readonly publicProductsService: PublicProductsService,
+    @InjectRepository(Category)
+    private readonly categoryRepository: Repository<Category>,
   ) {
     this.logger.log('🌐 Public Categories Controller initialized');
   }
@@ -1286,22 +1292,418 @@ export class CategoriesPublicController {
   }
 
   // ============================================================================
-  // SEARCH WITHIN CATEGORY (SS-CAT-006)
+  // NEW S2 ENDPOINTS (Place BEFORE :id/products due to route order)
+  // ============================================================================
+
+  /**
+   * GET CATEGORY BY SLUG
+   *
+   * Retrieves a single category by its slug identifier.
+   * Returns category details with parent, children, and product count.
+   * Only returns categories that are active and approved.
+   *
+   * Features:
+   * - Lookup by slug instead of numeric ID
+   * - Includes parent and children relationships
+   * - Product count for the category
+   * - Cached for 5 minutes
+   * - Mobile-optimized response
+   *
+   * Use Cases:
+   * - Frontend category page routing (e.g., /categories/damascus-steel)
+   * - SEO-friendly category URLs
+   * - Category navigation breadcrumbs
+   * - Category metadata for product listings
+   *
+   * @sprint S2 Categories Backend Gaps
+   */
+  @Get('by-slug/:slug')
+  @ApiParam({
+    name: 'slug',
+    type: String,
+    description: 'Category slug identifier (e.g., "damascus-steel", "electronics")',
+    example: 'damascus-steel',
+  })
+  @ApiOperation({
+    summary: 'Get category by slug',
+    description: `
+      Retrieve a single category by its slug identifier.
+
+      Features:
+      • SEO-friendly slug-based lookup
+      • Includes parent and children relationships
+      • Product count for the category
+      • Only returns active and approved categories
+      • Cached for 5 minutes for optimal performance
+
+      Use Cases:
+      • Frontend category page routing
+      • SEO-friendly category URLs
+      • Category navigation breadcrumbs
+      • Category metadata for product listings
+    `,
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Category retrieved successfully',
+    schema: {
+      example: {
+        success: true,
+        data: {
+          id: 1,
+          nameEn: 'Damascus Steel',
+          nameAr: 'الفولاذ الدمشقي',
+          slug: 'damascus-steel',
+          descriptionEn: 'Authentic Damascus steel knives and blades',
+          descriptionAr: 'سكاكين وشفرات أصلية من الفولاذ الدمشقي',
+          bannerUrl: 'https://images.unsplash.com/photo-1589698423558',
+          iconUrl: 'hardware',
+          parent: null,
+          children: [
+            {
+              id: 10,
+              nameEn: 'Kitchen Knives',
+              nameAr: 'سكاكين المطبخ',
+              slug: 'kitchen-knives',
+              productCount: 15,
+            },
+          ],
+          productCount: 25,
+        },
+      },
+    },
+    headers: {
+      'Cache-Control': {
+        description: 'Caching directive for performance',
+        schema: { type: 'string', example: 'public, max-age=300' },
+      },
+    },
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Category not found or not publicly available',
+    schema: {
+      example: {
+        success: false,
+        error: 'Not Found',
+        message: 'Category with slug "invalid-slug" not found',
+        statusCode: 404,
+      },
+    },
+  })
+  async getCategoryBySlug(
+    @Param('slug') slug: string,
+    @Res() response: Response,
+  ) {
+    const startTime = Date.now();
+
+    this.logger.log(`🔍 Get category by slug request: slug="${slug}"`);
+
+    try {
+      // 1. Find category by slug
+      const category = await this.categoriesService.findBySlug(slug);
+
+      if (!category) {
+        return response.status(HttpStatus.NOT_FOUND).json({
+          success: false,
+          error: 'Not Found',
+          message: `Category with slug "${slug}" not found`,
+          statusCode: HttpStatus.NOT_FOUND,
+        });
+      }
+
+      // 2. Set cache headers (5 minutes)
+      response.set({
+        'Cache-Control': 'public, max-age=300',
+        'X-Content-Type-Options': 'nosniff',
+      });
+
+      const processingTime = Date.now() - startTime;
+      this.logger.log(
+        `✅ Category by slug retrieved: ${category.nameEn} (ID: ${category.id}) (${processingTime}ms)`,
+      );
+
+      // 3. Return category data
+      return response.status(HttpStatus.OK).json({
+        success: true,
+        data: {
+          id: category.id,
+          nameEn: category.nameEn,
+          nameAr: category.nameAr,
+          slug: category.slug,
+          descriptionEn: category.descriptionEn,
+          descriptionAr: category.descriptionAr,
+          bannerUrl: category.bannerUrl,
+          iconUrl: category.iconUrl,
+          parent: category.parent
+            ? {
+                id: category.parent.id,
+                nameEn: category.parent.nameEn,
+                nameAr: category.parent.nameAr,
+                slug: category.parent.slug,
+              }
+            : null,
+          children: (category.children || []).map((child) => ({
+            id: child.id,
+            nameEn: child.nameEn,
+            nameAr: child.nameAr,
+            slug: child.slug,
+            productCount: child.productCount,
+          })),
+          productCount: category.productCount,
+        },
+      });
+    } catch (error: unknown) {
+      const processingTime = Date.now() - startTime;
+
+      this.logger.error(
+        `❌ Get category by slug failed: ${(error as Error).message} (${processingTime}ms)`,
+        (error as Error).stack,
+      );
+
+      return response.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        error: 'Internal Server Error',
+        message: 'Failed to retrieve category. Please try again.',
+        statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+      });
+    }
+  }
+
+  /**
+   * GET CATEGORY HIERARCHY WITH BREADCRUMBS
+   *
+   * Retrieves category hierarchy information including breadcrumb path and children.
+   * Useful for navigation breadcrumbs and category exploration.
+   *
+   * Features:
+   * - Breadcrumb path from root to current category
+   * - List of child categories with product counts
+   * - Localized category names (English/Arabic)
+   * - Cached for 5 minutes
+   * - Mobile-optimized response
+   *
+   * Use Cases:
+   * - Category page breadcrumb navigation
+   * - Category tree exploration
+   * - Subcategory navigation menus
+   * - SEO breadcrumb markup
+   *
+   * @sprint S2 Categories Backend Gaps
+   */
+  @Get(':id/hierarchy')
+  @ApiParam({
+    name: 'id',
+    type: Number,
+    description: 'Category ID',
+    example: 1,
+  })
+  @ApiOperation({
+    summary: 'Get category hierarchy with breadcrumbs and children',
+    description: `
+      Retrieve category hierarchy information including breadcrumb path and children.
+
+      Features:
+      • Breadcrumb path from root to current category
+      • List of child categories with product counts
+      • Localized category names (English/Arabic)
+      • Only returns active and approved categories
+      • Cached for 5 minutes for optimal performance
+
+      Use Cases:
+      • Category page breadcrumb navigation
+      • Category tree exploration
+      • Subcategory navigation menus
+      • SEO breadcrumb markup
+    `,
+  })
+  @ApiQuery({
+    name: 'language',
+    required: false,
+    enum: ['en', 'ar'],
+    example: 'en',
+    description: 'Response language preference (default: en)',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Category hierarchy retrieved successfully',
+    schema: {
+      example: {
+        success: true,
+        data: {
+          path: [
+            {
+              id: 1,
+              nameEn: 'Home & Garden',
+              nameAr: 'المنزل والحديقة',
+              slug: 'home-garden',
+            },
+            {
+              id: 5,
+              nameEn: 'Kitchen',
+              nameAr: 'المطبخ',
+              slug: 'kitchen',
+            },
+          ],
+          currentName: 'Kitchen',
+          children: [
+            {
+              id: 10,
+              nameEn: 'Cookware',
+              nameAr: 'أدوات الطبخ',
+              slug: 'cookware',
+              productCount: 45,
+            },
+          ],
+        },
+      },
+    },
+    headers: {
+      'Cache-Control': {
+        description: 'Caching directive for performance',
+        schema: { type: 'string', example: 'public, max-age=300' },
+      },
+    },
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Category not found or not publicly available',
+  })
+  async getCategoryHierarchy(
+    @Param('id') id: number,
+    @Query('language') language: 'en' | 'ar' = 'en',
+    @Res() response: Response,
+  ) {
+    const startTime = Date.now();
+
+    this.logger.log(`🌳 Get category hierarchy request: id=${id}, language=${language}`);
+
+    try {
+      // 1. Validate category ID
+      const sanitizedId = Number(id);
+      if (isNaN(sanitizedId) || sanitizedId < 1) {
+        throw new BadRequestException('Invalid category ID');
+      }
+
+      // 2. Validate language
+      const sanitizedLanguage: 'en' | 'ar' = ['en', 'ar'].includes(language) ? language : 'en';
+
+      // 3. Find category (must be active + approved)
+      const category = await this.categoryRepository.findOne({
+        where: {
+          id: sanitizedId,
+          isActive: true,
+          approvalStatus: 'approved' as 'draft' | 'pending' | 'approved' | 'rejected' | 'suspended' | 'archived',
+        },
+        relations: ['parent', 'children'],
+      });
+
+      if (!category) {
+        return response.status(HttpStatus.NOT_FOUND).json({
+          success: false,
+          error: 'Not Found',
+          message: `Category with ID ${sanitizedId} not found`,
+          statusCode: HttpStatus.NOT_FOUND,
+        });
+      }
+
+      // 4. Generate breadcrumbs using existing hierarchy service
+      const breadcrumbs = await this.categoryHierarchyService.generateBreadcrumbs(
+        category,
+        sanitizedLanguage,
+      );
+
+      // 5. Build path from breadcrumbs (need to fetch full category data for each breadcrumb)
+      const pathPromises = breadcrumbs.map(async (crumb) => {
+        const fullCategory = await this.categoryRepository.findOne({
+          where: { id: crumb.id },
+        });
+        return {
+          id: crumb.id,
+          nameEn: fullCategory?.nameEn || crumb.name,
+          nameAr: fullCategory?.nameAr || crumb.name,
+          slug: crumb.slug,
+        };
+      });
+      const path = await Promise.all(pathPromises);
+
+      // 6. Get children with product counts (only active + approved)
+      const children = (category.children || [])
+        .filter((child) => child.isActive && child.approvalStatus === 'approved')
+        .map((child) => ({
+          id: child.id,
+          nameEn: child.nameEn,
+          nameAr: child.nameAr,
+          slug: child.slug,
+          productCount: child.productCount,
+        }));
+
+      // 7. Set cache headers (5 minutes)
+      response.set({
+        'Cache-Control': 'public, max-age=300',
+        'X-Content-Type-Options': 'nosniff',
+      });
+
+      const processingTime = Date.now() - startTime;
+      this.logger.log(
+        `✅ Category hierarchy retrieved: ${category.nameEn} with ${breadcrumbs.length} breadcrumbs, ${children.length} children (${processingTime}ms)`,
+      );
+
+      // 8. Return hierarchy data
+      return response.status(HttpStatus.OK).json({
+        success: true,
+        data: {
+          path,
+          currentName: sanitizedLanguage === 'ar' ? category.nameAr : category.nameEn,
+          children,
+        },
+      });
+    } catch (error: unknown) {
+      const processingTime = Date.now() - startTime;
+
+      this.logger.error(
+        `❌ Get category hierarchy failed: ${(error as Error).message} (${processingTime}ms)`,
+        (error as Error).stack,
+      );
+
+      if (error instanceof BadRequestException) {
+        return response.status(HttpStatus.BAD_REQUEST).json({
+          success: false,
+          error: 'Bad Request',
+          message: (error as Error).message,
+          statusCode: HttpStatus.BAD_REQUEST,
+        });
+      }
+
+      return response.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        error: 'Internal Server Error',
+        message: 'Failed to retrieve category hierarchy. Please try again.',
+        statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+      });
+    }
+  }
+
+  // ============================================================================
+  // SEARCH WITHIN CATEGORY (SS-CAT-006, Enhanced S2)
   // ============================================================================
 
   /**
    * SEARCH PRODUCTS WITHIN CATEGORY
    *
-   * Search for products within a specific category with pagination.
+   * Search for products within a specific category with advanced filtering.
    * Only returns products that are active, published, and approved.
    * Only searches within active and approved categories.
    *
    * Features:
    * - Full-text search on product names (English/Arabic) and descriptions
+   * - Sort by: newest, price (asc/desc), popularity, rating
+   * - Price range filtering (minPrice, maxPrice)
    * - Pagination with page and limit parameters
    * - Returns product images and pricing
    * - Caching headers for 5 minutes
    * - Mobile-optimized response format
+   * - Accepts category ID (number) OR slug (string)
    *
    * Use Cases:
    * - Category page product listings
@@ -1309,25 +1711,28 @@ export class CategoriesPublicController {
    * - Mobile app category browsing
    * - Product filtering within categories
    *
-   * @sprint S3 Categories
+   * @sprint S3 Categories, S2 Enhanced
    * @ticket SS-CAT-006
    */
   @Get(':id/products')
   @ApiParam({
     name: 'id',
-    type: Number,
-    description: 'Category ID to search within',
-    example: 1,
+    type: String,
+    description: 'Category ID (number) or slug (string) to search within',
+    example: 'damascus-steel',
   })
   @ApiOperation({
-    summary: 'Search products within a specific category',
+    summary: 'Search products within a specific category with advanced filtering',
     description: `
-      Search for products within a specific category with optional keyword search and pagination.
+      Search for products within a specific category with optional keyword search, sorting, price filtering, and pagination.
 
       Features:
       • Full-text search on product names (English/Arabic) and descriptions
+      • Sort by: newest, price (asc/desc), popularity, rating
+      • Price range filtering (minPrice, maxPrice)
       • Only returns active, published, and approved products
       • Category must be active and approved
+      • Accepts category ID (number) OR slug (string)
       • Pagination support with page and limit
       • Returns product images and pricing information
       • Cached for 5 minutes for optimal performance
@@ -1338,6 +1743,13 @@ export class CategoriesPublicController {
       • Search is case-insensitive
       • Searches across product nameEn, nameAr, and descriptions
       • Uses MySQL LIKE for flexible matching
+
+      Sorting Options:
+      • newest: Recently added products first (default)
+      • price_asc: Lowest price first
+      • price_desc: Highest price first
+      • popularity: Most viewed products first
+      • rating: Highest rated products first
 
       Use Cases:
       • Category page product listings
@@ -1369,6 +1781,29 @@ export class CategoriesPublicController {
     example: 20,
     minimum: 1,
     maximum: 100,
+  })
+  @ApiQuery({
+    name: 'sortBy',
+    required: false,
+    enum: ['newest', 'price_asc', 'price_desc', 'popularity', 'rating'],
+    description: 'Sort order for products (default: newest)',
+    example: 'price_asc',
+  })
+  @ApiQuery({
+    name: 'minPrice',
+    required: false,
+    type: Number,
+    description: 'Minimum price filter in SYP (inclusive)',
+    example: 10000,
+    minimum: 0,
+  })
+  @ApiQuery({
+    name: 'maxPrice',
+    required: false,
+    type: Number,
+    description: 'Maximum price filter in SYP (inclusive)',
+    example: 50000,
+    minimum: 0,
   })
   @ApiResponse({
     status: 200,
@@ -1435,30 +1870,37 @@ export class CategoriesPublicController {
     description: 'Internal server error',
   })
   async searchProductsWithinCategory(
-    @Param('id') categoryId: number,
+    @Param('id') categoryIdOrSlug: string | number,
     @Query() query: SearchWithinCategoryDto,
     @Res() response: Response,
   ) {
     const startTime = Date.now();
-    const { search, page = 1, limit = 20 } = query;
+    const { search, page = 1, limit = 20, sortBy = 'newest', minPrice, maxPrice } = query;
 
     this.logger.log(
-      `🔍 Search within category request: categoryId=${categoryId}, search="${search || 'all'}", page=${page}, limit=${limit}`,
+      `🔍 Search within category request: categoryIdOrSlug=${categoryIdOrSlug}, search="${search || 'all'}", page=${page}, limit=${limit}, sortBy=${sortBy}, minPrice=${minPrice}, maxPrice=${maxPrice}`,
     );
 
     try {
-      // 1. Validate category ID
-      const sanitizedCategoryId = Number(categoryId);
-      if (isNaN(sanitizedCategoryId) || sanitizedCategoryId < 1) {
-        throw new BadRequestException('Invalid category ID');
-      }
+      // 1. Parse category ID or slug
+      let categoryIdentifier: number | string = categoryIdOrSlug;
+      const numericId = Number(categoryIdOrSlug);
 
-      // 2. Execute search via service
+      // If it's a valid number, use it as numeric ID
+      if (!isNaN(numericId) && numericId > 0) {
+        categoryIdentifier = numericId;
+      }
+      // Otherwise treat as slug (string)
+
+      // 2. Execute search via service (service handles both ID and slug)
       const result = await this.categoriesService.searchWithinCategory(
-        sanitizedCategoryId,
+        categoryIdentifier,
         search,
         page,
         limit,
+        sortBy,
+        minPrice,
+        maxPrice,
       );
 
       // 3. Set cache headers (5 minutes)
@@ -1469,7 +1911,7 @@ export class CategoriesPublicController {
 
       const processingTime = Date.now() - startTime;
       this.logger.log(
-        `✅ Search within category ${categoryId} completed: ${result.data.length}/${result.meta.total} products found (${processingTime}ms)`,
+        `✅ Search within category ${categoryIdOrSlug} completed: ${result.data.length}/${result.meta.total} products found (${processingTime}ms)`,
       );
 
       // 4. Return response
@@ -1482,14 +1924,17 @@ export class CategoriesPublicController {
       const processingTime = Date.now() - startTime;
 
       this.logger.error(
-        `❌ Search within category ${categoryId} failed: ${(error as Error).message} (${processingTime}ms)`,
+        `❌ Search within category ${categoryIdOrSlug} failed: ${(error as Error).message} (${processingTime}ms)`,
         {
           error: (error as Error).message,
           stack: (error as Error).stack,
-          categoryId,
+          categoryIdOrSlug,
           search,
           page,
           limit,
+          sortBy,
+          minPrice,
+          maxPrice,
         },
       );
 

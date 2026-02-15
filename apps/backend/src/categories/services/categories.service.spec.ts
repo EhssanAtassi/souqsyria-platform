@@ -48,7 +48,16 @@ const createSyrianAdmin = (overrides?: Partial<User>) => ({
   id: 1,
   email: 'admin@souqsyria.com',
   fullName: 'Ahmad Al-Dimashqi',
-  role: { id: 1, name: 'admin', permissions: ['category:create', 'category:update', 'category:delete'] },
+  role: {
+    id: 1,
+    name: 'admin',
+    rolePermissions: [
+      { id: 1, permission: { id: 1, name: 'category.create' } },
+      { id: 2, permission: { id: 2, name: 'category.delete' } },
+      { id: 3, permission: { id: 3, name: 'category.edit-approved' } },
+    ] as any,
+  },
+  assignedRole: null,
   isVerified: true,
   isBanned: false,
   ...overrides,
@@ -773,10 +782,48 @@ describe('CategoriesService', () => {
       await expect(service.findById(0)).rejects.toThrow(BadRequestException);
     });
 
+    it('should throw BadRequestException for negative ID', async () => {
+      await expect(service.findById(-5)).rejects.toThrow(BadRequestException);
+    });
+
     it('should throw NotFoundException for non-existent category', async () => {
       categoryRepository.findOne.mockResolvedValue(null);
 
       await expect(service.findById(99999)).rejects.toThrow(NotFoundException);
+    });
+
+    it('should return a CategoryResponseDto for a valid category', async () => {
+      const mockCategory = createSyrianCategory({
+        id: 5,
+        nameEn: 'Clothing',
+        nameAr: '\u0645\u0644\u0627\u0628\u0633',
+      });
+
+      categoryRepository.findOne.mockResolvedValue(mockCategory as Category);
+      hierarchyService.generateBreadcrumbs.mockResolvedValue([
+        { id: 5, name: 'Clothing', slug: 'clothing', url: '/categories/clothing', isActive: true, depthLevel: 0 },
+      ]);
+
+      const result = await service.findById(5, 'en');
+
+      expect(result).toBeDefined();
+      expect(result.id).toBe(5);
+      expect(categoryRepository.findOne).toHaveBeenCalledWith({
+        where: { id: 5 },
+        relations: ['parent', 'children', 'creator', 'updater', 'approver'],
+      });
+    });
+
+    it('should generate breadcrumbs for the requested language', async () => {
+      const mockCategory = createSyrianCategory({ id: 5 });
+      categoryRepository.findOne.mockResolvedValue(mockCategory as Category);
+
+      await service.findById(5, 'ar');
+
+      expect(hierarchyService.generateBreadcrumbs).toHaveBeenCalledWith(
+        mockCategory,
+        'ar',
+      );
     });
   });
 
@@ -832,6 +879,18 @@ describe('CategoriesService', () => {
     });
 
     it('should require super admin to edit approved categories', async () => {
+      // Admin WITHOUT category.edit-approved permission
+      const regularAdmin = createSyrianAdmin({
+        role: {
+          id: 2,
+          name: 'editor',
+          rolePermissions: [
+            { id: 1, permission: { id: 1, name: 'category.create' } },
+            { id: 2, permission: { id: 2, name: 'category.delete' } },
+          ],
+        } as any,
+      });
+
       const approvedCategory = createSyrianCategory({
         id: 1,
         approvalStatus: 'approved',
@@ -843,10 +902,285 @@ describe('CategoriesService', () => {
         slug: 'electronics',
       };
 
+      // Mock QueryBuilder for validateUniqueNames (no duplicate found)
+      const mockQb = createMockQueryBuilder();
+      mockQb.getOne.mockResolvedValue(null);
+      categoryRepository.createQueryBuilder.mockReturnValue(mockQb as any);
+
       categoryRepository.findOne.mockResolvedValue(approvedCategory as Category);
 
-      await expect(service.update(1, updateDto as never, adminUser as User))
+      await expect(service.update(1, updateDto as never, regularAdmin as User))
         .rejects.toThrow(BadRequestException);
+    });
+  });
+
+  // ===========================================================================
+  // SOFT DELETE CATEGORY TESTS
+  // ===========================================================================
+
+  /** @description Tests for softDelete method with hierarchy management and audit */
+  describe('softDelete', () => {
+    const adminUser = createSyrianAdmin();
+
+    it('should soft delete a category with zero products successfully', async () => {
+      const category = createSyrianCategory({
+        id: 5,
+        productCount: 0,
+        children: [],
+        products: [],
+      });
+
+      // Mock admin with category.delete permission
+      const adminWithPermission = createSyrianAdmin({
+        role: {
+          id: 1,
+          name: 'admin',
+          rolePermissions: [
+            { id: 1, permission: { id: 1, name: 'category.delete' } },
+          ],
+        } as any,
+      });
+
+      categoryRepository.findOne.mockResolvedValue(category as Category);
+      categoryRepository.softDelete.mockResolvedValue({ affected: 1, raw: {}, generatedMaps: [] });
+
+      const result = await service.softDelete(5, adminWithPermission as User);
+
+      expect(result.success).toBe(true);
+      expect(result.message).toContain('Electronics');
+      expect(categoryRepository.softDelete).toHaveBeenCalledWith(5);
+      expect(hierarchyService.handleCategoryDeletion).toHaveBeenCalledWith(category);
+      expect(auditLogService.logSimple).toHaveBeenCalledWith(
+        expect.objectContaining({ action: 'DELETE_CATEGORY' }),
+      );
+    });
+
+    it('should throw NotFoundException for non-existent category', async () => {
+      categoryRepository.findOne.mockResolvedValue(null);
+
+      await expect(service.softDelete(999, adminUser as User)).rejects.toThrow(NotFoundException);
+    });
+
+    it('should throw BadRequestException for category with active products', async () => {
+      const categoryWithProducts = createSyrianCategory({
+        id: 5,
+        productCount: 10,
+      });
+
+      categoryRepository.findOne.mockResolvedValue(categoryWithProducts as Category);
+
+      await expect(service.softDelete(5, adminUser as User)).rejects.toThrow(BadRequestException);
+    });
+
+    it('should throw BadRequestException when admin lacks delete permission', async () => {
+      const userWithoutPermission = createSyrianAdmin({
+        role: {
+          id: 1,
+          name: 'viewer',
+          rolePermissions: [
+            { id: 1, permission: { id: 1, name: 'category.view' } },
+          ],
+        } as any,
+      });
+      const category = createSyrianCategory({ id: 5, productCount: 0 });
+      categoryRepository.findOne.mockResolvedValue(category as Category);
+
+      await expect(
+        service.softDelete(5, userWithoutPermission as User),
+      ).rejects.toThrow(BadRequestException);
+    });
+  });
+
+  // ===========================================================================
+  // RESTORE CATEGORY TESTS
+  // ===========================================================================
+
+  /** @description Tests for the restore method - restores soft-deleted categories */
+  describe('restore', () => {
+    const adminUser = createSyrianAdmin();
+
+    it('should restore a deleted category and return response DTO', async () => {
+      const restoredCategory = createSyrianCategory({ id: 5 });
+      categoryRepository.restore.mockResolvedValue({ affected: 1, raw: {}, generatedMaps: [] });
+      categoryRepository.findOne.mockResolvedValue(restoredCategory as Category);
+      hierarchyService.generateBreadcrumbs.mockResolvedValue([]);
+
+      const result = await service.restore(5, adminUser as User);
+
+      expect(result).toBeDefined();
+      expect(result.id).toBe(5);
+      expect(categoryRepository.restore).toHaveBeenCalledWith(5);
+      expect(auditLogService.logSimple).toHaveBeenCalledWith(
+        expect.objectContaining({ action: 'RESTORE_CATEGORY' }),
+      );
+    });
+
+    it('should throw InternalServerErrorException on restore failure', async () => {
+      categoryRepository.restore.mockRejectedValue(new Error('DB error'));
+
+      await expect(service.restore(5, adminUser as User)).rejects.toThrow();
+    });
+  });
+
+  // ===========================================================================
+  // CREATE CATEGORY SUCCESS TESTS (Syrian Market)
+  // ===========================================================================
+
+  /** @description Tests for category creation happy path with audit logging */
+  describe('create (success path)', () => {
+    const adminUser = createSyrianAdmin();
+    const mockQueryBuilder = createMockQueryBuilder();
+
+    it('should create a category with draft status and zero counts', async () => {
+      const createDto = createCategoryDto();
+
+      // Slug uniqueness passes (no duplicate)
+      mockQueryBuilder.getOne.mockResolvedValue(null);
+      categoryRepository.createQueryBuilder.mockReturnValue(mockQueryBuilder as any);
+
+      hierarchyService.validateAndPrepareHierarchy.mockResolvedValue({
+        parent: null,
+        depthLevel: 0,
+        categoryPath: '',
+        isValid: true,
+        maxDepthReached: false,
+      });
+
+      const savedCategory = createSyrianCategory({
+        id: 10,
+        nameEn: 'Home Appliances',
+        nameAr: '\u0623\u062C\u0647\u0632\u0629 \u0645\u0646\u0632\u0644\u064A\u0629',
+        slug: 'home-appliances',
+        approvalStatus: 'draft',
+      });
+
+      categoryRepository.create.mockReturnValue(savedCategory as Category);
+      categoryRepository.save.mockResolvedValue(savedCategory as Category);
+      categoryRepository.findOne.mockResolvedValue(savedCategory as Category);
+      hierarchyService.generateBreadcrumbs.mockResolvedValue([]);
+
+      const result = await service.create(createDto as never, adminUser as User);
+
+      expect(result).toBeDefined();
+      expect(result.id).toBe(10);
+      expect(categoryRepository.create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          approvalStatus: 'draft',
+          productCount: 0,
+          viewCount: 0,
+          popularityScore: 0,
+        }),
+      );
+      expect(auditLogService.logSimple).toHaveBeenCalledWith(
+        expect.objectContaining({ action: 'CREATE_CATEGORY' }),
+      );
+    });
+
+    it('should update parent metrics when creating under a parent', async () => {
+      const parentCategory = createSyrianCategory({ id: 5 });
+
+      mockQueryBuilder.getOne.mockResolvedValue(null);
+      categoryRepository.createQueryBuilder.mockReturnValue(mockQueryBuilder as any);
+
+      hierarchyService.validateAndPrepareHierarchy.mockResolvedValue({
+        parent: parentCategory as Category,
+        depthLevel: 1,
+        categoryPath: 'Electronics',
+        isValid: true,
+        maxDepthReached: false,
+      });
+
+      const savedCategory = createSyrianCategory({ id: 10, approvalStatus: 'draft' });
+      categoryRepository.create.mockReturnValue(savedCategory as Category);
+      categoryRepository.save.mockResolvedValue(savedCategory as Category);
+      categoryRepository.findOne.mockResolvedValue(savedCategory as Category);
+      hierarchyService.generateBreadcrumbs.mockResolvedValue([]);
+
+      const dtoWithParent = createCategoryDto({ parentId: 5 });
+
+      await service.create(dtoWithParent as never, adminUser as User);
+
+      expect(hierarchyService.updateParentMetrics).toHaveBeenCalledWith(5);
+    });
+  });
+
+  // ===========================================================================
+  // UPDATE CATEGORY APPROVAL DELEGATION
+  // ===========================================================================
+
+  /** @description Tests for update method delegating to approval service */
+  describe('update (approval delegation)', () => {
+    const adminUser = createSyrianAdmin();
+    const mockQueryBuilder = createMockQueryBuilder();
+
+    it('should delegate approval status change to approval service', async () => {
+      const existingCategory = createSyrianCategory({
+        id: 5,
+        approvalStatus: 'draft',
+      });
+      const updateDto = {
+        approvalStatus: 'pending',
+        nameAr: '\u062A\u062D\u062F\u064A\u062B',
+      };
+
+      categoryRepository.findOne
+        .mockResolvedValueOnce(existingCategory as Category)
+        .mockResolvedValueOnce(existingCategory as Category);
+      mockQueryBuilder.getOne.mockResolvedValue(null);
+      categoryRepository.createQueryBuilder.mockReturnValue(mockQueryBuilder as any);
+      categoryRepository.update.mockResolvedValue({ affected: 1, raw: {}, generatedMaps: [] });
+      hierarchyService.generateBreadcrumbs.mockResolvedValue([]);
+
+      await service.update(5, updateDto as never, adminUser as User);
+
+      expect(approvalService.handleStatusChange).toHaveBeenCalledWith(
+        existingCategory,
+        'pending',
+        adminUser,
+        updateDto,
+      );
+    });
+
+    it('should delegate parent change to hierarchy service', async () => {
+      const existingCategory = createSyrianCategory({
+        id: 5,
+        approvalStatus: 'draft',
+      });
+      const updateDto = {
+        parentId: 10,
+        nameAr: '\u062A\u062D\u062F\u064A\u062B',
+      };
+
+      categoryRepository.findOne
+        .mockResolvedValueOnce(existingCategory as Category)
+        .mockResolvedValueOnce(existingCategory as Category);
+      mockQueryBuilder.getOne.mockResolvedValue(null);
+      categoryRepository.createQueryBuilder.mockReturnValue(mockQueryBuilder as any);
+      categoryRepository.update.mockResolvedValue({ affected: 1, raw: {}, generatedMaps: [] });
+      hierarchyService.generateBreadcrumbs.mockResolvedValue([]);
+
+      await service.update(5, updateDto as never, adminUser as User);
+
+      expect(hierarchyService.handleParentChange).toHaveBeenCalledWith(
+        existingCategory,
+        10,
+      );
+    });
+  });
+
+  // ===========================================================================
+  // FIND GENERIC METHOD TESTS
+  // ===========================================================================
+
+  /** @description Tests for the generic find() method used by public controllers */
+  describe('find', () => {
+    it('should pass options directly to repository find', async () => {
+      const options = { where: { isActive: true }, take: 5 };
+      categoryRepository.find.mockResolvedValue([]);
+
+      await service.find(options as any);
+
+      expect(categoryRepository.find).toHaveBeenCalledWith(options);
     });
   });
 

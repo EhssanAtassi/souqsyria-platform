@@ -51,23 +51,10 @@
 
       <!-- Breadcrumb Navigation -->
       @if (category()) {
-        <nav class="breadcrumb-nav mb-4">
-          <ol class="flex items-center space-x-2 text-sm text-gray-600">
-            <li>
-              <a routerLink="/" class="hover:text-golden-wheat-primary transition-colors">
-                <mat-icon class="text-base">home</mat-icon>
-              </a>
-            </li>
-            @for (crumb of category()!.breadcrumb; track crumb; let last = $last) {
-              <li class="flex items-center">
-                <mat-icon class="mx-2 text-gray-400 text-xs">chevron_right</mat-icon>
-                <span [class]="last ? 'text-golden-wheat-primary font-medium' : 'hover:text-gray-700'">
-                  {{ crumb }}
-                </span>
-              </li>
-            }
-          </ol>
-        </nav>
+        <app-breadcrumb
+          [items]="breadcrumbItems()"
+          [language]="'en'">
+        </app-breadcrumb>
       }
 
       <!-- Category Header -->
@@ -117,7 +104,7 @@
           <!-- Products Toolbar -->
           <app-products-toolbar
             [totalProducts]="pagination()?.total || 0"
-            [currentSort]="getCurrentSortValue()"
+            [currentSort]="currentSortValue()"
             [currentView]="currentViewMode().mode"
             [language]="'en'"
             (sortChange)="onSortChangeFromToolbar($event)"
@@ -193,7 +180,7 @@
                 [pageSize]="itemsPerPage()"
                 [pageIndex]="currentPage() - 1"
                 [pageSizeOptions]="[12, 20, 40, 60]"
-                (page)="onPageChange($event.pageIndex + 1); onPageSizeChange($event.pageSize)"
+                (page)="onPaginatorEvent($event)"
                 showFirstLastButtons>
               </mat-paginator>
             </div>

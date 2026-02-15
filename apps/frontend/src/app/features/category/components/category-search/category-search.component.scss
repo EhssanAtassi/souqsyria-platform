@@ -1,98 +1,136 @@
 /**
- * Category Search Styles
+ * Category Search Component Styles
  *
- * @description Custom styles for category search component
- * with focus states, transitions, and RTL support.
+ * @description Material Design styled search component with RTL support.
+ * Uses Angular Material form field with custom theme integration.
  */
 
-// Search container
 .category-search-container {
   width: 100%;
-  max-width: 600px;
-  margin: 0 auto;
+  max-width: 672px; // 2xl equivalent
+  margin-left: auto;
+  margin-right: auto;
 
-  // RTL support
+  // Material form field customization
+  // Using :host ::ng-deep pattern to scope to this component only
+  .search-form-field {
+    width: 100%;
+  }
+}
+
+// Material Design overrides - required for internal Material styling
+// Using :host ::ng-deep to maintain View Encapsulation boundaries
+:host ::ng-deep .search-form-field {
+  // Remove Material's default bottom margin
+  .mat-mdc-form-field-subscript-wrapper {
+    margin-top: 4px;
+  }
+
+  // Input wrapper background
+  .mat-mdc-text-field-wrapper {
+    background-color: #ffffff;
+    border-radius: 8px;
+  }
+
+  // Focused state - primary color
+  .mat-mdc-form-field.mat-focused {
+    .mat-mdc-notched-outline-thick {
+      border-color: theme('colors.primary.700');
+      border-width: 2px;
+    }
+  }
+
+  // Icon prefix/suffix alignment
+  .mat-mdc-form-field-icon-prefix,
+  .mat-mdc-form-field-icon-suffix {
+    display: flex;
+    align-items: center;
+    color: theme('colors.gray.400');
+  }
+
+  // Spinner in suffix position
+  mat-spinner {
+    display: inline-block;
+  }
+
+  // Clear button styling
+  button[mat-icon-button] {
+    &:hover {
+      background-color: theme('colors.gray.100');
+    }
+
+    &:active {
+      transform: scale(0.95);
+    }
+  }
+}
+
+.category-search-container {
+
+  // RTL-specific adjustments
   &.rtl {
     direction: rtl;
   }
 }
 
-// Search input field
-.search-input {
-  // Remove default browser styles
-  appearance: none;
-  -webkit-appearance: none;
-
-  // Custom styling
-  font-size: 0.875rem;
-  line-height: 1.25rem;
-
-  // Placeholder styling
-  &::placeholder {
-    color: #9ca3af;
-    opacity: 1;
+// RTL Material overrides - scoped with :host ::ng-deep
+:host ::ng-deep .rtl .search-form-field {
+  .mat-mdc-text-field-wrapper {
+    .mat-mdc-form-field-flex {
+      flex-direction: row-reverse;
+    }
   }
 
-  // RTL padding adjustment
-  &.text-right {
-    padding-right: 2.75rem;
-    padding-left: 2.75rem;
+  input {
+    text-align: right;
   }
 
-  // Focus state
-  &:focus {
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  .mat-mdc-form-field-icon-prefix {
+    margin-left: 8px;
+    margin-right: 0;
   }
 
-  // Disabled state
-  &:disabled {
-    background-color: #f3f4f6;
-    cursor: not-allowed;
-    opacity: 0.6;
-  }
-
-  // Smooth transitions
-  transition: all 0.2s ease-out;
-}
-
-// Loading spinner override
-::ng-deep {
-  .mat-progress-spinner circle,
-  .mat-spinner circle {
-    stroke: currentColor;
+  .mat-mdc-form-field-icon-suffix {
+    margin-right: 8px;
+    margin-left: 0;
   }
 }
 
-// Clear button
-button[aria-label*='clear'],
-button[aria-label*='مسح'] {
-  // Ensure circular shape
-  width: 28px;
-  height: 28px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+.category-search-container {
 
-  // Smooth transitions
-  transition: background-color 0.2s ease-out;
+  // Empty state styling (colors handled in template with Tailwind dark: variants)
+  [role="status"] {
+    min-height: 200px;
 
-  // Hover effect
-  &:hover {
-    background-color: #e5e7eb;
-  }
+    mat-icon {
+      font-size: 64px;
+      width: 64px;
+      height: 64px;
+    }
 
-  // Active state
-  &:active {
-    background-color: #d1d5db;
-    transform: scale(0.95);
+    p {
+      max-width: 320px;
+      line-height: 1.5;
+
+      &:first-of-type {
+        font-weight: 500;
+      }
+
+      &:last-of-type {
+        font-size: 0.875rem;
+      }
+    }
+
+    // Fade in animation
+    animation: fadeInUp 0.3s ease-out;
   }
 }
 
-// Empty state animation
-@keyframes fadeIn {
+// Fade in animation
+@keyframes fadeInUp {
   from {
     opacity: 0;
-    transform: translateY(-10px);
+    transform: translateY(10px);
   }
   to {
     opacity: 1;
@@ -100,51 +138,106 @@ button[aria-label*='مسح'] {
   }
 }
 
-.mt-8 {
-  animation: fadeIn 0.3s ease-out;
-}
-
-// Accessibility: Focus states
-input:focus-visible {
-  outline: 2px solid #3b82f6;
-  outline-offset: 2px;
-}
-
-button:focus-visible {
-  outline: 2px solid #3b82f6;
-  outline-offset: 2px;
-  border-radius: 9999px;
-}
-
-// Mobile responsiveness
-@media (max-width: 640px) {
-  .search-input {
-    font-size: 0.875rem;
-    padding-top: 0.625rem;
-    padding-bottom: 0.625rem;
+// Responsive adjustments
+@media (max-width: 768px) {
+  .category-search-container {
+    max-width: 100%;
+    padding: 0 16px;
   }
 }
 
-// High contrast mode support
-@media (prefers-contrast: high) {
-  .search-input {
-    border-width: 2px;
-    border-color: #000;
+// Responsive Material overrides
+@media (max-width: 768px) {
+  :host ::ng-deep .search-form-field {
+    .mat-mdc-text-field-wrapper {
+      font-size: 14px;
+    }
 
-    &:focus {
-      border-color: #0066cc;
+    .mat-mdc-form-field-hint {
+      font-size: 12px;
     }
   }
 }
 
-// Reduced motion support
+// Dark mode support (using Tailwind's dark: parent selector)
+// Material form field overrides that must stay in SCSS
+:host ::ng-deep .dark {
+  .search-form-field {
+    .mat-mdc-text-field-wrapper {
+      background-color: theme('colors.gray.800');
+    }
+
+    .mat-mdc-notched-outline {
+      border-color: rgba(255, 255, 255, 0.12);
+    }
+
+    .mat-mdc-form-field.mat-focused {
+      .mat-mdc-notched-outline-thick {
+        border-color: theme('colors.primary.400'); // Lighter primary for dark theme
+      }
+    }
+
+    input {
+      color: rgba(255, 255, 255, 0.87);
+    }
+
+    .mat-mdc-form-field-label {
+      color: rgba(255, 255, 255, 0.6);
+    }
+
+    .mat-mdc-form-field-icon-prefix,
+    .mat-mdc-form-field-icon-suffix {
+      color: rgba(255, 255, 255, 0.5);
+    }
+
+    button[mat-icon-button]:hover {
+      background-color: rgba(255, 255, 255, 0.08);
+    }
+  }
+}
+
+// Accessibility: high contrast mode
+@media (prefers-contrast: high) {
+  .category-search-container {
+    .search-form-field {
+      ::ng-deep .mat-mdc-notched-outline {
+        border-width: 2px;
+        border-color: currentColor;
+      }
+
+      ::ng-deep .mat-mdc-form-field.mat-focused {
+        .mat-mdc-notched-outline-thick {
+          border-width: 3px;
+        }
+      }
+    }
+  }
+}
+
+// Accessibility: reduced motion
 @media (prefers-reduced-motion: reduce) {
-  .search-input,
-  button {
-    transition: none;
+  .category-search-container {
+    [role="status"] {
+      animation: none;
+    }
   }
 
-  .mt-8 {
-    animation: none;
+  :host ::ng-deep * {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+// Accessibility: focus visible states
+:host ::ng-deep .search-form-field {
+  input:focus-visible {
+    outline: 2px solid theme('colors.primary.700');
+    outline-offset: 2px;
+  }
+
+  button:focus-visible {
+    outline: 2px solid theme('colors.primary.700');
+    outline-offset: 2px;
+    border-radius: 50%;
   }
 }

@@ -1,92 +1,105 @@
 <!-- Category Search Container -->
 <div
   class="category-search-container"
-  [class.rtl]="isRtl()"
+  [class.rtl]="isRtl"
 >
-  <!-- Search Input Wrapper -->
-  <div class="relative">
-    <!-- Search Icon (Left for LTR, Right for RTL) -->
-    <div
-      class="absolute top-1/2 -translate-y-1/2 flex items-center pointer-events-none"
-      [class.left-3]="!isRtl()"
-      [class.right-3]="isRtl()"
-    >
-      <mat-icon class="text-gray-400 text-xl">search</mat-icon>
-    </div>
+  <!-- Search Input with Material Form Field -->
+  <mat-form-field
+    appearance="outline"
+    class="w-full search-form-field"
+    [class.rtl-field]="isRtl"
+  >
+    <mat-label>{{ placeholder }}</mat-label>
+
+    <!-- Leading Icon -->
+    <mat-icon matPrefix class="text-gray-400 dark:text-gray-500">search</mat-icon>
 
     <!-- Search Input -->
     <input
+      matInput
       type="text"
-      class="search-input w-full py-3 px-11 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all"
-      [class.text-right]="isRtl()"
-      [placeholder]="placeholder()"
+      class="bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
       [value]="searchQuery()"
       (input)="onSearchInput($any($event.target).value)"
       (keydown.enter)="onEnterPress($event)"
       (keydown.escape)="onEscapePress($event)"
-      [attr.aria-label]="placeholder()"
+      [placeholder]="placeholder"
+      [attr.aria-label]="placeholder"
       autocomplete="off"
     />
 
-    <!-- Loading Spinner or Clear Button (Right for LTR, Left for RTL) -->
-    <div
-      class="absolute top-1/2 -translate-y-1/2 flex items-center"
-      [class.right-3]="!isRtl()"
-      [class.left-3]="isRtl()"
+    <!-- Trailing Icon/Spinner -->
+    <button
+      *ngIf="!isSearching() && showClearButton()"
+      mat-icon-button
+      matSuffix
+      type="button"
+      class="hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200"
+      (click)="clearSearch()"
+      [attr.aria-label]="isRtl ? 'مسح البحث' : 'Clear search'"
     >
-      @if (isSearching()) {
-        <!-- Loading Spinner -->
-        <mat-spinner
-          [diameter]="20"
-          [strokeWidth]="2"
-          class="text-primary-500"
-        ></mat-spinner>
-      } @else if (showClearButton()) {
-        <!-- Clear Button -->
-        <button
-          type="button"
-          class="p-1 rounded-full hover:bg-gray-100 transition-colors"
-          (click)="clearSearch()"
-          [attr.aria-label]="isRtl() ? 'مسح البحث' : 'Clear search'"
-        >
-          <mat-icon class="text-gray-400 text-xl">close</mat-icon>
-        </button>
-      }
-    </div>
-  </div>
+      <mat-icon class="text-gray-400 dark:text-gray-500">close</mat-icon>
+    </button>
 
-  <!-- Search Hint (Minimum characters) -->
-  @if (searchQuery().length > 0 && searchQuery().length < 2) {
-    <div
-      class="mt-2 text-xs text-gray-500"
-      [class.text-right]="isRtl()"
+    <mat-spinner
+      *ngIf="isSearching()"
+      matSuffix
+      [diameter]="20"
+      [strokeWidth]="2"
+      class="text-primary-500 dark:text-primary-400"
+    ></mat-spinner>
+
+    <!-- Hint for minimum characters -->
+    <mat-hint
+      *ngIf="searchQuery().length > 0 && searchQuery().length < 2"
+      align="start"
+      class="text-gray-500 dark:text-gray-400 animate-fade-in"
     >
       {{
-        isRtl()
+        isRtl
           ? 'الرجاء إدخال حرفين على الأقل للبحث'
           : 'Please enter at least 2 characters to search'
       }}
-    </div>
-  }
+    </mat-hint>
+  </mat-form-field>
+
+  <!-- Results Count -->
+  <div
+    *ngIf="hasSearched() && !isSearching() && results().length > 0"
+    class="mt-3 text-sm text-gray-600 dark:text-gray-400 animate-fade-in"
+    role="status"
+    [attr.aria-live]="'polite'"
+  >
+    {{
+      isRtl
+        ? results().length + ' نتيجة'
+        : results().length + ' result' + (results().length === 1 ? '' : 's') + ' found'
+    }}
+  </div>
 
   <!-- Empty State -->
-  @if (showEmptyState()) {
-    <div class="mt-8 flex flex-col items-center justify-center py-8">
-      <mat-icon class="text-gray-300 text-6xl mb-3">search_off</mat-icon>
-      <p class="text-gray-500 text-center font-medium">
-        {{
-          isRtl()
-            ? 'لم يتم العثور على نتائج'
-            : 'No results found'
-        }}
-      </p>
-      <p class="text-gray-400 text-sm text-center mt-1">
-        {{
-          isRtl()
-            ? 'حاول استخدام كلمات مفتاحية مختلفة'
-            : 'Try using different keywords'
-        }}
-      </p>
-    </div>
-  }
+  <div
+    *ngIf="showEmptyState()"
+    class="mt-8 flex flex-col items-center justify-center py-8 animate-fade-in"
+    role="status"
+    [attr.aria-live]="'polite'"
+  >
+    <mat-icon class="text-gray-300 dark:text-gray-600 mb-3" style="font-size: 64px; width: 64px; height: 64px;">
+      search_off
+    </mat-icon>
+    <p class="text-gray-500 dark:text-gray-400 text-center font-medium">
+      {{
+        isRtl
+          ? 'لم يتم العثور على نتائج'
+          : 'No results found'
+      }}
+    </p>
+    <p class="text-gray-400 dark:text-gray-500 text-sm text-center mt-1">
+      {{
+        isRtl
+          ? 'حاول استخدام كلمات مفتاحية مختلفة'
+          : 'Try using different keywords'
+      }}
+    </p>
+  </div>
 </div>

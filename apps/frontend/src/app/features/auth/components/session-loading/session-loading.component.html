@@ -1,0 +1,71 @@
+<!-- Session Loading Component Template -->
+
+<!-- Overlay Mode: Full-screen backdrop with centered spinner -->
+@if (isLoading && overlay) {
+  <div
+    class="session-loading-overlay"
+    role="alert"
+    aria-live="polite"
+    [attr.aria-label]="ariaLabel"
+  >
+    <div class="session-loading-content">
+      <!-- Material Spinner -->
+      <mat-spinner
+        [diameter]="spinnerDiameter"
+        [color]="color"
+        [attr.aria-label]="ariaLabel"
+      ></mat-spinner>
+
+      <!-- Loading Message -->
+      @if (message) {
+        <p class="session-loading-message">{{ message }}</p>
+      }
+    </div>
+  </div>
+}
+
+<!-- Inline Mode: Compact loading indicator without overlay -->
+@if (isLoading && !overlay) {
+  <div
+    class="session-loading-inline"
+    role="status"
+    aria-live="polite"
+    [attr.aria-label]="ariaLabel"
+  >
+    <!-- Progress Bar Mode -->
+    @if (mode === 'indeterminate') {
+      <mat-progress-bar
+        mode="indeterminate"
+        [color]="color"
+        class="session-progress-bar"
+      ></mat-progress-bar>
+    } @else {
+      <mat-progress-bar
+        mode="determinate"
+        [value]="progress"
+        [color]="color"
+        class="session-progress-bar"
+      ></mat-progress-bar>
+    }
+
+    <!-- Optional Spinner for Inline Mode -->
+    <div class="session-loading-inline-content">
+      <mat-spinner
+        [diameter]="spinnerDiameter"
+        [color]="color"
+        [attr.aria-label]="ariaLabel"
+      ></mat-spinner>
+
+      @if (message) {
+        <span class="session-loading-inline-message">{{ message }}</span>
+      }
+    </div>
+  </div>
+}
+
+<!-- Screen Reader Only Announcement -->
+<div class="sr-only" role="status" aria-live="polite" aria-atomic="true">
+  @if (isLoading) {
+    <span>{{ ariaLabel }}</span>
+  }
+</div>

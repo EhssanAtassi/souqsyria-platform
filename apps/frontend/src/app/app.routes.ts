@@ -72,10 +72,10 @@ export const routes: Routes = [
     pathMatch: 'full'
   },
 
-  // Category routes (both singular and plural) - Refactored with Blueprint Pattern
+  // Category routes (both singular and plural) - Router-First with feature routes file
   {
-    path: 'category/:categorySlug',
-    loadComponent: () => import('./features/category/component/category.component').then(m => m.CategoryComponent),
+    path: 'category',
+    loadChildren: () => import('./features/category/category.routes').then(m => m.CATEGORY_ROUTES),
     title: 'Category - SouqSyria'
   },
   {

@@ -831,9 +831,47 @@ export class CategoriesService {
   }
 
   /**
-   * SEARCH WITHIN CATEGORY (SS-CAT-006)
+   * FIND CATEGORY BY SLUG
    *
-   * Search for products within a specific category with pagination
+   * Retrieves a single category by its slug identifier.
+   * Only returns categories that are active and approved for public access.
+   *
+   * @param slug - Category slug (e.g., 'damascus-steel', 'electronics')
+   * @returns Category entity with parent and children relations, or null if not found
+   */
+  async findBySlug(slug: string): Promise<Category | null> {
+    this.logger.log(`Finding category by slug: ${slug}`);
+
+    try {
+      const category = await this.categoryRepository.findOne({
+        where: {
+          slug,
+          isActive: true,
+          approvalStatus: 'approved' as 'draft' | 'pending' | 'approved' | 'rejected' | 'suspended' | 'archived',
+        },
+        relations: ['parent', 'children'],
+      });
+
+      if (!category) {
+        this.logger.warn(`Category with slug "${slug}" not found or not public`);
+        return null;
+      }
+
+      this.logger.log(`✅ Found category: ${category.nameEn} (ID: ${category.id})`);
+      return category;
+    } catch (error: unknown) {
+      this.logger.error(
+        `❌ Failed to find category by slug "${slug}": ${(error as Error).message}`,
+        (error as Error).stack,
+      );
+      return null;
+    }
+  }
+
+  /**
+   * SEARCH WITHIN CATEGORY (SS-CAT-006, S2 Enhanced)
+   *
+   * Search for products within a specific category with advanced filtering
    * Only returns products that are active, published, and approved
    * Only searches within active and approved categories
    *
@@ -841,22 +879,32 @@ export class CategoriesService {
    * - Full-text search on product nameEn, nameAr, and descriptions
    * - LEFT JOIN with product_descriptions for description search
    * - Pagination with total count
+   * - Sort by: newest, price (asc/desc), popularity, rating
+   * - Price range filtering (minPrice, maxPrice)
    * - Includes first product image
    * - Returns product pricing information
    * - MySQL LIKE for flexible search
+   * - Accepts category ID (number) OR slug (string)
    *
-   * @param categoryId - Category ID to search within
+   * @param categoryIdOrSlug - Category ID (number) or slug (string) to search within
    * @param search - Optional search keyword (min 2 chars recommended)
    * @param page - Page number (starts from 1)
    * @param limit - Items per page (max 100)
+   * @param sortBy - Sort order: 'newest' | 'price_asc' | 'price_desc' | 'popularity' | 'rating'
+   * @param minPrice - Minimum price filter (inclusive)
+   * @param maxPrice - Maximum price filter (inclusive)
    * @returns Paginated product results with metadata
    * @throws NotFoundException if category doesn't exist or isn't public
+   * @throws BadRequestException if minPrice > maxPrice
    */
   async searchWithinCategory(
-    categoryId: number,
+    categoryIdOrSlug: number | string,
     search: string | undefined,
     page: number,
     limit: number,
+    sortBy: 'newest' | 'price_asc' | 'price_desc' | 'popularity' | 'rating' = 'newest',
+    minPrice?: number,
+    maxPrice?: number,
   ): Promise<{
     data: Array<{
       id: number;
@@ -880,31 +928,51 @@ export class CategoriesService {
   }> {
     const startTime = Date.now();
     this.logger.log(
-      `🔍 Searching products in category ${categoryId}: search="${search || 'all'}", page=${page}, limit=${limit}`,
+      `🔍 Searching products in category ${categoryIdOrSlug}: search="${search || 'all'}", page=${page}, limit=${limit}, sortBy=${sortBy}, minPrice=${minPrice}, maxPrice=${maxPrice}`,
     );
 
     try {
-      // 1. Validate category exists and is public
-      const category = await this.categoryRepository.findOne({
-        where: { id: categoryId },
-      });
+      // 1. Resolve category (handle both ID and slug)
+      let category: Category | null = null;
+      let categoryId: number;
+
+      if (typeof categoryIdOrSlug === 'number') {
+        // Numeric ID provided
+        categoryId = categoryIdOrSlug;
+        category = await this.categoryRepository.findOne({
+          where: { id: categoryId },
+        });
+      } else {
+        // String slug provided
+        category = await this.findBySlug(categoryIdOrSlug);
+        if (category) {
+          categoryId = category.id;
+        }
+      }
 
       if (!category) {
-        throw new NotFoundException(`Category with ID ${categoryId} not found`);
+        throw new NotFoundException(`Category "${categoryIdOrSlug}" not found`);
       }
 
       if (!category.isActive || category.approvalStatus !== 'approved') {
         throw new NotFoundException(
-          `Category with ID ${categoryId} is not publicly available`,
+          `Category "${categoryIdOrSlug}" is not publicly available`,
         );
       }
 
-      // 2. Calculate pagination offset
+      // 2. Validate price filters
+      if (minPrice !== undefined && maxPrice !== undefined && minPrice > maxPrice) {
+        throw new BadRequestException(
+          `Minimum price (${minPrice}) cannot be greater than maximum price (${maxPrice})`,
+        );
+      }
+
+      // 3. Calculate pagination offset
       const sanitizedPage = Math.max(1, page || 1);
       const sanitizedLimit = Math.min(Math.max(1, limit || 20), 100);
       const offset = (sanitizedPage - 1) * sanitizedLimit;
 
-      // 3. Build TypeORM QueryBuilder for products
+      // 4. Build TypeORM QueryBuilder for products
       const queryBuilder = this.categoryRepository.manager
         .getRepository('ProductEntity')
         .createQueryBuilder('product')
@@ -925,7 +993,7 @@ export class CategoriesService {
         })
         .andWhere('product.is_deleted = :isDeleted', { isDeleted: false });
 
-      // 4. Apply case-insensitive search filter if provided
+      // 5. Apply search filter if provided
       if (search && search.trim().length > 0) {
         const searchTerm = `%${search.trim().toLowerCase()}%`;
         queryBuilder.andWhere(
@@ -934,16 +1002,50 @@ export class CategoriesService {
         );
       }
 
-      // 5. Order by creation date (newest first)
-      queryBuilder.orderBy('product.createdAt', 'DESC');
+      // 6. Apply price filters if provided
+      if (minPrice !== undefined) {
+        queryBuilder.andWhere('pricing.basePrice >= :minPrice', { minPrice });
+      }
+      if (maxPrice !== undefined) {
+        queryBuilder.andWhere('pricing.basePrice <= :maxPrice', { maxPrice });
+      }
 
-      // 6. Add pagination
+      // 7. Apply sort order based on sortBy parameter
+      switch (sortBy) {
+        case 'price_asc':
+          // Lowest price first
+          queryBuilder.orderBy('pricing.basePrice', 'ASC');
+          break;
+        case 'price_desc':
+          // Highest price first
+          queryBuilder.orderBy('pricing.basePrice', 'DESC');
+          break;
+        case 'popularity':
+          // Most viewed products first, fallback to newest
+          queryBuilder
+            .orderBy('product.viewCount', 'DESC')
+            .addOrderBy('product.createdAt', 'DESC');
+          break;
+        case 'rating':
+          // Highest rated first (nulls last), fallback to newest
+          queryBuilder
+            .orderBy('product.averageRating', 'DESC', 'NULLS LAST')
+            .addOrderBy('product.createdAt', 'DESC');
+          break;
+        case 'newest':
+        default:
+          // Newest products first (default)
+          queryBuilder.orderBy('product.createdAt', 'DESC');
+          break;
+      }
+
+      // 8. Add pagination
       queryBuilder.skip(offset).take(sanitizedLimit);
 
-      // 7. Execute query and get total count
+      // 9. Execute query and get total count
       const [products, total] = await queryBuilder.getManyAndCount();
 
-      // 8. Transform results to response format
+      // 10. Transform results to response format
       const transformedData = products.map((product) => {
         // Get first image sorted by sortOrder
         const sortedImages = (product.images || []).sort(
@@ -966,12 +1068,12 @@ export class CategoriesService {
         };
       });
 
-      // 9. Calculate metadata
+      // 11. Calculate metadata
       const totalPages = Math.ceil(total / sanitizedLimit);
       const processingTime = Date.now() - startTime;
 
       this.logger.log(
-        `✅ Found ${transformedData.length}/${total} products in category ${categoryId} (${processingTime}ms)`,
+        `✅ Found ${transformedData.length}/${total} products in category ${categoryIdOrSlug} (${processingTime}ms)`,
       );
 
       return {
@@ -986,16 +1088,16 @@ export class CategoriesService {
     } catch (error: unknown) {
       const processingTime = Date.now() - startTime;
       this.logger.error(
-        `❌ Failed to search products in category ${categoryId}: ${(error as Error).message} (${processingTime}ms)`,
+        `❌ Failed to search products in category ${categoryIdOrSlug}: ${(error as Error).message} (${processingTime}ms)`,
         (error as Error).stack,
       );
 
-      if (error instanceof NotFoundException) {
+      if (error instanceof NotFoundException || error instanceof BadRequestException) {
         throw error;
       }
 
       throw new InternalServerErrorException(
-        `Failed to search products in category ${categoryId}`,
+        `Failed to search products in category ${categoryIdOrSlug}`,
       );
     }
   }

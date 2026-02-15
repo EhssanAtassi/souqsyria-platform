@@ -34,6 +34,9 @@ import { guestSessionInitializerProvider } from './features/auth/initializers/gu
  * - NgRx: Authentication state (login, register, tokens)
  * - Akita (legacy): Products, Cart, UI, Wishlist stores
  *
+ * Initialization:
+ * - Guest Session: Automatically initialized on app bootstrap for anonymous users
+ *
  * @swagger
  * components:
  *   schemas:

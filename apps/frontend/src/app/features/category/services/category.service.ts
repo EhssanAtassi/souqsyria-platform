@@ -158,9 +158,25 @@ export class CategoryService extends AbstractCategoryService {
   getProductsByCategory(request: ProductListingRequest): Observable<ProductListingResponse> {
     return environment.enableMockData || environment.forceOfflineMode
       ? this.getMockProductsByCategory(request)
-      : this.http.get<ProductListingResponse>(
+      : this.http.get<{success: boolean; data: any[]; meta: {page: number; limit: number; total: number; totalPages: number}}>(
           `${this.apiUrl}/categories/${request.categorySlug}/products`,
           { params: this.buildRequestParams(request) }
+        ).pipe(
+          map(response => ({
+            products: response.data,
+            pagination: {
+              page: response.meta.page,
+              limit: response.meta.limit,
+              total: response.meta.total,
+              totalPages: response.meta.totalPages,
+              hasNext: response.meta.page < response.meta.totalPages,
+              hasPrevious: response.meta.page > 1
+            },
+            appliedFilters: request.filters,
+            appliedSort: request.sort,
+            availableFilters: undefined,
+            category: undefined
+          } as ProductListingResponse))
         );
   }
 
@@ -254,19 +270,33 @@ export class CategoryService extends AbstractCategoryService {
   private buildRequestParams(request: ProductListingRequest): any {
     const params: any = {};
 
-    if (request.searchQuery) params.q = request.searchQuery;
+    if (request.searchQuery) params.search = request.searchQuery;
     if (request.pagination) {
       params.page = request.pagination.page;
       params.limit = request.pagination.limit;
     }
     if (request.sort) {
-      params.sortField = request.sort.field;
-      params.sortDirection = request.sort.direction;
+      // Map sort to backend sortBy format
+      const sortMap: Record<string, string> = {
+        'price-asc': 'price_asc',
+        'price-desc': 'price_desc',
+        'newest': 'newest',
+        'popularity': 'popularity',
+        'rating': 'rating',
+      };
+      params.sortBy = sortMap[`${request.sort.field}-${request.sort.direction}`] || request.sort.field || 'newest';
     }
     if (request.filters) {
-      // Add filter parameters
+      // Add price filter params
+      if (request.filters.priceRange) {
+        if (request.filters.priceRange.min > 0) params.minPrice = request.filters.priceRange.min;
+        if (request.filters.priceRange.max < Infinity) params.maxPrice = request.filters.priceRange.max;
+      }
+      // Add other filter parameters
       Object.keys(request.filters).forEach(key => {
-        params[key] = request.filters![key as keyof CategoryFilter];
+        if (key !== 'priceRange') {
+          params[key] = request.filters![key as keyof CategoryFilter];
+        }
       });
     }
 
@@ -283,7 +313,9 @@ export class CategoryService extends AbstractCategoryService {
   getCategoryInfo(categorySlug: string): Observable<any> {
     return environment.enableMockData || environment.forceOfflineMode
       ? this.getMockCategoryInfo(categorySlug)
-      : this.http.get<any>(`${this.apiUrl}/categories/${categorySlug}`);
+      : this.http.get<{success: boolean; data: any}>(`${this.apiUrl}/categories/by-slug/${categorySlug}`).pipe(
+          map(response => response.data)
+        );
   }
 
   /**

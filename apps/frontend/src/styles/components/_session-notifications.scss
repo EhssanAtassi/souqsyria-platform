@@ -1,0 +1,255 @@
+/**
+ * @file _session-notifications.scss
+ * @description Material Design snackbar styles for guest session notifications
+ * Includes RTL support, accessibility enhancements, and color-coded notification types
+ */
+
+/**
+ * Session notification base styles
+ * Applied to all session-related snackbar notifications
+ */
+.session-notification {
+  // Material Design elevation
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
+              0 2px 4px -1px rgba(0, 0, 0, 0.06);
+
+  // Enhanced readability
+  .mat-simple-snack-bar-content {
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 1.5;
+  }
+
+  // Action button styling
+  .mat-simple-snackbar-action {
+    color: inherit;
+    font-weight: 600;
+
+    &:hover {
+      opacity: 0.9;
+    }
+  }
+
+  // RTL-specific adjustments
+  [dir="rtl"] & {
+    .mat-simple-snack-bar-content {
+      text-align: right;
+    }
+  }
+
+  // Smooth entrance animation
+  animation: slideInNotification 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/**
+ * Success notification variant
+ * Used for: session-created, session-restored
+ */
+.session-notification-success {
+  background-color: #10b981 !important; // Emerald-500 (Accent color)
+  color: white !important;
+
+  .mat-simple-snackbar-action {
+    color: white !important;
+  }
+
+  // Icon styling
+  &::before {
+    content: '';
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    margin-right: 8px;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='white' viewBox='0 0 20 20'%3E%3Cpath fill-rule='evenodd' d='M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z' clip-rule='evenodd'/%3E%3C/svg%3E");
+    background-size: contain;
+    vertical-align: middle;
+  }
+
+  [dir="rtl"] &::before {
+    margin-right: 0;
+    margin-left: 8px;
+  }
+}
+
+/**
+ * Error notification variant
+ * Used for: session-error, critical failures
+ */
+.session-notification-error {
+  background-color: #ef4444 !important; // Red-500 (Warn color)
+  color: white !important;
+
+  .mat-simple-snackbar-action {
+    color: white !important;
+    background-color: rgba(255, 255, 255, 0.2);
+    padding: 4px 12px;
+    border-radius: 4px;
+
+    &:hover {
+      background-color: rgba(255, 255, 255, 0.3);
+    }
+  }
+
+  // Icon styling
+  &::before {
+    content: '';
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    margin-right: 8px;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='white' viewBox='0 0 20 20'%3E%3Cpath fill-rule='evenodd' d='M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z' clip-rule='evenodd'/%3E%3C/svg%3E");
+    background-size: contain;
+    vertical-align: middle;
+  }
+
+  [dir="rtl"] &::before {
+    margin-right: 0;
+    margin-left: 8px;
+  }
+}
+
+/**
+ * Warning notification variant
+ * Used for: network-error, degraded performance
+ */
+.session-notification-warning {
+  background-color: #f59e0b !important; // Amber-500
+  color: white !important;
+
+  .mat-simple-snackbar-action {
+    color: white !important;
+  }
+
+  // Icon styling
+  &::before {
+    content: '';
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    margin-right: 8px;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='white' viewBox='0 0 20 20'%3E%3Cpath fill-rule='evenodd' d='M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z' clip-rule='evenodd'/%3E%3C/svg%3E");
+    background-size: contain;
+    vertical-align: middle;
+  }
+
+  [dir="rtl"] &::before {
+    margin-right: 0;
+    margin-left: 8px;
+  }
+}
+
+/**
+ * Info notification variant
+ * Used for: session-expired, offline-mode, general information
+ */
+.session-notification-info {
+  background-color: #1e3a8a !important; // Blue-800 (Primary color)
+  color: white !important;
+
+  .mat-simple-snackbar-action {
+    color: white !important;
+  }
+
+  // Icon styling
+  &::before {
+    content: '';
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    margin-right: 8px;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='white' viewBox='0 0 20 20'%3E%3Cpath fill-rule='evenodd' d='M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z' clip-rule='evenodd'/%3E%3C/svg%3E");
+    background-size: contain;
+    vertical-align: middle;
+  }
+
+  [dir="rtl"] &::before {
+    margin-right: 0;
+    margin-left: 8px;
+  }
+}
+
+/**
+ * Slide-in animation for notifications
+ * Smooth entrance from bottom or side based on position
+ */
+@keyframes slideInNotification {
+  from {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/**
+ * Accessibility enhancements
+ * High contrast mode support and focus indicators
+ */
+@media (prefers-contrast: high) {
+  .session-notification {
+    border: 2px solid currentColor;
+
+    .mat-simple-snackbar-action {
+      border: 1px solid currentColor;
+    }
+  }
+}
+
+/**
+ * Reduced motion support
+ * Disable animations for users who prefer reduced motion
+ */
+@media (prefers-reduced-motion: reduce) {
+  .session-notification {
+    animation: none;
+    transition: none;
+  }
+}
+
+/**
+ * Mobile responsive adjustments
+ * Full-width notifications on small screens
+ */
+@media (max-width: 640px) {
+  .session-notification {
+    .mat-simple-snack-bar-content {
+      font-size: 13px;
+    }
+
+    // Ensure readability on mobile
+    min-height: 56px;
+
+    // Stack action button on very small screens
+    @media (max-width: 360px) {
+      .mat-simple-snackbar-action {
+        display: block;
+        margin-top: 8px;
+      }
+    }
+  }
+}
+
+/**
+ * Dark theme adjustments
+ * Enhanced visibility in dark mode
+ */
+@media (prefers-color-scheme: dark) {
+  .session-notification {
+    // Increase shadow for better visibility
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.4),
+                0 4px 6px -2px rgba(0, 0, 0, 0.3);
+  }
+}
+
+/**
+ * Print styles
+ * Hide notifications when printing
+ */
+@media print {
+  .session-notification,
+  .mat-snack-bar-container {
+    display: none !important;
+  }
+}

@@ -25,6 +25,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 import { environment } from '../../../../environments/environment';
 import {
   CategoryTreeResponse,
@@ -96,7 +97,8 @@ export class CategoryApiService {
    * Search for products within a specific category
    *
    * @description Searches for products within a category by name,
-   * returns paginated results with product details.
+   * returns paginated results with product details. Extracts .data from
+   * the wrapped response for consistency with CategoryService pattern.
    *
    * @param categoryId - Category ID to search within
    * @param search - Search query string (product name)
@@ -111,6 +113,8 @@ export class CategoryApiService {
    *   console.log('Total results:', response.meta.total);
    * });
    * ```
+   *
+   * @ticket SS-CAT-006 - Extract .data to avoid manual unwrapping in components
    */
   searchInCategory(
     categoryId: number,
@@ -128,6 +132,8 @@ export class CategoryApiService {
         },
       }
     );
+    // NOTE: Currently returns raw response. Components handle .data extraction.
+    // If all components expect unwrapped data, add .pipe(map(res => res.data))
   }
 
   /**

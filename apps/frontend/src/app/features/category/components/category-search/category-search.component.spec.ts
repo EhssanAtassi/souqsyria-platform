@@ -18,10 +18,11 @@
  */
 
 import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
+import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { CategorySearchComponent } from './category-search.component';
 import { CategoryApiService } from '../../services/category-api.service';
 import { SearchInCategoryResponse } from '../../models/category-tree.interface';
-import { of, throwError } from 'rxjs';
+import { of, throwError, Subject } from 'rxjs';
 
 // =============================================================================
 // TEST DATA
@@ -84,7 +85,7 @@ describe('CategorySearchComponent', () => {
     const apiServiceSpy = jasmine.createSpyObj('CategoryApiService', ['searchInCategory']);
 
     await TestBed.configureTestingModule({
-      imports: [CategorySearchComponent],
+      imports: [CategorySearchComponent, NoopAnimationsModule],
       providers: [
         { provide: CategoryApiService, useValue: apiServiceSpy },
       ],
@@ -256,34 +257,37 @@ describe('CategorySearchComponent', () => {
     /**
      * Should show placeholder with category name
      * Validates: Placeholder includes category name
+     * Note: Uses fresh component so getter evaluates with inputs set
      */
     it('should show placeholder with category name', () => {
-      component.categoryName = 'Electronics';
-      component.categoryNameAr = 'إلكترونيات';
+      const freshFixture = TestBed.createComponent(CategorySearchComponent);
+      const freshComponent = freshFixture.componentInstance;
+      freshComponent.categoryId = 1;
+      freshComponent.categoryName = 'Electronics';
+      freshComponent.categoryNameAr = 'إلكترونيات';
+      freshFixture.detectChanges();
 
-      // Force computed signal re-evaluation
-      fixture.detectChanges();
-      const placeholder = component.placeholder();
-
-      expect(placeholder).toContain('Electronics');
+      expect(freshComponent.placeholder).toContain('Electronics');
+      freshFixture.destroy();
     });
 
     /**
      * Should show Arabic placeholder in RTL mode
      * Validates: RTL mode uses Arabic name
+     * Note: Sets isRtl input to true for RTL mode
      */
     it('should show Arabic placeholder in RTL mode', () => {
-      document.documentElement.dir = 'rtl';
-      component.categoryName = 'Electronics';
-      component.categoryNameAr = 'إلكترونيات';
+      const freshFixture = TestBed.createComponent(CategorySearchComponent);
+      const freshComponent = freshFixture.componentInstance;
+      freshComponent.categoryId = 1;
+      freshComponent.categoryName = 'Electronics';
+      freshComponent.categoryNameAr = 'إلكترونيات';
+      freshComponent.isRtl = true;
+      freshFixture.detectChanges();
 
-      fixture.detectChanges();
-      const placeholder = component.placeholder();
+      expect(freshComponent.placeholder).toContain('إلكترونيات');
 
-      expect(placeholder).toContain('إلكترونيات');
-
-      // Reset
-      document.documentElement.dir = 'ltr';
+      freshFixture.destroy();
     });
 
     /**
@@ -295,7 +299,7 @@ describe('CategorySearchComponent', () => {
       component.categoryNameAr = '';
 
       fixture.detectChanges();
-      const placeholder = component.placeholder();
+      const placeholder = component.placeholder;
 
       expect(placeholder).toBe('Search for products');
     });
@@ -314,13 +318,17 @@ describe('CategorySearchComponent', () => {
      * Validates: Loading indicator shown during API call
      */
     it('should set isSearching to true during search', fakeAsync(() => {
-      categoryApiService.searchInCategory.and.returnValue(of(MOCK_SEARCH_RESPONSE));
+      const response$ = new Subject<SearchInCategoryResponse>();
+      categoryApiService.searchInCategory.and.returnValue(response$.asObservable());
 
       component.onSearchInput('damascus');
+      tick(300); // Debounce fires, switchMap enters, isSearching=true
 
       expect(component.isSearching()).toBe(true);
-      tick(300);
-      tick(0); // For async completion
+
+      response$.next(MOCK_SEARCH_RESPONSE);
+      response$.complete();
+      tick(0);
     }));
 
     /**
@@ -450,7 +458,7 @@ describe('CategorySearchComponent', () => {
 
       const event = new KeyboardEvent('keydown', { key: 'Enter' });
       component.onEnterPress(event);
-      tick(0); // Async execution
+      tick(300); // Debounce delay
 
       expect(categoryApiService.searchInCategory).toHaveBeenCalled();
     }));
@@ -587,16 +595,13 @@ describe('CategorySearchComponent', () => {
   describe('RTL Layout', () => {
     /**
      * Should detect RTL mode
-     * Validates: isRtl computed signal
+     * Validates: isRtl input property
      */
     it('should detect RTL mode', () => {
-      document.documentElement.dir = 'rtl';
+      component.isRtl = true;
       fixture.detectChanges();
 
-      expect(component.isRtl()).toBe(true);
-
-      // Reset
-      document.documentElement.dir = 'ltr';
+      expect(component.isRtl).toBe(true);
     });
 
     /**
@@ -604,10 +609,10 @@ describe('CategorySearchComponent', () => {
      * Validates: isRtl returns false for LTR
      */
     it('should detect LTR mode', () => {
-      document.documentElement.dir = 'ltr';
+      component.isRtl = false;
       fixture.detectChanges();
 
-      expect(component.isRtl()).toBe(false);
+      expect(component.isRtl).toBe(false);
     });
   });
 });
