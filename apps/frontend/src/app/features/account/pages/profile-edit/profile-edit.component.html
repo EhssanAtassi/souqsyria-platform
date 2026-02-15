@@ -21,9 +21,14 @@
             <label class="section-label">{{ 'account.editProfile.avatar' | translate }}</label>
 
             <div class="avatar-container">
-              <div class="avatar-preview" (click)="triggerFileInput()">
+              <div
+                class="avatar-preview"
+                (click)="triggerFileInput()"
+                (dragover)="onDragOver($event)"
+                (drop)="onDrop($event)"
+              >
                 @if (avatarPreview()) {
-                  <img [src]="avatarPreview()" alt="Avatar preview" class="avatar-img" />
+                  <img [src]="avatarPreview()" alt="Avatar preview" class="avatar-img" loading="lazy" />
                 } @else {
                   <div class="avatar-placeholder">
                     <span class="avatar-initials">
@@ -39,7 +44,7 @@
               <input
                 type="file"
                 id="avatar-input"
-                accept="image/*"
+                accept="image/png, image/jpeg, image/jpg"
                 (change)="onAvatarChange($event)"
                 style="display: none"
               />
@@ -68,6 +73,10 @@
                   </button>
                 }
               </div>
+
+              <p class="avatar-hint">
+                {{ 'account.editProfile.dragDropHint' | translate }}
+              </p>
             </div>
           </div>
 
@@ -89,13 +98,15 @@
           <!-- Phone Field -->
           <mat-form-field appearance="outline" class="form-field">
             <mat-label>{{ 'account.editProfile.phone' | translate }}</mat-label>
+            <span matTextPrefix>+963&nbsp;</span>
             <input
               matInput
               formControlName="phone"
               [placeholder]="'account.editProfile.phonePlaceholder' | translate"
               type="tel"
+              maxlength="9"
             />
-            <mat-hint>{{ 'account.editProfile.phonePlaceholder' | translate }}</mat-hint>
+            <mat-hint>{{ 'account.editProfile.phoneHint' | translate }}</mat-hint>
             @if (profileForm.get('phone')?.invalid && profileForm.get('phone')?.touched) {
               <mat-error>
                 {{ getErrorMessage('phone') | translate }}

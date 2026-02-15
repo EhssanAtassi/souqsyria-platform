@@ -108,6 +108,11 @@
   border-radius: 50%;
   object-fit: cover;
   border: 4px solid #f5f5f5;
+
+  @media (max-width: 640px) {
+    width: 80px;
+    height: 80px;
+  }
 }
 
 .avatar-placeholder {
@@ -122,6 +127,10 @@
   font-weight: 600;
   color: white;
   user-select: none;
+
+  @media (max-width: 640px) {
+    font-size: 1.75rem;
+  }
 }
 
 /* User Info */
@@ -163,11 +172,15 @@
 /* Stats Row */
 .stats-row {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: repeat(4, 1fr);
   gap: 1.5rem;
   padding: 1.5rem 0;
   border-bottom: 1px solid rgba(0, 0, 0, 0.12);
   margin-bottom: 1.5rem;
+
+  @media (max-width: 1024px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
 
   @media (max-width: 640px) {
     grid-template-columns: 1fr;

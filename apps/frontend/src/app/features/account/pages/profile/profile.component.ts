@@ -9,9 +9,11 @@ import {
   ChangeDetectionStrategy,
   signal,
   inject,
+  DestroyRef,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -46,6 +48,9 @@ export class ProfileComponent implements OnInit {
   /** Router for navigation */
   private router = inject(Router);
 
+  /** Destroy reference for automatic subscription cleanup */
+  private destroyRef = inject(DestroyRef);
+
   /** User profile data signal */
   profile = signal<UserProfile | null>(null);
 
@@ -71,13 +76,14 @@ export class ProfileComponent implements OnInit {
     this.loading.set(true);
     this.error.set(null);
 
-    this.accountApi.getProfile().subscribe({
+    this.accountApi.getProfile().pipe(
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe({
       next: (profile) => {
         this.profile.set(profile);
         this.loading.set(false);
       },
-      error: (err) => {
-        console.error('Failed to load profile:', err);
+      error: () => {
         this.error.set('Failed to load profile');
         this.loading.set(false);
       },

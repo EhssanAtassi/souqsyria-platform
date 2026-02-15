@@ -34,6 +34,8 @@ function createMockProfile(): UserProfile {
     role: { id: 1, name: 'customer' },
     ordersCount: 5,
     wishlistCount: 10,
+    totalSpent: 125000,
+    lastOrderDate: '2024-05-15T10:00:00.000Z',
     createdAt: '2024-01-01T00:00:00.000Z',
     updatedAt: '2024-06-01T00:00:00.000Z',
   };

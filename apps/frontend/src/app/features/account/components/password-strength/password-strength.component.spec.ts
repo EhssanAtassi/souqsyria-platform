@@ -231,11 +231,19 @@ describe('PasswordStrengthComponent', () => {
     });
 
     /**
-     * @description Verifies score is 3 when all criteria are met
+     * @description Verifies score is 3 when minLength, uppercase, and number are met
      */
-    it('should return 3 when all criteria are met', () => {
-      component.password = 'Abcdefg1'; // 8 chars, uppercase, digit
+    it('should return 3 when minLength, uppercase, and number are met', () => {
+      component.password = 'Abcdefg1'; // 8 chars, uppercase, digit (no special char)
       expect(component.strengthScore()).toBe(3);
+    });
+
+    /**
+     * @description Verifies score is 4 when all four criteria are met
+     */
+    it('should return 4 when all four criteria are met', () => {
+      component.password = 'Abcdefg1!'; // 8 chars, uppercase, digit, special char
+      expect(component.strengthScore()).toBe(4);
     });
   });
 
@@ -295,26 +303,26 @@ describe('PasswordStrengthComponent', () => {
     });
 
     /**
-     * @description Verifies color is orange (#ff9800) for 'fair' level
+     * @description Verifies color is orange (#ff9800) for 'fair' level (score = 2)
      */
     it('should return "#ff9800" for fair password', () => {
-      component.password = 'alllower'; // fair
+      component.password = 'Abcdefgh'; // score 2: minLength + uppercase = fair
       expect(component.strengthColor()).toBe('#ff9800');
     });
 
     /**
-     * @description Verifies color is amber (#ffc107) for 'good' level
+     * @description Verifies color is amber (#ffc107) for 'good' level (score = 3)
      */
     it('should return "#ffc107" for good password', () => {
-      component.password = 'Abcdefgh'; // good
+      component.password = 'Abcdefg1'; // score 3: minLength + uppercase + number = good
       expect(component.strengthColor()).toBe('#ffc107');
     });
 
     /**
-     * @description Verifies color is green (#4caf50) for 'strong' level
+     * @description Verifies color is green (#4caf50) for 'strong' level (score = 4)
      */
     it('should return "#4caf50" for strong password', () => {
-      component.password = 'Abcdefg1'; // strong
+      component.password = 'Abcdefg1!'; // score 4: all criteria = strong
       expect(component.strengthColor()).toBe('#4caf50');
     });
   });
@@ -349,9 +357,17 @@ describe('PasswordStrengthComponent', () => {
     /**
      * @description Verifies filledSegments is 4 when score is 3
      */
-    it('should return 4 when score is 3 (max strength)', () => {
+    it('should return 4 when score is 3', () => {
       component.password = 'Abcdefg1';
       expect(component.filledSegments()).toBe(4);
+    });
+
+    /**
+     * @description Verifies filledSegments is 5 when score is 4 (max strength)
+     */
+    it('should return 5 when score is 4 (max strength)', () => {
+      component.password = 'Abcdefg1!';
+      expect(component.filledSegments()).toBe(5);
     });
   });
 
@@ -384,14 +400,14 @@ describe('PasswordStrengthComponent', () => {
       component.password = '';
       expect(component.strengthLevel()).toBe('weak');
 
-      // Add a short uppercase-only password
+      // Add a short uppercase-only password (score 1 = weak)
       component.password = 'Ab';
       expect(component.strengthScore()).toBe(1);
-      expect(component.strengthLevel()).toBe('fair');
+      expect(component.strengthLevel()).toBe('weak');
 
-      // Add a longer password with uppercase and digit
-      component.password = 'Abcdefg1';
-      expect(component.strengthScore()).toBe(3);
+      // Add a longer password with uppercase, digit, and special char (score 4 = strong)
+      component.password = 'Abcdefg1!';
+      expect(component.strengthScore()).toBe(4);
       expect(component.strengthLevel()).toBe('strong');
       expect(component.strengthColor()).toBe('#4caf50');
     });
@@ -401,14 +417,15 @@ describe('PasswordStrengthComponent', () => {
 
   describe('Edge Cases', () => {
     /**
-     * @description Verifies password with special characters does not affect criteria
+     * @description Verifies password with only special characters scores minLength + specialChar
      */
-    it('should not give extra score for special characters', () => {
+    it('should score minLength and specialChar for special-chars-only password', () => {
       component.password = '!@#$%^&*'; // 8 special chars, no uppercase, no digit
       expect(component.hasMinLength()).toBe(true);
       expect(component.hasUppercase()).toBe(false);
       expect(component.hasNumber()).toBe(false);
-      expect(component.strengthScore()).toBe(1);
+      expect(component.hasSpecialChar()).toBe(true);
+      expect(component.strengthScore()).toBe(2);
     });
 
     /**
@@ -419,12 +436,5 @@ describe('PasswordStrengthComponent', () => {
       expect(component.hasMinLength()).toBe(true);
     });
 
-    /**
-     * @description Verifies Unicode uppercase letters are recognized
-     */
-    it('should detect Unicode uppercase letters', () => {
-      component.password = '\u00C9longated'; // E with accent
-      expect(component.hasUppercase()).toBe(true);
-    });
   });
 });

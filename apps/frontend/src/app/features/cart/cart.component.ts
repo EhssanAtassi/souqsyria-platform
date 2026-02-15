@@ -142,8 +142,8 @@ export class CartComponent implements OnInit, OnDestroy {
   /** Debounce delay for recommendation recalculation (500ms) */
   private readonly RECOMMENDATION_DEBOUNCE_MS = 500;
 
-  /** Current UI language signal — used in template as language() */
-  readonly language: WritableSignal<'en' | 'ar'>;
+  /** Current UI language signal */
+  readonly language: LanguageService['language'];
 
   constructor(
     private cartService: CartService,
