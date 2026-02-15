@@ -34,7 +34,7 @@ export interface ProductDetailResponse {
   pricing: {
     basePrice: number;
     discountPrice: number | null;
-    currency: string;
+    currency: 'SYP' | 'USD' | 'TRY';
   } | null;
   images: Array<{
     id: number;
@@ -74,7 +74,7 @@ export interface ProductDetailResponse {
     mainImage: string | null;
     basePrice: number;
     discountPrice: number | null;
-    currency: string;
+    currency: 'SYP' | 'USD' | 'TRY';
     stockStatus: 'in_stock' | 'low_stock' | 'out_of_stock';
   }>;
 }
