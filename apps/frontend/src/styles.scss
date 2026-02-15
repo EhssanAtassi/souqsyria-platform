@@ -33,6 +33,9 @@
 /* Import Global Z-Index System */
 @import './styles/z-index';
 
+/* Import Component-Specific Styles */
+@import './styles/components/session-notifications';
+
 /* Bulletproof Product Grid Layout Utilities */
 .product-grid-bulletproof {
   display: grid;

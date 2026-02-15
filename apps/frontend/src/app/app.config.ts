@@ -1,4 +1,4 @@
-import { ApplicationConfig, provideZoneChangeDetection, isDevMode } from '@angular/core';
+import { ApplicationConfig, provideZoneChangeDetection, isDevMode, APP_INITIALIZER } from '@angular/core';
 import { provideRouter } from '@angular/router';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { importProvidersFrom } from '@angular/core';
@@ -15,6 +15,7 @@ import { authInterceptor } from './features/auth/interceptors/auth.interceptor';
 import { offlineInterceptor } from './core/interceptors/offline.interceptor';
 import { authReducer, authFeatureKey } from './features/auth/store/auth.reducer';
 import * as authEffects from './features/auth/store/auth.effects';
+import { initializeGuestSession } from './core/initializers/guest-session.initializer';
 
 /**
  * Main application configuration for Syrian marketplace
@@ -32,6 +33,9 @@ import * as authEffects from './features/auth/store/auth.effects';
  * State Management:
  * - NgRx: Authentication state (login, register, tokens)
  * - Akita (legacy): Products, Cart, UI, Wishlist stores
+ *
+ * Initialization:
+ * - Guest Session: Automatically initialized on app bootstrap for anonymous users
  *
  * @swagger
  * components:
@@ -51,6 +55,13 @@ export const appConfig: ApplicationConfig = {
         offlineInterceptor   // Second: Handle offline scenarios
       ])
     ),
+
+    // Guest Session Initialization - runs on app bootstrap
+    {
+      provide: APP_INITIALIZER,
+      useFactory: initializeGuestSession,
+      multi: true
+    },
 
     // NgRx Store - centralized state management for auth
     provideStore({ [authFeatureKey]: authReducer }),

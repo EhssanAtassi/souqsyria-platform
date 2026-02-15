@@ -10,6 +10,7 @@ import { Logger, ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 
 import helmet from 'helmet';
+import cookieParser from 'cookie-parser';
 import { AuditInterceptor } from './common/interceptors/audit.interceptor';
 import { ResponseInterceptor } from './common/interceptors/response.interceptor';
 import { GlobalExceptionFilter } from './common/filters/global-exception.filter';
@@ -20,6 +21,10 @@ async function bootstrap() {
   initializeFirebase();
   const app = await NestFactory.create(AppModule);
   const configService = app.get(ConfigService);
+
+  // Cookie parser middleware for guest session management (SS-AUTH-009)
+  // Must be applied BEFORE other middleware that depend on cookies
+  app.use(cookieParser());
 
   // Security headers via Helmet (X-Content-Type-Options, HSTS, X-Frame-Options, etc.)
   app.use(helmet());

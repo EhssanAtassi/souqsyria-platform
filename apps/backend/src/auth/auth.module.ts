@@ -18,6 +18,12 @@ import { TokenBlacklist } from './entity/token-blacklist.entity';
 import { RefreshToken } from './entity/refresh-token.entity';
 import { SecurityAudit } from './entity/security-audit.entity';
 
+// Guest Session (SS-AUTH-009)
+import { GuestSession } from '../cart/entities/guest-session.entity';
+import { GuestSessionService } from './service/guest-session.service';
+import { GuestSessionGuard } from './guards/guest-session.guard';
+import { GuestSessionController } from './controller/guest-session.controller';
+
 // Common services
 import { EncryptionService } from '../common/utils/encryption.util';
 import { RateLimiterService } from '../common/services/rate-limiter.service';
@@ -33,6 +39,7 @@ import { RateLimiterService } from '../common/services/rate-limiter.service';
       TokenBlacklist,
       RefreshToken,
       SecurityAudit,
+      GuestSession,
     ]),
     PassportModule,
     JwtModule.registerAsync({
@@ -49,7 +56,7 @@ import { RateLimiterService } from '../common/services/rate-limiter.service';
     }),
     ConfigModule,
   ],
-  controllers: [AuthController],
+  controllers: [AuthController, GuestSessionController],
   providers: [
     AuthService,
     JwtStrategy,
@@ -59,7 +66,9 @@ import { RateLimiterService } from '../common/services/rate-limiter.service';
     EmailService,
     EncryptionService,
     RateLimiterService,
+    GuestSessionService,
+    GuestSessionGuard,
   ],
-  exports: [AuthService, JwtAuthGuard, TypeOrmModule],
+  exports: [AuthService, JwtAuthGuard, GuestSessionService, GuestSessionGuard, TypeOrmModule],
 })
 export class AuthModule {}
