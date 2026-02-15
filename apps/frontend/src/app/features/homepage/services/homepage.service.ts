@@ -21,7 +21,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, of, throwError } from 'rxjs';
-import { map, delay } from 'rxjs/operators';
+import { map, delay, catchError, tap } from 'rxjs/operators';
 import { AbstractHomepageService } from './abstract-homepage.service';
 import { Product } from '../../../shared/interfaces/product.interface';
 import { Campaign } from '../../../shared/interfaces/campaign.interface';
@@ -83,7 +83,12 @@ export class HomepageService extends AbstractHomepageService {
   getFeaturedProducts(): Observable<Product[]> {
     return environment.enableMockData || environment.forceOfflineMode
       ? this.getMockFeaturedProducts()
-      : this.http.get<Product[]>(`${this.apiUrl}/products/featured`);
+      : this.http.get<Product[]>(`${this.apiUrl}/products/featured`).pipe(
+          catchError(() => {
+            console.warn('⚠️ Backend unavailable, using mock featured products');
+            return this.getMockFeaturedProducts();
+          })
+        );
   }
 
   /**
@@ -114,7 +119,12 @@ export class HomepageService extends AbstractHomepageService {
       ? this.getMockNewArrivals(limit)
       : this.http.get<Product[]>(`${this.apiUrl}/products/new-arrivals`, {
           params: { limit: limit.toString() }
-        });
+        }).pipe(
+          catchError(() => {
+            console.warn('⚠️ Backend unavailable, using mock new arrivals');
+            return this.getMockNewArrivals(limit);
+          })
+        );
   }
 
   /**
@@ -143,7 +153,12 @@ export class HomepageService extends AbstractHomepageService {
       ? this.getMockTopRatedProducts(limit)
       : this.http.get<Product[]>(`${this.apiUrl}/products/top-rated`, {
           params: { limit: limit.toString() }
-        });
+        }).pipe(
+          catchError(() => {
+            console.warn('⚠️ Backend unavailable, using mock top rated products');
+            return this.getMockTopRatedProducts(limit);
+          })
+        );
   }
 
   /**
@@ -172,7 +187,12 @@ export class HomepageService extends AbstractHomepageService {
   getAllProducts(): Observable<Product[]> {
     return environment.enableMockData || environment.forceOfflineMode
       ? this.getMockAllProducts()
-      : this.http.get<Product[]>(`${this.apiUrl}/products`);
+      : this.http.get<Product[]>(`${this.apiUrl}/products`).pipe(
+          catchError(() => {
+            console.warn('⚠️ Backend unavailable, using mock products');
+            return this.getMockAllProducts();
+          })
+        );
   }
 
   /**
@@ -195,7 +215,12 @@ export class HomepageService extends AbstractHomepageService {
   getActiveCampaigns(): Observable<Campaign[]> {
     return environment.enableMockData || environment.forceOfflineMode
       ? this.getMockActiveCampaigns()
-      : this.http.get<Campaign[]>(`${this.apiUrl}/campaigns/active`);
+      : this.http.get<Campaign[]>(`${this.apiUrl}/campaigns/active`).pipe(
+          catchError(() => {
+            console.warn('⚠️ Backend unavailable, using mock campaigns');
+            return this.getMockActiveCampaigns();
+          })
+        );
   }
 
   /**
@@ -373,7 +398,7 @@ export class HomepageService extends AbstractHomepageService {
         images: [
           {
             id: 'damascus-knife-1',
-            url: '/assets/images/products/exp1.png',
+            url: 'https://images.unsplash.com/photo-1589698423558-7537249a5144?w=600&h=400&fit=crop&q=80',
             alt: 'Damascus Steel Knife',
             isPrimary: true,
             order: 1
@@ -467,7 +492,7 @@ export class HomepageService extends AbstractHomepageService {
         images: [
           {
             id: 'aleppo-soap-1',
-            url: '/assets/images/products/1.png',
+            url: 'https://images.unsplash.com/photo-1608571423902-eed4a5ad8108?w=600&h=400&fit=crop&q=80',
             alt: 'Aleppo Soap',
             isPrimary: true,
             order: 1
@@ -560,7 +585,7 @@ export class HomepageService extends AbstractHomepageService {
         type: 'product_spotlight',
         status: 'active',
         heroImage: {
-          url: '/assets/images/products/exp1.png',
+          url: 'https://images.unsplash.com/photo-1589698423558-7537249a5144?w=600&h=400&fit=crop&q=80',
           alt: {
             english: 'Damascus Steel Heritage',
             arabic: 'تراث الفولاذ الدمشقي'
