@@ -3,6 +3,18 @@
  * Maps to GET /products/:slug backend response
  */
 
+/**
+ * @description Supported currency codes matching the backend ProductPriceEntity enum.
+ * SYP = Syrian Pound, USD = US Dollar, TRY = Turkish Lira.
+ */
+export type CurrencyCode = 'SYP' | 'USD' | 'TRY';
+
+/**
+ * @description Supported variant option display types.
+ * 'color' renders as color swatches, 'size' as size chips, 'select' as generic selectable chips.
+ */
+export type VariantOptionType = 'color' | 'select' | 'size';
+
 /** @description Complete product detail response from API */
 export interface ProductDetailResponse {
   id: number;
@@ -13,7 +25,7 @@ export interface ProductDetailResponse {
   category: { id: number; nameEn: string; nameAr: string; slug: string } | null;
   manufacturer: { id: number; name: string } | null;
   vendor: { id: number; storeName: string } | null;
-  pricing: { basePrice: number; discountPrice: number | null; currency: string } | null;
+  pricing: { basePrice: number; discountPrice: number | null; currency: CurrencyCode } | null;
   images: ProductDetailImage[];
   descriptions: ProductDetailDescription[];
   variants: ProductDetailVariant[];
@@ -38,11 +50,15 @@ export interface ProductDetailDescription {
   fullDescription: string;
 }
 
-/** @description Product variant in detail response */
+/**
+ * @description Product variant in detail response
+ * Contains variant-specific data including SKU, pricing, stock status, and variant attributes
+ */
 export interface ProductDetailVariant {
   id: number;
   sku: string | null;
   price: number;
+  /** @description Variant attribute key-value pairs (e.g., {"Size": "L", "Color": "Red"}) */
   variantData: Record<string, string>;
   imageUrl: string | null;
   stockStatus: 'in_stock' | 'low_stock' | 'out_of_stock';
@@ -69,7 +85,8 @@ export interface ProductDetailRelated {
   mainImage: string | null;
   basePrice: number;
   discountPrice: number | null;
-  currency: string;
+  /** @description Currency code matching backend ProductPriceEntity enum */
+  currency: CurrencyCode;
   stockStatus: 'in_stock' | 'low_stock' | 'out_of_stock';
 }
 
@@ -77,7 +94,8 @@ export interface ProductDetailRelated {
 export interface VariantOptionGroup {
   optionName: string;
   optionNameAr: string | null;
-  type: string;
+  /** @description Display type: 'color' for swatches, 'size' for size chips, 'select' for generic chips */
+  type: VariantOptionType;
   values: VariantOptionValue[];
 }
 
@@ -99,6 +117,6 @@ export interface SearchSuggestionItem {
   imageUrl?: string | null;
   /** Product price (discount or base, product suggestions only) */
   price?: number | null;
-  /** Currency code (default: SYP) */
-  currency?: string;
+  /** @description Currency code (default: SYP), matching backend ProductPriceEntity enum */
+  currency?: CurrencyCode;
 }

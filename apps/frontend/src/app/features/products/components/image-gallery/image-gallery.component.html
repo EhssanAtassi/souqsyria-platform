@@ -27,6 +27,7 @@
             class="image-gallery__main-image"
             [class.image-gallery__main-image--loaded]="isImageLoaded(currentIndex())"
             (load)="onImageLoad(currentIndex())"
+            (error)="onImageError($event, currentIndex())"
             loading="lazy"
           />
         }
@@ -54,6 +55,7 @@
               <img
                 [src]="image.imageUrl"
                 [alt]="image.altText || productName()"
+                (error)="onImageError($event, i)"
                 loading="lazy"
               />
             </button>
@@ -81,6 +83,7 @@
               class="image-gallery__slide-image"
               [class.image-gallery__slide-image--loaded]="isImageLoaded(i)"
               (load)="onImageLoad(i)"
+              (error)="onImageError($event, i)"
               loading="lazy"
             />
           </swiper-slide>
@@ -105,12 +108,13 @@
           class="image-gallery__fullscreen-swiper"
           (click)="$event.stopPropagation()"
         >
-          @for (image of images(); track image.id) {
+          @for (image of images(); track image.id; let i = $index) {
             <swiper-slide>
               <div class="swiper-zoom-container">
                 <img
                   [src]="image.imageUrl"
                   [alt]="image.altText || productName()"
+                  (error)="onImageError($event, i)"
                 />
               </div>
             </swiper-slide>

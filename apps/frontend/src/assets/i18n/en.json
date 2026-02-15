@@ -255,6 +255,9 @@
   "products_stock_in_stock": "In Stock",
   "products_stock_low_stock": "Low Stock",
   "products_stock_out_of_stock": "Out of Stock",
+  "productDetail": {
+    "notifyMeWhenAvailable": "Notify Me When Available"
+  },
   "view_cart": "View Cart",
   "checkout": "Check Out",
   "language": "Language",

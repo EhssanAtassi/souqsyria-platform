@@ -26,10 +26,18 @@ import {
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
-import { register } from 'swiper/element/bundle';
+import { register } from 'swiper/element';
+import { SwiperOptions } from 'swiper/types';
+import { Navigation } from 'swiper/modules';
+import { Pagination } from 'swiper/modules';
+import { Zoom } from 'swiper/modules';
 import { ProductDetailImage } from '../../models/product-detail.interface';
 
-// Register Swiper custom elements
+/**
+ * @description Register Swiper custom elements with only the modules this gallery needs:
+ * Navigation (prev/next arrows), Pagination (fraction counter), and Zoom (fullscreen pinch-to-zoom).
+ * This avoids importing the full Swiper bundle (~125KB) and only pulls in ~40KB.
+ */
 register();
 
 /**
@@ -85,10 +93,17 @@ export class ImageGalleryComponent implements AfterViewInit {
   /** Track which images have finished loading */
   imagesLoaded = signal<Set<number>>(new Set());
 
+  /** Track which images failed to load */
+  failedImages = signal<Set<number>>(new Set());
+
+  /** Placeholder SVG for failed image loads */
+  private readonly placeholderSvg = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="400" height="300"%3E%3Crect fill="%23edebe0" width="400" height="300"/%3E%3Ctext x="50%25" y="50%25" text-anchor="middle" dy=".3em" fill="%23999" font-family="Arial" font-size="18"%3EImage not available%3C/text%3E%3C/svg%3E';
+
   @ViewChild('swiperContainer') swiperContainer!: ElementRef;
   @ViewChild('fullscreenSwiper') fullscreenSwiper!: ElementRef;
 
   private swiperInstance: any = null;
+  private fullscreenSwiperInstance: any = null;
 
   /** Currently displayed image based on currentIndex */
   currentImage = computed(() => {
@@ -202,30 +217,68 @@ export class ImageGalleryComponent implements AfterViewInit {
       newSet.add(index);
       return newSet;
     });
+    // Remove from failed set if it was previously marked as failed
+    this.failedImages.update(set => {
+      const newSet = new Set(set);
+      newSet.delete(index);
+      return newSet;
+    });
   }
 
   /**
-   * @description Checks if an image has loaded
+   * @description Handles image loading errors by setting placeholder and marking as loaded
+   * @param event - Image error event
+   * @param index - Image index that failed to load
+   */
+  onImageError(event: Event, index: number): void {
+    const img = event.target as HTMLImageElement;
+    img.src = this.placeholderSvg;
+
+    // Mark as both failed and loaded (so skeleton disappears)
+    this.failedImages.update(set => {
+      const newSet = new Set(set);
+      newSet.add(index);
+      return newSet;
+    });
+    this.imagesLoaded.update(set => {
+      const newSet = new Set(set);
+      newSet.add(index);
+      return newSet;
+    });
+  }
+
+  /**
+   * @description Checks if an image has loaded (successfully or with error placeholder)
    * @param index - Image index to check
-   * @returns True if the image has finished loading
+   * @returns True if the image has finished loading or failed
    */
   isImageLoaded(index: number): boolean {
     return this.imagesLoaded().has(index);
   }
 
-  /** @description Initializes the mobile Swiper carousel */
+  /**
+   * @description Checks if an image failed to load
+   * @param index - Image index to check
+   * @returns True if the image failed to load
+   */
+  isImageFailed(index: number): boolean {
+    return this.failedImages().has(index);
+  }
+
+  /** @description Initializes the mobile Swiper carousel with only Navigation + Pagination modules */
   private initSwiper(): void {
     if (!this.swiperContainer?.nativeElement) return;
 
     const el = this.swiperContainer.nativeElement;
     Object.assign(el, {
+      modules: [Navigation, Pagination],
       slidesPerView: 1,
       spaceBetween: 0,
       pagination: { enabled: true, type: 'fraction' },
       navigation: { enabled: this.hasMultipleImages() },
       speed: 400,
       grabCursor: true,
-    });
+    } satisfies SwiperOptions);
 
     el.initialize();
     this.swiperInstance = el.swiper;
@@ -239,20 +292,23 @@ export class ImageGalleryComponent implements AfterViewInit {
     }
   }
 
-  /** @description Initializes the fullscreen Swiper with zoom module */
+  /** @description Initializes the fullscreen Swiper with Zoom + Pagination modules */
   private initFullscreenSwiper(): void {
     setTimeout(() => {
       if (!this.fullscreenSwiper?.nativeElement) return;
       const el = this.fullscreenSwiper.nativeElement;
       Object.assign(el, {
+        modules: [Zoom, Pagination],
         slidesPerView: 1,
         spaceBetween: 0,
-        zoom: { enabled: true, maxRatio: 3 },
+        zoom: { maxRatio: 3 },
         pagination: { enabled: true, type: 'fraction' },
         initialSlide: this.currentIndex(),
         speed: 400,
-      });
+      } satisfies SwiperOptions);
       el.initialize();
+      // Store reference for cleanup
+      this.fullscreenSwiperInstance = el.swiper;
     });
   }
 
@@ -263,11 +319,21 @@ export class ImageGalleryComponent implements AfterViewInit {
     }
   }
 
-  /** @description Cleans up Swiper instance */
+  /**
+   * @description Cleans up all Swiper instances to prevent memory leaks
+   * Destroys both main mobile carousel and fullscreen overlay Swiper
+   */
   private destroySwiper(): void {
+    // Destroy main mobile Swiper
     if (this.swiperInstance) {
       this.swiperInstance.destroy(true, true);
       this.swiperInstance = null;
+    }
+
+    // Destroy fullscreen Swiper if it exists
+    if (this.fullscreenSwiperInstance) {
+      this.fullscreenSwiperInstance.destroy(true, true);
+      this.fullscreenSwiperInstance = null;
     }
   }
 }

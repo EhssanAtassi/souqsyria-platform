@@ -50,7 +50,7 @@ export interface ProductDetailResponse {
     id: number;
     sku: string;
     price: number;
-    variantData: Record<string, any>;
+    variantData: Record<string, string>;
     imageUrl: string | null;
     stockStatus: 'in_stock' | 'low_stock' | 'out_of_stock';
     totalStock: number;

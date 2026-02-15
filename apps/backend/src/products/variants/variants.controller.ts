@@ -22,7 +22,7 @@ import { CreateProductVariantDto } from './dto/create-product-variant.dto';
 import { UpdateProductVariantDto } from './dto/update-product-variant.dto';
 import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 import { PermissionsGuard } from '../../access-control/guards/permissions.guard';
-import { AdjustStockDto } from './dto/adjust-stokc.dto';
+import { AdjustStockDto } from './dto/adjust-stock.dto';
 import { StockService } from '../../stock/stock.service';
 import { GetProductVariantsDto } from './dto/get-variants.dto';
 

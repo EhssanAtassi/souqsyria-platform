@@ -405,5 +405,8 @@
   "products_add_to_wishlist": "أضف إلى المفضلة",
   "products_stock_in_stock": "متوفر",
   "products_stock_low_stock": "مخزون منخفض",
-  "products_stock_out_of_stock": "غير متوفر"
+  "products_stock_out_of_stock": "غير متوفر",
+  "productDetail": {
+    "notifyMeWhenAvailable": "أبلغني عند التوفر"
+  }
 }

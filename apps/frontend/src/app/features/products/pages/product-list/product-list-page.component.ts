@@ -137,16 +137,18 @@ export class ProductListPageComponent implements OnInit {
       if (savedViewMode) {
         this.viewMode.set(savedViewMode);
       }
-    } catch {
+    } catch (error) {
       // localStorage unavailable (Safari private mode, etc.)
+      console.warn('Failed to restore view mode from localStorage:', error);
     }
 
     // Persist view mode changes to localStorage
     effect(() => {
       try {
         localStorage.setItem('productViewMode', this.viewMode());
-      } catch {
+      } catch (error) {
         // localStorage unavailable
+        console.warn('Failed to save view mode to localStorage:', error);
       }
     });
   }
@@ -491,7 +493,7 @@ export class ProductListPageComponent implements OnInit {
       description: '',
       price: {
         amount: product.discountPrice ?? product.basePrice,
-        currency: (product.currency as 'USD' | 'EUR' | 'SYP') || 'SYP',
+        currency: product.currency || 'SYP',
         originalPrice: product.discountPrice ? product.basePrice : undefined,
       },
       category: {

@@ -21,6 +21,7 @@ import {
   ProductDetailVariant,
   ProductDetailAttribute,
   VariantOptionGroup,
+  VariantOptionType,
 } from '../../models/product-detail.interface';
 
 /**
@@ -185,7 +186,7 @@ export class VariantSelectorComponent {
       return {
         optionName: key,
         optionNameAr: matchingAttrs.length > 0 ? matchingAttrs[0].attributeNameAr : null,
-        type: matchingAttrs.some(a => a.colorHex) ? 'color' : 'select',
+        type: (matchingAttrs.some(a => a.colorHex) ? 'color' : 'select') as VariantOptionType,
         values: Array.from(values).map(val => {
           const attrMatch = matchingAttrs.find(a => a.valueEn === val);
           return {

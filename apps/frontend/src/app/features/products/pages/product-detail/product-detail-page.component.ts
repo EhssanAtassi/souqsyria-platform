@@ -29,7 +29,7 @@ import { MatDividerModule } from '@angular/material/divider';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { Router } from '@angular/router';
-import { TranslateService } from '@ngx-translate/core';
+import { TranslateService, TranslateModule } from '@ngx-translate/core';
 import { ProductService } from '../../services/product.service';
 import { LanguageService } from '../../../../shared/services/language.service';
 import { CartApiService } from '../../../../core/api/cart-api.service';
@@ -63,6 +63,7 @@ import { BreadcrumbComponent, BreadcrumbItem } from '../../../../shared/componen
     MatTabsModule,
     MatDividerModule,
     MatSnackBarModule,
+    TranslateModule,
     ProductCardComponent,
     VariantSelectorComponent,
     SpecificationsTableComponent,
@@ -419,7 +420,7 @@ export class ProductDetailPageComponent implements OnInit {
       descriptionArabic: p.descriptions.find(d => d.language === 'ar')?.shortDescription,
       price: {
         amount: p.pricing.basePrice,
-        currency: (p.pricing.currency as 'USD' | 'EUR' | 'SYP') || 'SYP',
+        currency: p.pricing.currency || 'SYP',
         originalPrice: p.pricing.discountPrice ? p.pricing.basePrice : undefined,
       },
       category: {
