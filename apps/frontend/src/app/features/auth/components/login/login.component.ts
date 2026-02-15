@@ -78,7 +78,6 @@ import {
   selectIsRateLimited,
 } from '../../store/auth.selectors';
 import { TokenService } from '../../services/token.service';
-import { SocialAuthButtonsComponent } from '../social-auth-buttons/social-auth-buttons.component';
 
 /**
  * LoginComponent
@@ -107,7 +106,6 @@ import { SocialAuthButtonsComponent } from '../social-auth-buttons/social-auth-b
     MatIconModule,
     MatProgressSpinnerModule,
     MatCheckboxModule,
-    SocialAuthButtonsComponent,
   ],
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.scss'],
