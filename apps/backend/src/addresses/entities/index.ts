@@ -17,7 +17,7 @@ export { SyrianAddressEntity } from './syrian-address-main.entity';
 
 // Address enums and types
 export {
-  AddressType,
+  PropertyType,
   AddressStatus,
   AccessibilityLevel,
   EconomicStatus,

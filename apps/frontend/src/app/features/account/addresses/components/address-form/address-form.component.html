@@ -88,7 +88,7 @@
     <div class="form-section">
       <label class="section-label">{{ 'addresses.label' | translate }}</label>
       <mat-button-toggle-group formControlName="label" class="label-toggle">
-        <mat-button-toggle *ngFor="let label of labelOptions" [value]="label">
+        <mat-button-toggle *ngFor="let label of labelOptions; trackBy: trackByLabel" [value]="label">
           <mat-icon>
             {{ label === 'home' ? 'home' : label === 'work' ? 'business' : label === 'family' ? 'people' : 'location_on' }}
           </mat-icon>

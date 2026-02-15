@@ -1,29 +1,63 @@
 /**
  * @fileoverview Styles for address list page component
- * @description Responsive grid layout for address cards with Material Design
+ * @description Responsive grid layout for address cards with Material Design and Syrian marketplace theme
  */
 
 .address-list-container {
   padding: 2rem;
   max-width: 1400px;
   margin: 0 auto;
+  background: linear-gradient(135deg, #fef7cd 0%, #ffffff 50%, #d1fae5 100%);
+  min-height: 100vh;
+  border-radius: 12px;
 
   .page-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 2rem;
+    margin-bottom: 2.5rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 3px solid transparent;
+    border-image: linear-gradient(90deg, #d97706, #f59e0b, #10b981) 1;
 
     .page-title {
-      font-size: 2rem;
-      font-weight: 500;
-      color: rgba(0, 0, 0, 0.87);
+      font-size: 2.25rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, #d97706, #f59e0b);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
       margin: 0;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+
+      &::before {
+        content: '📍';
+        font-size: 2rem;
+      }
     }
 
     button {
+      height: 48px;
+      padding: 0 1.5rem;
+      border-radius: 8px;
+      font-weight: 600;
+      background: linear-gradient(135deg, #059669, #10b981);
+      color: white;
+      transition: all 0.2s ease;
+
+      &:hover {
+        background: linear-gradient(135deg, #047857, #059669);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+      }
+
       mat-icon {
         margin-right: 0.5rem;
+        font-size: 1.25rem;
+        width: 1.25rem;
+        height: 1.25rem;
       }
     }
   }
@@ -54,94 +88,175 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    padding: 4rem 2rem;
+    padding: 5rem 2rem;
     text-align: center;
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+    margin: 2rem auto;
+    max-width: 600px;
 
     .empty-icon {
-      font-size: 5rem;
-      width: 5rem;
-      height: 5rem;
-      color: rgba(0, 0, 0, 0.3);
-      margin-bottom: 1rem;
+      font-size: 6rem;
+      width: 6rem;
+      height: 6rem;
+      color: #d1d5db;
+      margin-bottom: 1.5rem;
+      animation: float 3s ease-in-out infinite;
+      filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.1));
     }
 
     h2 {
-      font-size: 1.5rem;
-      font-weight: 500;
-      color: rgba(0, 0, 0, 0.87);
-      margin: 0.5rem 0;
+      font-size: 1.75rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, #6b7280, #374151);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin: 0.75rem 0;
     }
 
     p {
-      font-size: 1rem;
-      color: rgba(0, 0, 0, 0.6);
-      margin-bottom: 2rem;
+      font-size: 1.0625rem;
+      color: #6b7280;
+      margin-bottom: 2.5rem;
+      line-height: 1.6;
+      max-width: 400px;
     }
 
     button {
+      height: 52px;
+      padding: 0 2rem;
+      border-radius: 10px;
+      font-weight: 700;
+      font-size: 1.0625rem;
+      background: linear-gradient(135deg, #059669, #10b981);
+      color: white;
+      transition: all 0.3s ease;
+
+      &:hover {
+        background: linear-gradient(135deg, #047857, #059669);
+        transform: translateY(-2px) scale(1.02);
+        box-shadow: 0 8px 20px rgba(16, 185, 129, 0.3);
+      }
+
       mat-icon {
-        margin-right: 0.5rem;
+        margin-right: 0.625rem;
+        font-size: 1.375rem;
+        width: 1.375rem;
+        height: 1.375rem;
       }
     }
   }
 
   .address-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-    gap: 1.5rem;
+    grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+    gap: 1.75rem;
 
     .address-card {
       position: relative;
-      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      background: white;
+      border-radius: 12px;
+      border: 2px solid transparent;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      overflow: hidden;
+
+      &::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, #3b82f6, #8b5cf6);
+        opacity: 0;
+        transition: opacity 0.3s ease;
+      }
 
       &:hover {
-        transform: translateY(-4px);
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        transform: translateY(-6px);
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+        border-color: #e0e7ff;
+
+        &::before {
+          opacity: 1;
+        }
+      }
+
+      // Default address gets special highlight
+      &.default-address {
+        border-color: #fbbf24;
+        background: linear-gradient(135deg, #fffbeb 0%, white 100%);
+
+        &::before {
+          background: linear-gradient(90deg, #d97706, #f59e0b);
+          opacity: 1;
+        }
+
+        &:hover {
+          border-color: #f59e0b;
+          box-shadow: 0 8px 24px rgba(217, 119, 6, 0.2);
+        }
       }
 
       mat-card-header {
         margin-bottom: 1rem;
+        padding: 1rem 1rem 0 1rem;
 
         .card-header-content {
           display: flex;
           justify-content: space-between;
-          align-items: center;
+          align-items: flex-start;
           width: 100%;
-          gap: 0.5rem;
+          gap: 0.75rem;
+          flex-wrap: wrap;
 
           .label-badge {
             display: inline-flex;
             align-items: center;
-            gap: 0.25rem;
-            padding: 0.25rem 0.75rem;
-            background-color: #e3f2fd;
-            color: #1976d2;
-            border-radius: 16px;
-            font-size: 0.875rem;
-            font-weight: 500;
+            gap: 0.375rem;
+            padding: 0.375rem 0.875rem;
+            background: linear-gradient(135deg, #eff6ff, #dbeafe);
+            color: #1e40af;
+            border-radius: 20px;
+            font-size: 0.8125rem;
+            font-weight: 600;
+            border: 1px solid #bfdbfe;
+            transition: all 0.2s ease;
 
             mat-icon {
-              font-size: 1rem;
-              width: 1rem;
-              height: 1rem;
+              font-size: 1.125rem;
+              width: 1.125rem;
+              height: 1.125rem;
+              color: #3b82f6;
+            }
+
+            &:hover {
+              background: linear-gradient(135deg, #dbeafe, #bfdbfe);
+              transform: scale(1.05);
             }
           }
 
           .default-badge {
             display: inline-flex;
             align-items: center;
-            gap: 0.25rem;
-            padding: 0.25rem 0.75rem;
-            background-color: #ffd54f;
-            color: rgba(0, 0, 0, 0.87);
-            border-radius: 16px;
-            font-size: 0.875rem;
-            font-weight: 500;
+            gap: 0.375rem;
+            padding: 0.375rem 0.875rem;
+            background: linear-gradient(135deg, #fef7cd, #fde68a);
+            color: #92400e;
+            border-radius: 20px;
+            font-size: 0.8125rem;
+            font-weight: 700;
+            border: 1px solid #fbbf24;
+            animation: pulse-badge 2s infinite;
 
             mat-icon {
-              font-size: 1rem;
-              width: 1rem;
-              height: 1rem;
+              font-size: 1.125rem;
+              width: 1.125rem;
+              height: 1.125rem;
+              color: #d97706;
+              animation: star-spin 4s linear infinite;
             }
           }
         }
@@ -188,13 +303,52 @@
       mat-card-actions {
         display: flex;
         flex-wrap: wrap;
-        gap: 0.5rem;
-        padding: 1rem 1rem 0.5rem;
-        border-top: 1px solid rgba(0, 0, 0, 0.12);
+        gap: 0.75rem;
+        padding: 1.25rem 1rem 1rem;
+        border-top: 2px solid #f3f4f6;
+        background: linear-gradient(135deg, #f9fafb 0%, white 100%);
 
         button {
+          flex: 1;
+          min-width: fit-content;
+          height: 40px;
+          border-radius: 8px;
+          font-weight: 600;
+          font-size: 0.875rem;
+          transition: all 0.2s ease;
+
+          &[color='primary'] {
+            color: #3b82f6;
+            border: 1px solid #bfdbfe;
+
+            &:hover {
+              background: #eff6ff;
+              border-color: #3b82f6;
+            }
+          }
+
+          &[color='accent'] {
+            color: #d97706;
+            border: 1px solid #fde68a;
+
+            &:hover {
+              background: #fef7cd;
+              border-color: #f59e0b;
+            }
+          }
+
+          &[color='warn'] {
+            color: #dc2626;
+            border: 1px solid #fecaca;
+
+            &:hover {
+              background: #fef2f2;
+              border-color: #dc2626;
+            }
+          }
+
           mat-icon {
-            margin-right: 0.25rem;
+            margin-right: 0.375rem;
             font-size: 1.125rem;
             width: 1.125rem;
             height: 1.125rem;
@@ -205,10 +359,47 @@
   }
 }
 
-// RTL Support
-[dir='rtl'] {
+// Keyframe animations
+@keyframes pulse-badge {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(251, 191, 36, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 0 6px rgba(251, 191, 36, 0);
+  }
+}
+
+@keyframes star-spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+// Empty state animation
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+// RTL Support for Arabic layout
+[dir='rtl'],
+:host-context([dir='rtl']) {
   .address-list-container {
     .page-header {
+      .page-title {
+        &::before {
+          margin-left: 0.75rem;
+          margin-right: 0;
+        }
+      }
+
       button {
         mat-icon {
           margin-right: 0;
@@ -221,18 +412,40 @@
       button {
         mat-icon {
           margin-right: 0;
-          margin-left: 0.5rem;
+          margin-left: 0.625rem;
         }
       }
     }
 
     .address-grid {
       .address-card {
+        mat-card-header {
+          .card-header-content {
+            flex-direction: row-reverse;
+          }
+        }
+
+        mat-card-content {
+          .address-info {
+            .info-row {
+              flex-direction: row-reverse;
+              text-align: right;
+
+              .info-icon {
+                margin-left: 0.75rem;
+                margin-right: 0;
+              }
+            }
+          }
+        }
+
         mat-card-actions {
+          flex-direction: row-reverse;
+
           button {
             mat-icon {
               margin-right: 0;
-              margin-left: 0.25rem;
+              margin-left: 0.375rem;
             }
           }
         }
@@ -241,64 +454,180 @@
   }
 }
 
-// Responsive adjustments
+// Responsive adjustments for tablets
+@media (max-width: 1024px) {
+  .address-list-container {
+    .address-grid {
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 1.5rem;
+    }
+  }
+}
+
+// Mobile devices
 @media (max-width: 768px) {
   .address-list-container {
-    padding: 1rem;
+    padding: 1.5rem 1rem;
+    border-radius: 0;
 
     .page-header {
       flex-direction: column;
-      align-items: flex-start;
-      gap: 1rem;
+      align-items: stretch;
+      gap: 1.25rem;
+      margin-bottom: 2rem;
 
       .page-title {
-        font-size: 1.5rem;
+        font-size: 1.75rem;
+        text-align: center;
+
+        &::before {
+          font-size: 1.5rem;
+        }
       }
 
       button {
         width: 100%;
+        height: 52px;
       }
     }
 
     .form-section {
-      padding: 1rem;
+      padding: 1.5rem;
+      border-radius: 8px;
     }
 
     .address-grid {
       grid-template-columns: 1fr;
-      gap: 1rem;
+      gap: 1.25rem;
 
       .address-card {
         mat-card-header {
+          padding: 0.75rem 0.75rem 0 0.75rem;
+
           .card-header-content {
             flex-direction: column;
             align-items: flex-start;
+            gap: 0.5rem;
           }
+        }
+
+        mat-card-content {
+          padding: 0.75rem;
         }
 
         mat-card-actions {
           flex-direction: column;
+          padding: 1rem 0.75rem 0.75rem;
+          gap: 0.625rem;
 
           button {
             width: 100%;
-            justify-content: flex-start;
+            justify-content: center;
           }
         }
+      }
+    }
+
+    .empty-state {
+      padding: 3rem 1.5rem;
+
+      .empty-icon {
+        font-size: 5rem;
+        width: 5rem;
+        height: 5rem;
+      }
+
+      h2 {
+        font-size: 1.5rem;
+      }
+
+      p {
+        font-size: 1rem;
+      }
+
+      button {
+        width: 100%;
+        max-width: 320px;
       }
     }
   }
 }
 
+// Small mobile devices
 @media (max-width: 480px) {
   .address-list-container {
+    padding: 1rem 0.75rem;
+
     .page-header {
+      margin-bottom: 1.5rem;
+
       .page-title {
-        font-size: 1.25rem;
+        font-size: 1.5rem;
+
+        &::before {
+          font-size: 1.25rem;
+        }
+      }
+    }
+
+    .address-grid {
+      gap: 1rem;
+
+      .address-card {
+        border-radius: 10px;
+
+        mat-card-header {
+          .card-header-content {
+            .label-badge,
+            .default-badge {
+              font-size: 0.75rem;
+              padding: 0.25rem 0.625rem;
+
+              mat-icon {
+                font-size: 1rem;
+                width: 1rem;
+                height: 1rem;
+              }
+            }
+          }
+        }
+
+        mat-card-content {
+          .address-info {
+            .info-row {
+              gap: 0.5rem;
+
+              .info-icon {
+                font-size: 1.125rem;
+                width: 1.125rem;
+                height: 1.125rem;
+              }
+
+              .info-text {
+                font-size: 0.8125rem;
+              }
+            }
+          }
+        }
+
+        mat-card-actions {
+          button {
+            height: 44px;
+            font-size: 0.8125rem;
+
+            mat-icon {
+              font-size: 1rem;
+              width: 1rem;
+              height: 1rem;
+            }
+          }
+        }
       }
     }
 
     .empty-state {
-      padding: 2rem 1rem;
+      padding: 2.5rem 1rem;
+      border-radius: 12px;
 
       .empty-icon {
         font-size: 4rem;
@@ -307,7 +636,84 @@
       }
 
       h2 {
+        font-size: 1.375rem;
+      }
+
+      p {
+        font-size: 0.9375rem;
+        margin-bottom: 2rem;
+      }
+
+      button {
+        height: 48px;
+        font-size: 1rem;
+
+        mat-icon {
+          font-size: 1.25rem;
+          width: 1.25rem;
+          height: 1.25rem;
+        }
+      }
+    }
+  }
+}
+
+// Extra small devices
+@media (max-width: 360px) {
+  .address-list-container {
+    padding: 0.75rem 0.5rem;
+
+    .page-header {
+      .page-title {
         font-size: 1.25rem;
+      }
+    }
+
+    .address-grid {
+      .address-card {
+        mat-card-actions {
+          button {
+            height: 40px;
+            font-size: 0.75rem;
+          }
+        }
+      }
+    }
+  }
+}
+
+// Print styles
+@media print {
+  .address-list-container {
+    background: white !important;
+    padding: 1rem !important;
+
+    .page-header {
+      border-bottom: 2px solid #e5e7eb !important;
+
+      button {
+        display: none !important;
+      }
+    }
+
+    .form-section,
+    .empty-state {
+      display: none !important;
+    }
+
+    .address-grid {
+      .address-card {
+        box-shadow: none !important;
+        border: 1px solid #e5e7eb !important;
+        break-inside: avoid;
+
+        &:hover {
+          transform: none !important;
+        }
+
+        mat-card-actions {
+          display: none !important;
+        }
       }
     }
   }

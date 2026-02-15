@@ -9,7 +9,6 @@
     "total": "الإجمالي",
     "checkout": "الدفع",
     "continue_shopping": "متابعة التسوق",
-
     "offline": {
       "banner": "العمل بدون إنترنت - {{count}} تغيير(ات) في انتظار المزامنة",
       "syncing": "جارٍ المزامنة... {{current}}/{{total}} تغيير",
@@ -18,14 +17,12 @@
       "retry": "إعادة المحاولة",
       "queued": "تم حفظ التغيير - سيتم المزامنة عند الاتصال بالإنترنت"
     },
-
     "sync": {
       "success": "تمت مزامنة السلة بنجاح",
       "conflict": "تم تحديث السلة على جهاز آخر",
       "error": "فشلت مزامنة السلة",
       "merging": "دمج سلة الضيف مع حسابك..."
     },
-
     "price": {
       "locked": "السعر محجوز",
       "reduced": "وفّرت {{amount}}!",
@@ -35,20 +32,17 @@
       "at_add": "السعر عند الإضافة",
       "current": "السعر الحالي"
     },
-
     "validation": {
       "out_of_stock": "نفذ من المخزون: {{product}}",
       "price_changed": "تغير السعر: {{product}}",
       "quantity_limit": "الكمية تتجاوز الحد الأقصى ({{max}})",
       "low_stock": "مخزون منخفض: {{quantity}} فقط متبقية"
     },
-
     "merge": {
       "notification": "تم دمج {{count}} عنصر(عناصر) من سلة الضيف",
       "duplicate": "تم دمج العناصر المكررة",
       "success": "تمت مزامنة السلة عبر الأجهزة"
     },
-
     "session": {
       "guest": "ضيف",
       "expires_in": "تنتهي السلة خلال {{days}} يوم(أيام)",
@@ -56,18 +50,15 @@
       "restore": "استعادة السلة"
     }
   },
-
   "currency": {
     "syp": "ل.س",
     "usd": "$",
     "eur": "€"
   },
-
   "numbers": {
     "thousand": "ألف",
     "million": "مليون"
   },
-
   "account": {
     "sidebar": {
       "profile": "الملف الشخصي",
@@ -178,7 +169,56 @@
       "confirmDelete": "هل أنت متأكد من حذف هذا العنوان؟",
       "addressRequired": "عنوان الشارع مطلوب",
       "phoneRequired": "رقم الهاتف مطلوب",
-      "phoneInvalid": "صيغة رقم الهاتف غير صحيحة"
+      "phoneInvalid": "صيغة رقم الهاتف غير صحيحة",
+      "loadingAddresses": "جاري تحميل العناوين...",
+      "noAddresses": "لا توجد عناوين",
+      "noAddressesDesc": "أضف عنوانك الأول لبدء التسوق",
+      "editAddress": "تعديل العنوان",
+      "setDefault": "تعيين كافتراضي",
+      "delete": "حذف",
+      "buildingLabel": "المبنى",
+      "floorLabel": "الطابق",
+      "fullName": "الاسم الكامل",
+      "phonePlaceholder": "+963XXXXXXXXX",
+      "governorate": "المحافظة",
+      "selectGovernorate": "اختر المحافظة",
+      "city": "المدينة",
+      "selectCity": "اختر المدينة",
+      "district": "المنطقة (اختياري)",
+      "selectDistrict": "اختر المنطقة",
+      "street": "عنوان الشارع",
+      "building": "المبنى",
+      "floor": "الطابق",
+      "additionalDetails": "تفاصيل إضافية",
+      "save": "حفظ",
+      "cancel": "إلغاء",
+      "labelHome": "المنزل",
+      "labelWork": "العمل",
+      "labelFamily": "العائلة",
+      "labelOther": "أخرى",
+      "deleteConfirmTitle": "حذف العنوان",
+      "deleteConfirmMessage": "هل أنت متأكد من حذف هذا العنوان؟",
+      "deleteDefaultWarning": "هذا هو عنوانك الافتراضي. سيتم تعيين عنوان آخر كافتراضي إن وجد.",
+      "deleteOnlyWarning": "هذا هو عنوانك الوحيد. قد تحتاج لإضافة عنوان آخر لاحقاً.",
+      "dismiss": "إغلاق",
+      "validation": {
+        "fullNameRequired": "الاسم الكامل مطلوب",
+        "phoneRequired": "رقم الهاتف مطلوب",
+        "phoneInvalid": "يجب أن يكون الهاتف بالصيغة السورية: +963 متبوعاً بـ 9 أرقام",
+        "governorateRequired": "المحافظة مطلوبة",
+        "cityRequired": "المدينة مطلوبة",
+        "streetRequired": "عنوان الشارع مطلوب"
+      },
+      "errors": {
+        "loadFailed": "فشل في تحميل العناوين",
+        "createFailed": "فشل في إنشاء العنوان",
+        "updateFailed": "فشل في تحديث العنوان",
+        "deleteFailed": "فشل في حذف العنوان",
+        "setDefaultFailed": "فشل في تعيين العنوان الافتراضي",
+        "governoratesLoadFailed": "فشل في تحميل المحافظات",
+        "citiesLoadFailed": "فشل في تحميل المدن",
+        "districtsLoadFailed": "فشل في تحميل المناطق"
+      }
     },
     "preferences": {
       "title": "التفضيلات",
@@ -207,7 +247,6 @@
       }
     }
   },
-
   "auth": {
     "login": {
       "title": "تسجيل الدخول",
@@ -384,7 +423,21 @@
       "updated": "تم تحديث العنوان بنجاح",
       "deleted": "تم حذف العنوان بنجاح",
       "defaultSet": "تم تحديث العنوان الافتراضي"
-    }
+    },
+    "errors": {
+      "loadFailed": "فشل تحميل العناوين. يرجى المحاولة مرة أخرى.",
+      "createFailed": "فشل إنشاء العنوان. يرجى المحاولة مرة أخرى.",
+      "updateFailed": "فشل تحديث العنوان. يرجى المحاولة مرة أخرى.",
+      "deleteFailed": "فشل حذف العنوان. يرجى المحاولة مرة أخرى.",
+      "setDefaultFailed": "فشل تعيين العنوان الافتراضي. يرجى المحاولة مرة أخرى.",
+      "governoratesLoadFailed": "فشل تحميل المحافظات. يرجى المحاولة مرة أخرى.",
+      "citiesLoadFailed": "فشل تحميل المدن. يرجى المحاولة مرة أخرى.",
+      "districtsLoadFailed": "فشل تحميل الأحياء. يرجى المحاولة مرة أخرى."
+    },
+    "dismiss": "إغلاق",
+    "loadingAddresses": "جاري تحميل العناوين...",
+    "buildingLabel": "المبنى",
+    "floorLabel": "الطابق"
   },
   "guest": {
     "sessionExpired": "انتهت صلاحية جلستك. تم إنشاء جلسة جديدة.",
@@ -400,6 +453,73 @@
   "products_view_grid": "عرض شبكي",
   "products_view_list": "عرض قائمة",
   "products_error_loading": "فشل تحميل المنتجات",
+  "checkout": {
+    "title": "إتمام الطلب",
+    "backToCart": "العودة للسلة",
+    "shipping": "الشحن",
+    "payment": "الدفع",
+    "review": "مراجعة",
+    "confirm": "تأكيد",
+    "shippingAddress": "عنوان الشحن",
+    "selectShippingAddress": "اختر عنوان الشحن",
+    "loadingAddresses": "جاري تحميل العناوين...",
+    "noSavedAddresses": "لا توجد عناوين محفوظة",
+    "noSavedAddressesDesc": "أضف عنوان التوصيل الخاص بك لمتابعة الطلب",
+    "addNewAddress": "إضافة عنوان جديد",
+    "backToSavedAddresses": "العودة للعناوين المحفوظة",
+    "default": "الافتراضي",
+    "building": "مبنى",
+    "floor": "طابق",
+    "next": "التالي",
+    "previous": "السابق",
+    "choosePaymentMethod": "اختر طريقة الدفع",
+    "cod": "الدفع عند الاستلام",
+    "codDesc": "ادفع نقداً عند وصول طلبك",
+    "bankTransfer": "تحويل بنكي",
+    "bankTransferDesc": "حول المبلغ إلى حسابنا البنكي",
+    "mobilePayment": "دفع عبر الهاتف",
+    "mobilePaymentDesc": "ادفع عبر تطبيق البنك المحمول",
+    "available": "متوفر",
+    "secure": "آمن",
+    "fast": "سريع",
+    "reviewOrder": "مراجعة الطلب",
+    "shippingInfo": "معلومات الشحن",
+    "paymentMethod": "طريقة الدفع",
+    "orderItems": "العناصر المطلوبة",
+    "noAddressSelected": "لم يتم اختيار عنوان",
+    "subtotal": "المجموع الفرعي:",
+    "shippingCost": "الشحن:",
+    "tax": "الضريبة:",
+    "total": "الإجمالي:",
+    "finalTotal": "الإجمالي النهائي:",
+    "quantity": "الكمية:",
+    "price": "السعر:",
+    "confirmOrder": "تأكيد الطلب",
+    "orderConfirmed": "تم تأكيد طلبك!",
+    "orderConfirmedDesc": "شكراً لك! تم استلام طلبك وسيتم معالجته قريباً.",
+    "orderNumber": "رقم الطلب",
+    "orderEmailNotice": "سيتم إرسال تفاصيل الطلب إلى بريدك الإلكتروني",
+    "backToHome": "العودة للرئيسية",
+    "viewMyOrders": "عرض طلباتي",
+    "processingOrder": "جاري معالجة طلبك...",
+    "pleaseWait": "يرجى الانتظار...",
+    "orderSummary": "ملخص الطلب",
+    "amountToPay": "المبلغ المطلوب دفعه",
+    "selectAddressError": "يرجى اختيار عنوان الشحن",
+    "addressAdded": "تمت إضافة العنوان بنجاح",
+    "orderSuccess": "تم تأكيد طلبك بنجاح!",
+    "bankDetails": {
+      "title": "تفاصيل التحويل البنكي",
+      "bankName": "اسم البنك:",
+      "accountNumber": "رقم الحساب:",
+      "beneficiary": "اسم المستفيد:",
+      "amount": "المبلغ:"
+    },
+    "mobilePaymentInstructions": {
+      "title": "الدفع عبر الهاتف",
+      "description": "سيتم إرسال رسالة نصية تحتوي على تعليمات الدفع إلى رقم هاتفك المسجل."
+    }
+  },
   "products_added_to_wishlist": "تمت الإضافة إلى المفضلة",
   "products_removed_from_wishlist": "تمت الإزالة من المفضلة",
   "products_add_to_wishlist": "أضف إلى المفضلة",

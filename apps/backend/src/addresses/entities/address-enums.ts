@@ -12,12 +12,14 @@
 import { ApiProperty } from '@nestjs/swagger';
 
 /**
- * Address types for different use cases
+ * Property types for different use cases
  *
- * Classifies addresses based on their primary purpose and usage patterns.
- * This helps in delivery optimization and service customization.
+ * Classifies the property at an address based on its primary purpose
+ * and usage patterns. This helps in delivery optimization and service
+ * customization. Renamed from AddressType to avoid collision with
+ * the DTO-level AddressType (SHIPPING/BILLING) enum.
  */
-export enum AddressType {
+export enum PropertyType {
   /** Standard residential address for homes and apartments */
   RESIDENTIAL = 'residential',
 

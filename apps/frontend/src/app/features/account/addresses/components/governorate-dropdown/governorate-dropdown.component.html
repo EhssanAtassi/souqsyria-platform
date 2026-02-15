@@ -7,7 +7,7 @@
       (selectionChange)="onGovernorateChange($event)"
       [placeholder]="'addresses.selectGovernorate' | translate"
     >
-      <mat-option *ngFor="let gov of governorates()" [value]="gov.id">
+      <mat-option *ngFor="let gov of governorates(); trackBy: trackByGovId" [value]="gov.id">
         {{ lang() === 'ar' ? gov.nameAr : gov.nameEn }}
       </mat-option>
     </mat-select>
@@ -22,7 +22,7 @@
       [disabled]="!selectedGov()"
       [placeholder]="'addresses.selectCity' | translate"
     >
-      <mat-option *ngFor="let city of cities()" [value]="city.id">
+      <mat-option *ngFor="let city of cities(); trackBy: trackByCityId" [value]="city.id">
         {{ lang() === 'ar' ? city.nameAr : city.nameEn }}
       </mat-option>
     </mat-select>
@@ -37,7 +37,7 @@
       [disabled]="!selectedCity()"
       [placeholder]="'addresses.selectDistrict' | translate"
     >
-      <mat-option *ngFor="let district of districts()" [value]="district.id">
+      <mat-option *ngFor="let district of districts(); trackBy: trackByDistrictId" [value]="district.id">
         {{ lang() === 'ar' ? district.nameAr : district.nameEn }}
       </mat-option>
     </mat-select>

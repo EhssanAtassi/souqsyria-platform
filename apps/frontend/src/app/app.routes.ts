@@ -1,4 +1,5 @@
 import { Routes } from '@angular/router';
+import { authGuard } from './shared/guards/auth.guard';
 import { guestSessionGuard } from './features/auth/guards/guest-session.guard';
 
 /**
@@ -191,9 +192,10 @@ export const routes: Routes = [
     title: 'Products - SouqSyria | المنتجات'
   },
 
-  // User account routes
+  // User account routes (protected by auth guard)
   {
     path: 'account',
+    canActivate: [authGuard],
     loadChildren: () => import('./features/account/account.routes').then(m => m.accountRoutes),
     title: 'My Account - SouqSyria'
   },

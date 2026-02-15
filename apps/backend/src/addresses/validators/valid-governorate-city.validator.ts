@@ -23,9 +23,9 @@
  * @version 1.0.0 - MVP1 Syrian Address Support
  */
 
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, InternalServerErrorException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, QueryFailedError } from 'typeorm';
 import {
   SyrianGovernorateEntity,
   SyrianCityEntity,
@@ -204,11 +204,17 @@ export class GovernorateCityValidator {
         errors,
       };
     } catch (error) {
-      this.logger.error('Error during address hierarchy validation', error);
-      return {
-        valid: false,
-        errors: ['An error occurred during address validation. Please try again.'],
-      };
+      // Distinguish database errors from validation logic errors
+      if (error instanceof QueryFailedError) {
+        this.logger.error('Database error during address hierarchy validation', error);
+        throw new InternalServerErrorException(
+          'Database error during address validation. Please try again later.',
+        );
+      }
+      this.logger.error('Unexpected error during address hierarchy validation', error);
+      throw new InternalServerErrorException(
+        'An unexpected error occurred during address validation.',
+      );
     }
   }
 

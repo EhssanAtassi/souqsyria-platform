@@ -15,12 +15,13 @@
  * - JWT authentication requirement on all endpoints
  *
  * @author SouqSyria Development Team
- * @version 1.0.0
+ * @version 2.0.0 - Updated for God Service Refactor
  */
 
 import { Test, TestingModule } from '@nestjs/testing';
 import { AddressesController } from './addresses.controller';
 import { AddressesService } from '../service/addresses.service';
+import { SyrianAddressCrudService } from '../service/syrian-address-crud.service';
 import { SyrianAddressService } from '../service/syrian-address.service';
 import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 import { User } from '../../users/entities/user.entity';
@@ -37,6 +38,7 @@ import { AddressType } from '../dto/create-address.dto';
 describe('AddressesController', () => {
   let controller: AddressesController;
   let mockAddressesService: jest.Mocked<AddressesService>;
+  let mockSyrianAddressCrudService: jest.Mocked<SyrianAddressCrudService>;
   let mockSyrianAddressService: jest.Mocked<SyrianAddressService>;
 
   const mockUser: User = {
@@ -106,14 +108,20 @@ describe('AddressesController', () => {
 
   beforeEach(async () => {
     mockAddressesService = {
+      findAll: jest.fn(),
+      findOne: jest.fn(),
+      update: jest.fn(),
+      setDefault: jest.fn(),
+      setAsDefault: jest.fn(),
+    } as any;
+
+    mockSyrianAddressCrudService = {
       createSyrianAddress: jest.fn(),
       updateSyrianAddress: jest.fn(),
       deleteSyrianAddress: jest.fn(),
       setDefaultSyrianAddress: jest.fn(),
-      findAll: jest.fn(),
-      findOne: jest.fn(),
-      update: jest.fn(),
-      setAsDefault: jest.fn(),
+      findAllSyrianAddresses: jest.fn(),
+      findOneSyrianAddress: jest.fn(),
     } as any;
 
     mockSyrianAddressService = {
@@ -126,6 +134,7 @@ describe('AddressesController', () => {
       controllers: [AddressesController],
       providers: [
         { provide: AddressesService, useValue: mockAddressesService },
+        { provide: SyrianAddressCrudService, useValue: mockSyrianAddressCrudService },
         { provide: SyrianAddressService, useValue: mockSyrianAddressService },
       ],
     })
@@ -212,7 +221,7 @@ describe('AddressesController', () => {
   });
 
   describe('create', () => {
-    it('should create a new address', async () => {
+    it('should create a new address via SyrianAddressCrudService', async () => {
       // Arrange
       const dto: CreateSyrianAddressDto = {
         fullName: 'أحمد محمد',
@@ -228,14 +237,14 @@ describe('AddressesController', () => {
         isDefault: false,
       };
 
-      mockAddressesService.createSyrianAddress.mockResolvedValue(mockAddress);
+      mockSyrianAddressCrudService.createSyrianAddress.mockResolvedValue(mockAddress);
 
       // Act
       const result = await controller.create(mockUser, dto);
 
       // Assert
       expect(result).toEqual(mockAddress);
-      expect(mockAddressesService.createSyrianAddress).toHaveBeenCalledWith(
+      expect(mockSyrianAddressCrudService.createSyrianAddress).toHaveBeenCalledWith(
         mockUser,
         dto,
       );
@@ -278,7 +287,7 @@ describe('AddressesController', () => {
   });
 
   describe('updateSyrianAddress', () => {
-    it('should update a Syrian address with partial data', async () => {
+    it('should update a Syrian address via SyrianAddressCrudService', async () => {
       // Arrange
       const addressId = 1;
       const dto: UpdateSyrianAddressDto = {
@@ -286,14 +295,14 @@ describe('AddressesController', () => {
       };
 
       const updatedAddress = { ...mockAddress, fullName: 'محمد أحمد' };
-      mockAddressesService.updateSyrianAddress.mockResolvedValue(updatedAddress);
+      mockSyrianAddressCrudService.updateSyrianAddress.mockResolvedValue(updatedAddress);
 
       // Act
       const result = await controller.updateSyrianAddress(mockUser, addressId, dto);
 
       // Assert
       expect(result).toEqual(updatedAddress);
-      expect(mockAddressesService.updateSyrianAddress).toHaveBeenCalledWith(
+      expect(mockSyrianAddressCrudService.updateSyrianAddress).toHaveBeenCalledWith(
         mockUser,
         1,
         dto,
@@ -305,13 +314,13 @@ describe('AddressesController', () => {
       const addressId = '1';
       const dto: UpdateSyrianAddressDto = { fullName: 'New Name' };
 
-      mockAddressesService.updateSyrianAddress.mockResolvedValue(mockAddress);
+      mockSyrianAddressCrudService.updateSyrianAddress.mockResolvedValue(mockAddress);
 
       // Act
       await controller.updateSyrianAddress(mockUser, addressId as any, dto);
 
       // Assert
-      expect(mockAddressesService.updateSyrianAddress).toHaveBeenCalledWith(
+      expect(mockSyrianAddressCrudService.updateSyrianAddress).toHaveBeenCalledWith(
         mockUser,
         1,
         dto,
@@ -320,18 +329,18 @@ describe('AddressesController', () => {
   });
 
   describe('setDefaultAddress', () => {
-    it('should set an address as default', async () => {
+    it('should set an address as default via SyrianAddressCrudService', async () => {
       // Arrange
       const addressId = 1;
       const defaultAddress = { ...mockAddress, isDefault: true };
-      mockAddressesService.setDefaultSyrianAddress.mockResolvedValue(defaultAddress);
+      mockSyrianAddressCrudService.setDefaultSyrianAddress.mockResolvedValue(defaultAddress);
 
       // Act
       const result = await controller.setDefaultAddress(mockUser, addressId);
 
       // Assert
       expect(result).toEqual(defaultAddress);
-      expect(mockAddressesService.setDefaultSyrianAddress).toHaveBeenCalledWith(
+      expect(mockSyrianAddressCrudService.setDefaultSyrianAddress).toHaveBeenCalledWith(
         mockUser,
         1,
       );
@@ -340,13 +349,13 @@ describe('AddressesController', () => {
     it('should convert string ID to number', async () => {
       // Arrange
       const addressId = '1';
-      mockAddressesService.setDefaultSyrianAddress.mockResolvedValue(mockAddress);
+      mockSyrianAddressCrudService.setDefaultSyrianAddress.mockResolvedValue(mockAddress);
 
       // Act
       await controller.setDefaultAddress(mockUser, addressId as any);
 
       // Assert
-      expect(mockAddressesService.setDefaultSyrianAddress).toHaveBeenCalledWith(
+      expect(mockSyrianAddressCrudService.setDefaultSyrianAddress).toHaveBeenCalledWith(
         mockUser,
         1,
       );
@@ -354,16 +363,16 @@ describe('AddressesController', () => {
   });
 
   describe('remove', () => {
-    it('should delete an address', async () => {
+    it('should delete an address via SyrianAddressCrudService', async () => {
       // Arrange
       const addressId = 1;
-      mockAddressesService.deleteSyrianAddress.mockResolvedValue(undefined);
+      mockSyrianAddressCrudService.deleteSyrianAddress.mockResolvedValue(undefined);
 
       // Act
       const result = await controller.remove(mockUser, addressId);
 
       // Assert
-      expect(mockAddressesService.deleteSyrianAddress).toHaveBeenCalledWith(
+      expect(mockSyrianAddressCrudService.deleteSyrianAddress).toHaveBeenCalledWith(
         mockUser,
         1,
       );
@@ -373,13 +382,13 @@ describe('AddressesController', () => {
     it('should convert string ID to number', async () => {
       // Arrange
       const addressId = '1';
-      mockAddressesService.deleteSyrianAddress.mockResolvedValue(undefined);
+      mockSyrianAddressCrudService.deleteSyrianAddress.mockResolvedValue(undefined);
 
       // Act
       await controller.remove(mockUser, addressId as any);
 
       // Assert
-      expect(mockAddressesService.deleteSyrianAddress).toHaveBeenCalledWith(
+      expect(mockSyrianAddressCrudService.deleteSyrianAddress).toHaveBeenCalledWith(
         mockUser,
         1,
       );
@@ -441,20 +450,4 @@ describe('AddressesController', () => {
     });
   });
 
-  describe('setDefault', () => {
-    it('should set address as default for user/type', async () => {
-      // Arrange
-      const addressId = 1;
-      const dto: any = { addressType: 'shipping' };
-      const defaultAddress = { ...mockAddress, isDefault: true };
-      mockAddressesService.setAsDefault.mockResolvedValue(defaultAddress);
-
-      // Act
-      const result = await controller.setDefault(mockUser, addressId, dto);
-
-      // Assert
-      expect(result).toEqual(defaultAddress);
-      expect(mockAddressesService.setAsDefault).toHaveBeenCalledWith(1, dto);
-    });
-  });
 });

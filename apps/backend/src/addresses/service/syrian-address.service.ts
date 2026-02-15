@@ -19,6 +19,7 @@ import {
   Logger,
   NotFoundException,
   BadRequestException,
+  OnModuleInit,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -60,7 +61,7 @@ interface DeliveryZoneInfo {
 }
 
 @Injectable()
-export class SyrianAddressService {
+export class SyrianAddressService implements OnModuleInit {
   private readonly logger = new Logger(SyrianAddressService.name);
 
   constructor(
@@ -75,9 +76,14 @@ export class SyrianAddressService {
 
     @InjectRepository(SyrianAddressEntity)
     private addressRepo: Repository<SyrianAddressEntity>,
-  ) {
-    // Initialize Syrian administrative divisions
-    this.initializeSyrianDivisions();
+  ) {}
+
+  /**
+   * Lifecycle hook: initializes Syrian administrative divisions on module init.
+   * Uses OnModuleInit instead of constructor to properly await the async seeding operation.
+   */
+  async onModuleInit(): Promise<void> {
+    await this.initializeSyrianDivisions();
   }
 
   /**

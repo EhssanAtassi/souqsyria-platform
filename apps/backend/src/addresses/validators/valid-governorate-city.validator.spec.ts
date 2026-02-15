@@ -326,17 +326,13 @@ describe('GovernorateCityValidator', () => {
       expect(result.errors.length).toBeGreaterThan(1);
     });
 
-    it('should handle repository errors gracefully', async () => {
+    it('should throw InternalServerErrorException on repository errors', async () => {
       // Arrange
       mockGovRepo.findOne.mockRejectedValue(new Error('Database error'));
 
-      // Act
-      const result = await validator.validate(1, 5, 10);
-
-      // Assert
-      expect(result.valid).toBe(false);
-      expect(result.errors).toContain(
-        'An error occurred during address validation. Please try again.',
+      // Act & Assert
+      await expect(validator.validate(1, 5, 10)).rejects.toThrow(
+        'An unexpected error occurred during address validation.',
       );
     });
   });
