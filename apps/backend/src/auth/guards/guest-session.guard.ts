@@ -54,7 +54,7 @@ interface JwtUser {
  * Extended Request interface with guest session
  * Properly typed for guest session and authenticated user
  */
-interface RequestWithGuestSession extends Request {
+export interface RequestWithGuestSession extends Request {
   guestSession?: GuestSession;
   user?: JwtUser;
 }

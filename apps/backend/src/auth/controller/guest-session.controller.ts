@@ -23,7 +23,7 @@ import {
   Req,
   HttpStatus,
   Logger,
-  UseGuards,
+  BadRequestException,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -33,15 +33,16 @@ import {
   ApiBadRequestResponse,
   ApiNotFoundResponse,
 } from '@nestjs/swagger';
-import { Response } from 'express';
+import { Response, Request } from 'express';
 import { GuestSessionService } from '../service/guest-session.service';
 import {
   CreateGuestSessionDto,
   GuestSessionDto,
-  ValidateGuestSessionDto,
+  GuestSessionValidationDto,
+  GuestSessionStatus,
 } from '../dto/guest-session.dto';
-import { RequestWithGuestSession } from '../guards/guest-session.guard';
 import { Public } from '../../common/decorators/public.decorator';
+import { GuestSession } from '../../cart/entities/guest-session.entity';
 
 @ApiTags('Guest Sessions')
 @Controller('auth/guest-session')
@@ -55,8 +56,9 @@ export class GuestSessionController {
   /**
    * Create new guest session and set cookie
    *
-   * @param createDto - Optional session metadata (device fingerprint, IP)
+   * @param createDto - Optional session metadata (device fingerprint)
    * @param res - Express response for setting cookie
+   * @param req - Express request for IP extraction
    * @returns Created guest session details
    */
   @Post('init')
@@ -90,16 +92,11 @@ export class GuestSessionController {
   async initializeSession(
     @Body() createDto: CreateGuestSessionDto,
     @Res({ passthrough: true }) res: Response,
-    @Req() req: RequestWithGuestSession,
+    @Req() req: Request,
   ): Promise<GuestSessionDto> {
     this.logger.log('Initializing new guest session');
 
-    // Extract IP address from request if not provided
-    if (!createDto.ipAddress) {
-      createDto.ipAddress = this.extractIpAddress(req);
-    }
-
-    // Create session
+    // Create session via service
     const session = await this.guestSessionService.createSession(createDto);
 
     // Set HTTP-only cookie
@@ -113,7 +110,7 @@ export class GuestSessionController {
 
     this.logger.log(`Guest session initialized: ${session.id}`);
 
-    return this.guestSessionService.mapToDto(session);
+    return this.mapSessionToDto(session);
   }
 
   /**
@@ -134,50 +131,53 @@ export class GuestSessionController {
       - Session exists in database
       - Session is not expired (30-day window)
       - Session is within grace period if expired (7-day recovery)
-
-      **Response:**
-      - isValid: true/false
-      - message: Validation status message
-      - session: Full session details if valid
     `,
   })
   @ApiCookieAuth('guest_session_id')
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'Session validation result',
-    type: ValidateGuestSessionDto,
+    type: GuestSessionValidationDto,
   })
   @ApiBadRequestResponse({
     description: 'Session expired or invalid',
   })
   async validateSession(
-    @Req() req: RequestWithGuestSession,
-  ): Promise<ValidateGuestSessionDto> {
+    @Req() req: Request,
+  ): Promise<GuestSessionValidationDto> {
     this.logger.debug('Validating guest session from cookie');
 
     const sessionUUID = req.cookies?.[this.COOKIE_NAME];
 
     if (!sessionUUID) {
       return {
+        exists: false,
         isValid: false,
-        message: 'No guest session cookie found',
       };
     }
 
     try {
       const session = await this.guestSessionService.getSession(sessionUUID);
 
-      return {
-        isValid: true,
-        message: 'Session is active and valid',
-        session: this.guestSessionService.mapToDto(session),
-      };
-    } catch (error) {
-      this.logger.warn(`Session validation failed: ${error.message}`);
+      if (!session) {
+        return {
+          exists: false,
+          isValid: false,
+        };
+      }
 
       return {
+        exists: true,
+        isValid: true,
+        expiresAt: session.expiresAt,
+        status: session.status as GuestSessionStatus,
+      };
+    } catch (error) {
+      this.logger.warn(`Session validation failed: ${(error as Error).message}`);
+
+      return {
+        exists: false,
         isValid: false,
-        message: error.message || 'Invalid guest session',
       };
     }
   }
@@ -186,7 +186,7 @@ export class GuestSessionController {
    * Refresh guest session expiration (sliding window)
    *
    * @param req - Express request with cookie
-   * @returns Updated guest session
+   * @returns Updated guest session details
    */
   @Post('refresh')
   @Public()
@@ -220,21 +220,46 @@ export class GuestSessionController {
     description: 'Session expired beyond grace period',
   })
   async refreshSession(
-    @Req() req: RequestWithGuestSession,
+    @Req() req: Request,
   ): Promise<GuestSessionDto> {
     this.logger.debug('Refreshing guest session');
 
     const sessionUUID = req.cookies?.[this.COOKIE_NAME];
 
     if (!sessionUUID) {
-      throw new Error('No guest session cookie found');
+      throw new BadRequestException('No guest session cookie found');
     }
 
-    const session = await this.guestSessionService.refreshSession(sessionUUID);
+    // Refresh session activity (updates expiration)
+    const ipAddress = this.extractIpAddress(req);
+    await this.guestSessionService.refreshActivity(sessionUUID, ipAddress);
+
+    // Fetch updated session
+    const session = await this.guestSessionService.getSession(sessionUUID);
+    if (!session) {
+      throw new BadRequestException('Guest session not found after refresh');
+    }
 
     this.logger.log(`Guest session refreshed: ${session.id}`);
 
-    return this.guestSessionService.mapToDto(session);
+    return this.mapSessionToDto(session);
+  }
+
+  /**
+   * Map GuestSession entity to GuestSessionDto response
+   *
+   * @param session - GuestSession entity from database
+   * @returns GuestSessionDto for API response
+   */
+  private mapSessionToDto(session: GuestSession): GuestSessionDto {
+    return {
+      sessionId: session.id,
+      expiresAt: session.expiresAt,
+      metadata: session.deviceFingerprint,
+      status: session.status as GuestSessionStatus,
+      isValid: !session.isExpired(),
+      hasCart: !!session.cart,
+    };
   }
 
   /**
@@ -243,7 +268,7 @@ export class GuestSessionController {
    * @param req - Express request
    * @returns IP address string
    */
-  private extractIpAddress(req: RequestWithGuestSession): string {
+  private extractIpAddress(req: Request): string {
     const forwardedFor = req.headers['x-forwarded-for'];
     if (forwardedFor) {
       const ips = Array.isArray(forwardedFor) ? forwardedFor[0] : forwardedFor;
