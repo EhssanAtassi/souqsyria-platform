@@ -59,6 +59,7 @@ import {
   passwordMatch,
   strongPassword,
 } from '../../validators/auth.validators';
+import { PasswordStrengthComponent } from '../password-strength/password-strength.component';
 
 /**
  * RegisterComponent
@@ -86,149 +87,9 @@ import {
     MatButtonModule,
     MatIconModule,
     MatProgressSpinnerModule,
+    PasswordStrengthComponent,
   ],
-  template: `
-    <div class="auth-page">
-      <div class="auth-card">
-        <div class="auth-brand-mark">
-          <div class="auth-brand-icon"><span>س</span></div>
-        </div>
-        <div class="auth-header">
-          <h1>{{ 'auth.register.title' | translate }}</h1>
-          <p>{{ 'auth.register.subtitle' | translate }}</p>
-        </div>
-
-        @if (error()) {
-          <div class="error-message" role="alert" aria-live="polite">
-            {{ error() }}
-          </div>
-        }
-
-        <form [formGroup]="form" (ngSubmit)="onSubmit()">
-          <!-- Full Name field (required per SS-AUTH-001) -->
-          <mat-form-field appearance="outline">
-            <mat-label>{{ 'auth.register.fullName' | translate }}</mat-label>
-            <input
-              matInput
-              formControlName="fullName"
-              type="text"
-              autocomplete="name"
-              autofocus
-            />
-            <mat-icon matSuffix>person</mat-icon>
-            @if (form.get('fullName')?.hasError('required') && form.get('fullName')?.touched) {
-              <mat-error>{{ 'auth.validation.fullNameRequired' | translate }}</mat-error>
-            }
-          </mat-form-field>
-
-          <!-- Email field -->
-          <mat-form-field appearance="outline">
-            <mat-label>{{ 'auth.register.email' | translate }}</mat-label>
-            <input
-              matInput
-              formControlName="email"
-              type="email"
-              autocomplete="email"
-            />
-            <mat-icon matSuffix>email</mat-icon>
-            @if (form.get('email')?.hasError('required') && form.get('email')?.touched) {
-              <mat-error>{{ 'auth.validation.emailRequired' | translate }}</mat-error>
-            }
-            @if (form.get('email')?.hasError('email') && form.get('email')?.touched) {
-              <mat-error>{{ 'auth.validation.emailInvalid' | translate }}</mat-error>
-            }
-          </mat-form-field>
-
-          <!-- Password field -->
-          <mat-form-field appearance="outline" class="password-field">
-            <mat-label>{{ 'auth.register.password' | translate }}</mat-label>
-            <input
-              matInput
-              formControlName="password"
-              [type]="hidePassword() ? 'password' : 'text'"
-              autocomplete="new-password"
-            />
-            <button
-              mat-icon-button
-              matSuffix
-              type="button"
-              (click)="togglePasswordVisibility()"
-              [attr.aria-label]="'auth.register.togglePassword' | translate"
-            >
-              <mat-icon>{{ hidePassword() ? 'visibility_off' : 'visibility' }}</mat-icon>
-            </button>
-            @if (form.get('password')?.hasError('required') && form.get('password')?.touched) {
-              <mat-error>{{ 'auth.validation.passwordRequired' | translate }}</mat-error>
-            }
-            @if (form.get('password')?.hasError('minLength') && form.get('password')?.touched) {
-              <mat-error>{{ 'auth.validation.passwordMinLength' | translate }}</mat-error>
-            }
-            @if (form.get('password')?.hasError('uppercase') && form.get('password')?.touched) {
-              <mat-error>{{ 'auth.validation.passwordUppercase' | translate }}</mat-error>
-            }
-            @if (form.get('password')?.hasError('number') && form.get('password')?.touched) {
-              <mat-error>{{ 'auth.validation.passwordNumber' | translate }}</mat-error>
-            }
-          </mat-form-field>
-
-          <!-- Confirm Password field -->
-          <mat-form-field appearance="outline" class="password-field">
-            <mat-label>{{ 'auth.register.confirmPassword' | translate }}</mat-label>
-            <input
-              matInput
-              formControlName="confirmPassword"
-              [type]="hideConfirmPassword() ? 'password' : 'text'"
-              autocomplete="new-password"
-            />
-            <button
-              mat-icon-button
-              matSuffix
-              type="button"
-              (click)="toggleConfirmPasswordVisibility()"
-              [attr.aria-label]="'auth.register.toggleConfirmPassword' | translate"
-            >
-              <mat-icon>{{ hideConfirmPassword() ? 'visibility_off' : 'visibility' }}</mat-icon>
-            </button>
-            @if (form.get('confirmPassword')?.hasError('required') && form.get('confirmPassword')?.touched) {
-              <mat-error>{{ 'auth.validation.confirmPasswordRequired' | translate }}</mat-error>
-            }
-            @if (form.get('confirmPassword')?.hasError('passwordMismatch') && form.get('confirmPassword')?.touched) {
-              <mat-error>{{ 'auth.validation.passwordMismatch' | translate }}</mat-error>
-            }
-          </mat-form-field>
-
-          <!-- Submit button -->
-          <button
-            mat-raised-button
-            color="primary"
-            class="submit-btn"
-            type="submit"
-            [disabled]="form.invalid || isLoading()"
-          >
-            @if (isLoading()) {
-              <mat-spinner diameter="20"></mat-spinner>
-            } @else {
-              {{ 'auth.register.submit' | translate }}
-            }
-          </button>
-        </form>
-
-        <!-- Terms text -->
-        <div class="terms-text">
-          {{ 'auth.register.termsPrefix' | translate }}
-          <a routerLink="/terms">{{ 'auth.register.termsLink' | translate }}</a>
-          {{ 'auth.register.termsAnd' | translate }}
-          <a routerLink="/privacy">{{ 'auth.register.privacyLink' | translate }}</a>
-        </div>
-
-        <!-- Footer with login link -->
-        <div class="auth-footer">
-          {{ 'auth.register.hasAccount' | translate }}
-          <a routerLink="/auth/login">{{ 'auth.register.loginLink' | translate }}</a>
-        </div>
-      </div>
-    </div>
-  `,
+  templateUrl: './register.component.html',
   styleUrls: ['./register.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

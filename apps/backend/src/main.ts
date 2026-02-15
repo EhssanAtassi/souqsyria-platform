@@ -23,7 +23,30 @@ async function bootstrap() {
   const configService = app.get(ConfigService);
 
   // Security headers via Helmet (X-Content-Type-Options, HSTS, X-Frame-Options, etc.)
-  app.use(helmet());
+  // Explicit CSP configuration for the SouqSyria REST API
+  app.use(
+    helmet({
+      contentSecurityPolicy: {
+        directives: {
+          defaultSrc: ["'self'"],
+          scriptSrc: ["'self'"],
+          styleSrc: ["'self'", "'unsafe-inline'"],
+          imgSrc: ["'self'", 'data:'],
+          connectSrc: [
+            "'self'",
+            ...(isDevelopment
+              ? ['http://localhost:4200']
+              : ['https://souqsyria.com', 'https://www.souqsyria.com']),
+          ],
+          fontSrc: ["'self'"],
+          objectSrc: ["'none'"],
+          frameAncestors: ["'none'"],
+          baseUri: ["'self'"],
+          formAction: ["'self'"],
+        },
+      },
+    }),
+  );
 
   // Cookie parser middleware for guest session management
   // Required for reading guest_session_id cookie in controllers and middleware

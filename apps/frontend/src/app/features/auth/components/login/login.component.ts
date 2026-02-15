@@ -46,6 +46,7 @@ import {
   signal,
   DestroyRef,
 } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import {
   ReactiveFormsModule,
@@ -73,6 +74,8 @@ import {
   selectRemainingAttempts,
   selectLockedUntilMinutes,
   selectIsAccountLocked,
+  selectRateLimitRetryAfter,
+  selectIsRateLimited,
 } from '../../store/auth.selectors';
 import { TokenService } from '../../services/token.service';
 import { SocialAuthButtonsComponent } from '../social-auth-buttons/social-auth-buttons.component';
@@ -106,133 +109,7 @@ import { SocialAuthButtonsComponent } from '../social-auth-buttons/social-auth-b
     MatCheckboxModule,
     SocialAuthButtonsComponent,
   ],
-  template: `
-    <div class="auth-page">
-      <div class="auth-card">
-        <div class="auth-brand-mark">
-          <div class="auth-brand-icon"><span>س</span></div>
-        </div>
-        <div class="auth-header">
-          <h1>{{ 'auth.login.title' | translate }}</h1>
-          <p>{{ 'auth.login.subtitle' | translate }}</p>
-        </div>
-
-        @if (showVerifiedMessage()) {
-          <div class="success-message" role="status" aria-live="polite">
-            {{ 'auth.login.verifiedSuccess' | translate }}
-          </div>
-        }
-
-        @if (showPasswordResetMessage()) {
-          <div class="success-message" role="status" aria-live="polite">
-            {{ 'auth.login.passwordResetSuccess' | translate }}
-          </div>
-        }
-
-        <!-- Lockout banner with countdown -->
-        @if (isAccountLocked()) {
-          <div class="lockout-message" role="alert" aria-live="assertive">
-            <strong>{{ 'auth.errors.accountLockedTitle' | translate }}</strong>
-            <p>{{ 'auth.errors.accountLockedCountdown' | translate:{ minutes: lockoutCountdown() } }}</p>
-          </div>
-        }
-
-        <!-- Warning banner when <= 2 attempts remain -->
-        @if (!isAccountLocked() && remainingAttempts() !== null && remainingAttempts()! <= 2 && remainingAttempts()! > 0) {
-          <div class="warning-message" role="alert" aria-live="polite">
-            {{ 'auth.errors.attemptsWarning' | translate:{ count: remainingAttempts() } }}
-          </div>
-        }
-
-        @if (error() && !isAccountLocked()) {
-          <div class="error-message" role="alert" aria-live="polite">
-            {{ error() }}
-          </div>
-        }
-
-        <form [formGroup]="form" (ngSubmit)="onSubmit()">
-          <!-- Email field -->
-          <mat-form-field appearance="outline">
-            <mat-label>{{ 'auth.login.email' | translate }}</mat-label>
-            <input
-              matInput
-              formControlName="email"
-              type="email"
-              autocomplete="email"
-              autofocus
-            />
-            <mat-icon matSuffix>email</mat-icon>
-            @if (form.get('email')?.hasError('required') && form.get('email')?.touched) {
-              <mat-error>{{ 'auth.validation.emailRequired' | translate }}</mat-error>
-            }
-            @if (form.get('email')?.hasError('email') && form.get('email')?.touched) {
-              <mat-error>{{ 'auth.validation.emailInvalid' | translate }}</mat-error>
-            }
-          </mat-form-field>
-
-          <!-- Password field -->
-          <mat-form-field appearance="outline" class="password-field">
-            <mat-label>{{ 'auth.login.password' | translate }}</mat-label>
-            <input
-              matInput
-              formControlName="password"
-              [type]="hidePassword() ? 'password' : 'text'"
-              autocomplete="current-password"
-            />
-            <button
-              mat-icon-button
-              matSuffix
-              type="button"
-              (click)="togglePasswordVisibility()"
-              [attr.aria-label]="'auth.login.togglePassword' | translate"
-            >
-              <mat-icon>{{ hidePassword() ? 'visibility_off' : 'visibility' }}</mat-icon>
-            </button>
-            @if (form.get('password')?.hasError('required') && form.get('password')?.touched) {
-              <mat-error>{{ 'auth.validation.passwordRequired' | translate }}</mat-error>
-            }
-          </mat-form-field>
-
-          <!-- Remember me and forgot password -->
-          <div class="form-options">
-            <mat-checkbox formControlName="rememberMe" color="primary">
-              {{ 'auth.login.rememberMe' | translate }}
-            </mat-checkbox>
-            <span class="remember-me-hint" *ngIf="form.get('rememberMe')?.value">
-              {{ 'auth.login.rememberMeHint' | translate }}
-            </span>
-            <a routerLink="/auth/forgot-password">
-              {{ 'auth.login.forgotPassword' | translate }}
-            </a>
-          </div>
-
-          <!-- Submit button -->
-          <button
-            mat-raised-button
-            color="primary"
-            class="submit-btn"
-            type="submit"
-            [disabled]="form.invalid || isLoading() || isAccountLocked()"
-          >
-            @if (isLoading()) {
-              <mat-spinner diameter="20"></mat-spinner>
-            } @else {
-              {{ 'auth.login.submit' | translate }}
-            }
-          </button>
-        </form>
-
-        <!-- Social OAuth login buttons -->
-        <app-social-auth-buttons></app-social-auth-buttons>
-
-        <!-- Footer with register link -->
-        <div class="auth-footer">
-          {{ 'auth.login.noAccount' | translate }}
-          <a routerLink="/auth/register">{{ 'auth.login.registerLink' | translate }}</a>
-        </div>
-      </div>
-    </div>
-  `,
+  templateUrl: './login.component.html',
   styleUrls: ['./login.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -290,6 +167,15 @@ export class LoginComponent implements OnInit {
   );
 
   /**
+   * Whether rate limiting is active (HTTP 429)
+   * @description Derived from NgRx state: rateLimitRetryAfter > 0
+   */
+  readonly isRateLimited = toSignal(
+    this.store.select(selectIsRateLimited),
+    { initialValue: false },
+  );
+
+  /**
    * Show verified success message
    * @description Derived from ActivatedRoute queryParams 'verified' flag.
    * Displays when redirected from OTP verification flow.
@@ -319,8 +205,14 @@ export class LoginComponent implements OnInit {
   /** @description Lockout countdown in minutes, updated every 60s */
   readonly lockoutCountdown = signal<number>(0);
 
-  /** @description Reference to the countdown interval for cleanup */
+  /** @description Rate limit countdown in seconds, updated every 1s */
+  readonly rateLimitCountdown = signal<number>(0);
+
+  /** @description Reference to the lockout countdown interval for cleanup */
   private countdownInterval: ReturnType<typeof setInterval> | null = null;
+
+  /** @description Reference to the rate limit countdown interval for cleanup */
+  private rateLimitInterval: ReturnType<typeof setInterval> | null = null;
 
   /**
    * Login reactive form
@@ -348,16 +240,31 @@ export class LoginComponent implements OnInit {
     this.store.dispatch(AuthActions.clearError());
 
     // Subscribe to lockedUntilMinutes to start countdown timer
-    this.store.select(selectLockedUntilMinutes).subscribe((minutes) => {
-      this.clearCountdownTimer();
-      if (minutes != null && minutes > 0) {
-        this.startCountdown(minutes);
-      }
-    });
+    this.store
+      .select(selectLockedUntilMinutes)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((minutes) => {
+        this.clearCountdownTimer();
+        if (minutes != null && minutes > 0) {
+          this.startCountdown(minutes);
+        }
+      });
 
-    // Cleanup timer on component destroy
+    // Subscribe to rateLimitRetryAfter to start countdown timer (seconds)
+    this.store
+      .select(selectRateLimitRetryAfter)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((seconds) => {
+        this.clearRateLimitTimer();
+        if (seconds != null && seconds > 0) {
+          this.startRateLimitCountdown(seconds);
+        }
+      });
+
+    // Cleanup timers on component destroy
     this.destroyRef.onDestroy(() => {
       this.clearCountdownTimer();
+      this.clearRateLimitTimer();
     });
 
     // L2 fix: Clear success query params after displaying the message
@@ -415,11 +322,38 @@ export class LoginComponent implements OnInit {
     }, 60_000);
   }
 
-  /** @description Clear the countdown interval timer */
+  /** @description Clear the lockout countdown interval timer */
   private clearCountdownTimer(): void {
     if (this.countdownInterval) {
       clearInterval(this.countdownInterval);
       this.countdownInterval = null;
+    }
+  }
+
+  /**
+   * Start the rate limit countdown timer (seconds)
+   * @description Initializes the rateLimitCountdown signal and ticks every second.
+   * When it reaches 0, clears the rate limit state so the user can retry.
+   */
+  private startRateLimitCountdown(seconds: number): void {
+    this.rateLimitCountdown.set(seconds);
+    this.rateLimitInterval = setInterval(() => {
+      const current = this.rateLimitCountdown();
+      if (current <= 1) {
+        this.rateLimitCountdown.set(0);
+        this.clearRateLimitTimer();
+        this.store.dispatch(AuthActions.clearError());
+      } else {
+        this.rateLimitCountdown.set(current - 1);
+      }
+    }, 1_000);
+  }
+
+  /** @description Clear the rate limit countdown interval timer */
+  private clearRateLimitTimer(): void {
+    if (this.rateLimitInterval) {
+      clearInterval(this.rateLimitInterval);
+      this.rateLimitInterval = null;
     }
   }
 }

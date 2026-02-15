@@ -1,0 +1,138 @@
+<!-- Login Component Template for SouqSyria marketplace -->
+<div class="auth-page">
+  <div class="auth-card">
+    <div class="auth-brand-mark">
+      <div class="auth-brand-icon"><span>س</span></div>
+    </div>
+    <div class="auth-header">
+      <h1>{{ 'auth.login.title' | translate }}</h1>
+      <p>{{ 'auth.login.subtitle' | translate }}</p>
+    </div>
+
+    @if (showVerifiedMessage()) {
+      <div class="success-message" role="status" aria-live="polite">
+        {{ 'auth.login.verifiedSuccess' | translate }}
+      </div>
+    }
+
+    @if (showPasswordResetMessage()) {
+      <div class="success-message" role="status" aria-live="polite">
+        {{ 'auth.login.passwordResetSuccess' | translate }}
+      </div>
+    }
+
+    <!-- Rate limit banner with countdown -->
+    @if (isRateLimited() && rateLimitCountdown() > 0) {
+      <div class="warning-message" role="alert" aria-live="assertive">
+        {{ 'auth.errors.rateLimited' | translate:{ seconds: rateLimitCountdown() } }}
+      </div>
+    }
+
+    <!-- Lockout banner with countdown -->
+    @if (isAccountLocked()) {
+      <div class="lockout-message" role="alert" aria-live="assertive">
+        <strong>{{ 'auth.errors.accountLockedTitle' | translate }}</strong>
+        <p>{{ 'auth.errors.accountLockedCountdown' | translate:{ minutes: lockoutCountdown() } }}</p>
+      </div>
+    }
+
+    <!-- Warning banner when <= 2 attempts remain -->
+    @if (!isAccountLocked() && remainingAttempts() !== null && remainingAttempts()! <= 2 && remainingAttempts()! > 0) {
+      <div class="warning-message" role="alert" aria-live="polite">
+        {{ 'auth.errors.attemptsWarning' | translate:{ count: remainingAttempts() } }}
+      </div>
+    }
+
+    @if (error() && !isAccountLocked()) {
+      <div class="error-message" role="alert" aria-live="polite">
+        {{ error() }}
+      </div>
+    }
+
+    <form [formGroup]="form" (ngSubmit)="onSubmit()">
+      <!-- Email field -->
+      <mat-form-field appearance="outline">
+        <mat-label>{{ 'auth.login.email' | translate }}</mat-label>
+        <input
+          matInput
+          formControlName="email"
+          type="email"
+          autocomplete="email"
+          autofocus
+        />
+        <mat-icon matSuffix aria-hidden="true">email</mat-icon>
+        @if (form.get('email')?.hasError('required') && form.get('email')?.touched) {
+          <mat-error>{{ 'auth.validation.emailRequired' | translate }}</mat-error>
+        }
+        @if (form.get('email')?.hasError('email') && form.get('email')?.touched) {
+          <mat-error>{{ 'auth.validation.emailInvalid' | translate }}</mat-error>
+        }
+      </mat-form-field>
+
+      <!-- Password field -->
+      <mat-form-field appearance="outline" class="password-field">
+        <mat-label>{{ 'auth.login.password' | translate }}</mat-label>
+        <input
+          matInput
+          formControlName="password"
+          [type]="hidePassword() ? 'password' : 'text'"
+          autocomplete="current-password"
+        />
+        <button
+          mat-icon-button
+          matSuffix
+          type="button"
+          (click)="togglePasswordVisibility()"
+          [attr.aria-label]="(hidePassword() ? 'auth.login.showPassword' : 'auth.login.hidePassword') | translate"
+          [attr.aria-pressed]="!hidePassword()"
+        >
+          <mat-icon aria-hidden="true">{{ hidePassword() ? 'visibility_off' : 'visibility' }}</mat-icon>
+        </button>
+        @if (form.get('password')?.hasError('required') && form.get('password')?.touched) {
+          <mat-error>{{ 'auth.validation.passwordRequired' | translate }}</mat-error>
+        }
+      </mat-form-field>
+
+      <!-- Remember me and forgot password -->
+      <div class="form-options">
+        <div class="remember-me-wrapper">
+          <mat-checkbox formControlName="rememberMe" color="primary">
+            {{ 'auth.login.rememberMe' | translate }}
+          </mat-checkbox>
+          @if (form.get('rememberMe')?.value) {
+            <span class="remember-me-hint">
+              {{ 'auth.login.rememberMeHint' | translate }}
+            </span>
+          }
+        </div>
+        <a routerLink="/auth/forgot-password">
+          {{ 'auth.login.forgotPassword' | translate }}
+        </a>
+      </div>
+
+      <!-- Submit button -->
+      <button
+        mat-raised-button
+        color="primary"
+        class="submit-btn"
+        type="submit"
+        [disabled]="form.invalid || isLoading() || isAccountLocked() || isRateLimited()"
+      >
+        @if (isLoading()) {
+          <mat-spinner diameter="24"></mat-spinner>
+        } @else {
+          {{ 'auth.login.submit' | translate }}
+        }
+      </button>
+    </form>
+
+    <!-- Social OAuth login buttons -->
+    <app-social-auth-buttons></app-social-auth-buttons>
+
+    <!-- Footer with register link -->
+    <div class="auth-footer">
+      {{ 'auth.login.noAccount' | translate }}
+      <a routerLink="/auth/register">{{ 'auth.login.registerLink' | translate }}</a>
+    </div>
+  </div>
+</div>

@@ -25,33 +25,18 @@
  *       description: SCSS styling for the OTP verification auth form (component-specific)
  */
 
-// Import shared auth styles
-@import '../../styles/auth-shared';
+// Import shared auth styles and animations (modern @use module system)
+@use '../../styles' as *;
 
 // =============================================================================
 // OTP Verification-Specific Styles
 // =============================================================================
 
 /**
- * Smooth fade-slide animation for error messages
- * @description Provides visual feedback when error messages appear dynamically
- */
-@keyframes fadeSlideIn {
-  from {
-    opacity: 0;
-    transform: translateY(-8px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-/**
- * Error message styling with animation
+ * Error message styling with shared animation
  */
 .error-message {
-  animation: fadeSlideIn 0.3s ease-out;
+  @include fade-slide-in;
 }
 
 /**
@@ -143,7 +128,7 @@
   border-radius: 0.5rem;  // Tailwind rounded-lg
   font-size: 0.875rem;  // 14px (Tailwind text-sm)
   color: var(--golden-wheat-primary);
-  transition: background-color 0.3s ease, color 0.3s ease;
+  transition: background-color $transition-slow $easing-standard, color $transition-slow $easing-standard;
 
   @media (min-width: $breakpoint-sm) {
     padding-block: 0.625rem;  // 10px vertical
@@ -202,7 +187,7 @@
   cursor: pointer;
   padding: 0;
   min-height: $spacing-11;  // 2.75rem (44px) - touch target
-  transition: text-decoration 0.2s ease;
+  transition: text-decoration $transition-normal $easing-standard;
 
   &:hover:not(:disabled) {
     text-decoration: underline;
@@ -236,5 +221,18 @@
 
   .resend-section {
     line-height: 1.625;
+  }
+}
+
+// =============================================================================
+// Reduced Motion Support (WCAG 2.1 Level AAA)
+// =============================================================================
+/**
+ * @description Disables transitions for motion-sensitive users.
+ * OTP timer transitions (background-color, color) are suppressed.
+ */
+@media (prefers-reduced-motion: reduce) {
+  .otp-validity-timer {
+    transition: none;
   }
 }

@@ -6,7 +6,7 @@
  * and CSS logical properties for RTL support.
  */
 
-@import '../../styles/auth-shared';
+@use '../../styles' as *;
 
 // =============================================================================
 // "Or continue with" Divider
@@ -38,40 +38,67 @@
 // Social Buttons Container
 // =============================================================================
 
+/**
+ * Social buttons container.
+ * @description Column on mobile, horizontal row on tablet+ (768px) for side-by-side layout.
+ */
 .social-buttons {
   display: flex;
   flex-direction: column;
   gap: $spacing-3;
+
+  @media (min-width: $breakpoint-md) {
+    flex-direction: row;
+  }
 }
 
 // =============================================================================
 // Individual Social Button
 // =============================================================================
 
+/**
+ * Individual social OAuth button.
+ * @description At 320px, Arabic text ("متابعة مع جوجل") can overflow.
+ * Reduced gap and font-size below 375px, with text truncation as safety net.
+ */
 .social-btn {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: $spacing-3;
+  gap: $spacing-2;
   width: 100%;
   min-height: $spacing-11; // 44px touch target
   height: $spacing-12;     // 48px comfortable height
-  padding-inline: $spacing-4;
+  padding-inline: $spacing-3;
   border: 1px solid var(--color-border, #e0e0e0);
   border-radius: 0.5rem;
   background: $color-white;
   cursor: pointer;
-  font-size: 0.9375rem; // 15px
+  font-size: 0.8125rem; // 13px on narrow screens
   font-weight: 500;
   color: $color-text-primary;
-  transition: background-color 0.2s ease,
-              border-color 0.2s ease,
-              box-shadow 0.2s ease;
+  transition: background-color $transition-normal $easing-standard,
+              border-color $transition-normal $easing-standard,
+              box-shadow $transition-normal $easing-standard,
+              transform $transition-fast $easing-standard;
+
+  @media (min-width: $breakpoint-xs) {
+    gap: $spacing-3;
+    padding-inline: $spacing-4;
+    font-size: 0.9375rem; // 15px on 375px+
+  }
+
+  span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
 
   &:hover:not(:disabled) {
     background: var(--color-surface-neutral, #f5f5f5);
     border-color: var(--color-border-hover, #bdbdbd);
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+    will-change: transform;
   }
 
   &:active:not(:disabled) {
@@ -104,11 +131,11 @@
 // =============================================================================
 
 .google-btn:hover:not(:disabled) {
-  border-color: #4285f4;
+  border-color: var(--social-google-blue, #4285f4);
 }
 
 .facebook-btn:hover:not(:disabled) {
-  border-color: #1877f2;
+  border-color: var(--social-facebook-blue, #1877f2);
 }
 
 // =============================================================================
@@ -123,5 +150,22 @@
   .social-btn {
     font-family: 'Cairo', 'Noto Sans Arabic', sans-serif;
     letter-spacing: normal;
+  }
+}
+
+// =============================================================================
+// Reduced Motion Support (WCAG 2.1 Level AAA)
+// =============================================================================
+/**
+ * @description Disables transitions and transforms for motion-sensitive users.
+ * Social button hover/active transitions are suppressed.
+ */
+@media (prefers-reduced-motion: reduce) {
+  .social-btn {
+    transition: none;
+
+    &:active:not(:disabled) {
+      transform: none;
+    }
   }
 }

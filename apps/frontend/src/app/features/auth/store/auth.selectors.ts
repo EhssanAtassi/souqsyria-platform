@@ -147,6 +147,28 @@ export const selectIsAccountLocked = createSelector(
   (errorCode, minutes) => errorCode === 'ACCOUNT_LOCKED' && minutes != null && minutes > 0,
 );
 
+/**
+ * Select rate limit retry-after countdown in seconds
+ *
+ * @description Returns seconds remaining before the user can retry login
+ * after a 429 Too Many Requests response. Null when no rate limit is active.
+ */
+export const selectRateLimitRetryAfter = createSelector(
+  selectAuthState,
+  (state: AuthState) => state.rateLimitRetryAfter,
+);
+
+/**
+ * Select whether rate limiting is currently active
+ *
+ * @description Derived selector: true when rateLimitRetryAfter > 0.
+ * Used to disable the login button and show the countdown banner.
+ */
+export const selectIsRateLimited = createSelector(
+  selectRateLimitRetryAfter,
+  (retryAfter) => retryAfter != null && retryAfter > 0,
+);
+
 // ─── OTP Flow Selectors ───────────────────────────────────────────
 
 /**
