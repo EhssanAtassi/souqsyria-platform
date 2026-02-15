@@ -153,8 +153,8 @@ export interface ProductPrice {
   /** Base price amount */
   amount: number;
   
-  /** Currency code (USD, EUR, SYP) */
-  currency: 'USD' | 'EUR' | 'SYP';
+  /** @description Currency code (USD, EUR, SYP, TRY). TRY added to match backend ProductPriceEntity enum. */
+  currency: 'USD' | 'EUR' | 'SYP' | 'TRY';
   
   /** Original price before any discounts */
   originalPrice?: number;

@@ -249,6 +249,15 @@
   "products_view_grid": "Grid view",
   "products_view_list": "List view",
   "products_error_loading": "Failed to load products",
+  "products_added_to_wishlist": "Added to wishlist",
+  "products_removed_from_wishlist": "Removed from wishlist",
+  "products_add_to_wishlist": "Add to Wishlist",
+  "products_stock_in_stock": "In Stock",
+  "products_stock_low_stock": "Low Stock",
+  "products_stock_out_of_stock": "Out of Stock",
+  "productDetail": {
+    "notifyMeWhenAvailable": "Notify Me When Available"
+  },
   "view_cart": "View Cart",
   "checkout": "Check Out",
   "language": "Language",

@@ -3,7 +3,12 @@
  * @description Handles creation, update, listing, and deletion of product variants.
  */
 
-import { Injectable, Logger, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  Logger,
+  NotFoundException,
+  ConflictException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { ProductEntity } from '../entities/product.entity';
@@ -41,7 +46,8 @@ export class VariantsService {
       const existingSku = await this.variantRepo.findOne({
         where: { sku: dto.sku },
       });
-      if (existingSku) throw new Error(`SKU "${dto.sku}" is already used`);
+      if (existingSku)
+        throw new ConflictException(`SKU "${dto.sku}" is already used`);
     }
 
     // ✅ Enforce unique slug
@@ -49,7 +55,8 @@ export class VariantsService {
       const existingSlug = await this.variantRepo.findOne({
         where: { slug: dto.slug },
       });
-      if (existingSlug) throw new Error(`Slug "${dto.slug}" is already used`);
+      if (existingSlug)
+        throw new ConflictException(`Slug "${dto.slug}" is already used`);
     }
 
     const variant = this.variantRepo.create({ ...dto, product });
@@ -89,7 +96,8 @@ export class VariantsService {
       const existingSku = await this.variantRepo.findOne({
         where: { sku: dto.sku },
       });
-      if (existingSku) throw new Error(`SKU "${dto.sku}" is already used`);
+      if (existingSku)
+        throw new ConflictException(`SKU "${dto.sku}" is already used`);
     }
 
     // ✅ If slug changed, ensure it's not duplicated
@@ -97,7 +105,8 @@ export class VariantsService {
       const existingSlug = await this.variantRepo.findOne({
         where: { slug: dto.slug },
       });
-      if (existingSlug) throw new Error(`Slug "${dto.slug}" is already used`);
+      if (existingSlug)
+        throw new ConflictException(`Slug "${dto.slug}" is already used`);
     }
     Object.assign(variant, dto);
     const updated = await this.variantRepo.save(variant);

@@ -399,5 +399,14 @@
   "products_sort_by": "ترتيب حسب",
   "products_view_grid": "عرض شبكي",
   "products_view_list": "عرض قائمة",
-  "products_error_loading": "فشل تحميل المنتجات"
+  "products_error_loading": "فشل تحميل المنتجات",
+  "products_added_to_wishlist": "تمت الإضافة إلى المفضلة",
+  "products_removed_from_wishlist": "تمت الإزالة من المفضلة",
+  "products_add_to_wishlist": "أضف إلى المفضلة",
+  "products_stock_in_stock": "متوفر",
+  "products_stock_low_stock": "مخزون منخفض",
+  "products_stock_out_of_stock": "غير متوفر",
+  "productDetail": {
+    "notifyMeWhenAvailable": "أبلغني عند التوفر"
+  }
 }
