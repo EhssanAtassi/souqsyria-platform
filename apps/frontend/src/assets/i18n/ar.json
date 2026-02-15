@@ -519,5 +519,14 @@
       "title": "الدفع عبر الهاتف",
       "description": "سيتم إرسال رسالة نصية تحتوي على تعليمات الدفع إلى رقم هاتفك المسجل."
     }
+  },
+  "products_added_to_wishlist": "تمت الإضافة إلى المفضلة",
+  "products_removed_from_wishlist": "تمت الإزالة من المفضلة",
+  "products_add_to_wishlist": "أضف إلى المفضلة",
+  "products_stock_in_stock": "متوفر",
+  "products_stock_low_stock": "مخزون منخفض",
+  "products_stock_out_of_stock": "غير متوفر",
+  "productDetail": {
+    "notifyMeWhenAvailable": "أبلغني عند التوفر"
   }
 }

@@ -37,7 +37,7 @@ describe('SearchBarComponent', () => {
   /** Sample search suggestions for testing */
   const sampleSuggestions = {
     suggestions: [
-      { text: 'Damascus Steel Chef Knife', textAr: 'سكين شيف فولاذ دمشقي', type: 'product' as const, slug: 'damascus-steel-chef-knife', imageUrl: null, price: 500000, currency: 'SYP' },
+      { text: 'Damascus Steel Chef Knife', textAr: 'سكين شيف فولاذ دمشقي', type: 'product' as const, slug: 'damascus-steel-chef-knife', imageUrl: null, price: 500000, currency: 'SYP' as const },
       { text: 'Damascus Steel', textAr: 'فولاذ دمشقي', type: 'category' as const, slug: 'damascus-steel', imageUrl: null, price: null, currency: undefined }
     ]
   };

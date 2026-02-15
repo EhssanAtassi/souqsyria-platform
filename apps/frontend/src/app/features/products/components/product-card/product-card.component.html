@@ -69,16 +69,28 @@
       }
     </div>
 
-    <!-- Add to Cart Button -->
-    <button
-      mat-raised-button
-      color="primary"
-      class="product-card__add-to-cart"
-      [disabled]="product().stockStatus === 'out_of_stock'"
-      (click)="onAddToCartClick()"
-    >
-      <mat-icon>shopping_cart</mat-icon>
-      <span>{{ addToCartLabel() }}</span>
-    </button>
+    <!-- Action Buttons -->
+    <div class="product-card__actions">
+      <button
+        mat-raised-button
+        color="primary"
+        class="product-card__add-to-cart"
+        [disabled]="product().stockStatus === 'out_of_stock'"
+        (click)="onAddToCartClick()"
+      >
+        <mat-icon>shopping_cart</mat-icon>
+        <span>{{ addToCartLabel() }}</span>
+      </button>
+
+      <button
+        mat-icon-button
+        class="product-card__wishlist"
+        [class.product-card__wishlist--active]="isWishlisted()"
+        [attr.aria-label]="wishlistLabel()"
+        (click)="onAddToWishlistClick()"
+      >
+        <mat-icon>{{ wishlistIcon() }}</mat-icon>
+      </button>
+    </div>
   </div>
 </article>

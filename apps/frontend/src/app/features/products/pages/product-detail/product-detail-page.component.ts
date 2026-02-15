@@ -29,9 +29,12 @@ import { MatDividerModule } from '@angular/material/divider';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { Router } from '@angular/router';
+import { TranslateService, TranslateModule } from '@ngx-translate/core';
 import { ProductService } from '../../services/product.service';
 import { LanguageService } from '../../../../shared/services/language.service';
 import { CartApiService } from '../../../../core/api/cart-api.service';
+import { WishlistService } from '../../../../shared/services/wishlist.service';
+import { Product } from '../../../../shared/interfaces/product.interface';
 import {
   ProductDetailResponse,
   ProductDetailVariant,
@@ -60,6 +63,7 @@ import { BreadcrumbComponent, BreadcrumbItem } from '../../../../shared/componen
     MatTabsModule,
     MatDividerModule,
     MatSnackBarModule,
+    TranslateModule,
     ProductCardComponent,
     VariantSelectorComponent,
     SpecificationsTableComponent,
@@ -79,6 +83,8 @@ export class ProductDetailPageComponent implements OnInit {
   private readonly cartApiService = inject(CartApiService);
   private readonly snackBar = inject(MatSnackBar);
   private readonly router = inject(Router);
+  private readonly wishlistService = inject(WishlistService);
+  private readonly translateService = inject(TranslateService);
 
   /** Current UI language from shared LanguageService */
   readonly language = this.languageService.language;
@@ -160,22 +166,19 @@ export class ProductDetailPageComponent implements OnInit {
     return this.sanitizer.sanitize(SecurityContext.HTML, desc.fullDescription) || null;
   });
 
-  /** @description Stock status label */
+  /**
+   * @description Stock status label using i18n translation keys
+   * Maps product stock status to translation keys and uses TranslateService.instant
+   */
   stockLabel = computed(() => {
     const p = this.product();
     if (!p) return '';
-    const status = p.stockStatus;
-    const lang = this.language();
-
-    if (lang === 'ar') {
-      if (status === 'in_stock') return 'متوفر';
-      if (status === 'low_stock') return 'مخزون منخفض';
-      return 'غير متوفر';
-    }
-
-    if (status === 'in_stock') return 'In Stock';
-    if (status === 'low_stock') return 'Low Stock';
-    return 'Out of Stock';
+    const keyMap: Record<string, string> = {
+      in_stock: 'products_stock_in_stock',
+      low_stock: 'products_stock_low_stock',
+      out_of_stock: 'products_stock_out_of_stock',
+    };
+    return this.translateService.instant(keyMap[p.stockStatus] || 'products_stock_in_stock');
   });
 
   /** @description Stock status CSS class */
@@ -226,21 +229,19 @@ export class ProductDetailPageComponent implements OnInit {
     return this.formatPrice(price);
   });
 
-  /** @description Effective stock label reflecting selected variant */
+  /**
+   * @description Effective stock label reflecting selected variant using i18n translation keys
+   * Maps effective stock status to translation keys and uses TranslateService.instant
+   */
   effectiveStockLabel = computed(() => {
     const status = this.effectiveStockStatus();
     if (!status) return '';
-    const lang = this.language();
-
-    if (lang === 'ar') {
-      if (status === 'in_stock') return 'متوفر';
-      if (status === 'low_stock') return 'مخزون منخفض';
-      return 'غير متوفر';
-    }
-
-    if (status === 'in_stock') return 'In Stock';
-    if (status === 'low_stock') return 'Low Stock';
-    return 'Out of Stock';
+    const keyMap: Record<string, string> = {
+      in_stock: 'products_stock_in_stock',
+      low_stock: 'products_stock_low_stock',
+      out_of_stock: 'products_stock_out_of_stock',
+    };
+    return this.translateService.instant(keyMap[status] || 'products_stock_in_stock');
   });
 
   /** @description Effective stock CSS class reflecting selected variant */
@@ -274,6 +275,13 @@ export class ProductDetailPageComponent implements OnInit {
     });
 
     return items;
+  });
+
+  /** @description Whether current product is in wishlist */
+  isInWishlist = computed(() => {
+    const p = this.product();
+    if (!p) return false;
+    return this.wishlistService.isInWishlist(String(p.id));
   });
 
   ngOnInit(): void {
@@ -396,11 +404,59 @@ export class ProductDetailPageComponent implements OnInit {
   }
 
   /**
-   * @description Placeholder for add to wishlist action
+   * @description Adds or removes product from wishlist and shows snackbar notification
    */
   onAddToWishlist(): void {
-    // TODO: Integrate with wishlist service in a later story
-    // Intentionally left blank to avoid noisy console logging in production
+    const p = this.product();
+    if (!p) return;
+
+    // Map ProductDetailResponse to Product interface shape
+    const mappedProduct: Product = {
+      id: String(p.id),
+      name: p.nameEn,
+      nameArabic: p.nameAr,
+      slug: p.slug,
+      description: p.descriptions.find(d => d.language === 'en')?.shortDescription || '',
+      descriptionArabic: p.descriptions.find(d => d.language === 'ar')?.shortDescription,
+      price: {
+        amount: p.pricing.basePrice,
+        currency: p.pricing.currency || 'SYP',
+        originalPrice: p.pricing.discountPrice ? p.pricing.basePrice : undefined,
+      },
+      category: {
+        id: String(p.category?.id || ''),
+        name: p.category?.nameEn || '',
+        nameArabic: p.category?.nameAr,
+        slug: p.category?.slug || '',
+        breadcrumb: [],
+      },
+      images: p.images.map((img, idx) => ({
+        id: String(img.id),
+        url: img.imageUrl,
+        alt: img.altText || p.nameEn,
+        isPrimary: idx === 0,
+        order: img.sortOrder,
+      })),
+      specifications: {} as any,
+      seller: {} as any,
+      shipping: {} as any,
+      authenticity: { certified: false, heritage: 'modern', badges: [] },
+      inventory: { inStock: p.stockStatus === 'in_stock', quantity: 0, minOrderQuantity: 1, status: p.stockStatus, lowStockThreshold: 10 },
+      reviews: { averageRating: 0, totalReviews: 0, ratingDistribution: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 } },
+      timestamps: { created: new Date(), updated: new Date() },
+    };
+
+    const wasAdded = this.wishlistService.toggleWishlist(mappedProduct);
+
+    const productName = this.language() === 'ar' ? p.nameAr : p.nameEn;
+    const message = this.language() === 'ar'
+      ? (wasAdded ? 'تمت الإضافة إلى المفضلة' : 'تمت الإزالة من المفضلة')
+      : (wasAdded ? 'Added to wishlist' : 'Removed from wishlist');
+
+    this.snackBar.open(`${message}`, '✓', {
+      duration: 3000,
+      panelClass: wasAdded ? 'success-snackbar' : 'info-snackbar',
+    });
   }
 
   /**

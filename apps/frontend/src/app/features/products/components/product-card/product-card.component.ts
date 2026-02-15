@@ -4,11 +4,13 @@ import {
   input,
   output,
   computed,
+  inject,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
+import { TranslateService, TranslateModule } from '@ngx-translate/core';
 import { ProductListItem } from '../../models/product-list.interface';
 
 /**
@@ -18,20 +20,27 @@ import { ProductListItem } from '../../models/product-list.interface';
 @Component({
   selector: 'app-product-card',
   standalone: true,
-  imports: [CommonModule, RouterModule, MatIconModule, MatButtonModule],
+  imports: [CommonModule, RouterModule, MatIconModule, MatButtonModule, TranslateModule],
   templateUrl: './product-card.component.html',
   styleUrls: ['./product-card.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ProductCardComponent {
+  private readonly translateService = inject(TranslateService);
   /** Product data to display */
   product = input.required<ProductListItem>();
 
   /** Current UI language */
   language = input<'en' | 'ar'>('en');
 
+  /** Whether product is in wishlist */
+  isWishlisted = input<boolean>(false);
+
   /** Emits when user clicks Add to Cart button */
   addToCart = output<ProductListItem>();
+
+  /** Emits when user clicks Add to Wishlist button */
+  addToWishlist = output<ProductListItem>();
 
   /** Computed product name based on language */
   productName = computed(() => {
@@ -47,16 +56,18 @@ export class ProductCardComponent {
     return lang === 'ar' ? prod.categoryNameAr : prod.categoryNameEn;
   });
 
-  /** Computed stock status label */
+  /**
+   * @description Computed stock status label using i18n translation keys
+   * Maps stock status to translation keys and uses TranslateService.instant for real-time translation
+   */
   stockLabel = computed(() => {
-    const lang = this.language();
     const status = this.product().stockStatus;
-    const labels = {
-      in_stock: { en: 'In Stock', ar: 'متوفر' },
-      low_stock: { en: 'Low Stock', ar: 'مخزون قليل' },
-      out_of_stock: { en: 'Out of Stock', ar: 'غير متوفر' },
+    const keyMap: Record<string, string> = {
+      in_stock: 'products_stock_in_stock',
+      low_stock: 'products_stock_low_stock',
+      out_of_stock: 'products_stock_out_of_stock',
     };
-    return labels[status][lang];
+    return this.translateService.instant(keyMap[status] || 'products_stock_in_stock');
   });
 
   /** Computed stock status CSS class */
@@ -114,6 +125,17 @@ export class ProductCardComponent {
     return lang === 'ar' ? 'أضف إلى السلة' : 'Add to Cart';
   });
 
+  /** @description Computed wishlist icon based on wishlist state */
+  wishlistIcon = computed(() => {
+    return this.isWishlisted() ? 'favorite' : 'favorite_border';
+  });
+
+  /** @description Computed wishlist button aria label (bilingual) */
+  wishlistLabel = computed(() => {
+    const lang = this.language();
+    return lang === 'ar' ? 'أضف إلى المفضلة' : 'Add to Wishlist';
+  });
+
   /**
    * @description Formats price with thousand separators and currency.
    * Uses Arabic-Indic numerals (٢,٥٠٠,٠٠٠) when in Arabic mode.
@@ -142,5 +164,12 @@ export class ProductCardComponent {
     if (this.product().stockStatus !== 'out_of_stock') {
       this.addToCart.emit(this.product());
     }
+  }
+
+  /**
+   * @description Handles Add to Wishlist button click
+   */
+  onAddToWishlistClick(): void {
+    this.addToWishlist.emit(this.product());
   }
 }
