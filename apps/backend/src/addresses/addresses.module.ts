@@ -1,6 +1,9 @@
 import { Module } from '@nestjs/common';
 import { AddressesService } from './service/addresses.service';
 import { SyrianAddressService } from './service/syrian-address.service';
+import { SyrianAddressCrudService } from './service/syrian-address-crud.service';
+import { AddressValidationService } from './service/address-validation.service';
+import { AddressQueryService } from './service/address-query.service';
 import { AddressesController } from './controller/addresses.controller';
 import { GovernorateCityValidator } from './validators/valid-governorate-city.validator';
 import { CountryModule } from './country/country.module';
@@ -16,7 +19,6 @@ import { User } from '../users/entities/user.entity';
 import { Country } from './country/entities/country.entity';
 import { Region } from './region/entities/region.entity';
 import { City } from './city/entities/city.entity';
-import { Route } from '../access-control/entities/route.entity';
 
 /**
  * @module AddressesModule
@@ -28,19 +30,26 @@ import { Route } from '../access-control/entities/route.entity';
  * - Address validation and hierarchy checks
  * - Default address management
  * - Delivery zone support
+ * - Geospatial query utilities
  *
  * SERVICES:
- * - AddressesService: Main address CRUD operations
- * - SyrianAddressService: Syrian-specific address operations
+ * - AddressesService: Generic address CRUD operations
+ * - SyrianAddressCrudService: Syrian-specific address CRUD operations
+ * - SyrianAddressService: Syrian address seeding, lookup, and delivery info
+ * - AddressQueryService: Read-only address query operations
+ * - AddressValidationService: Validation and geospatial utilities
  * - GovernorateCityValidator: Validates Syrian administrative hierarchy
  *
  * @author SouqSyria Development Team
- * @version 1.0.0 - MVP1 Syrian Address Support
+ * @version 2.0.0 - MVP1 God Service Refactor
  */
 @Module({
   providers: [
     AddressesService,
     SyrianAddressService,
+    SyrianAddressCrudService,
+    AddressValidationService,
+    AddressQueryService,
     GovernorateCityValidator,
   ],
   controllers: [AddressesController],
@@ -52,7 +61,6 @@ import { Route } from '../access-control/entities/route.entity';
       SyrianCityEntity,
       SyrianDistrictEntity,
       User,
-      Route,
       Country,
       Region,
       City,
@@ -61,6 +69,13 @@ import { Route } from '../access-control/entities/route.entity';
     RegionModule,
     CityModule,
   ],
-  exports: [AddressesService, SyrianAddressService, GovernorateCityValidator],
+  exports: [
+    AddressesService,
+    SyrianAddressService,
+    SyrianAddressCrudService,
+    AddressValidationService,
+    AddressQueryService,
+    GovernorateCityValidator,
+  ],
 })
 export class AddressesModule {}

@@ -61,6 +61,12 @@ export interface UserProfile {
   /** Total number of items in user's wishlist */
   wishlistCount: number;
 
+  /** Total amount spent by user in SYP */
+  totalSpent?: number;
+
+  /** Date of last order placed by user */
+  lastOrderDate?: string;
+
   /** User preferences (language, currency, notifications) */
   preferences?: UserPreferences;
 

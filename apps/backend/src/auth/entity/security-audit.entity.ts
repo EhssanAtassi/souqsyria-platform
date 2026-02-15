@@ -24,7 +24,9 @@ export type SecurityEventType =
   | 'ACCOUNT_LOCKED'
   | 'OAUTH_LOGIN_SUCCESS'
   | 'OAUTH_ACCOUNT_CREATED'
-  | 'OAUTH_ACCOUNT_LINKED';
+  | 'OAUTH_ACCOUNT_LINKED'
+  | 'PASSWORD_CHANGE_SUCCESS'
+  | 'PASSWORD_CHANGE_FAILED';
 
 @Entity('security_audit')
 @Index(['email', 'createdAt'])

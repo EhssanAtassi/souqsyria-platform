@@ -8,9 +8,11 @@ import {
   ChangeDetectionStrategy,
   signal,
   inject,
+  DestroyRef,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
   FormBuilder,
   FormGroup,
@@ -79,6 +81,9 @@ export class SecurityComponent {
 
   /** Dialog service */
   private dialog = inject(MatDialog);
+
+  /** Destroy reference for automatic subscription cleanup */
+  private destroyRef = inject(DestroyRef);
 
   /** Submitting state signal */
   submitting = signal<boolean>(false);
@@ -214,13 +219,14 @@ export class SecurityComponent {
       confirmPassword: formValue.confirmPassword,
     };
 
-    this.accountApi.changePassword(changePasswordDto).subscribe({
+    this.accountApi.changePassword(changePasswordDto).pipe(
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe({
       next: () => {
         this.submitting.set(false);
         this.showSuccessAndLogout();
       },
       error: (err) => {
-        console.error('Failed to change password:', err);
         this.submitting.set(false);
         // Parse backend error message or use generic fallback
         const errorMessage = err.error?.message || 'account.security.error';
@@ -321,6 +327,7 @@ export class SecurityComponent {
   selector: 'app-password-change-success-dialog',
   standalone: true,
   imports: [MatDialogModule, MatButtonModule, TranslateModule],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <h2 mat-dialog-title>{{ 'account.security.successTitle' | translate }}</h2>
     <mat-dialog-content>

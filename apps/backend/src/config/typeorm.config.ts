@@ -10,10 +10,16 @@
  * @author SouqSyria Development Team
  * @since 2026-01-21
  */
+import { join } from 'path';
 import { TypeOrmModuleOptions } from '@nestjs/typeorm';
 import { config } from 'dotenv';
 
-config({ path: ['.env', '.env.development'] });
+config({ path: [
+  join(__dirname, '..', '..', '..', '..', '.env.development'),
+  join(__dirname, '..', '..', '..', '..', '.env'),
+  '.env.development',
+  '.env',
+] });
 
 const isProduction = process.env.NODE_ENV === 'production';
 

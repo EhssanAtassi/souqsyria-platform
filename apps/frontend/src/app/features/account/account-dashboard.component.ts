@@ -279,19 +279,19 @@ export class AccountDashboardComponent implements OnInit {
   }
 
   /**
-   * Navigate to profile edit page
+   * @description Navigate to profile edit page
+   * @returns {void}
    */
   editProfile(): void {
-    // Will be implemented when profile editing is ready
-    console.log('Edit Profile - Coming Soon');
+    // TODO: Wire up navigation to /account/profile/edit when ready
   }
 
   /**
-   * Navigate to settings page
+   * @description Navigate to settings page
+   * @returns {void}
    */
   viewSettings(): void {
-    // Will be implemented when settings page is ready
-    console.log('Settings - Coming Soon');
+    // TODO: Wire up navigation to /account/preferences when ready
   }
 
   /**

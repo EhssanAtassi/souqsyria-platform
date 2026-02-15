@@ -730,3 +730,73 @@ button, input, textarea, select {
     display: none !important;
   }
 }
+
+/* ===== MATERIAL SNACKBAR CUSTOM STYLES ===== */
+/* Error notification styling for MatSnackBar */
+.error-snackbar {
+  --mdc-snackbar-container-color: #fef2f2 !important;
+  --mdc-snackbar-supporting-text-color: #dc2626 !important;
+  --mat-snack-bar-button-color: #dc2626 !important;
+
+  .mdc-snackbar__surface {
+    background-color: #fef2f2 !important;
+    border-left: 4px solid #ef4444 !important;
+    box-shadow: 0 4px 12px rgba(220, 38, 38, 0.2) !important;
+  }
+
+  .mdc-snackbar__label {
+    color: #dc2626 !important;
+    font-weight: 500 !important;
+  }
+
+  .mat-mdc-button.mat-mdc-snack-bar-action {
+    --mdc-text-button-label-text-color: #dc2626 !important;
+    font-weight: 600 !important;
+  }
+}
+
+/* Success notification styling for MatSnackBar */
+.success-snackbar {
+  --mdc-snackbar-container-color: #f0fdf4 !important;
+  --mdc-snackbar-supporting-text-color: #16a34a !important;
+  --mat-snack-bar-button-color: #16a34a !important;
+
+  .mdc-snackbar__surface {
+    background-color: #f0fdf4 !important;
+    border-left: 4px solid #22c55e !important;
+    box-shadow: 0 4px 12px rgba(22, 163, 74, 0.2) !important;
+  }
+
+  .mdc-snackbar__label {
+    color: #16a34a !important;
+    font-weight: 500 !important;
+  }
+
+  .mat-mdc-button.mat-mdc-snack-bar-action {
+    --mdc-text-button-label-text-color: #16a34a !important;
+    font-weight: 600 !important;
+  }
+}
+
+/* Info notification styling for MatSnackBar */
+.info-snackbar {
+  --mdc-snackbar-container-color: #eff6ff !important;
+  --mdc-snackbar-supporting-text-color: #2563eb !important;
+  --mat-snack-bar-button-color: #2563eb !important;
+
+  .mdc-snackbar__surface {
+    background-color: #eff6ff !important;
+    border-left: 4px solid #3b82f6 !important;
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2) !important;
+  }
+
+  .mdc-snackbar__label {
+    color: #2563eb !important;
+    font-weight: 500 !important;
+  }
+
+  .mat-mdc-button.mat-mdc-snack-bar-action {
+    --mdc-text-button-label-text-color: #2563eb !important;
+    font-weight: 600 !important;
+  }
+}

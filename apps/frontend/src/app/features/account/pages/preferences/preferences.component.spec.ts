@@ -63,11 +63,13 @@ describe('PreferencesComponent', () => {
     }).compileComponents();
 
     httpMock = TestBed.inject(HttpTestingController);
-    snackBar = TestBed.inject(MatSnackBar);
     translateService = TestBed.inject(TranslateService);
+    translateService.setDefaultLang('en');
+    spyOn(translateService, 'instant').and.callFake((key: string) => key);
 
     fixture = TestBed.createComponent(PreferencesComponent);
     component = fixture.componentInstance;
+    snackBar = fixture.debugElement.injector.get(MatSnackBar);
   });
 
   afterEach(() => {

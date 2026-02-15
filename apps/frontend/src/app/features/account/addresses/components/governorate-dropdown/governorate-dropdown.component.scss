@@ -1,30 +1,224 @@
 /**
  * @fileoverview Styles for governorate cascading dropdown component
- * @description Responsive layout for hierarchical location selection
+ * @description Responsive layout for hierarchical Syrian location selection (Governorate > City > District)
  */
 
 .governorate-dropdown-container {
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: 1fr;
   gap: 1rem;
+  padding: 1rem;
+  background: linear-gradient(135deg, #eff6ff 0%, #f9fafb 100%);
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
 
   .full-width {
     width: 100%;
   }
 
-  mat-form-field {
-    ::ng-deep .mat-mdc-form-field-error {
-      font-size: 0.875rem;
+  // Syrian location dropdowns styling
+  ::ng-deep {
+    mat-form-field {
+      width: 100%;
+
+      .mat-mdc-form-field-label {
+        color: #374151;
+        font-weight: 600;
+        font-size: 0.9375rem;
+      }
+
+      .mat-mdc-select {
+        color: #111827;
+        font-weight: 500;
+
+        &[disabled] {
+          color: #9ca3af;
+          cursor: not-allowed;
+
+          .mat-mdc-select-trigger {
+            background: #f3f4f6;
+            opacity: 0.6;
+          }
+        }
+      }
+
+      .mat-mdc-select-arrow {
+        color: #6b7280;
+      }
+
+      &.mat-focused {
+        .mat-mdc-form-field-label {
+          color: #3b82f6;
+        }
+
+        .mdc-notched-outline__leading,
+        .mdc-notched-outline__notch,
+        .mdc-notched-outline__trailing {
+          border-color: #3b82f6 !important;
+          border-width: 2px !important;
+        }
+      }
+
+      // Disabled state styling
+      &.mat-form-field-disabled {
+        .mdc-notched-outline__leading,
+        .mdc-notched-outline__notch,
+        .mdc-notched-outline__trailing {
+          border-color: #d1d5db !important;
+          border-style: dashed !important;
+        }
+
+        .mat-mdc-form-field-label {
+          color: #9ca3af;
+        }
+      }
+
+      .mat-mdc-form-field-error {
+        font-size: 0.8125rem;
+        color: #dc2626;
+        margin-top: 0.25rem;
+      }
+
+      .mat-mdc-form-field-hint {
+        color: #6b7280;
+        font-size: 0.75rem;
+        font-style: italic;
+      }
+    }
+
+    // Select panel customization
+    .mat-mdc-select-panel {
+      background: white;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+      border-radius: 8px;
+      max-height: 320px;
+
+      .mat-mdc-option {
+        font-size: 0.9375rem;
+        padding: 0.75rem 1rem;
+        color: #374151;
+        transition: all 0.15s ease;
+
+        &:hover {
+          background: linear-gradient(135deg, #eff6ff, #dbeafe);
+          color: #1e40af;
+        }
+
+        &.mat-mdc-option-active {
+          background: #f0f9ff;
+          color: #1e40af;
+        }
+
+        &.mdc-list-item--selected {
+          background: linear-gradient(135deg, #dbeafe, #bfdbfe);
+          color: #1e40af;
+          font-weight: 600;
+
+          &:hover {
+            background: linear-gradient(135deg, #bfdbfe, #93c5fd);
+          }
+        }
+      }
     }
   }
 
-  // Responsive layout for desktop
+  // Tablet and desktop: three-column grid
   @media (min-width: 768px) {
-    flex-direction: row;
-    align-items: flex-start;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.25rem;
+    padding: 1.25rem;
+  }
 
-    mat-form-field {
-      flex: 1;
+  // Large desktop: more spacing
+  @media (min-width: 1024px) {
+    gap: 1.5rem;
+    padding: 1.5rem;
+  }
+}
+
+// Loading state indicator
+.governorate-dropdown-container {
+  &.loading {
+    position: relative;
+    pointer-events: none;
+
+    &::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(255, 255, 255, 0.7);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 8px;
+      z-index: 10;
     }
+  }
+}
+
+// RTL support for Arabic layout
+[dir='rtl'],
+:host-context([dir='rtl']) {
+  .governorate-dropdown-container {
+    ::ng-deep {
+      mat-form-field {
+        .mat-mdc-select-arrow {
+          transform: scaleX(-1);
+        }
+
+        .mat-mdc-form-field-hint,
+        .mat-mdc-form-field-error {
+          text-align: right;
+        }
+      }
+    }
+  }
+}
+
+// Mobile optimizations
+@media (max-width: 600px) {
+  .governorate-dropdown-container {
+    gap: 0.75rem;
+    padding: 0.75rem;
+
+    ::ng-deep {
+      mat-form-field {
+        .mat-mdc-form-field-label {
+          font-size: 0.875rem;
+        }
+
+        .mat-mdc-select {
+          font-size: 0.875rem;
+        }
+      }
+
+      .mat-mdc-select-panel {
+        max-height: 240px;
+
+        .mat-mdc-option {
+          font-size: 0.875rem;
+          padding: 0.625rem 0.75rem;
+        }
+      }
+    }
+  }
+}
+
+// Extra small devices
+@media (max-width: 360px) {
+  .governorate-dropdown-container {
+    gap: 0.5rem;
+    padding: 0.5rem;
+  }
+}
+
+// Print styles
+@media print {
+  .governorate-dropdown-container {
+    background: white !important;
+    border: 1px solid #e5e7eb !important;
   }
 }

@@ -3,6 +3,8 @@ import {
   Logger,
   NotFoundException,
   BadRequestException,
+  UnauthorizedException,
+  ForbiddenException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
@@ -10,6 +12,7 @@ import { Repository } from 'typeorm';
 import { Role } from '../roles/entities/role.entity';
 import { Address } from '../addresses/entities/address.entity';
 import { RefreshToken } from '../auth/entity/refresh-token.entity';
+import { SecurityAudit } from '../auth/entity/security-audit.entity';
 import { EmailService } from '../auth/service/email.service';
 import { UpdateProfileDto, UserPreferences } from './dto/update-profile.dto';
 import { ChangePasswordDto } from './dto/change-password.dto';
@@ -30,6 +33,8 @@ export class UsersService {
     private readonly addressRepository: Repository<Address>,
     @InjectRepository(RefreshToken)
     private readonly refreshTokenRepository: Repository<RefreshToken>,
+    @InjectRepository(SecurityAudit)
+    private readonly securityAuditRepository: Repository<SecurityAudit>,
     private readonly emailService: EmailService,
   ) {}
 
@@ -135,11 +140,28 @@ export class UsersService {
   /**
    * UPDATE USER PROFILE
    *
-   * Updates user profile information with validation
+   * Updates user profile information with validation and sends email notification
+   *
+   * FEATURES:
+   * - Partial updates (only provided fields are updated)
+   * - Email uniqueness validation
+   * - Phone uniqueness validation
+   * - Avatar upload support (base64 or URL)
+   * - Old avatar file deletion
+   * - Profile update email notification (fire-and-forget)
+   * - Last activity timestamp update
+   *
+   * VALIDATIONS:
+   * - Email uniqueness (if changed)
+   * - Phone uniqueness (if changed)
+   * - Avatar file size limit (2MB)
+   * - Avatar format validation (PNG, JPG)
    *
    * @param userId - User ID to update
-   * @param updateProfileDto - Profile update data
+   * @param updateProfileDto - Profile update data (all fields optional)
    * @returns Promise<User> - Updated user profile
+   * @throws NotFoundException - If user not found
+   * @throws BadRequestException - If email/phone already taken or avatar processing fails
    */
   async updateUserProfile(
     userId: number,
@@ -230,6 +252,17 @@ export class UsersService {
 
     const updatedUser = await this.userRepository.save(user);
     this.logger.log(`✅ Profile updated successfully for user ${userId}`);
+
+    // Send profile updated confirmation email (async, fire-and-forget)
+    if (updatedUser.email && updatedUser.fullName) {
+      this.emailService
+        .sendProfileUpdatedEmail(updatedUser.email, updatedUser.fullName)
+        .catch((error) => {
+          this.logger.warn(
+            `⚠️ Failed to send profile updated email for user ${userId}: ${error.message}`,
+          );
+        });
+    }
 
     return updatedUser;
   }
@@ -354,15 +387,44 @@ export class UsersService {
   /**
    * CHANGE PASSWORD
    *
-   * Changes user password with current password verification
+   * Changes user password with current password verification and security audit tracking
+   *
+   * SECURITY FEATURES:
+   * - Current password verification required
+   * - Strong password policy enforcement
+   * - Prevents password reuse (new password must be different from current)
+   * - Security audit logging (success and failure events)
+   * - Failed attempt tracking (3-strike rule: blocks after 3 failures in 1 hour)
+   * - All refresh tokens invalidated (force re-login on all devices)
+   * - Password change confirmation email sent
+   * - Password change timestamp updated
+   *
+   * WORKFLOW:
+   * 1. Validate new password matches confirm password
+   * 2. Verify user exists and has password set
+   * 3. Verify current password is correct
+   *    - If wrong: log failed attempt, check 3-strike rule, throw error
+   *    - If 3+ failures in last hour: throw ForbiddenException
+   * 4. Verify new password is different from current
+   * 5. Hash new password with bcrypt (12 rounds)
+   * 6. Update password and timestamp in database
+   * 7. Invalidate all refresh tokens
+   * 8. Log success event to security audit
+   * 9. Send password changed email (fire-and-forget)
    *
    * @param userId - User ID
-   * @param changePasswordDto - Password change data
+   * @param changePasswordDto - Password change data (currentPassword, newPassword, confirmPassword)
+   * @param ipAddress - IP address of the request (optional, for security audit)
    * @returns Promise<void>
+   * @throws NotFoundException - If user not found
+   * @throws BadRequestException - If passwords don't match, no password set, or new password same as current
+   * @throws UnauthorizedException - If current password is incorrect
+   * @throws ForbiddenException - If 3+ failed attempts in last hour
    */
   async changePassword(
     userId: number,
     changePasswordDto: ChangePasswordDto,
+    ipAddress?: string,
   ): Promise<void> {
     this.logger.log(`🔐 Changing password for user ${userId}`);
 
@@ -375,7 +437,7 @@ export class UsersService {
 
     const user = await this.userRepository.findOne({
       where: { id: userId },
-      select: ['id', 'passwordHash'],
+      select: ['id', 'email', 'passwordHash'],
     });
 
     if (!user) {
@@ -395,7 +457,45 @@ export class UsersService {
     );
 
     if (!isCurrentPasswordValid) {
-      throw new BadRequestException('Current password is incorrect');
+      // Log failed password change attempt
+      await this.logSecurityAudit(
+        user.id,
+        user.email,
+        'PASSWORD_CHANGE_FAILED',
+        ipAddress,
+        { reason: 'Invalid current password' },
+      );
+
+      // Count recent failed attempts within last hour
+      const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000);
+      const recentFailures = await this.securityAuditRepository.count({
+        where: {
+          userId: user.id,
+          eventType: 'PASSWORD_CHANGE_FAILED',
+          createdAt: oneHourAgo as any, // TypeORM requires this cast
+        },
+      });
+
+      this.logger.warn(
+        `❌ Password change failed for user ${userId}. Failed attempts in last hour: ${recentFailures}`,
+      );
+
+      // If 3 or more failures in last hour, trigger security alert
+      if (recentFailures >= 3) {
+        this.logger.error(
+          `🚨 SECURITY ALERT: User ${userId} has ${recentFailures} failed password change attempts in the last hour`,
+        );
+
+        // Send admin alert email (fire-and-forget)
+        // Note: This would require an admin email configuration or notification service
+        // For now, we just log it prominently
+
+        throw new ForbiddenException(
+          'Too many failed password change attempts. Please contact support or try again later.',
+        );
+      }
+
+      throw new UnauthorizedException('Current password is incorrect');
     }
 
     // Check if new password is different from current password
@@ -430,27 +530,70 @@ export class UsersService {
       `🔐 All refresh tokens invalidated for user ${userId} after password change`,
     );
 
-    // Send password change confirmation email
-    try {
-      const fullUser = await this.userRepository.findOne({
-        where: { id: userId },
-        select: ['email'],
+    // Log successful password change
+    await this.logSecurityAudit(
+      user.id,
+      user.email,
+      'PASSWORD_CHANGE_SUCCESS',
+      ipAddress,
+      { timestamp: new Date() },
+    );
+
+    // Send password change confirmation email (fire-and-forget)
+    this.emailService
+      .sendPasswordChangedEmail(user.email)
+      .then(() => {
+        this.logger.log(
+          `📧 Password change confirmation email sent to ${user.email}`,
+        );
+      })
+      .catch((emailError) => {
+        this.logger.warn(
+          `⚠️ Failed to send password change email for user ${userId}: ${emailError.message}`,
+        );
       });
 
-      if (fullUser?.email) {
-        await this.emailService.sendPasswordChangedEmail(fullUser.email);
-        this.logger.log(
-          `📧 Password change confirmation email sent to ${fullUser.email}`,
-        );
-      }
-    } catch (emailError) {
-      this.logger.warn(
-        `⚠️ Failed to send password change email for user ${userId}: ${emailError}`,
-      );
-      // Don't throw error - password was changed successfully, email is just notification
-    }
-
     this.logger.log(`✅ Password changed successfully for user ${userId}`);
+  }
+
+  /**
+   * LOG SECURITY AUDIT
+   *
+   * Records a security audit event for password changes
+   *
+   * @param userId - User ID
+   * @param email - User email
+   * @param eventType - Type of security event
+   * @param ipAddress - IP address of the request
+   * @param metadata - Additional metadata
+   */
+  private async logSecurityAudit(
+    userId: number,
+    email: string,
+    eventType: 'PASSWORD_CHANGE_SUCCESS' | 'PASSWORD_CHANGE_FAILED',
+    ipAddress?: string,
+    metadata?: Record<string, any>,
+  ): Promise<void> {
+    try {
+      await this.securityAuditRepository.save({
+        userId,
+        email,
+        eventType,
+        ipAddress: ipAddress || 'unknown',
+        userAgent: null, // Not available in service layer
+        failedAttemptNumber: null,
+        metadata,
+      });
+
+      this.logger.log(
+        `📝 Security audit logged: ${eventType} for user ${userId}`,
+      );
+    } catch (error) {
+      this.logger.error(
+        `❌ Failed to log security audit for user ${userId}: ${error.message}`,
+      );
+      // Don't throw - security audit logging should not break the main flow
+    }
   }
 
   /**

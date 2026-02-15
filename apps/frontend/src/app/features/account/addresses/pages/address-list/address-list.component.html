@@ -16,7 +16,7 @@
   <!-- Loading State -->
   <div class="loading-container" *ngIf="isLoading() && isEmpty()">
     <mat-spinner diameter="50"></mat-spinner>
-    <p>Loading addresses...</p>
+    <p>{{ 'addresses.loadingAddresses' | translate }}</p>
   </div>
 
   <!-- Address Form (Create/Edit) -->
@@ -42,7 +42,7 @@
 
   <!-- Address Cards Grid -->
   <div class="address-grid" *ngIf="!isEmpty() && !showForm()">
-    <mat-card *ngFor="let address of addresses()" class="address-card">
+    <mat-card *ngFor="let address of addresses(); trackBy: trackByAddressId" class="address-card">
       <!-- Card Header -->
       <mat-card-header>
         <div class="card-header-content">

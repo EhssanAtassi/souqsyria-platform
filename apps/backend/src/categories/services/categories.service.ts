@@ -995,9 +995,9 @@ export class CategoriesService {
 
       // 5. Apply search filter if provided
       if (search && search.trim().length > 0) {
-        const searchTerm = `%${search.trim()}%`;
+        const searchTerm = `%${search.trim().toLowerCase()}%`;
         queryBuilder.andWhere(
-          '(product.nameEn LIKE :search OR product.nameAr LIKE :search OR description.description LIKE :search)',
+          '(LOWER(product.nameEn) LIKE :search OR LOWER(product.nameAr) LIKE :search OR LOWER(description.description) LIKE :search)',
           { search: searchTerm },
         );
       }

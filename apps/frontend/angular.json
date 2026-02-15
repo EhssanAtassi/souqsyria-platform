@@ -69,6 +69,9 @@
         },
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
+          "options": {
+            "port": 4301
+          },
           "configurations": {
             "production": {
               "buildTarget": "souq-syria-storefront:build:production"
@@ -77,7 +80,10 @@
               "buildTarget": "souq-syria-storefront:build:development"
             }
           },
-          "defaultConfiguration": "development"
+          "defaultConfiguration": "development",
+          "options": {
+            "port": 4202
+          }
         },
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n"

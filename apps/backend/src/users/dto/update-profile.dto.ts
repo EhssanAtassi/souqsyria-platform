@@ -1,6 +1,21 @@
 /**
  * @file update-profile.dto.ts
- * @description DTO for updating user profile information
+ * @description DTO for updating user profile information with validation
+ *
+ * FEATURES:
+ * - Partial update support (all fields optional)
+ * - Avatar upload (base64 data URL or direct URL string)
+ * - User preferences management (language, currency, notifications)
+ * - Email uniqueness validation
+ * - Phone number format validation (Syrian format: +963XXXXXXXXX)
+ * - Profile update email notification
+ *
+ * VALIDATION RULES:
+ * - fullName: 2-100 chars
+ * - email: valid email format, unique across users
+ * - phone: Syrian format +963XXXXXXXXX (9 digits after +963)
+ * - avatar: base64 data URL (data:image/png;base64,...) or URL string or null
+ * - preferences: nested object with language, currency, notification settings
  *
  * @author SouqSyria Development Team
  * @since 2025-08-08

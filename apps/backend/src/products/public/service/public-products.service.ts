@@ -34,7 +34,7 @@ export interface ProductDetailResponse {
   pricing: {
     basePrice: number;
     discountPrice: number | null;
-    currency: string;
+    currency: 'SYP' | 'USD' | 'TRY';
   } | null;
   images: Array<{
     id: number;
@@ -50,7 +50,7 @@ export interface ProductDetailResponse {
     id: number;
     sku: string;
     price: number;
-    variantData: Record<string, any>;
+    variantData: Record<string, string>;
     imageUrl: string | null;
     stockStatus: 'in_stock' | 'low_stock' | 'out_of_stock';
     totalStock: number;
@@ -74,7 +74,7 @@ export interface ProductDetailResponse {
     mainImage: string | null;
     basePrice: number;
     discountPrice: number | null;
-    currency: string;
+    currency: 'SYP' | 'USD' | 'TRY';
     stockStatus: 'in_stock' | 'low_stock' | 'out_of_stock';
   }>;
 }
@@ -441,7 +441,7 @@ export class PublicProductsService {
       );
     }
 
-    // Query related products (same category, exclude self, limit 4, active/published only)
+    // Query related products (same category, exclude self, limit 5, active/published only)
     let relatedProducts: ProductEntity[] = [];
 
     if (product.category) {
@@ -461,7 +461,7 @@ export class PublicProductsService {
         })
         .andWhere('related.id != :productId', { productId: product.id })
         .orderBy('related.salesCount', 'DESC')
-        .limit(4)
+        .limit(5)
         .getMany();
     }
 

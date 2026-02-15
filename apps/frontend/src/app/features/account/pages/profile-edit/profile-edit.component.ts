@@ -9,9 +9,11 @@ import {
   ChangeDetectionStrategy,
   signal,
   inject,
+  DestroyRef,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
   FormBuilder,
   FormGroup,
@@ -68,6 +70,9 @@ export class ProfileEditComponent implements OnInit {
   /** Translation service */
   private translate = inject(TranslateService);
 
+  /** Destroy reference for automatic subscription cleanup */
+  private destroyRef = inject(DestroyRef);
+
   /** Loading state signal */
   loading = signal<boolean>(true);
 
@@ -112,13 +117,14 @@ export class ProfileEditComponent implements OnInit {
   loadProfile(): void {
     this.loading.set(true);
 
-    this.accountApi.getProfile().subscribe({
+    this.accountApi.getProfile().pipe(
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe({
       next: (profile) => {
         this.populateForm(profile);
         this.loading.set(false);
       },
-      error: (err) => {
-        console.error('Failed to load profile:', err);
+      error: () => {
         this.loading.set(false);
         this.showError('account.editProfile.error');
       },
@@ -131,11 +137,14 @@ export class ProfileEditComponent implements OnInit {
    * @returns {void}
    */
   populateForm(profile: UserProfile): void {
-    // Strip +963 prefix from phone for display (UI shows it as a prefix)
-    const phoneValue = profile.phone?.startsWith('+963')
-      ? profile.phone.substring(4)
-      : profile.phone || '';
-    
+    // Strip +963 prefix from phone for display (UI allows user to input just the 9 digits)
+    let phoneValue = '';
+    if (profile.phone) {
+      phoneValue = profile.phone.startsWith('+963')
+        ? profile.phone.substring(4)
+        : profile.phone;
+    }
+
     this.profileForm.patchValue({
       fullName: profile.fullName || '',
       phone: phoneValue,
@@ -158,14 +167,22 @@ export class ProfileEditComponent implements OnInit {
     }
 
     const file = input.files[0];
+    this.processAvatarFile(file);
+  }
 
+  /**
+   * @description Processes and validates avatar file
+   * @param {File} file - Image file to process
+   * @returns {void}
+   */
+  private processAvatarFile(file: File): void {
     if (!file.type.startsWith('image/')) {
       this.showError('account.editProfile.validation.invalidAvatarType');
       return;
     }
 
-    // Validate file size (2MB limit)
-    const maxSizeInBytes = 2 * 1024 * 1024; // 2MB
+    // Validate file size (5MB limit per spec)
+    const maxSizeInBytes = 5 * 1024 * 1024; // 5MB
     if (file.size > maxSizeInBytes) {
       this.showError('account.editProfile.validation.avatarTooLarge');
       return;
@@ -178,6 +195,31 @@ export class ProfileEditComponent implements OnInit {
       this.avatarData.set(base64);
     };
     reader.readAsDataURL(file);
+  }
+
+  /**
+   * @description Handles drag over event
+   * @param {DragEvent} event - Drag event
+   * @returns {void}
+   */
+  onDragOver(event: DragEvent): void {
+    event.preventDefault();
+    event.stopPropagation();
+  }
+
+  /**
+   * @description Handles file drop event
+   * @param {DragEvent} event - Drop event
+   * @returns {void}
+   */
+  onDrop(event: DragEvent): void {
+    event.preventDefault();
+    event.stopPropagation();
+
+    const files = event.dataTransfer?.files;
+    if (files && files.length > 0) {
+      this.processAvatarFile(files[0]);
+    }
   }
 
   /**
@@ -249,7 +291,9 @@ export class ProfileEditComponent implements OnInit {
     }
     // If avatarValue is null, don't include avatar in request (unchanged)
 
-    this.accountApi.updateProfile(updateData).subscribe({
+    this.accountApi.updateProfile(updateData).pipe(
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe({
       next: () => {
         this.saving.set(false);
         this.showSuccess('account.editProfile.success');
@@ -257,8 +301,7 @@ export class ProfileEditComponent implements OnInit {
           this.router.navigate(['/account/profile']);
         }, 1000);
       },
-      error: (err) => {
-        console.error('Failed to update profile:', err);
+      error: () => {
         this.saving.set(false);
         this.showError('account.editProfile.error');
       },
@@ -314,17 +357,24 @@ export class ProfileEditComponent implements OnInit {
     const control = this.profileForm.get(fieldName);
     if (!control || !control.errors) return '';
 
+    /** Map form field names to i18n key prefixes */
+    const keyMap: Record<string, string> = {
+      fullName: 'name',
+      phone: 'phone',
+    };
+    const keyPrefix = keyMap[fieldName] || fieldName;
+
     if (control.errors['required']) {
-      return `account.editProfile.validation.${fieldName}Required`;
+      return `account.editProfile.validation.${keyPrefix}Required`;
     }
     if (control.errors['minlength']) {
-      return `account.editProfile.validation.${fieldName}MinLength`;
+      return `account.editProfile.validation.${keyPrefix}MinLength`;
     }
     if (control.errors['maxlength']) {
-      return `account.editProfile.validation.${fieldName}MaxLength`;
+      return `account.editProfile.validation.${keyPrefix}MaxLength`;
     }
     if (control.errors['pattern']) {
-      return `account.editProfile.validation.${fieldName}Invalid`;
+      return `account.editProfile.validation.${keyPrefix}Invalid`;
     }
 
     return '';

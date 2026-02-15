@@ -92,6 +92,56 @@ export class EmailService {
   }
 
   /**
+   * Send profile updated confirmation email
+   * Notifies the user that their profile was successfully updated
+   *
+   * @param email - User email address
+   * @param firstName - User's first name for personalization
+   */
+  async sendProfileUpdatedEmail(
+    email: string,
+    firstName: string,
+  ): Promise<void> {
+    this.logger.log(`📧 Sending profile updated confirmation to: ${email}`);
+
+    const updateDate = new Date().toLocaleString('en-US', {
+      dateStyle: 'long',
+      timeStyle: 'short',
+    });
+
+    // If no transporter configured, log to console (development mode)
+    if (!this.transporter) {
+      console.log('=== PROFILE UPDATED CONFIRMATION (DEV MODE) ===');
+      console.log(`To: ${email}`);
+      console.log(`Subject: SouqSyria - Profile Updated`);
+      console.log(`Updated at: ${updateDate}`);
+      console.log(`User: ${firstName}`);
+      console.log('================================================');
+      return;
+    }
+
+    try {
+      const mailOptions = {
+        from: `"SouqSyria - سوق سوريا" <${this.configService.get('SMTP_FROM') || this.configService.get('SMTP_USER')}>`,
+        to: email,
+        subject: 'SouqSyria - Profile Updated / تم تحديث الملف الشخصي',
+        html: this.getProfileUpdatedTemplate(firstName, updateDate),
+      };
+
+      await this.transporter.sendMail(mailOptions);
+      this.logger.log(
+        `✅ Profile updated confirmation sent successfully to: ${email}`,
+      );
+    } catch (error: unknown) {
+      this.logger.error(
+        `❌ Failed to send profile updated email to: ${email}`,
+        (error as Error).message,
+      );
+      throw error;
+    }
+  }
+
+  /**
    * Send password changed confirmation email
    * Notifies the user that their password was successfully changed
    *
@@ -466,6 +516,112 @@ export class EmailService {
     <div class="footer">
       <p>© 2026 SouqSyria - سوق سوريا. All rights reserved.</p>
       <p>This is an automated email. Please do not reply.</p>
+    </div>
+  </div>
+</body>
+</html>
+    `;
+  }
+
+  /**
+   * Profile updated confirmation email template
+   * Supports Arabic RTL + English
+   * Notifies user of profile changes
+   */
+  private getProfileUpdatedTemplate(
+    firstName: string,
+    updateDate: string,
+  ): string {
+    return `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; background-color: #f4f4f4; }
+    .container { max-width: 600px; margin: 20px auto; background: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+    .header { background: linear-gradient(135deg, #988561 0%, #7a6b4f 100%); color: #ffffff; padding: 30px 20px; text-align: center; }
+    .header h1 { margin: 0; font-size: 28px; }
+    .content { padding: 30px 20px; }
+    .arabic { direction: rtl; font-family: 'Arial', 'Segoe UI', 'Tahoma', sans-serif; }
+    .footer { background: #f8f6f3; color: #666; padding: 20px; text-align: center; font-size: 12px; border-top: 1px solid #e0e0e0; }
+    .success-box { background: #d4edda; border-left: 4px solid #28a745; padding: 15px; margin: 20px 0; border-radius: 4px; }
+    .success-box h3 { color: #155724; margin: 0 0 10px 0; }
+    .info-box { background: #f8f6f3; border: 1px solid #e0e0e0; border-radius: 8px; padding: 15px; margin: 15px 0; }
+    .info-row { display: flex; justify-content: space-between; margin: 8px 0; }
+    .info-label { color: #666; font-weight: bold; }
+    .info-value { color: #333; }
+    .button { display: inline-block; background: #988561; color: #ffffff !important; padding: 12px 30px; text-decoration: none; border-radius: 5px; margin: 10px 0; font-weight: bold; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>سوق سوريا - SouqSyria</h1>
+    </div>
+
+    <!-- Arabic Section -->
+    <div class="content arabic">
+      <h2 style="color: #988561;">مرحباً ${firstName}! 👋</h2>
+      <div class="success-box">
+        <h3>✅ تم تحديث ملفك الشخصي بنجاح</h3>
+        <p style="margin: 0;">تم تحديث معلومات حسابك في سوق سوريا بنجاح.</p>
+      </div>
+
+      <div class="info-box">
+        <div class="info-row">
+          <span class="info-label">تاريخ التحديث:</span>
+          <span class="info-value">${updateDate}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">الإجراء:</span>
+          <span class="info-value">تحديث الملف الشخصي</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">الحالة:</span>
+          <span class="info-value" style="color: #28a745; font-weight: bold;">مكتمل</span>
+        </div>
+      </div>
+
+      <p>إذا لم تقم بإجراء هذا التغيير، يرجى تغيير كلمة المرور فوراً والتواصل مع فريق الدعم.</p>
+    </div>
+
+    <hr style="border: none; border-top: 1px solid #e0e0e0; margin: 30px 0;">
+
+    <!-- English Section -->
+    <div class="content">
+      <h2 style="color: #988561;">Hello ${firstName}! 👋</h2>
+      <div class="success-box">
+        <h3>✅ Profile Successfully Updated</h3>
+        <p style="margin: 0;">Your SouqSyria account information has been updated successfully.</p>
+      </div>
+
+      <div class="info-box">
+        <div class="info-row">
+          <span class="info-label">Update Date:</span>
+          <span class="info-value">${updateDate}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Action:</span>
+          <span class="info-value">Profile Update</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Status:</span>
+          <span class="info-value" style="color: #28a745; font-weight: bold;">Completed</span>
+        </div>
+      </div>
+
+      <p>If you didn't make this change, please change your password immediately and contact our support team.</p>
+    </div>
+
+    <div class="footer">
+      <p>© 2026 SouqSyria - سوق سوريا. All rights reserved.</p>
+      <p>This is an automated notification. Please do not reply to this email.</p>
+      <p style="margin-top: 10px;">
+        <strong>Need Help?</strong><br>
+        Contact our support team at support@souqsyria.com
+      </p>
     </div>
   </div>
 </body>

@@ -85,6 +85,12 @@ describe('UsersController', () => {
     savedAddresses: 3,
   };
 
+  /** Mock Express Request for changePassword IP extraction */
+  const mockRequest = {
+    headers: { 'x-forwarded-for': '192.168.1.1' },
+    socket: { remoteAddress: '127.0.0.1' },
+  } as any;
+
   beforeEach(async () => {
     /**
      * Create test module with mocked UsersService and overridden JwtAuthGuard
@@ -473,11 +479,12 @@ describe('UsersController', () => {
 
       usersService.changePassword.mockResolvedValue(undefined);
 
-      const result = await controller.changePassword(mockUser, changePasswordDto);
+      const result = await controller.changePassword(mockUser, changePasswordDto, mockRequest);
 
       expect(usersService.changePassword).toHaveBeenCalledWith(
         mockUser.id,
         changePasswordDto,
+        '192.168.1.1',
       );
       expect(result.message).toBe('Password changed successfully');
     });
@@ -496,7 +503,7 @@ describe('UsersController', () => {
 
       usersService.changePassword.mockResolvedValue(undefined);
 
-      const result = await controller.changePassword(mockUser, changePasswordDto);
+      const result = await controller.changePassword(mockUser, changePasswordDto, mockRequest);
       const afterTime = new Date();
 
       expect(result.changedAt).toBeDefined();
@@ -521,7 +528,7 @@ describe('UsersController', () => {
 
       usersService.changePassword.mockResolvedValue(undefined);
 
-      const result = await controller.changePassword(mockUser, changePasswordDto);
+      const result = await controller.changePassword(mockUser, changePasswordDto, mockRequest);
 
       expect(result).toEqual({
         message: 'Password changed successfully',
@@ -542,11 +549,12 @@ describe('UsersController', () => {
 
       usersService.changePassword.mockResolvedValue(undefined);
 
-      await controller.changePassword(mockUser, changePasswordDto);
+      await controller.changePassword(mockUser, changePasswordDto, mockRequest);
 
       expect(usersService.changePassword).toHaveBeenCalledWith(
         mockUser.id,
         changePasswordDto,
+        '192.168.1.1',
       );
     });
 
@@ -566,7 +574,7 @@ describe('UsersController', () => {
       );
 
       await expect(
-        controller.changePassword(mockUser, changePasswordDto),
+        controller.changePassword(mockUser, changePasswordDto, mockRequest),
       ).rejects.toThrow('Current password is incorrect');
     });
   });

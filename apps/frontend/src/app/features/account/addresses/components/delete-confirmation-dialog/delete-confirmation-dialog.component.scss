@@ -1,125 +1,372 @@
 /**
  * @fileoverview Styles for delete confirmation dialog
- * @description Warning dialog with address preview and validation messages
+ * @description Warning dialog with address preview, Syrian theme, and validation messages
  */
 
 .delete-confirmation-dialog {
-  min-width: 400px;
+  min-width: 480px;
+  max-width: 600px;
+  border-radius: 12px;
+  overflow: hidden;
 
   h2[mat-dialog-title] {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
-    color: #d32f2f;
+    gap: 0.75rem;
+    padding: 1.5rem 1.5rem 1rem;
+    background: linear-gradient(135deg, #fef2f2, #fee2e2);
+    color: #dc2626;
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin: 0;
+    border-bottom: 3px solid #fecaca;
 
     .warning-icon {
-      font-size: 1.5rem;
-      width: 1.5rem;
-      height: 1.5rem;
+      font-size: 2rem;
+      width: 2rem;
+      height: 2rem;
+      color: #ef4444;
+      animation: shake 0.5s ease-in-out;
     }
   }
 
   mat-dialog-content {
+    padding: 1.5rem;
+    background: white;
+
     .confirmation-message {
-      margin-bottom: 1rem;
-      color: rgba(0, 0, 0, 0.87);
+      margin-bottom: 1.25rem;
+      color: #374151;
+      font-size: 1.0625rem;
+      font-weight: 500;
+      line-height: 1.6;
     }
 
     .warning-box {
       display: flex;
       align-items: flex-start;
-      gap: 0.75rem;
-      padding: 1rem;
-      margin-bottom: 1rem;
-      background-color: #fff3e0;
-      border-left: 4px solid #ff9800;
-      border-radius: 4px;
+      gap: 1rem;
+      padding: 1.25rem;
+      margin-bottom: 1.5rem;
+      background: linear-gradient(135deg, #fffbeb, #fef3c7);
+      border-left: 5px solid #f59e0b;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(245, 158, 11, 0.1);
 
       mat-icon {
-        color: #f57c00;
+        color: #d97706;
         flex-shrink: 0;
+        font-size: 1.5rem;
+        width: 1.5rem;
+        height: 1.5rem;
       }
 
       p {
         margin: 0;
-        color: rgba(0, 0, 0, 0.87);
-        font-size: 0.875rem;
+        color: #92400e;
+        font-size: 0.9375rem;
+        font-weight: 500;
+        line-height: 1.5;
       }
     }
 
     .address-preview {
-      padding: 1rem;
-      background-color: #f5f5f5;
-      border-radius: 4px;
-      margin-top: 1rem;
+      padding: 1.25rem;
+      background: linear-gradient(135deg, #f9fafb, #f3f4f6);
+      border: 2px solid #e5e7eb;
+      border-radius: 10px;
+      margin-top: 1.25rem;
+      box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.05);
 
       .address-header {
         display: flex;
         align-items: center;
         justify-content: space-between;
-        margin-bottom: 0.5rem;
+        margin-bottom: 0.75rem;
+        padding-bottom: 0.75rem;
+        border-bottom: 2px solid #e5e7eb;
 
         strong {
-          font-size: 1rem;
-          color: rgba(0, 0, 0, 0.87);
+          font-size: 1.0625rem;
+          color: #111827;
+          font-weight: 700;
         }
 
         .badge {
           display: inline-flex;
           align-items: center;
-          gap: 0.25rem;
-          padding: 0.25rem 0.5rem;
-          font-size: 0.75rem;
-          border-radius: 12px;
+          gap: 0.375rem;
+          padding: 0.375rem 0.75rem;
+          font-size: 0.8125rem;
+          font-weight: 600;
+          border-radius: 16px;
 
           mat-icon {
-            font-size: 0.875rem;
-            width: 0.875rem;
-            height: 0.875rem;
+            font-size: 1rem;
+            width: 1rem;
+            height: 1rem;
           }
         }
 
         .default-badge {
-          background-color: #ffd54f;
-          color: rgba(0, 0, 0, 0.87);
+          background: linear-gradient(135deg, #fef7cd, #fde68a);
+          color: #92400e;
+          border: 1px solid #fbbf24;
+        }
+
+        .label-badge {
+          background: linear-gradient(135deg, #eff6ff, #dbeafe);
+          color: #1e40af;
+          border: 1px solid #bfdbfe;
         }
       }
 
       .address-line {
-        margin: 0.25rem 0;
-        font-size: 0.875rem;
-        color: rgba(0, 0, 0, 0.6);
+        margin: 0.375rem 0;
+        font-size: 0.9375rem;
+        color: #4b5563;
+        line-height: 1.5;
+        display: flex;
+        align-items: flex-start;
+        gap: 0.5rem;
+
+        &::before {
+          content: '•';
+          color: #9ca3af;
+          font-weight: bold;
+          flex-shrink: 0;
+        }
+
+        &:first-of-type::before {
+          content: '';
+        }
       }
     }
   }
 
   mat-dialog-actions {
-    padding: 1rem 1.5rem;
+    padding: 1rem 1.5rem 1.5rem;
+    background: #fafafa;
+    border-top: 2px solid #f3f4f6;
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
 
     button {
-      min-width: 100px;
+      min-width: 120px;
+      height: 48px;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 1rem;
+      transition: all 0.2s ease;
+
+      &[mat-button] {
+        // Cancel button
+        border: 2px solid #e5e7eb;
+        color: #6b7280;
+
+        &:hover {
+          border-color: #3b82f6;
+          color: #3b82f6;
+          background: #eff6ff;
+        }
+      }
+
+      &[mat-raised-button] {
+        // Delete button
+        background: linear-gradient(135deg, #dc2626, #ef4444);
+        color: white;
+
+        &:hover {
+          background: linear-gradient(135deg, #b91c1c, #dc2626);
+          transform: translateY(-1px);
+          box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
+        }
+
+        &:active {
+          transform: translateY(0);
+        }
+      }
     }
   }
 }
 
-// Responsive adjustments
-@media (max-width: 600px) {
+// Keyframe animations
+@keyframes shake {
+  0%, 100% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-5px) rotate(-5deg);
+  }
+  75% {
+    transform: translateX(5px) rotate(5deg);
+  }
+}
+
+// RTL Support for Arabic layout
+[dir='rtl'],
+:host-context([dir='rtl']) {
   .delete-confirmation-dialog {
-    min-width: unset;
-    width: 100%;
+    mat-dialog-content {
+      .warning-box {
+        border-left: none;
+        border-right: 5px solid #f59e0b;
+      }
+
+      .address-preview {
+        .address-header {
+          flex-direction: row-reverse;
+        }
+
+        .address-line {
+          flex-direction: row-reverse;
+        }
+      }
+    }
+
+    mat-dialog-actions {
+      flex-direction: row-reverse;
+    }
+  }
+}
+
+// Responsive adjustments for tablets
+@media (max-width: 768px) {
+  .delete-confirmation-dialog {
+    min-width: 400px;
 
     h2[mat-dialog-title] {
-      font-size: 1.25rem;
+      font-size: 1.375rem;
+      padding: 1.25rem 1.25rem 0.875rem;
+
+      .warning-icon {
+        font-size: 1.75rem;
+        width: 1.75rem;
+        height: 1.75rem;
+      }
     }
 
     mat-dialog-content {
+      padding: 1.25rem;
+
+      .confirmation-message {
+        font-size: 1rem;
+      }
+
+      .warning-box {
+        padding: 1rem;
+      }
+
       .address-preview {
+        padding: 1rem;
+      }
+    }
+  }
+}
+
+// Mobile devices
+@media (max-width: 600px) {
+  .delete-confirmation-dialog {
+    min-width: unset;
+    width: calc(100vw - 2rem);
+    max-width: unset;
+    margin: 1rem;
+
+    h2[mat-dialog-title] {
+      font-size: 1.25rem;
+      padding: 1rem 1rem 0.75rem;
+
+      .warning-icon {
+        font-size: 1.5rem;
+        width: 1.5rem;
+        height: 1.5rem;
+      }
+    }
+
+    mat-dialog-content {
+      padding: 1rem;
+
+      .confirmation-message {
+        font-size: 0.9375rem;
+        margin-bottom: 1rem;
+      }
+
+      .warning-box {
+        flex-direction: column;
+        gap: 0.75rem;
+        padding: 0.875rem;
+
+        p {
+          font-size: 0.875rem;
+        }
+      }
+
+      .address-preview {
+        padding: 0.875rem;
+
         .address-header {
           flex-direction: column;
           align-items: flex-start;
           gap: 0.5rem;
+
+          strong {
+            font-size: 1rem;
+          }
+        }
+
+        .address-line {
+          font-size: 0.875rem;
         }
       }
     }
+
+    mat-dialog-actions {
+      padding: 0.875rem 1rem 1rem;
+      flex-direction: column-reverse;
+      gap: 0.75rem;
+
+      button {
+        width: 100%;
+        min-width: auto;
+      }
+    }
+  }
+}
+
+// Extra small devices
+@media (max-width: 360px) {
+  .delete-confirmation-dialog {
+    width: calc(100vw - 1rem);
+    margin: 0.5rem;
+
+    h2[mat-dialog-title] {
+      font-size: 1.125rem;
+      padding: 0.875rem 0.875rem 0.625rem;
+    }
+
+    mat-dialog-content {
+      padding: 0.875rem;
+
+      .address-preview {
+        .address-line {
+          font-size: 0.8125rem;
+        }
+      }
+    }
+
+    mat-dialog-actions {
+      button {
+        height: 44px;
+        font-size: 0.9375rem;
+      }
+    }
+  }
+}
+
+// Print styles
+@media print {
+  .delete-confirmation-dialog {
+    display: none !important;
   }
 }

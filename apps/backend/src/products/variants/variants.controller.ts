@@ -16,13 +16,13 @@ import {
   ParseIntPipe,
   Query,
 } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiBearerAuth, ApiResponse } from '@nestjs/swagger';
 import { VariantsService } from './variants.service';
 import { CreateProductVariantDto } from './dto/create-product-variant.dto';
 import { UpdateProductVariantDto } from './dto/update-product-variant.dto';
 import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 import { PermissionsGuard } from '../../access-control/guards/permissions.guard';
-import { AdjustStockDto } from './dto/adjust-stokc.dto';
+import { AdjustStockDto } from './dto/adjust-stock.dto';
 import { StockService } from '../../stock/stock.service';
 import { GetProductVariantsDto } from './dto/get-variants.dto';
 
@@ -42,6 +42,8 @@ export class VariantsController {
    */
   @Post()
   @ApiOperation({ summary: 'Add a new variant to a product' })
+  @ApiResponse({ status: 201, description: 'Variant created successfully' })
+  @ApiResponse({ status: 409, description: 'Duplicate SKU or slug conflict' })
   create(
     @Param('productId') productId: number,
     @Body() dto: CreateProductVariantDto,
@@ -55,6 +57,9 @@ export class VariantsController {
    */
   @Put(':id')
   @ApiOperation({ summary: 'Update a specific product variant' })
+  @ApiResponse({ status: 200, description: 'Variant updated successfully' })
+  @ApiResponse({ status: 404, description: 'Variant not found' })
+  @ApiResponse({ status: 409, description: 'Duplicate SKU or slug conflict' })
   update(@Param('id') id: number, @Body() dto: UpdateProductVariantDto) {
     return this.service.update(+id, dto);
   }
@@ -65,6 +70,7 @@ export class VariantsController {
    */
   @Get()
   @ApiOperation({ summary: 'List all variants of a product' })
+  @ApiResponse({ status: 200, description: 'List of product variants' })
   findAll(
     @Param('productId') productId: number,
     @Query() filters: GetProductVariantsDto, // ✅ Accept filters via query params
@@ -88,6 +94,8 @@ export class VariantsController {
    */
   @Patch(':id/stock')
   @ApiOperation({ summary: 'Adjust stock of a variant in a warehouse' })
+  @ApiResponse({ status: 200, description: 'Stock adjusted successfully' })
+  @ApiResponse({ status: 404, description: 'Variant or warehouse not found' })
   async adjustStock(@Param('id') id: number, @Body() dto: AdjustStockDto) {
     return this.stockService.adjustStock(
       +id,
@@ -105,6 +113,8 @@ export class VariantsController {
    */
   @Delete(':id')
   @ApiOperation({ summary: 'Deactivate a product variant (soft delete)' })
+  @ApiResponse({ status: 200, description: 'Variant deactivated successfully' })
+  @ApiResponse({ status: 404, description: 'Variant not found' })
   async deleteVariant(@Param('id', ParseIntPipe) id: number) {
     return this.service.remove(id);
   }
