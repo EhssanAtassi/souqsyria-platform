@@ -67,6 +67,7 @@ export const AuthActions = createActionGroup({
       errorCode?: string;
       remainingAttempts?: number;
       lockedUntilMinutes?: number;
+      retryAfterSeconds?: number;
     }>(),
 
     // ─── Register ─────────────────────────────────────────────

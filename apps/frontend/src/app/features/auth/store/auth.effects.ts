@@ -57,18 +57,28 @@ export const login$ = createEffect(
           map((response) => {
             tokenService.setTokens(response.accessToken, response.refreshToken);
             tokenService.setRememberMe(rememberMe);
+            tokenService.setSessionStartedAt();
             return AuthActions.loginSuccess({
               accessToken: response.accessToken,
             });
           }),
           catchError((error) => {
             const body = error.error;
+
+            /** Extract Retry-After header for 429 Too Many Requests */
+            const retryAfterSeconds = error.status === 429
+              ? Number(error.headers?.get('Retry-After')) || body?.retryAfter || 60
+              : undefined;
+
             return of(
               AuthActions.loginFailure({
-                error: body?.message || error.message || 'Login failed',
-                errorCode: body?.errorCode,
+                error: error.status === 429
+                  ? 'Too many login attempts. Please wait before trying again.'
+                  : body?.message || error.message || 'Login failed',
+                errorCode: error.status === 429 ? 'RATE_LIMITED' : body?.errorCode,
                 remainingAttempts: body?.remainingAttempts,
                 lockedUntilMinutes: body?.lockedUntilMinutes,
+                retryAfterSeconds,
               }),
             );
           }),
@@ -574,7 +584,11 @@ export const loadUserFromToken$ = createEffect(
       map(() => {
         const token = tokenService.getAccessToken();
 
-        if (!token || tokenService.isTokenExpired()) {
+        if (!token || tokenService.isTokenExpired() || tokenService.isSessionExpired()) {
+          /** Clear stale tokens if session has exceeded absolute timeout */
+          if (tokenService.isSessionExpired()) {
+            tokenService.clearTokens();
+          }
           return AuthActions.loadUserFromTokenFailure();
         }
 

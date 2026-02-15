@@ -35,6 +35,8 @@ import {
   NotFoundException,
   BadRequestException,
   UseGuards,
+  ParseUUIDPipe,
+  UnauthorizedException,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -48,6 +50,19 @@ import { CartService } from '../service/cart.service';
 import { CartSyncService } from '../service/cart-sync.service';
 import { SyncCartRequest } from '../dto/SyncCartRequest.dto';
 import { Cart } from '../entities/cart.entity';
+import { Public } from '../../common/decorators/public.decorator';
+import { Request } from 'express';
+
+/**
+ * Extended Request interface with guest session
+ */
+interface RequestWithGuestSession extends Request {
+  guestSessionId?: string;
+  cookies: {
+    guest_session_id?: string;
+    [key: string]: string | undefined;
+  };
+}
 
 /**
  * CartGuestController
@@ -79,15 +94,24 @@ export class CartGuestController {
    * Retrieves the cart associated with a guest session.
    * Session ID comes from HTTP-only cookie set by GuestSessionMiddleware.
    *
+   * SECURITY:
+   * - Validates UUID format to prevent enumeration attacks
+   * - Verifies session ownership by comparing cookie with URL param
+   * - Public endpoint (no JWT required) but session validation enforced
+   *
    * @param sessionId - Guest session UUID from URL parameter
+   * @param request - Express request with cookies
    * @returns Cart with all items and totals
+   * @throws UnauthorizedException if session doesn't match cookie
    */
   @Get(':sessionId')
+  @Public()
   @ApiOperation({
     summary: 'Retrieve guest cart by session ID',
     description:
       'Fetches the cart associated with a guest session. Session ID comes from HTTP-only cookie. ' +
-      'Returns cart with items, totals, and validation status. Session expires after 30 days of inactivity.',
+      'Returns cart with items, totals, and validation status. Session expires after 30 days of inactivity. ' +
+      'SECURITY: Session ID in URL must match cookie to prevent IDOR attacks.',
   })
   @ApiParam({
     name: 'sessionId',
@@ -124,6 +148,17 @@ export class CartGuestController {
     },
   })
   @ApiResponse({
+    status: 401,
+    description: 'Session ID mismatch - IDOR attempt detected',
+    schema: {
+      example: {
+        message: 'Session ID does not match your cookie',
+        error: 'Unauthorized',
+        statusCode: 401,
+      },
+    },
+  })
+  @ApiResponse({
     status: 404,
     description: 'Guest cart not found',
     schema: {
@@ -134,8 +169,20 @@ export class CartGuestController {
       },
     },
   })
-  async getGuestCart(@Param('sessionId') sessionId: string): Promise<Cart> {
+  async getGuestCart(
+    @Param('sessionId', ParseUUIDPipe) sessionId: string,
+    @Req() request: RequestWithGuestSession,
+  ): Promise<Cart> {
     this.logger.log(`📋 Fetching guest cart for session: ${sessionId}`);
+
+    // SECURITY: Verify session ownership by comparing cookie with URL param
+    const sessionIdFromCookie = request.cookies?.guest_session_id;
+    if (sessionIdFromCookie !== sessionId) {
+      this.logger.warn(
+        `🚨 IDOR attempt detected: Cookie session ${sessionIdFromCookie} != URL param ${sessionId}`,
+      );
+      throw new UnauthorizedException('Session ID does not match your cookie');
+    }
 
     const cart = await this.cartService.findBySessionId(sessionId);
     if (!cart) {
@@ -214,7 +261,7 @@ export class CartGuestController {
   })
   async createOrUpdateGuestCart(
     @Body() syncRequest: SyncCartRequest,
-    @Req() request: any,
+    @Req() request: RequestWithGuestSession,
   ): Promise<Cart> {
     this.logger.log(`🛍️ Creating/updating guest cart`);
 
@@ -305,7 +352,7 @@ export class CartGuestController {
   })
   async syncGuestCart(
     @Body() syncRequest: SyncCartRequest,
-    @Req() request: any,
+    @Req() request: RequestWithGuestSession,
   ): Promise<Cart> {
     this.logger.log(`🔄 Syncing guest cart from client`);
 
