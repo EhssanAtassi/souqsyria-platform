@@ -1,5 +1,5 @@
 <!-- SouqSyria Header Navigation Component -->
-<!-- 4-Row Header Structure: TopBar (Row 1) + Main Header (Row 2) + Category Nav (Row 3) + Quick Access (Row 4) -->
+<!-- 4-Row Structure: TopBar | Main Header | Category Nav | Quick Access -->
 
 <header class="sq-header" [class.rtl]="config.rtl" [attr.dir]="config.rtl ? 'rtl' : 'ltr'">
 
@@ -12,12 +12,11 @@
   ></app-top-bar>
 
   <!-- ====================== ROW 2: MAIN HEADER ====================== -->
-  <!-- Prototype match: bg-surface, border-outline/30, shadow-sm, h-[72px], gap-8 -->
   <div class="sq-main-header bg-surface border-b border-outline/30 shadow-sm">
     <div class="sq-container max-w-[1400px] mx-auto px-6">
       <div class="flex items-center h-[72px] gap-8">
 
-        <!-- Mobile Menu Button (Mobile/Tablet only) - 48px touch target per WCAG 2.2 -->
+        <!-- Mobile Menu Button -->
         <button
           class="lg:hidden text-on-surface-variant hover:text-primary-400 w-12 h-12 min-w-[48px] min-h-[48px] flex items-center justify-center rounded-lg transition-all duration-200"
           [class.bg-primary-50]="mobileMenuOpen"
@@ -31,10 +30,9 @@
           </mat-icon>
         </button>
 
-        <!-- Logo Component -->
         <app-logo></app-logo>
 
-        <!-- Search Bar Component (Desktop) -->
+        <!-- Search Bar (Desktop) -->
         <app-search-bar
           class="sq-search--desktop flex-1 max-w-[640px]"
           [language]="config.language"
@@ -42,7 +40,7 @@
           (searchSubmit)="onSearchSubmit($event)"
         ></app-search-bar>
 
-        <!-- Location Selector Component (Desktop) -->
+        <!-- Location Selector (Desktop) -->
         <app-location-selector
           class="hidden lg:block"
           [selectedLocation]="selectedLocation"
@@ -51,7 +49,7 @@
           (locationChange)="onLocationSelect($event)"
         ></app-location-selector>
 
-        <!-- Account Menu Component (Desktop) -->
+        <!-- Account Menu (Desktop) -->
         <app-account-menu
           class="hidden lg:block"
           [user]="user"
@@ -60,7 +58,7 @@
           (logoutClick)="onLogoutClick()"
         ></app-account-menu>
 
-        <!-- Favorites Button Component (Desktop) -->
+        <!-- Favorites Button (Desktop) -->
         <app-favorites-button
           class="hidden lg:block"
           [count]="wishlistCount"
@@ -68,7 +66,7 @@
           (favoritesClick)="onWishlistClick()"
         ></app-favorites-button>
 
-        <!-- Cart Button Component (Desktop) -->
+        <!-- Cart Button (Desktop) -->
         <app-cart-button
           class="hidden lg:block"
           [itemCount]="cart.itemCount"
@@ -98,7 +96,7 @@
     </div>
   </div>
 
-  <!-- Mobile Search Bar (shown below main header on mobile/tablet) -->
+  <!-- Mobile Search Bar -->
   <app-search-bar
     class="sq-search--mobile"
     [language]="config.language"
@@ -107,23 +105,38 @@
   ></app-search-bar>
 
   <!-- ====================== ROW 3: CATEGORY NAVIGATION ====================== -->
-  <app-category-navigation
-    [config]="config"
-    [categories]="categories"
-    [featuredCategories]="config.featuredCategories"
-    [activeMegaMenu]="activeMegaMenu"
-    (categoryClick)="onCategoryClick($event)"
-    (megaMenuShow)="showMegaMenu($event)"
-    (megaMenuHide)="hideMegaMenu()"
-    (allCategoriesClick)="onCategoriesClick()"
-    (specialOffersClick)="onCategoryClick(categories[0] || null)"
-    (flashSaleClick)="onCategoryClick(categories[0] || null)"
-  ></app-category-navigation>
+  <!-- Wrapped in relative container for dropdown mega menu positioning -->
+  <div class="relative">
+    <app-category-navigation
+      [config]="config"
+      [categories]="categories"
+      [featuredCategories]="config.featuredCategories"
+      [activeMegaMenu]="activeMegaMenu"
+      (categoryClick)="onCategoryClick($event)"
+      (megaMenuShow)="showMegaMenu($event)"
+      (megaMenuHide)="hideMegaMenu()"
+      (allCategoriesClick)="onCategoriesClick()"
+      (specialOffersClick)="onCategoryClick(categories[0] || null)"
+      (flashSaleClick)="onCategoryClick(categories[0] || null)"
+    ></app-category-navigation>
 
-  <!-- ====================== MEGA MENU (S1 Categories Sprint) ====================== -->
+    <!-- S1 Sprint Mega Menu — Dropdown Mode (hover on featured categories) -->
+    <app-mega-menu
+      [categories]="categoryTree()"
+      [isOpen]="megaMenuDropdownOpen()"
+      [displayMode]="'dropdown'"
+      (categorySelected)="onMegaMenuCategorySelected($event)"
+      (menuClosed)="onMegaMenuClosed()"
+      (menuMouseEnter)="onDropdownMenuMouseEnter()"
+      (menuMouseLeave)="onDropdownMenuMouseLeave()"
+    ></app-mega-menu>
+  </div>
+
+  <!-- S1 Sprint Mega Menu — Overlay Mode (click "All Categories") -->
   <app-mega-menu
     [categories]="categoryTree()"
     [isOpen]="megaMenuOpen()"
+    [displayMode]="'overlay'"
     (categorySelected)="onMegaMenuCategorySelected($event)"
     (menuClosed)="onMegaMenuClosed()"
   ></app-mega-menu>
@@ -134,7 +147,7 @@
     (itemClick)="onQuickAccessItemClick($event)"
   ></app-quick-access-row>
 
-  <!-- Mobile Category Nav (S3 - replaces legacy MobileCategoryMenu) -->
+  <!-- Mobile Category Nav (S1 Sprint) -->
   <app-mobile-category-nav
     [categories]="categoryTree()"
     [isOpen]="mobileMenuOpen"
