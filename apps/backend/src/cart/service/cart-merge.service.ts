@@ -42,6 +42,7 @@ import {
   MergeStrategy,
   MergeCartResponse,
 } from '../dto/MergeCartRequest.dto';
+import { GuestSessionStatus } from '../../auth/dto/guest-session.dto';
 import { AuditLogService } from '../../audit-log/service/audit-log.service';
 
 @Injectable()
@@ -448,7 +449,7 @@ export class CartMergeService {
     guestSession: GuestSession,
     userId: number,
   ): Promise<void> {
-    guestSession.status = 'converted';
+    guestSession.status = GuestSessionStatus.CONVERTED;
     guestSession.convertedUserId = userId;
     guestSession.updatedAt = new Date();
 

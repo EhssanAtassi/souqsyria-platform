@@ -313,4 +313,6 @@ export interface AuthState {
   remainingAttempts: number | null;
   /** Minutes until lockout expires */
   lockedUntilMinutes: number | null;
+  /** Seconds until rate limit expires (from HTTP 429 Retry-After header) */
+  rateLimitRetryAfter: number | null;
 }

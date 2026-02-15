@@ -38,6 +38,7 @@ import {
 } from 'typeorm';
 import { Cart } from './cart.entity';
 import { createHash, randomBytes } from 'crypto';
+import { GuestSessionStatus } from '../../auth/dto/guest-session.dto';
 
 /**
  * GuestSession Entity
@@ -126,11 +127,11 @@ export class GuestSession {
    */
   @Column({
     type: 'enum',
-    enum: ['active', 'expired', 'converted'],
-    default: 'active',
+    enum: GuestSessionStatus,
+    default: GuestSessionStatus.ACTIVE,
   })
   @Index()
-  status: 'active' | 'expired' | 'converted';
+  status: GuestSessionStatus;
 
   /**
    * Converted User ID - Reference to user account after conversion
@@ -198,7 +199,7 @@ export class GuestSession {
    * @returns boolean - True if session is past expiration date
    */
   isExpired(): boolean {
-    return this.expiresAt < new Date() || this.status === 'expired';
+    return this.expiresAt < new Date() || this.status === GuestSessionStatus.EXPIRED;
   }
 
   /**
@@ -225,8 +226,8 @@ export class GuestSession {
     this.lastActivityAt = new Date();
     this.expiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
 
-    if (this.status === 'expired' && this.isInGracePeriod()) {
-      this.status = 'active';
+    if (this.status === GuestSessionStatus.EXPIRED && this.isInGracePeriod()) {
+      this.status = GuestSessionStatus.ACTIVE;
     }
   }
 
@@ -236,25 +237,26 @@ export class GuestSession {
    * @param userId - User account ID after conversion
    */
   markAsConverted(userId: number): void {
-    this.status = 'converted';
+    this.status = GuestSessionStatus.CONVERTED;
     this.convertedUserId = userId;
   }
 
   /**
    * Get session summary for API responses
    *
-   * @returns Object with key session information
+   * SECURITY: Does NOT include sessionToken or ipAddress - these are internal security fields
+   * that should never be exposed to clients.
+   *
+   * @returns Object with key session information (safe for API responses)
    */
   getSummary() {
     return {
       id: this.id,
-      sessionToken: this.sessionToken,
       status: this.status,
       isExpired: this.isExpired(),
       isInGracePeriod: this.isInGracePeriod(),
       lastActivity: this.lastActivityAt,
       expiresAt: this.expiresAt,
-      ipAddress: this.ipAddress,
       hasCart: !!this.cart,
     };
   }

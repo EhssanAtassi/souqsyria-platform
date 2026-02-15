@@ -162,6 +162,9 @@
               <img
                 [src]="product.images[0].url"
                 [alt]="product.name"
+                loading="lazy"
+                width="300"
+                height="300"
                 class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
 
               <!-- Badges -->
@@ -240,32 +243,39 @@
         </button>
       </div>
     } @else {
-      <div class="text-center py-12">
-        <p class="text-neutral-600 text-lg">No products available at the moment</p>
+      <!-- Empty State with Icon and Bilingual Text -->
+      <div class="text-center py-16">
+        <span class="material-icons text-6xl text-neutral-300 mb-4 block">inventory_2</span>
+        <p class="text-neutral-600 text-lg mb-1">No products available at the moment</p>
+        <p class="text-neutral-500 text-base font-arabic">لا توجد منتجات متاحة حاليًا</p>
       </div>
     }
   </div>
 </section>
 
-<!-- Trust & Social Proof Section -->
-<section class="py-16 bg-white border-y border-neutral-200">
+<!-- Trust & Social Proof Section (Animated on Scroll) -->
+<section id="trust-stats-section" class="py-16 bg-white border-y border-neutral-200">
   <div class="container mx-auto px-4">
     <div class="grid grid-cols-2 md:grid-cols-4 gap-8">
       <div class="text-center">
-        <div class="text-4xl font-bold text-golden-wheat-dark mb-2">2000+</div>
+        <div class="text-4xl font-bold text-golden-wheat-dark mb-2">{{ animatedProducts() }}+</div>
         <p class="text-neutral-600">Authentic Products</p>
+        <p class="text-xs text-neutral-400 font-arabic">منتج أصيل</p>
       </div>
       <div class="text-center">
-        <div class="text-4xl font-bold text-golden-wheat-dark mb-2">500+</div>
+        <div class="text-4xl font-bold text-golden-wheat-dark mb-2">{{ animatedArtisans() }}+</div>
         <p class="text-neutral-600">Syrian Artisans</p>
+        <p class="text-xs text-neutral-400 font-arabic">حرفي سوري</p>
       </div>
       <div class="text-center">
-        <div class="text-4xl font-bold text-golden-wheat-dark mb-2">50+</div>
+        <div class="text-4xl font-bold text-golden-wheat-dark mb-2">{{ animatedCountries() }}+</div>
         <p class="text-neutral-600">Countries Served</p>
+        <p class="text-xs text-neutral-400 font-arabic">دولة يتم خدمتها</p>
       </div>
       <div class="text-center">
-        <div class="text-4xl font-bold text-golden-wheat-dark mb-2">4.8★</div>
+        <div class="text-4xl font-bold text-golden-wheat-dark mb-2">{{ animatedRating() }}★</div>
         <p class="text-neutral-600">Customer Rating</p>
+        <p class="text-xs text-neutral-400 font-arabic">تقييم العملاء</p>
       </div>
     </div>
   </div>

@@ -96,6 +96,16 @@
   --color-success: #2e7d32;
   /** Background color for success message containers */
   --color-success-bg: #e8f5e9;
+  /** Warning state colors for rate-limiting and attempt warnings */
+  --color-warning-text: #e65100;
+  --color-warning-bg: #fff3e0;
+  --color-warning-border: #ff9800;
+  /** Danger state colors for account lockout and password-weak indicators */
+  --color-danger-text: #c62828;
+  --color-danger-bg: #ffebee;
+  --color-danger-border: #f44336;
+  /** Informational state color for password-good indicators */
+  --color-info: #2196f3;
   /** Secondary text color for labels and descriptions */
   --color-text-secondary: #666666;
   /** Muted text color for hints and disclaimers */
@@ -105,14 +115,26 @@
   --shadow-auth-card: 0 4px 24px rgba(0, 0, 0, 0.08);
   /** Neutral background for page surfaces (maps to neutral-100) */
   --color-surface-neutral: #f5f5f5;
+  /** Social provider brand colors for OAuth buttons */
+  --social-google-blue: #4285f4;
+  --social-facebook-blue: #1877f2;
 }
+
+/**
+ * Material Component Overrides - SouqSyria Golden Wheat Theme
+ *
+ * @description MDC/Mat CSS custom properties (--mdc-*, --mat-*) are the official
+ * Material theming API. They cascade normally and DON'T need !important.
+ * Direct property overrides (background, border-color, etc.) DO need !important
+ * to beat Material's internal component styles which have higher specificity.
+ */
 
 /* Material Button Overrides - SouqSyria Golden Wheat Colors */
 .mat-mdc-raised-button.mat-primary,
 .mat-mdc-fab.mat-primary,
 .mat-mdc-mini-fab.mat-primary {
-  --mdc-protected-button-container-color: var(--golden-wheat-primary) !important;
-  --mdc-protected-button-label-text-color: var(--charcoal-light) !important;
+  --mdc-protected-button-container-color: var(--golden-wheat-primary);
+  --mdc-protected-button-label-text-color: var(--charcoal-light);
   background: linear-gradient(135deg, var(--golden-wheat-primary) 0%, var(--golden-wheat-medium) 100%) !important;
 
   &:hover {
@@ -122,18 +144,18 @@
 
 .mat-mdc-raised-button.mat-accent,
 .mat-mdc-fab.mat-accent {
-  --mdc-protected-button-container-color: var(--umber-light) !important;
-  --mdc-protected-button-label-text-color: white !important;
+  --mdc-protected-button-container-color: var(--umber-light);
+  --mdc-protected-button-label-text-color: white;
   background: linear-gradient(135deg, var(--umber-medium) 0%, var(--umber-light) 100%) !important;
 }
 
 .mat-mdc-button.mat-primary {
-  --mdc-text-button-label-text-color: var(--forest-dark) !important;
+  --mdc-text-button-label-text-color: var(--forest-dark);
 }
 
 /* Material Icon Button - SouqSyria Colors */
 .mat-mdc-icon-button.mat-primary {
-  --mdc-icon-button-icon-color: var(--golden-wheat-primary) !important;
+  --mdc-icon-button-icon-color: var(--golden-wheat-primary);
 
   &:hover {
     background-color: rgba(152, 133, 97, 0.1) !important;
@@ -141,7 +163,7 @@
 }
 
 .mat-mdc-icon-button.mat-accent {
-  --mdc-icon-button-icon-color: var(--umber-light) !important;
+  --mdc-icon-button-icon-color: var(--umber-light);
 
   &:hover {
     background-color: rgba(107, 31, 42, 0.1) !important;
@@ -150,10 +172,10 @@
 
 /* Material Tabs - SouqSyria Colors */
 .mat-mdc-tab-group {
-  --mat-tab-header-active-label-text-color: var(--forest-dark) !important;
-  --mat-tab-header-active-focus-label-text-color: var(--forest-dark) !important;
-  --mat-tab-header-active-hover-label-text-color: var(--forest-dark) !important;
-  --mdc-tab-indicator-active-indicator-color: var(--golden-wheat-primary) !important;
+  --mat-tab-header-active-label-text-color: var(--forest-dark);
+  --mat-tab-header-active-focus-label-text-color: var(--forest-dark);
+  --mat-tab-header-active-hover-label-text-color: var(--forest-dark);
+  --mdc-tab-indicator-active-indicator-color: var(--golden-wheat-primary);
 }
 
 .mat-mdc-tab {
@@ -175,39 +197,39 @@
 
 /* Material Spinner - SouqSyria Colors */
 .mat-mdc-progress-spinner {
-  --mdc-circular-progress-active-indicator-color: var(--golden-wheat-primary) !important;
+  --mdc-circular-progress-active-indicator-color: var(--golden-wheat-primary);
 }
 
 /* Material Checkbox - SouqSyria Colors */
 .mat-mdc-checkbox.mat-accent {
-  --mdc-checkbox-selected-checkmark-color: white !important;
-  --mdc-checkbox-selected-focus-icon-color: var(--golden-wheat-primary) !important;
-  --mdc-checkbox-selected-hover-icon-color: var(--golden-wheat-primary) !important;
-  --mdc-checkbox-selected-icon-color: var(--golden-wheat-primary) !important;
-  --mdc-checkbox-selected-pressed-icon-color: var(--golden-wheat-primary) !important;
+  --mdc-checkbox-selected-checkmark-color: white;
+  --mdc-checkbox-selected-focus-icon-color: var(--golden-wheat-primary);
+  --mdc-checkbox-selected-hover-icon-color: var(--golden-wheat-primary);
+  --mdc-checkbox-selected-icon-color: var(--golden-wheat-primary);
+  --mdc-checkbox-selected-pressed-icon-color: var(--golden-wheat-primary);
 }
 
 /* Material Chip - SouqSyria Colors */
 .mat-mdc-chip.mat-accent {
-  --mdc-chip-elevated-container-color: var(--golden-wheat-light) !important;
-  --mdc-chip-label-text-color: var(--forest-dark) !important;
+  --mdc-chip-elevated-container-color: var(--golden-wheat-light);
+  --mdc-chip-label-text-color: var(--forest-dark);
   border: 1px solid var(--golden-wheat-primary) !important;
 }
 
 /* Material Slider - SouqSyria Colors */
 .mat-mdc-slider {
-  --mdc-slider-handle-color: var(--golden-wheat-primary) !important;
-  --mdc-slider-focus-handle-color: var(--golden-wheat-primary) !important;
-  --mdc-slider-hover-handle-color: var(--golden-wheat-primary) !important;
-  --mdc-slider-active-track-color: var(--golden-wheat-primary) !important;
-  --mdc-slider-inactive-track-color: var(--golden-wheat-light) !important;
+  --mdc-slider-handle-color: var(--golden-wheat-primary);
+  --mdc-slider-focus-handle-color: var(--golden-wheat-primary);
+  --mdc-slider-hover-handle-color: var(--golden-wheat-primary);
+  --mdc-slider-active-track-color: var(--golden-wheat-primary);
+  --mdc-slider-inactive-track-color: var(--golden-wheat-light);
 }
 
 /* Material Form Field - SouqSyria Colors */
 .mat-mdc-form-field.mat-accent {
-  --mdc-filled-text-field-caret-color: var(--forest-dark) !important;
-  --mdc-filled-text-field-focus-active-indicator-color: var(--golden-wheat-primary) !important;
-  --mdc-filled-text-field-focus-label-text-color: var(--forest-dark) !important;
+  --mdc-filled-text-field-caret-color: var(--forest-dark);
+  --mdc-filled-text-field-focus-active-indicator-color: var(--golden-wheat-primary);
+  --mdc-filled-text-field-focus-label-text-color: var(--forest-dark);
 }
 
 /* Material Paginator - SouqSyria Colors */
@@ -215,7 +237,7 @@
   background: transparent !important;
 
   .mat-mdc-icon-button.mat-mdc-button-base {
-    --mdc-icon-button-icon-color: var(--forest-dark) !important;
+    --mdc-icon-button-icon-color: var(--forest-dark);
 
     &:hover {
       background-color: rgba(152, 133, 97, 0.1) !important;

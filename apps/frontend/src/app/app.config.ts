@@ -15,6 +15,7 @@ import { authInterceptor } from './features/auth/interceptors/auth.interceptor';
 import { offlineInterceptor } from './core/interceptors/offline.interceptor';
 import { authReducer, authFeatureKey } from './features/auth/store/auth.reducer';
 import * as authEffects from './features/auth/store/auth.effects';
+import { guestSessionInitializerProvider } from './features/auth/initializers/guest-session.initializer';
 
 /**
  * Main application configuration for Syrian marketplace
@@ -76,6 +77,9 @@ export const appConfig: ApplicationConfig = {
       fallbackLang: 'en',
       lang: 'en',
     }),
+
+    // Guest Session Initializer - ensures guest session exists on app startup
+    guestSessionInitializerProvider,
 
     // Akita DevTools - enabled in development mode only (for legacy stores)
     ...(isDevMode() ? [

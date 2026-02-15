@@ -2,49 +2,28 @@
  * Register Component Styles for SouqSyria marketplace
  *
  * @description Component-specific SCSS styles for the user registration form.
- * Imports shared auth styles and adds register-specific styles for terms text.
+ * Imports shared auth styles and animations, adds register-specific styles
+ * for terms text.
  *
  * @architecture
  * RTL Strategy: Uses CSS logical properties (padding-inline, margin-block-start)
  * instead of physical left/right/top/bottom. The terms text inherits direction
- * from the parent `[dir]` attribute, so no explicit `:host-context([dir="rtl"])`
- * override is needed. The redundant `direction: rtl` block has been removed.
- *
- * @swagger
- * components:
- *   schemas:
- *     RegisterComponentStyles:
- *       type: object
- *       description: SCSS styling for the register auth form (component-specific)
+ * from the parent `[dir]` attribute.
+ * Animations: Imported from shared _animations.scss (no duplication).
  */
 
-// Import shared auth styles
-@import '../../styles/auth-shared';
+// Import shared auth styles and animations (modern @use module system)
+@use '../../styles' as *;
 
 // =============================================================================
 // Register-Specific Styles
 // =============================================================================
 
 /**
- * Smooth fade-slide animation for error messages
- * @description Provides visual feedback when error messages appear dynamically
- */
-@keyframes fadeSlideIn {
-  from {
-    opacity: 0;
-    transform: translateY(-8px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-/**
- * Error message styling with animation
+ * Error message styling with shared animation
  */
 .error-message {
-  animation: fadeSlideIn 0.3s ease-out;
+  @include fade-slide-in;
 }
 
 /**
@@ -54,19 +33,18 @@
  * @description
  * Uses `margin-block-start` (logical) instead of `margin-top`.
  * Uses `padding-inline` (logical) instead of `padding: 0 $spacing-2`
- * so horizontal padding auto-adapts in RTL mode. The `text-align: center`
- * is direction-agnostic and works identically in both LTR and RTL.
+ * so horizontal padding auto-adapts in RTL mode.
  */
 .terms-text {
-  font-size: 0.75rem;      // 12px
-  color: $color-text-tertiary;  // #999
+  font-size: 0.75rem;
+  color: $color-text-tertiary;
   text-align: center;
-  margin-block-start: $spacing-4;  // 1rem (16px) - logical property
+  margin-block-start: $spacing-4;
   line-height: 1.5;
-  padding-inline: $spacing-2;     // 0.5rem (8px) horizontal padding - logical property
+  padding-inline: $spacing-2;
 
   @media (min-width: $breakpoint-sm) {
-    padding-inline: 0;  // Remove horizontal padding on larger screens
+    padding-inline: 0;
   }
 
   a {
@@ -76,12 +54,12 @@
     transition: color 0.2s ease, text-decoration 0.2s ease;
 
     &:hover {
-      color: var(--golden-wheat-medium);  // Darker golden wheat for hover
+      color: var(--golden-wheat-medium);
       text-decoration: underline;
     }
 
     &:active {
-      color: var(--forest-dark);  // Forest dark for active state
+      color: var(--forest-dark);
     }
 
     &:focus-visible {
@@ -95,7 +73,6 @@
 /**
  * Arabic typography tuning for terms text.
  * Increased line-height for Arabic readability in small legal text.
- * Arabic legal text is particularly dense and benefits from extra leading.
  */
 [dir="rtl"] {
   .terms-text {

@@ -18,10 +18,17 @@ $color-bg-gradient-end: var(--golden-wheat-light);
 // =============================================================================
 // Auth Layout Root
 // =============================================================================
+/**
+ * Auth layout root container.
+ * @description Uses 100dvh (dynamic viewport height) which adjusts when the
+ * mobile virtual keyboard opens, preventing form fields from being hidden
+ * behind the keyboard. Falls back to 100vh for browsers without dvh support.
+ */
 .auth-layout {
   display: flex;
   flex-direction: column;
-  min-height: 100vh;
+  min-height: 100vh; // Fallback for browsers without dvh support
+  min-height: 100dvh; // Dynamic viewport height — adjusts for virtual keyboard
   background: linear-gradient(135deg, $color-bg-gradient-start 0%, $color-bg-gradient-end 100%);
 }
 
@@ -47,11 +54,12 @@ $color-bg-gradient-end: var(--golden-wheat-light);
   top: 0;
   z-index: 10;
 
-  // Override the language toggle border-left that's designed for the main header top-bar
-  ::ng-deep app-language-toggle .flex.items-center {
-    border-left: none;
-    padding-left: 0;
-    margin-left: 0;
+  // Language toggle: remove border that's designed for the main header top-bar.
+  // Uses :host encapsulation-safe selector instead of ::ng-deep.
+  app-language-toggle {
+    --language-toggle-border: none;
+    --language-toggle-padding-start: 0;
+    --language-toggle-margin-start: 0;
   }
 }
 
@@ -60,16 +68,23 @@ $color-bg-gradient-end: var(--golden-wheat-light);
 // =============================================================================
 /**
  * Flex-grow content area that centers auth cards vertically and horizontally.
+ * @description On short viewports (<600px), uses flex-start + padding to allow
+ * the register form (which is taller) to scroll naturally. On taller viewports,
+ * centers vertically. overflow-y: auto ensures scrollability when content
+ * exceeds the available height (e.g., register form on short landscape devices).
  */
 .auth-layout__content {
   flex: 1;
   display: flex;
   justify-content: center;
   align-items: flex-start;
-  padding-top: 2rem;
+  padding-top: 1rem;
+  padding-bottom: 1rem;
+  overflow-y: auto;
 
   @media (min-height: 600px) {
     align-items: center;
     padding-top: 0;
+    padding-bottom: 0;
   }
 }

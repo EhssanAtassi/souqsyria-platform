@@ -73,21 +73,12 @@ export const authInterceptor: HttpInterceptorFn = (
       headers['Authorization'] = `Bearer ${token}`;
     }
 
-    // Add guest session header for cart requests (fallback for HttpOnly cookie)
-    if (request.url.includes('/cart')) {
-      const guestSessionId = document.cookie
-        .split(';')
-        .map(c => c.trim())
-        .find(c => c.startsWith('guest_session_id='))
-        ?.split('=')[1];
-      if (guestSessionId) {
-        headers['X-Guest-Session'] = decodeURIComponent(guestSessionId);
-      }
-    }
+    // Enable credentials for cart and guest-session requests to send HTTP-only cookie
+    const needsCredentials = request.url.includes('/cart') || request.url.includes('/guest-session');
 
     const clonedRequest = request.clone({
       setHeaders: headers,
-      withCredentials: request.url.includes('/cart')
+      withCredentials: needsCredentials
     });
 
     // Log in development mode

@@ -1,5 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import { Observable, of, delay, map } from 'rxjs';
+import { Observable, of, delay, map, switchMap } from 'rxjs';
 import { ProductOffer } from '../interfaces/product-offer.interface';
 import { ProductOffersAdapterService } from './product-offers-adapter.service';
 import { environment } from '../../../environments/environment';
@@ -68,7 +68,16 @@ export class ProductOffersService {
   getFeaturedOffers(): Observable<ProductOffer[]> {
     // Use backend API via adapter (unless mock data is enabled)
     if (!this.useMockData) {
-      return this.adapter.getFeaturedOffers(3, 'featured');
+      return this.adapter.getFeaturedOffers(3, 'featured').pipe(
+        switchMap(offers => {
+          // If adapter returned empty (API failed), use mock data
+          if (offers.length === 0) {
+            console.warn('⚠️ No featured offers from backend, using mock data');
+            return this.getMockFeaturedOffers();
+          }
+          return of(offers);
+        })
+      );
     }
 
     // Mock data fallback (for offline development)
@@ -161,7 +170,15 @@ export class ProductOffersService {
   getFlashSaleOffers(): Observable<ProductOffer[]> {
     // Use backend API via adapter (best seller sorting for flash sales)
     if (!this.useMockData) {
-      return this.adapter.getBestSellerOffers(3);
+      return this.adapter.getBestSellerOffers(3).pipe(
+        switchMap(offers => {
+          if (offers.length === 0) {
+            console.warn('⚠️ No flash sale offers from backend, using mock data');
+            return this.getMockFlashSaleOffers();
+          }
+          return of(offers);
+        })
+      );
     }
 
     // Mock data fallback

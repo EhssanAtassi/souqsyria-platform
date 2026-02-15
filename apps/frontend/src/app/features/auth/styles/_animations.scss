@@ -1,0 +1,66 @@
+/**
+ * Shared Auth Animations for SouqSyria marketplace
+ *
+ * @description Centralized animation keyframes and mixins used across all auth
+ * components. Eliminates duplication of fadeSlideIn keyframes that were
+ * previously defined in both login.component.scss and register.component.scss.
+ *
+ * @architecture
+ * Respects prefers-reduced-motion: animations are disabled for users who
+ * prefer reduced motion (vestibular disorders, motion sensitivity).
+ * Uses timing tokens from _auth-shared.scss ($transition-slow, $easing-decelerate).
+ */
+
+@use 'auth-shared' as *;
+
+// =============================================================================
+// Keyframe Definitions
+// =============================================================================
+
+/**
+ * Fade and slide-in animation for dynamic elements (error/success messages)
+ * @description Provides visual feedback when messages appear dynamically.
+ * Slides from 8px above with opacity transition.
+ */
+@keyframes fadeSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+// =============================================================================
+// Animation Mixins
+// =============================================================================
+
+/**
+ * Apply fade-slide-in animation with configurable duration
+ * @param {time} $duration - Animation duration (default: 0.3s)
+ */
+@mixin fade-slide-in($duration: $transition-slow) {
+  animation: fadeSlideIn $duration $easing-decelerate;
+}
+
+// =============================================================================
+// Reduced Motion Support (WCAG 2.1 Level AAA)
+// =============================================================================
+
+/**
+ * Disable all animations and transitions for users who prefer reduced motion.
+ * @description Applies to vestibular disorder and motion-sensitive users.
+ * Uses !important to override component-level animation declarations.
+ */
+@media (prefers-reduced-motion: reduce) {
+  .auth-card,
+  .error-message,
+  .success-message,
+  .warning-message,
+  .lockout-message {
+    animation: none !important;
+    transition: none !important;
+  }
+}

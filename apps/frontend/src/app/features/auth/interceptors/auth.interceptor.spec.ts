@@ -320,41 +320,30 @@ describe('AuthInterceptor', () => {
     });
   });
 
-  // ─── Guest session cookie ────────────────────────────────────
+  // ─── Guest session credentials (HTTP-only cookie via withCredentials) ────
 
-  describe('Guest session cookie', () => {
-    it('should add X-Guest-Session header for cart requests when cookie exists', () => {
-      // Mock document.cookie with a guest session
-      spyOnProperty(document, 'cookie', 'get').and.returnValue(
-        'other=value; guest_session_id=abc-123-def',
-      );
-
+  describe('Guest session credentials', () => {
+    it('should set withCredentials for cart requests', () => {
       httpClient.get('/api/cart/items').subscribe();
 
       const req = httpMock.expectOne('/api/cart/items');
-      expect(req.request.headers.get('X-Guest-Session')).toBe('abc-123-def');
+      expect(req.request.withCredentials).toBe(true);
       req.flush({});
     });
 
-    it('should NOT add X-Guest-Session for non-cart requests', () => {
-      spyOnProperty(document, 'cookie', 'get').and.returnValue(
-        'guest_session_id=abc-123',
-      );
+    it('should set withCredentials for guest-session requests', () => {
+      httpClient.get('/api/auth/guest-session/validate').subscribe();
 
+      const req = httpMock.expectOne('/api/auth/guest-session/validate');
+      expect(req.request.withCredentials).toBe(true);
+      req.flush({});
+    });
+
+    it('should NOT set withCredentials for non-cart/guest-session requests', () => {
       httpClient.get('/api/products').subscribe();
 
       const req = httpMock.expectOne('/api/products');
-      expect(req.request.headers.has('X-Guest-Session')).toBeFalse();
-      req.flush({});
-    });
-
-    it('should NOT add X-Guest-Session when no cookie exists', () => {
-      spyOnProperty(document, 'cookie', 'get').and.returnValue('');
-
-      httpClient.get('/api/cart').subscribe();
-
-      const req = httpMock.expectOne('/api/cart');
-      expect(req.request.headers.has('X-Guest-Session')).toBeFalse();
+      expect(req.request.withCredentials).toBe(false);
       req.flush({});
     });
   });
