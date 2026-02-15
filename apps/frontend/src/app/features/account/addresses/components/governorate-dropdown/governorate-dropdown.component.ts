@@ -1,6 +1,7 @@
 import {
   Component,
   ChangeDetectionStrategy,
+  DestroyRef,
   OnInit,
   inject,
   input,
@@ -8,9 +9,10 @@ import {
   signal,
   effect
 } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatSelectModule } from '@angular/material/select';
+import { MatSelectChange, MatSelectModule } from '@angular/material/select';
 import { TranslateModule } from '@ngx-translate/core';
 import { AddressApiService } from '../../services/address-api.service';
 import { LanguageService } from '../../../../../shared/services/language.service';
@@ -50,6 +52,7 @@ import { LanguageService } from '../../../../../shared/services/language.service
 export class GovernorateDropdownComponent implements OnInit {
   private readonly addressService = inject(AddressApiService);
   private readonly languageService = inject(LanguageService);
+  private readonly destroyRef = inject(DestroyRef);
 
   /** Input: Currently selected governorate ID */
   selectedGovernorateId = input<number | null>(null);
@@ -97,7 +100,9 @@ export class GovernorateDropdownComponent implements OnInit {
       if (govId !== this.selectedGov()) {
         this.selectedGov.set(govId);
         if (govId) {
-          this.addressService.loadCities(govId);
+          this.addressService.loadCities(govId)
+            .pipe(takeUntilDestroyed(this.destroyRef))
+            .subscribe();
         }
       }
     }, { allowSignalWrites: true });
@@ -107,7 +112,9 @@ export class GovernorateDropdownComponent implements OnInit {
       if (cityId !== this.selectedCity()) {
         this.selectedCity.set(cityId);
         if (cityId) {
-          this.addressService.loadDistricts(cityId);
+          this.addressService.loadDistricts(cityId)
+            .pipe(takeUntilDestroyed(this.destroyRef))
+            .subscribe();
         }
       }
     }, { allowSignalWrites: true });
@@ -125,7 +132,9 @@ export class GovernorateDropdownComponent implements OnInit {
    */
   ngOnInit(): void {
     if (this.governorates().length === 0) {
-      this.addressService.loadGovernorates();
+      this.addressService.loadGovernorates()
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe();
     }
   }
 
@@ -134,7 +143,7 @@ export class GovernorateDropdownComponent implements OnInit {
    * Loads cities for the selected governorate and clears city/district selections
    * @param event - Material select change event
    */
-  onGovernorateChange(event: any): void {
+  onGovernorateChange(event: MatSelectChange): void {
     const governorateId = event.value as number;
     this.selectedGov.set(governorateId);
     this.selectedCity.set(null);
@@ -146,7 +155,9 @@ export class GovernorateDropdownComponent implements OnInit {
 
     // Load cities for selected governorate
     if (governorateId) {
-      this.addressService.loadCities(governorateId);
+      this.addressService.loadCities(governorateId)
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe();
     }
 
     this.governorateChange.emit(governorateId);
@@ -157,7 +168,7 @@ export class GovernorateDropdownComponent implements OnInit {
    * Loads districts for the selected city and clears district selection
    * @param event - Material select change event
    */
-  onCityChange(event: any): void {
+  onCityChange(event: MatSelectChange): void {
     const cityId = event.value as number;
     this.selectedCity.set(cityId);
     this.selectedDist.set(null);
@@ -167,7 +178,9 @@ export class GovernorateDropdownComponent implements OnInit {
 
     // Load districts for selected city
     if (cityId) {
-      this.addressService.loadDistricts(cityId);
+      this.addressService.loadDistricts(cityId)
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe();
     }
 
     this.cityChange.emit(cityId);
@@ -177,9 +190,24 @@ export class GovernorateDropdownComponent implements OnInit {
    * @description Handle district selection change
    * @param event - Material select change event
    */
-  onDistrictChange(event: any): void {
+  onDistrictChange(event: MatSelectChange): void {
     const districtId = event.value as number;
     this.selectedDist.set(districtId);
     this.districtChange.emit(districtId);
+  }
+
+  /** @description Track governorate options by ID */
+  trackByGovId(index: number, gov: any): number {
+    return gov.id;
+  }
+
+  /** @description Track city options by ID */
+  trackByCityId(index: number, city: any): number {
+    return city.id;
+  }
+
+  /** @description Track district options by ID */
+  trackByDistrictId(index: number, district: any): number {
+    return district.id;
   }
 }

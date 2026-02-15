@@ -3,6 +3,7 @@
  * @description Main entry point of SouqSyria backend (MVP1).
  * Sets up global modules, TypeORM, and security guards.
  */
+import { join } from 'path';
 import { Module, NestModule, MiddlewareConsumer, RequestMethod } from '@nestjs/common';
 import { ConfigModule } from "@nestjs/config";
 import { ScheduleModule } from '@nestjs/schedule';
@@ -60,7 +61,12 @@ import { HealthModule } from './health';
     // Load environment variables from .env file (must be first)
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath: ['.env.development', '.env'],
+      envFilePath: [
+        join(__dirname, '..', '..', '..', '.env.development'),
+        join(__dirname, '..', '..', '..', '.env'),
+        '.env.development',
+        '.env',
+      ],
     }),
     // Enable scheduled tasks and cron jobs (required for SessionCleanupService)
     ScheduleModule.forRoot(),

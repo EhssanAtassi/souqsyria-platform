@@ -1,18 +1,20 @@
 import {
   Component,
   ChangeDetectionStrategy,
+  DestroyRef,
   OnInit,
   inject,
   signal,
   computed
 } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { AddressApiService } from '../../services/address-api.service';
 import { AddressResponse } from '../../interfaces/address.interface';
 import { AddressFormComponent } from '../../components/address-form/address-form.component';
@@ -61,6 +63,8 @@ export class AddressListComponent implements OnInit {
   private readonly addressService = inject(AddressApiService);
   private readonly languageService = inject(LanguageService);
   private readonly dialog = inject(MatDialog);
+  private readonly destroyRef = inject(DestroyRef);
+  private readonly translate = inject(TranslateService);
 
   /** Signal: Whether to show the address form */
   readonly showForm = signal<boolean>(false);
@@ -89,7 +93,9 @@ export class AddressListComponent implements OnInit {
    * @description Initialize component by loading addresses
    */
   ngOnInit(): void {
-    this.addressService.loadAddresses();
+    this.addressService.loadAddresses()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe();
   }
 
   /**
@@ -116,7 +122,9 @@ export class AddressListComponent implements OnInit {
   onFormSaved(): void {
     this.showForm.set(false);
     this.editingAddress.set(undefined);
-    this.addressService.loadAddresses();
+    this.addressService.loadAddresses()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe();
   }
 
   /**
@@ -147,18 +155,15 @@ export class AddressListComponent implements OnInit {
       data: dialogData
     });
 
-    dialogRef.afterClosed().subscribe((confirmed: boolean) => {
-      if (confirmed) {
-        this.addressService.deleteAddress(address.id).subscribe({
-          next: () => {
-            // Address list automatically updated via signal
-          },
-          error: (err) => {
-            console.error('Failed to delete address:', err);
-          }
-        });
-      }
-    });
+    dialogRef.afterClosed()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((confirmed: boolean) => {
+        if (confirmed) {
+          this.addressService.deleteAddress(address.id)
+            .pipe(takeUntilDestroyed(this.destroyRef))
+            .subscribe();
+        }
+      });
   }
 
   /**
@@ -167,14 +172,9 @@ export class AddressListComponent implements OnInit {
    */
   onSetDefault(address: AddressResponse): void {
     if (!address.isDefault) {
-      this.addressService.setDefault(address.id).subscribe({
-        next: () => {
-          // Address list automatically updated via signal
-        },
-        error: (err) => {
-          console.error('Failed to set default address:', err);
-        }
-      });
+      this.addressService.setDefault(address.id)
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe();
     }
   }
 
@@ -246,13 +246,23 @@ export class AddressListComponent implements OnInit {
     const parts: string[] = [];
 
     if (address.building) {
-      parts.push(`Building: ${address.building}`);
+      parts.push(`${this.translate.instant('addresses.buildingLabel')}: ${address.building}`);
     }
 
     if (address.floor) {
-      parts.push(`Floor: ${address.floor}`);
+      parts.push(`${this.translate.instant('addresses.floorLabel')}: ${address.floor}`);
     }
 
     return parts.join(', ');
+  }
+
+  /**
+   * @description Track address items by ID for efficient ngFor rendering
+   * @param index - Array index
+   * @param address - Address response object
+   * @returns Address ID
+   */
+  trackByAddressId(index: number, address: AddressResponse): number {
+    return address.id;
   }
 }

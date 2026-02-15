@@ -28,7 +28,7 @@ import { SyrianGovernorateEntity } from './syrian-governorate.entity';
 import { SyrianCityEntity } from './syrian-city.entity';
 import { SyrianDistrictEntity } from './syrian-district.entity';
 import {
-  AddressType,
+  PropertyType,
   AddressStatus,
   VerificationMethod,
   ContactPreference,
@@ -56,20 +56,20 @@ export class SyrianAddressEntity {
   id: number;
 
   /**
-   * Address type classification
+   * Property type classification (e.g., residential, commercial)
    */
   @ApiProperty({
-    description: 'Type of address for delivery optimization',
-    enum: AddressType,
-    example: AddressType.RESIDENTIAL,
-    default: AddressType.RESIDENTIAL,
+    description: 'Type of property for delivery optimization',
+    enum: PropertyType,
+    example: PropertyType.RESIDENTIAL,
+    default: PropertyType.RESIDENTIAL,
   })
   @Column({
     type: 'enum',
-    enum: AddressType,
-    default: AddressType.RESIDENTIAL,
+    enum: PropertyType,
+    default: PropertyType.RESIDENTIAL,
   })
-  addressType: AddressType;
+  propertyType: PropertyType;
 
   /**
    * Governorate (first-level administrative division)
