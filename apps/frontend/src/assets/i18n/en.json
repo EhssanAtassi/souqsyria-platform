@@ -1,4 +1,5 @@
 {
+  "404": "404",
   "loading": "Loading",
   "login": "Login",
   "email": "Email",
@@ -137,7 +138,6 @@
   "write_message": "Write Your Message",
   "message_is_required": "Message Is Required",
   "send_message": "Send Your Message",
-  "404": "404",
   "no_faq": "No FAQ Found",
   "no_faq_desc": "I regret to inform you that the FAQ is currently unavailable.",
   "no_offer": "No Offers Found",
@@ -449,7 +449,10 @@
       "noAvatar": "No photo",
       "loading": "Loading profile...",
       "error": "Failed to load profile",
-      "retry": "Retry"
+      "retry": "Retry",
+      "totalSpent": "Total Spent",
+      "lastOrder": "Last Order",
+      "noOrders": "No orders yet"
     },
     "editProfile": {
       "title": "Edit Profile",
@@ -469,9 +472,11 @@
         "nameMinLength": "Name must be at least 2 characters",
         "nameMaxLength": "Name must not exceed 100 characters",
         "phoneInvalid": "Phone must be in Syrian format: +963 followed by 9 digits",
-        "avatarTooLarge": "Image must be less than 2MB",
+        "avatarTooLarge": "Image must be less than 5MB",
         "invalidAvatarType": "Invalid file type. Please select an image."
-      }
+      },
+      "dragDropHint": "Click to upload or drag and drop (PNG, JPG, max 5MB)",
+      "phoneHint": "Enter 9 digits (prefix +963 is automatic)"
     },
     "security": {
       "title": "Change Password",

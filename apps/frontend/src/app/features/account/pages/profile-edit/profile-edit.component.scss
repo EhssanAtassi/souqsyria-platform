@@ -147,6 +147,17 @@
   }
 }
 
+.avatar-hint {
+  font-size: 0.875rem;
+  color: rgba(0, 0, 0, 0.6);
+  margin-top: 0.5rem;
+  text-align: center;
+
+  @media (min-width: 641px) {
+    text-align: left;
+  }
+}
+
 /* Form Fields */
 .form-field {
   width: 100%;

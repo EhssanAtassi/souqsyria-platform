@@ -1,6 +1,18 @@
 /**
  * @file change-password.dto.ts
- * @description DTO for changing user password
+ * @description DTO for changing user password with security validation
+ *
+ * SECURITY FEATURES:
+ * - Current password verification required
+ * - Strong password policy enforcement (8-50 chars, uppercase, lowercase, number, special)
+ * - Password confirmation matching
+ * - Prevents password reuse
+ * - Security audit logging for failed attempts (3-strike rule)
+ *
+ * VALIDATION RULES:
+ * - currentPassword: required, any string
+ * - newPassword: 8-50 chars, must include uppercase, lowercase, number, and special character (@$!%*?&)
+ * - confirmPassword: required, must match newPassword
  *
  * @author SouqSyria Development Team
  * @since 2025-08-08

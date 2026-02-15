@@ -36,6 +36,8 @@ function createMockProfile(): UserProfile {
     role: { id: 1, name: 'customer' },
     ordersCount: 5,
     wishlistCount: 3,
+    totalSpent: 150000,
+    lastOrderDate: '2024-05-01T10:00:00.000Z',
     createdAt: '2024-01-01T00:00:00.000Z',
     updatedAt: '2024-06-01T00:00:00.000Z',
   };
@@ -57,8 +59,8 @@ describe('ProfileEditComponent', () => {
   /** Mock MatSnackBar with spy methods */
   let snackBarSpy: jasmine.SpyObj<MatSnackBar>;
 
-  /** Mock TranslateService with spy methods */
-  let translateSpy: jasmine.SpyObj<TranslateService>;
+  /** Real TranslateService from TranslateModule */
+  let translateService: TranslateService;
 
   /**
    * @description Test module setup - configures standalone component with mocked dependencies
@@ -70,12 +72,9 @@ describe('ProfileEditComponent', () => {
     ]);
     routerSpy = jasmine.createSpyObj('Router', ['navigate']);
     snackBarSpy = jasmine.createSpyObj('MatSnackBar', ['open']);
-    translateSpy = jasmine.createSpyObj('TranslateService', ['get']);
-
     // Default: return a valid profile
     accountApiSpy.getProfile.and.returnValue(of(createMockProfile()));
     accountApiSpy.updateProfile.and.returnValue(of(createMockProfile()));
-    translateSpy.get.and.returnValue(of('Translated message'));
 
     await TestBed.configureTestingModule({
       imports: [
@@ -87,9 +86,11 @@ describe('ProfileEditComponent', () => {
         { provide: AccountApiService, useValue: accountApiSpy },
         { provide: Router, useValue: routerSpy },
         { provide: MatSnackBar, useValue: snackBarSpy },
-        { provide: TranslateService, useValue: translateSpy },
       ],
     }).compileComponents();
+
+    translateService = TestBed.inject(TranslateService);
+    spyOn(translateService, 'get').and.returnValue(of('Translated message'));
 
     fixture = TestBed.createComponent(ProfileEditComponent);
     component = fixture.componentInstance;
@@ -126,7 +127,7 @@ describe('ProfileEditComponent', () => {
 
       expect(accountApiSpy.getProfile).toHaveBeenCalledTimes(1);
       expect(component.profileForm.get('fullName')?.value).toBe('Ahmad Khalil');
-      expect(component.profileForm.get('phone')?.value).toBe('+963912345678');
+      expect(component.profileForm.get('phone')?.value).toBe('912345678');
     });
 
     /**
@@ -173,7 +174,7 @@ describe('ProfileEditComponent', () => {
       fixture.detectChanges();
 
       expect(component.loading()).toBe(false);
-      expect(translateSpy.get).toHaveBeenCalledWith('account.editProfile.error');
+      expect(translateService.get).toHaveBeenCalledWith('account.editProfile.error');
     });
   });
 
@@ -371,7 +372,7 @@ describe('ProfileEditComponent', () => {
 
       component.onAvatarChange(event);
 
-      expect(translateSpy.get).toHaveBeenCalled();
+      expect(translateService.get).toHaveBeenCalled();
     });
 
     /**
@@ -386,6 +387,99 @@ describe('ProfileEditComponent', () => {
       expect(component.avatarPreview()).toBeNull();
       expect(component.avatarData()).toBe('');
     });
+
+    /**
+     * @description Verifies file size limit is 5MB (not 2MB)
+     */
+    it('should reject files larger than 5MB', () => {
+      const largeFile = new File(['x'.repeat(6 * 1024 * 1024)], 'large.png', {
+        type: 'image/png',
+      });
+      const event = {
+        target: { files: [largeFile] },
+      } as unknown as Event;
+
+      component.onAvatarChange(event);
+
+      expect(translateService.get).toHaveBeenCalledWith(
+        'account.editProfile.validation.avatarTooLarge'
+      );
+    });
+
+    /**
+     * @description Verifies files under 5MB are accepted
+     */
+    it('should accept files under 5MB', fakeAsync(() => {
+      const validFile = new File(['test'], 'valid.png', { type: 'image/png' });
+      Object.defineProperty(validFile, 'size', { value: 4 * 1024 * 1024 });
+
+      const mockBase64 = 'data:image/png;base64,validData';
+      const mockReader = {
+        result: mockBase64,
+        readAsDataURL: function () {
+          setTimeout(() => {
+            this.onload?.();
+          }, 0);
+        },
+        onload: null as (() => void) | null,
+      };
+      spyOn(window as any, 'FileReader').and.returnValue(mockReader as any);
+
+      const event = {
+        target: { files: [validFile] },
+      } as unknown as Event;
+
+      component.onAvatarChange(event);
+      tick();
+
+      expect(component.avatarPreview()).toBe(mockBase64);
+    }));
+
+    /**
+     * @description Verifies drag-drop calls preventDefault
+     */
+    it('should handle drag over event', () => {
+      const mockEvent = {
+        preventDefault: jasmine.createSpy('preventDefault'),
+        stopPropagation: jasmine.createSpy('stopPropagation'),
+      } as unknown as DragEvent;
+
+      component.onDragOver(mockEvent);
+
+      expect(mockEvent.preventDefault).toHaveBeenCalled();
+      expect(mockEvent.stopPropagation).toHaveBeenCalled();
+    });
+
+    /**
+     * @description Verifies drag-drop processes dropped file
+     */
+    it('should process file on drop event', fakeAsync(() => {
+      const mockFile = new File(['test'], 'dropped.png', { type: 'image/png' });
+      const mockBase64 = 'data:image/png;base64,droppedData';
+
+      const mockReader = {
+        result: mockBase64,
+        readAsDataURL: function () {
+          setTimeout(() => {
+            this.onload?.();
+          }, 0);
+        },
+        onload: null as (() => void) | null,
+      };
+      spyOn(window as any, 'FileReader').and.returnValue(mockReader as any);
+
+      const mockEvent = {
+        preventDefault: jasmine.createSpy('preventDefault'),
+        stopPropagation: jasmine.createSpy('stopPropagation'),
+        dataTransfer: { files: [mockFile] },
+      } as unknown as DragEvent;
+
+      component.onDrop(mockEvent);
+      tick();
+
+      expect(mockEvent.preventDefault).toHaveBeenCalled();
+      expect(component.avatarPreview()).toBe(mockBase64);
+    }));
   });
 
   // ─── Form Submission ─────────────────────────────────────────────
@@ -421,7 +515,7 @@ describe('ProfileEditComponent', () => {
     it('should call updateProfile with correct data on valid submission', () => {
       component.profileForm.setValue({
         fullName: 'Updated Name',
-        phone: '+963999888777',
+        phone: '999888777',
       });
       component.avatarData.set(null);
 
@@ -441,7 +535,7 @@ describe('ProfileEditComponent', () => {
     it('should include avatar data in update when avatarData is set', () => {
       component.profileForm.setValue({
         fullName: 'Test User',
-        phone: '+963912345678',
+        phone: '912345678',
       });
       component.avatarData.set('data:image/png;base64,abc123');
 
@@ -460,7 +554,7 @@ describe('ProfileEditComponent', () => {
     it('should set saving to true during submission', () => {
       component.profileForm.setValue({
         fullName: 'Test User',
-        phone: '+963912345678',
+        phone: '912345678',
       });
 
       component.onSubmit();
@@ -474,12 +568,12 @@ describe('ProfileEditComponent', () => {
     it('should show success snackbar on successful update', () => {
       component.profileForm.setValue({
         fullName: 'Test User',
-        phone: '+963912345678',
+        phone: '912345678',
       });
 
       component.onSubmit();
 
-      expect(translateSpy.get).toHaveBeenCalledWith(
+      expect(translateService.get).toHaveBeenCalledWith(
         'account.editProfile.success'
       );
     });
@@ -490,7 +584,7 @@ describe('ProfileEditComponent', () => {
     it('should navigate to /account/profile after successful update', fakeAsync(() => {
       component.profileForm.setValue({
         fullName: 'Test User',
-        phone: '+963912345678',
+        phone: '912345678',
       });
 
       component.onSubmit();
@@ -508,13 +602,13 @@ describe('ProfileEditComponent', () => {
       );
       component.profileForm.setValue({
         fullName: 'Test User',
-        phone: '+963912345678',
+        phone: '912345678',
       });
 
       component.onSubmit();
 
       expect(component.saving()).toBe(false);
-      expect(translateSpy.get).toHaveBeenCalledWith(
+      expect(translateService.get).toHaveBeenCalledWith(
         'account.editProfile.error'
       );
     });
@@ -560,32 +654,32 @@ describe('ProfileEditComponent', () => {
     });
 
     /**
-     * @description Verifies error message key for required fullName
+     * @description Verifies error message key for required fullName (maps to 'name' prefix in i18n)
      */
     it('should return required error key for empty fullName', () => {
       component.profileForm.get('fullName')?.setValue('');
       component.profileForm.get('fullName')?.markAsTouched();
 
       const errorKey = component.getErrorMessage('fullName');
-      expect(errorKey).toBe('account.editProfile.validation.fullNameRequired');
+      expect(errorKey).toBe('account.editProfile.validation.nameRequired');
     });
 
     /**
-     * @description Verifies error message key for minlength fullName
+     * @description Verifies error message key for minlength fullName (maps to 'name' prefix in i18n)
      */
     it('should return minLength error key for short fullName', () => {
       component.profileForm.get('fullName')?.setValue('A');
       component.profileForm.get('fullName')?.markAsTouched();
 
       const errorKey = component.getErrorMessage('fullName');
-      expect(errorKey).toBe('account.editProfile.validation.fullNameMinLength');
+      expect(errorKey).toBe('account.editProfile.validation.nameMinLength');
     });
 
     /**
      * @description Verifies error message key for phone pattern
      */
     it('should return pattern error key for invalid phone', () => {
-      component.profileForm.get('phone')?.setValue('invalid-phone');
+      component.profileForm.get('phone')?.setValue('12345678a');
       component.profileForm.get('phone')?.markAsTouched();
 
       const errorKey = component.getErrorMessage('phone');

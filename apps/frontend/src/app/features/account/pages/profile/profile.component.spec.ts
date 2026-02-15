@@ -30,6 +30,8 @@ function createMockProfile(): UserProfile {
     role: { id: 1, name: 'customer' },
     ordersCount: 12,
     wishlistCount: 7,
+    totalSpent: 250000,
+    lastOrderDate: '2024-05-20T10:00:00.000Z',
     createdAt: '2024-01-15T10:00:00.000Z',
     updatedAt: '2024-06-01T12:00:00.000Z',
   };
@@ -419,6 +421,46 @@ describe('ProfileComponent', () => {
 
       expect(statValues.length).toBeGreaterThanOrEqual(2);
       expect(statValues[1]?.textContent?.trim()).toBe('7');
+    });
+
+    /**
+     * @description Verifies total spent stat is rendered
+     */
+    it('should display total spent in SYP', () => {
+      fixture.detectChanges();
+      const compiled = fixture.nativeElement as HTMLElement;
+      const statValues = compiled.querySelectorAll('.stat-value');
+
+      expect(statValues.length).toBeGreaterThanOrEqual(3);
+      expect(statValues[2]?.textContent).toContain('250,000');
+    });
+
+    /**
+     * @description Verifies last order date stat is rendered
+     */
+    it('should display last order date when available', () => {
+      fixture.detectChanges();
+      const compiled = fixture.nativeElement as HTMLElement;
+      const statValues = compiled.querySelectorAll('.stat-value');
+
+      expect(statValues.length).toBeGreaterThanOrEqual(4);
+      expect(statValues[3]?.textContent?.trim().length).toBeGreaterThan(0);
+    });
+
+    /**
+     * @description Verifies "No orders yet" is shown when lastOrderDate is null
+     */
+    it('should show "No orders yet" when lastOrderDate is null', () => {
+      const profileNoOrders: UserProfile = {
+        ...createMockProfile(),
+        lastOrderDate: undefined,
+      };
+      accountApiSpy.getProfile.and.returnValue(of(profileNoOrders));
+      fixture.detectChanges();
+
+      const compiled = fixture.nativeElement as HTMLElement;
+      // Check that the template shows the noOrders message
+      expect(compiled.textContent).toContain('account.profile.noOrders');
     });
   });
 });

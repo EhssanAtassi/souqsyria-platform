@@ -8,14 +8,13 @@
 import {
   ComponentFixture,
   TestBed,
-  fakeAsync,
-  tick,
 } from '@angular/core/testing';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { Router } from '@angular/router';
 import { of, throwError } from 'rxjs';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { provideMockStore, MockStore } from '@ngrx/store/testing';
 
 import { SecurityComponent } from './security.component';
@@ -38,14 +37,20 @@ describe('SecurityComponent', () => {
   /** Mock MatSnackBar with spy methods */
   let snackBarSpy: jasmine.SpyObj<MatSnackBar>;
 
-  /** Mock TranslateService with spy methods */
-  let translateSpy: jasmine.SpyObj<TranslateService>;
+  /** Mock MatDialogRef for success dialog */
+  let dialogRefSpy: jasmine.SpyObj<MatDialogRef<unknown>>;
+
+  /** Real TranslateService from TranslateModule */
+  let translateService: TranslateService;
 
   /** NgRx MockStore */
   let store: MockStore;
 
   /** Spy on store dispatch */
   let dispatchSpy: jasmine.Spy;
+
+  /** Spy on the component's dialog.open method */
+  let dialogOpenSpy: jasmine.Spy;
 
   /**
    * @description Test module setup - configures standalone component with mocked dependencies
@@ -56,12 +61,12 @@ describe('SecurityComponent', () => {
     ]);
     routerSpy = jasmine.createSpyObj('Router', ['navigate']);
     snackBarSpy = jasmine.createSpyObj('MatSnackBar', ['open']);
-    translateSpy = jasmine.createSpyObj('TranslateService', ['get']);
+    dialogRefSpy = jasmine.createSpyObj('MatDialogRef', ['afterClosed']);
 
     accountApiSpy.changePassword.and.returnValue(
       of({ message: 'Password changed' })
     );
-    translateSpy.get.and.returnValue(of('Translated message'));
+    dialogRefSpy.afterClosed.and.returnValue(of(true));
 
     await TestBed.configureTestingModule({
       imports: [
@@ -74,15 +79,20 @@ describe('SecurityComponent', () => {
         { provide: AccountApiService, useValue: accountApiSpy },
         { provide: Router, useValue: routerSpy },
         { provide: MatSnackBar, useValue: snackBarSpy },
-        { provide: TranslateService, useValue: translateSpy },
       ],
     }).compileComponents();
 
     store = TestBed.inject(MockStore);
     dispatchSpy = spyOn(store, 'dispatch').and.callThrough();
+    translateService = TestBed.inject(TranslateService);
 
     fixture = TestBed.createComponent(SecurityComponent);
     component = fixture.componentInstance;
+
+    // Spy on the component's own dialog instance (different from TestBed injector)
+    const componentDialog = (component as any).dialog as MatDialog;
+    dialogOpenSpy = spyOn(componentDialog, 'open').and.returnValue(dialogRefSpy);
+
     fixture.detectChanges();
   });
 
@@ -336,8 +346,8 @@ describe('SecurityComponent', () => {
     /** Valid form values for submission tests */
     const validFormValues = {
       currentPassword: 'OldPassword1',
-      newPassword: 'NewPassword1',
-      confirmPassword: 'NewPassword1',
+      newPassword: 'NewPassword1!',
+      confirmPassword: 'NewPassword1!',
     };
 
     /**
@@ -372,8 +382,8 @@ describe('SecurityComponent', () => {
 
       expect(accountApiSpy.changePassword).toHaveBeenCalledWith({
         currentPassword: 'OldPassword1',
-        newPassword: 'NewPassword1',
-        confirmPassword: 'NewPassword1',
+        newPassword: 'NewPassword1!',
+        confirmPassword: 'NewPassword1!',
       });
     });
 
@@ -389,57 +399,45 @@ describe('SecurityComponent', () => {
     });
   });
 
-  // ─── Success Flow: Snackbar, Logout, Navigate ────────────────────
+  // ─── Success Flow: Dialog, Logout, Navigate ────────────────────
 
   describe('Success Flow', () => {
     /** Valid form values for submission tests */
     const validFormValues = {
       currentPassword: 'OldPassword1',
-      newPassword: 'NewPassword1',
-      confirmPassword: 'NewPassword1',
+      newPassword: 'NewPassword1!',
+      confirmPassword: 'NewPassword1!',
     };
 
     /**
-     * @description Verifies success snackbar is shown on successful password change
+     * @description Verifies success dialog is opened on successful password change
      */
-    it('should show success snackbar on successful password change', () => {
+    it('should open success dialog on successful password change', () => {
       component.passwordForm.setValue(validFormValues);
       component.onSubmit();
 
-      expect(translateSpy.get).toHaveBeenCalledWith(
-        'account.security.success'
-      );
-      expect(snackBarSpy.open).toHaveBeenCalledWith(
-        'Translated message',
-        '',
-        jasmine.objectContaining({
-          duration: 5000,
-          panelClass: ['success-snackbar'],
-        })
-      );
+      expect(dialogOpenSpy).toHaveBeenCalled();
     });
 
     /**
-     * @description Verifies AuthActions.logout is dispatched after success
+     * @description Verifies AuthActions.logout is dispatched after dialog close
      */
-    it('should dispatch AuthActions.logout after success timeout', fakeAsync(() => {
+    it('should dispatch AuthActions.logout after dialog is closed', () => {
       component.passwordForm.setValue(validFormValues);
       component.onSubmit();
-      tick(2000); // setTimeout in showSuccessAndLogout
 
       expect(dispatchSpy).toHaveBeenCalledWith(AuthActions.logout());
-    }));
+    });
 
     /**
-     * @description Verifies navigation to /auth/login after logout dispatch
+     * @description Verifies navigation to /auth/login after dialog close
      */
-    it('should navigate to /auth/login after success timeout', fakeAsync(() => {
+    it('should navigate to /auth/login after dialog is closed', () => {
       component.passwordForm.setValue(validFormValues);
       component.onSubmit();
-      tick(2000);
 
       expect(routerSpy.navigate).toHaveBeenCalledWith(['/auth/login']);
-    }));
+    });
   });
 
   // ─── Error Flow ──────────────────────────────────────────────────
@@ -448,8 +446,8 @@ describe('SecurityComponent', () => {
     /** Valid form values for submission tests */
     const validFormValues = {
       currentPassword: 'OldPassword1',
-      newPassword: 'NewPassword1',
-      confirmPassword: 'NewPassword1',
+      newPassword: 'NewPassword1!',
+      confirmPassword: 'NewPassword1!',
     };
 
     /**
@@ -459,10 +457,11 @@ describe('SecurityComponent', () => {
       accountApiSpy.changePassword.and.returnValue(
         throwError(() => new Error('Wrong password'))
       );
+      spyOn(translateService, 'get').and.returnValue(of('Error message'));
       component.passwordForm.setValue(validFormValues);
       component.onSubmit();
 
-      expect(translateSpy.get).toHaveBeenCalledWith(
+      expect(translateService.get).toHaveBeenCalledWith(
         'account.security.error'
       );
     });

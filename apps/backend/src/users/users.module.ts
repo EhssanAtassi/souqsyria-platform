@@ -27,6 +27,7 @@ import { Role } from '../roles/entities/role.entity';
 import { Wishlist } from '../wishlist/entities/wishlist.entity';
 import { Address } from '../addresses/entities/address.entity';
 import { RefreshToken } from '../auth/entity/refresh-token.entity';
+import { SecurityAudit } from '../auth/entity/security-audit.entity';
 
 // ================================
 // CONTROLLERS
@@ -54,6 +55,7 @@ import { EmailService } from '../auth/service/email.service';
       Wishlist, // For user wishlist functionality
       Address, // For user address management
       RefreshToken, // For session invalidation on password change
+      SecurityAudit, // For password change security audit logging
     ]),
   ],
 

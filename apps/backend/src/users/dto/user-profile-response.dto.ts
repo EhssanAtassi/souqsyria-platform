@@ -1,6 +1,23 @@
 /**
  * @file user-profile-response.dto.ts
- * @description Response DTO for user profile information
+ * @description Response DTO for user profile information with stats
+ *
+ * FEATURES:
+ * - Complete user profile data (id, email, phone, name, avatar, etc.)
+ * - Role information (buyer, seller, admin)
+ * - User preferences (language, currency, notifications)
+ * - Address summaries (label, default flag, full address string)
+ * - Account statistics (orders count, wishlist count, total spent, saved addresses)
+ * - Activity tracking (last login, last activity, account creation date)
+ * - Sensitive data excluded (passwordHash, otpCode, refresh tokens)
+ *
+ * RESPONSE STRUCTURE:
+ * - User basic info: id, firebaseUid, email, phone, fullName, avatar, isVerified
+ * - Role: { id, name, displayName }
+ * - Preferences: { language, currency, emailNotifications, smsNotifications, marketingEmails }
+ * - Addresses: [{ id, label, isDefault, fullAddress }]
+ * - Statistics: { totalOrders, totalSpent, wishlistItems, savedAddresses }
+ * - Activity: lastLoginAt, lastActivityAt, createdAt, updatedAt
  *
  * @author SouqSyria Development Team
  * @since 2025-08-08

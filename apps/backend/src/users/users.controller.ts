@@ -30,7 +30,9 @@ import {
   UseGuards,
   Logger,
   HttpStatus,
+  Req,
 } from '@nestjs/common';
+import { Request } from 'express';
 
 import {
   ApiTags,
@@ -263,10 +265,21 @@ export class UsersController {
   async changePassword(
     @CurrentUser() user: UserFromToken,
     @Body() changePasswordDto: ChangePasswordDto,
+    @Req() req: Request,
   ) {
     this.logger.log(`🔐 Changing password for user ${user.id}`);
 
-    await this.usersService.changePassword(user.id, changePasswordDto);
+    // Extract IP address from request
+    const ipAddress =
+      (req.headers['x-forwarded-for'] as string)?.split(',')[0]?.trim() ||
+      req.socket.remoteAddress ||
+      'unknown';
+
+    await this.usersService.changePassword(
+      user.id,
+      changePasswordDto,
+      ipAddress,
+    );
 
     return {
       message: 'Password changed successfully',

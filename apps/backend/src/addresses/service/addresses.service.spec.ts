@@ -26,6 +26,8 @@ import { City } from '../city/entities/city.entity';
 import { SyrianAddressEntity } from '../entities/syrian-address-main.entity';
 import { SyrianGovernorateEntity } from '../entities/syrian-governorate.entity';
 import { SyrianCityEntity } from '../entities/syrian-city.entity';
+import { SyrianDistrictEntity } from '../entities/syrian-district.entity';
+import { GovernorateCityValidator } from '../validators/valid-governorate-city.validator';
 import { CreateAddressDto } from '../dto/create-address.dto';
 import { UpdateAddressDto } from '../dto/update-address.dto';
 import { SetDefaultAddressDto } from '../dto/set-default-address.dto';
@@ -94,6 +96,25 @@ describe('AddressesService', () => {
     findOneBy: jest.fn(),
   };
 
+  const mockGovRepository = {
+    findOne: jest.fn(),
+    findOneBy: jest.fn(),
+  };
+
+  const mockSyrianCityRepository = {
+    findOne: jest.fn(),
+    findOneBy: jest.fn(),
+  };
+
+  const mockDistrictRepository = {
+    findOne: jest.fn(),
+    findOneBy: jest.fn(),
+  };
+
+  const mockValidator = {
+    validate: jest.fn(),
+  };
+
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -121,6 +142,22 @@ describe('AddressesService', () => {
         {
           provide: getRepositoryToken(City),
           useValue: mockCityRepository,
+        },
+        {
+          provide: getRepositoryToken(SyrianGovernorateEntity),
+          useValue: mockGovRepository,
+        },
+        {
+          provide: getRepositoryToken(SyrianCityEntity),
+          useValue: mockSyrianCityRepository,
+        },
+        {
+          provide: getRepositoryToken(SyrianDistrictEntity),
+          useValue: mockDistrictRepository,
+        },
+        {
+          provide: GovernorateCityValidator,
+          useValue: mockValidator,
         },
       ],
     }).compile();
@@ -279,7 +316,7 @@ describe('AddressesService', () => {
         city: mockCity,
         createdAt: new Date(),
         updatedAt: new Date(),
-      } as Address;
+      } as unknown as Address;
 
       mockUserRepository.findOneBy.mockResolvedValue(mockUser);
       mockCountryRepository.findOne.mockResolvedValue(mockCountry);
