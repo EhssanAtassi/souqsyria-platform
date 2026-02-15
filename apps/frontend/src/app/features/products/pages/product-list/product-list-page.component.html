@@ -126,7 +126,9 @@
             <app-product-card
               [product]="product"
               [language]="language()"
+              [isWishlisted]="isProductWishlisted(product.id)"
               (addToCart)="onAddToCart($event)"
+              (addToWishlist)="onAddToWishlist($event)"
             />
           }
         </div>

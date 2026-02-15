@@ -36,6 +36,8 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ProductService } from '../../services/product.service';
 import { LanguageService } from '../../../../shared/services/language.service';
 import { CartService } from '../../../../store/cart/cart.service';
+import { WishlistService } from '../../../../shared/services/wishlist.service';
+import { Product } from '../../../../shared/interfaces/product.interface';
 import { ProductCardComponent } from '../../components/product-card/product-card.component';
 import { ProductSkeletonComponent } from '../../components/product-skeleton/product-skeleton.component';
 import { ProductsPaginationComponent } from '../../components/pagination/products-pagination.component';
@@ -78,6 +80,7 @@ export class ProductListPageComponent implements OnInit {
   private readonly cartService = inject(CartService);
   private readonly snackBar = inject(MatSnackBar);
   private readonly translateService = inject(TranslateService);
+  private readonly wishlistService = inject(WishlistService);
 
   /** Product list items from API */
   products = signal<ProductListItem[]>([]);
@@ -158,7 +161,7 @@ export class ProductListPageComponent implements OnInit {
       .subscribe((params) => {
         const page = Number(params['page']) || 1;
         const limit = Number(params['limit']) || 20;
-        const sortBy = params['sort'] || 'newest';
+        const sortBy = params['sortBy'] || 'newest';
         const categoryId = params['categoryId'] ? Number(params['categoryId']) : undefined;
         const minPrice = params['minPrice'] ? Number(params['minPrice']) : undefined;
         const maxPrice = params['maxPrice'] ? Number(params['maxPrice']) : undefined;
@@ -267,7 +270,7 @@ export class ProductListPageComponent implements OnInit {
     this.sortBy.set(sortBy);
     this.router.navigate([], {
       relativeTo: this.route,
-      queryParams: { sort: sortBy, page: 1 },
+      queryParams: { sortBy: sortBy, page: 1 },
       queryParamsHandling: 'merge',
     });
   }
@@ -471,5 +474,68 @@ export class ProductListPageComponent implements OnInit {
       queryParams: params,
       queryParamsHandling: 'merge',
     });
+  }
+
+  /**
+   * @description Handles Add to Wishlist event from product card
+   * Maps ProductListItem to Product interface and toggles wishlist
+   * @param product - Product to toggle in wishlist
+   */
+  onAddToWishlist(product: ProductListItem): void {
+    // Map ProductListItem to Product interface shape
+    const mappedProduct: Product = {
+      id: String(product.id),
+      name: product.nameEn,
+      nameArabic: product.nameAr,
+      slug: product.slug,
+      description: '',
+      price: {
+        amount: product.discountPrice ?? product.basePrice,
+        currency: (product.currency as 'USD' | 'EUR' | 'SYP') || 'SYP',
+        originalPrice: product.discountPrice ? product.basePrice : undefined,
+      },
+      category: {
+        id: String(product.categoryId || ''),
+        name: product.categoryNameEn || '',
+        nameArabic: product.categoryNameAr,
+        slug: '',
+        breadcrumb: [],
+      },
+      images: product.mainImage ? [{
+        id: '1',
+        url: product.mainImage,
+        alt: product.nameEn,
+        isPrimary: true,
+        order: 0,
+      }] : [],
+      specifications: {} as any,
+      seller: {} as any,
+      shipping: {} as any,
+      authenticity: { certified: false, heritage: 'modern', badges: [] },
+      inventory: { inStock: product.stockStatus === 'in_stock', quantity: 0, minOrderQuantity: 1, status: product.stockStatus, lowStockThreshold: 10 },
+      reviews: { averageRating: product.rating, totalReviews: product.reviewCount, ratingDistribution: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 } },
+      timestamps: { created: new Date(), updated: new Date() },
+    };
+
+    const wasAdded = this.wishlistService.toggleWishlist(mappedProduct);
+
+    const productName = this.language() === 'ar' ? product.nameAr : product.nameEn;
+    const message = this.language() === 'ar'
+      ? (wasAdded ? 'تمت الإضافة إلى المفضلة' : 'تمت الإزالة من المفضلة')
+      : (wasAdded ? 'Added to wishlist' : 'Removed from wishlist');
+
+    this.snackBar.open(`${message}`, '✓', {
+      duration: 3000,
+      panelClass: wasAdded ? 'success-snackbar' : 'info-snackbar',
+    });
+  }
+
+  /**
+   * @description Checks if a product is in the wishlist
+   * @param productId - Product ID to check
+   * @returns True if product is wishlisted
+   */
+  isProductWishlisted(productId: number): boolean {
+    return this.wishlistService.isInWishlist(String(productId));
   }
 }

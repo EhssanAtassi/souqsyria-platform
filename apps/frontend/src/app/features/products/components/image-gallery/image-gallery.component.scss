@@ -6,6 +6,13 @@
  * Mobile: Swiper carousel with fullscreen overlay
  */
 
+// Focus outline for keyboard navigation
+:host:focus-visible {
+  outline: 2px solid #c8a96e;  // golden-wheat color
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
 .image-gallery {
   display: flex;
   flex-direction: column;

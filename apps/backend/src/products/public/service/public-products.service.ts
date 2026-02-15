@@ -441,7 +441,7 @@ export class PublicProductsService {
       );
     }
 
-    // Query related products (same category, exclude self, limit 4, active/published only)
+    // Query related products (same category, exclude self, limit 5, active/published only)
     let relatedProducts: ProductEntity[] = [];
 
     if (product.category) {
@@ -461,7 +461,7 @@ export class PublicProductsService {
         })
         .andWhere('related.id != :productId', { productId: product.id })
         .orderBy('related.salesCount', 'DESC')
-        .limit(4)
+        .limit(5)
         .getMany();
     }
 

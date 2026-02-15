@@ -11,6 +11,7 @@ import {
   JoinColumn,
   CreateDateColumn,
   UpdateDateColumn,
+  Index,
 } from 'typeorm';
 import { ProductEntity } from '../../entities/product.entity';
 
@@ -25,9 +26,17 @@ export class ProductPriceEntity {
   @JoinColumn({ name: 'product_id' })
   product: ProductEntity;
 
+  /**
+   * @description Base price for the product. Indexed for efficient price filtering queries.
+   */
+  @Index('idx_product_price_base_price')
   @Column({ name: 'base_price', type: 'decimal', precision: 10, scale: 2 })
   basePrice: number;
 
+  /**
+   * @description Discounted price for the product. Indexed for efficient price filtering queries.
+   */
+  @Index('idx_product_price_discount_price')
   @Column({
     name: 'discount_price',
     type: 'decimal',

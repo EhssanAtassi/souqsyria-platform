@@ -22,6 +22,7 @@ import {
   DestroyRef,
   inject,
   CUSTOM_ELEMENTS_SCHEMA,
+  HostListener,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
@@ -44,6 +45,12 @@ register();
   templateUrl: './image-gallery.component.html',
   styleUrls: ['./image-gallery.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  host: {
+    'tabindex': '0',
+    'role': 'region',
+    '[attr.aria-label]': "language() === 'ar' ? 'معرض الصور' : 'Image gallery'",
+    '[attr.aria-roledescription]': "language() === 'ar' ? 'معرض صور المنتج' : 'Product image gallery'"
+  }
 })
 export class ImageGalleryComponent implements AfterViewInit {
   private readonly destroyRef = inject(DestroyRef);
@@ -152,6 +159,37 @@ export class ImageGalleryComponent implements AfterViewInit {
   /** @description Closes fullscreen overlay */
   closeFullscreen(): void {
     this.isFullscreenOpen.set(false);
+  }
+
+  /**
+   * @description Handles keyboard navigation for the image gallery.
+   * ArrowLeft moves to previous image, ArrowRight moves to next image.
+   * RTL-aware: arrows are reversed when language is 'ar'.
+   * @param event - Keyboard event
+   */
+  @HostListener('keydown', ['$event'])
+  onKeyDown(event: KeyboardEvent): void {
+    if (!this.hasMultipleImages()) return;
+
+    const imgs = this.images();
+    const current = this.currentIndex();
+    const isRtl = this.language() === 'ar';
+
+    if (event.key === 'ArrowLeft') {
+      event.preventDefault();
+      // In RTL, left arrow goes forward (next); in LTR, left goes backward (prev)
+      const newIndex = isRtl
+        ? Math.min(current + 1, imgs.length - 1)
+        : Math.max(current - 1, 0);
+      this.selectThumbnail(newIndex);
+    } else if (event.key === 'ArrowRight') {
+      event.preventDefault();
+      // In RTL, right arrow goes backward (prev); in LTR, right goes forward (next)
+      const newIndex = isRtl
+        ? Math.max(current - 1, 0)
+        : Math.min(current + 1, imgs.length - 1);
+      this.selectThumbnail(newIndex);
+    }
   }
 
   /**
