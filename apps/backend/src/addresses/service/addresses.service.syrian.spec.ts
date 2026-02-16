@@ -41,6 +41,8 @@ describe('SyrianAddressCrudService - Syrian Methods', () => {
   let mockDistrictRepo: jest.Mocked<Repository<SyrianDistrictEntity>>;
   let mockValidator: jest.Mocked<GovernorateCityValidator>;
   let mockAddressQueryService: jest.Mocked<AddressQueryService>;
+  let mockDataSource: any;
+  let mockQueryRunner: any;
 
   const mockUser: User = {
     id: 1,
@@ -119,19 +121,21 @@ describe('SyrianAddressCrudService - Syrian Methods', () => {
       countUserAddresses: jest.fn(),
     } as any;
 
-    const mockDataSource = {
-      createQueryRunner: jest.fn().mockReturnValue({
-        connect: jest.fn(),
-        startTransaction: jest.fn(),
-        commitTransaction: jest.fn(),
-        rollbackTransaction: jest.fn(),
-        release: jest.fn(),
-        manager: {
-          findOne: jest.fn(),
-          update: jest.fn(),
-          save: jest.fn(),
-        },
-      }),
+    mockQueryRunner = {
+      connect: jest.fn(),
+      startTransaction: jest.fn(),
+      commitTransaction: jest.fn(),
+      rollbackTransaction: jest.fn(),
+      release: jest.fn(),
+      manager: {
+        findOne: jest.fn(),
+        update: jest.fn(),
+        save: jest.fn(),
+      },
+    };
+
+    mockDataSource = {
+      createQueryRunner: jest.fn().mockReturnValue(mockQueryRunner),
     };
 
     const module: TestingModule = await Test.createTestingModule({
@@ -192,7 +196,7 @@ describe('SyrianAddressCrudService - Syrian Methods', () => {
       } as Address;
 
       mockAddressRepo.create.mockReturnValue(savedAddress);
-      mockAddressRepo.save.mockResolvedValue(savedAddress);
+      mockQueryRunner.manager.save.mockResolvedValue(savedAddress);
 
       // Act
       const result = await service.createSyrianAddress(mockUser, dto);
@@ -260,13 +264,14 @@ describe('SyrianAddressCrudService - Syrian Methods', () => {
       } as Address;
 
       mockAddressRepo.create.mockReturnValue(savedAddress);
-      mockAddressRepo.save.mockResolvedValue(savedAddress);
+      mockQueryRunner.manager.save.mockResolvedValue(savedAddress);
 
       // Act
       await service.createSyrianAddress(mockUser, dto);
 
       // Assert
-      expect(mockAddressRepo.update).toHaveBeenCalledWith(
+      expect(mockQueryRunner.manager.update).toHaveBeenCalledWith(
+        Address,
         { user: { id: mockUser.id } },
         { isDefault: false },
       );
@@ -304,7 +309,7 @@ describe('SyrianAddressCrudService - Syrian Methods', () => {
       } as Address;
 
       mockAddressRepo.create.mockReturnValue(savedAddress);
-      mockAddressRepo.save.mockResolvedValue(savedAddress);
+      mockQueryRunner.manager.save.mockResolvedValue(savedAddress);
 
       // Act
       const result = await service.createSyrianAddress(mockUser, dto);
@@ -345,7 +350,7 @@ describe('SyrianAddressCrudService - Syrian Methods', () => {
       };
 
       mockAddressRepo.findOne.mockResolvedValue(existingAddress);
-      mockAddressRepo.save.mockResolvedValue(updatedAddress);
+      mockQueryRunner.manager.save.mockResolvedValue(updatedAddress);
 
       // Act
       const result = await service.updateSyrianAddress(mockUser, addressId, dto);
@@ -450,13 +455,14 @@ describe('SyrianAddressCrudService - Syrian Methods', () => {
       };
 
       mockAddressRepo.findOne.mockResolvedValue(existingAddress);
-      mockAddressRepo.save.mockResolvedValue(updatedAddress);
+      mockQueryRunner.manager.save.mockResolvedValue(updatedAddress);
 
       // Act
       const result = await service.updateSyrianAddress(mockUser, addressId, dto);
 
       // Assert
-      expect(mockAddressRepo.update).toHaveBeenCalledWith(
+      expect(mockQueryRunner.manager.update).toHaveBeenCalledWith(
+        Address,
         { user: { id: mockUser.id } },
         { isDefault: false },
       );
@@ -594,17 +600,14 @@ describe('SyrianAddressCrudService - Syrian Methods', () => {
         isDefault: true,
       };
 
-      // Get mock queryRunner from DataSource
-      const mockDataSource = (service as any).dataSource;
-      const queryRunner = mockDataSource.createQueryRunner();
-      queryRunner.manager.findOne.mockResolvedValue(address);
-      queryRunner.manager.save.mockResolvedValue(updatedAddress);
+      mockQueryRunner.manager.findOne.mockResolvedValue(address);
+      mockQueryRunner.manager.save.mockResolvedValue(updatedAddress);
 
       // Act
       const result = await service.setDefaultSyrianAddress(mockUser, addressId);
 
       // Assert
-      expect(queryRunner.manager.update).toHaveBeenCalledWith(
+      expect(mockQueryRunner.manager.update).toHaveBeenCalledWith(
         Address,
         { user: { id: mockUser.id } },
         { isDefault: false },
@@ -616,9 +619,7 @@ describe('SyrianAddressCrudService - Syrian Methods', () => {
       // Arrange
       const addressId = 999;
 
-      const mockDataSource = (service as any).dataSource;
-      const queryRunner = mockDataSource.createQueryRunner();
-      queryRunner.manager.findOne.mockResolvedValue(null);
+      mockQueryRunner.manager.findOne.mockResolvedValue(null);
 
       // Act & Assert
       await expect(

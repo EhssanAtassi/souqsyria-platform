@@ -48,6 +48,7 @@ export class CreateSyrianAddressDto {
    * Full name of the recipient
    * Supports Arabic and English names
    * Example: "أحمد محمد الخطيب", "Ahmad Mohammad Al-Khatib"
+   * Security: HTML tags are not allowed
    */
   @ApiProperty({
     description: 'Full name of the recipient (supports Arabic)',
@@ -58,6 +59,9 @@ export class CreateSyrianAddressDto {
   @IsNotEmpty({ message: 'Full name is required' })
   @IsString({ message: 'Full name must be a string' })
   @MaxLength(128, { message: 'Full name cannot exceed 128 characters' })
+  @Matches(/^[^<>]*$/, {
+    message: 'Full name must not contain HTML tags',
+  })
   fullName: string;
 
   /**
@@ -126,6 +130,7 @@ export class CreateSyrianAddressDto {
   /**
    * Street address (primary address line)
    * Example: "شارع الثورة", "Al-Thawra Street"
+   * Security: HTML tags are not allowed
    */
   @ApiProperty({
     description: 'Street address (supports Arabic)',
@@ -136,11 +141,15 @@ export class CreateSyrianAddressDto {
   @IsNotEmpty({ message: 'Street address is required' })
   @IsString({ message: 'Street must be a string' })
   @MaxLength(128, { message: 'Street cannot exceed 128 characters' })
+  @Matches(/^[^<>]*$/, {
+    message: 'Street must not contain HTML tags',
+  })
   street: string;
 
   /**
    * Building name or number - Optional
    * Example: "بناء السلام", "Building 42"
+   * Security: HTML tags are not allowed
    */
   @ApiProperty({
     description: 'Building name or number (optional)',
@@ -151,6 +160,9 @@ export class CreateSyrianAddressDto {
   @IsOptional()
   @IsString({ message: 'Building must be a string' })
   @MaxLength(64, { message: 'Building cannot exceed 64 characters' })
+  @Matches(/^[^<>]*$/, {
+    message: 'Building must not contain HTML tags',
+  })
   building?: string;
 
   /**
@@ -171,6 +183,7 @@ export class CreateSyrianAddressDto {
   /**
    * Additional delivery details and instructions - Optional
    * Example: "بجانب الصيدلية", "Near the pharmacy"
+   * Security: HTML tags are not allowed
    */
   @ApiProperty({
     description: 'Additional delivery details and instructions (optional)',
@@ -181,6 +194,9 @@ export class CreateSyrianAddressDto {
   @IsOptional()
   @IsString({ message: 'Additional details must be a string' })
   @MaxLength(256, { message: 'Additional details cannot exceed 256 characters' })
+  @Matches(/^[^<>]*$/, {
+    message: 'Additional details must not contain HTML tags',
+  })
   additionalDetails?: string;
 
   /**

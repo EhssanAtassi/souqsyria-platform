@@ -9,13 +9,13 @@ import {
   Param,
   Query,
   UseGuards,
+  UsePipes,
+  ValidationPipe,
   HttpCode,
   HttpStatus,
 } from '@nestjs/common';
 import { AddressesService } from '../service/addresses.service';
 import { SyrianAddressCrudService } from '../service/syrian-address-crud.service';
-import { CreateAddressDto } from '../dto/create-address.dto';
-import { UpdateAddressDto } from '../dto/update-address.dto';
 import { CreateSyrianAddressDto } from '../dto/create-syrian-address.dto';
 import { UpdateSyrianAddressDto } from '../dto/update-syrian-address.dto';
 import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
@@ -27,16 +27,21 @@ import {
   ApiBearerAuth,
   ApiOperation,
   ApiParam,
-  ApiQuery,
   ApiResponse,
   ApiBody,
 } from '@nestjs/swagger';
-import { AddressType } from '../dto/create-address.dto';
 import { SyrianAddressService } from '../service/syrian-address.service';
 
+/**
+ * @class AddressesController
+ * @description Controller for managing user addresses with Syrian administrative hierarchy.
+ * All endpoints use Syrian address service for consistency with SouqSyria's Syria-only model.
+ * Includes global validation pipe to enforce DTO validation rules.
+ */
 @ApiTags('Addresses')
 @ApiBearerAuth()
 @UseGuards(JwtAuthGuard)
+@UsePipes(new ValidationPipe({ transform: true, whitelist: true }))
 @Controller('addresses')
 export class AddressesController {
   constructor(
@@ -130,22 +135,38 @@ export class AddressesController {
 
   /**
    * @route PUT /addresses/:id
-   * @description Update an existing address for the current user.
+   * @description Update a Syrian address (full update) for the current user.
+   * Redirects to Syrian address service for consistency.
    */
   @Put(':id')
-  @ApiOperation({ summary: 'Update an address' })
-  @ApiParam({ name: 'id', description: 'Address ID' })
+  @ApiOperation({
+    summary: 'Update a Syrian address (full update)',
+    description: 'Updates a Syrian address with full validation of Syrian hierarchy',
+  })
+  @ApiParam({ name: 'id', description: 'Address ID', type: 'number' })
   @ApiBody({
-    type: UpdateAddressDto,
-    description: 'Address update data',
+    type: UpdateSyrianAddressDto,
+    description: 'Syrian address update data',
     required: true,
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Address updated successfully',
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Address not found',
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Validation failed',
   })
   async update(
     @CurrentUser() user: User,
     @Param('id') id: number,
-    @Body() dto: UpdateAddressDto,
+    @Body() dto: UpdateSyrianAddressDto,
   ) {
-    return this.addressesService.update(user, Number(id), dto);
+    return this.syrianAddressCrudService.updateSyrianAddress(user, Number(id), dto);
   }
 
   /**
@@ -226,28 +247,42 @@ export class AddressesController {
 
   /**
    * @route GET /addresses
-   * @description List all addresses for the current user (optionally filter by type).
+   * @description List all Syrian addresses for the current user.
+   * Uses Syrian address service for consistency with SouqSyria's Syria-only model.
    */
   @Get()
-  @ApiOperation({ summary: 'List all addresses for user' })
-  @ApiQuery({
-    name: 'type',
-    required: false,
-    enum: AddressType,
-    description: 'shipping or billing',
+  @ApiOperation({
+    summary: 'List all Syrian addresses for user',
+    description: 'Returns all Syrian addresses with governorate, city, and district relations',
   })
-  async findAll(@CurrentUser() user: User, @Query('type') type?: AddressType) {
-    return this.addressesService.findAll(user, type);
+  @ApiResponse({
+    status: 200,
+    description: 'List of Syrian addresses sorted by default status and creation date',
+  })
+  async findAll(@CurrentUser() user: User) {
+    return this.syrianAddressCrudService.findAllSyrianAddresses(user);
   }
 
   /**
    * @route GET /addresses/:id
-   * @description Get one address (by ID, for current user).
+   * @description Get one Syrian address by ID for the current user.
+   * Uses Syrian address service for consistency.
    */
   @Get(':id')
-  @ApiOperation({ summary: 'Get an address by ID' })
-  @ApiParam({ name: 'id', description: 'Address ID' })
+  @ApiOperation({
+    summary: 'Get a Syrian address by ID',
+    description: 'Returns a single Syrian address with governorate, city, and district relations',
+  })
+  @ApiParam({ name: 'id', description: 'Address ID', type: 'number' })
+  @ApiResponse({
+    status: 200,
+    description: 'Syrian address details',
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Address not found',
+  })
   async findOne(@CurrentUser() user: User, @Param('id') id: number) {
-    return this.addressesService.findOne(user, Number(id));
+    return this.syrianAddressCrudService.findOneSyrianAddress(user, Number(id));
   }
 }

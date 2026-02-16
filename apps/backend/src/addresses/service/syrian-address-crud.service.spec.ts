@@ -161,7 +161,11 @@ describe('SyrianAddressCrudService', () => {
       govRepo.findOne.mockResolvedValue(mockGovernorate);
       syrianCityRepo.findOne.mockResolvedValue(mockCity);
       addressRepo.create.mockReturnValue(mockAddress);
-      addressRepo.save.mockResolvedValue(mockAddress);
+
+      // Mock the DataSource's queryRunner to return the saved address
+      const mockDataSource = (service as any).dataSource;
+      const mockQueryRunner = mockDataSource.createQueryRunner();
+      mockQueryRunner.manager.save.mockResolvedValue(mockAddress);
 
       // Act
       const result = await service.createSyrianAddress(mockUser, dto);
@@ -171,7 +175,9 @@ describe('SyrianAddressCrudService', () => {
       expect(mockValidator.validate).toHaveBeenCalledWith(1, 5, undefined);
       expect(govRepo.findOne).toHaveBeenCalledWith({ where: { id: 1 } });
       expect(syrianCityRepo.findOne).toHaveBeenCalledWith({ where: { id: 5 } });
-      expect(addressRepo.save).toHaveBeenCalled();
+      expect(mockQueryRunner.manager.save).toHaveBeenCalled();
+      expect(mockQueryRunner.commitTransaction).toHaveBeenCalled();
+      expect(mockQueryRunner.release).toHaveBeenCalled();
     });
 
     it('should throw BadRequestException when validation fails', async () => {
@@ -190,20 +196,28 @@ describe('SyrianAddressCrudService', () => {
     it('should unset other defaults when isDefault is true', async () => {
       // Arrange
       const defaultDto = { ...dto, isDefault: true };
+      const defaultAddress = { ...mockAddress, isDefault: true };
       mockValidator.validate.mockResolvedValue({ valid: true, errors: [] });
       govRepo.findOne.mockResolvedValue(mockGovernorate);
       syrianCityRepo.findOne.mockResolvedValue(mockCity);
-      addressRepo.create.mockReturnValue({ ...mockAddress, isDefault: true });
-      addressRepo.save.mockResolvedValue({ ...mockAddress, isDefault: true });
+      addressRepo.create.mockReturnValue(defaultAddress);
+
+      // Mock the DataSource's queryRunner to return the saved address
+      const mockDataSource = (service as any).dataSource;
+      const mockQueryRunner = mockDataSource.createQueryRunner();
+      mockQueryRunner.manager.save.mockResolvedValue(defaultAddress);
 
       // Act
       await service.createSyrianAddress(mockUser, defaultDto);
 
-      // Assert
-      expect(addressRepo.update).toHaveBeenCalledWith(
+      // Assert - should update other addresses to not be default within transaction
+      expect(mockQueryRunner.manager.update).toHaveBeenCalledWith(
+        Address,
         { user: { id: 1 } },
         { isDefault: false },
       );
+      expect(mockQueryRunner.commitTransaction).toHaveBeenCalled();
+      expect(mockQueryRunner.release).toHaveBeenCalled();
     });
   });
 
