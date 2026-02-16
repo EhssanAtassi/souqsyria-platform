@@ -36,6 +36,9 @@ export class ProductCardComponent {
   /** Whether product is in wishlist */
   isWishlisted = input<boolean>(false);
 
+  /** @description Whether this card's image should load eagerly (for above-the-fold cards) */
+  priority = input<boolean>(false);
+
   /** Emits when user clicks Add to Cart button */
   addToCart = output<ProductListItem>();
 
@@ -145,7 +148,7 @@ export class ProductCardComponent {
   private formatPrice(price: number): string {
     const locale = this.language() === 'ar' ? 'ar-SY' : 'en-US';
     const formatted = price.toLocaleString(locale);
-    return `${formatted} ل.س`;
+    return `${formatted}\u00A0ل.س`;
   }
 
   /**

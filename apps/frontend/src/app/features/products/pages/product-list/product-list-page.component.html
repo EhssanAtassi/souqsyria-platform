@@ -122,10 +122,11 @@
       <!-- Products Grid -->
       @else {
         <div class="product-list-page__grid" [class.product-list-page__grid--list]="viewMode() === 'list'">
-          @for (product of products(); track product.id) {
+          @for (product of products(); track product.id; let i = $index) {
             <app-product-card
               [product]="product"
               [language]="language()"
+              [priority]="i < 4"
               [isWishlisted]="isProductWishlisted(product.id)"
               (addToCart)="onAddToCart($event)"
               (addToWishlist)="onAddToWishlist($event)"

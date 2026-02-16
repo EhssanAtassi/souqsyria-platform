@@ -10,7 +10,7 @@
  */
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, of, tap } from 'rxjs';
 import { environment } from '../../../../environments/environment';
 import { ProductListResponse } from '../models/product-list.interface';
 import {
@@ -42,6 +42,16 @@ export interface ProductQueryParams {
 }
 
 /**
+ * @description Cache entry with TTL
+ */
+interface CacheEntry<T> {
+  /** Cached data */
+  data: T;
+  /** Timestamp when cached (milliseconds since epoch) */
+  timestamp: number;
+}
+
+/**
  * @description Service for communicating with the public products API.
  * Wraps GET /products with typed query parameters and response.
  */
@@ -49,6 +59,15 @@ export interface ProductQueryParams {
 export class ProductService {
   /** Base URL for the products API endpoint */
   private readonly apiUrl = environment.productApiUrl;
+
+  /** @description In-memory cache for product list responses */
+  private readonly listCache = new Map<string, CacheEntry<ProductListResponse>>();
+
+  /** @description In-memory cache for product detail responses */
+  private readonly detailCache = new Map<string, CacheEntry<ProductDetailResponse>>();
+
+  /** @description Cache TTL in milliseconds (5 minutes) */
+  private readonly cacheTtl = 5 * 60 * 1000;
 
   constructor(private readonly http: HttpClient) {}
 
@@ -62,6 +81,13 @@ export class ProductService {
    *   .subscribe(response => console.log(response.data, response.meta));
    */
   getProducts(params: ProductQueryParams = {}): Observable<ProductListResponse> {
+    const cacheKey = JSON.stringify(params);
+    const cached = this.listCache.get(cacheKey);
+
+    if (cached && Date.now() - cached.timestamp < this.cacheTtl) {
+      return of(cached.data);
+    }
+
     let httpParams = new HttpParams();
 
     if (params.page) {
@@ -89,7 +115,11 @@ export class ProductService {
       httpParams = httpParams.set('brandIds', params.brandIds);
     }
 
-    return this.http.get<ProductListResponse>(this.apiUrl, { params: httpParams });
+    return this.http.get<ProductListResponse>(this.apiUrl, { params: httpParams }).pipe(
+      tap(response => {
+        this.listCache.set(cacheKey, { data: response, timestamp: Date.now() });
+      })
+    );
   }
 
   /**
@@ -102,7 +132,17 @@ export class ProductService {
    *   .subscribe(product => console.log(product.nameEn, product.pricing));
    */
   getProductBySlug(slug: string): Observable<ProductDetailResponse> {
-    return this.http.get<ProductDetailResponse>(`${this.apiUrl}/${slug}`);
+    const cached = this.detailCache.get(slug);
+
+    if (cached && Date.now() - cached.timestamp < this.cacheTtl) {
+      return of(cached.data);
+    }
+
+    return this.http.get<ProductDetailResponse>(`${this.apiUrl}/${slug}`).pipe(
+      tap(response => {
+        this.detailCache.set(slug, { data: response, timestamp: Date.now() });
+      })
+    );
   }
 
   /**
@@ -140,5 +180,13 @@ export class ProductService {
       `${this.apiUrl}/suggestions`,
       { params: httpParams }
     );
+  }
+
+  /**
+   * @description Clears all caches. Call when product data may have changed (e.g., after add to cart).
+   */
+  clearCache(): void {
+    this.listCache.clear();
+    this.detailCache.clear();
   }
 }

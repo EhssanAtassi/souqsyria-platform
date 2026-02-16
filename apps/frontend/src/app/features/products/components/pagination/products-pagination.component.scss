@@ -8,12 +8,16 @@
 .pagination {
   display: flex;
   flex-direction: column;
-  gap: $space-4;
+  gap: $space-3;
   padding: $space-4 0;
   align-items: center;
 
   &.rtl {
     direction: rtl;
+  }
+
+  @media (min-width: $breakpoint-sm) {
+    gap: $space-4;
   }
 
   @media (min-width: $breakpoint-md) {
@@ -64,12 +68,19 @@
 }
 
 .pagination__page-button {
-  min-width: 40px;
-  height: 40px;
+  min-width: 44px;
+  height: 44px;
   padding: 0 $space-2;
   font-weight: $font-weight-medium;
   color: $charcoal-dark;
-  transition: all $transition-fast ease;
+  font-size: $font-size-sm;
+  transition: background-color $transition-fast ease, color $transition-fast ease;
+
+  @media (min-width: $breakpoint-sm) {
+    min-width: 40px;
+    height: 40px;
+    font-size: $font-size-base;
+  }
 
   &:hover:not(:disabled) {
     background: rgba($golden-wheat-primary, 0.1);
@@ -91,10 +102,15 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-width: 40px;
-  height: 40px;
+  min-width: 44px;
+  height: 44px;
   color: $charcoal-medium;
   font-weight: $font-weight-medium;
+
+  @media (min-width: $breakpoint-sm) {
+    min-width: 40px;
+    height: 40px;
+  }
 }
 
 .pagination__limit {
@@ -106,7 +122,11 @@
 }
 
 .pagination__limit-field {
-  width: 180px;
+  width: 150px;
+
+  @media (min-width: $breakpoint-sm) {
+    width: 180px;
+  }
 
   ::ng-deep {
     .mat-mdc-form-field-subscript-wrapper {
@@ -119,24 +139,3 @@
   }
 }
 
-// Responsive adjustments
-@media (max-width: $breakpoint-sm) {
-  .pagination {
-    gap: $space-3;
-  }
-
-  .pagination__page-button {
-    min-width: 36px;
-    height: 36px;
-    font-size: $font-size-sm;
-  }
-
-  .pagination__ellipsis {
-    min-width: 36px;
-    height: 36px;
-  }
-
-  .pagination__limit-field {
-    width: 150px;
-  }
-}

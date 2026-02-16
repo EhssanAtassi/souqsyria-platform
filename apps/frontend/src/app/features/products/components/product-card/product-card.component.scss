@@ -12,7 +12,7 @@
   border-radius: $border-radius-lg;
   box-shadow: $shadow-sm;
   overflow: hidden;
-  transition: all $transition-normal ease;
+  transition: box-shadow $transition-normal ease, transform $transition-normal ease;
   height: 100%;
 
   &:hover {
@@ -102,26 +102,37 @@
   display: flex;
   flex-direction: column;
   flex: 1;
-  padding: $space-4;
+  padding: $space-3;
   gap: $space-2;
+
+  @media (min-width: $breakpoint-sm) {
+    padding: $space-4;
+  }
 }
 
 .product-card__category {
   margin: 0;
   font-size: $font-size-xs;
   font-weight: $font-weight-medium;
-  color: $forest-light;
+  color: $forest-text;
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
 
 .product-card__name {
   margin: 0;
-  font-size: $font-size-base;
+  font-size: $font-size-sm;
   font-weight: $font-weight-semibold;
   line-height: 1.4;
   color: $charcoal-dark;
-  flex: 1;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+
+  @media (min-width: $breakpoint-sm) {
+    font-size: $font-size-base;
+  }
 }
 
 .product-card__name-link {
@@ -174,18 +185,26 @@
 }
 
 .product-card__price {
-  font-size: $font-size-lg;
+  font-size: $font-size-base;
   font-weight: $font-weight-bold;
+
+  @media (min-width: $breakpoint-sm) {
+    font-size: $font-size-lg;
+  }
 
   &--current {
     color: $forest-dark;
   }
 
   &--original {
-    font-size: $font-size-base;
+    font-size: $font-size-sm;
     font-weight: $font-weight-normal;
     color: $charcoal-medium;
     text-decoration: line-through;
+
+    @media (min-width: $breakpoint-sm) {
+      font-size: $font-size-base;
+    }
   }
 }
 
@@ -204,6 +223,10 @@
   padding: $space-3;
   font-weight: $font-weight-semibold;
 
+  &:active:not(:disabled) {
+    transform: scale(0.97);
+  }
+
   mat-icon {
     font-size: 20px;
     width: 20px;
@@ -217,7 +240,7 @@
   border: 1px solid $charcoal-medium;
   border-radius: $border-radius-md;
   color: $charcoal-medium;
-  transition: all $transition-fast ease;
+  transition: color $transition-fast ease, background-color $transition-fast ease, border-color $transition-fast ease;
 
   &:hover {
     background: $golden-wheat-light;
@@ -232,6 +255,10 @@
     &:hover {
       background: rgba(#c8102e, 0.1);
     }
+
+    mat-icon {
+      animation: heart-bounce $transition-normal ease;
+    }
   }
 
   mat-icon {
@@ -241,21 +268,9 @@
   }
 }
 
-// Responsive adjustments
-@media (max-width: $breakpoint-sm) {
-  .product-card__name {
-    font-size: $font-size-sm;
-  }
-
-  .product-card__price {
-    font-size: $font-size-base;
-
-    &--original {
-      font-size: $font-size-sm;
-    }
-  }
-
-  .product-card__content {
-    padding: $space-3;
-  }
+@keyframes heart-bounce {
+  0% { transform: scale(1); }
+  30% { transform: scale(1.3); }
+  60% { transform: scale(0.9); }
+  100% { transform: scale(1); }
 }

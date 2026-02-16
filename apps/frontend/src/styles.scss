@@ -333,6 +333,43 @@ html, body {
   text-align: right;
 }
 
+/**
+ * Global heading line-heights for consistent vertical rhythm
+ */
+h1, h2, h3, h4, h5, h6 {
+  line-height: 1.3;
+}
+
+/**
+ * Arabic typography: increased line-height for Arabic script readability
+ * Applies Arabic font family for better Arabic text rendering
+ */
+[dir="rtl"],
+.rtl {
+  font-family: 'Cairo', 'Tajawal', 'Noto Kufi Arabic', sans-serif;
+  line-height: 1.8;
+
+  // Tighter line-height for headings even in Arabic
+  h1, h2, h3, h4, h5, h6 {
+    line-height: 1.4;
+  }
+}
+
+/**
+ * Respect user preference for reduced motion (WCAG 2.1 Level AAA)
+ * Disables all animations and transitions when user prefers reduced motion
+ */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
 /* Bilingual text containers */
 .bilingual-text {
   .english-text {
