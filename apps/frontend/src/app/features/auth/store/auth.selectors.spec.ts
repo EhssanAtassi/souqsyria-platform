@@ -57,6 +57,7 @@ describe('Auth Selectors', () => {
     loginErrorCode: null,
     remainingAttempts: null,
     lockedUntilMinutes: null,
+    rateLimitRetryAfter: null,
   };
 
   // ─── Feature Selector ─────────────────────────────────────────

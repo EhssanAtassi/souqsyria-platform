@@ -109,7 +109,8 @@
             ],
             "scripts": [],
             "exclude": [
-              "src/app/features/account/**/*.spec.ts"
+              "src/app/features/account/**/*.spec.ts",
+              "src/app/features/category/**/*.spec.ts"
             ]
           }
         }
