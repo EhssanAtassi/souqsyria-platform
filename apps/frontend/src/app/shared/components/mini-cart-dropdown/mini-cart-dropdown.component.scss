@@ -1,3 +1,5 @@
+@use '../../../../styles/breakpoints' as bp;
+
 /**
  * Mini Cart Dropdown Styles
  * Absolute-positioned dropdown anchored to the cart button in the header
@@ -11,10 +13,9 @@
 .mini-cart-dropdown {
   position: absolute;
   top: 100%;
-  right: 0;
+  inset-inline-end: 0;
   z-index: 50;
-  width: 360px;
-  max-width: calc(100vw - 32px);
+  width: min(360px, calc(100vw - 32px)); // single min() is more semantic than width + max-width
   max-height: 400px;
   background: white;
   border-radius: 12px;
@@ -24,10 +25,10 @@
   display: flex;
   flex-direction: column;
 
-  // RTL: flip to left-aligned
+  // RTL: flip to start-aligned
   &--rtl {
-    right: auto;
-    left: 0;
+    inset-inline-end: auto;
+    inset-inline-start: 0;
   }
 
   // Empty state
@@ -45,6 +46,7 @@
     overflow-y: auto;
     max-height: 260px;
     padding: 8px 0;
+    scroll-behavior: smooth;
   }
 
   // Individual item row
@@ -100,8 +102,9 @@
 
   &__item-remove {
     flex-shrink: 0;
-    width: 32px;
-    height: 32px;
+    width: 36px;
+    height: 36px;
+    position: relative;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -141,6 +144,7 @@
     justify-content: space-between;
     align-items: center;
     margin-bottom: 12px;
+    font-variant-numeric: tabular-nums; // equal-width digits for stable layout
   }
 
   &__actions {
@@ -181,8 +185,19 @@
 }
 
 // Hide on mobile — cart button routes to /cart directly
-@media (max-width: 767px) {
+@include bp.below-md {
   .mini-cart-dropdown {
     display: none;
+  }
+}
+
+/** Disable all animations for users who prefer reduced motion (WCAG 2.3.3) */
+@media (prefers-reduced-motion: reduce) {
+  .mini-cart-dropdown,
+  .mini-cart-dropdown__item,
+  .mini-cart-dropdown__item-remove,
+  .mini-cart-dropdown__btn {
+    animation: none !important;
+    transition: none !important;
   }
 }

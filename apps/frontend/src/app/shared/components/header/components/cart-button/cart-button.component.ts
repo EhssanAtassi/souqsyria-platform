@@ -1,6 +1,6 @@
 import {
   Component, Input, Output, EventEmitter, ChangeDetectionStrategy,
-  signal, computed, ElementRef, DestroyRef, inject
+  signal, computed, ElementRef, DestroyRef, inject, effect
 } from '@angular/core';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
@@ -84,7 +84,20 @@ export class CartButtonComponent {
   /** Effective item count from store or @Input fallback */
   readonly effectiveItemCount = computed(() => this.storeItemCount() || this.itemCount);
 
+  /** Track previous count to detect changes */
+  private prevCount = 0;
+
   constructor() {
+    // Badge bounce effect: triggers animation when item count changes
+    effect(() => {
+      const count = this.effectiveItemCount();
+      if (count !== this.prevCount && this.prevCount !== 0) {
+        this.badgeBounce.set(true);
+        setTimeout(() => this.badgeBounce.set(false), 450);
+      }
+      this.prevCount = count;
+    });
+
     // Click-outside handler: close dropdown when clicking outside the component
     fromEvent<MouseEvent>(document, 'click')
       .pipe(
@@ -126,6 +139,9 @@ export class CartButtonComponent {
 
   /** Controls dropdown open/close state */
   isDropdownOpen = signal(false);
+
+  /** Badge bounce animation toggle — briefly true when item count changes */
+  badgeBounce = signal(false);
 
   /** Get localized button label */
   get label(): string {

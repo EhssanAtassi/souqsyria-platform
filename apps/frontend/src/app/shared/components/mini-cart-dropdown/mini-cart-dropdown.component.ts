@@ -1,6 +1,7 @@
 import { Component, Input, Output, EventEmitter, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
+import { trigger, transition, style, animate } from '@angular/animations';
 import { CartItem } from '../../interfaces/cart.interface';
 
 /**
@@ -53,7 +54,28 @@ import { CartItem } from '../../interfaces/cart.interface';
   imports: [CommonModule, RouterModule],
   templateUrl: './mini-cart-dropdown.component.html',
   styleUrls: ['./mini-cart-dropdown.component.scss'],
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  animations: [
+    /** Fade + slide-down animation for dropdown open/close */
+    trigger('dropdownAnimation', [
+      transition(':enter', [
+        style({ opacity: 0, transform: 'translateY(-8px) scale(0.95)' }),
+        animate('200ms cubic-bezier(0.4, 0, 0.2, 1)',
+          style({ opacity: 1, transform: 'translateY(0) scale(1)' }))
+      ]),
+      transition(':leave', [
+        animate('150ms cubic-bezier(0.4, 0, 0.2, 1)',
+          style({ opacity: 0, transform: 'translateY(-8px) scale(0.95)' }))
+      ])
+    ]),
+    /** Slide-out animation for removed items */
+    trigger('itemAnimation', [
+      transition(':leave', [
+        animate('250ms cubic-bezier(0.4, 0, 0.2, 1)',
+          style({ opacity: 0, transform: 'translateX(-100%)', height: 0, padding: 0, margin: 0 }))
+      ])
+    ])
+  ]
 })
 export class MiniCartDropdownComponent {
   /** Cart items to display (max 5 shown) */
@@ -83,6 +105,10 @@ export class MiniCartDropdownComponent {
   /** Emitted when dropdown should close */
   @Output() closed = new EventEmitter<void>();
 
+  /** Detects prefers-reduced-motion to disable Angular animations (WCAG 2.3.3) */
+  readonly prefersReducedMotion = typeof window !== 'undefined'
+    && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
   /** Maximum items to display before showing overflow indicator */
   readonly MAX_VISIBLE_ITEMS = 5;
 
@@ -107,7 +133,7 @@ export class MiniCartDropdownComponent {
    * @returns Formatted price string
    */
   formatPrice(amount: number): string {
-    return `£S${new Intl.NumberFormat('ar-SY').format(amount)}`;
+    return `£S\u00A0${new Intl.NumberFormat('ar-SY').format(amount)}`;
   }
 
   /**

@@ -2,6 +2,13 @@
  * Stock Alert Component Styles
  * Minimal SCSS — primary styling via Tailwind utility classes in template
  */
+
+/** Subtle pulse for low-stock badge to draw attention */
+@keyframes lowStockPulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
 :host {
   display: inline-block;
   max-width: 100%;
@@ -11,4 +18,24 @@
   transition: opacity 0.2s ease;
   max-width: 100%;
   white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+
+  // Allow wrapping on small screens for long Arabic stock messages
+  @media (max-width: 640px) {
+    white-space: normal;
+  }
+
+  /** Low stock badge pulses gently to draw shopper attention */
+  &.bg-yellow-50 {
+    animation: lowStockPulse 2s ease-in-out infinite;
+  }
+}
+
+/** Disable animations for reduced motion preference (WCAG 2.3.3) */
+@media (prefers-reduced-motion: reduce) {
+  .stock-alert {
+    animation: none !important;
+    transition: none !important;
+  }
 }

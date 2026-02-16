@@ -178,25 +178,6 @@ module.exports = {
         sans: ['Roboto', 'Cairo', 'system-ui', 'sans-serif'],
         display: ['Poppins', 'system-ui', 'sans-serif'],
         arabic: ['Cairo', 'Amiri', 'Scheherazade New', 'Noto Sans Arabic', 'system-ui', 'sans-serif']
-      },
-      // RTL-specific utilities
-      margin: {
-        'rtl-0': '0',
-        'rtl-1': '0.25rem',
-        'rtl-2': '0.5rem', 
-        'rtl-3': '0.75rem',
-        'rtl-4': '1rem',
-        'rtl-6': '1.5rem',
-        'rtl-8': '2rem'
-      },
-      padding: {
-        'rtl-0': '0',
-        'rtl-1': '0.25rem',
-        'rtl-2': '0.5rem',
-        'rtl-3': '0.75rem', 
-        'rtl-4': '1rem',
-        'rtl-6': '1.5rem',
-        'rtl-8': '2rem'
       }
     },
   },

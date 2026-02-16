@@ -1,6 +1,8 @@
 <!-- Mini Cart Dropdown: absolute positioned under cart button -->
 <div
   *ngIf="isOpen"
+  @dropdownAnimation
+  [@.disabled]="prefersReducedMotion"
   class="mini-cart-dropdown"
   [class.mini-cart-dropdown--rtl]="language === 'ar'"
   [attr.dir]="language === 'ar' ? 'rtl' : 'ltr'"
@@ -30,7 +32,7 @@
 
       <!-- Product Info -->
       <div class="mini-cart-dropdown__item-info">
-        <p class="mini-cart-dropdown__item-name">{{ item.product.name }}</p>
+        <p class="mini-cart-dropdown__item-name" [title]="item.product.name">{{ item.product.name }}</p>
         <p class="mini-cart-dropdown__item-meta">
           {{ item.quantity }} &times; {{ formatPrice(item.product.price.amount) }}
         </p>

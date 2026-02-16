@@ -1,6 +1,7 @@
 import { Component, OnInit, OnDestroy, signal, computed, ChangeDetectionStrategy, WritableSignal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
+import { trigger, transition, style, animate } from '@angular/animations';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -8,14 +9,8 @@ import { MatCardModule } from '@angular/material/card';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBarModule, MatSnackBar } from '@angular/material/snack-bar';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatChipsModule } from '@angular/material/chips';
-import { MatBadgeModule } from '@angular/material/badge';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatExpansionModule } from '@angular/material/expansion';
-import { MatDialogModule, MatDialog } from '@angular/material/dialog';
 import { Observable, Subject } from 'rxjs';
 import { debounceTime, takeUntil } from 'rxjs/operators';
 
@@ -72,14 +67,8 @@ import { LanguageService } from '../../shared/services/language.service';
     MatDividerModule,
     MatFormFieldModule,
     MatInputModule,
-    MatSelectModule,
     MatSnackBarModule,
-    MatProgressSpinnerModule,
-    MatChipsModule,
-    MatBadgeModule,
     MatTooltipModule,
-    MatExpansionModule,
-    MatDialogModule,
     ProductRecommendationsComponent,
     ProductRecommendationsCarouselComponent,
     ProductBoxGridComponent,
@@ -88,7 +77,16 @@ import { LanguageService } from '../../shared/services/language.service';
   ],
   templateUrl: './cart.component.html',
   styleUrls: ['./cart.component.scss'],
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  animations: [
+    /** Slide-out + collapse animation for removed cart items */
+    trigger('cartItemAnimation', [
+      transition(':leave', [
+        animate('300ms cubic-bezier(0.4, 0, 0.2, 1)',
+          style({ opacity: 0, transform: 'translateX(-100%)', height: 0, marginBottom: 0 }))
+      ])
+    ])
+  ]
 })
 export class CartComponent implements OnInit, OnDestroy {
   
@@ -100,6 +98,13 @@ export class CartComponent implements OnInit, OnDestroy {
   
   /** Coupon application error */
   couponError = signal<string | null>(null);
+
+  /** Screen-reader status message for aria-live region (WCAG 4.1.3) */
+  cartStatusMessage = signal<string>('');
+
+  /** Detects prefers-reduced-motion to disable Angular animations (WCAG 2.3.3) */
+  readonly prefersReducedMotion = typeof window !== 'undefined'
+    && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   
   /** Available currencies */
   availableCurrencies = [
@@ -157,7 +162,6 @@ export class CartComponent implements OnInit, OnDestroy {
     private cartSyncService: CartSyncService,
     private productsQuery: ProductsQuery,
     private snackBar: MatSnackBar,
-    private dialog: MatDialog,
     private router: Router,
     private languageService: LanguageService,
     private store: Store,
@@ -263,6 +267,11 @@ export class CartComponent implements OnInit, OnDestroy {
    */
   updateQuantity(itemId: string, newQuantity: number): void {
     this.cartService.updateQuantity(itemId, newQuantity);
+    this.cartStatusMessage.set(
+      this.language() === 'ar'
+        ? `تم تحديث الكمية إلى ${newQuantity}`
+        : `Quantity updated to ${newQuantity}`
+    );
     this.showSnackBar('Quantity updated', 'success');
   }
 
@@ -273,6 +282,11 @@ export class CartComponent implements OnInit, OnDestroy {
    */
   removeItem(item: CartItem): void {
     this.cartService.removeFromCart(item.id);
+    this.cartStatusMessage.set(
+      this.language() === 'ar'
+        ? `تمت إزالة ${item.product.name} من السلة`
+        : `${item.product.name} removed from cart`
+    );
 
     // Show bilingual snackbar with Undo action (5-second duration matching backend window)
     const ref = this.snackBar.open(
@@ -412,7 +426,7 @@ export class CartComponent implements OnInit, OnDestroy {
   formatPrice(amount: number, currency: string): string {
     const currencyInfo = this.availableCurrencies.find(c => c.code === currency);
     if (currency === 'SYP') {
-      return `${currencyInfo?.symbol || ''}${new Intl.NumberFormat('ar-SY').format(amount)}`;
+      return `${currencyInfo?.symbol || ''}\u00A0${new Intl.NumberFormat('ar-SY').format(amount)}`;
     }
     return new Intl.NumberFormat('en-US', {
       style: 'currency',

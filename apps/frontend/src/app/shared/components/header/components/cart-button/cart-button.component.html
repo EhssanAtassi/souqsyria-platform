@@ -13,14 +13,21 @@
       <span class="material-icons-outlined text-[20px]">shopping_cart</span>
       <span
         *ngIf="effectiveItemCount() > 0"
-        class="absolute -top-1 -right-1.5 min-w-[16px] h-4 bg-white text-primary-500 text-[10px] font-bold
+        class="absolute -top-1 ltr:-right-1.5 rtl:-left-1.5 min-w-[16px] h-4 bg-white text-primary-500 text-[10px] font-bold
                rounded-full flex items-center justify-center px-0.5"
+        [class.badge-bounce]="badgeBounce()"
       >
         {{ effectiveItemCount() }}
       </span>
     </div>
     <!-- Label text -->
     <span class="text-[13px] font-medium">{{ label }}</span>
+    <!-- Dropdown arrow indicator (desktop) -->
+    <span
+      class="material-icons-outlined text-[14px] transition-transform duration-200 hidden sm:inline-block"
+      [class.rotate-180]="isDropdownOpen()">
+      expand_more
+    </span>
   </button>
 
   <!-- Mini Cart Dropdown (desktop only, hidden via CSS on mobile) -->
