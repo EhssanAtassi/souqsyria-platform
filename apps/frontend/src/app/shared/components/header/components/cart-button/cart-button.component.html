@@ -1,22 +1,38 @@
-<!-- Cart Button: golden background with white badge -->
-<button
-  (click)="cartClick.emit()"
-  routerLink="/cart"
-  class="flex items-center gap-2 h-10 px-4 bg-primary-400 hover:bg-primary-500 text-white rounded-lg
-         transition-all duration-200 shadow-sm hover:shadow-md hover:-translate-y-px"
-  [attr.aria-label]="ariaLabel"
->
-  <!-- Cart icon with badge -->
-  <div class="relative">
-    <span class="material-icons-outlined text-[20px]">shopping_cart</span>
-    <span
-      *ngIf="itemCount > 0"
-      class="absolute -top-1 -right-1.5 min-w-[16px] h-4 bg-white text-primary-500 text-[10px] font-bold
-             rounded-full flex items-center justify-center px-0.5"
-    >
-      {{ itemCount }}
-    </span>
-  </div>
-  <!-- Label text -->
-  <span class="text-[13px] font-medium">{{ label }}</span>
-</button>
+<!-- Cart Button: golden background with white badge + mini-cart dropdown -->
+<div class="relative">
+  <button
+    (click)="onButtonClick($event)"
+    class="flex items-center gap-2 h-10 px-4 bg-primary-400 hover:bg-primary-500 text-white rounded-lg
+           transition-all duration-200 shadow-sm hover:shadow-md hover:-translate-y-px"
+    [attr.aria-label]="ariaLabel"
+    [attr.aria-expanded]="isDropdownOpen()"
+    aria-haspopup="dialog"
+  >
+    <!-- Cart icon with badge -->
+    <div class="relative">
+      <span class="material-icons-outlined text-[20px]">shopping_cart</span>
+      <span
+        *ngIf="effectiveItemCount() > 0"
+        class="absolute -top-1 -right-1.5 min-w-[16px] h-4 bg-white text-primary-500 text-[10px] font-bold
+               rounded-full flex items-center justify-center px-0.5"
+      >
+        {{ effectiveItemCount() }}
+      </span>
+    </div>
+    <!-- Label text -->
+    <span class="text-[13px] font-medium">{{ label }}</span>
+  </button>
+
+  <!-- Mini Cart Dropdown (desktop only, hidden via CSS on mobile) -->
+  <app-mini-cart-dropdown
+    [items]="effectiveItems()"
+    [subtotal]="effectiveSubtotal()"
+    [itemCount]="effectiveItemCount()"
+    [language]="language"
+    [isOpen]="isDropdownOpen()"
+    (removeItem)="onRemoveItem($event)"
+    (viewCart)="onViewCart()"
+    (checkout)="onCheckout()"
+    (closed)="closeDropdown()">
+  </app-mini-cart-dropdown>
+</div>

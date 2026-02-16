@@ -1,0 +1,138 @@
+/**
+ * Empty Cart Component Styles
+ * Centered layout with Syrian gold illustration theme
+ */
+
+.empty-cart {
+  text-align: center;
+  padding: 48px 16px;
+
+  &__illustration {
+    margin-bottom: 24px;
+
+    svg {
+      opacity: 0.85;
+    }
+  }
+
+  &__title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #374151;
+    margin: 0 0 12px;
+  }
+
+  &__subtitle {
+    font-size: 1rem;
+    color: #6b7280;
+    margin: 0 0 32px;
+    max-width: 400px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  &__actions {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 48px;
+  }
+
+  &__btn {
+    display: inline-flex;
+    align-items: center;
+    padding: 12px 24px;
+    min-height: 44px;
+    border-radius: 8px;
+    font-size: 0.9375rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: none;
+
+    &--primary {
+      background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+      color: white;
+
+      &:hover {
+        background: linear-gradient(135deg, #1d4ed8, #1e40af);
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+      }
+    }
+
+    &--secondary {
+      background: white;
+      color: #374151;
+      border: 2px solid #e5e7eb;
+
+      &:hover {
+        border-color: #3b82f6;
+        color: #3b82f6;
+        background-color: #eff6ff;
+      }
+    }
+  }
+
+  // Recommendations section
+  &__recommendations {
+    max-width: 1000px;
+    margin: 0 auto;
+  }
+
+  &__recommendations-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #111827;
+    margin: 0 0 24px;
+    text-align: left;
+
+    [dir='rtl'] & {
+      text-align: right;
+    }
+  }
+
+  &__recommendations-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 16px;
+  }
+}
+
+// Responsive
+@media (max-width: 768px) {
+  .empty-cart {
+    padding: 32px 16px;
+
+    &__title {
+      font-size: 1.25rem;
+    }
+
+    &__actions {
+      flex-direction: column;
+      align-items: center;
+
+      .empty-cart__btn {
+        width: 100%;
+        max-width: 300px;
+        justify-content: center;
+      }
+    }
+
+    &__recommendations-grid {
+      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+      gap: 12px;
+    }
+  }
+}
+
+// Extra small screens (iPhone SE)
+@media (max-width: 360px) {
+  .empty-cart {
+    &__recommendations-grid {
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+  }
+}

@@ -253,12 +253,18 @@ export interface CurrencyInfo {
 export interface CartInfo {
   /** Total number of items in cart */
   itemCount: number;
-  
+
   /** Total cart value */
   totalAmount: number;
-  
+
   /** Currency code */
   currency: string;
+
+  /** Cart items for mini-cart dropdown preview (SS-CART-010) */
+  items?: import('./cart.interface').CartItem[];
+
+  /** Cart subtotal for mini-cart dropdown display */
+  subtotal?: number;
 }
 
 /**

@@ -20,24 +20,15 @@
       </div>
     </div>
 
-    <!-- Empty Cart State -->
-    <div *ngIf="items.length === 0" class="cart-page__empty">
-      <mat-icon class="cart-page__empty-icon">shopping_cart</mat-icon>
-      <h2 class="cart-page__empty-title">
-        {{ language() === 'ar' ? 'سلة التسوق فارغة' : 'Your cart is empty' }}
-      </h2>
-      <p class="cart-page__empty-text">
-        {{ language() === 'ar'
-          ? 'اكتشف منتجات سورية أصلية وأضفها إلى سلتك.'
-          : 'Discover authentic Syrian products and add them to your cart.' }}
-      </p>
-      <div class="cart-page__empty-actions">
-        <button mat-raised-button color="primary" (click)="continueShopping()">
-          <mat-icon>shopping_bag</mat-icon>
-          {{ language() === 'ar' ? 'ابدأ التسوق' : 'Start Shopping' }}
-        </button>
-      </div>
-    </div>
+    <!-- Empty Cart State (SS-CART-011) -->
+    <app-empty-cart
+      *ngIf="items.length === 0"
+      [language]="language()"
+      [recommendedProducts]="recommendedProducts()"
+      (startShopping)="continueShopping()"
+      (browseCategories)="browseCategoriesClick()"
+      (addToCart)="onRecommendedProductAddToCart($event)">
+    </app-empty-cart>
 
     <!-- Cart with Items -->
     <div *ngIf="items.length > 0" class="cart-page__content">
@@ -59,7 +50,7 @@
 
         <!-- Cart Items List -->
         <div class="cart-page__items-list">
-          <mat-card *ngFor="let item of items" class="cart-item">
+          <mat-card *ngFor="let item of items; trackBy: trackByItemId" class="cart-item">
             <div class="cart-item__content">
 
               <!-- Product Image -->
@@ -82,11 +73,12 @@
                   {{ item.product.category.name }}
                 </p>
 
-                <!-- Stock Status -->
-                <div class="cart-item__stock" [ngClass]="getStockStatus(item.product.id).color">
-                  <mat-icon>{{ getStockStatus(item.product.id).status === 'in_stock' ? 'check_circle' : 'warning' }}</mat-icon>
-                  <span>{{ getStockStatus(item.product.id).message }}</span>
-                </div>
+                <!-- Stock Status (SS-CART-007) -->
+                <app-stock-alert
+                  [status]="getStockStatus(item.product.id).status"
+                  [quantity]="item.product.inventory?.quantity"
+                  [language]="language()">
+                </app-stock-alert>
               </div>
 
               <!-- Quantity & Price -->
@@ -224,7 +216,7 @@
 
       <div class="cart-page__recommendations-grid">
         <app-product-box-grid
-          *ngFor="let product of recommendedProducts()"
+          *ngFor="let product of recommendedProducts(); trackBy: trackByProductId"
           [product]="product"
           [language]="language()"
           (addToCart)="addRecommendedProductToCart($event)">

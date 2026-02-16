@@ -24,6 +24,7 @@ import {
   NavigationConfig,
   SearchFilters
 } from '../../interfaces/navigation.interface';
+import { CartItem } from '../../interfaces/cart.interface';
 
 // Category Navigation (Row 3 nav bar only — legacy mega menus removed)
 import { CategoryNavigationComponent } from '../category-navigation/index';
@@ -118,6 +119,9 @@ export class HeaderComponent implements OnInit {
   @Output() wishlistClick = new EventEmitter<void>();
   @Output() topBarLinkClick = new EventEmitter<string>();
   @Output() quickAccessClick = new EventEmitter<string>();
+
+  /** Emitted when user removes an item via mini-cart dropdown (SS-CART-010) */
+  @Output() cartRemoveItem = new EventEmitter<CartItem>();
 
   //#endregion
 
@@ -296,6 +300,7 @@ export class HeaderComponent implements OnInit {
   onLoginClick(): void { this.loginClick.emit(); }
   onLogoutClick(): void { this.logoutClick.emit(); }
   onCartClick(): void { this.cartClick.emit(); }
+  onCartRemoveItem(item: CartItem): void { this.cartRemoveItem.emit(item); }
   onWishlistClick(): void { this.wishlistClick.emit(); }
   onTopBarLinkClick(linkId: string): void { this.topBarLinkClick.emit(linkId); }
   onQuickAccessItemClick(itemId: string): void { this.quickAccessClick.emit(itemId); }

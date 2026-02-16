@@ -1,0 +1,78 @@
+<!-- Mini Cart Dropdown: absolute positioned under cart button -->
+<div
+  *ngIf="isOpen"
+  class="mini-cart-dropdown"
+  [class.mini-cart-dropdown--rtl]="language === 'ar'"
+  [attr.dir]="language === 'ar' ? 'rtl' : 'ltr'"
+  role="dialog"
+  [attr.aria-label]="language === 'ar' ? 'معاينة سلة التسوق' : 'Cart preview'">
+
+  <!-- Empty State -->
+  <div *ngIf="isEmpty" class="mini-cart-dropdown__empty">
+    <span class="material-icons-outlined text-4xl text-gray-300 mb-2">shopping_cart</span>
+    <p class="text-sm text-gray-500">
+      {{ language === 'ar' ? 'سلة التسوق فارغة' : 'Your cart is empty' }}
+    </p>
+  </div>
+
+  <!-- Items List -->
+  <div *ngIf="!isEmpty" class="mini-cart-dropdown__items">
+    <div
+      *ngFor="let item of visibleItems; trackBy: trackByItemId"
+      class="mini-cart-dropdown__item">
+
+      <!-- Product Thumbnail -->
+      <img
+        class="mini-cart-dropdown__item-image"
+        [src]="item.product.images?.[0]?.url || '/assets/images/placeholder.svg'"
+        [alt]="item.product.name"
+        loading="lazy">
+
+      <!-- Product Info -->
+      <div class="mini-cart-dropdown__item-info">
+        <p class="mini-cart-dropdown__item-name">{{ item.product.name }}</p>
+        <p class="mini-cart-dropdown__item-meta">
+          {{ item.quantity }} &times; {{ formatPrice(item.product.price.amount) }}
+        </p>
+      </div>
+
+      <!-- Remove Button -->
+      <button
+        class="mini-cart-dropdown__item-remove"
+        (click)="removeItem.emit(item); $event.stopPropagation()"
+        [attr.aria-label]="(language === 'ar' ? 'إزالة ' : 'Remove ') + item.product.name + (language === 'ar' ? ' من السلة' : ' from cart')">
+        <span class="material-icons-outlined text-base" aria-hidden="true">close</span>
+      </button>
+    </div>
+
+    <!-- Overflow Indicator -->
+    <p *ngIf="overflowCount > 0" class="mini-cart-dropdown__overflow">
+      {{ language === 'ar'
+        ? '+ ' + overflowCount + ' عناصر أخرى'
+        : '+ ' + overflowCount + ' more items' }}
+    </p>
+  </div>
+
+  <!-- Footer: Subtotal + CTAs -->
+  <div *ngIf="!isEmpty" class="mini-cart-dropdown__footer">
+    <div class="mini-cart-dropdown__subtotal">
+      <span class="text-sm text-gray-600">
+        {{ language === 'ar' ? 'المجموع الفرعي:' : 'Subtotal:' }}
+      </span>
+      <span class="text-sm font-bold text-gray-900">{{ formatPrice(subtotal) }}</span>
+    </div>
+
+    <div class="mini-cart-dropdown__actions">
+      <button
+        class="mini-cart-dropdown__btn mini-cart-dropdown__btn--secondary"
+        (click)="viewCart.emit()">
+        {{ language === 'ar' ? 'عرض السلة' : 'View Cart' }}
+      </button>
+      <button
+        class="mini-cart-dropdown__btn mini-cart-dropdown__btn--primary"
+        (click)="checkout.emit()">
+        {{ language === 'ar' ? 'الدفع' : 'Checkout' }}
+      </button>
+    </div>
+  </div>
+</div>

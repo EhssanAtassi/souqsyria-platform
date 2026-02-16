@@ -1,0 +1,14 @@
+/**
+ * Stock Alert Component Styles
+ * Minimal SCSS — primary styling via Tailwind utility classes in template
+ */
+:host {
+  display: inline-block;
+  max-width: 100%;
+}
+
+.stock-alert {
+  transition: opacity 0.2s ease;
+  max-width: 100%;
+  white-space: nowrap;
+}
