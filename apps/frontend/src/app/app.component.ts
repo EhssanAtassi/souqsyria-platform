@@ -15,6 +15,7 @@ import { FlexLayoutModule } from '@angular/flex-layout';
 import { HeaderComponent } from './shared/components/header/header.component';
 import { FooterComponent } from './shared/components/footer/footer.component';
 import { NavigationDataService } from './shared/services/navigation-data.service';
+import { CartService } from './store/cart/cart.service';
 import {
   Category,
   UserInfo,
@@ -23,6 +24,7 @@ import {
   NavigationConfig,
   SearchFilters
 } from './shared/interfaces/navigation.interface';
+import { CartItem } from './shared/interfaces/cart.interface';
 
 /**
  * Root application component that demonstrates the integration of:
@@ -98,6 +100,9 @@ export class AppComponent implements OnInit {
 
   /** @description Angular router for route detection and navigation */
   private readonly router = inject(Router);
+
+  /** Cart service for mini-cart dropdown item removal (SS-CART-010) */
+  private readonly cartService = inject(CartService);
 
   /**
    * Whether the current route is an auth route (/auth/*)
@@ -219,7 +224,14 @@ export class AppComponent implements OnInit {
    */
   onCartClick(): void {
     console.log('Cart clicked');
-    // In a real application, this would open cart sidebar or navigate to cart
+  }
+
+  /**
+   * Handles cart item removal from mini-cart dropdown (SS-CART-010)
+   * @param item - Cart item to remove
+   */
+  onCartRemoveItem(item: CartItem): void {
+    this.cartService.removeFromCart(item.id);
   }
 
   /**

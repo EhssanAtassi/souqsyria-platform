@@ -26,7 +26,7 @@
  */
 
 import { ApiProperty } from '@nestjs/swagger';
-import { IsUUID, IsInt, Min, IsOptional, IsEnum, IsString } from 'class-validator';
+import { IsUUID, IsOptional, IsEnum, IsString } from 'class-validator';
 
 /**
  * Merge strategy options
@@ -75,20 +75,6 @@ export class MergeCartRequest {
   })
   @IsUUID('4', { message: 'Invalid guest session ID format' })
   guestSessionId: string;
-
-  /**
-   * User ID to merge into
-   * Identifies the authenticated user account
-   */
-  @ApiProperty({
-    description:
-      'User ID of authenticated account to merge into',
-    example: 789,
-    type: Number,
-  })
-  @IsInt()
-  @Min(1, { message: 'User ID must be positive' })
-  userId: number;
 
   /**
    * Merge strategy
