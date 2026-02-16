@@ -1,0 +1,299 @@
+/**
+ * Trust Indicators Component Styles
+ * Syrian marketplace trust badges with Material Design
+ */
+
+.trust-indicators-container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.trust-badges-wrapper {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+
+  // Horizontal layout (default)
+  &.trust-indicator-layout-horizontal {
+    flex-direction: row;
+  }
+
+  // Vertical layout
+  .trust-indicator-layout-vertical & {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  // Grid layout
+  .trust-indicator-layout-grid & {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 16px;
+  }
+}
+
+.trust-badge-item {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+// ====================================================================
+// TRUST BADGE STYLES (defined in material-syrian-theme.scss)
+// ====================================================================
+
+.souqsyria-trust-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border-radius: 24px;
+  font-size: 13px;
+  font-weight: 600;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: default;
+  white-space: nowrap;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  }
+
+  .trust-badge-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+  }
+
+  .trust-badge-label {
+    line-height: 1;
+  }
+
+  // Small size variant
+  .trust-indicator-small & {
+    padding: 6px 12px;
+    font-size: 11px;
+
+    .trust-badge-icon {
+      font-size: 16px;
+      width: 16px;
+      height: 16px;
+    }
+  }
+
+  // Large size variant
+  .trust-indicator-large & {
+    padding: 12px 20px;
+    font-size: 15px;
+
+    .trust-badge-icon {
+      font-size: 22px;
+      width: 22px;
+      height: 22px;
+    }
+  }
+}
+
+// ====================================================================
+// BADGE COLOR THEMES
+// ====================================================================
+
+.trust-badge-ssl {
+  background: linear-gradient(135deg, #002623 0%, #054239 100%);
+  color: white;
+  box-shadow: 0 2px 8px rgba(5, 66, 57, 0.3);
+}
+
+.trust-badge-verified {
+  background: linear-gradient(135deg, #988561 0%, #b9a779 100%);
+  color: white;
+  box-shadow: 0 2px 8px rgba(152, 133, 97, 0.3);
+}
+
+.trust-badge-unesco {
+  background: linear-gradient(135deg, #d4af37 0%, #f4f0e6 100%);
+  color: #002623;
+  box-shadow: 0 2px 8px rgba(212, 175, 55, 0.3);
+  border: 1px solid #d4af37;
+}
+
+.trust-badge-money {
+  background: linear-gradient(135deg, #054239 0%, #428177 100%);
+  color: white;
+  box-shadow: 0 2px 8px rgba(66, 129, 119, 0.3);
+}
+
+.trust-badge-authentic {
+  background: linear-gradient(135deg, #002623 0%, #054239 100%);
+  color: white;
+  box-shadow: 0 2px 8px rgba(0, 38, 35, 0.3);
+}
+
+.trust-badge-shipping {
+  background: linear-gradient(135deg, #ce1126 0%, #e65a6a 100%);
+  color: white;
+  box-shadow: 0 2px 8px rgba(206, 17, 38, 0.3);
+}
+
+.trust-badge-damascus {
+  background: linear-gradient(135deg, #3d3428 0%, #6f6047 100%);
+  color: #d4af37;
+  box-shadow: 0 2px 8px rgba(61, 52, 40, 0.3);
+  border: 1px solid #d4af37;
+}
+
+.trust-badge-handmade {
+  background: linear-gradient(135deg, #b9a779 0%, #d9d4c3 100%);
+  color: #002623;
+  box-shadow: 0 2px 8px rgba(185, 167, 121, 0.3);
+}
+
+.trust-badge-organic {
+  background: linear-gradient(135deg, #428177 0%, #96c8c3 100%);
+  color: white;
+  box-shadow: 0 2px 8px rgba(66, 129, 119, 0.3);
+}
+
+.trust-badge-traditional {
+  background: linear-gradient(135deg, #988561 0%, #b9a779 100%);
+  color: white;
+  box-shadow: 0 2px 8px rgba(152, 133, 97, 0.3);
+}
+
+// ====================================================================
+// BADGE DESCRIPTION TEXT
+// ====================================================================
+
+.trust-badge-description {
+  color: rgba(0, 0, 0, 0.6);
+  margin: 0;
+  padding-left: 26px;  // Align with icon
+
+  [dir="rtl"] & {
+    padding-left: 0;
+    padding-right: 26px;
+  }
+
+  .trust-indicator-small & {
+    font-size: 11px;
+    padding-left: 22px;
+
+    [dir="rtl"] & {
+      padding-left: 0;
+      padding-right: 22px;
+    }
+  }
+
+  .trust-indicator-large & {
+    font-size: 13px;
+    padding-left: 30px;
+
+    [dir="rtl"] & {
+      padding-left: 0;
+      padding-right: 30px;
+    }
+  }
+}
+
+// ====================================================================
+// SECURITY DISCLAIMER
+// ====================================================================
+
+.security-disclaimer {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  background: rgba(0, 38, 35, 0.04);
+  border: 1px solid rgba(0, 38, 35, 0.12);
+  border-radius: 8px;
+  margin-top: 8px;
+
+  .security-icon {
+    color: #054239;
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+  }
+
+  .security-text {
+    color: rgba(0, 0, 0, 0.7);
+    line-height: 1.4;
+  }
+}
+
+// ====================================================================
+// RESPONSIVE ADJUSTMENTS
+// ====================================================================
+
+@media (max-width: 768px) {
+  .trust-badges-wrapper {
+    gap: 8px;
+
+    &.trust-indicator-layout-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .souqsyria-trust-badge {
+    font-size: 12px;
+    padding: 6px 12px;
+
+    .trust-badge-icon {
+      font-size: 16px;
+      width: 16px;
+      height: 16px;
+    }
+  }
+
+  .security-disclaimer {
+    flex-direction: column;
+    text-align: center;
+    gap: 6px;
+
+    [dir="rtl"] & {
+      text-align: center;
+    }
+  }
+}
+
+// ====================================================================
+// DARK THEME (OPTIONAL)
+// ====================================================================
+
+.souqsyria-dark-theme {
+  .trust-badge-description {
+    color: rgba(255, 255, 255, 0.7);
+  }
+
+  .security-disclaimer {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.12);
+
+    .security-text {
+      color: rgba(255, 255, 255, 0.8);
+    }
+  }
+}
+
+// ====================================================================
+// PRINT STYLES
+// ====================================================================
+
+@media print {
+  .trust-indicators-container {
+    page-break-inside: avoid;
+  }
+
+  .souqsyria-trust-badge {
+    box-shadow: none;
+    border: 1px solid currentColor;
+  }
+
+  .security-disclaimer {
+    border: 1px solid #000;
+    background: transparent;
+  }
+}

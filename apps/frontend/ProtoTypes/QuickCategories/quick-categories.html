@@ -1,0 +1,898 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SouqSyria - Quick Categories Prototype</title>
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Material Icons -->
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: {
+              50: '#faf8f3',
+              100: '#f5f0e6',
+              200: '#e8dcc6',
+              300: '#d9c59f',
+              400: '#c9ad78',
+              500: '#C4A052',
+              600: '#a88a3d',
+              700: '#8c7233',
+              800: '#735d2b',
+              900: '#5f4d25',
+            },
+            'surface': '#ffffff',
+            'surface-dim': '#f5f5f5',
+            'on-surface': '#1a1a1a',
+            'on-surface-variant': '#5f6368',
+            'outline': '#dadce0',
+          },
+          fontFamily: {
+            'sans': ['Inter', 'Cairo', 'sans-serif'],
+            'arabic': ['Cairo', 'sans-serif'],
+          },
+          boxShadow: {
+            'soft': '0 1px 3px rgba(0, 0, 0, 0.08)',
+            'card': '0 2px 8px rgba(0, 0, 0, 0.08)',
+            'medium': '0 4px 12px rgba(0, 0, 0, 0.12)',
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    /* Base Styles */
+    body {
+      font-family: 'Inter', 'Cairo', sans-serif;
+      background: #f8f9fa;
+      min-height: 100vh;
+    }
+
+    [dir="rtl"] body {
+      font-family: 'Cairo', 'Inter', sans-serif;
+    }
+
+    /* Hide scrollbar but keep functionality */
+    .scrollbar-hide {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+
+    .scrollbar-hide::-webkit-scrollbar {
+      display: none;
+    }
+
+    /* RTL icon flip */
+    [dir="rtl"] .flip-rtl {
+      transform: scaleX(-1);
+    }
+
+    /* Category Card Hover Effects */
+    .category-card {
+      text-decoration: none;
+      transition: transform 0.2s ease;
+    }
+
+    .category-card:hover {
+      transform: scale(1.02);
+    }
+
+    .category-card:active {
+      transform: scale(0.98);
+    }
+
+    .category-card:focus-visible {
+      outline: 2px solid #C4A052;
+      outline-offset: 4px;
+      border-radius: 12px;
+    }
+
+    /* Image hover shadow */
+    .category-image {
+      transition: box-shadow 0.2s ease;
+    }
+
+    .category-card:hover .category-image {
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+    }
+
+    /* Navigation Arrow Styles */
+    .scroll-arrow {
+      opacity: 0.9;
+      transition: all 0.2s ease;
+    }
+
+    .scroll-arrow:hover {
+      opacity: 1;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+    }
+
+    .scroll-arrow:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    /* Reduced motion */
+    @media (prefers-reduced-motion: reduce) {
+      .category-card,
+      .category-image,
+      .scroll-arrow {
+        transition: none;
+      }
+
+      .category-card:hover {
+        transform: none;
+      }
+
+      .scroll-container {
+        scroll-behavior: auto;
+      }
+    }
+
+    /* Language Toggle */
+    .lang-btn {
+      transition: all 0.2s ease;
+    }
+
+    .lang-btn.active {
+      background: #C4A052;
+      color: white;
+    }
+
+    /* Demo Controls */
+    .demo-controls {
+      position: fixed;
+      top: 16px;
+      right: 16px;
+      z-index: 100;
+      background: white;
+      padding: 12px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    [dir="rtl"] .demo-controls {
+      right: auto;
+      left: 16px;
+    }
+  </style>
+</head>
+<body class="bg-surface-dim">
+
+  <!-- Demo Controls -->
+  <div class="demo-controls flex items-center gap-3">
+    <span class="text-sm font-medium text-on-surface-variant">Language:</span>
+    <div class="flex rounded-lg overflow-hidden border border-outline">
+      <button onclick="setLanguage('en')" class="lang-btn px-3 py-1.5 text-sm font-medium active" data-lang="en">EN</button>
+      <button onclick="setLanguage('ar')" class="lang-btn px-3 py-1.5 text-sm font-medium" data-lang="ar">عربي</button>
+    </div>
+  </div>
+
+  <!-- Page Container -->
+  <div class="min-h-screen py-8">
+
+    <!-- Title -->
+    <div class="max-w-[1400px] mx-auto px-4 mb-6">
+      <h1 class="text-2xl font-bold text-on-surface"
+          data-en="Quick Categories Prototype"
+          data-ar="نموذج الفئات السريعة">
+        Quick Categories Prototype
+      </h1>
+      <p class="text-on-surface-variant mt-1"
+         data-en="SouqSyria - Horizontal scrollable category navigation"
+         data-ar="سوق سوريا - شريط التصفح الأفقي للفئات">
+        SouqSyria - Horizontal scrollable category navigation
+      </p>
+    </div>
+
+    <!-- ============================================ -->
+    <!-- QUICK CATEGORIES SECTION                    -->
+    <!-- ============================================ -->
+    <section class="quick-categories max-w-[1400px] mx-auto px-3 md:px-6 py-3 md:py-4 bg-white rounded-xl shadow-soft"
+             aria-label="Quick category navigation">
+
+      <div class="relative">
+
+        <!-- Left Arrow (Desktop only) -->
+        <button id="scrollLeft"
+                onclick="scrollCategories('left')"
+                class="scroll-arrow absolute start-0 top-1/2 -translate-y-1/2 z-10
+                       hidden md:flex items-center justify-center
+                       w-9 h-9 bg-white/95 hover:bg-white
+                       border border-outline/30 rounded-full
+                       shadow-card cursor-pointer"
+                aria-label="Scroll left"
+                aria-controls="category-scroll"
+                disabled>
+          <span class="material-icons-round text-on-surface text-[20px] flip-rtl">chevron_left</span>
+        </button>
+
+        <!-- Scrollable Container -->
+        <div id="category-scroll"
+             class="flex gap-3 md:gap-3.5 lg:gap-4
+                    overflow-x-auto scroll-smooth snap-x snap-mandatory
+                    py-2 px-1 md:px-12
+                    scrollbar-hide"
+             role="region"
+             aria-label="Category list"
+             tabindex="0"
+             onscroll="checkScrollButtons()">
+
+          <!-- Category 1: Damascus Steel -->
+          <a href="/category/damascus-steel"
+             class="category-card flex flex-col items-center flex-shrink-0 snap-start
+                    w-[110px] md:w-[130px] lg:w-[140px]
+                    cursor-pointer group"
+             aria-label="Damascus Steel - Up to 40% Off">
+
+            <!-- Badge -->
+            <div class="w-full mb-1 text-center">
+              <span class="inline-block px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide
+                         text-white rounded-md"
+                    style="background-color: #C4A052;"
+                    data-en="Best Sellers"
+                    data-ar="الأكثر مبيعاً">
+                Best Sellers
+              </span>
+            </div>
+
+            <!-- Image -->
+            <div class="category-image relative w-20 h-20 md:w-[90px] md:h-[90px] lg:w-[100px] lg:h-[100px]
+                        rounded-xl overflow-hidden bg-gray-100">
+              <img src="https://images.unsplash.com/photo-1590739225287-bd31519780c3?w=200&h=200&fit=crop"
+                   alt="Damascus Steel"
+                   class="w-full h-full object-cover"
+                   loading="lazy">
+            </div>
+
+            <!-- Text -->
+            <div class="mt-2 text-center px-1 w-full">
+              <h3 class="text-[13px] md:text-sm font-semibold text-on-surface leading-tight truncate"
+                  data-en="Damascus Steel"
+                  data-ar="الفولاذ الدمشقي">
+                Damascus Steel
+              </h3>
+              <p class="text-[11px] md:text-xs text-on-surface-variant truncate mt-0.5"
+                 data-en="Up to 40% Off"
+                 data-ar="خصم حتى 40%">
+                Up to 40% Off
+              </p>
+            </div>
+          </a>
+
+          <!-- Category 2: Beauty / Natural Care -->
+          <a href="/category/beauty"
+             class="category-card flex flex-col items-center flex-shrink-0 snap-start
+                    w-[110px] md:w-[130px] lg:w-[140px]
+                    cursor-pointer group"
+             aria-label="Natural Care - Aleppo Soap">
+
+            <!-- Badge -->
+            <div class="w-full mb-1 text-center">
+              <span class="inline-block px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide
+                         text-white rounded-md"
+                    style="background-color: #2A9D8F;"
+                    data-en="Beauty"
+                    data-ar="الجمال">
+                Beauty
+              </span>
+            </div>
+
+            <!-- Image -->
+            <div class="category-image relative w-20 h-20 md:w-[90px] md:h-[90px] lg:w-[100px] lg:h-[100px]
+                        rounded-xl overflow-hidden bg-gray-100">
+              <img src="https://images.unsplash.com/photo-1600428877878-1a0fd85beda8?w=200&h=200&fit=crop"
+                   alt="Natural Care"
+                   class="w-full h-full object-cover"
+                   loading="lazy">
+            </div>
+
+            <!-- Text -->
+            <div class="mt-2 text-center px-1 w-full">
+              <h3 class="text-[13px] md:text-sm font-semibold text-on-surface leading-tight truncate"
+                  data-en="Natural Care"
+                  data-ar="العناية الطبيعية">
+                Natural Care
+              </h3>
+              <p class="text-[11px] md:text-xs text-on-surface-variant truncate mt-0.5"
+                 data-en="Aleppo Soap"
+                 data-ar="صابون حلب">
+                Aleppo Soap
+              </p>
+            </div>
+          </a>
+
+          <!-- Category 3: Artisan Crafts -->
+          <a href="/category/artisan-crafts"
+             class="category-card flex flex-col items-center flex-shrink-0 snap-start
+                    w-[110px] md:w-[130px] lg:w-[140px]
+                    cursor-pointer group"
+             aria-label="Handmade - Syrian Heritage">
+
+            <!-- Badge -->
+            <div class="w-full mb-1 text-center">
+              <span class="inline-block px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide
+                         text-white rounded-md"
+                    style="background-color: #8B7355;"
+                    data-en="Artisan Crafts"
+                    data-ar="الحرف اليدوية">
+                Artisan Crafts
+              </span>
+            </div>
+
+            <!-- Image -->
+            <div class="category-image relative w-20 h-20 md:w-[90px] md:h-[90px] lg:w-[100px] lg:h-[100px]
+                        rounded-xl overflow-hidden bg-gray-100">
+              <img src="https://images.unsplash.com/photo-1565193566173-7a0ee3dbe261?w=200&h=200&fit=crop"
+                   alt="Artisan Crafts"
+                   class="w-full h-full object-cover"
+                   loading="lazy">
+            </div>
+
+            <!-- Text -->
+            <div class="mt-2 text-center px-1 w-full">
+              <h3 class="text-[13px] md:text-sm font-semibold text-on-surface leading-tight truncate"
+                  data-en="Handmade"
+                  data-ar="صناعة يدوية">
+                Handmade
+              </h3>
+              <p class="text-[11px] md:text-xs text-on-surface-variant truncate mt-0.5"
+                 data-en="Syrian Heritage"
+                 data-ar="التراث السوري">
+                Syrian Heritage
+              </p>
+            </div>
+          </a>
+
+          <!-- Category 4: Food & Spices -->
+          <a href="/category/food-spices"
+             class="category-card flex flex-col items-center flex-shrink-0 snap-start
+                    w-[110px] md:w-[130px] lg:w-[140px]
+                    cursor-pointer group"
+             aria-label="Aleppo Specials - Free Delivery">
+
+            <!-- Badge -->
+            <div class="w-full mb-1 text-center">
+              <span class="inline-block px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide
+                         text-white rounded-md"
+                    style="background-color: #E76F51;"
+                    data-en="Food & Spices"
+                    data-ar="الطعام والتوابل">
+                Food & Spices
+              </span>
+            </div>
+
+            <!-- Image -->
+            <div class="category-image relative w-20 h-20 md:w-[90px] md:h-[90px] lg:w-[100px] lg:h-[100px]
+                        rounded-xl overflow-hidden bg-gray-100">
+              <img src="https://images.unsplash.com/photo-1596040033229-a9821ebd058d?w=200&h=200&fit=crop"
+                   alt="Food & Spices"
+                   class="w-full h-full object-cover"
+                   loading="lazy">
+            </div>
+
+            <!-- Text -->
+            <div class="mt-2 text-center px-1 w-full">
+              <h3 class="text-[13px] md:text-sm font-semibold text-on-surface leading-tight truncate"
+                  data-en="Aleppo Specials"
+                  data-ar="تخصصات حلب">
+                Aleppo Specials
+              </h3>
+              <p class="text-[11px] md:text-xs text-on-surface-variant truncate mt-0.5"
+                 data-en="Free Delivery"
+                 data-ar="توصيل مجاني">
+                Free Delivery
+              </p>
+            </div>
+          </a>
+
+          <!-- Category 5: Textiles -->
+          <a href="/category/textiles"
+             class="category-card flex flex-col items-center flex-shrink-0 snap-start
+                    w-[110px] md:w-[130px] lg:w-[140px]
+                    cursor-pointer group"
+             aria-label="Syrian Silk - Premium Quality">
+
+            <!-- Badge -->
+            <div class="w-full mb-1 text-center">
+              <span class="inline-block px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide
+                         text-white rounded-md"
+                    style="background-color: #9C6B98;"
+                    data-en="Textiles"
+                    data-ar="المنسوجات">
+                Textiles
+              </span>
+            </div>
+
+            <!-- Image -->
+            <div class="category-image relative w-20 h-20 md:w-[90px] md:h-[90px] lg:w-[100px] lg:h-[100px]
+                        rounded-xl overflow-hidden bg-gray-100">
+              <img src="https://images.unsplash.com/photo-1558171813-4c088753af8f?w=200&h=200&fit=crop"
+                   alt="Textiles"
+                   class="w-full h-full object-cover"
+                   loading="lazy">
+            </div>
+
+            <!-- Text -->
+            <div class="mt-2 text-center px-1 w-full">
+              <h3 class="text-[13px] md:text-sm font-semibold text-on-surface leading-tight truncate"
+                  data-en="Syrian Silk"
+                  data-ar="الحرير السوري">
+                Syrian Silk
+              </h3>
+              <p class="text-[11px] md:text-xs text-on-surface-variant truncate mt-0.5"
+                 data-en="Premium Quality"
+                 data-ar="جودة عالية">
+                Premium Quality
+              </p>
+            </div>
+          </a>
+
+          <!-- Category 6: Jewelry -->
+          <a href="/category/jewelry"
+             class="category-card flex flex-col items-center flex-shrink-0 snap-start
+                    w-[110px] md:w-[130px] lg:w-[140px]
+                    cursor-pointer group"
+             aria-label="Traditional - Silver & Gold">
+
+            <!-- Badge -->
+            <div class="w-full mb-1 text-center">
+              <span class="inline-block px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide
+                         text-white rounded-md"
+                    style="background-color: #C4A052;"
+                    data-en="Jewelry"
+                    data-ar="المجوهرات">
+                Jewelry
+              </span>
+            </div>
+
+            <!-- Image -->
+            <div class="category-image relative w-20 h-20 md:w-[90px] md:h-[90px] lg:w-[100px] lg:h-[100px]
+                        rounded-xl overflow-hidden bg-gray-100">
+              <img src="https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=200&h=200&fit=crop"
+                   alt="Jewelry"
+                   class="w-full h-full object-cover"
+                   loading="lazy">
+            </div>
+
+            <!-- Text -->
+            <div class="mt-2 text-center px-1 w-full">
+              <h3 class="text-[13px] md:text-sm font-semibold text-on-surface leading-tight truncate"
+                  data-en="Traditional"
+                  data-ar="تقليدي">
+                Traditional
+              </h3>
+              <p class="text-[11px] md:text-xs text-on-surface-variant truncate mt-0.5"
+                 data-en="Silver & Gold"
+                 data-ar="فضة وذهب">
+                Silver & Gold
+              </p>
+            </div>
+          </a>
+
+          <!-- Category 7: Sweets -->
+          <a href="/category/sweets"
+             class="category-card flex flex-col items-center flex-shrink-0 snap-start
+                    w-[110px] md:w-[130px] lg:w-[140px]
+                    cursor-pointer group"
+             aria-label="Gift Boxes - Syrian Baklava">
+
+            <!-- Badge -->
+            <div class="w-full mb-1 text-center">
+              <span class="inline-block px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide
+                         text-white rounded-md"
+                    style="background-color: #E9967A;"
+                    data-en="Sweets"
+                    data-ar="الحلويات">
+                Sweets
+              </span>
+            </div>
+
+            <!-- Image -->
+            <div class="category-image relative w-20 h-20 md:w-[90px] md:h-[90px] lg:w-[100px] lg:h-[100px]
+                        rounded-xl overflow-hidden bg-gray-100">
+              <img src="https://images.unsplash.com/photo-1579372786545-d24232daf58c?w=200&h=200&fit=crop"
+                   alt="Sweets"
+                   class="w-full h-full object-cover"
+                   loading="lazy">
+            </div>
+
+            <!-- Text -->
+            <div class="mt-2 text-center px-1 w-full">
+              <h3 class="text-[13px] md:text-sm font-semibold text-on-surface leading-tight truncate"
+                  data-en="Gift Boxes"
+                  data-ar="علب هدايا">
+                Gift Boxes
+              </h3>
+              <p class="text-[11px] md:text-xs text-on-surface-variant truncate mt-0.5"
+                 data-en="Syrian Baklava"
+                 data-ar="بقلاوة سورية">
+                Syrian Baklava
+              </p>
+            </div>
+          </a>
+
+          <!-- Category 8: Nuts & Snacks -->
+          <a href="/category/nuts-snacks"
+             class="category-card flex flex-col items-center flex-shrink-0 snap-start
+                    w-[110px] md:w-[130px] lg:w-[140px]
+                    cursor-pointer group"
+             aria-label="Aleppo Pistachios - Fresh Harvest">
+
+            <!-- Badge -->
+            <div class="w-full mb-1 text-center">
+              <span class="inline-block px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide
+                         text-white rounded-md"
+                    style="background-color: #6B8E23;"
+                    data-en="Nuts & Snacks"
+                    data-ar="المكسرات">
+                Nuts & Snacks
+              </span>
+            </div>
+
+            <!-- Image -->
+            <div class="category-image relative w-20 h-20 md:w-[90px] md:h-[90px] lg:w-[100px] lg:h-[100px]
+                        rounded-xl overflow-hidden bg-gray-100">
+              <img src="https://images.unsplash.com/photo-1599599810769-bcde5a160d32?w=200&h=200&fit=crop"
+                   alt="Nuts & Snacks"
+                   class="w-full h-full object-cover"
+                   loading="lazy">
+            </div>
+
+            <!-- Text -->
+            <div class="mt-2 text-center px-1 w-full">
+              <h3 class="text-[13px] md:text-sm font-semibold text-on-surface leading-tight truncate"
+                  data-en="Aleppo Pistachios"
+                  data-ar="فستق حلبي">
+                Aleppo Pistachios
+              </h3>
+              <p class="text-[11px] md:text-xs text-on-surface-variant truncate mt-0.5"
+                 data-en="Fresh Harvest"
+                 data-ar="محصول طازج">
+                Fresh Harvest
+              </p>
+            </div>
+          </a>
+
+          <!-- Category 9: Electronics -->
+          <a href="/category/electronics"
+             class="category-card flex flex-col items-center flex-shrink-0 snap-start
+                    w-[110px] md:w-[130px] lg:w-[140px]
+                    cursor-pointer group"
+             aria-label="New Arrivals - Latest Tech">
+
+            <!-- Badge -->
+            <div class="w-full mb-1 text-center">
+              <span class="inline-block px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide
+                         text-white rounded-md"
+                    style="background-color: #457B9D;"
+                    data-en="Electronics"
+                    data-ar="الإلكترونيات">
+                Electronics
+              </span>
+            </div>
+
+            <!-- Image -->
+            <div class="category-image relative w-20 h-20 md:w-[90px] md:h-[90px] lg:w-[100px] lg:h-[100px]
+                        rounded-xl overflow-hidden bg-gray-100">
+              <img src="https://images.unsplash.com/photo-1498049794561-7780e7231661?w=200&h=200&fit=crop"
+                   alt="Electronics"
+                   class="w-full h-full object-cover"
+                   loading="lazy">
+            </div>
+
+            <!-- Text -->
+            <div class="mt-2 text-center px-1 w-full">
+              <h3 class="text-[13px] md:text-sm font-semibold text-on-surface leading-tight truncate"
+                  data-en="New Arrivals"
+                  data-ar="وصل حديثاً">
+                New Arrivals
+              </h3>
+              <p class="text-[11px] md:text-xs text-on-surface-variant truncate mt-0.5"
+                 data-en="Latest Tech"
+                 data-ar="أحدث التقنيات">
+                Latest Tech
+              </p>
+            </div>
+          </a>
+
+          <!-- Category 10: Home & Living -->
+          <a href="/category/home-living"
+             class="category-card flex flex-col items-center flex-shrink-0 snap-start
+                    w-[110px] md:w-[130px] lg:w-[140px]
+                    cursor-pointer group"
+             aria-label="Decor - Syrian Style">
+
+            <!-- Badge -->
+            <div class="w-full mb-1 text-center">
+              <span class="inline-block px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide
+                         text-white rounded-md"
+                    style="background-color: #BC8F8F;"
+                    data-en="Home & Living"
+                    data-ar="المنزل">
+                Home & Living
+              </span>
+            </div>
+
+            <!-- Image -->
+            <div class="category-image relative w-20 h-20 md:w-[90px] md:h-[90px] lg:w-[100px] lg:h-[100px]
+                        rounded-xl overflow-hidden bg-gray-100">
+              <img src="https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?w=200&h=200&fit=crop"
+                   alt="Home & Living"
+                   class="w-full h-full object-cover"
+                   loading="lazy">
+            </div>
+
+            <!-- Text -->
+            <div class="mt-2 text-center px-1 w-full">
+              <h3 class="text-[13px] md:text-sm font-semibold text-on-surface leading-tight truncate"
+                  data-en="Decor"
+                  data-ar="ديكور">
+                Decor
+              </h3>
+              <p class="text-[11px] md:text-xs text-on-surface-variant truncate mt-0.5"
+                 data-en="Syrian Style"
+                 data-ar="الطراز السوري">
+                Syrian Style
+              </p>
+            </div>
+          </a>
+
+        </div>
+
+        <!-- Right Arrow (Desktop only) -->
+        <button id="scrollRight"
+                onclick="scrollCategories('right')"
+                class="scroll-arrow absolute end-0 top-1/2 -translate-y-1/2 z-10
+                       hidden md:flex items-center justify-center
+                       w-9 h-9 bg-white/95 hover:bg-white
+                       border border-outline/30 rounded-full
+                       shadow-card cursor-pointer"
+                aria-label="Scroll right"
+                aria-controls="category-scroll">
+          <span class="material-icons-round text-on-surface text-[20px] flip-rtl">chevron_right</span>
+        </button>
+
+      </div>
+    </section>
+
+    <!-- ============================================ -->
+    <!-- LOADING SKELETON PREVIEW                    -->
+    <!-- ============================================ -->
+    <div class="max-w-[1400px] mx-auto px-4 mt-8 mb-4">
+      <h2 class="text-lg font-semibold text-on-surface mb-3"
+          data-en="Loading Skeleton Preview"
+          data-ar="معاينة هيكل التحميل">
+        Loading Skeleton Preview
+      </h2>
+    </div>
+
+    <section class="max-w-[1400px] mx-auto px-3 md:px-6 py-3 md:py-4 bg-white rounded-xl shadow-soft">
+      <div class="flex gap-3 md:gap-4 overflow-hidden py-2">
+        <!-- Skeleton Cards -->
+        <div class="flex flex-col items-center flex-shrink-0 w-[110px] md:w-[130px] lg:w-[140px]">
+          <div class="w-16 h-4 bg-gray-200 rounded mb-1 animate-pulse"></div>
+          <div class="w-20 h-20 md:w-[90px] md:h-[90px] lg:w-[100px] lg:h-[100px] bg-gray-200 rounded-xl animate-pulse"></div>
+          <div class="mt-2 w-full flex flex-col items-center gap-1">
+            <div class="w-20 h-3 bg-gray-200 rounded animate-pulse"></div>
+            <div class="w-16 h-2.5 bg-gray-200 rounded animate-pulse"></div>
+          </div>
+        </div>
+
+        <div class="flex flex-col items-center flex-shrink-0 w-[110px] md:w-[130px] lg:w-[140px]">
+          <div class="w-16 h-4 bg-gray-200 rounded mb-1 animate-pulse"></div>
+          <div class="w-20 h-20 md:w-[90px] md:h-[90px] lg:w-[100px] lg:h-[100px] bg-gray-200 rounded-xl animate-pulse"></div>
+          <div class="mt-2 w-full flex flex-col items-center gap-1">
+            <div class="w-20 h-3 bg-gray-200 rounded animate-pulse"></div>
+            <div class="w-16 h-2.5 bg-gray-200 rounded animate-pulse"></div>
+          </div>
+        </div>
+
+        <div class="flex flex-col items-center flex-shrink-0 w-[110px] md:w-[130px] lg:w-[140px]">
+          <div class="w-16 h-4 bg-gray-200 rounded mb-1 animate-pulse"></div>
+          <div class="w-20 h-20 md:w-[90px] md:h-[90px] lg:w-[100px] lg:h-[100px] bg-gray-200 rounded-xl animate-pulse"></div>
+          <div class="mt-2 w-full flex flex-col items-center gap-1">
+            <div class="w-20 h-3 bg-gray-200 rounded animate-pulse"></div>
+            <div class="w-16 h-2.5 bg-gray-200 rounded animate-pulse"></div>
+          </div>
+        </div>
+
+        <div class="flex flex-col items-center flex-shrink-0 w-[110px] md:w-[130px] lg:w-[140px]">
+          <div class="w-16 h-4 bg-gray-200 rounded mb-1 animate-pulse"></div>
+          <div class="w-20 h-20 md:w-[90px] md:h-[90px] lg:w-[100px] lg:h-[100px] bg-gray-200 rounded-xl animate-pulse"></div>
+          <div class="mt-2 w-full flex flex-col items-center gap-1">
+            <div class="w-20 h-3 bg-gray-200 rounded animate-pulse"></div>
+            <div class="w-16 h-2.5 bg-gray-200 rounded animate-pulse"></div>
+          </div>
+        </div>
+
+        <div class="flex flex-col items-center flex-shrink-0 w-[110px] md:w-[130px] lg:w-[140px]">
+          <div class="w-16 h-4 bg-gray-200 rounded mb-1 animate-pulse"></div>
+          <div class="w-20 h-20 md:w-[90px] md:h-[90px] lg:w-[100px] lg:h-[100px] bg-gray-200 rounded-xl animate-pulse"></div>
+          <div class="mt-2 w-full flex flex-col items-center gap-1">
+            <div class="w-20 h-3 bg-gray-200 rounded animate-pulse"></div>
+            <div class="w-16 h-2.5 bg-gray-200 rounded animate-pulse"></div>
+          </div>
+        </div>
+
+        <div class="flex flex-col items-center flex-shrink-0 w-[110px] md:w-[130px] lg:w-[140px]">
+          <div class="w-16 h-4 bg-gray-200 rounded mb-1 animate-pulse"></div>
+          <div class="w-20 h-20 md:w-[90px] md:h-[90px] lg:w-[100px] lg:h-[100px] bg-gray-200 rounded-xl animate-pulse"></div>
+          <div class="mt-2 w-full flex flex-col items-center gap-1">
+            <div class="w-20 h-3 bg-gray-200 rounded animate-pulse"></div>
+            <div class="w-16 h-2.5 bg-gray-200 rounded animate-pulse"></div>
+          </div>
+        </div>
+
+        <div class="flex flex-col items-center flex-shrink-0 w-[110px] md:w-[130px] lg:w-[140px]">
+          <div class="w-16 h-4 bg-gray-200 rounded mb-1 animate-pulse"></div>
+          <div class="w-20 h-20 md:w-[90px] md:h-[90px] lg:w-[100px] lg:h-[100px] bg-gray-200 rounded-xl animate-pulse"></div>
+          <div class="mt-2 w-full flex flex-col items-center gap-1">
+            <div class="w-20 h-3 bg-gray-200 rounded animate-pulse"></div>
+            <div class="w-16 h-2.5 bg-gray-200 rounded animate-pulse"></div>
+          </div>
+        </div>
+
+        <div class="flex flex-col items-center flex-shrink-0 w-[110px] md:w-[130px] lg:w-[140px]">
+          <div class="w-16 h-4 bg-gray-200 rounded mb-1 animate-pulse"></div>
+          <div class="w-20 h-20 md:w-[90px] md:h-[90px] lg:w-[100px] lg:h-[100px] bg-gray-200 rounded-xl animate-pulse"></div>
+          <div class="mt-2 w-full flex flex-col items-center gap-1">
+            <div class="w-20 h-3 bg-gray-200 rounded animate-pulse"></div>
+            <div class="w-16 h-2.5 bg-gray-200 rounded animate-pulse"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Footer Info -->
+    <div class="max-w-[1400px] mx-auto px-4 mt-8 text-center text-on-surface-variant text-sm">
+      <p data-en="SouqSyria Quick Categories Prototype v1.0" data-ar="نموذج الفئات السريعة - سوق سوريا v1.0">
+        SouqSyria Quick Categories Prototype v1.0
+      </p>
+      <p class="mt-1" data-en="Last Updated: January 29, 2026" data-ar="آخر تحديث: 29 يناير 2026">
+        Last Updated: January 29, 2026
+      </p>
+    </div>
+
+  </div>
+
+  <script>
+    // ============================================
+    // Scroll Navigation
+    // ============================================
+    const scrollContainer = document.getElementById('category-scroll');
+    const scrollLeftBtn = document.getElementById('scrollLeft');
+    const scrollRightBtn = document.getElementById('scrollRight');
+    const scrollAmount = 300;
+
+    function scrollCategories(direction) {
+      const isRTL = document.dir === 'rtl';
+      let amount = scrollAmount;
+
+      if (direction === 'left') {
+        amount = isRTL ? scrollAmount : -scrollAmount;
+      } else {
+        amount = isRTL ? -scrollAmount : scrollAmount;
+      }
+
+      scrollContainer.scrollBy({
+        left: amount,
+        behavior: 'smooth'
+      });
+    }
+
+    function checkScrollButtons() {
+      if (!scrollContainer) return;
+
+      const isRTL = document.dir === 'rtl';
+      const scrollLeft = Math.abs(scrollContainer.scrollLeft);
+      const maxScroll = scrollContainer.scrollWidth - scrollContainer.clientWidth;
+
+      if (isRTL) {
+        scrollLeftBtn.disabled = scrollLeft >= maxScroll - 1;
+        scrollRightBtn.disabled = scrollLeft <= 1;
+      } else {
+        scrollLeftBtn.disabled = scrollLeft <= 1;
+        scrollRightBtn.disabled = scrollLeft >= maxScroll - 1;
+      }
+    }
+
+    // Initial check
+    setTimeout(checkScrollButtons, 100);
+
+    // ============================================
+    // Touch Swipe Support
+    // ============================================
+    let touchStartX = 0;
+    let touchEndX = 0;
+
+    scrollContainer.addEventListener('touchstart', (e) => {
+      touchStartX = e.changedTouches[0].screenX;
+    }, { passive: true });
+
+    scrollContainer.addEventListener('touchend', (e) => {
+      touchEndX = e.changedTouches[0].screenX;
+      handleSwipe();
+    }, { passive: true });
+
+    function handleSwipe() {
+      const swipeThreshold = 50;
+      const diff = touchStartX - touchEndX;
+
+      if (Math.abs(diff) > swipeThreshold) {
+        // Swipe handled by native scroll
+      }
+    }
+
+    // ============================================
+    // Keyboard Navigation
+    // ============================================
+    scrollContainer.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowLeft') {
+        e.preventDefault();
+        scrollCategories('left');
+      } else if (e.key === 'ArrowRight') {
+        e.preventDefault();
+        scrollCategories('right');
+      }
+    });
+
+    // ============================================
+    // Language Switching
+    // ============================================
+    let currentLang = 'en';
+
+    function setLanguage(lang) {
+      currentLang = lang;
+
+      // Update document direction
+      document.documentElement.lang = lang;
+      document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
+      document.body.style.fontFamily = lang === 'ar'
+        ? "'Cairo', 'Inter', sans-serif"
+        : "'Inter', 'Cairo', sans-serif";
+
+      // Update all text elements with data-en/data-ar
+      document.querySelectorAll('[data-en][data-ar]').forEach(el => {
+        el.textContent = lang === 'ar' ? el.dataset.ar : el.dataset.en;
+      });
+
+      // Update language buttons
+      document.querySelectorAll('.lang-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.lang === lang);
+      });
+
+      // Re-check scroll buttons for RTL
+      setTimeout(checkScrollButtons, 100);
+    }
+
+    // ============================================
+    // Card Click Tracking (for analytics)
+    // ============================================
+    document.querySelectorAll('.category-card').forEach(card => {
+      card.addEventListener('click', (e) => {
+        // In production, this would send analytics event
+        const categoryName = card.querySelector('h3').textContent;
+        console.log('Category clicked:', categoryName);
+
+        // Prevent navigation for demo
+        e.preventDefault();
+      });
+    });
+  </script>
+
+</body>
+</html>

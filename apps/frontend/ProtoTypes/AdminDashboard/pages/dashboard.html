@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard - SouqSyria Admin</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: { 50: '#faf8f2', 100: '#f5f0e0', 500: '#C4A962', 600: '#b8942d', 700: '#96782a' },
+            charcoal: '#1A1A1A',
+            forest: { 500: '#2D5A3D', 600: '#244a32' },
+          },
+          fontFamily: { sans: ['Inter', 'sans-serif'] }
+        }
+      }
+    }
+  </script>
+  <style>
+    .sidebar-collapsed { width: 80px; }
+    .sidebar-collapsed .nav-text { display: none; }
+    .sidebar-collapsed .logo-text { display: none; }
+    .sidebar-collapsed .nav-item { justify-content: center; padding-left: 0; padding-right: 0; }
+  </style>
+</head>
+<body class="bg-gray-50 font-sans">
+  <div class="flex min-h-screen">
+    <!-- Sidebar -->
+    <aside id="sidebar" class="w-64 bg-charcoal text-white flex flex-col transition-all duration-300">
+      <!-- Logo -->
+      <div class="p-6 border-b border-white/10">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 bg-primary-500 rounded-lg flex items-center justify-center flex-shrink-0">
+            <span class="text-lg font-bold text-charcoal">SS</span>
+          </div>
+          <span class="logo-text font-semibold text-lg">SouqSyria</span>
+        </div>
+      </div>
+
+      <!-- Navigation -->
+      <nav class="flex-1 p-4 space-y-1">
+        <a href="dashboard.html" class="nav-item flex items-center gap-3 px-4 py-3 rounded-lg bg-primary-500/20 text-primary-500">
+          <span class="material-icons-round text-[22px]">dashboard</span>
+          <span class="nav-text">Dashboard</span>
+        </a>
+        <a href="orders.html" class="nav-item flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-white/10 text-gray-300 hover:text-white transition-colors">
+          <span class="material-icons-round text-[22px]">shopping_cart</span>
+          <span class="nav-text">Orders</span>
+          <span class="nav-text ml-auto bg-red-500 text-white text-xs px-2 py-0.5 rounded-full">12</span>
+        </a>
+        <a href="#" class="nav-item flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-white/10 text-gray-300 hover:text-white transition-colors">
+          <span class="material-icons-round text-[22px]">inventory_2</span>
+          <span class="nav-text">Products</span>
+        </a>
+        <a href="vendors.html" class="nav-item flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-white/10 text-gray-300 hover:text-white transition-colors">
+          <span class="material-icons-round text-[22px]">store</span>
+          <span class="nav-text">Vendors</span>
+          <span class="nav-text ml-auto bg-amber-500 text-white text-xs px-2 py-0.5 rounded-full">3</span>
+        </a>
+        <a href="#" class="nav-item flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-white/10 text-gray-300 hover:text-white transition-colors">
+          <span class="material-icons-round text-[22px]">people</span>
+          <span class="nav-text">Customers</span>
+        </a>
+        <a href="#" class="nav-item flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-white/10 text-gray-300 hover:text-white transition-colors">
+          <span class="material-icons-round text-[22px]">local_offer</span>
+          <span class="nav-text">Marketing</span>
+        </a>
+        <a href="#" class="nav-item flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-white/10 text-gray-300 hover:text-white transition-colors">
+          <span class="material-icons-round text-[22px]">bar_chart</span>
+          <span class="nav-text">Analytics</span>
+        </a>
+        <a href="#" class="nav-item flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-white/10 text-gray-300 hover:text-white transition-colors">
+          <span class="material-icons-round text-[22px]">settings</span>
+          <span class="nav-text">Settings</span>
+        </a>
+      </nav>
+
+      <!-- Collapse Button -->
+      <div class="p-4 border-t border-white/10">
+        <button onclick="toggleSidebar()" class="nav-item w-full flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-white/10 text-gray-400 hover:text-white transition-colors">
+          <span class="material-icons-round text-[22px]" id="collapseIcon">chevron_left</span>
+          <span class="nav-text">Collapse</span>
+        </button>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <div class="flex-1 flex flex-col">
+      <!-- Header -->
+      <header class="bg-white border-b border-gray-200 px-6 py-4">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-4">
+            <h1 class="text-xl font-semibold text-gray-900">Dashboard</h1>
+            <span class="text-sm text-gray-500">Welcome back, Ahmad!</span>
+          </div>
+
+          <div class="flex items-center gap-4">
+            <!-- Search -->
+            <div class="relative">
+              <span class="material-icons-round absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-[20px]">search</span>
+              <input type="text" placeholder="Search..." class="w-64 pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none">
+            </div>
+
+            <!-- Notifications -->
+            <button class="relative p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg">
+              <span class="material-icons-round">notifications</span>
+              <span class="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
+            </button>
+
+            <!-- Profile -->
+            <div class="relative">
+              <button onclick="toggleProfileMenu()" class="flex items-center gap-2 p-1 rounded-lg hover:bg-gray-100">
+                <div class="w-8 h-8 bg-primary-500 rounded-full flex items-center justify-center">
+                  <span class="text-sm font-semibold text-charcoal">AK</span>
+                </div>
+                <span class="material-icons-round text-gray-500">expand_more</span>
+              </button>
+
+              <div id="profileMenu" class="hidden absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50">
+                <a href="#" class="flex items-center gap-2 px-4 py-2 text-gray-700 hover:bg-gray-50">
+                  <span class="material-icons-round text-[18px]">person</span>
+                  My Profile
+                </a>
+                <a href="#" class="flex items-center gap-2 px-4 py-2 text-gray-700 hover:bg-gray-50">
+                  <span class="material-icons-round text-[18px]">settings</span>
+                  Settings
+                </a>
+                <hr class="my-2">
+                <a href="login.html" class="flex items-center gap-2 px-4 py-2 text-red-600 hover:bg-gray-50">
+                  <span class="material-icons-round text-[18px]">logout</span>
+                  Logout
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <!-- Dashboard Content -->
+      <main class="flex-1 p-6 overflow-auto">
+        <!-- Date Filter -->
+        <div class="flex items-center justify-between mb-6">
+          <div class="flex items-center gap-2">
+            <button class="px-4 py-2 bg-primary-500 text-charcoal font-medium rounded-lg">Today</button>
+            <button class="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg">This Week</button>
+            <button class="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg">This Month</button>
+            <button class="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg">This Year</button>
+          </div>
+          <button class="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50">
+            <span class="material-icons-round text-[18px]">calendar_today</span>
+            <span>Jan 1 - Jan 31, 2024</span>
+          </button>
+        </div>
+
+        <!-- KPI Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+          <!-- Total Revenue -->
+          <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+            <div class="flex items-center justify-between mb-4">
+              <div class="w-12 h-12 bg-primary-100 rounded-lg flex items-center justify-center">
+                <span class="material-icons-round text-primary-600">payments</span>
+              </div>
+              <span class="flex items-center gap-1 text-green-600 text-sm font-medium">
+                <span class="material-icons-round text-[16px]">trending_up</span>
+                +12.5%
+              </span>
+            </div>
+            <p class="text-2xl font-bold text-gray-900">5,430,000 SYP</p>
+            <p class="text-sm text-gray-500 mt-1">Total Revenue</p>
+          </div>
+
+          <!-- Total Orders -->
+          <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+            <div class="flex items-center justify-between mb-4">
+              <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                <span class="material-icons-round text-blue-600">shopping_bag</span>
+              </div>
+              <span class="flex items-center gap-1 text-green-600 text-sm font-medium">
+                <span class="material-icons-round text-[16px]">trending_up</span>
+                +8.2%
+              </span>
+            </div>
+            <p class="text-2xl font-bold text-gray-900">1,247</p>
+            <p class="text-sm text-gray-500 mt-1">Total Orders</p>
+          </div>
+
+          <!-- Pending Orders -->
+          <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+            <div class="flex items-center justify-between mb-4">
+              <div class="w-12 h-12 bg-amber-100 rounded-lg flex items-center justify-center">
+                <span class="material-icons-round text-amber-600">pending_actions</span>
+              </div>
+              <span class="flex items-center gap-1 text-red-600 text-sm font-medium">
+                <span class="material-icons-round text-[16px]">trending_down</span>
+                -3.1%
+              </span>
+            </div>
+            <p class="text-2xl font-bold text-gray-900">23</p>
+            <p class="text-sm text-gray-500 mt-1">Pending Orders</p>
+          </div>
+
+          <!-- Low Stock -->
+          <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+            <div class="flex items-center justify-between mb-4">
+              <div class="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center">
+                <span class="material-icons-round text-red-600">inventory</span>
+              </div>
+              <a href="#" class="text-primary-600 text-sm font-medium hover:underline">View All</a>
+            </div>
+            <p class="text-2xl font-bold text-gray-900">15</p>
+            <p class="text-sm text-gray-500 mt-1">Low Stock Items</p>
+          </div>
+        </div>
+
+        <!-- Charts Row -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+          <!-- Sales Chart -->
+          <div class="lg:col-span-2 bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+            <div class="flex items-center justify-between mb-6">
+              <h2 class="text-lg font-semibold text-gray-900">Sales Overview</h2>
+              <select class="px-3 py-1.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 outline-none">
+                <option>Last 7 Days</option>
+                <option>Last 30 Days</option>
+                <option>Last 3 Months</option>
+              </select>
+            </div>
+            <canvas id="salesChart" height="120"></canvas>
+          </div>
+
+          <!-- Order Status Chart -->
+          <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+            <h2 class="text-lg font-semibold text-gray-900 mb-6">Order Status</h2>
+            <canvas id="orderStatusChart" height="200"></canvas>
+            <div class="mt-4 space-y-2">
+              <div class="flex items-center justify-between text-sm">
+                <span class="flex items-center gap-2"><span class="w-3 h-3 bg-green-500 rounded-full"></span>Delivered</span>
+                <span class="font-medium">842</span>
+              </div>
+              <div class="flex items-center justify-between text-sm">
+                <span class="flex items-center gap-2"><span class="w-3 h-3 bg-blue-500 rounded-full"></span>Shipped</span>
+                <span class="font-medium">156</span>
+              </div>
+              <div class="flex items-center justify-between text-sm">
+                <span class="flex items-center gap-2"><span class="w-3 h-3 bg-amber-500 rounded-full"></span>Processing</span>
+                <span class="font-medium">189</span>
+              </div>
+              <div class="flex items-center justify-between text-sm">
+                <span class="flex items-center gap-2"><span class="w-3 h-3 bg-red-500 rounded-full"></span>Cancelled</span>
+                <span class="font-medium">60</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tables Row -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <!-- Recent Orders -->
+          <div class="bg-white rounded-xl shadow-sm border border-gray-100">
+            <div class="p-6 border-b border-gray-100">
+              <div class="flex items-center justify-between">
+                <h2 class="text-lg font-semibold text-gray-900">Recent Orders</h2>
+                <a href="orders.html" class="text-primary-600 text-sm font-medium hover:underline">View All</a>
+              </div>
+            </div>
+            <div class="overflow-x-auto">
+              <table class="w-full">
+                <thead class="bg-gray-50 text-xs text-gray-500 uppercase">
+                  <tr>
+                    <th class="px-6 py-3 text-left">Order ID</th>
+                    <th class="px-6 py-3 text-left">Customer</th>
+                    <th class="px-6 py-3 text-left">Amount</th>
+                    <th class="px-6 py-3 text-left">Status</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-100">
+                  <tr class="hover:bg-gray-50">
+                    <td class="px-6 py-4 text-sm font-medium text-gray-900">#ORD-2024-1247</td>
+                    <td class="px-6 py-4 text-sm text-gray-600">محمد أحمد</td>
+                    <td class="px-6 py-4 text-sm text-gray-900">125,000 SYP</td>
+                    <td class="px-6 py-4"><span class="px-2 py-1 bg-amber-100 text-amber-700 text-xs font-medium rounded-full">Pending</span></td>
+                  </tr>
+                  <tr class="hover:bg-gray-50">
+                    <td class="px-6 py-4 text-sm font-medium text-gray-900">#ORD-2024-1246</td>
+                    <td class="px-6 py-4 text-sm text-gray-600">سارة الخطيب</td>
+                    <td class="px-6 py-4 text-sm text-gray-900">89,500 SYP</td>
+                    <td class="px-6 py-4"><span class="px-2 py-1 bg-blue-100 text-blue-700 text-xs font-medium rounded-full">Shipped</span></td>
+                  </tr>
+                  <tr class="hover:bg-gray-50">
+                    <td class="px-6 py-4 text-sm font-medium text-gray-900">#ORD-2024-1245</td>
+                    <td class="px-6 py-4 text-sm text-gray-600">خالد عبدالله</td>
+                    <td class="px-6 py-4 text-sm text-gray-900">234,000 SYP</td>
+                    <td class="px-6 py-4"><span class="px-2 py-1 bg-green-100 text-green-700 text-xs font-medium rounded-full">Delivered</span></td>
+                  </tr>
+                  <tr class="hover:bg-gray-50">
+                    <td class="px-6 py-4 text-sm font-medium text-gray-900">#ORD-2024-1244</td>
+                    <td class="px-6 py-4 text-sm text-gray-600">ليلى حسن</td>
+                    <td class="px-6 py-4 text-sm text-gray-900">67,800 SYP</td>
+                    <td class="px-6 py-4"><span class="px-2 py-1 bg-purple-100 text-purple-700 text-xs font-medium rounded-full">Processing</span></td>
+                  </tr>
+                  <tr class="hover:bg-gray-50">
+                    <td class="px-6 py-4 text-sm font-medium text-gray-900">#ORD-2024-1243</td>
+                    <td class="px-6 py-4 text-sm text-gray-600">أحمد الصالح</td>
+                    <td class="px-6 py-4 text-sm text-gray-900">156,200 SYP</td>
+                    <td class="px-6 py-4"><span class="px-2 py-1 bg-green-100 text-green-700 text-xs font-medium rounded-full">Delivered</span></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Top Products & Vendors -->
+          <div class="space-y-6">
+            <!-- Top Products -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100">
+              <div class="p-6 border-b border-gray-100">
+                <h2 class="text-lg font-semibold text-gray-900">Top Products</h2>
+              </div>
+              <div class="p-4 space-y-4">
+                <div class="flex items-center gap-4">
+                  <div class="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center">
+                    <span class="text-xl">🧼</span>
+                  </div>
+                  <div class="flex-1">
+                    <p class="font-medium text-gray-900">صابون الغار الحلبي</p>
+                    <p class="text-sm text-gray-500">Aleppo Soap</p>
+                  </div>
+                  <div class="text-right">
+                    <p class="font-semibold text-gray-900">342 sold</p>
+                    <p class="text-sm text-green-600">+18%</p>
+                  </div>
+                </div>
+                <div class="flex items-center gap-4">
+                  <div class="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center">
+                    <span class="text-xl">🗡️</span>
+                  </div>
+                  <div class="flex-1">
+                    <p class="font-medium text-gray-900">سكين دمشقي</p>
+                    <p class="text-sm text-gray-500">Damascus Steel Knife</p>
+                  </div>
+                  <div class="text-right">
+                    <p class="font-semibold text-gray-900">187 sold</p>
+                    <p class="text-sm text-green-600">+12%</p>
+                  </div>
+                </div>
+                <div class="flex items-center gap-4">
+                  <div class="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center">
+                    <span class="text-xl">🫒</span>
+                  </div>
+                  <div class="flex-1">
+                    <p class="font-medium text-gray-900">زيت الزيتون البكر</p>
+                    <p class="text-sm text-gray-500">Extra Virgin Olive Oil</p>
+                  </div>
+                  <div class="text-right">
+                    <p class="font-semibold text-gray-900">156 sold</p>
+                    <p class="text-sm text-green-600">+9%</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Top Vendors -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100">
+              <div class="p-6 border-b border-gray-100">
+                <div class="flex items-center justify-between">
+                  <h2 class="text-lg font-semibold text-gray-900">Top Vendors</h2>
+                  <a href="vendors.html" class="text-primary-600 text-sm font-medium hover:underline">View All</a>
+                </div>
+              </div>
+              <div class="p-4 space-y-4">
+                <div class="flex items-center gap-4">
+                  <div class="w-10 h-10 bg-forest-500 rounded-full flex items-center justify-center text-white font-semibold">DA</div>
+                  <div class="flex-1">
+                    <p class="font-medium text-gray-900">Damascus Artisans</p>
+                    <div class="flex items-center gap-1 text-sm text-amber-500">
+                      <span class="material-icons-round text-[14px]">star</span>
+                      4.9 (234 reviews)
+                    </div>
+                  </div>
+                  <div class="text-right">
+                    <p class="font-semibold text-gray-900">1.2M SYP</p>
+                    <p class="text-sm text-gray-500">This month</p>
+                  </div>
+                </div>
+                <div class="flex items-center gap-4">
+                  <div class="w-10 h-10 bg-primary-500 rounded-full flex items-center justify-center text-charcoal font-semibold">AS</div>
+                  <div class="flex-1">
+                    <p class="font-medium text-gray-900">Aleppo Souvenirs</p>
+                    <div class="flex items-center gap-1 text-sm text-amber-500">
+                      <span class="material-icons-round text-[14px]">star</span>
+                      4.8 (189 reviews)
+                    </div>
+                  </div>
+                  <div class="text-right">
+                    <p class="font-semibold text-gray-900">980K SYP</p>
+                    <p class="text-sm text-gray-500">This month</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <script>
+    // Toggle Sidebar
+    function toggleSidebar() {
+      const sidebar = document.getElementById('sidebar');
+      const icon = document.getElementById('collapseIcon');
+      sidebar.classList.toggle('sidebar-collapsed');
+      icon.textContent = sidebar.classList.contains('sidebar-collapsed') ? 'chevron_right' : 'chevron_left';
+    }
+
+    // Toggle Profile Menu
+    function toggleProfileMenu() {
+      document.getElementById('profileMenu').classList.toggle('hidden');
+    }
+
+    // Close profile menu when clicking outside
+    document.addEventListener('click', (e) => {
+      if (!e.target.closest('#profileMenu') && !e.target.closest('button')) {
+        document.getElementById('profileMenu').classList.add('hidden');
+      }
+    });
+
+    // Sales Chart
+    new Chart(document.getElementById('salesChart'), {
+      type: 'line',
+      data: {
+        labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+        datasets: [{
+          label: 'Revenue (SYP)',
+          data: [650000, 590000, 800000, 810000, 560000, 950000, 870000],
+          borderColor: '#C4A962',
+          backgroundColor: 'rgba(196, 169, 98, 0.1)',
+          tension: 0.4,
+          fill: true
+        }, {
+          label: 'Orders',
+          data: [45, 52, 68, 71, 42, 85, 78],
+          borderColor: '#2D5A3D',
+          backgroundColor: 'transparent',
+          tension: 0.4,
+          yAxisID: 'y1'
+        }]
+      },
+      options: {
+        responsive: true,
+        interaction: { mode: 'index', intersect: false },
+        scales: {
+          y: { type: 'linear', display: true, position: 'left', grid: { color: 'rgba(0,0,0,0.05)' } },
+          y1: { type: 'linear', display: true, position: 'right', grid: { drawOnChartArea: false } }
+        },
+        plugins: { legend: { position: 'bottom' } }
+      }
+    });
+
+    // Order Status Chart
+    new Chart(document.getElementById('orderStatusChart'), {
+      type: 'doughnut',
+      data: {
+        labels: ['Delivered', 'Shipped', 'Processing', 'Cancelled'],
+        datasets: [{
+          data: [842, 156, 189, 60],
+          backgroundColor: ['#22c55e', '#3b82f6', '#f59e0b', '#ef4444'],
+          borderWidth: 0
+        }]
+      },
+      options: {
+        responsive: true,
+        cutout: '70%',
+        plugins: { legend: { display: false } }
+      }
+    });
+  </script>
+</body>
+</html>
