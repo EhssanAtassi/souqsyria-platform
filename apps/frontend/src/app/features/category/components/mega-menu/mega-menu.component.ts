@@ -244,7 +244,7 @@ export class MegaMenuComponent implements OnInit, OnDestroy {
    */
   navigateToCategory(slug: string): void {
     this.categorySelected.emit(slug);
-    this.router.navigate(['/categories', slug]);
+    this.router.navigate(['/category', slug]);
     this.close();
   }
 

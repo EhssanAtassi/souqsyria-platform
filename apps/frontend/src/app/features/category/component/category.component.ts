@@ -102,7 +102,9 @@ import {
 // Models
 import {
   BACK_TO_TOP_SCROLL_THRESHOLD,
-  MOBILE_BREAKPOINT
+  MOBILE_BREAKPOINT,
+  CategoryFilterState,
+  DEFAULT_FILTER_STATE
 } from '../models/category.interface';
 
 /**
@@ -184,21 +186,13 @@ export class CategoryComponent implements OnInit {
   /** Product listing response */
   readonly productListingResponse = signal<ProductListingResponse | null>(null);
 
-  /** Loading states */
+  /** Loading and error states */
   readonly isLoading = signal<boolean>(false);
+  readonly error = signal<string | null>(null);
   readonly isSidenavOpen = signal<boolean>(false);
 
-  /** Filter state */
-  readonly priceRange = signal<{ min: number; max: number }>({ min: 0, max: 1000 });
-  readonly selectedRatings = signal<number[]>([]);
-  readonly selectedAvailability = signal<string[]>([]);
-  readonly selectedLocations = signal<string[]>([]);
-  readonly selectedMaterials = signal<string[]>([]);
-  readonly selectedHeritage = signal<string[]>([]);
-  readonly onlyAuthentic = signal<boolean>(false);
-  readonly onlyFreeShipping = signal<boolean>(false);
-  readonly onlyOnSale = signal<boolean>(false);
-  readonly onlyUnesco = signal<boolean>(false);
+  /** Consolidated filter state — single signal replaces 10 individual signals */
+  readonly filterState = signal<CategoryFilterState>({ ...DEFAULT_FILTER_STATE });
 
   /** UI state */
   readonly currentSort = signal<ProductSort>(DEFAULT_CATEGORY_SORT);
@@ -242,41 +236,36 @@ export class CategoryComponent implements OnInit {
 
   /** Current filters as FilterState */
   readonly currentFilters = computed<FilterState>(() => {
+    const state = this.filterState();
     const filters: FilterState = {};
 
-    const priceRange = this.priceRange();
-    if (priceRange.min !== 0 || priceRange.max !== 1000) {
-      filters.priceRange = priceRange;
+    if (state.priceRange.min !== 0 || state.priceRange.max !== 1000) {
+      filters.priceRange = state.priceRange;
     }
 
-    const ratings = this.selectedRatings();
-    if (ratings.length > 0) {
-      filters.ratings = ratings;
+    if (state.selectedRatings.length > 0) {
+      filters.ratings = state.selectedRatings;
     }
 
     const authenticity: { unesco?: boolean; handmade?: boolean; regional?: boolean } = {};
-    if (this.onlyUnesco()) authenticity.unesco = true;
-
-    const heritage = this.selectedHeritage();
-    if (heritage.includes('traditional')) authenticity.handmade = true;
-    if (heritage.includes('regional')) authenticity.regional = true;
+    if (state.onlyUnesco) authenticity.unesco = true;
+    if (state.selectedHeritage.includes('traditional')) authenticity.handmade = true;
+    if (state.selectedHeritage.includes('regional')) authenticity.regional = true;
 
     if (Object.keys(authenticity).length > 0) {
       filters.authenticity = authenticity;
     }
 
     const availability: { inStock?: boolean; outOfStock?: boolean } = {};
-    const avail = this.selectedAvailability();
-    if (avail.includes('in_stock')) availability.inStock = true;
-    if (avail.includes('out_of_stock')) availability.outOfStock = true;
+    if (state.selectedAvailability.includes('in_stock')) availability.inStock = true;
+    if (state.selectedAvailability.includes('out_of_stock')) availability.outOfStock = true;
 
     if (Object.keys(availability).length > 0) {
       filters.availability = availability;
     }
 
-    const regions = this.selectedLocations();
-    if (regions.length > 0) {
-      filters.regions = regions;
+    if (state.selectedLocations.length > 0) {
+      filters.regions = state.selectedLocations;
     }
 
     return filters;
@@ -339,13 +328,17 @@ export class CategoryComponent implements OnInit {
         next: (response) => {
           this.productListingResponse.set(response);
           this.isLoading.set(false);
+          this.error.set(null);
 
           // Update price range if not set
-          if (response.availableFilters && this.priceRange().max === 1000) {
-            this.priceRange.set({
-              min: Math.floor(response.availableFilters.priceRanges.min),
-              max: Math.ceil(response.availableFilters.priceRanges.max)
-            });
+          if (response.availableFilters && this.filterState().priceRange.max === 1000) {
+            this.filterState.update(s => ({
+              ...s,
+              priceRange: {
+                min: Math.floor(response.availableFilters!.priceRanges.min),
+                max: Math.ceil(response.availableFilters!.priceRanges.max)
+              }
+            }));
           }
 
           // Update SEO tags
@@ -354,9 +347,10 @@ export class CategoryComponent implements OnInit {
             this.updateStructuredData(response.category, response.products);
           }
         },
-        error: (error) => {
-          console.error('Error loading products:', error);
+        error: (err) => {
+          console.error('Error loading products:', err);
           this.isLoading.set(false);
+          this.error.set('Failed to load products. Please try again.');
         }
       });
   }
@@ -365,21 +359,22 @@ export class CategoryComponent implements OnInit {
    * Build CategoryFilter from component state
    */
   private buildCategoryFilter(): CategoryFilter {
+    const state = this.filterState();
     return {
       priceRange: {
-        min: this.priceRange().min,
-        max: this.priceRange().max,
+        min: state.priceRange.min,
+        max: state.priceRange.max,
         currency: 'USD'
       },
-      ratings: this.selectedRatings(),
-      availability: this.selectedAvailability() as any[],
-      locations: this.selectedLocations(),
-      materials: this.selectedMaterials(),
-      heritage: this.selectedHeritage() as any[],
-      authenticityOnly: this.onlyAuthentic(),
-      freeShippingOnly: this.onlyFreeShipping(),
-      onSaleOnly: this.onlyOnSale(),
-      unescoOnly: this.onlyUnesco()
+      ratings: state.selectedRatings,
+      availability: state.selectedAvailability as any[],
+      locations: state.selectedLocations,
+      materials: state.selectedMaterials,
+      heritage: state.selectedHeritage as any[],
+      authenticityOnly: state.onlyAuthentic,
+      freeShippingOnly: state.onlyFreeShipping,
+      onSaleOnly: state.onlyOnSale,
+      unescoOnly: state.onlyUnesco
     };
   }
 
@@ -441,29 +436,34 @@ export class CategoryComponent implements OnInit {
    * Handle filters change from filter sidebar
    */
   onFiltersChange(filters: FilterState): void {
-    // Convert FilterState to component state
-    if (filters.priceRange) {
-      this.priceRange.set(filters.priceRange);
-    }
-    if (filters.ratings) {
-      this.selectedRatings.set(filters.ratings);
-    }
-    if (filters.authenticity) {
-      this.onlyUnesco.set(filters.authenticity.unesco || false);
-      const heritageValues: string[] = [];
-      if (filters.authenticity.handmade) heritageValues.push('traditional');
-      if (filters.authenticity.regional) heritageValues.push('regional');
-      this.selectedHeritage.set(heritageValues);
-    }
-    if (filters.availability) {
-      const availability: string[] = [];
-      if (filters.availability.inStock) availability.push('in_stock');
-      if (filters.availability.outOfStock) availability.push('out_of_stock');
-      this.selectedAvailability.set(availability);
-    }
-    if (filters.regions) {
-      this.selectedLocations.set(filters.regions);
-    }
+    this.filterState.update(state => {
+      const updated = { ...state };
+
+      if (filters.priceRange) {
+        updated.priceRange = filters.priceRange;
+      }
+      if (filters.ratings) {
+        updated.selectedRatings = filters.ratings;
+      }
+      if (filters.authenticity) {
+        updated.onlyUnesco = filters.authenticity.unesco || false;
+        const heritageValues: string[] = [];
+        if (filters.authenticity.handmade) heritageValues.push('traditional');
+        if (filters.authenticity.regional) heritageValues.push('regional');
+        updated.selectedHeritage = heritageValues;
+      }
+      if (filters.availability) {
+        const availability: string[] = [];
+        if (filters.availability.inStock) availability.push('in_stock');
+        if (filters.availability.outOfStock) availability.push('out_of_stock');
+        updated.selectedAvailability = availability;
+      }
+      if (filters.regions) {
+        updated.selectedLocations = filters.regions;
+      }
+
+      return updated;
+    });
 
     this.applyFilters();
   }
@@ -476,7 +476,7 @@ export class CategoryComponent implements OnInit {
     this.loadProducts();
 
     // Close sidebar on mobile
-    if (typeof window !== 'undefined' && window.innerWidth < MOBILE_BREAKPOINT) {
+    if (isPlatformBrowser(this.platformId) && window.innerWidth < MOBILE_BREAKPOINT) {
       this.isSidenavOpen.set(false);
     }
   }
@@ -485,18 +485,7 @@ export class CategoryComponent implements OnInit {
    * Clear all filters
    */
   onClearAllFilters(): void {
-    // Reset each signal individually to preserve reactivity
-    // (Object.assign would overwrite signal references with plain values)
-    this.priceRange.set({ min: 0, max: 1000 });
-    this.selectedRatings.set([]);
-    this.selectedAvailability.set([]);
-    this.selectedLocations.set([]);
-    this.selectedMaterials.set([]);
-    this.selectedHeritage.set([]);
-    this.onlyAuthentic.set(false);
-    this.onlyFreeShipping.set(false);
-    this.onlyOnSale.set(false);
-    this.onlyUnesco.set(false);
+    this.filterState.set({ ...DEFAULT_FILTER_STATE });
     this.currentPage.set(1);
     this.loadProducts();
   }
@@ -505,35 +494,35 @@ export class CategoryComponent implements OnInit {
    * Remove specific filter
    */
   onRemoveFilter(filterKey: string): void {
-    // Parse filter key and remove
-    if (filterKey === 'priceRange') {
-      this.priceRange.set({ min: 0, max: 1000 });
-    } else if (filterKey.startsWith('rating-')) {
-      const rating = parseInt(filterKey.split('-')[1], 10);
-      const ratings = this.selectedRatings().filter(r => r !== rating);
-      this.selectedRatings.set(ratings);
-    } else if (filterKey.startsWith('authenticity-')) {
-      const type = filterKey.split('-')[1];
-      if (type === 'unesco') {
-        this.onlyUnesco.set(false);
-      } else if (type === 'handmade') {
-        const heritage = this.selectedHeritage().filter(h => h !== 'traditional');
-        this.selectedHeritage.set(heritage);
-      } else if (type === 'regional') {
-        const heritage = this.selectedHeritage().filter(h => h !== 'regional');
-        this.selectedHeritage.set(heritage);
+    this.filterState.update(state => {
+      const updated = { ...state };
+
+      if (filterKey === 'priceRange') {
+        updated.priceRange = { min: 0, max: 1000 };
+      } else if (filterKey.startsWith('rating-')) {
+        const rating = parseInt(filterKey.split('-')[1], 10);
+        updated.selectedRatings = state.selectedRatings.filter(r => r !== rating);
+      } else if (filterKey.startsWith('authenticity-')) {
+        const type = filterKey.split('-')[1];
+        if (type === 'unesco') {
+          updated.onlyUnesco = false;
+        } else if (type === 'handmade') {
+          updated.selectedHeritage = state.selectedHeritage.filter(h => h !== 'traditional');
+        } else if (type === 'regional') {
+          updated.selectedHeritage = state.selectedHeritage.filter(h => h !== 'regional');
+        }
+      } else if (filterKey.startsWith('availability-')) {
+        const type = filterKey.split('-')[1];
+        updated.selectedAvailability = state.selectedAvailability.filter(a =>
+          type === 'inStock' ? a !== 'in_stock' : a !== 'out_of_stock'
+        );
+      } else if (filterKey.startsWith('region-')) {
+        const region = filterKey.replace('region-', '');
+        updated.selectedLocations = state.selectedLocations.filter(l => l !== region);
       }
-    } else if (filterKey.startsWith('availability-')) {
-      const type = filterKey.split('-')[1];
-      const availability = this.selectedAvailability().filter(a =>
-        type === 'inStock' ? a !== 'in_stock' : a !== 'out_of_stock'
-      );
-      this.selectedAvailability.set(availability);
-    } else if (filterKey.startsWith('region-')) {
-      const region = filterKey.replace('region-', '');
-      const locations = this.selectedLocations().filter(l => l !== region);
-      this.selectedLocations.set(locations);
-    }
+
+      return updated;
+    });
 
     this.applyFilters();
   }
@@ -675,8 +664,6 @@ export class CategoryComponent implements OnInit {
     category: { nameEn?: string; name?: string; nameAr?: string; nameArabic?: string; descriptionEn?: string; description?: string; slug: string },
     products: Product[]
   ): void {
-    if (!isPlatformBrowser(this.platformId)) return;
-
     // Remove existing structured data
     const existingScript = this.document.getElementById('category-structured-data');
     if (existingScript) {
@@ -699,6 +686,15 @@ export class CategoryComponent implements OnInit {
   //#region Helper Methods
 
   /**
+   * Retry loading products after an error
+   * @description Public method for template retry button
+   */
+  retryLoad(): void {
+    this.error.set(null);
+    this.loadProducts();
+  }
+
+  /**
    * Format slider value for display
    */
   formatSliderValue(value: number): string {
@@ -713,17 +709,18 @@ export class CategoryComponent implements OnInit {
    * Computed signals are memoized and only recompute when dependencies change.
    */
   readonly activeFiltersCount = computed<number>(() => {
+    const state = this.filterState();
     let count = 0;
 
-    if (this.selectedRatings().length > 0) count++;
-    if (this.selectedAvailability().length > 0) count++;
-    if (this.selectedLocations().length > 0) count++;
-    if (this.selectedMaterials().length > 0) count++;
-    if (this.selectedHeritage().length > 0) count++;
-    if (this.onlyAuthentic()) count++;
-    if (this.onlyFreeShipping()) count++;
-    if (this.onlyOnSale()) count++;
-    if (this.onlyUnesco()) count++;
+    if (state.selectedRatings.length > 0) count++;
+    if (state.selectedAvailability.length > 0) count++;
+    if (state.selectedLocations.length > 0) count++;
+    if (state.selectedMaterials.length > 0) count++;
+    if (state.selectedHeritage.length > 0) count++;
+    if (state.onlyAuthentic) count++;
+    if (state.onlyFreeShipping) count++;
+    if (state.onlyOnSale) count++;
+    if (state.onlyUnesco) count++;
 
     return count;
   });

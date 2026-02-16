@@ -7,12 +7,10 @@
 
 .category-search-container {
   width: 100%;
-  max-width: 672px; // 2xl equivalent
   margin-left: auto;
   margin-right: auto;
 
   // Material form field customization
-  // Using :host ::ng-deep pattern to scope to this component only
   .search-form-field {
     width: 100%;
   }
@@ -138,23 +136,31 @@
   }
 }
 
-// Responsive adjustments
-@media (max-width: 768px) {
-  .category-search-container {
-    max-width: 100%;
-    padding: 0 16px;
+// Mobile-first: base styles are for mobile, override for desktop
+.category-search-container {
+  max-width: 100%;
+  padding: 0 16px;
+
+  @media (min-width: 769px) {
+    max-width: 672px;
+    padding: 0;
   }
 }
 
-// Responsive Material overrides
-@media (max-width: 768px) {
-  :host ::ng-deep .search-form-field {
-    .mat-mdc-text-field-wrapper {
-      font-size: 14px;
-    }
+:host ::ng-deep .search-form-field {
+  .mat-mdc-text-field-wrapper {
+    font-size: 14px;
 
-    .mat-mdc-form-field-hint {
-      font-size: 12px;
+    @media (min-width: 769px) {
+      font-size: inherit;
+    }
+  }
+
+  .mat-mdc-form-field-hint {
+    font-size: 12px;
+
+    @media (min-width: 769px) {
+      font-size: inherit;
     }
   }
 }
@@ -198,14 +204,14 @@
 
 // Accessibility: high contrast mode
 @media (prefers-contrast: high) {
-  .category-search-container {
+  :host ::ng-deep .category-search-container {
     .search-form-field {
-      ::ng-deep .mat-mdc-notched-outline {
+      .mat-mdc-notched-outline {
         border-width: 2px;
         border-color: currentColor;
       }
 
-      ::ng-deep .mat-mdc-form-field.mat-focused {
+      .mat-mdc-form-field.mat-focused {
         .mat-mdc-notched-outline-thick {
           border-width: 3px;
         }
