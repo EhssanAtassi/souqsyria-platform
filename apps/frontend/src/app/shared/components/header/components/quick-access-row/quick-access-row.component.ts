@@ -428,7 +428,7 @@ export class QuickAccessRowComponent implements OnInit {
       subtitleEn: 'Spring 2026',
       subtitleAr: 'ربيع 2026',
       badgeClass: 'badge-rose',
-      image: 'https://images.unsplash.com/photo-1558618666-fcd25c85f82e?w=200&h=200&fit=crop',
+      image: 'https://images.unsplash.com/photo-1540189549336-e6e99c3679fe?w=200&h=200&fit=crop',
       url: '/category/fashion'
     },
     {
@@ -499,13 +499,13 @@ export class QuickAccessRowComponent implements OnInit {
 
   /**
    * Angular OnInit lifecycle hook
-   * @description Loads promotional cards from API when in cards mode
+   * @description Uses default promo cards with verified Unsplash images.
+   * API fetch disabled — backend returns icon items without images,
+   * which causes broken thumbnails in compact card mode.
    */
   ngOnInit(): void {
-    // Only fetch from API if in cards mode and no custom cards provided
-    if (this.displayMode === 'cards' && !this.promoCards) {
-      this.loadPromoCardsFromAPI();
-    }
+    // Use defaultPromoCards directly — API items lack image URLs
+    // and fall back to via.placeholder.com which 404s
   }
 
   //#endregion

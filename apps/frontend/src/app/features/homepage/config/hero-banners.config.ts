@@ -83,27 +83,27 @@ export interface HeroOfferBannerConfig {
  */
 export const HERO_SLIDER_IMAGES_CONFIG: readonly HeroSliderImageConfig[] = [
   {
-    src: '/assets/images/products/exp1.png',
+    src: 'https://images.unsplash.com/photo-1606760227091-3dd870d97f1d?w=600&h=400&fit=crop&q=80',
     alt: 'Damascus Steel Heritage Collection',
     link: '/category/damascus-steel'
   },
   {
-    src: '/assets/images/products/1.png',
+    src: 'https://images.unsplash.com/photo-1608571423902-eed4a5ad8108?w=600&h=400&fit=crop&q=80',
     alt: 'Premium Aleppo Soap Collection',
     link: '/category/beauty-wellness'
   },
   {
-    src: '/assets/images/products/5.png',
+    src: 'https://images.unsplash.com/photo-1558171813-4c088753af8f?w=600&h=400&fit=crop&q=80',
     alt: 'Syrian Textiles and Fabrics',
     link: '/category/textiles-fabrics'
   },
   {
-    src: '/assets/images/products/8.png',
+    src: 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=600&h=400&fit=crop&q=80',
     alt: 'Syrian Spices and Traditional Blends',
     link: '/category/food-spices'
   },
   {
-    src: '/assets/images/products/31.png',
+    src: 'https://images.unsplash.com/photo-1540189549336-e6e99c3679fe?w=600&h=400&fit=crop&q=80',
     alt: 'Syrian Traditional Crafts',
     link: '/category/traditional-crafts'
   }
@@ -134,35 +134,35 @@ export const HERO_SLIDER_IMAGES_CONFIG: readonly HeroSliderImageConfig[] = [
  */
 export const HERO_OFFER_BANNERS_CONFIG: readonly HeroOfferBannerConfig[] = [
   {
-    src: '/assets/images/products/exp1.png',
+    src: 'https://images.unsplash.com/photo-1606760227091-3dd870d97f1d?w=600&h=400&fit=crop&q=80',
     alt: 'Damascus Steel Heritage Collection',
     link: '/category/damascus-steel',
     titleAr: 'خصم 30% على الصناعات الدمشقية',
     titleEn: '30% OFF Damascus Crafts'
   },
   {
-    src: '/assets/images/products/1.png',
+    src: 'https://images.unsplash.com/photo-1608571423902-eed4a5ad8108?w=600&h=400&fit=crop&q=80',
     alt: 'Ramadan Special Offers',
     link: '/campaigns/ramadan-offers',
     titleAr: 'عروض رمضان المباركة',
     titleEn: 'Blessed Ramadan Offers'
   },
   {
-    src: '/assets/images/products/5.png',
+    src: 'https://images.unsplash.com/photo-1558171813-4c088753af8f?w=600&h=400&fit=crop&q=80',
     alt: 'Authentic Aleppo Products',
     link: '/category/aleppo-specialties',
     titleAr: 'منتجات حلب الأصيلة',
     titleEn: 'Authentic Aleppo Products'
   },
   {
-    src: '/assets/images/products/8.png',
+    src: 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=600&h=400&fit=crop&q=80',
     alt: 'Free Delivery Over $100',
     link: '/shipping-info',
     titleAr: 'توصيل مجاني للطلبات فوق 100$',
     titleEn: 'Free Delivery Over $100'
   },
   {
-    src: '/assets/images/products/31.png',
+    src: 'https://images.unsplash.com/photo-1540189549336-e6e99c3679fe?w=600&h=400&fit=crop&q=80',
     alt: 'Discover Syrian Heritage',
     link: '/heritage-collection',
     titleAr: 'اكتشف التراث السوري',

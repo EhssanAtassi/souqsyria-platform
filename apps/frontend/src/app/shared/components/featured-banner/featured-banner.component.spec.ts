@@ -39,7 +39,7 @@ describe('FeaturedBannerComponent', () => {
       en: 'Handcrafted by Master Artisans',
       ar: 'صناعة يدوية من الحرفيين المهرة'
     },
-    imageUrl: '/assets/images/products/exp1.png',
+    imageUrl: 'https://images.unsplash.com/photo-1606760227091-3dd870d97f1d?w=600&h=400&fit=crop&q=80',
     originalPrice: 625.00,
     discountedPrice: 205.00,
     currency: 'USD',
