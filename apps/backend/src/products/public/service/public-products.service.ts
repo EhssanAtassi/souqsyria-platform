@@ -2,11 +2,13 @@
  * @file public-products.service.ts
  * @description Handles customer-facing product queries (catalog feed).
  */
-import { Injectable, Logger, NotFoundException } from '@nestjs/common';
+import { Injectable, Logger, NotFoundException, Inject, forwardRef } from '@nestjs/common';
 import { GetPublicProductsDto } from '../dto/get-public-products.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ProductEntity } from '../../entities/product.entity';
 import { Repository } from 'typeorm';
+import { ReviewsService } from '../../reviews/services/reviews.service';
+import { Category } from '../../../categories/entities/category.entity';
 
 /**
  * Product detail response interface
@@ -22,6 +24,12 @@ export interface ProductDetailResponse {
     nameEn: string;
     nameAr: string;
     slug: string;
+    ancestors: Array<{
+      id: number;
+      nameEn: string;
+      nameAr: string;
+      slug: string;
+    }>;
   } | null;
   manufacturer: {
     id: number;
@@ -66,6 +74,11 @@ export interface ProductDetailResponse {
   }>;
   stockStatus: 'in_stock' | 'low_stock' | 'out_of_stock';
   totalStock: number;
+  reviewSummary: {
+    averageRating: number;
+    totalReviews: number;
+    distribution: Record<number, number>;
+  };
   relatedProducts: Array<{
     id: number;
     slug: string;
@@ -86,6 +99,10 @@ export class PublicProductsService {
   constructor(
     @InjectRepository(ProductEntity)
     private readonly productRepo: Repository<ProductEntity>,
+    @Inject(forwardRef(() => ReviewsService))
+    private readonly reviewsService: ReviewsService,
+    @InjectRepository(Category)
+    private readonly categoryRepo: Repository<Category>,
   ) {}
 
   /**
@@ -161,6 +178,14 @@ export class PublicProductsService {
       query.andWhere(
         '(pricing.discountPrice IS NOT NULL AND pricing.discountPrice <= :max) OR (pricing.discountPrice IS NULL AND pricing.basePrice <= :max)',
         { max: filters.maxPrice },
+      );
+    }
+
+    // Apply minimum rating filter
+    // TODO: Implement when review/rating system is available (Phase 3)
+    if (filters.minRating) {
+      this.logger.warn(
+        'minRating filter is not yet implemented in search. Requires review system (Phase 3).',
       );
     }
 
@@ -311,6 +336,18 @@ export class PublicProductsService {
         '(pricing.discountPrice IS NOT NULL AND pricing.discountPrice <= :max) OR (pricing.discountPrice IS NULL AND pricing.basePrice <= :max)',
         { max: filters.maxPrice },
       );
+    }
+
+    // Apply minimum rating filter
+    // TODO: Implement when review/rating system is available (Phase 3)
+    // This will require a LEFT JOIN on a reviews table and AVG(rating) >= :minRating
+    if (filters.minRating) {
+      this.logger.warn(
+        'minRating filter is not yet implemented. Requires review system (Phase 3).',
+      );
+      // Example implementation once reviews exist:
+      // query.leftJoin('product.reviews', 'reviews')
+      //   .having('AVG(reviews.rating) >= :minRating', { minRating: filters.minRating });
     }
 
     // Apply sorting based on sortBy parameter
@@ -481,20 +518,87 @@ export class PublicProductsService {
     else if (totalStock <= 5) stockStatus = 'low_stock';
     else stockStatus = 'in_stock';
 
+    // Fetch review summary for this product
+    let reviewSummary = {
+      averageRating: 0,
+      totalReviews: 0,
+      distribution: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 },
+    };
+
+    try {
+      reviewSummary = await this.reviewsService.getReviewSummary(slug);
+    } catch (error) {
+      this.logger.warn(
+        `Failed to fetch review summary for ${slug}: ${error.message}`,
+      );
+    }
+
+    // Build category ancestors array (breadcrumb hierarchy from root to parent)
+    let categoryWithAncestors: {
+      id: number;
+      nameEn: string;
+      nameAr: string;
+      slug: string;
+      ancestors: Array<{ id: number; nameEn: string; nameAr: string; slug: string }>;
+    } | null = null;
+
+    if (product.category) {
+      const ancestors: Array<{ id: number; nameEn: string; nameAr: string; slug: string }> = [];
+
+      try {
+        // Load the category with parent relationship
+        const fullCategory = await this.categoryRepo.findOne({
+          where: { id: product.category.id },
+          relations: ['parent'],
+        });
+
+        if (fullCategory) {
+          // Traverse up the parent chain to build ancestors array
+          let currentParent = fullCategory.parent;
+          while (currentParent) {
+            // Load the full parent with its parent
+            const parentWithRelations = await this.categoryRepo.findOne({
+              where: { id: currentParent.id },
+              relations: ['parent'],
+            });
+
+            if (parentWithRelations) {
+              // Prepend ancestor (building from child to root, then we'll reverse)
+              ancestors.unshift({
+                id: parentWithRelations.id,
+                nameEn: parentWithRelations.nameEn,
+                nameAr: parentWithRelations.nameAr,
+                slug: parentWithRelations.slug,
+              });
+
+              currentParent = parentWithRelations.parent;
+            } else {
+              break;
+            }
+          }
+        }
+      } catch (error) {
+        this.logger.warn(
+          `Failed to build category ancestors for ${product.category.id}: ${error.message}`,
+        );
+      }
+
+      categoryWithAncestors = {
+        id: product.category.id,
+        nameEn: product.category.nameEn,
+        nameAr: product.category.nameAr,
+        slug: product.category.slug,
+        ancestors,
+      };
+    }
+
     return {
       id: product.id,
       slug: product.slug,
       nameEn: product.nameEn,
       nameAr: product.nameAr,
       sku: product.sku,
-      category: product.category
-        ? {
-            id: product.category.id,
-            nameEn: product.category.nameEn,
-            nameAr: product.category.nameAr,
-            slug: product.category.slug,
-          }
-        : null,
+      category: categoryWithAncestors,
       manufacturer: product.manufacturer
         ? {
             id: product.manufacturer.id,
@@ -555,6 +659,7 @@ export class PublicProductsService {
       })),
       stockStatus,
       totalStock,
+      reviewSummary,
       relatedProducts: relatedProducts
         .filter((rp) => rp.pricing?.basePrice != null && rp.pricing.basePrice > 0) // Exclude products without valid pricing or $0
         .map((rp) => {
@@ -655,6 +760,47 @@ export class PublicProductsService {
     ];
 
     return { suggestions };
+  }
+
+  /**
+   * INCREMENT VIEW COUNT
+   *
+   * Increments the view count for a product by slug.
+   * Uses a direct UPDATE query for efficiency to avoid loading the entire entity.
+   * This is typically called when a product detail page is viewed.
+   *
+   * @description Tracks product page views for analytics and popularity metrics
+   * @param slug - Product slug identifier
+   * @returns Promise<void>
+   * @throws NotFoundException if product doesn't exist
+   */
+  async incrementViewCount(slug: string): Promise<void> {
+    this.logger.debug(`Incrementing view count for product: ${slug}`);
+
+    try {
+      const result = await this.productRepo.increment(
+        { slug, isActive: true, isPublished: true, is_deleted: false },
+        'viewCount',
+        1,
+      );
+
+      if (result.affected === 0) {
+        throw new NotFoundException(
+          `Product with slug "${slug}" not found or not available`,
+        );
+      }
+
+      this.logger.debug(`✅ View count incremented for product: ${slug}`);
+    } catch (error) {
+      if (error instanceof NotFoundException) {
+        throw error;
+      }
+
+      this.logger.error(
+        `❌ Failed to increment view count for ${slug}: ${error.message}`,
+      );
+      throw error;
+    }
   }
 
   /**

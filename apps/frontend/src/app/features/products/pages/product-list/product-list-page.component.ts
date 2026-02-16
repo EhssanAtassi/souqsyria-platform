@@ -18,6 +18,7 @@ import {
   inject,
   DestroyRef,
   OnInit,
+  OnDestroy,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule, ActivatedRoute } from '@angular/router';
@@ -43,6 +44,7 @@ import { ProductSkeletonComponent } from '../../components/product-skeleton/prod
 import { ProductsPaginationComponent } from '../../components/pagination/products-pagination.component';
 import { FilterSidebarComponent } from '../../../../shared/components/filter-sidebar/filter-sidebar.component';
 import { FilterState } from '../../../../shared/components/filter-sidebar/filter-sidebar.component';
+import { SeoService } from '../../../../shared/services/seo.service';
 
 /**
  * @description Product listing page component.
@@ -71,7 +73,7 @@ import { FilterState } from '../../../../shared/components/filter-sidebar/filter
   styleUrls: ['./product-list-page.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ProductListPageComponent implements OnInit {
+export class ProductListPageComponent implements OnInit, OnDestroy {
   private readonly productService = inject(ProductService);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
@@ -81,6 +83,7 @@ export class ProductListPageComponent implements OnInit {
   private readonly snackBar = inject(MatSnackBar);
   private readonly translateService = inject(TranslateService);
   private readonly wishlistService = inject(WishlistService);
+  private readonly seoService = inject(SeoService);
 
   /** Product list items from API */
   products = signal<ProductListItem[]>([]);
@@ -168,6 +171,7 @@ export class ProductListPageComponent implements OnInit {
         const minPrice = params['minPrice'] ? Number(params['minPrice']) : undefined;
         const maxPrice = params['maxPrice'] ? Number(params['maxPrice']) : undefined;
         const search = params['search'] || undefined;
+        const brandIds = params['brandIds'] || undefined;
 
         this.currentPage.set(page);
         this.currentLimit.set(limit);
@@ -181,9 +185,15 @@ export class ProductListPageComponent implements OnInit {
             max: maxPrice || 999999
           };
         }
+        if (brandIds) {
+          filters.brandIds = brandIds;
+        }
+        if (categoryId) {
+          filters.categoryIds = [categoryId];
+        }
         this.activeFilters.set(filters);
 
-        this.loadProducts(page, limit, sortBy, categoryId, minPrice, maxPrice, search);
+        this.loadProducts(page, limit, sortBy, categoryId, minPrice, maxPrice, search, brandIds);
       });
   }
 
@@ -204,7 +214,8 @@ export class ProductListPageComponent implements OnInit {
     categoryId?: number,
     minPrice?: number,
     maxPrice?: number,
-    search?: string
+    search?: string,
+    brandIds?: string
   ): void {
     this.loading.set(true);
     this.error.set(null);
@@ -218,6 +229,7 @@ export class ProductListPageComponent implements OnInit {
         minPrice,
         maxPrice,
         search,
+        brandIds,
       })
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
@@ -225,6 +237,14 @@ export class ProductListPageComponent implements OnInit {
           this.products.set(response.data);
           this.meta.set(response.meta);
           this.loading.set(false);
+
+          // Set SEO meta tags
+          this.seoService.setProductListMeta({
+            categoryName: categoryId ? `Category #${categoryId}` : undefined,
+            searchQuery: search,
+            page,
+            language: this.language(),
+          });
         },
         error: (err) => {
           const message =
@@ -320,7 +340,8 @@ export class ProductListPageComponent implements OnInit {
       params['categoryId'] ? Number(params['categoryId']) : undefined,
       params['minPrice'] ? Number(params['minPrice']) : undefined,
       params['maxPrice'] ? Number(params['maxPrice']) : undefined,
-      params['search']
+      params['search'],
+      params['brandIds']
     );
   }
 
@@ -341,11 +362,21 @@ export class ProductListPageComponent implements OnInit {
       queryParams.maxPrice = null;
     }
 
-    // Preserve existing categoryId and search from URL
-    const currentParams = this.route.snapshot.queryParams;
-    if (currentParams['categoryId']) {
-      queryParams.categoryId = currentParams['categoryId'];
+    if (filters.brandIds) {
+      queryParams.brandIds = filters.brandIds;
+    } else {
+      queryParams.brandIds = null;
     }
+
+    if (filters.categoryIds && filters.categoryIds.length > 0) {
+      // Use first selected category for URL
+      queryParams.categoryId = filters.categoryIds[0];
+    } else {
+      queryParams.categoryId = null;
+    }
+
+    // Preserve existing search from URL
+    const currentParams = this.route.snapshot.queryParams;
     if (currentParams['search']) {
       queryParams.search = currentParams['search'];
     }
@@ -370,6 +401,7 @@ export class ProductListPageComponent implements OnInit {
         maxPrice: null,
         categoryId: null,
         search: null,
+        brandIds: null,
       },
       queryParamsHandling: 'merge',
     });
@@ -430,7 +462,7 @@ export class ProductListPageComponent implements OnInit {
    */
   hasActiveFilters = computed(() => {
     const params = this.queryParams();
-    return !!(params['categoryId'] || params['minPrice'] || params['maxPrice'] || params['search']);
+    return !!(params['categoryId'] || params['minPrice'] || params['maxPrice'] || params['search'] || params['brandIds']);
   });
 
   /**
@@ -463,14 +495,29 @@ export class ProductListPageComponent implements OnInit {
   });
 
   /**
+   * @description Active brand filter label
+   */
+  activeFilterBrands = computed(() => {
+    const params = this.queryParams();
+    const brandIds = params['brandIds'];
+    if (!brandIds) return null;
+
+    const count = brandIds.split(',').filter((id: string) => id.trim()).length;
+    return this.language() === 'ar'
+      ? `${count} علامة تجارية`
+      : `${count} brand${count > 1 ? 's' : ''}`;
+  });
+
+  /**
    * @description Remove a specific filter
    * @param type - Filter type to remove
    */
-  removeFilter(type: 'categoryId' | 'price' | 'search'): void {
+  removeFilter(type: 'categoryId' | 'price' | 'search' | 'brandIds'): void {
     const params: any = { page: 1 };
     if (type === 'categoryId') params.categoryId = null;
     if (type === 'price') { params.minPrice = null; params.maxPrice = null; }
     if (type === 'search') params.search = null;
+    if (type === 'brandIds') params.brandIds = null;
     this.router.navigate([], {
       relativeTo: this.route,
       queryParams: params,
@@ -539,5 +586,12 @@ export class ProductListPageComponent implements OnInit {
    */
   isProductWishlisted(productId: number): boolean {
     return this.wishlistService.isInWishlist(String(productId));
+  }
+
+  /**
+   * @description Clean up SEO meta tags on component destroy
+   */
+  ngOnDestroy(): void {
+    this.seoService.clearMeta();
   }
 }

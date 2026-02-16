@@ -159,6 +159,31 @@
   }
 }
 
+.info__rating {
+  display: flex;
+  align-items: center;
+  gap: $space-2;
+  margin-top: -$space-2;
+}
+
+.rating__stars {
+  display: flex;
+  gap: $space-1;
+}
+
+.star-icon {
+  width: 18px;
+  height: 18px;
+  font-size: 18px;
+  color: $golden-wheat-primary;
+}
+
+.rating__text {
+  font-size: $font-size-sm;
+  color: $charcoal-medium;
+  font-weight: $font-weight-medium;
+}
+
 .info__pricing {
   display: flex;
   align-items: center;
@@ -301,6 +326,70 @@
 }
 
 /**
+ * Share Section
+ */
+.info__share {
+  display: flex;
+  align-items: center;
+  gap: $space-3;
+  margin: $space-4 0;
+  padding: $space-4;
+  background: $golden-wheat-light;
+  border-radius: $border-radius-md;
+}
+
+.share-label {
+  font-size: $font-size-sm;
+  font-weight: $font-weight-semibold;
+  color: $charcoal-dark;
+}
+
+.share-buttons {
+  display: flex;
+  align-items: center;
+  gap: $space-2;
+}
+
+.share-button {
+  width: 36px;
+  height: 36px;
+  border: 1px solid $charcoal-medium;
+  border-radius: $border-radius-full;
+  color: $charcoal-medium;
+  transition: all $transition-fast ease;
+
+  mat-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+  }
+
+  &:hover {
+    background: $golden-wheat-primary;
+    border-color: $golden-wheat-primary;
+    color: white;
+  }
+
+  &--whatsapp:hover {
+    background: #25d366;
+    border-color: #25d366;
+    color: white;
+  }
+
+  &--facebook:hover {
+    background: #1877f2;
+    border-color: #1877f2;
+    color: white;
+  }
+
+  &--twitter:hover {
+    background: #1da1f2;
+    border-color: #1da1f2;
+    color: white;
+  }
+}
+
+/**
  * Tabs Section
  */
 .product-detail__tabs {
@@ -324,6 +413,12 @@
 
 .tab-content {
   min-height: 200px;
+
+  &--reviews {
+    display: flex;
+    flex-direction: column;
+    gap: $space-6;
+  }
 }
 
 .tab-content__empty {

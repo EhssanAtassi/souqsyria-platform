@@ -92,6 +92,16 @@
       >
         <mat-icon>{{ wishlistIcon() }}</mat-icon>
       </button>
+
+      <button
+        mat-icon-button
+        class="product-card__compare"
+        [class.product-card__compare--active]="isInComparison()"
+        [attr.aria-label]="compareLabel()"
+        (click)="onCompareClick()"
+      >
+        <mat-icon>{{ compareIcon() }}</mat-icon>
+      </button>
     </div>
   </div>
 </article>

@@ -70,6 +70,14 @@
           </button>
         </span>
       }
+      @if (activeFilterBrands()) {
+        <span class="filter-badge">
+          {{ language() === 'ar' ? 'العلامات' : 'Brands' }}: {{ activeFilterBrands() }}
+          <button (click)="removeFilter('brandIds')" class="filter-badge__remove" [attr.aria-label]="language() === 'ar' ? 'إزالة الفلتر' : 'Remove filter'">
+            <mat-icon>close</mat-icon>
+          </button>
+        </span>
+      }
       <button class="filter-badge filter-badge--clear" (click)="onClearFilters()">
         {{ language() === 'ar' ? 'مسح الكل' : 'Clear All' }}
       </button>

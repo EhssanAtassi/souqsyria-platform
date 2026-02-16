@@ -39,11 +39,17 @@ export class ProductCardComponent {
   /** @description Whether this card's image should load eagerly (for above-the-fold cards) */
   priority = input<boolean>(false);
 
+  /** @description Whether product is in comparison */
+  isInComparison = input<boolean>(false);
+
   /** Emits when user clicks Add to Cart button */
   addToCart = output<ProductListItem>();
 
   /** Emits when user clicks Add to Wishlist button */
   addToWishlist = output<ProductListItem>();
+
+  /** @description Emits when user clicks Compare button */
+  compare = output<ProductListItem>();
 
   /** Computed product name based on language */
   productName = computed(() => {
@@ -175,4 +181,22 @@ export class ProductCardComponent {
   onAddToWishlistClick(): void {
     this.addToWishlist.emit(this.product());
   }
+
+  /**
+   * @description Handles Compare button click
+   */
+  onCompareClick(): void {
+    this.compare.emit(this.product());
+  }
+
+  /** @description Computed compare icon based on comparison state */
+  compareIcon = computed(() => {
+    return this.isInComparison() ? 'compare' : 'compare_arrows';
+  });
+
+  /** @description Computed compare button aria label (bilingual) */
+  compareLabel = computed(() => {
+    const lang = this.language();
+    return lang === 'ar' ? 'قارن المنتج' : 'Compare Product';
+  });
 }
