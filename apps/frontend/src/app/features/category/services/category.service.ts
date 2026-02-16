@@ -67,7 +67,7 @@ export class CategoryService extends AbstractCategoryService {
   //#region Configuration
 
   private readonly apiUrl = environment.apiUrl;
-  private readonly siteUrl = environment.production ? 'https://souqsyria.com' : 'http://localhost:4202';
+  private readonly siteUrl = environment.production ? 'https://souqsyria.com' : 'http://localhost:4200';
   private readonly mockDelay = 700; // Simulate API delay
 
   /**

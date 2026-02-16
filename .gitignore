@@ -193,12 +193,13 @@ specs/
 .idea/
 *.iml
 
-# Playwright MCP screenshots
-*.png
+# Playwright MCP screenshots (root-level only, don't ignore app assets)
+/*.png
 .playwright-mcp/
 
 # Exclude all markdown files
 *.md
 /_archive/
 /MVP1
+/worktrees/
 !/prompt/
