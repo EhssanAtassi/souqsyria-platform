@@ -1,4 +1,175 @@
-<!-- Mega Menu: Overlay Mode (click "All Categories") -->
+<!-- SouqSyria Mega Menu Component -->
+<!-- Supports two modes: Dropdown (category-specific) and Overlay (full tree) -->
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!-- DROPDOWN MODE: Category-Specific Content (hover on Row 3) -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<ng-container *ngIf="displayMode === 'dropdown'">
+  <div
+    *ngIf="isOpen && !isMobile() && hoveredCategory"
+    class="sq-mega-dropdown"
+    (mouseenter)="menuMouseEnter.emit()"
+    (mouseleave)="menuMouseLeave.emit()"
+    (click)="$event.stopPropagation()"
+    [@fadeIn]
+    role="navigation"
+    [attr.aria-label]="getHoveredCategoryName() + ' menu'"
+  >
+    <!-- Invisible bridge to prevent hover gap -->
+    <div class="sq-mega-bridge" aria-hidden="true"></div>
+
+    <!-- ─── SIDEBAR LAYOUT: subcategory list + featured products ─── -->
+    <ng-container *ngIf="isSidebarLayout">
+      <div class="sq-mega-inner sq-mega-sidebar" [class.rtl]="isRtl()">
+
+        <!-- Left: Subcategory Navigation -->
+        <nav class="sq-sub-nav" role="menu" [attr.aria-label]="getHoveredCategoryName()">
+          <!-- Category Header -->
+          <div class="sq-sub-header">
+            <mat-icon class="sq-sub-header-icon" aria-hidden="true">{{ hoveredCategory.icon }}</mat-icon>
+            <a
+              [routerLink]="hoveredCategory.url"
+              class="sq-sub-header-title"
+              (click)="navigateToUrl(hoveredCategory.url)"
+            >
+              {{ getHoveredCategoryName() }}
+            </a>
+          </div>
+
+          <!-- Subcategory List -->
+          <ul class="sq-sub-list">
+            <li *ngFor="let sub of subcategories" class="sq-sub-item">
+              <a
+                [routerLink]="sub.url"
+                class="sq-sub-link"
+                (click)="navigateToUrl(sub.url)"
+                role="menuitem"
+              >
+                <mat-icon *ngIf="sub.icon" class="sq-sub-icon" aria-hidden="true">{{ sub.icon }}</mat-icon>
+                <span class="sq-sub-name">{{ getSubcategoryName(sub) }}</span>
+                <mat-icon class="sq-sub-arrow" aria-hidden="true">chevron_right</mat-icon>
+              </a>
+
+              <!-- Third-level children -->
+              <ul *ngIf="sub.children && sub.children.length > 0" class="sq-child-list">
+                <li *ngFor="let child of sub.children">
+                  <a
+                    *ngIf="child.showInMegaMenu !== false"
+                    [routerLink]="child.url"
+                    class="sq-child-link"
+                    (click)="navigateToUrl(child.url)"
+                    role="menuitem"
+                  >
+                    {{ isRtl() ? child.nameAr : child.name }}
+                  </a>
+                </li>
+              </ul>
+            </li>
+          </ul>
+
+          <!-- View All Link -->
+          <a
+            [routerLink]="hoveredCategory.url"
+            class="sq-view-all"
+            (click)="navigateToUrl(hoveredCategory.url)"
+          >
+            {{ isRtl() ? 'عرض الكل ←' : 'View All →' }}
+          </a>
+        </nav>
+
+        <!-- Right: Featured Products (if available) -->
+        <div *ngIf="featuredProducts.length > 0" class="sq-featured-panel">
+          <h3 class="sq-featured-title">
+            {{ isRtl() ? 'منتجات مميزة' : 'Featured Products' }}
+          </h3>
+          <div class="sq-featured-grid">
+            <a
+              *ngFor="let product of featuredProducts"
+              [routerLink]="product.url"
+              class="sq-product-card"
+              (click)="navigateToUrl(product.url)"
+            >
+              <div class="sq-product-img-wrap">
+                <img
+                  [src]="product.image"
+                  [alt]="isRtl() ? product.nameAr : product.name"
+                  class="sq-product-img"
+                  loading="lazy"
+                  (error)="onImageError($event)"
+                >
+              </div>
+              <div class="sq-product-info">
+                <span class="sq-product-name">{{ isRtl() ? product.nameAr : product.name }}</span>
+                <span class="sq-product-price">{{ product.price }}</span>
+              </div>
+            </a>
+          </div>
+        </div>
+
+      </div>
+    </ng-container>
+
+    <!-- ─── FULLWIDTH LAYOUT: multi-column grid + featured tiles ─── -->
+    <ng-container *ngIf="isFullwidthLayout">
+      <div class="sq-mega-inner sq-mega-fullwidth" [class.rtl]="isRtl()">
+
+        <!-- Menu Columns -->
+        <div class="sq-columns-grid">
+          <div *ngFor="let column of menuColumns" class="sq-column">
+            <h4 class="sq-column-title">
+              {{ getLocalizedText(column.title, column.titleAr) }}
+            </h4>
+            <ul class="sq-column-links">
+              <li *ngFor="let link of column.links">
+                <a
+                  [routerLink]="link.url"
+                  class="sq-column-link"
+                  (click)="navigateToUrl(link.url)"
+                  role="menuitem"
+                >
+                  <mat-icon *ngIf="link.icon" class="sq-column-link-icon" aria-hidden="true">{{ link.icon }}</mat-icon>
+                  <span>{{ getLocalizedText(link.name, link.nameAr) }}</span>
+                </a>
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Featured Tiles (colored icon tiles) -->
+        <div *ngIf="featuredTiles.length > 0" class="sq-tiles-row">
+          <a
+            *ngFor="let tile of featuredTiles"
+            [routerLink]="tile.url"
+            class="sq-tile"
+            (click)="navigateToUrl(tile.url)"
+          >
+            <div class="sq-tile-icon-wrap" [ngClass]="tile.bgColor">
+              <mat-icon [ngClass]="tile.iconColor" aria-hidden="true">{{ tile.icon }}</mat-icon>
+            </div>
+            <span class="sq-tile-label">{{ getLocalizedText(tile.name, tile.nameAr) }}</span>
+          </a>
+        </div>
+
+        <!-- View All Link -->
+        <div class="sq-fullwidth-footer">
+          <a
+            [routerLink]="hoveredCategory.url"
+            class="sq-view-all"
+            (click)="navigateToUrl(hoveredCategory.url)"
+          >
+            {{ isRtl() ? 'تصفح ' + hoveredCategory.nameAr + ' ←' : 'Browse All ' + hoveredCategory.name + ' →' }}
+          </a>
+        </div>
+
+      </div>
+    </ng-container>
+
+  </div>
+</ng-container>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!-- OVERLAY MODE: Full Category Tree (click "All Categories") -->
+<!-- ═══════════════════════════════════════════════════════ -->
 <ng-container *ngIf="displayMode === 'overlay'">
   <div
     *ngIf="isOpen"
@@ -33,28 +204,10 @@
   </div>
 </ng-container>
 
-<!-- Mega Menu: Dropdown Mode (hover over category nav bar) -->
-<ng-container *ngIf="displayMode === 'dropdown'">
-  <div
-    *ngIf="isOpen && !isMobile()"
-    class="mega-menu-dropdown absolute left-1/2 -translate-x-1/2 z-40 w-full max-w-5xl
-           bg-white shadow-xl rounded-b-lg border-t-4 border-primary-500"
-    (mouseenter)="menuMouseEnter.emit()"
-    (mouseleave)="menuMouseLeave.emit()"
-    (click)="$event.stopPropagation()"
-    [@fadeIn]
-    role="navigation"
-    aria-label="Category mega menu"
-  >
-    <!-- Invisible bridge to prevent hover flickering -->
-    <div class="mega-menu-bridge absolute -top-2 left-0 right-0 h-2" aria-hidden="true"></div>
-    <ng-container *ngTemplateOutlet="desktopMenuContent"></ng-container>
-  </div>
-</ng-container>
 
-<!-- ============================================ -->
-<!-- Shared Template: Desktop Two-Panel Layout    -->
-<!-- ============================================ -->
+<!-- ═══════════════════════════════════════════════ -->
+<!-- Template: Desktop Two-Panel Layout (Overlay)   -->
+<!-- ═══════════════════════════════════════════════ -->
 <ng-template #desktopMenuContent>
   <div class="flex" [class.flex-row-reverse]="isRtl()">
     <!-- Left Column: Category List -->
@@ -106,7 +259,6 @@
           *ngFor="let sub of activeCategory()!.children"
           class="subcategory-group"
         >
-          <!-- Subcategory Title -->
           <a
             [routerLink]="['/categories', sub.slug]"
             class="subcategory-title block font-semibold text-gray-900 hover:text-primary-600
@@ -117,8 +269,6 @@
           >
             {{ getCategoryName(sub) }}
           </a>
-
-          <!-- Third-level Categories -->
           <ul
             *ngIf="sub.children && sub.children.length > 0"
             class="space-y-2"
@@ -141,9 +291,10 @@
   </div>
 </ng-template>
 
-<!-- ============================================ -->
-<!-- Shared Template: Mobile Full-Screen Menu     -->
-<!-- ============================================ -->
+
+<!-- ═══════════════════════════════════════════════ -->
+<!-- Template: Mobile Full-Screen Menu (Overlay)    -->
+<!-- ═══════════════════════════════════════════════ -->
 <ng-template #mobileMenuContent>
   <!-- Mobile Header -->
   <div
@@ -198,30 +349,16 @@
       role="menuitem"
       [attr.tabindex]="0"
     >
-      <div
-        class="icon-container w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center"
-      >
+      <div class="icon-container w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center">
         <mat-icon class="text-gray-600">{{ cat.icon || 'category' }}</mat-icon>
       </div>
-
       <div class="flex-1">
-        <span class="block font-medium text-gray-900">
-          {{ getCategoryName(cat) }}
-        </span>
-        <span
-          *ngIf="cat.children && cat.children.length > 0"
-          class="text-xs text-gray-500"
-        >
-          {{ cat.children.length }}
-          {{ isRtl() ? 'فئات فرعية' : 'subcategories' }}
+        <span class="block font-medium text-gray-900">{{ getCategoryName(cat) }}</span>
+        <span *ngIf="cat.children && cat.children.length > 0" class="text-xs text-gray-500">
+          {{ cat.children.length }} {{ isRtl() ? 'فئات فرعية' : 'subcategories' }}
         </span>
       </div>
-
-      <mat-icon
-        *ngIf="cat.children && cat.children.length > 0"
-        class="text-gray-400"
-        [class.rotate-180]="isRtl()"
-      >
+      <mat-icon *ngIf="cat.children && cat.children.length > 0" class="text-gray-400" [class.rotate-180]="isRtl()">
         chevron_right
       </mat-icon>
     </button>

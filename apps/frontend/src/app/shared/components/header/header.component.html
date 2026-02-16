@@ -126,6 +126,7 @@
     <!-- S1 Sprint Mega Menu — Dropdown Mode (hover on featured categories) -->
     <app-mega-menu
       [categories]="categoryTree()"
+      [hoveredCategory]="getHoveredCategoryData()"
       [isOpen]="megaMenuDropdownOpen()"
       [displayMode]="'dropdown'"
       (categorySelected)="onMegaMenuCategorySelected($event)"

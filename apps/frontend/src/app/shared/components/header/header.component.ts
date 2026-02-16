@@ -260,6 +260,23 @@ export class HeaderComponent implements OnInit {
     this.megaMenuDropdownOpen.set(false);
   }
 
+  /**
+   * Get the Category data for the currently hovered nav item
+   * @description Searches the active categories array (what Row 3 actually displays),
+   * then config.featuredCategories, then HEADER_NAV_CATEGORIES as fallback.
+   * This handles the ID mismatch between SYRIAN_CATEGORIES (e.g. 'beauty-wellness')
+   * and HEADER_NAV_CATEGORIES (e.g. 'beauty') when parent components override categories.
+   * @returns Category object with subcategories, featured products, etc., or null
+   */
+  getHoveredCategoryData(): Category | null {
+    if (!this.activeMegaMenu) return null;
+    // Search active categories first (what Row 3 is actually displaying)
+    return this.categories.find(c => c.id === this.activeMegaMenu)
+      || this.config.featuredCategories.find(c => c.id === this.activeMegaMenu)
+      || HEADER_NAV_CATEGORIES.find(c => c.id === this.activeMegaMenu)
+      || null;
+  }
+
   //#endregion
 
   //#region Mobile Category Navigation
