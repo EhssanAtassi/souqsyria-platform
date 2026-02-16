@@ -58,9 +58,7 @@ import {
  * }
  * ```
  */
-@Injectable({
-  providedIn: 'root'
-})
+@Injectable()
 export class CategoryFacadeService {
   //#region Dependency Injection
 
@@ -146,100 +144,6 @@ export class CategoryFacadeService {
   }
 
   //#endregion
-
-  //#region Filter Operations
-
-  /**
-   * Apply filters and reload products
-   * @description Simplified filter application with analytics
-   * @param request - Product listing request with new filters
-   * @returns Observable with updated product listing
-   */
-  applyFilters(request: ProductListingRequest): Observable<ProductListingResponse> {
-    // Track filter application
-    if (request.filters) {
-      this.analyticsService.trackFilterApplied(request.categorySlug || 'all', request.filters);
-    }
-
-    return this.categoryService.getProductsByCategory(request);
-  }
-
-  /**
-   * Clear all filters
-   * @description Removes all filters and reloads products
-   * @param categorySlug - Category slug
-   * @returns Observable with unfiltered product listing
-   */
-  clearAllFilters(categorySlug: string): Observable<ProductListingResponse> {
-    this.analyticsService.trackFilterCleared(categorySlug);
-
-    const request: ProductListingRequest = {
-      categorySlug,
-      pagination: { page: 1, limit: 20 }
-    };
-
-    return this.categoryService.getProductsByCategory(request);
-  }
-
-  //#endregion
-
-  //#region Sorting Operations
-
-  /**
-   * Change sort option and reload products
-   * @description Simplified sort application with analytics
-   * @param request - Product listing request with new sort
-   * @returns Observable with sorted product listing
-   */
-  changeSortOption(request: ProductListingRequest): Observable<ProductListingResponse> {
-    // Track sort change
-    if (request.sort) {
-      this.analyticsService.trackSortApplied(request.categorySlug || 'all', request.sort);
-    }
-
-    return this.categoryService.getProductsByCategory(request);
-  }
-
-  //#endregion
-
-  //#region Pagination Operations
-
-  /**
-   * Change page and reload products
-   * @description Simplified pagination with analytics
-   * @param request - Product listing request with new page
-   * @returns Observable with paginated product listing
-   */
-  changePage(request: ProductListingRequest): Observable<ProductListingResponse> {
-    // Track pagination
-    if (request.pagination) {
-      this.analyticsService.trackPageChange(
-        request.categorySlug || 'all',
-        request.pagination.page,
-        request.pagination.limit
-      );
-    }
-
-    return this.categoryService.getProductsByCategory(request);
-  }
-
-  /**
-   * Change page size and reload products
-   * @description Simplified page size change with analytics
-   * @param request - Product listing request with new page size
-   * @returns Observable with resized product listing
-   */
-  changePageSize(request: ProductListingRequest): Observable<ProductListingResponse> {
-    // Track page size change
-    if (request.pagination) {
-      this.analyticsService.trackPageSizeChange(
-        request.categorySlug || 'all',
-        request.pagination.limit
-      );
-    }
-
-    return this.categoryService.getProductsByCategory(request);
-  }
 
   //#endregion
 

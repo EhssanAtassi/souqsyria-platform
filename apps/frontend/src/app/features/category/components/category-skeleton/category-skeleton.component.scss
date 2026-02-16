@@ -5,65 +5,36 @@
  * matching FeaturedCategories layout and responsive behavior.
  */
 
-// Skeleton grid - matches FeaturedCategories layout
-.category-skeleton-grid {
-  // Mobile: 3 columns
-  @media (max-width: 767px) {
-    grid-template-columns: repeat(3, 1fr);
-  }
-
-  // Tablet: 4 columns
-  @media (min-width: 768px) and (max-width: 1023px) {
-    grid-template-columns: repeat(4, 1fr);
-  }
-
-  // Desktop: 6 columns
-  @media (min-width: 1024px) {
-    grid-template-columns: repeat(6, 1fr);
-  }
-}
+// Skeleton grid — responsive columns handled by Tailwind template classes
+// (grid-cols-3 md:grid-cols-4 lg:grid-cols-6), no SCSS override needed.
 
 // Skeleton card
 .skeleton-card {
   text-align: center;
 }
 
-// Skeleton image
-.skeleton-image {
-  aspect-ratio: 1 / 1;
-  background: linear-gradient(
-    90deg,
-    #f3f4f6 0%,
-    #e5e7eb 50%,
-    #f3f4f6 100%
-  );
+// Shared shimmer base
+%shimmer-base {
+  background: linear-gradient(90deg, #f3f4f6 0%, #e5e7eb 50%, #f3f4f6 100%);
   background-size: 200% 100%;
   animation: shimmer 1.5s infinite ease-in-out;
 }
 
+// Skeleton image
+.skeleton-image {
+  @extend %shimmer-base;
+  aspect-ratio: 1 / 1;
+}
+
 // Skeleton title
 .skeleton-title {
-  background: linear-gradient(
-    90deg,
-    #f3f4f6 0%,
-    #e5e7eb 50%,
-    #f3f4f6 100%
-  );
-  background-size: 200% 100%;
-  animation: shimmer 1.5s infinite ease-in-out;
+  @extend %shimmer-base;
   animation-delay: 0.1s;
 }
 
 // Skeleton count
 .skeleton-count {
-  background: linear-gradient(
-    90deg,
-    #f3f4f6 0%,
-    #e5e7eb 50%,
-    #f3f4f6 100%
-  );
-  background-size: 200% 100%;
-  animation: shimmer 1.5s infinite ease-in-out;
+  @extend %shimmer-base;
   animation-delay: 0.2s;
 }
 
@@ -77,18 +48,7 @@
   }
 }
 
-// Screen reader only utility
-.sr-only {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-  white-space: nowrap;
-  border-width: 0;
-}
+// .sr-only provided by Tailwind — no component-level duplicate needed
 
 // Reduced motion - disable animations
 @media (prefers-reduced-motion: reduce) {
