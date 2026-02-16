@@ -1,8 +1,28 @@
+<!-- Skip to main content for keyboard navigation -->
+<a href="#category-products"
+   class="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-primary-700 focus:text-white focus:rounded-lg focus:shadow-lg">
+  Skip to products
+</a>
+
 <!-- Category Page with Marketplace Layout -->
 <div class="category-page min-h-screen bg-gray-50">
 
   <!-- Main Content Container -->
   <div class="container mx-auto px-4 py-6">
+
+    <!-- Error State -->
+    @if (error()) {
+      <div class="bg-red-50 border border-red-200 rounded-lg p-6 mb-6 flex items-center gap-4">
+        <mat-icon class="text-red-500">error_outline</mat-icon>
+        <div class="flex-1">
+          <p class="text-red-800 font-medium">{{ error() }}</p>
+        </div>
+        <button mat-stroked-button color="warn" (click)="retryLoad()">
+          <mat-icon class="mr-1">refresh</mat-icon>
+          Retry
+        </button>
+      </div>
+    }
 
     <!-- Loading State with Skeleton Cards -->
     @if (isLoading()) {
@@ -91,7 +111,7 @@
         </div>
 
         <!-- CONTENT: Products Area -->
-        <div content>
+        <div content id="category-products">
 
           <!-- Active Filters Chips -->
           <app-active-filters-chips

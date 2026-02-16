@@ -41,20 +41,13 @@
   }
 }
 
-// RTL Support - icon transformations (not available in Tailwind)
-.rtl {
-  mat-icon {
-    // Flip chevron icons for RTL
-    &[class*="chevron"],
-    &[class*="arrow"] {
-      transform: scaleX(-1);
-    }
-  }
-}
+// RTL icon flipping handled by Tailwind rtl: variants in template
+// (e.g., rtl:rotate-180 on chevron_right, rtl:rotate-180 on arrow_back)
 
 // Accessibility focus states
 button:focus-visible {
-  @apply outline-2 outline-primary-500 outline-offset-2;
+  @apply outline-2 outline-offset-2;
+  outline-color: var(--primary-500, #B8943D);
 }
 
 // Reduced motion support

@@ -48,16 +48,16 @@
 .category-list {
   button {
     &.active {
-      color: var(--primary-600, #2563eb);
-      background-color: var(--primary-50, #eff6ff);
+      color: var(--primary-600, #9A7B32);
+      background-color: var(--primary-50, #FAF6EB);
 
       mat-icon {
-        color: var(--primary-600, #2563eb);
+        color: var(--primary-600, #9A7B32);
       }
     }
 
     &:focus-visible {
-      outline: 2px solid var(--primary-500, #3b82f6);
+      outline: 2px solid var(--primary-500, #B8943D);
       outline-offset: -2px;
     }
   }
@@ -67,11 +67,11 @@
 .subcategories-panel {
   .subcategory-title {
     &:hover {
-      color: var(--primary-600, #2563eb);
+      color: var(--primary-600, #9A7B32);
     }
 
     &:focus-visible {
-      outline: 2px solid var(--primary-500, #3b82f6);
+      outline: 2px solid var(--primary-500, #B8943D);
       outline-offset: 2px;
       border-radius: 4px;
     }
@@ -83,11 +83,11 @@
       padding: 0.25rem 0;
 
       &:hover {
-        color: var(--primary-600, #2563eb);
+        color: var(--primary-600, #9A7B32);
       }
 
       &:focus-visible {
-        outline: 2px solid var(--primary-500, #3b82f6);
+        outline: 2px solid var(--primary-500, #B8943D);
         outline-offset: 2px;
         border-radius: 4px;
       }
@@ -126,7 +126,7 @@
 .mobile-menu-header {
   button {
     &:focus-visible {
-      outline: 2px solid var(--primary-500, #3b82f6);
+      outline: 2px solid var(--primary-500, #B8943D);
       outline-offset: 2px;
     }
   }
@@ -139,7 +139,7 @@
     }
 
     &:focus-visible {
-      outline: 2px solid var(--primary-500, #3b82f6);
+      outline: 2px solid var(--primary-500, #B8943D);
       outline-offset: 2px;
     }
   }
@@ -149,10 +149,10 @@
   }
 
   button:hover .icon-container {
-    background-color: var(--primary-100, #dbeafe);
+    background-color: var(--primary-100, #F2E9D0);
 
     mat-icon {
-      color: var(--primary-600, #2563eb);
+      color: var(--primary-600, #9A7B32);
     }
   }
 }

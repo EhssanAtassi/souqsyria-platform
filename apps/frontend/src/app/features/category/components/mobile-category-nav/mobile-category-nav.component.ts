@@ -59,8 +59,6 @@ import {
   HostListener,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { MatListModule } from '@angular/material/list';
-import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatRippleModule } from '@angular/material/core';
 import { trigger, state, style, transition, animate } from '@angular/animations';
@@ -79,8 +77,6 @@ import { CategoryTreeNode } from '../../models/category-tree.interface';
   standalone: true,
   imports: [
     CommonModule,
-    MatListModule,
-    MatButtonModule,
     MatIconModule,
     MatRippleModule,
   ],
