@@ -7,15 +7,16 @@
       color="primary"
       (click)="onAddNewAddress()"
       *ngIf="!showForm()"
+      [attr.aria-label]="'addresses.addNew' | translate"
     >
       <mat-icon>add</mat-icon>
       {{ 'addresses.addNew' | translate }}
     </button>
   </div>
 
-  <!-- Loading State -->
-  <div class="loading-container" *ngIf="isLoading() && isEmpty()">
-    <mat-spinner diameter="50"></mat-spinner>
+  <!-- Loading State - P1 #6 FIX: Added aria-live for screen readers -->
+  <div class="loading-container" *ngIf="isLoading() && isEmpty()" aria-live="polite" aria-busy="true">
+    <mat-spinner diameter="50" [attr.aria-label]="'addresses.loadingAddresses' | translate"></mat-spinner>
     <p>{{ 'addresses.loadingAddresses' | translate }}</p>
   </div>
 
@@ -30,19 +31,29 @@
   </div>
 
   <!-- Empty State -->
-  <div class="empty-state" *ngIf="isEmpty() && !isLoading() && !showForm()">
-    <mat-icon class="empty-icon">location_off</mat-icon>
+  <div class="empty-state" *ngIf="isEmpty() && !isLoading() && !showForm()" role="region" [attr.aria-label]="'addresses.noAddresses' | translate">
+    <mat-icon class="empty-icon" aria-hidden="true">location_off</mat-icon>
     <h2>{{ 'addresses.noAddresses' | translate }}</h2>
     <p>{{ 'addresses.noAddressesDesc' | translate }}</p>
-    <button mat-raised-button color="primary" (click)="onAddNewAddress()">
-      <mat-icon>add</mat-icon>
+    <button
+      mat-raised-button
+      color="primary"
+      (click)="onAddNewAddress()"
+      [attr.aria-label]="'addresses.addNew' | translate"
+    >
+      <mat-icon aria-hidden="true">add</mat-icon>
       {{ 'addresses.addNew' | translate }}
     </button>
   </div>
 
-  <!-- Address Cards Grid -->
-  <div class="address-grid" *ngIf="!isEmpty() && !showForm()">
-    <mat-card *ngFor="let address of addresses(); trackBy: trackByAddressId" class="address-card">
+  <!-- Address Cards Grid - P1 #6 FIX: Added role="list" for screen readers -->
+  <div class="address-grid" *ngIf="!isEmpty() && !showForm()" role="list" [attr.aria-label]="'addresses.title' | translate">
+    <mat-card
+      *ngFor="let address of addresses(); trackBy: trackByAddressId"
+      class="address-card"
+      role="listitem"
+      [attr.aria-label]="'Address: ' + address.fullName + ', ' + getFullAddress(address)"
+    >
       <!-- Card Header -->
       <mat-card-header>
         <div class="card-header-content">
@@ -95,14 +106,15 @@
         </div>
       </mat-card-content>
 
-      <!-- Card Actions -->
+      <!-- Card Actions - P1 #6 FIX: Added aria-labels for action buttons -->
       <mat-card-actions>
         <button
           mat-button
           color="primary"
           (click)="onEditAddress(address)"
+          [attr.aria-label]="('addresses.editAddress' | translate) + ' - ' + address.fullName"
         >
-          <mat-icon>edit</mat-icon>
+          <mat-icon aria-hidden="true">edit</mat-icon>
           {{ 'addresses.editAddress' | translate }}
         </button>
 
@@ -111,8 +123,9 @@
           color="accent"
           (click)="onSetDefault(address)"
           *ngIf="!address.isDefault"
+          [attr.aria-label]="('addresses.setDefault' | translate) + ' - ' + address.fullName"
         >
-          <mat-icon>star_border</mat-icon>
+          <mat-icon aria-hidden="true">star_border</mat-icon>
           {{ 'addresses.setDefault' | translate }}
         </button>
 
@@ -120,8 +133,9 @@
           mat-button
           color="warn"
           (click)="onDeleteAddress(address)"
+          [attr.aria-label]="('addresses.delete' | translate) + ' - ' + address.fullName"
         >
-          <mat-icon>delete</mat-icon>
+          <mat-icon aria-hidden="true">delete</mat-icon>
           {{ 'addresses.delete' | translate }}
         </button>
       </mat-card-actions>

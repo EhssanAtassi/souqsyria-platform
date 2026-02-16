@@ -252,37 +252,37 @@ describe('AddressesController', () => {
   });
 
   describe('update', () => {
-    it('should update an existing address', async () => {
+    it('should update a Syrian address (full update)', async () => {
       // Arrange
       const addressId = 1;
-      const dto: any = {
+      const dto: UpdateSyrianAddressDto = {
         fullName: 'محمد أحمد',
         street: 'شارع جديد',
       };
 
       const updatedAddress = { ...mockAddress, ...dto };
-      mockAddressesService.update.mockResolvedValue(updatedAddress);
+      mockSyrianAddressCrudService.updateSyrianAddress.mockResolvedValue(updatedAddress);
 
       // Act
       const result = await controller.update(mockUser, addressId, dto);
 
       // Assert
       expect(result).toEqual(updatedAddress);
-      expect(mockAddressesService.update).toHaveBeenCalledWith(mockUser, 1, dto);
+      expect(mockSyrianAddressCrudService.updateSyrianAddress).toHaveBeenCalledWith(mockUser, 1, dto);
     });
 
     it('should convert string ID to number', async () => {
       // Arrange
       const addressId = '1';
-      const dto: any = { fullName: 'New Name' };
+      const dto: UpdateSyrianAddressDto = { fullName: 'New Name' };
 
-      mockAddressesService.update.mockResolvedValue(mockAddress);
+      mockSyrianAddressCrudService.updateSyrianAddress.mockResolvedValue(mockAddress);
 
       // Act
       await controller.update(mockUser, addressId as any, dto);
 
       // Assert
-      expect(mockAddressesService.update).toHaveBeenCalledWith(mockUser, 1, dto);
+      expect(mockSyrianAddressCrudService.updateSyrianAddress).toHaveBeenCalledWith(mockUser, 1, dto);
     });
   });
 
@@ -396,57 +396,44 @@ describe('AddressesController', () => {
   });
 
   describe('findAll', () => {
-    it('should return all addresses for user', async () => {
+    it('should return all Syrian addresses for user', async () => {
       // Arrange
       const addresses = [mockAddress];
-      mockAddressesService.findAll.mockResolvedValue(addresses);
+      mockSyrianAddressCrudService.findAllSyrianAddresses.mockResolvedValue(addresses);
 
       // Act
       const result = await controller.findAll(mockUser);
 
       // Assert
       expect(result).toEqual(addresses);
-      expect(mockAddressesService.findAll).toHaveBeenCalledWith(mockUser, undefined);
-    });
-
-    it('should filter addresses by type', async () => {
-      // Arrange
-      const addresses = [mockAddress];
-      mockAddressesService.findAll.mockResolvedValue(addresses);
-
-      // Act
-      const result = await controller.findAll(mockUser, AddressType.SHIPPING);
-
-      // Assert
-      expect(result).toEqual(addresses);
-      expect(mockAddressesService.findAll).toHaveBeenCalledWith(mockUser, AddressType.SHIPPING);
+      expect(mockSyrianAddressCrudService.findAllSyrianAddresses).toHaveBeenCalledWith(mockUser);
     });
   });
 
   describe('findOne', () => {
-    it('should return a single address', async () => {
+    it('should return a single Syrian address', async () => {
       // Arrange
       const addressId = 1;
-      mockAddressesService.findOne.mockResolvedValue(mockAddress);
+      mockSyrianAddressCrudService.findOneSyrianAddress.mockResolvedValue(mockAddress);
 
       // Act
       const result = await controller.findOne(mockUser, addressId);
 
       // Assert
       expect(result).toEqual(mockAddress);
-      expect(mockAddressesService.findOne).toHaveBeenCalledWith(mockUser, 1);
+      expect(mockSyrianAddressCrudService.findOneSyrianAddress).toHaveBeenCalledWith(mockUser, 1);
     });
 
     it('should convert string ID to number', async () => {
       // Arrange
       const addressId = '1';
-      mockAddressesService.findOne.mockResolvedValue(mockAddress);
+      mockSyrianAddressCrudService.findOneSyrianAddress.mockResolvedValue(mockAddress);
 
       // Act
       await controller.findOne(mockUser, addressId as any);
 
       // Assert
-      expect(mockAddressesService.findOne).toHaveBeenCalledWith(mockUser, 1);
+      expect(mockSyrianAddressCrudService.findOneSyrianAddress).toHaveBeenCalledWith(mockUser, 1);
     });
   });
 

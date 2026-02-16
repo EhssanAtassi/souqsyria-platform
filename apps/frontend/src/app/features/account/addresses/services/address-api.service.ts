@@ -84,6 +84,12 @@ export class AddressApiService {
   readonly error = signal<string | null>(null);
 
   /**
+   * @description Private flag to track if addresses data is stale and needs refresh
+   * Set to false after successful load, true after mutations (create/update/delete/setDefault)
+   */
+  private _addressesDirty = true;
+
+  /**
    * @description Show a translated error notification to the user
    * @param translationKey - i18n key for the error message
    */
@@ -97,15 +103,23 @@ export class AddressApiService {
 
   /**
    * @description Load all addresses for the authenticated user
+   * Implements simple caching: returns cached data if available and not stale,
+   * otherwise fetches from server. Cache is invalidated after mutations.
    * @returns Observable that emits the loaded addresses array
    */
   loadAddresses() {
+    // Return cached data if available and not dirty
+    if (this.addresses().length > 0 && !this._addressesDirty) {
+      return of(this.addresses());
+    }
+
     this.isLoadingAddresses.set(true);
     this.error.set(null);
 
     return this.http.get<AddressResponse[]>(this.baseUrl).pipe(
       tap((data) => {
         this.addresses.set(data);
+        this._addressesDirty = false; // Mark as fresh
         this.isLoadingAddresses.set(false);
       }),
       catchError((err) => {
@@ -115,6 +129,16 @@ export class AddressApiService {
         return of([]);
       })
     );
+  }
+
+  /**
+   * @description Force refresh addresses from server
+   * Bypasses cache and always fetches fresh data
+   * @returns Observable that emits the loaded addresses array
+   */
+  refreshAddresses() {
+    this._addressesDirty = true;
+    return this.loadAddresses();
   }
 
   /**
@@ -129,6 +153,7 @@ export class AddressApiService {
     return this.http.post<AddressResponse>(this.baseUrl, dto).pipe(
       tap((newAddress) => {
         this.addresses.update((current) => [...current, newAddress]);
+        this._addressesDirty = true; // Invalidate cache
         this.isSaving.set(false);
       }),
       catchError((err) => {
@@ -155,6 +180,7 @@ export class AddressApiService {
         this.addresses.update((current) =>
           current.map((addr) => (addr.id === id ? updatedAddress : addr))
         );
+        this._addressesDirty = true; // Invalidate cache
         this.isSaving.set(false);
       }),
       catchError((err) => {
@@ -178,6 +204,7 @@ export class AddressApiService {
     return this.http.delete<void>(`${this.baseUrl}/${id}`).pipe(
       tap(() => {
         this.addresses.update((current) => current.filter((addr) => addr.id !== id));
+        this._addressesDirty = true; // Invalidate cache
         this.isSaving.set(false);
       }),
       catchError((err) => {
@@ -206,6 +233,7 @@ export class AddressApiService {
             isDefault: addr.id === id
           }))
         );
+        this._addressesDirty = true; // Invalidate cache
         this.isSaving.set(false);
       }),
       catchError((err) => {

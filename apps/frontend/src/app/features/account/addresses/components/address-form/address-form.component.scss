@@ -3,19 +3,66 @@
  * @description Responsive layout for address input form with Material Design and Syrian theme
  */
 
+/** ============================================
+ *  DESIGN TOKENS - Using SouqSyria Global Theme
+ *  ============================================ */
+
+/** Primary colors from SouqSyria golden wheat palette */
+$primary-color: var(--golden-wheat-primary, #988561);
+$primary-medium: var(--golden-wheat-medium, #b9a779);
+$primary-light: var(--golden-wheat-light, #edebe0);
+
+/** Success and error colors from global theme */
+$success-color: var(--color-success, #2e7d32);
+$success-bg: var(--color-success-bg, #e8f5e9);
+$error-color: var(--color-error, #d32f2f);
+$error-bg: var(--color-error-bg, #fdecea);
+$warning-color: var(--color-warning-text, #e65100);
+$warning-bg: var(--color-warning-bg, #fff3e0);
+
+/** Text colors */
+$text-primary: var(--forest-dark, #002623);
+$text-secondary: var(--color-text-secondary, #666666);
+$text-muted: var(--color-text-muted, #999999);
+
+/** Background and surface colors */
+$surface-light: var(--color-surface-neutral, #f5f5f5);
+$surface-white: var(--charcoal-light, #ffffff);
+
+/** Border colors */
+$border-color: #e5e7eb;
+$border-light: #f3f4f6;
+
+/** Spacing tokens following Material Design 8px grid */
+$spacing-xs: 0.25rem;  /* 4px */
+$spacing-sm: 0.5rem;   /* 8px */
+$spacing-md: 1rem;     /* 16px */
+$spacing-lg: 1.5rem;   /* 24px */
+$spacing-xl: 2rem;     /* 32px */
+
+/** Border radius tokens */
+$border-radius: 8px;
+$border-radius-sm: 4px;
+$border-radius-lg: 12px;
+
+/** Shadow tokens */
+$shadow-sm: 0 1px 4px rgba(0, 0, 0, 0.05);
+$shadow-md: 0 2px 8px rgba(0, 0, 0, 0.08);
+$shadow-lg: 0 4px 12px rgba(0, 0, 0, 0.12);
+
 .address-form-container {
   max-width: 800px;
   margin: 0 auto;
-  padding: 1.5rem;
-  background: linear-gradient(135deg, #fef7cd 0%, #ffffff 50%, #d1fae5 100%);
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  padding: $spacing-lg;
+  background: linear-gradient(135deg, $primary-light 0%, $surface-white 50%, #d1fae5 100%);
+  border-radius: $border-radius-lg;
+  box-shadow: $shadow-md;
 
   .form-title {
     font-size: 1.75rem;
     font-weight: 600;
-    margin-bottom: 2rem;
-    background: linear-gradient(135deg, #d97706, #f59e0b);
+    margin-bottom: $spacing-xl;
+    background: linear-gradient(135deg, $primary-color, $primary-medium);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -26,10 +73,10 @@
     display: flex;
     flex-direction: column;
     gap: 1.25rem;
-    background: white;
-    padding: 2rem;
-    border-radius: 8px;
-    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+    background: $surface-white;
+    padding: $spacing-xl;
+    border-radius: $border-radius;
+    box-shadow: $shadow-sm;
 
     .full-width {
       width: 100%;
@@ -38,14 +85,14 @@
       &:has(input[type="tel"]) {
         ::ng-deep {
           .mat-mdc-form-field-hint {
-            color: #6b7280;
+            color: $text-secondary;
             font-size: 0.75rem;
             font-style: italic;
           }
 
           .mat-mdc-form-field-icon-prefix {
-            color: #d97706;
-            margin-right: 0.5rem;
+            color: $primary-color;
+            margin-right: $spacing-sm;
           }
         }
       }
@@ -69,16 +116,16 @@
     .location-errors {
       margin-top: -0.75rem;
       margin-bottom: 0.75rem;
-      padding: 0.5rem 1rem;
-      background: #fef2f2;
-      border-left: 4px solid #f44336;
-      border-radius: 4px;
+      padding: $spacing-sm $spacing-md;
+      background: $error-bg;
+      border-left: 4px solid $error-color;
+      border-radius: $border-radius-sm;
 
       mat-error {
         font-size: 0.875rem;
-        color: #dc2626;
+        color: $error-color;
         display: block;
-        margin: 0.25rem 0;
+        margin: $spacing-xs 0;
 
         &:first-child {
           margin-top: 0;
@@ -91,17 +138,17 @@
     }
 
     .form-section {
-      margin: 1.5rem 0;
-      padding: 1rem;
-      background: #f9fafb;
-      border-radius: 8px;
-      border: 1px solid #e5e7eb;
+      margin: $spacing-lg 0;
+      padding: $spacing-md;
+      background: $surface-light;
+      border-radius: $border-radius;
+      border: 1px solid $border-color;
 
       .section-label {
         display: block;
         font-size: 0.9375rem;
         font-weight: 600;
-        color: #374151;
+        color: $text-primary;
         margin-bottom: 0.75rem;
       }
 
@@ -112,27 +159,27 @@
 
         ::ng-deep {
           mat-button-toggle {
-            border: 2px solid #e5e7eb;
-            border-radius: 8px;
-            background: white;
+            border: 2px solid $border-color;
+            border-radius: $border-radius;
+            background: $surface-white;
             transition: all 0.2s ease;
 
             &:hover {
-              border-color: #fbbf24;
-              background: #fffbeb;
+              border-color: $primary-medium;
+              background: $primary-light;
             }
 
             &.mat-button-toggle-checked {
-              border-color: #d97706;
-              background: linear-gradient(135deg, #fef7cd, #fde68a);
+              border-color: $primary-color;
+              background: linear-gradient(135deg, $primary-light, $primary-medium);
 
               .mat-button-toggle-label-content {
-                color: #92400e;
+                color: $text-primary;
                 font-weight: 600;
               }
 
               mat-icon {
-                color: #d97706;
+                color: $primary-color;
               }
             }
 
@@ -140,11 +187,10 @@
               display: flex;
               align-items: center;
               justify-content: center;
-              padding: 0.5rem;
-              gap: 0.5rem;
+              padding: $spacing-sm;
+              gap: $spacing-sm;
               font-size: 0.875rem;
-              color: #6b7280;
-            }
+              color: $text-secondary;
 
             mat-icon {
               font-size: 1.125rem;
@@ -160,17 +206,17 @@
       ::ng-deep {
         mat-checkbox {
           .mdc-checkbox__background {
-            border-color: #d97706;
+            border-color: $primary-color;
           }
 
           &.mat-mdc-checkbox-checked {
             .mdc-checkbox__background {
-              background-color: #d97706;
+              background-color: $primary-color;
             }
           }
 
           .mdc-label {
-            color: #374151;
+            color: $text-primary;
             font-weight: 500;
           }
         }
@@ -180,44 +226,44 @@
     .form-actions {
       display: flex;
       justify-content: flex-end;
-      gap: 1rem;
-      margin-top: 2rem;
-      padding-top: 1.5rem;
-      border-top: 2px solid #f3f4f6;
+      gap: $spacing-md;
+      margin-top: $spacing-xl;
+      padding-top: $spacing-lg;
+      border-top: 2px solid $border-light;
 
       button {
         min-width: 140px;
         height: 48px;
-        border-radius: 8px;
+        border-radius: $border-radius;
         font-weight: 600;
         font-size: 1rem;
         transition: all 0.2s ease;
 
         &[type="button"] {
           // Cancel button
-          border: 2px solid #e5e7eb;
-          color: #6b7280;
+          border: 2px solid $border-color;
+          color: $text-secondary;
 
           &:hover:not(:disabled) {
-            border-color: #dc2626;
-            color: #dc2626;
-            background: #fef2f2;
+            border-color: $error-color;
+            color: $error-color;
+            background: $error-bg;
           }
         }
 
         &[type="submit"] {
           // Submit button
-          background: linear-gradient(135deg, #059669, #10b981);
-          color: white;
+          background: linear-gradient(135deg, $success-color, #10b981);
+          color: $surface-white;
 
           &:hover:not(:disabled) {
-            background: linear-gradient(135deg, #047857, #059669);
+            background: linear-gradient(135deg, #047857, $success-color);
             transform: translateY(-1px);
             box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
           }
 
           &:disabled {
-            background: linear-gradient(135deg, #9ca3af, #6b7280);
+            background: linear-gradient(135deg, #9ca3af, $text-secondary);
             cursor: not-allowed;
             opacity: 0.6;
           }
@@ -239,42 +285,42 @@
     ::ng-deep {
       .mat-mdc-form-field {
         .mat-mdc-form-field-label {
-          color: #374151;
+          color: $text-primary;
           font-weight: 500;
         }
 
         .mat-mdc-input-element {
-          color: #111827;
+          color: $text-primary;
 
           &::placeholder {
-            color: #9ca3af;
+            color: $text-muted;
           }
         }
 
         .mat-mdc-select {
-          color: #111827;
+          color: $text-primary;
         }
 
         &.mat-focused {
           .mat-mdc-form-field-label {
-            color: #d97706;
+            color: $primary-color;
           }
 
           .mdc-notched-outline__leading,
           .mdc-notched-outline__notch,
           .mdc-notched-outline__trailing {
-            border-color: #d97706 !important;
+            border-color: $primary-color !important;
           }
         }
 
         .mat-mdc-form-field-error {
-          color: #dc2626;
+          color: $error-color;
           font-size: 0.8125rem;
-          margin-top: 0.25rem;
+          margin-top: $spacing-xs;
         }
 
         .mat-mdc-form-field-hint {
-          color: #6b7280;
+          color: $text-secondary;
           font-size: 0.75rem;
           font-style: italic;
         }
@@ -288,6 +334,50 @@
   }
 }
 
+/** ============================================
+ *  P1 #5 FIX: Touch targets below 44px on mobile
+ *  ============================================
+ *  Ensures all interactive elements meet WCAG 2.5.5 (44x44px minimum)
+ */
+@media (max-width: 599px) {
+  .address-form-container {
+    .address-form {
+      button,
+      .mat-mdc-icon-button,
+      .mat-mdc-button {
+        min-height: 44px;
+        min-width: 44px;
+      }
+
+      ::ng-deep {
+        mat-select,
+        .mat-mdc-select,
+        .mat-mdc-form-field {
+          min-height: 44px;
+        }
+
+        mat-button-toggle {
+          min-height: 44px;
+          min-width: 44px;
+        }
+
+        mat-checkbox {
+          .mdc-checkbox {
+            width: 44px;
+            height: 44px;
+          }
+        }
+      }
+    }
+  }
+}
+
+/** ============================================
+ *  P0 #7 FIX: Improved responsive breakpoints
+ *  ============================================
+ *  Mobile-first approach with proper grid and layout fixes
+ */
+
 // RTL support for Arabic layout
 [dir='rtl'],
 :host-context([dir='rtl']) {
@@ -299,7 +389,7 @@
     .address-form {
       .location-errors {
         border-left: none;
-        border-right: 4px solid #f44336;
+        border-right: 4px solid $error-color;
       }
 
       .form-section {
@@ -351,12 +441,29 @@
     }
   }
 }
+}
 
-// Responsive adjustments for mobile
-@media (max-width: 600px) {
+/** ============================================
+ *  TABLET BREAKPOINT: 600px - 959px
+ *  ============================================ */
+@media (min-width: 600px) and (max-width: 959px) {
   .address-form-container {
-    padding: 1rem;
-    border-radius: 8px;
+    .address-form {
+      .form-row {
+        grid-template-columns: repeat(2, 1fr);
+        gap: $spacing-md;
+      }
+    }
+  }
+}
+
+/** ============================================
+ *  MOBILE BREAKPOINT: 360px - 599px
+ *  ============================================ */
+@media (max-width: 599px) {
+  .address-form-container {
+    padding: $spacing-md;
+    border-radius: $border-radius;
 
     .form-title {
       font-size: 1.375rem;
@@ -364,9 +471,16 @@
     }
 
     .address-form {
-      padding: 1.5rem;
-      gap: 1rem;
+      padding: $spacing-lg;
+      gap: $spacing-md;
 
+      // P0 #7 FIX: Form row becomes single column on mobile
+      .form-row {
+        grid-template-columns: 1fr;
+        gap: $spacing-md;
+      }
+
+      // P0 #7 FIX: Form row becomes single column on mobile
       .form-section {
         margin: 1rem 0;
         padding: 0.75rem;
@@ -396,6 +510,7 @@
         }
       }
 
+      // P0 #7 FIX: Action buttons become vertical stack on mobile
       .form-actions {
         flex-direction: column-reverse;
         gap: 0.75rem;
@@ -405,6 +520,7 @@
         button {
           width: 100%;
           min-width: auto;
+          min-height: 48px;
         }
       }
     }
