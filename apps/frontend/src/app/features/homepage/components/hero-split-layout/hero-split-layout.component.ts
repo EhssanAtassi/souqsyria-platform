@@ -47,7 +47,7 @@ export class HeroSplitLayoutComponent {
       title: 'Damascus Steel',
       titleAr: 'الفولاذ الدمشقي',
       subtitle: 'Authentic Damascus Steel Knives',
-      image: 'https://images.unsplash.com/photo-1589698423558-7537249a5144?w=1650&h=450&fit=crop&q=80',
+      image: 'https://images.unsplash.com/photo-1606760227091-3dd870d97f1d?w=1650&h=450&fit=crop&q=80',
       link: '/category/damascus-steel'
     },
     {
@@ -63,7 +63,7 @@ export class HeroSplitLayoutComponent {
       title: 'Syrian Textiles',
       titleAr: 'المنسوجات السورية',
       subtitle: 'Brocade - 30% OFF',
-      image: 'https://images.unsplash.com/photo-1519167758481-83f29da8c42f?w=1650&h=450&fit=crop&q=80',
+      image: 'https://images.unsplash.com/photo-1558171813-4c088753af8f?w=1650&h=450&fit=crop&q=80',
       link: '/category/textiles-fabrics'
     },
     {
@@ -71,7 +71,7 @@ export class HeroSplitLayoutComponent {
       title: 'Syrian Spices',
       titleAr: 'البهارات السورية',
       subtitle: 'Seven Spice Mix & More',
-      image: 'https://images.unsplash.com/photo-1596040033229-a0b3b4f88dd2?w=1650&h=450&fit=crop&q=80',
+      image: 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=1650&h=450&fit=crop&q=80',
       link: '/category/food-spices'
     },
     {
@@ -119,7 +119,7 @@ export class HeroSplitLayoutComponent {
     titleAr: 'مجموعة الفولاذ الدمشقي',
     description: '100% handmade authentic Damascus steel',
     descriptionAr: 'صناعة يدوية أصيلة ١٠٠٪',
-    image: 'https://images.unsplash.com/photo-1589698423558-7537249a5144?w=600&h=400&fit=crop&q=80',
+    image: 'https://images.unsplash.com/photo-1606760227091-3dd870d97f1d?w=600&h=400&fit=crop&q=80',
     discountBadge: '20%\nOFF',
     badgeColor: '#E94E1B', // Orange
     targetUrl: '/category/damascus-steel',

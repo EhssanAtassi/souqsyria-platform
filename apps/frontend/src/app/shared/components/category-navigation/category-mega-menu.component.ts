@@ -892,7 +892,7 @@ export class CategoryMegaMenuComponent implements OnInit {
         id: 'damascus-knife',
         name: 'Damascus Steel Chef Knife',
         nameAr: 'سكين الطبخ الدمشقي',
-        image: '/assets/images/products/damascus-knife-thumb.jpg',
+        image: 'https://images.unsplash.com/photo-1606760227091-3dd870d97f1d?w=200&h=200&fit=crop&q=80',
         price: 350000,
         currency: 'SYP',
         url: '/product/damascus-steel-chef-knife'
@@ -901,7 +901,7 @@ export class CategoryMegaMenuComponent implements OnInit {
         id: 'aleppo-soap',
         name: 'Premium Aleppo Laurel Soap',
         nameAr: 'صابون الغار الحلبي الفاخر',
-        image: '/assets/images/products/aleppo-soap-thumb.jpg',
+        image: 'https://images.unsplash.com/photo-1608571423902-eed4a5ad8108?w=200&h=200&fit=crop&q=80',
         price: 85000,
         currency: 'SYP',
         url: '/product/premium-aleppo-laurel-soap'
@@ -910,7 +910,7 @@ export class CategoryMegaMenuComponent implements OnInit {
         id: 'syrian-fabric',
         name: 'Syrian Brocade Fabric',
         nameAr: 'قماش البروكار السوري',
-        image: '/assets/images/products/syrian-fabric-thumb.jpg',
+        image: 'https://images.unsplash.com/photo-1558171813-4c088753af8f?w=200&h=200&fit=crop&q=80',
         price: 280000,
         currency: 'SYP',
         url: '/product/syrian-brocade-fabric-gold'
@@ -919,7 +919,7 @@ export class CategoryMegaMenuComponent implements OnInit {
         id: 'damascus-spice',
         name: 'Damascus Seven Spice Mix',
         nameAr: 'بهارات السبع بهارات الدمشقية',
-        image: '/assets/images/products/damascus-spice-thumb.jpg',
+        image: 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=200&h=200&fit=crop&q=80',
         price: 45000,
         currency: 'SYP',
         url: '/product/damascus-seven-spice-mix'

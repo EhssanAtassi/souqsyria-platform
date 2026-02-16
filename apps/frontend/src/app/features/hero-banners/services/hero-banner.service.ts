@@ -492,12 +492,12 @@ export class HeroBannerService {
         status: 'active',
         priority: 100,
         image: {
-          url: '/assets/images/products/exp1.png',
+          url: 'https://images.unsplash.com/photo-1606760227091-3dd870d97f1d?w=1200&h=500&fit=crop&q=80',
           alt: {
             english: 'Damascus Steel Heritage Collection',
             arabic: 'مجموعة تراث الفولاذ الدمشقي',
           },
-          mobileUrl: '/assets/images/products/exp1.png',
+          mobileUrl: 'https://images.unsplash.com/photo-1606760227091-3dd870d97f1d?w=600&h=400&fit=crop&q=80',
           dimensions: { width: 1920, height: 800 },
           format: 'jpg',
           size: 245760,
@@ -565,12 +565,12 @@ export class HeroBannerService {
         status: 'active',
         priority: 90,
         image: {
-          url: '/assets/images/products/1.png',
+          url: 'https://images.unsplash.com/photo-1608571423902-eed4a5ad8108?w=1200&h=500&fit=crop&q=80',
           alt: {
             english: 'Aleppo Soap Heritage',
             arabic: 'تراث صابون حلب',
           },
-          mobileUrl: '/assets/images/products/1.png',
+          mobileUrl: 'https://images.unsplash.com/photo-1608571423902-eed4a5ad8108?w=600&h=400&fit=crop&q=80',
           dimensions: { width: 1920, height: 800 },
           format: 'jpg',
           size: 230400,
@@ -638,12 +638,12 @@ export class HeroBannerService {
         status: 'active',
         priority: 80,
         image: {
-          url: '/assets/images/products/5.png',
+          url: 'https://images.unsplash.com/photo-1558171813-4c088753af8f?w=1200&h=500&fit=crop&q=80',
           alt: {
             english: 'Syrian Brocade Textiles',
             arabic: 'منسوجات البروكار السورية',
           },
-          mobileUrl: '/assets/images/products/5.png',
+          mobileUrl: 'https://images.unsplash.com/photo-1558171813-4c088753af8f?w=600&h=400&fit=crop&q=80',
           dimensions: { width: 1920, height: 800 },
           format: 'jpg',
           size: 256000,
@@ -1160,7 +1160,7 @@ export class HeroBannerService {
           arabic: 'حرفية يدوية أصيلة',
         },
         image: {
-          url: '/assets/images/products/exp1.png',
+          url: 'https://images.unsplash.com/photo-1606760227091-3dd870d97f1d?w=600&h=400&fit=crop&q=80',
           alt: {
             english: 'Damascus Steel Collection',
             arabic: 'مجموعة الفولاذ الدمشقي',
@@ -1227,7 +1227,7 @@ export class HeroBannerService {
           arabic: 'جودة تراث اليونسكو',
         },
         image: {
-          url: '/assets/images/products/1.png',
+          url: 'https://images.unsplash.com/photo-1608571423902-eed4a5ad8108?w=600&h=400&fit=crop&q=80',
           alt: {
             english: 'Aleppo Soap Collection',
             arabic: 'مجموعة صابون حلب',
