@@ -57,7 +57,8 @@ export class EmailService {
   ): Promise<void> {
     this.logger.log(`📧 Sending password reset email to: ${email}`);
 
-    const frontendUrl = this.configService.get<string>('FRONTEND_URL') || 'http://localhost:4200';
+    const frontendUrl =
+      this.configService.get<string>('FRONTEND_URL') || 'http://localhost:4200';
     const resetUrl = `${frontendUrl}/auth/reset-password?token=${resetToken}`;
 
     // If no transporter configured, log to console (development mode)
@@ -261,8 +262,7 @@ export class EmailService {
       const mailOptions = {
         from: `"SouqSyria - سوق سوريا" <${this.configService.get('SMTP_FROM') || this.configService.get('SMTP_USER')}>`,
         to: email,
-        subject:
-          'SouqSyria - Account Locked / تم قفل الحساب',
+        subject: 'SouqSyria - Account Locked / تم قفل الحساب',
         html: this.getAccountLockoutTemplate(
           lockoutMinutes,
           ipAddress,
@@ -271,9 +271,7 @@ export class EmailService {
       };
 
       await this.transporter.sendMail(mailOptions);
-      this.logger.log(
-        `Account lockout email sent successfully to: ${email}`,
-      );
+      this.logger.log(`Account lockout email sent successfully to: ${email}`);
     } catch (error: unknown) {
       this.logger.error(
         `Failed to send account lockout email to: ${email}`,

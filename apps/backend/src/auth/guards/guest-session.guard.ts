@@ -116,7 +116,9 @@ export class GuestSessionGuard implements CanActivate {
     const sessionIdFromCookie = request.cookies?.[this.COOKIE_NAME];
 
     if (!sessionIdFromCookie) {
-      this.logger.warn('❌ No guest session cookie found and user not authenticated');
+      this.logger.warn(
+        '❌ No guest session cookie found and user not authenticated',
+      );
       throw new BadRequestException(
         'No valid session found. Please initialize a guest session or login.',
       );
@@ -124,9 +126,8 @@ export class GuestSessionGuard implements CanActivate {
 
     try {
       // Validate session exists and is not expired
-      const session = await this.guestSessionService.getSession(
-        sessionIdFromCookie,
-      );
+      const session =
+        await this.guestSessionService.getSession(sessionIdFromCookie);
 
       if (!session) {
         this.logger.warn(
@@ -140,9 +141,7 @@ export class GuestSessionGuard implements CanActivate {
       // Attach session to request for controller access
       request.guestSession = session;
 
-      this.logger.debug(
-        `✅ Guest session validated: ${session.id}`,
-      );
+      this.logger.debug(`✅ Guest session validated: ${session.id}`);
 
       return true;
     } catch (error) {

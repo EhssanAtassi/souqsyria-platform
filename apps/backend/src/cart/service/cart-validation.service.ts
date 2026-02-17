@@ -84,7 +84,9 @@ export class CartValidationService {
    */
   async validateCart(cart: Cart): Promise<ValidateCartResponse> {
     const startTime = Date.now();
-    this.logger.log(`🔍 Validating cart ${cart.id} with ${cart.items.length} items`);
+    this.logger.log(
+      `🔍 Validating cart ${cart.id} with ${cart.items.length} items`,
+    );
 
     const warnings: ValidationWarning[] = [];
     const errors: ValidationError[] = [];
@@ -116,7 +118,10 @@ export class CartValidationService {
             type: ValidationErrorType.PRODUCT_INACTIVE,
             cartItemId: item.id,
             variantId: item.variant.id,
-            productName: variant?.product?.nameEn || variant?.product?.nameAr || 'Unknown Product',
+            productName:
+              variant?.product?.nameEn ||
+              variant?.product?.nameAr ||
+              'Unknown Product',
             message: 'This product is no longer available',
             suggestedAction: 'Item has been removed from your cart',
           });
@@ -127,7 +132,8 @@ export class CartValidationService {
         }
 
         // Calculate total stock across all warehouses
-        const totalStock = variant.stocks?.reduce((sum, s) => sum + s.quantity, 0) || 0;
+        const totalStock =
+          variant.stocks?.reduce((sum, s) => sum + s.quantity, 0) || 0;
 
         // Check stock availability
         if (totalStock === 0) {
@@ -196,9 +202,10 @@ export class CartValidationService {
             message: 'Price lock has expired (7 days)',
             oldValue: item.price_at_add,
             newValue: variant.price,
-            suggestedAction: item.price_at_add < variant.price
-              ? `Price increased to ${variant.price} SYP`
-              : 'Current price applied',
+            suggestedAction:
+              item.price_at_add < variant.price
+                ? `Price increased to ${variant.price} SYP`
+                : 'Current price applied',
           });
         }
 
@@ -256,13 +263,18 @@ export class CartValidationService {
       // Step 3: Remove invalid items
       if (itemsToRemove.length > 0) {
         await this.cartItemRepo.remove(itemsToRemove);
-        this.logger.log(`🗑️ Removed ${itemsToRemove.length} invalid items from cart`);
+        this.logger.log(
+          `🗑️ Removed ${itemsToRemove.length} invalid items from cart`,
+        );
 
         for (const item of itemsToRemove) {
           updatedItems.push({
             cartItemId: item.id,
             variantId: item.variant.id,
-            productName: item.variant?.product?.nameEn || item.variant?.product?.nameAr || 'Unknown Product',
+            productName:
+              item.variant?.product?.nameEn ||
+              item.variant?.product?.nameAr ||
+              'Unknown Product',
             updateReason: 'Item no longer available',
             removed: true,
           });
@@ -270,7 +282,9 @@ export class CartValidationService {
       }
 
       // Step 4: Update modified items
-      const itemsToSave = cart.items.filter(item => !itemsToRemove.includes(item));
+      const itemsToSave = cart.items.filter(
+        (item) => !itemsToRemove.includes(item),
+      );
       if (itemsToSave.length > 0) {
         await this.cartItemRepo.save(itemsToSave);
       }
@@ -301,15 +315,22 @@ export class CartValidationService {
       });
 
       // Generate summary message
-      const summary = this.generateSummary(validItems, invalidItems, warnings, errors, totalSavings);
+      const summary = this.generateSummary(
+        validItems,
+        invalidItems,
+        warnings,
+        errors,
+        totalSavings,
+      );
 
       return {
         valid: errors.length === 0,
         cartId: cart.id,
         totalItems: updatedCart?.totalItems || 0,
-        validItems: updatedCart?.items?.filter(item =>
-          !errors.some(error => error.cartItemId === item.id)
-        ) || [],
+        validItems:
+          updatedCart?.items?.filter(
+            (item) => !errors.some((error) => error.cartItemId === item.id),
+          ) || [],
         totalAmount: updatedCart?.totalAmount || 0,
         currency: cart.currency,
         warnings,
@@ -320,9 +341,11 @@ export class CartValidationService {
         requiresConfirmation: updatedItems.length > 0,
         summary,
       };
-
     } catch (error: unknown) {
-      this.logger.error(`❌ Cart validation failed: ${(error as Error).message}`, (error as Error).stack);
+      this.logger.error(
+        `❌ Cart validation failed: ${(error as Error).message}`,
+        (error as Error).stack,
+      );
 
       await this.auditLogService.logSimple({
         action: 'CART_VALIDATION_FAILED',
@@ -399,11 +422,15 @@ export class CartValidationService {
     }
 
     if (totalSavings > 0) {
-      parts.push(`You save ${totalSavings.toLocaleString()} SYP from price decreases`);
+      parts.push(
+        `You save ${totalSavings.toLocaleString()} SYP from price decreases`,
+      );
     }
 
     if (warnings.length > 0) {
-      const lowStockWarnings = warnings.filter(w => w.type === ValidationWarningType.LOW_STOCK);
+      const lowStockWarnings = warnings.filter(
+        (w) => w.type === ValidationWarningType.LOW_STOCK,
+      );
       if (lowStockWarnings.length > 0) {
         parts.push(`${lowStockWarnings.length} item(s) have low stock`);
       }

@@ -1,0 +1,154 @@
+<div class="review-form" [class.rtl]="language() === 'ar'">
+  <h3 class="review-form__heading">{{ headingLabel }}</h3>
+
+  @if (!isAuthenticated()) {
+    <div class="review-form__login-required">
+      <mat-icon class="login-required__icon">login</mat-icon>
+      <p class="login-required__text">{{ loginRequiredLabel }}</p>
+    </div>
+  } @else {
+    <form [formGroup]="form" (ngSubmit)="onSubmit()" class="review-form__form">
+      <!-- Star Rating Selector -->
+      <div class="form__rating">
+        <label class="rating__label">{{ ratingLabel }} *</label>
+        <div class="rating__stars">
+          @for (star of [1, 2, 3, 4, 5]; track star) {
+            <button
+              type="button"
+              class="star-btn"
+              (click)="setRating(star)"
+              (mouseenter)="setHoverRating(star)"
+              (mouseleave)="setHoverRating(0)"
+              [attr.aria-label]="star + ' stars'"
+            >
+              <mat-icon class="star-icon">{{ getStarIcon(star) }}</mat-icon>
+            </button>
+          }
+        </div>
+      </div>
+
+      <!-- Bilingual Titles and Bodies -->
+      <mat-tab-group class="form__tabs">
+        <mat-tab label="English">
+          <div class="tab-content">
+            <mat-form-field class="form-field" appearance="outline">
+              <mat-label>{{ titleEnLabel }}</mat-label>
+              <input matInput formControlName="titleEn" />
+            </mat-form-field>
+
+            <mat-form-field class="form-field" appearance="outline">
+              <mat-label>{{ bodyEnLabel }}</mat-label>
+              <textarea matInput formControlName="bodyEn" rows="5"></textarea>
+            </mat-form-field>
+          </div>
+        </mat-tab>
+
+        <mat-tab label="العربية">
+          <div class="tab-content">
+            <mat-form-field class="form-field" appearance="outline">
+              <mat-label>{{ titleArLabel }}</mat-label>
+              <input matInput formControlName="titleAr" />
+            </mat-form-field>
+
+            <mat-form-field class="form-field" appearance="outline">
+              <mat-label>{{ bodyArLabel }}</mat-label>
+              <textarea matInput formControlName="bodyAr" rows="5"></textarea>
+            </mat-form-field>
+          </div>
+        </mat-tab>
+      </mat-tab-group>
+
+      <!-- Pros Section -->
+      <div class="form__pros-cons">
+        <label class="pros-cons__label">{{ prosLabel }}</label>
+        <div class="pros-cons__input">
+          <mat-form-field class="input-field" appearance="outline">
+            <input
+              matInput
+              [value]="newPro()"
+              (input)="newPro.set($any($event.target).value)"
+              (keyup.enter)="addPro()"
+              placeholder="{{ language() === 'ar' ? 'أضف ميزة' : 'Add a pro' }}"
+            />
+          </mat-form-field>
+          <button
+            type="button"
+            mat-raised-button
+            color="primary"
+            (click)="addPro()"
+            [disabled]="!newPro().trim()"
+          >
+            {{ addLabel }}
+          </button>
+        </div>
+
+        @if (pros().length > 0) {
+          <mat-chip-listbox class="pros-cons__chips">
+            @for (pro of pros(); track $index) {
+              <mat-chip class="chip--pro" (removed)="removePro($index)">
+                {{ pro }}
+                <button matChipRemove>
+                  <mat-icon>cancel</mat-icon>
+                </button>
+              </mat-chip>
+            }
+          </mat-chip-listbox>
+        }
+      </div>
+
+      <!-- Cons Section -->
+      <div class="form__pros-cons">
+        <label class="pros-cons__label">{{ consLabel }}</label>
+        <div class="pros-cons__input">
+          <mat-form-field class="input-field" appearance="outline">
+            <input
+              matInput
+              [value]="newCon()"
+              (input)="newCon.set($any($event.target).value)"
+              (keyup.enter)="addCon()"
+              placeholder="{{ language() === 'ar' ? 'أضف عيب' : 'Add a con' }}"
+            />
+          </mat-form-field>
+          <button
+            type="button"
+            mat-raised-button
+            color="primary"
+            (click)="addCon()"
+            [disabled]="!newCon().trim()"
+          >
+            {{ addLabel }}
+          </button>
+        </div>
+
+        @if (cons().length > 0) {
+          <mat-chip-listbox class="pros-cons__chips">
+            @for (con of cons(); track $index) {
+              <mat-chip class="chip--con" (removed)="removeCon($index)">
+                {{ con }}
+                <button matChipRemove>
+                  <mat-icon>cancel</mat-icon>
+                </button>
+              </mat-chip>
+            }
+          </mat-chip-listbox>
+        }
+      </div>
+
+      <!-- Submit Button -->
+      <div class="form__actions">
+        <button
+          type="submit"
+          mat-raised-button
+          color="primary"
+          class="actions__submit"
+          [disabled]="submitting() || selectedRating() === 0"
+        >
+          @if (submitting()) {
+            <mat-icon class="spinner">hourglass_empty</mat-icon>
+          }
+          <span>{{ submitLabel }}</span>
+        </button>
+      </div>
+    </form>
+  }
+</div>

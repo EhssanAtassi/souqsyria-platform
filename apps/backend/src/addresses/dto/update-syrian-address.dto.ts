@@ -27,4 +27,6 @@ import { CreateSyrianAddressDto } from './create-syrian-address.dto';
  * Makes all fields from CreateSyrianAddressDto optional
  * Used for PATCH /addresses/:id
  */
-export class UpdateSyrianAddressDto extends PartialType(CreateSyrianAddressDto) {}
+export class UpdateSyrianAddressDto extends PartialType(
+  CreateSyrianAddressDto,
+) {}

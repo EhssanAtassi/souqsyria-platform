@@ -353,7 +353,10 @@ export class SyrianTaxService {
 
       this.logger.log(`Initialized ${defaultTaxRates.length} Syrian tax rates`);
     } catch (error: unknown) {
-      this.logger.error('Failed to initialize Syrian tax rates', (error as Error).stack);
+      this.logger.error(
+        'Failed to initialize Syrian tax rates',
+        (error as Error).stack,
+      );
     }
   }
 

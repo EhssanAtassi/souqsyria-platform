@@ -1,0 +1,212 @@
+/**
+ * @file review-form.component.scss
+ * @description Styles for the review form component
+ * Golden Wheat design system with interactive star rating and bilingual inputs
+ */
+
+@import '../../../../shared/styles/variables';
+
+.review-form {
+  padding: $space-6;
+  background-color: $golden-wheat-light;
+  border-radius: $border-radius-lg;
+  margin-bottom: $space-6;
+
+  &__heading {
+    font-family: $font-family-heading;
+    font-size: $font-size-2xl;
+    font-weight: $font-weight-semibold;
+    color: $forest-dark;
+    margin: 0 0 $space-6 0;
+  }
+
+  &__login-required {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: $space-12;
+    text-align: center;
+    color: $charcoal-medium;
+  }
+
+  &__form {
+    display: flex;
+    flex-direction: column;
+    gap: $space-6;
+  }
+
+  // RTL Support
+  &.rtl {
+    direction: rtl;
+
+    .review-form__heading {
+      font-family: $font-family-arabic;
+    }
+
+    .form__rating,
+    .form__pros-cons {
+      direction: rtl;
+    }
+  }
+}
+
+.login-required {
+  &__icon {
+    width: 64px;
+    height: 64px;
+    font-size: 64px;
+    color: $charcoal-medium;
+    margin-bottom: $space-4;
+  }
+
+  &__text {
+    font-size: $font-size-lg;
+    margin: 0;
+  }
+}
+
+.form {
+  &__rating {
+    display: flex;
+    flex-direction: column;
+    gap: $space-2;
+  }
+
+  &__tabs {
+    margin-top: $space-4;
+  }
+
+  &__pros-cons {
+    display: flex;
+    flex-direction: column;
+    gap: $space-3;
+  }
+
+  &__actions {
+    display: flex;
+    justify-content: flex-end;
+    padding-top: $space-4;
+  }
+}
+
+.rating {
+  &__label {
+    font-size: $font-size-base;
+    font-weight: $font-weight-semibold;
+    color: $forest-dark;
+  }
+
+  &__stars {
+    display: flex;
+    gap: $space-2;
+  }
+}
+
+.star-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: $space-1;
+  transition: transform $transition-fast $ease-out;
+
+  &:hover {
+    transform: scale(1.1);
+  }
+
+  &:focus {
+    outline: 2px solid $golden-wheat-primary;
+    border-radius: $border-radius-sm;
+  }
+}
+
+.star-icon {
+  width: 36px;
+  height: 36px;
+  font-size: 36px;
+  color: $golden-wheat-primary;
+}
+
+.tab-content {
+  padding: $space-6 0;
+  display: flex;
+  flex-direction: column;
+  gap: $space-4;
+}
+
+.form-field {
+  width: 100%;
+}
+
+.pros-cons {
+  &__label {
+    font-size: $font-size-base;
+    font-weight: $font-weight-semibold;
+    color: $forest-dark;
+  }
+
+  &__input {
+    display: flex;
+    gap: $space-3;
+    align-items: flex-start;
+
+    @media (max-width: $breakpoint-sm) {
+      flex-direction: column;
+      align-items: stretch;
+    }
+  }
+
+  &__chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: $space-2;
+  }
+}
+
+.input-field {
+  flex: 1;
+}
+
+.chip {
+  &--pro {
+    background-color: rgba($color-success, 0.1);
+    color: $color-success;
+    border: $border-width-thin solid $color-success;
+
+    button mat-icon {
+      color: $color-success;
+    }
+  }
+
+  &--con {
+    background-color: rgba($color-error, 0.1);
+    color: $color-error;
+    border: $border-width-thin solid $color-error;
+
+    button mat-icon {
+      color: $color-error;
+    }
+  }
+}
+
+.actions {
+  &__submit {
+    display: flex;
+    align-items: center;
+    gap: $space-2;
+    min-width: 160px;
+  }
+}
+
+.spinner {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}

@@ -3,6 +3,8 @@
  * Maps to GET /products/:slug backend response
  */
 
+import { ReviewSummary } from './review.interface';
+
 /**
  * @description Supported currency codes matching the backend ProductPriceEntity enum.
  * SYP = Syrian Pound, USD = US Dollar, TRY = Turkish Lira.
@@ -22,7 +24,14 @@ export interface ProductDetailResponse {
   nameEn: string;
   nameAr: string;
   sku: string | null;
-  category: { id: number; nameEn: string; nameAr: string; slug: string } | null;
+  category: {
+    id: number;
+    nameEn: string;
+    nameAr: string;
+    slug: string;
+    /** @description Ancestor categories from root down to parent, for breadcrumb navigation */
+    ancestors?: Array<{ id: number; nameEn: string; nameAr: string; slug: string }>;
+  } | null;
   manufacturer: { id: number; name: string } | null;
   vendor: { id: number; storeName: string } | null;
   pricing: { basePrice: number; discountPrice: number | null; currency: CurrencyCode } | null;
@@ -33,6 +42,7 @@ export interface ProductDetailResponse {
   stockStatus: 'in_stock' | 'low_stock' | 'out_of_stock';
   totalStock: number;
   relatedProducts: ProductDetailRelated[];
+  reviewSummary?: ReviewSummary;
 }
 
 /** @description Product image in detail response */

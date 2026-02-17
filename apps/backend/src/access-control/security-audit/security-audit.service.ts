@@ -546,7 +546,8 @@ export class SecurityAuditService {
 
       // Insufficient data for analysis
       if (
-        failedEvents.length < this.SUSPICIOUS_ACTIVITY_THRESHOLDS.MIN_EVENTS_FOR_ANALYSIS
+        failedEvents.length <
+        this.SUSPICIOUS_ACTIVITY_THRESHOLDS.MIN_EVENTS_FOR_ANALYSIS
       ) {
         return report;
       }
@@ -562,7 +563,10 @@ export class SecurityAuditService {
 
       // Identify users exceeding threshold
       failuresByUser.forEach((count, userId) => {
-        if (count >= this.SUSPICIOUS_ACTIVITY_THRESHOLDS.MAX_FAILED_ATTEMPTS_PER_USER) {
+        if (
+          count >=
+          this.SUSPICIOUS_ACTIVITY_THRESHOLDS.MAX_FAILED_ATTEMPTS_PER_USER
+        ) {
           report.detected = true;
           report.suspiciousUserIds.push(userId);
           report.findings.push({
@@ -571,14 +575,18 @@ export class SecurityAuditService {
             description: `User ${userId} has ${count} failed attempts in ${timeWindowMinutes} minutes`,
             affectedUsers: [userId],
             count,
-            threshold: this.SUSPICIOUS_ACTIVITY_THRESHOLDS.MAX_FAILED_ATTEMPTS_PER_USER,
+            threshold:
+              this.SUSPICIOUS_ACTIVITY_THRESHOLDS.MAX_FAILED_ATTEMPTS_PER_USER,
             timeWindow: `${timeWindowMinutes} minutes`,
           });
         }
       });
 
       // Analyze by IP: Count failed attempts per IP
-      const failuresByIp = new Map<string, { count: number; users: Set<number> }>();
+      const failuresByIp = new Map<
+        string,
+        { count: number; users: Set<number> }
+      >();
       failedEvents.forEach((event) => {
         const ipData = failuresByIp.get(event.ipAddress) || {
           count: 0,
@@ -593,7 +601,10 @@ export class SecurityAuditService {
 
       // Identify IPs exceeding threshold
       failuresByIp.forEach((data, ipAddress) => {
-        if (data.count >= this.SUSPICIOUS_ACTIVITY_THRESHOLDS.MAX_FAILED_ATTEMPTS_PER_IP) {
+        if (
+          data.count >=
+          this.SUSPICIOUS_ACTIVITY_THRESHOLDS.MAX_FAILED_ATTEMPTS_PER_IP
+        ) {
           report.detected = true;
           report.suspiciousIpAddresses.push(ipAddress);
 
@@ -613,7 +624,8 @@ export class SecurityAuditService {
             affectedIps: [ipAddress],
             affectedUsers: Array.from(data.users),
             count: data.count,
-            threshold: this.SUSPICIOUS_ACTIVITY_THRESHOLDS.MAX_FAILED_ATTEMPTS_PER_IP,
+            threshold:
+              this.SUSPICIOUS_ACTIVITY_THRESHOLDS.MAX_FAILED_ATTEMPTS_PER_IP,
             timeWindow: `${timeWindowMinutes} minutes`,
           });
         }
@@ -726,9 +738,10 @@ export class SecurityAuditService {
       ]);
 
       // Combine headers and rows
-      const csvContent = [headers.join(','), ...rows.map((row) => row.join(','))].join(
-        '\n',
-      );
+      const csvContent = [
+        headers.join(','),
+        ...rows.map((row) => row.join(',')),
+      ].join('\n');
 
       return csvContent;
     } catch (error) {
@@ -886,9 +899,7 @@ export class SecurityAuditService {
   /**
    * Sanitize metadata object: remove sensitive patterns, truncate values
    */
-  private sanitizeMetadata(
-    metadata: Record<string, any>,
-  ): Record<string, any> {
+  private sanitizeMetadata(metadata: Record<string, any>): Record<string, any> {
     const sanitized: Record<string, any> = {};
 
     // List of sensitive keys to exclude
@@ -938,7 +949,11 @@ export class SecurityAuditService {
     let escaped = field.replace(/"/g, '""');
 
     // Remove potential formula injection characters
-    if (escaped.startsWith('=') || escaped.startsWith('+') || escaped.startsWith('-')) {
+    if (
+      escaped.startsWith('=') ||
+      escaped.startsWith('+') ||
+      escaped.startsWith('-')
+    ) {
       escaped = "'" + escaped; // Prefix with single quote to treat as text
     }
 

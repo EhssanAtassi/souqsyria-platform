@@ -274,7 +274,7 @@ export class ProductComparisonService {
    * Get comparison field definitions
    */
   private getComparisonFields(): ComparisonField[] {
-    return [
+    const fields = [
       // Pricing
       {
         label: 'Price',
@@ -443,7 +443,7 @@ export class ProductComparisonService {
         label: 'In Stock',
         labelAr: 'متوفر',
         key: 'inventory.inStock',
-        category: 'authenticity',
+        category: 'specifications',
         type: 'boolean',
         order: 60,
         alwaysVisible: true
@@ -452,12 +452,14 @@ export class ProductComparisonService {
         label: 'Stock Quantity',
         labelAr: 'الكمية المتوفرة',
         key: 'inventory.quantity',
-        category: 'authenticity',
+        category: 'specifications',
         type: 'number',
         order: 61,
         alwaysVisible: false
       }
-    ].sort((a, b) => a.order - b.order);
+    ];
+
+    return fields.sort((a, b) => a.order - b.order) as ComparisonField[];
   }
 
   /**

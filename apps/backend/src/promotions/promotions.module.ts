@@ -51,13 +51,7 @@ import { PromotionRuleService } from './services/promotion-rule.service';
     // CouponsController,      // Temporarily disabled - PermissionsGuard dependency issue
     PromotionRuleController,
   ],
-  providers: [
-    CouponsService,
-    PromotionRuleService,
-  ],
-  exports: [
-    CouponsService,
-    PromotionRuleService,
-  ],
+  providers: [CouponsService, PromotionRuleService],
+  exports: [CouponsService, PromotionRuleService],
 })
 export class PromotionsModule {}

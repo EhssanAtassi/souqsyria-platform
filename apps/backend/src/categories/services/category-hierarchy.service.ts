@@ -108,7 +108,9 @@ export class CategoryHierarchyService {
         maxDepthReached: newDepthLevel === this.MAX_DEPTH,
       };
     } catch (error: unknown) {
-      this.logger.error(`❌ Hierarchy validation failed: ${(error as Error).message}`);
+      this.logger.error(
+        `❌ Hierarchy validation failed: ${(error as Error).message}`,
+      );
       throw error;
     }
   }

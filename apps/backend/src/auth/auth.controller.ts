@@ -55,10 +55,7 @@ export class AuthController {
     summary: 'Register new user with email and password (auto-login enabled)',
   })
   @Post('register')
-  async register(
-    @Body() registerDto: RegisterDto,
-    @Req() request: Request,
-  ) {
+  async register(@Body() registerDto: RegisterDto, @Req() request: Request) {
     return await this.authService.register(registerDto, request);
   }
 
@@ -84,15 +81,18 @@ export class AuthController {
   @ApiOperation({ summary: 'Login with email and password' })
   @ApiResponse({
     status: 200,
-    description: 'Login successful. Returns access token, refresh token, and rememberMe flag.',
+    description:
+      'Login successful. Returns access token, refresh token, and rememberMe flag.',
   })
   @ApiResponse({
     status: 401,
-    description: 'Invalid credentials. Response includes errorCode: INVALID_CREDENTIALS and remainingAttempts before lockout.',
+    description:
+      'Invalid credentials. Response includes errorCode: INVALID_CREDENTIALS and remainingAttempts before lockout.',
   })
   @ApiResponse({
     status: 403,
-    description: 'Account locked due to too many failed attempts. Response includes errorCode: ACCOUNT_LOCKED and lockedUntilMinutes.',
+    description:
+      'Account locked due to too many failed attempts. Response includes errorCode: ACCOUNT_LOCKED and lockedUntilMinutes.',
   })
   @ApiResponse({
     status: 429,
@@ -140,10 +140,7 @@ export class AuthController {
     @CurrentUser() user: { id: number },
     @Body() changePasswordDto: ChangePasswordDto,
   ) {
-    return await this.authService.changePassword(
-      user.id,
-      changePasswordDto,
-    );
+    return await this.authService.changePassword(user.id, changePasswordDto);
   }
 
   /**
@@ -224,7 +221,10 @@ export class AuthController {
    */
   @Public()
   @ApiOperation({ summary: 'Initiate Google OAuth login' })
-  @ApiResponse({ status: 302, description: 'Redirects to Google consent screen' })
+  @ApiResponse({
+    status: 302,
+    description: 'Redirects to Google consent screen',
+  })
   @UseGuards(GoogleAuthGuard)
   @Get('google')
   async googleLogin(): Promise<void> {
@@ -256,7 +256,10 @@ export class AuthController {
    */
   @Public()
   @ApiOperation({ summary: 'Initiate Facebook OAuth login' })
-  @ApiResponse({ status: 302, description: 'Redirects to Facebook consent screen' })
+  @ApiResponse({
+    status: 302,
+    description: 'Redirects to Facebook consent screen',
+  })
   @UseGuards(FacebookAuthGuard)
   @Get('facebook')
   async facebookLogin(): Promise<void> {
@@ -321,13 +324,16 @@ export class AuthController {
     request: Request,
     res: Response,
   ): Promise<void> {
-    const frontendUrl = this.configService.get<string>('FRONTEND_URL') || 'http://localhost:4200';
+    const frontendUrl =
+      this.configService.get<string>('FRONTEND_URL') || 'http://localhost:4200';
 
     try {
       // C2: Validate OAuth state parameter for CSRF protection
       const state = (request.query as any).state as string;
       if (!state || !this.authService.validateOAuthState(state)) {
-        this.logger.warn(`OAuth ${provider} callback: invalid state parameter (possible CSRF)`);
+        this.logger.warn(
+          `OAuth ${provider} callback: invalid state parameter (possible CSRF)`,
+        );
         res.redirect(
           `${frontendUrl}/auth/callback/${provider}?error=invalid_state`,
         );
@@ -343,7 +349,9 @@ export class AuthController {
       };
 
       if (!oauthProfile) {
-        this.logger.warn(`OAuth ${provider} callback: no user profile returned`);
+        this.logger.warn(
+          `OAuth ${provider} callback: no user profile returned`,
+        );
         res.redirect(
           `${frontendUrl}/auth/callback/${provider}?error=no_profile`,
         );
@@ -365,9 +373,7 @@ export class AuthController {
         `OAuth ${provider} callback success for user ID: ${user.id}`,
       );
 
-      res.redirect(
-        `${frontendUrl}/auth/callback/${provider}?code=${code}`,
-      );
+      res.redirect(`${frontendUrl}/auth/callback/${provider}?code=${code}`);
     } catch (error: unknown) {
       this.logger.error(
         `OAuth ${provider} callback failed: ${(error as Error).message}`,

@@ -28,7 +28,10 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, MoreThan } from 'typeorm';
-import { ProductCarousel, CarouselType } from '../entities/product-carousel.entity';
+import {
+  ProductCarousel,
+  CarouselType,
+} from '../entities/product-carousel.entity';
 import { ProductCarouselItem } from '../entities/product-carousel-item.entity';
 import { ProductEntity } from '../../products/entities/product.entity';
 import { CreateProductCarouselDto } from '../dto/create-product-carousel.dto';
@@ -91,12 +94,16 @@ export class ProductCarouselsService {
 
     // Filter by types
     if (filters?.types && filters.types.length > 0) {
-      queryBuilder.andWhere('carousel.type IN (:...types)', { types: filters.types });
+      queryBuilder.andWhere('carousel.type IN (:...types)', {
+        types: filters.types,
+      });
     }
 
     // Filter active only
     if (filters?.activeOnly) {
-      queryBuilder.andWhere('carousel.isActive = :isActive', { isActive: true });
+      queryBuilder.andWhere('carousel.isActive = :isActive', {
+        isActive: true,
+      });
     }
 
     // Apply limit
@@ -222,7 +229,9 @@ export class ProductCarouselsService {
    * @param carousel - Carousel configuration
    * @returns Array of products
    */
-  private async getDynamicProducts(carousel: ProductCarousel): Promise<ProductEntity[]> {
+  private async getDynamicProducts(
+    carousel: ProductCarousel,
+  ): Promise<ProductEntity[]> {
     const baseQuery = this.productRepository
       .createQueryBuilder('product')
       .leftJoinAndSelect('product.pricing', 'pricing')
@@ -267,10 +276,13 @@ export class ProductCarouselsService {
         // TODO: Implement personalized recommendations based on user behavior
         // TODO: Add rating column for better recommendation logic
         return baseQuery
-          .andWhere('(product.isBestSeller = :isBestSeller OR product.isFeatured = :isFeatured)', {
-            isBestSeller: true,
-            isFeatured: true,
-          })
+          .andWhere(
+            '(product.isBestSeller = :isBestSeller OR product.isFeatured = :isFeatured)',
+            {
+              isBestSeller: true,
+              isFeatured: true,
+            },
+          )
           .orderBy('product.isBestSeller', 'DESC')
           .addOrderBy('product.isFeatured', 'DESC')
           .addOrderBy('product.salesCount', 'DESC')
@@ -295,7 +307,10 @@ export class ProductCarouselsService {
           .leftJoin('pricing.salePrice', 'salePrice')
           .andWhere('pricing.salePrice IS NOT NULL')
           .andWhere('pricing.salePrice < pricing.basePrice')
-          .orderBy('((pricing.basePrice - pricing.salePrice) / pricing.basePrice)', 'DESC')
+          .orderBy(
+            '((pricing.basePrice - pricing.salePrice) / pricing.basePrice)',
+            'DESC',
+          )
           .take(carousel.maxProducts)
           .getMany();
 
@@ -332,7 +347,10 @@ export class ProductCarouselsService {
    * @throws NotFoundException if not found
    * @throws BadRequestException if validation fails
    */
-  async update(id: number, updateDto: UpdateProductCarouselDto): Promise<ProductCarousel> {
+  async update(
+    id: number,
+    updateDto: UpdateProductCarouselDto,
+  ): Promise<ProductCarousel> {
     const carousel = await this.findOne(id);
 
     // Merge updates
@@ -379,7 +397,9 @@ export class ProductCarouselsService {
     const carousel = await this.findOne(carouselId);
 
     if (carousel.type !== CarouselType.CUSTOM) {
-      throw new BadRequestException('Can only add products to custom carousels');
+      throw new BadRequestException(
+        'Can only add products to custom carousels',
+      );
     }
 
     // Validate product exists
@@ -408,7 +428,10 @@ export class ProductCarouselsService {
    * @param productId - Product ID
    * @returns void
    */
-  async removeProductFromCarousel(carouselId: number, productId: number): Promise<void> {
+  async removeProductFromCarousel(
+    carouselId: number,
+    productId: number,
+  ): Promise<void> {
     await this.carouselItemRepository.delete({
       carouselId,
       productId,

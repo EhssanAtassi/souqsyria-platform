@@ -336,7 +336,12 @@ export class Category {
     default: 0,
     nullable: true,
   })
-  @Column({ name: 'featured_priority', type: 'int', nullable: true, default: 0 })
+  @Column({
+    name: 'featured_priority',
+    type: 'int',
+    nullable: true,
+    default: 0,
+  })
   featuredPriority: number;
 
   /**

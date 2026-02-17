@@ -142,7 +142,8 @@ export class SecurityAuditLog {
    * Index: Part of composite index (userId, createdAt) for efficient user activity queries
    */
   @ApiProperty({
-    description: 'ID of the user who performed the action (null for anonymous attempts)',
+    description:
+      'ID of the user who performed the action (null for anonymous attempts)',
     example: 42,
     required: false,
     nullable: true,
@@ -168,7 +169,8 @@ export class SecurityAuditLog {
    * Common queries: Failed logins, suspicious activities, access denials
    */
   @ApiProperty({
-    description: 'Type of security event (permission check, access denial, role modification, etc.)',
+    description:
+      'Type of security event (permission check, access denial, role modification, etc.)',
     enum: SecurityAuditAction,
     example: SecurityAuditAction.ACCESS_DENIED,
   })
@@ -212,7 +214,8 @@ export class SecurityAuditLog {
    * Indexed as part of composite index (resourceType, resourceId)
    */
   @ApiProperty({
-    description: 'ID of the specific resource involved (nullable for system events)',
+    description:
+      'ID of the specific resource involved (nullable for system events)',
     example: 123,
     required: false,
     nullable: true,
@@ -232,7 +235,8 @@ export class SecurityAuditLog {
    * Null when: Event doesn't involve permission checking (role modifications, etc.)
    */
   @ApiProperty({
-    description: 'The permission that was required for the action (if applicable)',
+    description:
+      'The permission that was required for the action (if applicable)',
     example: 'manage_products',
     required: false,
     nullable: true,
@@ -275,7 +279,8 @@ export class SecurityAuditLog {
    * SECURITY NOTE: Sanitized to prevent log injection attacks
    */
   @ApiProperty({
-    description: 'Detailed reason for failure (only populated when success = false)',
+    description:
+      'Detailed reason for failure (only populated when success = false)',
     example: 'Missing permission: manage_products',
     required: false,
     nullable: true,
@@ -302,7 +307,8 @@ export class SecurityAuditLog {
    * Indexed for IP-based queries and threat analysis
    */
   @ApiProperty({
-    description: 'IP address of the client making the request (supports IPv4 and IPv6)',
+    description:
+      'IP address of the client making the request (supports IPv4 and IPv6)',
     example: '192.168.1.100',
   })
   @Column({ length: 45, name: 'ip_address' })
@@ -352,7 +358,8 @@ export class SecurityAuditLog {
    * Note: Query parameters excluded for privacy (may contain sensitive data)
    */
   @ApiProperty({
-    description: 'The API endpoint path that was accessed (normalized with route parameters)',
+    description:
+      'The API endpoint path that was accessed (normalized with route parameters)',
     example: '/api/admin/products/:id',
   })
   @Column({ length: 500, name: 'request_path' })

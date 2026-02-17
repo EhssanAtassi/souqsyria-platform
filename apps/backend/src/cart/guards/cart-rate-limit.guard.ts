@@ -66,12 +66,18 @@ export class CartRateLimitGuard implements CanActivate {
   private readonly logger = new Logger(CartRateLimitGuard.name);
 
   /** In-memory cache (replaces Redis) */
-  private readonly _cache = new Map<string, { value: string; expiresAt: number }>();
+  private readonly _cache = new Map<
+    string,
+    { value: string; expiresAt: number }
+  >();
 
   private _cacheGet(key: string): string | null {
     const entry = this._cache.get(key);
     if (!entry) return null;
-    if (Date.now() > entry.expiresAt) { this._cache.delete(key); return null; }
+    if (Date.now() > entry.expiresAt) {
+      this._cache.delete(key);
+      return null;
+    }
     return entry.value;
   }
 
@@ -86,7 +92,10 @@ export class CartRateLimitGuard implements CanActivate {
   private _cacheIncr(key: string, ttlSeconds: number = 3600): number {
     const entry = this._cache.get(key);
     if (!entry || Date.now() > entry.expiresAt) {
-      this._cache.set(key, { value: '1', expiresAt: Date.now() + ttlSeconds * 1000 });
+      this._cache.set(key, {
+        value: '1',
+        expiresAt: Date.now() + ttlSeconds * 1000,
+      });
       return 1;
     }
     const newVal = parseInt(entry.value, 10) + 1;
@@ -117,7 +126,6 @@ export class CartRateLimitGuard implements CanActivate {
   constructor(
     private readonly reflector: Reflector,
     private readonly configService: ConfigService,
-    
   ) {}
 
   /**
@@ -130,7 +138,10 @@ export class CartRateLimitGuard implements CanActivate {
     const controllerClass = context.getClass();
 
     // Extract rate limit configuration
-    const rateLimitConfig = this.extractRateLimitConfig(handler, controllerClass);
+    const rateLimitConfig = this.extractRateLimitConfig(
+      handler,
+      controllerClass,
+    );
 
     if (!rateLimitConfig) {
       // No rate limiting configured for this endpoint
@@ -151,18 +162,28 @@ export class CartRateLimitGuard implements CanActivate {
       );
 
       if (!isAllowed) {
-        await this.logViolation(clientId, request, rateLimitConfig, isAuthenticated);
+        await this.logViolation(
+          clientId,
+          request,
+          rateLimitConfig,
+          isAuthenticated,
+        );
 
         // Apply penalty delay if configured
         if (rateLimitConfig.penaltyDelayMs) {
-          await this.applyPenaltyDelay(clientId, rateLimitConfig.penaltyDelayMs);
+          await this.applyPenaltyDelay(
+            clientId,
+            rateLimitConfig.penaltyDelayMs,
+          );
         }
 
         throw new HttpException(
           {
             statusCode: HttpStatus.TOO_MANY_REQUESTS,
             error: 'Too Many Requests',
-            message: rateLimitConfig.message || 'Rate limit exceeded. Please try again later.',
+            message:
+              rateLimitConfig.message ||
+              'Rate limit exceeded. Please try again later.',
             retryAfter: rateLimitConfig.windowSizeInSeconds,
           },
           HttpStatus.TOO_MANY_REQUESTS,
@@ -239,7 +260,8 @@ export class CartRateLimitGuard implements CanActivate {
     // Use IP address for guest users with proper validation
     const forwardedFor = request.headers['x-forwarded-for'] as string;
     const realIp = request.headers['x-real-ip'] as string;
-    const remoteAddress = request.connection?.remoteAddress || request.socket?.remoteAddress;
+    const remoteAddress =
+      request.connection?.remoteAddress || request.socket?.remoteAddress;
 
     let clientIP = 'unknown';
     if (forwardedFor) {
@@ -264,11 +286,14 @@ export class CartRateLimitGuard implements CanActivate {
     request: Request,
   ): Promise<boolean> {
     const now = Date.now();
-    const windowStart = now - (config.windowSizeInSeconds * 1000);
+    const windowStart = now - config.windowSizeInSeconds * 1000;
 
     // Redis key for this client's requests - sanitize route path
-    const routePath = (request.route?.path || request.path || 'unknown')
-      .replace(/[^a-zA-Z0-9_\-\/]/g, '_');
+    const routePath = (
+      request.route?.path ||
+      request.path ||
+      'unknown'
+    ).replace(/[^a-zA-Z0-9_\-\/]/g, '_');
     const key = `cart_rate_limit:${clientId}:${routePath}`;
 
     // In-memory rate limit check using sliding window counter
@@ -290,7 +315,10 @@ export class CartRateLimitGuard implements CanActivate {
   /**
    * Get effective rate limit based on user authentication status
    */
-  private getEffectiveLimit(config: RateLimitConfig, isAuthenticated: boolean): number {
+  private getEffectiveLimit(
+    config: RateLimitConfig,
+    isAuthenticated: boolean,
+  ): number {
     if (isAuthenticated) {
       // Authenticated users get 1.5x the base limit
       return Math.floor(config.maxRequests * 1.5);
@@ -316,7 +344,10 @@ export class CartRateLimitGuard implements CanActivate {
       isAuthenticated,
       timestamp: new Date().toISOString(),
       rateLimitConfig: config,
-      ip: request.headers['x-forwarded-for'] || request.connection?.remoteAddress || 'unknown',
+      ip:
+        request.headers['x-forwarded-for'] ||
+        request.connection?.remoteAddress ||
+        'unknown',
     };
 
     // Log for immediate monitoring
@@ -330,7 +361,7 @@ export class CartRateLimitGuard implements CanActivate {
       // Track violation count for progressive penalties
       const violationCountKey = `cart_violation_count:${clientId.replace(/[^a-zA-Z0-9_\-:]/g, '_')}`;
       this._cacheIncr(violationCountKey);
-          } catch (error) {
+    } catch (error) {
       // Don't let Redis errors prevent rate limiting enforcement
       this.logger.error('Failed to store violation data in Redis', error);
     }
@@ -339,7 +370,10 @@ export class CartRateLimitGuard implements CanActivate {
   /**
    * Apply progressive penalty delay for repeat offenders
    */
-  private async applyPenaltyDelay(clientId: string, basePenaltyMs: number): Promise<void> {
+  private async applyPenaltyDelay(
+    clientId: string,
+    basePenaltyMs: number,
+  ): Promise<void> {
     try {
       const violationCountKey = `cart_violation_count:${clientId.replace(/[^a-zA-Z0-9_\-:]/g, '_')}`;
       const violationCount = this._cacheGet(violationCountKey);

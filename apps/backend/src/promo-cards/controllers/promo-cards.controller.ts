@@ -94,7 +94,8 @@ export class PromoCardsController {
   @ApiBearerAuth()
   @ApiOperation({
     summary: 'Create new promotional card',
-    description: 'Creates a new promo card with scheduling and analytics tracking. Admin only.',
+    description:
+      'Creates a new promo card with scheduling and analytics tracking. Admin only.',
   })
   @ApiResponse({
     status: HttpStatus.CREATED,
@@ -126,7 +127,8 @@ export class PromoCardsController {
   @ApiBearerAuth()
   @ApiOperation({
     summary: 'List all promotional cards (Admin)',
-    description: 'Returns paginated list of all promo cards with filtering and sorting. Admin only.',
+    description:
+      'Returns paginated list of all promo cards with filtering and sorting. Admin only.',
   })
   @ApiResponse({
     status: HttpStatus.OK,
@@ -148,7 +150,8 @@ export class PromoCardsController {
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
     summary: 'Get active promotional cards (Public)',
-    description: 'Returns currently active, approved cards for public display in hero banner. Cached for 5 minutes.',
+    description:
+      'Returns currently active, approved cards for public display in hero banner. Cached for 5 minutes.',
   })
   @ApiResponse({
     status: HttpStatus.OK,
@@ -167,7 +170,8 @@ export class PromoCardsController {
   @ApiBearerAuth()
   @ApiOperation({
     summary: 'Get promotional card by ID',
-    description: 'Returns detailed information for a specific promo card. Admin only.',
+    description:
+      'Returns detailed information for a specific promo card. Admin only.',
   })
   @ApiParam({
     name: 'id',
@@ -199,7 +203,8 @@ export class PromoCardsController {
   @ApiBearerAuth()
   @ApiOperation({
     summary: 'Update promotional card',
-    description: 'Updates an existing promo card with partial data. Admin only.',
+    description:
+      'Updates an existing promo card with partial data. Admin only.',
   })
   @ApiParam({
     name: 'id',
@@ -244,7 +249,8 @@ export class PromoCardsController {
   @ApiBearerAuth()
   @ApiOperation({
     summary: 'Soft delete promotional card',
-    description: 'Soft deletes a promo card (can be restored later). Admin only.',
+    description:
+      'Soft deletes a promo card (can be restored later). Admin only.',
   })
   @ApiParam({
     name: 'id',
@@ -348,7 +354,8 @@ export class PromoCardsController {
   @ApiBearerAuth()
   @ApiOperation({
     summary: 'Approve promotional card (Admin)',
-    description: 'Approves a pending promo card for public display. Admin only.',
+    description:
+      'Approves a pending promo card for public display. Admin only.',
   })
   @ApiParam({
     name: 'id',
@@ -464,7 +471,8 @@ export class PromoCardsController {
   @ApiBearerAuth()
   @ApiOperation({
     summary: 'Get promo card analytics',
-    description: 'Returns aggregated analytics data for a specific promo card. Admin only.',
+    description:
+      'Returns aggregated analytics data for a specific promo card. Admin only.',
   })
   @ApiParam({
     name: 'id',
@@ -525,7 +533,10 @@ export class PromoCardsController {
     description: 'Unauthorized - Admin access required',
   })
   async bulkActivate(@Body('ids') ids: string[]) {
-    const count = await this.promoCardsService.bulkUpdateActiveStatus(ids, true);
+    const count = await this.promoCardsService.bulkUpdateActiveStatus(
+      ids,
+      true,
+    );
     return { message: `${count} promo cards activated successfully`, count };
   }
 
@@ -562,7 +573,10 @@ export class PromoCardsController {
     description: 'Unauthorized - Admin access required',
   })
   async bulkDeactivate(@Body('ids') ids: string[]) {
-    const count = await this.promoCardsService.bulkUpdateActiveStatus(ids, false);
+    const count = await this.promoCardsService.bulkUpdateActiveStatus(
+      ids,
+      false,
+    );
     return { message: `${count} promo cards deactivated successfully`, count };
   }
 

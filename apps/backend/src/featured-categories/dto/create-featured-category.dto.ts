@@ -76,7 +76,9 @@ export class CreateFeaturedCategoryDto {
   })
   @IsOptional()
   @IsString({ message: 'Badge text (English) must be a string' })
-  @MaxLength(50, { message: 'Badge text (English) cannot exceed 50 characters' })
+  @MaxLength(50, {
+    message: 'Badge text (English) cannot exceed 50 characters',
+  })
   badgeTextEn?: string;
 
   /**
@@ -120,7 +122,9 @@ export class CreateFeaturedCategoryDto {
   })
   @IsOptional()
   @IsString({ message: 'Promotion text (English) must be a string' })
-  @MaxLength(200, { message: 'Promotion text (English) cannot exceed 200 characters' })
+  @MaxLength(200, {
+    message: 'Promotion text (English) cannot exceed 200 characters',
+  })
   promotionTextEn?: string;
 
   /**
@@ -134,7 +138,9 @@ export class CreateFeaturedCategoryDto {
   })
   @IsOptional()
   @IsString({ message: 'Promotion text (Arabic) must be a string' })
-  @MaxLength(200, { message: 'Promotion text (Arabic) cannot exceed 200 characters' })
+  @MaxLength(200, {
+    message: 'Promotion text (Arabic) cannot exceed 200 characters',
+  })
   promotionTextAr?: string;
 
   /**
@@ -159,7 +165,10 @@ export class CreateFeaturedCategoryDto {
     required: false,
   })
   @IsOptional()
-  @IsDateString({}, { message: 'Start date must be a valid ISO 8601 date string' })
+  @IsDateString(
+    {},
+    { message: 'Start date must be a valid ISO 8601 date string' },
+  )
   startDate?: string;
 
   /**
@@ -172,7 +181,10 @@ export class CreateFeaturedCategoryDto {
     required: false,
   })
   @IsOptional()
-  @IsDateString({}, { message: 'End date must be a valid ISO 8601 date string' })
+  @IsDateString(
+    {},
+    { message: 'End date must be a valid ISO 8601 date string' },
+  )
   @ValidateIf((o) => o.startDate && o.endDate)
   endDate?: string;
 }

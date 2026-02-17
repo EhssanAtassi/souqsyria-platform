@@ -84,18 +84,12 @@ async function runSeeds() {
     username: process.env.DB_USERNAME || 'root',
     password: process.env.DB_PASSWORD || '',
     database: process.env.DB_NAME || 'souqsyria',
-    entities: [
-      SyrianGovernorateEntity,
-      SyrianCityEntity,
-      SyrianDistrictEntity,
-    ],
+    entities: [SyrianGovernorateEntity, SyrianCityEntity, SyrianDistrictEntity],
     synchronize: false, // Never auto-sync in seed scripts
     logging: false, // Disable SQL logging for cleaner output
   });
 
-  console.log(
-    `${colors.yellow}🔌 Connecting to database...${colors.reset}`,
-  );
+  console.log(`${colors.yellow}🔌 Connecting to database...${colors.reset}`);
 
   try {
     // Initialize connection

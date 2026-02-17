@@ -5,7 +5,9 @@ export const initializeFirebase = () => {
   const firebaseEnabled = process.env.FIREBASE_ENABLED === 'true';
 
   if (!firebaseEnabled) {
-    console.log('Firebase is disabled via FIREBASE_ENABLED environment variable');
+    console.log(
+      'Firebase is disabled via FIREBASE_ENABLED environment variable',
+    );
     return null;
   }
 

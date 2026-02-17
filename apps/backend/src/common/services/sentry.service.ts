@@ -33,6 +33,9 @@ export class SentryService {
     if (process.env.NODE_ENV === 'production') {
       Sentry.captureException(error);
     }
-    this.logger.error(`Sentry: ${(error as Error).message}`, (error as Error).stack);
+    this.logger.error(
+      `Sentry: ${(error as Error).message}`,
+      (error as Error).stack,
+    );
   }
 }

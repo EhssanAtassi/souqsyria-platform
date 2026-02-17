@@ -52,7 +52,9 @@ export class CartService {
     private readonly guestSessionRepository: Repository<GuestSession>,
     private readonly auditLogService: AuditLogService,
   ) {
-    this.logger.log('🛒 Cart Service initialized with audit logging and guest session support');
+    this.logger.log(
+      '🛒 Cart Service initialized with audit logging and guest session support',
+    );
   }
 
   /**
@@ -400,7 +402,10 @@ export class CartService {
    * @param variantId - Product variant ID to remove
    * @returns Promise<{ itemId: number }> - Removed item ID for undo reference
    */
-  async removeItem(user: UserFromToken, variantId: number): Promise<{ itemId: number }> {
+  async removeItem(
+    user: UserFromToken,
+    variantId: number,
+  ): Promise<{ itemId: number }> {
     const startTime = Date.now();
     this.logger.log(
       `🗑️ User ${user.id} soft-removing variant ${variantId} from cart`,
@@ -408,7 +413,9 @@ export class CartService {
 
     try {
       const cart = await this.getOrCreateCart(user);
-      const item = cart.items.find((i) => i.variant.id === variantId && !i.removed_at);
+      const item = cart.items.find(
+        (i) => i.variant.id === variantId && !i.removed_at,
+      );
 
       if (!item) {
         this.logger.warn(
@@ -566,7 +573,8 @@ export class CartService {
       let totalAmount = 0;
 
       for (const item of itemsToProcess) {
-        if (item.valid !== false) { // Count items that are not explicitly invalid
+        if (item.valid !== false) {
+          // Count items that are not explicitly invalid
           totalItems += item.quantity;
           const itemPrice = item.price_discounted || item.price_at_add;
           totalAmount += itemPrice * item.quantity;
@@ -633,7 +641,9 @@ export class CartService {
         averageItemsPerCart: parseFloat(avgData?.avgItems || '0'),
       };
     } catch (error: unknown) {
-      this.logger.error(`❌ Failed to get cart analytics: ${(error as Error).message}`);
+      this.logger.error(
+        `❌ Failed to get cart analytics: ${(error as Error).message}`,
+      );
       throw error;
     }
   }
@@ -670,7 +680,9 @@ export class CartService {
         return null;
       }
 
-      this.logger.log(`✅ Found cart ID ${cart.id} with ${cart.items?.length || 0} items`);
+      this.logger.log(
+        `✅ Found cart ID ${cart.id} with ${cart.items?.length || 0} items`,
+      );
       return cart;
     } catch (error: unknown) {
       this.logger.error(
@@ -704,7 +716,9 @@ export class CartService {
         return null;
       }
 
-      this.logger.log(`✅ Found cart ID ${cart.id} with ${cart.items?.length || 0} items`);
+      this.logger.log(
+        `✅ Found cart ID ${cart.id} with ${cart.items?.length || 0} items`,
+      );
       return cart;
     } catch (error: unknown) {
       this.logger.error(
@@ -737,7 +751,9 @@ export class CartService {
     try {
       // Validate cart item limit (max 100 items)
       if (items.length > 100) {
-        this.logger.warn(`⚠️ Cart exceeds 100 item limit: ${items.length} items`);
+        this.logger.warn(
+          `⚠️ Cart exceeds 100 item limit: ${items.length} items`,
+        );
         throw new BadRequestException('Cart cannot exceed 100 items');
       }
 
@@ -823,7 +839,9 @@ export class CartService {
 
       // Validate cart item limit
       if (items.length > 100) {
-        this.logger.warn(`⚠️ Cart exceeds 100 item limit: ${items.length} items`);
+        this.logger.warn(
+          `⚠️ Cart exceeds 100 item limit: ${items.length} items`,
+        );
         throw new BadRequestException('Cart cannot exceed 100 items');
       }
 
@@ -888,9 +906,7 @@ export class CartService {
       // Update quantity if provided
       if (updateDto.quantity !== undefined) {
         if (updateDto.quantity > 50) {
-          throw new BadRequestException(
-            'Quantity cannot exceed 50 per item',
-          );
+          throw new BadRequestException('Quantity cannot exceed 50 per item');
         }
 
         if (updateDto.quantity <= 0) {

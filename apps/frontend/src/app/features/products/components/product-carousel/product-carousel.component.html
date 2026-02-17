@@ -1,0 +1,47 @@
+<!-- Product Carousel Section -->
+<section class="product-carousel">
+  <!-- Section Header -->
+  <div class="product-carousel__header">
+    <h2 class="product-carousel__title">{{ sectionTitle() }}</h2>
+    @if (viewAllRoute()) {
+      <a
+        [routerLink]="viewAllRoute()"
+        class="product-carousel__view-all"
+        [attr.aria-label]="viewAllLabel()">
+        {{ viewAllLabel() }}
+        <span class="material-icons" aria-hidden="true">arrow_forward</span>
+      </a>
+    }
+  </div>
+
+  <!-- Loading Skeleton State -->
+  @if (loading()) {
+    <div class="product-carousel__skeleton">
+      @for (item of skeletonArray(); track $index) {
+        <div class="product-carousel__skeleton-card">
+          <div class="skeleton skeleton--image"></div>
+          <div class="skeleton skeleton--text skeleton--text-title"></div>
+          <div class="skeleton skeleton--text skeleton--text-price"></div>
+          <div class="skeleton skeleton--button"></div>
+        </div>
+      }
+    </div>
+  } @else {
+    <!-- Swiper Carousel -->
+    <div class="product-carousel__swiper-container">
+      <swiper-container #swiperContainer init="false" class="product-carousel__swiper">
+        @for (product of products(); track product.id) {
+          <swiper-slide class="product-carousel__slide">
+            <app-product-card
+              [product]="product"
+              [language]="language()"
+              [priority]="$index < 4"
+              (addToCart)="onAddToCart(product)"
+              (addToWishlist)="onAddToWishlist(product)"
+            />
+          </swiper-slide>
+        }
+      </swiper-container>
+    </div>
+  }
+</section>

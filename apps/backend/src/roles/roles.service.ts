@@ -39,7 +39,10 @@ import { BulkAssignPermissionsDto } from './dto/bulk-assign-permissions.dto';
 import { UpdateRolePriorityDto } from './dto/update-role-priority.dto';
 import { PaginatedResponseDto } from '../common/dto/paginated-response.dto';
 import { SecurityAuditService } from '../access-control/security-audit/security-audit.service';
-import { SecurityAuditAction, ResourceType } from '../access-control/entities/security-audit-log.entity';
+import {
+  SecurityAuditAction,
+  ResourceType,
+} from '../access-control/entities/security-audit-log.entity';
 import {
   getRoleTemplates,
   getRoleTemplateById,
@@ -256,7 +259,9 @@ export class RolesService {
     // Check if users are assigned to this role
     const userCount = await this.getUserCountForRole(id);
     if (userCount > 0) {
-      this.logger.warn(`Attempt to delete role ID ${id} with ${userCount} active users`);
+      this.logger.warn(
+        `Attempt to delete role ID ${id} with ${userCount} active users`,
+      );
       throw new BadRequestException(
         `Cannot delete role with ${userCount} active users. Please reassign users first.`,
       );
@@ -356,7 +361,10 @@ export class RolesService {
    * // or with custom name:
    * const role = await rolesService.createFromTemplate('customer-support', 'Level 1 Support');
    */
-  async createFromTemplate(templateId: string, customName?: string): Promise<Role> {
+  async createFromTemplate(
+    templateId: string,
+    customName?: string,
+  ): Promise<Role> {
     const template = getRoleTemplateById(templateId);
     if (!template) {
       throw new NotFoundException(`Template with ID '${templateId}' not found`);
@@ -377,7 +385,9 @@ export class RolesService {
 
       if (permissions.length !== template.permissionNames.length) {
         const foundNames = permissions.map((p) => p.name);
-        const missing = template.permissionNames.filter((n) => !foundNames.includes(n));
+        const missing = template.permissionNames.filter(
+          (n) => !foundNames.includes(n),
+        );
         this.logger.warn(
           `Template '${templateId}' references missing permissions: ${missing.join(', ')}`,
         );
@@ -644,9 +654,7 @@ export class RolesService {
 
     // Cannot modify system role priority
     if (role.isDefault) {
-      throw new BadRequestException(
-        'Cannot modify priority of a system role.',
-      );
+      throw new BadRequestException('Cannot modify priority of a system role.');
     }
 
     const oldPriority = role.priority;
@@ -705,7 +713,9 @@ export class RolesService {
         type: 'MISSING_DEPENDENCY',
         severity: 'MEDIUM',
         message: 'Role has delete permissions without view permissions',
-        affectedPermissions: permissionNames.filter((n) => n.includes('delete_')),
+        affectedPermissions: permissionNames.filter((n) =>
+          n.includes('delete_'),
+        ),
         recommendation: 'Add corresponding view permissions for better UX',
       });
     }
@@ -717,7 +727,9 @@ export class RolesService {
         type: 'MISSING_DEPENDENCY',
         severity: 'HIGH',
         message: 'Role has manage permissions without view permissions',
-        affectedPermissions: permissionNames.filter((n) => n.includes('manage_')),
+        affectedPermissions: permissionNames.filter((n) =>
+          n.includes('manage_'),
+        ),
         recommendation: 'Add view permissions - manage implies view access',
       });
     }
@@ -731,12 +743,15 @@ export class RolesService {
         severity: 'MEDIUM',
         message: 'Role can ban users but cannot unban them',
         affectedPermissions: ['ban_users'],
-        recommendation: 'Add unban_users permission for complete user management',
+        recommendation:
+          'Add unban_users permission for complete user management',
       });
     }
 
     // Rule 4: Check for redundant permissions (manage includes view)
-    const managePermissions = permissionNames.filter((n) => n.includes('manage_'));
+    const managePermissions = permissionNames.filter((n) =>
+      n.includes('manage_'),
+    );
     managePermissions.forEach((managePerm) => {
       const resource = managePerm.replace('manage_', '');
       const viewPerm = `view_${resource}`;
@@ -746,7 +761,8 @@ export class RolesService {
           severity: 'LOW',
           message: `'${managePerm}' already includes '${viewPerm}'`,
           affectedPermissions: [managePerm, viewPerm],
-          recommendation: 'Remove view permission as manage permission covers it',
+          recommendation:
+            'Remove view permission as manage permission covers it',
         });
       }
     });

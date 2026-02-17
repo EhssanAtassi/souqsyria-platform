@@ -462,7 +462,9 @@ export class CategoryAnalyticsService {
       );
       return coreMetrics;
     } catch (error: unknown) {
-      this.logger.error(`❌ Core metrics calculation failed: ${(error as Error).message}`);
+      this.logger.error(
+        `❌ Core metrics calculation failed: ${(error as Error).message}`,
+      );
       return {
         productCount: 0,
         viewCount: 0,

@@ -55,10 +55,15 @@ import { User } from '../../users/entities/user.entity';
 @Entity('promo_cards')
 @Index(['isActive', 'approvalStatus', 'position']) // Performance for active card queries
 @Index(['startDate', 'endDate']) // Scheduling queries
-@Index('UNQ_promo_cards_position_active_approved', ['position', 'isActive', 'approvalStatus'], {
-  unique: true,
-  where: 'deleted_at IS NULL AND is_active = true AND approval_status = \'approved\'',
-}) // P1-3: Prevent position race conditions
+@Index(
+  'UNQ_promo_cards_position_active_approved',
+  ['position', 'isActive', 'approvalStatus'],
+  {
+    unique: true,
+    where:
+      "deleted_at IS NULL AND is_active = true AND approval_status = 'approved'",
+  },
+) // P1-3: Prevent position race conditions
 export class PromoCard {
   @ApiProperty({ description: 'Unique identifier for the promotional card' })
   @PrimaryGeneratedColumn('uuid')
@@ -189,7 +194,8 @@ export class PromoCard {
    * Badge CSS class for styling
    */
   @ApiProperty({
-    description: 'Badge CSS class (badge-new, badge-sale, badge-hot, badge-limited)',
+    description:
+      'Badge CSS class (badge-new, badge-sale, badge-hot, badge-limited)',
     example: 'badge-new',
     maxLength: 50,
     nullable: true,
@@ -348,9 +354,7 @@ export class PromoCard {
       (!this.endDate || now <= this.endDate);
 
     return (
-      this.isActive &&
-      this.approvalStatus === 'approved' &&
-      withinSchedule
+      this.isActive && this.approvalStatus === 'approved' && withinSchedule
     );
   }
 
@@ -424,7 +428,9 @@ export class PromoCard {
     return (
       this.approvalStatus === 'pending' ||
       this.approvalStatus === 'rejected' ||
-      (this.isCurrentlyActive() && this.impressions === 0 && this.getDaysActive() > 3)
+      (this.isCurrentlyActive() &&
+        this.impressions === 0 &&
+        this.getDaysActive() > 3)
     );
   }
 

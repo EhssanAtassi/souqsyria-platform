@@ -14,6 +14,7 @@ import { FlexLayoutModule } from '@angular/flex-layout';
 // Local imports
 import { HeaderComponent } from './shared/components/header/header.component';
 import { FooterComponent } from './shared/components/footer/footer.component';
+import { ProductComparisonBarComponent } from './shared/components/product-comparison/product-comparison-bar.component';
 import { NavigationDataService } from './shared/services/navigation-data.service';
 import { CartService } from './store/cart/cart.service';
 import {
@@ -58,7 +59,8 @@ import { CartItem } from './shared/interfaces/cart.interface';
     MatRippleModule,
     FlexLayoutModule,
     HeaderComponent,
-    FooterComponent
+    FooterComponent,
+    ProductComparisonBarComponent,
   ],
   templateUrl: './app.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,

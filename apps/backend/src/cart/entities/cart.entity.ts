@@ -219,11 +219,16 @@ export class Cart {
     status: string;
     lastUpdated: Date;
   } {
-    const totalItems = this.items?.reduce((sum, item) => sum + item.quantity, 0) || this.totalItems;
-    const totalAmount = this.items?.reduce((sum, item) => {
-      const price = item.effectivePrice ? item.effectivePrice() : item.price_at_add;
-      return sum + (price * item.quantity);
-    }, 0) || this.totalAmount;
+    const totalItems =
+      this.items?.reduce((sum, item) => sum + item.quantity, 0) ||
+      this.totalItems;
+    const totalAmount =
+      this.items?.reduce((sum, item) => {
+        const price = item.effectivePrice
+          ? item.effectivePrice()
+          : item.price_at_add;
+        return sum + price * item.quantity;
+      }, 0) || this.totalAmount;
 
     return {
       id: this.id,

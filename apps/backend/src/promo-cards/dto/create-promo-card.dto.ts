@@ -146,12 +146,26 @@ export class CreatePromoCardDto {
     example: 'badge-new',
     maxLength: 50,
     required: false,
-    enum: ['badge-new', 'badge-sale', 'badge-hot', 'badge-limited', 'badge-free-shipping', 'badge-bestseller'],
+    enum: [
+      'badge-new',
+      'badge-sale',
+      'badge-hot',
+      'badge-limited',
+      'badge-free-shipping',
+      'badge-bestseller',
+    ],
   })
   @IsString()
   @IsOptional()
   @MaxLength(50)
-  @IsIn(['badge-new', 'badge-sale', 'badge-hot', 'badge-limited', 'badge-free-shipping', 'badge-bestseller'])
+  @IsIn([
+    'badge-new',
+    'badge-sale',
+    'badge-hot',
+    'badge-limited',
+    'badge-free-shipping',
+    'badge-bestseller',
+  ])
   badgeClass?: string;
 
   // ================================

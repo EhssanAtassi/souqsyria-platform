@@ -65,6 +65,12 @@ import { RateLimiterService } from '../common/services/rate-limiter.service';
     GuestSessionService,
     GuestSessionGuard,
   ],
-  exports: [AuthService, JwtAuthGuard, GuestSessionService, GuestSessionGuard, TypeOrmModule],
+  exports: [
+    AuthService,
+    JwtAuthGuard,
+    GuestSessionService,
+    GuestSessionGuard,
+    TypeOrmModule,
+  ],
 })
 export class AuthModule {}

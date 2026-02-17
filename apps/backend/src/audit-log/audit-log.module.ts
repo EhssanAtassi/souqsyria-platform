@@ -15,16 +15,8 @@ import { SentryService } from '../common/services/sentry.service';
     TypeOrmModule.forFeature([AuditLog, User, Route]),
     AccessControlModule,
   ],
-  providers: [
-    AuditLogService,
-    ProductionLoggerService,
-    SentryService,
-  ],
-  controllers: [
-    AuditLogController,
-  ],
-  exports: [
-    AuditLogService,
-  ],
+  providers: [AuditLogService, ProductionLoggerService, SentryService],
+  controllers: [AuditLogController],
+  exports: [AuditLogService],
 })
 export class AuditLogModule {}

@@ -132,18 +132,18 @@
   padding: $space-2 0;
   scroll-snap-type: x mandatory;
 
-  // Hide scrollbar
-  -ms-overflow-style: none;
-  scrollbar-width: none;
+  // Hide scrollbar across all browsers
+  scrollbar-width: none; // Firefox
+  -ms-overflow-style: none; // IE/Edge
   &::-webkit-scrollbar {
-    display: none;
+    display: none; // Chrome/Safari
   }
 }
 
 .image-gallery__thumbnail {
   flex-shrink: 0;
-  width: 72px;
-  height: 72px;
+  width: 56px;
+  height: 56px;
   border-radius: $border-radius-md;
   border: 2px solid transparent;
   overflow: hidden;
@@ -152,6 +152,11 @@
   transition: border-color $transition-fast;
   padding: 0;
   scroll-snap-align: start;
+
+  @media (min-width: $breakpoint-sm) {
+    width: 72px;
+    height: 72px;
+  }
 
   &:hover {
     border-color: $golden-wheat-medium;

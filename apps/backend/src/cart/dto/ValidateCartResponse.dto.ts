@@ -132,8 +132,7 @@ export class ValidationWarning {
    */
   @ApiProperty({
     description: 'Recommended action for user',
-    example:
-      'Price has been automatically updated to the lower price',
+    example: 'Price has been automatically updated to the lower price',
   })
   suggestedAction: string;
 }
@@ -215,8 +214,7 @@ export class ValidationError {
    */
   @ApiProperty({
     description: 'Required action to resolve error',
-    example:
-      'Remove this item from cart or reduce quantity to 3',
+    example: 'Remove this item from cart or reduce quantity to 3',
   })
   suggestedAction: string;
 }
@@ -298,8 +296,7 @@ export class UpdatedCartItem {
    */
   @ApiProperty({
     description: 'Reason for update',
-    example:
-      'Price decreased - automatically updated to lower price',
+    example: 'Price decreased - automatically updated to lower price',
   })
   updateReason: string;
 
@@ -322,8 +319,7 @@ export class ValidateCartResponse {
    * Overall validation status
    */
   @ApiProperty({
-    description:
-      'Whether cart is valid and ready for checkout',
+    description: 'Whether cart is valid and ready for checkout',
     example: true,
   })
   valid: boolean;
@@ -341,8 +337,7 @@ export class ValidateCartResponse {
    * Total items after validation
    */
   @ApiProperty({
-    description:
-      'Total number of items after validation (some may be removed)',
+    description: 'Total number of items after validation (some may be removed)',
     example: 7,
   })
   totalItems: number;
@@ -351,7 +346,8 @@ export class ValidateCartResponse {
    * Array of cart items that passed validation (available for checkout)
    */
   @ApiProperty({
-    description: 'Array of cart items that passed validation and are available for checkout',
+    description:
+      'Array of cart items that passed validation and are available for checkout',
     type: [Object],
     example: [
       { id: 1, variantId: 5, quantity: 2, effectivePrice: 50000 },
@@ -404,8 +400,7 @@ export class ValidateCartResponse {
    * Array of validation errors (blocking)
    */
   @ApiProperty({
-    description:
-      'Blocking errors preventing checkout (e.g., out of stock)',
+    description: 'Blocking errors preventing checkout (e.g., out of stock)',
     type: [ValidationError],
     example: [
       {
@@ -424,8 +419,7 @@ export class ValidateCartResponse {
    * Array of items updated during validation
    */
   @ApiProperty({
-    description:
-      'Cart items that were modified during validation',
+    description: 'Cart items that were modified during validation',
     type: [UpdatedCartItem],
     example: [
       {
@@ -464,8 +458,7 @@ export class ValidateCartResponse {
    * Whether user confirmation required
    */
   @ApiProperty({
-    description:
-      'Whether user must confirm changes before proceeding',
+    description: 'Whether user must confirm changes before proceeding',
     example: false,
   })
   requiresConfirmation: boolean;
@@ -474,8 +467,7 @@ export class ValidateCartResponse {
    * Summary message
    */
   @ApiProperty({
-    description:
-      'Human-readable summary of validation results',
+    description: 'Human-readable summary of validation results',
     example:
       'Cart validated successfully. 1 price decrease found - you save 150,000 SYP!',
   })

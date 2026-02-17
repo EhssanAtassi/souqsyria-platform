@@ -68,8 +68,7 @@ export class MergeCartRequest {
    * Identifies the guest cart to be merged
    */
   @ApiProperty({
-    description:
-      'Guest session ID containing cart to merge',
+    description: 'Guest session ID containing cart to merge',
     example: 'a1b2c3d4-e5f6-47g8-h9i0-j1k2l3m4n5o6',
     type: String,
   })
@@ -81,8 +80,7 @@ export class MergeCartRequest {
    * Optional: Defaults to COMBINE (most user-friendly)
    */
   @ApiProperty({
-    description:
-      'Strategy for handling duplicate items during merge',
+    description: 'Strategy for handling duplicate items during merge',
     enum: MergeStrategy,
     default: MergeStrategy.COMBINE,
     example: MergeStrategy.COMBINE,
@@ -164,8 +162,7 @@ export class MergeCartResponse {
    * Items skipped due to limit
    */
   @ApiProperty({
-    description:
-      'Number of items skipped (would exceed 100-item limit)',
+    description: 'Number of items skipped (would exceed 100-item limit)',
     example: 0,
   })
   itemsSkipped: number;

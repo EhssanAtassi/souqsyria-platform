@@ -247,7 +247,8 @@ export class UserProfileResponseDto {
   wishlistCount: number;
 
   @ApiProperty({
-    description: 'Account statistics (deprecated - use flat ordersCount and wishlistCount instead)',
+    description:
+      'Account statistics (deprecated - use flat ordersCount and wishlistCount instead)',
     example: {
       totalOrders: 15,
       totalSpent: 5750000,

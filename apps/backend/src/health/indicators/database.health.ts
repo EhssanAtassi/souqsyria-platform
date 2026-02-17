@@ -8,7 +8,11 @@
  */
 
 import { Injectable } from '@nestjs/common';
-import { HealthIndicator, HealthIndicatorResult, HealthCheckError } from '@nestjs/terminus';
+import {
+  HealthIndicator,
+  HealthIndicatorResult,
+  HealthCheckError,
+} from '@nestjs/terminus';
 import { DataSource } from 'typeorm';
 import { InjectDataSource } from '@nestjs/typeorm';
 
@@ -54,15 +58,15 @@ export class DatabaseHealthIndicator extends HealthIndicator {
       });
 
       if (!isHealthy) {
-        throw new HealthCheckError(
-          'Database response time too slow',
-          result,
-        );
+        throw new HealthCheckError('Database response time too slow', result);
       }
 
       return result;
     } catch (error: unknown) {
-      const errorMessage = error instanceof Error ? (error as Error).message : 'Unknown database error';
+      const errorMessage =
+        error instanceof Error
+          ? (error as Error).message
+          : 'Unknown database error';
 
       throw new HealthCheckError(
         'Database health check failed',
@@ -92,7 +96,10 @@ export class DatabaseHealthIndicator extends HealthIndicator {
         maxConnections: this.dataSource.options.extra?.max || 'default',
       });
     } catch (error: unknown) {
-      const errorMessage = error instanceof Error ? (error as Error).message : 'Connection pool error';
+      const errorMessage =
+        error instanceof Error
+          ? (error as Error).message
+          : 'Connection pool error';
 
       throw new HealthCheckError(
         'Connection pool check failed',
@@ -116,7 +123,9 @@ export class DatabaseHealthIndicator extends HealthIndicator {
         database: this.dataSource.options.database,
         type: this.dataSource.options.type,
         entities: this.dataSource.entityMetadatas.length,
-        migrations: (await this.dataSource.showMigrations()) ? 'pending' : 'up-to-date',
+        migrations: (await this.dataSource.showMigrations())
+          ? 'pending'
+          : 'up-to-date',
       };
     } catch {
       return {

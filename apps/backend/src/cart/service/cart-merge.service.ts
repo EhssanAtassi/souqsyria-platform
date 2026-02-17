@@ -38,10 +38,7 @@ import { Repository, DataSource } from 'typeorm';
 import { Cart } from '../entities/cart.entity';
 import { CartItem } from '../entities/cart-item.entity';
 import { GuestSession } from '../entities/guest-session.entity';
-import {
-  MergeStrategy,
-  MergeCartResponse,
-} from '../dto/MergeCartRequest.dto';
+import { MergeStrategy, MergeCartResponse } from '../dto/MergeCartRequest.dto';
 import { GuestSessionStatus } from '../../auth/dto/guest-session.dto';
 import { AuditLogService } from '../../audit-log/service/audit-log.service';
 
@@ -185,10 +182,7 @@ export class CartMergeService {
           );
 
           // Step 5: Update cart totals
-          await this.updateCartTotals(
-            transactionalEntityManager,
-            userCart.id,
-          );
+          await this.updateCartTotals(transactionalEntityManager, userCart.id);
 
           // Step 6: Mark guest session as converted
           await this.markSessionConverted(
@@ -341,9 +335,7 @@ export class CartMergeService {
               `Combined ${variantId}: added ${quantityAdded} to existing ${userItem.quantity - quantityAdded}`,
             );
           } else {
-            messages.push(
-              `Item ${variantId} already at max quantity (50)`,
-            );
+            messages.push(`Item ${variantId} already at max quantity (50)`);
           }
         } else if (mergeAction.action === 'REPLACE') {
           // Replace user item with guest item

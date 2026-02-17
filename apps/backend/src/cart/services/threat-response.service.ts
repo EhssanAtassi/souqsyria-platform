@@ -124,9 +124,7 @@ export class ThreatResponseService {
     { expiresAt: Date; reason: string; riskScore: number }
   >();
 
-  constructor(
-    private readonly auditLogService: AuditLogService,
-  ) {
+  constructor(private readonly auditLogService: AuditLogService) {
     // Start periodic cleanup of expired blocks
     setInterval(() => this.cleanupExpiredBlocks(), 60 * 1000); // Every minute
   }
@@ -176,9 +174,7 @@ export class ThreatResponseService {
         action: 'block',
         reason: block?.reason || 'Previously blocked',
         duration: block
-          ? Math.floor(
-              (block.expiresAt.getTime() - Date.now()) / 1000,
-            )
+          ? Math.floor((block.expiresAt.getTime() - Date.now()) / 1000)
           : -1,
         notificationSent: false,
         escalationLevel: 2,
@@ -258,8 +254,7 @@ export class ThreatResponseService {
         metadata: {
           timestamp: new Date(),
           riskScore,
-          rateLimitMultiplier:
-            this.RATE_LIMIT_MULTIPLIERS.VERY_RESTRICTIVE,
+          rateLimitMultiplier: this.RATE_LIMIT_MULTIPLIERS.VERY_RESTRICTIVE,
         },
       };
     }
@@ -625,8 +620,7 @@ export class ThreatResponseService {
         stats.blocksByRiskLevel.low++;
       }
 
-      const duration =
-        (block.expiresAt.getTime() - Date.now()) / 1000;
+      const duration = (block.expiresAt.getTime() - Date.now()) / 1000;
       totalDuration += Math.max(duration, 0);
     }
 

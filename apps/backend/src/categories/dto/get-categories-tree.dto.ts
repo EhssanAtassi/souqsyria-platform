@@ -167,7 +167,8 @@ export class CategoryTreeRootDto {
 
   @ApiPropertyOptional({
     example: 458,
-    description: 'Total number of products in this category and all descendants',
+    description:
+      'Total number of products in this category and all descendants',
   })
   productCount?: number;
 

@@ -130,6 +130,26 @@ export class GetPublicProductsDto {
   brandIds?: string;
 
   /**
+   * Minimum average rating filter (1-5 stars).
+   * Returns products with average rating >= minRating.
+   *
+   * @example 4
+   */
+  @ApiPropertyOptional({
+    description: 'Minimum average rating filter (1-5)',
+    example: 4,
+    minimum: 1,
+    maximum: 5,
+    type: Number,
+  })
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  @Min(1)
+  @Max(5)
+  minRating?: number;
+
+  /**
    * Minimum price filter in SYP (Syrian Pounds).
    * Returns products with final price >= minPrice.
    *
@@ -155,7 +175,8 @@ export class GetPublicProductsDto {
    * @example 500000
    */
   @ApiPropertyOptional({
-    description: 'Maximum price in SYP (inclusive). Must be >= minPrice when both are provided.',
+    description:
+      'Maximum price in SYP (inclusive). Must be >= minPrice when both are provided.',
     example: 500000,
     minimum: 0,
     type: Number,

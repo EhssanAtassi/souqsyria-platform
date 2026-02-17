@@ -127,14 +127,20 @@ export class CategoriesService {
       // Filter level 2 (children)
       if (root.children) {
         root.children = root.children
-          .filter((child) => child.isActive && child.approvalStatus === 'approved')
+          .filter(
+            (child) => child.isActive && child.approvalStatus === 'approved',
+          )
           .sort((a, b) => a.sortOrder - b.sortOrder);
 
         // Filter level 3 (grandchildren)
         root.children.forEach((child) => {
           if (child.children) {
             child.children = child.children
-              .filter((grandchild) => grandchild.isActive && grandchild.approvalStatus === 'approved')
+              .filter(
+                (grandchild) =>
+                  grandchild.isActive &&
+                  grandchild.approvalStatus === 'approved',
+              )
               .sort((a, b) => a.sortOrder - b.sortOrder);
           }
         });
@@ -145,13 +151,19 @@ export class CategoriesService {
 
     const processingTime = Date.now() - startTime;
     const totalCategories = filteredRoots.reduce(
-      (sum, root) => sum + 1 + (root.children?.length || 0) +
-        (root.children?.reduce((childSum, child) => childSum + (child.children?.length || 0), 0) || 0),
-      0
+      (sum, root) =>
+        sum +
+        1 +
+        (root.children?.length || 0) +
+        (root.children?.reduce(
+          (childSum, child) => childSum + (child.children?.length || 0),
+          0,
+        ) || 0),
+      0,
     );
 
     this.logger.log(
-      `✅ Category tree built: ${filteredRoots.length} roots, ${totalCategories} total categories (${processingTime}ms)`
+      `✅ Category tree built: ${filteredRoots.length} roots, ${totalCategories} total categories (${processingTime}ms)`,
     );
 
     return filteredRoots;
@@ -303,7 +315,9 @@ export class CategoriesService {
         throw error;
       }
 
-      this.logger.error(`❌ Failed to find category ${id}: ${(error as Error).message}`);
+      this.logger.error(
+        `❌ Failed to find category ${id}: ${(error as Error).message}`,
+      );
       throw new InternalServerErrorException(`Failed to find category ${id}`);
     }
   }
@@ -411,7 +425,9 @@ export class CategoriesService {
         throw error;
       }
 
-      this.logger.error(`❌ Failed to update category ${id}: ${(error as Error).message}`);
+      this.logger.error(
+        `❌ Failed to update category ${id}: ${(error as Error).message}`,
+      );
       throw new InternalServerErrorException(`Failed to update category ${id}`);
     }
   }
@@ -480,7 +496,9 @@ export class CategoriesService {
         throw error;
       }
 
-      this.logger.error(`❌ Failed to delete category ${id}: ${(error as Error).message}`);
+      this.logger.error(
+        `❌ Failed to delete category ${id}: ${(error as Error).message}`,
+      );
       throw new InternalServerErrorException(`Failed to delete category ${id}`);
     }
   }
@@ -850,17 +868,27 @@ export class CategoriesService {
         where: {
           slug,
           isActive: true,
-          approvalStatus: 'approved' as 'draft' | 'pending' | 'approved' | 'rejected' | 'suspended' | 'archived',
+          approvalStatus: 'approved' as
+            | 'draft'
+            | 'pending'
+            | 'approved'
+            | 'rejected'
+            | 'suspended'
+            | 'archived',
         },
         relations: ['parent', 'children'],
       });
 
       if (!category) {
-        this.logger.warn(`Category with slug "${slug}" not found or not public`);
+        this.logger.warn(
+          `Category with slug "${slug}" not found or not public`,
+        );
         return null;
       }
 
-      this.logger.log(`✅ Found category: ${category.nameEn} (ID: ${category.id})`);
+      this.logger.log(
+        `✅ Found category: ${category.nameEn} (ID: ${category.id})`,
+      );
       return category;
     } catch (error: unknown) {
       this.logger.error(
@@ -905,7 +933,12 @@ export class CategoriesService {
     search: string | undefined,
     page: number,
     limit: number,
-    sortBy: 'newest' | 'price_asc' | 'price_desc' | 'popularity' | 'rating' = 'newest',
+    sortBy:
+      | 'newest'
+      | 'price_asc'
+      | 'price_desc'
+      | 'popularity'
+      | 'rating' = 'newest',
     minPrice?: number,
     maxPrice?: number,
   ): Promise<{
@@ -964,7 +997,11 @@ export class CategoriesService {
       }
 
       // 2. Validate price filters
-      if (minPrice !== undefined && maxPrice !== undefined && minPrice > maxPrice) {
+      if (
+        minPrice !== undefined &&
+        maxPrice !== undefined &&
+        minPrice > maxPrice
+      ) {
         throw new BadRequestException(
           `Minimum price (${minPrice}) cannot be greater than maximum price (${maxPrice})`,
         );
@@ -1095,7 +1132,10 @@ export class CategoriesService {
         (error as Error).stack,
       );
 
-      if (error instanceof NotFoundException || error instanceof BadRequestException) {
+      if (
+        error instanceof NotFoundException ||
+        error instanceof BadRequestException
+      ) {
         throw error;
       }
 

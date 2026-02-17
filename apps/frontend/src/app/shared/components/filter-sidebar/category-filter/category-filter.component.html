@@ -1,0 +1,105 @@
+<!-- Category Filter Container -->
+<div class="category-filter" [attr.dir]="language() === 'ar' ? 'rtl' : 'ltr'">
+
+  <!-- Loading State -->
+  @if (loading()) {
+    <div class="loading-container">
+      <mat-spinner diameter="40"></mat-spinner>
+      <p>{{ language() === 'ar' ? 'جاري التحميل...' : 'Loading...' }}</p>
+    </div>
+  }
+
+  <!-- Error State -->
+  @if (error() && !loading()) {
+    <div class="error-container">
+      <mat-icon>error</mat-icon>
+      <p>{{ error() }}</p>
+    </div>
+  }
+
+  <!-- Category Tree -->
+  @if (!loading() && !error()) {
+    <div class="category-tree">
+      @for (parent of categories(); track parent.id) {
+        <div class="category-parent">
+          <!-- Parent Category -->
+          <div class="category-item">
+            <mat-checkbox
+              [checked]="isCategorySelected(parent.id)"
+              (change)="onCategoryToggle(parent.id, $event.checked)"
+              class="category-checkbox">
+              <div class="category-content">
+                <span class="category-name">{{ getCategoryName(parent) }}</span>
+                <span class="category-count">{{ formatCount(parent.productCount) }}</span>
+              </div>
+            </mat-checkbox>
+
+            <!-- Expand/Collapse Icon (if has children) -->
+            @if (parent.children && parent.children.length > 0) {
+              <button
+                class="expand-btn"
+                (click)="toggleExpanded(parent.id)"
+                [attr.aria-label]="isExpanded(parent.id)
+                  ? (language() === 'ar' ? 'طي' : 'Collapse')
+                  : (language() === 'ar' ? 'توسيع' : 'Expand')">
+                <mat-icon>
+                  {{ isExpanded(parent.id) ? 'expand_less' : 'expand_more' }}
+                </mat-icon>
+              </button>
+            }
+          </div>
+
+          <!-- Child Categories (collapsible) -->
+          @if (parent.children && parent.children.length > 0 && isExpanded(parent.id)) {
+            <div class="category-children">
+              @for (child of parent.children; track child.id) {
+                <div class="category-child">
+                  <!-- Child Category -->
+                  <div class="category-item">
+                    <mat-checkbox
+                      [checked]="isCategorySelected(child.id)"
+                      (change)="onCategoryToggle(child.id, $event.checked)"
+                      class="category-checkbox">
+                      <div class="category-content">
+                        <span class="category-name">{{ getCategoryName(child) }}</span>
+                        <span class="category-count">{{ formatCount(child.productCount) }}</span>
+                      </div>
+                    </mat-checkbox>
+                  </div>
+
+                  <!-- Grandchild Categories (if any) -->
+                  @if (child.children && child.children.length > 0) {
+                    <div class="category-grandchildren">
+                      @for (grandchild of child.children; track grandchild.id) {
+                        <div class="category-item">
+                          <mat-checkbox
+                            [checked]="isCategorySelected(grandchild.id)"
+                            (change)="onCategoryToggle(grandchild.id, $event.checked)"
+                            class="category-checkbox">
+                            <div class="category-content">
+                              <span class="category-name">{{ getCategoryName(grandchild) }}</span>
+                              <span class="category-count">{{ formatCount(grandchild.productCount) }}</span>
+                            </div>
+                          </mat-checkbox>
+                        </div>
+                      }
+                    </div>
+                  }
+                </div>
+              }
+            </div>
+          }
+        </div>
+      }
+    </div>
+  }
+
+  <!-- Empty State -->
+  @if (!loading() && !error() && categories().length === 0) {
+    <div class="empty-state">
+      <mat-icon>category</mat-icon>
+      <p>{{ language() === 'ar' ? 'لا توجد فئات متاحة' : 'No categories available' }}</p>
+    </div>
+  }
+
+</div>

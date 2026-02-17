@@ -43,9 +43,7 @@ export function extractIpAddress(req: Request): string {
   const forwardedFor = req.headers['x-forwarded-for'];
   if (forwardedFor) {
     // X-Forwarded-For can be an array or comma-separated string
-    const ips = Array.isArray(forwardedFor)
-      ? forwardedFor[0]
-      : forwardedFor;
+    const ips = Array.isArray(forwardedFor) ? forwardedFor[0] : forwardedFor;
 
     // Take the first IP (client IP) from the comma-separated list
     return ips.split(',')[0].trim();

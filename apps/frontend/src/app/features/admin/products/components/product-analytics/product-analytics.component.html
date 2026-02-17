@@ -1,0 +1,284 @@
+<!--
+  Product Analytics Dashboard Template
+  Displays KPIs, top products, category revenue, and stock alerts
+-->
+
+<div class="analytics-container">
+  <!-- Page Header -->
+  <header class="analytics-header">
+    <h1 class="analytics-title">
+      @if (language() === 'ar') {
+        تحليلات المنتجات
+      } @else {
+        Product Analytics
+      }
+    </h1>
+    <p class="analytics-subtitle">
+      @if (language() === 'ar') {
+        نظرة شاملة على أداء المنتجات والمبيعات
+      } @else {
+        Comprehensive overview of product performance and sales
+      }
+    </p>
+  </header>
+
+  <!-- Loading State -->
+  @if (loading()) {
+    <div class="loading-state">
+      <div class="spinner"></div>
+      <p>
+        @if (language() === 'ar') {
+          جاري تحميل البيانات...
+        } @else {
+          Loading analytics data...
+        }
+      </p>
+    </div>
+  }
+
+  <!-- Error State -->
+  @if (error()) {
+    <div class="error-state">
+      <p class="error-message">{{ error() }}</p>
+      <button class="retry-button" (click)="loadAnalytics()">
+        @if (language() === 'ar') {
+          إعادة المحاولة
+        } @else {
+          Retry
+        }
+      </button>
+    </div>
+  }
+
+  <!-- Analytics Content -->
+  @if (!loading() && !error()) {
+    <!-- KPI Cards Grid -->
+    <section class="kpi-section">
+      <div class="kpi-grid">
+        @for (kpi of kpis(); track $index) {
+          <article class="kpi-card">
+            <div class="kpi-header">
+              <div class="kpi-icon" [class]="'icon-' + kpi.icon"></div>
+              <h3 class="kpi-title">{{ getKpiTitle(kpi) }}</h3>
+            </div>
+
+            <div class="kpi-body">
+              <p class="kpi-value">
+                @if (kpi.format === 'currency') {
+                  {{ kpi.value | currency:'USD':'symbol':'1.0-0' }}
+                } @else if (kpi.format === 'percentage') {
+                  {{ kpi.value | percent:'1.1-1' }}
+                } @else {
+                  {{ kpi.value | number:'1.0-0' }}
+                }
+              </p>
+
+              <div class="kpi-change" [class]="getTrendClass(kpi.trend)">
+                <span class="trend-icon"></span>
+                <span class="trend-value">
+                  {{ calculateChange(kpi.value, kpi.previousValue) | number:'1.1-1' }}%
+                </span>
+              </div>
+            </div>
+          </article>
+        }
+      </div>
+    </section>
+
+    <!-- Two Column Layout -->
+    <div class="analytics-grid">
+      <!-- Left Column -->
+      <div class="analytics-col-left">
+        <!-- Top Products Table -->
+        <section class="analytics-card">
+          <header class="card-header">
+            <h2 class="card-title">
+              @if (language() === 'ar') {
+                أفضل المنتجات حسب المشاهدات
+              } @else {
+                Top Products by Views
+              }
+            </h2>
+          </header>
+
+          <div class="card-body">
+            <div class="table-container">
+              <table class="products-table">
+                <thead>
+                  <tr>
+                    <th>
+                      @if (language() === 'ar') {
+                        المنتج
+                      } @else {
+                        Product
+                      }
+                    </th>
+                    <th class="text-center">
+                      @if (language() === 'ar') {
+                        المشاهدات
+                      } @else {
+                        Views
+                      }
+                    </th>
+                    <th class="text-center">
+                      @if (language() === 'ar') {
+                        المبيعات
+                      } @else {
+                        Sales
+                      }
+                    </th>
+                    <th class="text-center">
+                      @if (language() === 'ar') {
+                        معدل التحويل
+                      } @else {
+                        Conv. Rate
+                      }
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (product of topProducts(); track product.id) {
+                    <tr>
+                      <td class="product-name">{{ getProductName(product) }}</td>
+                      <td class="text-center">{{ product.views | number:'1.0-0' }}</td>
+                      <td class="text-center">{{ product.sales | number:'1.0-0' }}</td>
+                      <td class="text-center">
+                        <span class="conversion-badge">
+                          {{ product.conversionRate | number:'1.2-2' }}%
+                        </span>
+                      </td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- Revenue by Category -->
+        <section class="analytics-card">
+          <header class="card-header">
+            <h2 class="card-title">
+              @if (language() === 'ar') {
+                الإيرادات حسب الفئة
+              } @else {
+                Revenue by Category
+              }
+            </h2>
+            <p class="card-subtitle">
+              @if (language() === 'ar') {
+                الإجمالي: {{ totalRevenue() | currency:'USD':'symbol':'1.0-0' }}
+              } @else {
+                Total: {{ totalRevenue() | currency:'USD':'symbol':'1.0-0' }}
+              }
+            </p>
+          </header>
+
+          <div class="card-body">
+            <ul class="category-list">
+              @for (category of categoryRevenue(); track category.id) {
+                <li class="category-item">
+                  <div class="category-info">
+                    <span class="category-name">{{ getCategoryName(category) }}</span>
+                    <span class="category-revenue">
+                      {{ category.revenue | currency:'USD':'symbol':'1.0-0' }}
+                    </span>
+                  </div>
+
+                  <div class="progress-bar">
+                    <div
+                      class="progress-fill"
+                      [style.width.%]="category.percentage"
+                    ></div>
+                  </div>
+
+                  <p class="category-percentage">{{ category.percentage | number:'1.1-1' }}%</p>
+                </li>
+              }
+            </ul>
+          </div>
+        </section>
+      </div>
+
+      <!-- Right Column -->
+      <div class="analytics-col-right">
+        <!-- Stock Alerts -->
+        <section class="analytics-card stock-alerts-card">
+          <header class="card-header">
+            <h2 class="card-title">
+              @if (language() === 'ar') {
+                تنبيهات المخزون
+              } @else {
+                Stock Alerts
+              }
+            </h2>
+            <span class="alert-badge">{{ stockAlerts().length }}</span>
+          </header>
+
+          <div class="card-body">
+            @if (stockAlerts().length === 0) {
+              <div class="empty-state">
+                <p>
+                  @if (language() === 'ar') {
+                    لا توجد تنبيهات مخزون
+                  } @else {
+                    No stock alerts
+                  }
+                </p>
+              </div>
+            } @else {
+              <ul class="alerts-list">
+                @for (alert of stockAlerts(); track alert.id) {
+                  <li class="alert-item" [class]="getStockStatusClass(alert.status)">
+                    <div class="alert-header">
+                      <h4 class="alert-product-name">{{ getProductName(alert) }}</h4>
+                      <span class="alert-sku">{{ alert.sku }}</span>
+                    </div>
+
+                    <div class="alert-body">
+                      <div class="stock-info">
+                        @if (alert.status === 'out') {
+                          <span class="status-badge status-out">
+                            @if (language() === 'ar') {
+                              نفذ المخزون
+                            } @else {
+                              Out of Stock
+                            }
+                          </span>
+                        } @else {
+                          <span class="status-badge status-low">
+                            @if (language() === 'ar') {
+                              مخزون منخفض
+                            } @else {
+                              Low Stock
+                            }
+                          </span>
+                        }
+
+                        <span class="stock-count">
+                          @if (language() === 'ar') {
+                            {{ alert.stock }} وحدة
+                          } @else {
+                            {{ alert.stock }} units
+                          }
+                        </span>
+                      </div>
+
+                      <p class="stock-threshold">
+                        @if (language() === 'ar') {
+                          الحد الأدنى: {{ alert.threshold }}
+                        } @else {
+                          Threshold: {{ alert.threshold }}
+                        }
+                      </p>
+                    </div>
+                  </li>
+                }
+              </ul>
+            }
+          </div>
+        </section>
+      </div>
+    </div>
+  }
+</div>

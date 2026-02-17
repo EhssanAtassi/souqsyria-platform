@@ -39,11 +39,7 @@ import { DiscoveryModule } from '@nestjs/core';
     RolePermissionsController,
     RoutesController,
   ],
-  providers: [
-    PermissionsService,
-    RolePermissionsService,
-    RoutesService,
-  ],
+  providers: [PermissionsService, RolePermissionsService, RoutesService],
   exports: [
     TypeOrmModule,
     PermissionsService,

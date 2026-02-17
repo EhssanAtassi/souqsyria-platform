@@ -51,8 +51,67 @@
       </app-price-range-filter>
     </mat-expansion-panel>
 
-    <!-- TODO: Enable when backend supports these filters -->
-    <!-- Rating, Authenticity, Availability, and Regions filters removed temporarily -->
+    <!-- Category Filter -->
+    <mat-expansion-panel class="filter-panel">
+      <mat-expansion-panel-header>
+        <mat-panel-title>
+          <mat-icon>category</mat-icon>
+          {{ language() === 'ar' ? 'الفئات' : 'Categories' }}
+        </mat-panel-title>
+      </mat-expansion-panel-header>
+      <app-category-filter
+        [language]="language()"
+        [selectedCategoryIds]="currentFilters().categoryIds || []"
+        (categoryChange)="onCategoryChange($event)" />
+    </mat-expansion-panel>
+
+    <!-- Brand Filter -->
+    <mat-expansion-panel class="filter-panel">
+      <mat-expansion-panel-header>
+        <mat-panel-title>
+          <mat-icon>store</mat-icon>
+          {{ language() === 'ar' ? 'العلامات التجارية' : 'Brands' }}
+        </mat-panel-title>
+      </mat-expansion-panel-header>
+      <app-brand-filter
+        [language]="language()"
+        [selectedBrandIds]="currentFilters().brandIds || ''"
+        (brandChange)="onBrandChange($event)" />
+    </mat-expansion-panel>
+
+    <!-- Rating Filter -->
+    <mat-expansion-panel class="filter-panel">
+      <mat-expansion-panel-header>
+        <mat-panel-title>
+          <mat-icon>star</mat-icon>
+          {{ language() === 'ar' ? 'التقييم' : 'Rating' }}
+        </mat-panel-title>
+      </mat-expansion-panel-header>
+      <app-rating-filter
+        [language]="language()"
+        [selectedRatings]="currentFilters().ratings || []"
+        (ratingsChange)="onRatingChange($event)" />
+    </mat-expansion-panel>
+
+    <!-- Availability Filter -->
+    <mat-expansion-panel class="filter-panel">
+      <mat-expansion-panel-header>
+        <mat-panel-title>
+          <mat-icon>inventory</mat-icon>
+          {{ language() === 'ar' ? 'التوفر' : 'Availability' }}
+        </mat-panel-title>
+      </mat-expansion-panel-header>
+      <div class="filter-options">
+        @for (option of availabilityOptions; track option.value) {
+          <mat-checkbox
+            class="filter-checkbox"
+            [checked]="isAvailabilitySelected(option.value)"
+            (change)="onAvailabilityChange(option.value, $event.checked)">
+            {{ getLabel(option.label, option.labelAr) }}
+          </mat-checkbox>
+        }
+      </div>
+    </mat-expansion-panel>
 
   </mat-accordion>
 

@@ -1,7 +1,7 @@
 /**
  * @file route-management.service.ts
  * @description Core service for managing route-permission mappings with auto-discovery.
- * 
+ *
  * This service provides comprehensive route-permission management capabilities:
  * - CRUD operations for route mappings
  * - Bulk creation with validation and deduplication
@@ -9,18 +9,18 @@
  * - Statistics and reporting
  * - Permission linking/unlinking
  * - Conflict detection and resolution
- * 
+ *
  * Integrates with:
  * - RouteDiscoveryService: Route metadata scanning
  * - SecurityAuditService: Audit logging for all operations
  * - PermissionsGuard: Consumed by guard for runtime authorization
- * 
+ *
  * Performance Targets:
  * - Single route creation: <100ms
  * - Bulk create (100 routes): <500ms
  * - Discovery with mapping: <1000ms
  * - Statistics calculation: <100ms
- * 
+ *
  * @author SouqSyria Security Team
  * @version 1.0.0
  */
@@ -63,17 +63,17 @@ export interface BulkCreateResult {
 
 /**
  * Service for managing route-permission mappings
- * 
+ *
  * This service acts as the orchestrator for all route-permission operations,
  * coordinating between route discovery, database persistence, and audit logging.
- * 
+ *
  * Key Responsibilities:
  * - Route mapping CRUD operations
  * - Auto-discovery and auto-mapping coordination
  * - Validation and conflict detection
  * - Statistics calculation and reporting
  * - Security audit integration
- * 
+ *
  * Thread Safety: Stateless service, thread-safe
  * Transaction Safety: Uses database transactions for bulk operations
  */
@@ -94,13 +94,13 @@ export class RouteManagementService {
 
   /**
    * Discover all routes in the application with mapping status
-   * 
+   *
    * Scans the entire application for routes and enriches them with:
    * - Current mapping status (mapped vs. unmapped)
    * - Linked permissions (if any)
    * - Suggested permission names
    * - Public route detection
-   * 
+   *
    * @returns Array of discovered routes with full metadata
    */
   async discoverAllRoutes(): Promise<DiscoveredRouteDto[]> {
@@ -112,34 +112,38 @@ export class RouteManagementService {
 
   /**
    * Get routes that are not yet mapped to permissions
-   * 
+   *
    * Filters discovered routes to show only those that:
    * - Do NOT have @Public() decorator
    * - Are NOT yet mapped to permissions
-   * 
+   *
    * These routes require attention from administrators to ensure
    * proper access control is in place.
-   * 
+   *
    * @returns Array of unmapped routes
    */
   async getUnmappedRoutes(): Promise<DiscoveredRouteDto[]> {
     this.logger.log('Finding unmapped routes...');
     const allRoutes = await this.routeDiscoveryService.discoverRoutes();
 
-    const unmapped = allRoutes.filter((route) => !route.isMapped && !route.isPublic);
+    const unmapped = allRoutes.filter(
+      (route) => !route.isMapped && !route.isPublic,
+    );
 
-    this.logger.log(`Found ${unmapped.length} unmapped routes (excluding public routes)`);
+    this.logger.log(
+      `Found ${unmapped.length} unmapped routes (excluding public routes)`,
+    );
     return unmapped;
   }
 
   /**
    * Create a single route-to-permission mapping
-   * 
+   *
    * Validates:
    * - Permission exists in database
    * - No duplicate mapping (same path + method)
    * - Route format is valid
-   * 
+   *
    * @param dto - Route mapping details
    * @param userId - ID of user creating the mapping (for audit)
    * @returns Created route entity
@@ -156,7 +160,9 @@ export class RouteManagementService {
     });
 
     if (!permission) {
-      throw new NotFoundException(`Permission with ID ${dto.permissionId} not found`);
+      throw new NotFoundException(
+        `Permission with ID ${dto.permissionId} not found`,
+      );
     }
 
     // Check for duplicate mapping
@@ -210,16 +216,16 @@ export class RouteManagementService {
 
   /**
    * Bulk create multiple route mappings
-   * 
+   *
    * Efficiently creates many route mappings in a single operation.
    * Uses database transaction for atomicity (all-or-nothing).
-   * 
+   *
    * Features:
    * - Validates all permissions before creating
    * - Detects and skips duplicates
    * - Tracks successes and failures separately
    * - Provides detailed error reporting
-   * 
+   *
    * @param dto - Bulk creation request
    * @param userId - ID of user performing bulk operation
    * @returns Detailed results of bulk operation
@@ -331,10 +337,10 @@ export class RouteManagementService {
 
   /**
    * Link a permission to an existing route
-   * 
+   *
    * Updates an existing route entity to associate it with a permission.
    * Replaces any previous permission link.
-   * 
+   *
    * @param routeId - ID of the route to update
    * @param permissionId - ID of permission to link
    * @param userId - ID of user performing operation
@@ -361,7 +367,9 @@ export class RouteManagementService {
     });
 
     if (!permission) {
-      throw new NotFoundException(`Permission with ID ${permissionId} not found`);
+      throw new NotFoundException(
+        `Permission with ID ${permissionId} not found`,
+      );
     }
 
     const oldPermission = route.permission?.name || 'none';
@@ -398,14 +406,17 @@ export class RouteManagementService {
 
   /**
    * Unlink permission from route (make route public)
-   * 
+   *
    * Removes the permission association from a route, effectively
    * making it accessible without permission checks.
-   * 
+   *
    * @param routeId - ID of route to unlink
    * @param userId - ID of user performing operation
    */
-  async unlinkRouteFromPermission(routeId: number, userId: number): Promise<void> {
+  async unlinkRouteFromPermission(
+    routeId: number,
+    userId: number,
+  ): Promise<void> {
     this.logger.log(`Unlinking permission from route ${routeId}`);
 
     const route = await this.routeRepository.findOne({
@@ -438,14 +449,18 @@ export class RouteManagementService {
           oldPermission,
         },
       })
-      .catch((err) => this.logger.error('Failed to log permission unlink', err));
+      .catch((err) =>
+        this.logger.error('Failed to log permission unlink', err),
+      );
 
-    this.logger.log(`Unlinked permission from route ${route.method} ${route.path}`);
+    this.logger.log(
+      `Unlinked permission from route ${route.method} ${route.path}`,
+    );
   }
 
   /**
    * Get all routes protected by a specific permission
-   * 
+   *
    * @param permissionId - ID of permission to query
    * @returns Array of routes linked to this permission
    */
@@ -455,7 +470,9 @@ export class RouteManagementService {
     });
 
     if (!permission) {
-      throw new NotFoundException(`Permission with ID ${permissionId} not found`);
+      throw new NotFoundException(
+        `Permission with ID ${permissionId} not found`,
+      );
     }
 
     const routes = await this.routeRepository.find({
@@ -472,9 +489,9 @@ export class RouteManagementService {
 
   /**
    * Calculate mapping statistics
-   * 
+   *
    * Provides comprehensive overview of route security posture.
-   * 
+   *
    * @returns Statistics DTO
    */
   async getMappingStatistics(): Promise<MappingStatisticsDto> {
@@ -500,7 +517,8 @@ export class RouteManagementService {
     // Group by controller
     allRoutes.forEach((route) => {
       const controller = route.controllerName;
-      stats.byController[controller] = (stats.byController[controller] || 0) + 1;
+      stats.byController[controller] =
+        (stats.byController[controller] || 0) + 1;
     });
 
     // Calculate coverage percentage
@@ -517,12 +535,12 @@ export class RouteManagementService {
 
   /**
    * Auto-generate route-permission mappings
-   * 
+   *
    * Implements intelligent auto-mapping based on:
    * - Discovered routes
    * - Naming convention suggestions
    * - Existing permissions in database
-   * 
+   *
    * @param options - Configuration options (dry run, skip existing, etc.)
    * @param userId - ID of user performing operation
    * @returns Detailed results
@@ -557,7 +575,9 @@ export class RouteManagementService {
       routesToProcess = routesToProcess.filter((r) => !r.isMapped);
     }
 
-    this.logger.log(`Processing ${routesToProcess.length} routes for auto-mapping`);
+    this.logger.log(
+      `Processing ${routesToProcess.length} routes for auto-mapping`,
+    );
 
     // Fetch all permissions
     const allPermissions = await this.permissionRepository.find();
@@ -576,7 +596,9 @@ export class RouteManagementService {
           permission = this.permissionRepository.create({
             name: route.suggestedPermission,
             description: `Auto-generated permission for ${route.path}`,
-            resource: route.controllerName.replace('Controller', '').toLowerCase(),
+            resource: route.controllerName
+              .replace('Controller', '')
+              .toLowerCase(),
             action: route.handlerName,
           });
 
@@ -654,7 +676,7 @@ export class RouteManagementService {
 
   /**
    * Validate route uniqueness
-   * 
+   *
    * @param path - Route path
    * @param method - HTTP method
    * @returns true if route doesn't exist, false if duplicate
@@ -669,7 +691,7 @@ export class RouteManagementService {
 
   /**
    * Find conflicting routes
-   * 
+   *
    * @param path - Route path to check
    * @param method - HTTP method to check
    * @returns Array of conflicting routes

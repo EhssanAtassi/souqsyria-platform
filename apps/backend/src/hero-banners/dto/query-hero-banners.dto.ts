@@ -49,16 +49,39 @@ export class QueryHeroBannersDto {
   })
   @IsEnum(['draft', 'pending', 'approved', 'rejected', 'suspended', 'archived'])
   @IsOptional()
-  approvalStatus?: 'draft' | 'pending' | 'approved' | 'rejected' | 'suspended' | 'archived';
+  approvalStatus?:
+    | 'draft'
+    | 'pending'
+    | 'approved'
+    | 'rejected'
+    | 'suspended'
+    | 'archived';
 
   @ApiPropertyOptional({
     description: 'Filter by banner type',
-    enum: ['product_spotlight', 'seasonal', 'flash_sale', 'brand_story', 'cultural'],
+    enum: [
+      'product_spotlight',
+      'seasonal',
+      'flash_sale',
+      'brand_story',
+      'cultural',
+    ],
     example: 'product_spotlight',
   })
-  @IsEnum(['product_spotlight', 'seasonal', 'flash_sale', 'brand_story', 'cultural'])
+  @IsEnum([
+    'product_spotlight',
+    'seasonal',
+    'flash_sale',
+    'brand_story',
+    'cultural',
+  ])
   @IsOptional()
-  type?: 'product_spotlight' | 'seasonal' | 'flash_sale' | 'brand_story' | 'cultural';
+  type?:
+    | 'product_spotlight'
+    | 'seasonal'
+    | 'flash_sale'
+    | 'brand_story'
+    | 'cultural';
 
   @ApiPropertyOptional({
     description: 'Filter banners active at this date (ISO 8601)',
@@ -125,13 +148,39 @@ export class QueryHeroBannersDto {
 
   @ApiPropertyOptional({
     description: 'Sort field',
-    enum: ['priority', 'scheduleStart', 'scheduleEnd', 'impressions', 'clicks', 'ctr', 'createdAt', 'updatedAt'],
+    enum: [
+      'priority',
+      'scheduleStart',
+      'scheduleEnd',
+      'impressions',
+      'clicks',
+      'ctr',
+      'createdAt',
+      'updatedAt',
+    ],
     example: 'priority',
     default: 'priority',
   })
-  @IsEnum(['priority', 'scheduleStart', 'scheduleEnd', 'impressions', 'clicks', 'ctr', 'createdAt', 'updatedAt'])
+  @IsEnum([
+    'priority',
+    'scheduleStart',
+    'scheduleEnd',
+    'impressions',
+    'clicks',
+    'ctr',
+    'createdAt',
+    'updatedAt',
+  ])
   @IsOptional()
-  sortBy?: 'priority' | 'scheduleStart' | 'scheduleEnd' | 'impressions' | 'clicks' | 'ctr' | 'createdAt' | 'updatedAt';
+  sortBy?:
+    | 'priority'
+    | 'scheduleStart'
+    | 'scheduleEnd'
+    | 'impressions'
+    | 'clicks'
+    | 'ctr'
+    | 'createdAt'
+    | 'updatedAt';
 
   @ApiPropertyOptional({
     description: 'Sort order',
@@ -210,6 +259,9 @@ export class PaginatedHeroBannersResponseDto<T> {
   @ApiPropertyOptional({ description: 'Array of hero banners', isArray: true })
   data: T[];
 
-  @ApiPropertyOptional({ description: 'Pagination metadata', type: PaginationMetaDto })
+  @ApiPropertyOptional({
+    description: 'Pagination metadata',
+    type: PaginationMetaDto,
+  })
   meta: PaginationMetaDto;
 }

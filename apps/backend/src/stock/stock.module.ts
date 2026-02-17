@@ -100,7 +100,6 @@ import { AddressesModule } from '../addresses/addresses.module';
     // Enterprise Services
     SyrianStockAnalyticsService, // Advanced analytics with Syrian localization
     InventoryReservationService, // Enterprise reservation and allocation
-
   ],
 
   controllers: [
@@ -109,7 +108,6 @@ import { AddressesModule } from '../addresses/addresses.module';
 
     // Enterprise Controllers
     SyrianStockAnalyticsController, // Syrian stock analytics and dashboards
-
   ],
 
   exports: [

@@ -76,7 +76,8 @@ export class SessionCleanupService {
   /** Session lifecycle constants in milliseconds */
   private readonly SESSION_LIFETIME_MS = 30 * 24 * 60 * 60 * 1000; // 30 days
   private readonly GRACE_PERIOD_MS = 7 * 24 * 60 * 60 * 1000; // 7 days
-  private readonly TOTAL_RETENTION_MS = this.SESSION_LIFETIME_MS + this.GRACE_PERIOD_MS; // 37 days
+  private readonly TOTAL_RETENTION_MS =
+    this.SESSION_LIFETIME_MS + this.GRACE_PERIOD_MS; // 37 days
 
   constructor(
     @InjectRepository(GuestSession)
@@ -87,8 +88,12 @@ export class SessionCleanupService {
   ) {
     this.logger.log('🧹 Guest Session Cleanup Service initialized');
     this.logger.log(`📅 Cleanup schedule: Daily at 2:00 AM (server time)`);
-    this.logger.log(`⏰ Session lifetime: ${this.SESSION_LIFETIME_MS / (24 * 60 * 60 * 1000)} days`);
-    this.logger.log(`🛡️ Grace period: ${this.GRACE_PERIOD_MS / (24 * 60 * 60 * 1000)} days`);
+    this.logger.log(
+      `⏰ Session lifetime: ${this.SESSION_LIFETIME_MS / (24 * 60 * 60 * 1000)} days`,
+    );
+    this.logger.log(
+      `🛡️ Grace period: ${this.GRACE_PERIOD_MS / (24 * 60 * 60 * 1000)} days`,
+    );
   }
 
   /**
@@ -111,14 +116,17 @@ export class SessionCleanupService {
       this.logger.log(`🗑️ Sessions deleted: ${stats.sessionsDeleted}`);
       this.logger.log(`🛒 Carts removed: ${stats.cartsDeleted}`);
       this.logger.log(`📦 Cart items removed: ${stats.cartItemsDeleted}`);
-      this.logger.log(`💾 Estimated space freed: ${this.formatBytes(stats.estimatedSpaceFreed)}`);
+      this.logger.log(
+        `💾 Estimated space freed: ${this.formatBytes(stats.estimatedSpaceFreed)}`,
+      );
       this.logger.log(`⏱️ Processing time: ${stats.processingTimeMs}ms`);
 
       if (stats.errors.length > 0) {
-        this.logger.warn(`⚠️ ${stats.errors.length} errors encountered during cleanup`);
-        stats.errors.forEach(error => this.logger.error(error));
+        this.logger.warn(
+          `⚠️ ${stats.errors.length} errors encountered during cleanup`,
+        );
+        stats.errors.forEach((error) => this.logger.error(error));
       }
-
     } catch (error) {
       this.logger.error('❌ Scheduled cleanup job failed:', error.stack);
 
@@ -146,7 +154,9 @@ export class SessionCleanupService {
    */
   async cleanupExpiredSessions(dryRun: boolean = false): Promise<CleanupStats> {
     const startTime = Date.now();
-    this.logger.log(`🧹 ${dryRun ? 'Simulating' : 'Starting'} guest session cleanup...`);
+    this.logger.log(
+      `🧹 ${dryRun ? 'Simulating' : 'Starting'} guest session cleanup...`,
+    );
 
     const stats: CleanupStats = {
       totalProcessed: 0,
@@ -163,11 +173,19 @@ export class SessionCleanupService {
     try {
       // Calculate cutoff dates
       const now = new Date();
-      const sessionExpiryDate = new Date(now.getTime() - this.SESSION_LIFETIME_MS);
-      const gracePeriodExpiryDate = new Date(now.getTime() - this.TOTAL_RETENTION_MS);
+      const sessionExpiryDate = new Date(
+        now.getTime() - this.SESSION_LIFETIME_MS,
+      );
+      const gracePeriodExpiryDate = new Date(
+        now.getTime() - this.TOTAL_RETENTION_MS,
+      );
 
-      this.logger.log(`📅 Session expiry cutoff: ${sessionExpiryDate.toISOString()}`);
-      this.logger.log(`🕰️ Grace period cutoff: ${gracePeriodExpiryDate.toISOString()}`);
+      this.logger.log(
+        `📅 Session expiry cutoff: ${sessionExpiryDate.toISOString()}`,
+      );
+      this.logger.log(
+        `🕰️ Grace period cutoff: ${gracePeriodExpiryDate.toISOString()}`,
+      );
 
       // Find expired sessions (beyond grace period)
       const expiredSessions = await this.guestSessionRepository.find({
@@ -181,12 +199,16 @@ export class SessionCleanupService {
       stats.totalProcessed = expiredSessions.length;
 
       if (expiredSessions.length === 0) {
-        this.logger.log('✨ No expired guest sessions found - database is clean');
+        this.logger.log(
+          '✨ No expired guest sessions found - database is clean',
+        );
         stats.processingTimeMs = Date.now() - startTime;
         return stats;
       }
 
-      this.logger.log(`🔍 Found ${expiredSessions.length} expired sessions to process`);
+      this.logger.log(
+        `🔍 Found ${expiredSessions.length} expired sessions to process`,
+      );
 
       // Process each expired session
       for (const session of expiredSessions) {
@@ -218,7 +240,6 @@ export class SessionCleanupService {
       });
 
       return stats;
-
     } catch (error) {
       const errorMsg = `Cleanup operation failed: ${error.message}`;
       stats.errors.push(errorMsg);
@@ -267,27 +288,39 @@ export class SessionCleanupService {
   /**
    * Execute the actual cleanup operations in database
    */
-  private async executeCleanupOperations(expiredSessions: GuestSession[]): Promise<void> {
-    this.logger.log(`💾 Executing database cleanup for ${expiredSessions.length} sessions...`);
+  private async executeCleanupOperations(
+    expiredSessions: GuestSession[],
+  ): Promise<void> {
+    this.logger.log(
+      `💾 Executing database cleanup for ${expiredSessions.length} sessions...`,
+    );
 
     // Use transaction for data consistency
-    await this.guestSessionRepository.manager.transaction(async (transactionalEntityManager) => {
-      const sessionIds = expiredSessions.map(session => session.id);
+    await this.guestSessionRepository.manager.transaction(
+      async (transactionalEntityManager) => {
+        const sessionIds = expiredSessions.map((session) => session.id);
 
-      // Delete associated carts and their items (cascade should handle items)
-      const cartsToDelete = expiredSessions
-        .map(session => session.cart?.id)
-        .filter(Boolean);
+        // Delete associated carts and their items (cascade should handle items)
+        const cartsToDelete = expiredSessions
+          .map((session) => session.cart?.id)
+          .filter(Boolean);
 
-      if (cartsToDelete.length > 0) {
-        this.logger.log(`🛒 Deleting ${cartsToDelete.length} associated carts...`);
-        await transactionalEntityManager.delete(Cart, { id: In(cartsToDelete) });
-      }
+        if (cartsToDelete.length > 0) {
+          this.logger.log(
+            `🛒 Deleting ${cartsToDelete.length} associated carts...`,
+          );
+          await transactionalEntityManager.delete(Cart, {
+            id: In(cartsToDelete),
+          });
+        }
 
-      // Delete the guest sessions
-      this.logger.log(`👥 Deleting ${sessionIds.length} guest sessions...`);
-      await transactionalEntityManager.delete(GuestSession, { id: In(sessionIds) });
-    });
+        // Delete the guest sessions
+        this.logger.log(`👥 Deleting ${sessionIds.length} guest sessions...`);
+        await transactionalEntityManager.delete(GuestSession, {
+          id: In(sessionIds),
+        });
+      },
+    );
 
     this.logger.log('✅ Database cleanup operations completed successfully');
   }
@@ -341,8 +374,12 @@ export class SessionCleanupService {
     estimatedCleanupCandidates: number;
   }> {
     const now = new Date();
-    const sessionExpiryDate = new Date(now.getTime() - this.SESSION_LIFETIME_MS);
-    const gracePeriodExpiryDate = new Date(now.getTime() - this.TOTAL_RETENTION_MS);
+    const sessionExpiryDate = new Date(
+      now.getTime() - this.SESSION_LIFETIME_MS,
+    );
+    const gracePeriodExpiryDate = new Date(
+      now.getTime() - this.TOTAL_RETENTION_MS,
+    );
 
     const [
       activeSessions,

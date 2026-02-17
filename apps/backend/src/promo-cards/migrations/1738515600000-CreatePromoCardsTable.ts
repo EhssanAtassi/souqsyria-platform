@@ -6,7 +6,13 @@
  * @since 2025-02-02
  */
 
-import { MigrationInterface, QueryRunner, Table, TableIndex, TableForeignKey } from 'typeorm';
+import {
+  MigrationInterface,
+  QueryRunner,
+  Table,
+  TableIndex,
+  TableForeignKey,
+} from 'typeorm';
 
 /**
  * Migration: Create Promo Cards Table
@@ -233,7 +239,10 @@ export class CreatePromoCardsTable1738515600000 implements MigrationInterface {
     */
 
     // Drop indexes
-    await queryRunner.dropIndex('promo_cards', 'IDX_promo_cards_active_approval_position');
+    await queryRunner.dropIndex(
+      'promo_cards',
+      'IDX_promo_cards_active_approval_position',
+    );
     await queryRunner.dropIndex('promo_cards', 'IDX_promo_cards_schedule');
 
     // Drop table

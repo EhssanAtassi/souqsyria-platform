@@ -123,7 +123,12 @@ export class Order {
    * Session Token - Session identifier for cross-system tracking
    * Used for analytics and marketing attribution
    */
-  @Column({ name: 'session_token', type: 'varchar', length: 64, nullable: true })
+  @Column({
+    name: 'session_token',
+    type: 'varchar',
+    length: 64,
+    nullable: true,
+  })
   @Index()
   sessionToken?: string;
 
@@ -145,7 +150,12 @@ export class Order {
    * Referrer Source - Marketing channel that brought user
    * Examples: "google", "facebook", "email_campaign_2024_01", "direct"
    */
-  @Column({ name: 'referrer_source', type: 'varchar', length: 255, nullable: true })
+  @Column({
+    name: 'referrer_source',
+    type: 'varchar',
+    length: 255,
+    nullable: true,
+  })
   referrerSource?: string;
 
   /**
