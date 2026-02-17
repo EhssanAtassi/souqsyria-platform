@@ -54,7 +54,8 @@ export class AddressesController {
   @Get('governorates')
   @ApiOperation({
     summary: 'Get all Syrian governorates',
-    description: 'Returns all active Syrian governorates with delivery support info',
+    description:
+      'Returns all active Syrian governorates with delivery support info',
   })
   @ApiResponse({
     status: 200,
@@ -73,7 +74,8 @@ export class AddressesController {
   @Get('governorates/:id/cities')
   @ApiOperation({
     summary: 'Get cities by governorate',
-    description: 'Returns all active cities within a specific Syrian governorate',
+    description:
+      'Returns all active cities within a specific Syrian governorate',
   })
   @ApiParam({ name: 'id', description: 'Governorate ID', type: 'number' })
   @ApiResponse({
@@ -112,19 +114,18 @@ export class AddressesController {
   @Post()
   @ApiOperation({
     summary: 'Add a new Syrian address',
-    description: 'Creates a new address with Syrian governorate/city/district hierarchy',
+    description:
+      'Creates a new address with Syrian governorate/city/district hierarchy',
   })
   @ApiBody({
     type: CreateSyrianAddressDto,
-    description: 'Syrian address creation data with governorate/city/district hierarchy',
+    description:
+      'Syrian address creation data with governorate/city/district hierarchy',
     required: true,
   })
   @ApiResponse({ status: 201, description: 'Address created successfully' })
   @ApiResponse({ status: 400, description: 'Validation failed' })
-  async create(
-    @CurrentUser() user: User,
-    @Body() dto: CreateSyrianAddressDto,
-  ) {
+  async create(@CurrentUser() user: User, @Body() dto: CreateSyrianAddressDto) {
     return this.syrianAddressCrudService.createSyrianAddress(user, dto);
   }
 
@@ -167,7 +168,10 @@ export class AddressesController {
     description: 'Address not found',
   })
   async setDefaultAddress(@CurrentUser() user: User, @Param('id') id: number) {
-    return this.syrianAddressCrudService.setDefaultSyrianAddress(user, Number(id));
+    return this.syrianAddressCrudService.setDefaultSyrianAddress(
+      user,
+      Number(id),
+    );
   }
 
   /**
@@ -202,7 +206,11 @@ export class AddressesController {
     @Param('id') id: number,
     @Body() dto: UpdateSyrianAddressDto,
   ) {
-    return this.syrianAddressCrudService.updateSyrianAddress(user, Number(id), dto);
+    return this.syrianAddressCrudService.updateSyrianAddress(
+      user,
+      Number(id),
+      dto,
+    );
   }
 
   /**
@@ -217,7 +225,10 @@ export class AddressesController {
   })
   @ApiParam({ name: 'id', description: 'Address ID' })
   @ApiResponse({ status: 204, description: 'Address deleted' })
-  @ApiResponse({ status: 400, description: 'Cannot delete default or only address' })
+  @ApiResponse({
+    status: 400,
+    description: 'Cannot delete default or only address',
+  })
   @HttpCode(HttpStatus.NO_CONTENT)
   async remove(@CurrentUser() user: User, @Param('id') id: number) {
     await this.syrianAddressCrudService.deleteSyrianAddress(user, Number(id));

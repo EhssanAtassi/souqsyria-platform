@@ -174,9 +174,7 @@ export class EnhancedPermissionsGuard implements CanActivate {
             jwtRole: jwtUser.role,
           },
         })
-        .catch((err) =>
-          this.logger.error('Failed to log user not found', err),
-        );
+        .catch((err) => this.logger.error('Failed to log user not found', err));
 
       throw new ForbiddenException('Access denied. User not found.');
     }
@@ -416,9 +414,7 @@ export class EnhancedPermissionsGuard implements CanActivate {
             permissionGap: requiredPermission, // The specific missing permission
           },
         })
-        .catch((err) =>
-          this.logger.error('Failed to log access denied', err),
-        );
+        .catch((err) => this.logger.error('Failed to log access denied', err));
 
       throw new ForbiddenException(
         `Access denied. Missing permission: ${requiredPermission}`,
@@ -456,9 +452,7 @@ export class EnhancedPermissionsGuard implements CanActivate {
           routeLoadTime,
         },
       })
-      .catch((err) =>
-        this.logger.error('Failed to log access granted', err),
-      );
+      .catch((err) => this.logger.error('Failed to log access granted', err));
 
     // Performance warning for slow permission checks
     if (totalTime > 500) {

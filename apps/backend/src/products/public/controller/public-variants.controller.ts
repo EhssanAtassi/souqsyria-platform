@@ -9,12 +9,7 @@
  *     description: Public variant endpoints for product detail page
  */
 import { Controller, Get, Param, ParseIntPipe } from '@nestjs/common';
-import {
-  ApiTags,
-  ApiOperation,
-  ApiParam,
-  ApiResponse,
-} from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiParam, ApiResponse } from '@nestjs/swagger';
 import { PublicVariantsService } from '../service/public-variants.service';
 
 @ApiTags('🛒 Public Products')
@@ -58,9 +53,7 @@ export class PublicVariantsController {
       },
     },
   })
-  async getActiveVariants(
-    @Param('productId', ParseIntPipe) productId: number,
-  ) {
+  async getActiveVariants(@Param('productId', ParseIntPipe) productId: number) {
     const data = await this.service.getActiveVariants(productId);
     return { data };
   }
@@ -94,8 +87,18 @@ export class PublicVariantsController {
             optionNameAr: 'اللون',
             type: 'color',
             values: [
-              { value: 'Red', valueAr: 'أحمر', colorHex: '#FF0000', displayOrder: 1 },
-              { value: 'Blue', valueAr: 'أزرق', colorHex: '#0000FF', displayOrder: 2 },
+              {
+                value: 'Red',
+                valueAr: 'أحمر',
+                colorHex: '#FF0000',
+                displayOrder: 1,
+              },
+              {
+                value: 'Blue',
+                valueAr: 'أزرق',
+                colorHex: '#0000FF',
+                displayOrder: 2,
+              },
             ],
           },
           {
@@ -103,17 +106,25 @@ export class PublicVariantsController {
             optionNameAr: 'التخزين',
             type: 'select',
             values: [
-              { value: '128GB', valueAr: '128 جيجابايت', colorHex: null, displayOrder: 1 },
-              { value: '256GB', valueAr: '256 جيجابايت', colorHex: null, displayOrder: 2 },
+              {
+                value: '128GB',
+                valueAr: '128 جيجابايت',
+                colorHex: null,
+                displayOrder: 1,
+              },
+              {
+                value: '256GB',
+                valueAr: '256 جيجابايت',
+                colorHex: null,
+                displayOrder: 2,
+              },
             ],
           },
         ],
       },
     },
   })
-  async getVariantOptions(
-    @Param('productId', ParseIntPipe) productId: number,
-  ) {
+  async getVariantOptions(@Param('productId', ParseIntPipe) productId: number) {
     const data = await this.service.getVariantOptions(productId);
     return { data };
   }

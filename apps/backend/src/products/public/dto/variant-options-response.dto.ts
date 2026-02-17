@@ -13,26 +13,44 @@ export class VariantResponseDto {
   @ApiProperty({ description: 'Variant ID', example: 201 })
   id: number;
 
-  @ApiProperty({ description: 'Stock Keeping Unit', example: 'SGS24-128GB-BLACK', nullable: true })
+  @ApiProperty({
+    description: 'Stock Keeping Unit',
+    example: 'SGS24-128GB-BLACK',
+    nullable: true,
+  })
   sku: string | null;
 
-  @ApiProperty({ description: 'Derived display name from variant data', example: 'Black / 128GB' })
+  @ApiProperty({
+    description: 'Derived display name from variant data',
+    example: 'Black / 128GB',
+  })
   name: string;
 
-  @ApiProperty({ description: 'Variant price in base currency', example: 2750000 })
+  @ApiProperty({
+    description: 'Variant price in base currency',
+    example: 2750000,
+  })
   price: number;
 
-  @ApiProperty({ description: 'Total stock quantity across all warehouses', example: 25 })
+  @ApiProperty({
+    description: 'Total stock quantity across all warehouses',
+    example: 25,
+  })
   stockQuantity: number;
 
   @ApiProperty({
-    description: 'Computed stock status: in_stock (>5), low_stock (1-5), out_of_stock (0)',
+    description:
+      'Computed stock status: in_stock (>5), low_stock (1-5), out_of_stock (0)',
     enum: ['in_stock', 'low_stock', 'out_of_stock'],
     example: 'in_stock',
   })
   stockStatus: 'in_stock' | 'low_stock' | 'out_of_stock';
 
-  @ApiProperty({ description: 'Variant-specific image URL', example: 'https://example.com/variant.jpg', nullable: true })
+  @ApiProperty({
+    description: 'Variant-specific image URL',
+    example: 'https://example.com/variant.jpg',
+    nullable: true,
+  })
   imageUrl: string | null;
 
   @ApiProperty({
@@ -49,10 +67,18 @@ export class VariantOptionValueDto {
   @ApiProperty({ description: 'English value name', example: 'Red' })
   value: string;
 
-  @ApiProperty({ description: 'Arabic value name', example: 'أحمر', nullable: true })
+  @ApiProperty({
+    description: 'Arabic value name',
+    example: 'أحمر',
+    nullable: true,
+  })
   valueAr: string | null;
 
-  @ApiProperty({ description: 'Hex color code for color-type attributes', example: '#FF0000', nullable: true })
+  @ApiProperty({
+    description: 'Hex color code for color-type attributes',
+    example: '#FF0000',
+    nullable: true,
+  })
   colorHex: string | null;
 
   @ApiProperty({ description: 'Display order for sorting', example: 1 })
@@ -66,7 +92,11 @@ export class VariantOptionGroupDto {
   @ApiProperty({ description: 'English option group name', example: 'Color' })
   optionName: string;
 
-  @ApiProperty({ description: 'Arabic option group name', example: 'اللون', nullable: true })
+  @ApiProperty({
+    description: 'Arabic option group name',
+    example: 'اللون',
+    nullable: true,
+  })
   optionNameAr: string | null;
 
   @ApiProperty({
@@ -75,6 +105,9 @@ export class VariantOptionGroupDto {
   })
   type: string;
 
-  @ApiProperty({ description: 'Available values for this option group', type: [VariantOptionValueDto] })
+  @ApiProperty({
+    description: 'Available values for this option group',
+    type: [VariantOptionValueDto],
+  })
   values: VariantOptionValueDto[];
 }

@@ -28,6 +28,10 @@
   color: $charcoal-dark;
   text-transform: uppercase;
   letter-spacing: 0.5px;
+
+  [dir="rtl"] & {
+    letter-spacing: 0;
+  }
 }
 
 .variant-selector__options {

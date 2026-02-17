@@ -82,16 +82,16 @@ export class PermissionsService {
 
   /**
    * Remove a permission from the system
-   * 
+   *
    * Validates that system-level permissions cannot be deleted to protect
    * critical system functionality. System permissions (isSystem = true) are
    * essential for core operations and should never be removed.
-   * 
+   *
    * @param id - The ID of the permission to delete
    * @param adminUser - The admin user performing the deletion (for audit logging)
    * @throws {NotFoundException} If the permission does not exist
    * @throws {BadRequestException} If attempting to delete a system permission
-   * 
+   *
    * @example
    * await permissionsService.remove(5, adminUser);
    */

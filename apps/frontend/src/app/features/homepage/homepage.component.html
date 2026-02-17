@@ -71,6 +71,46 @@
     (subcategoryClick)="onShowcaseSubcategoryClick($event)" />
 }
 
+<!-- ============================================ -->
+<!-- Product Carousels Section (Phase 5) -->
+<!-- ============================================ -->
+
+<!-- Featured Products Carousel -->
+<app-product-carousel
+  [products]="featuredProductsCarousel()"
+  [title]="'Featured Products'"
+  [titleAr]="'المنتجات المميزة'"
+  [language]="currentLanguage()"
+  [loading]="isLoadingFeaturedCarousel()"
+  [viewAllRoute]="'/products?sort=featured'"
+  (addToCart)="onCarouselAddToCart($event)"
+  (addToWishlist)="onCarouselAddToWishlist($event)"
+/>
+
+<!-- New Arrivals Carousel -->
+<app-product-carousel
+  [products]="newArrivalsCarousel()"
+  [title]="'New Arrivals'"
+  [titleAr]="'وصل حديثاً'"
+  [language]="currentLanguage()"
+  [loading]="isLoadingNewArrivals()"
+  [viewAllRoute]="'/products?sort=new_arrivals'"
+  (addToCart)="onCarouselAddToCart($event)"
+  (addToWishlist)="onCarouselAddToWishlist($event)"
+/>
+
+<!-- Best Sellers Carousel -->
+<app-product-carousel
+  [products]="bestSellersCarousel()"
+  [title]="'Best Sellers'"
+  [titleAr]="'الأكثر مبيعاً'"
+  [language]="currentLanguage()"
+  [loading]="isLoadingBestSellers()"
+  [viewAllRoute]="'/products?sort=best_seller'"
+  (addToCart)="onCarouselAddToCart($event)"
+  (addToWishlist)="onCarouselAddToWishlist($event)"
+/>
+
 <!-- Featured Categories Section -->
 <section class="py-16 bg-white">
   <div class="container mx-auto px-4">

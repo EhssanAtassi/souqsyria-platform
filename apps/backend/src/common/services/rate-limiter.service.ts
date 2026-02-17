@@ -57,22 +57,41 @@ export class RateLimiterService {
   private readonly logger = new Logger(RateLimiterService.name);
 
   /** In-memory store for rate limit counters */
-  private readonly memoryStore = new Map<string, { count: number; expiresAt: number }>();
+  private readonly memoryStore = new Map<
+    string,
+    { count: number; expiresAt: number }
+  >();
 
   /** Default rate limit configurations */
   private readonly rateLimitConfigs: Record<string, RateLimitConfig> = {
     login: { maxAttempts: 5, windowSeconds: 300, blockDurationSeconds: 900 },
-    passwordReset: { maxAttempts: 3, windowSeconds: 3600, blockDurationSeconds: 3600 },
-    otpVerify: { maxAttempts: 5, windowSeconds: 300, blockDurationSeconds: 1800 },
-    adminApi: { maxAttempts: 100, windowSeconds: 60, blockDurationSeconds: 300 },
+    passwordReset: {
+      maxAttempts: 3,
+      windowSeconds: 3600,
+      blockDurationSeconds: 3600,
+    },
+    otpVerify: {
+      maxAttempts: 5,
+      windowSeconds: 300,
+      blockDurationSeconds: 1800,
+    },
+    adminApi: {
+      maxAttempts: 100,
+      windowSeconds: 60,
+      blockDurationSeconds: 300,
+    },
     general: { maxAttempts: 1000, windowSeconds: 60, blockDurationSeconds: 60 },
   };
 
   /**
    * Checks if a request is allowed based on rate limiting rules.
    */
-  async checkLimit(actionType: string, identifier: string): Promise<RateLimitResult> {
-    const config = this.rateLimitConfigs[actionType] || this.rateLimitConfigs.general;
+  async checkLimit(
+    actionType: string,
+    identifier: string,
+  ): Promise<RateLimitResult> {
+    const config =
+      this.rateLimitConfigs[actionType] || this.rateLimitConfigs.general;
     const key = `rate_limit:${actionType}:${identifier}`;
     const blockKey = `rate_block:${actionType}:${identifier}`;
 
@@ -91,7 +110,8 @@ export class RateLimiterService {
       allowed: currentAttempts < config.maxAttempts,
       currentAttempts,
       maxAttempts: config.maxAttempts,
-      retryAfterSeconds: currentAttempts >= config.maxAttempts ? config.blockDurationSeconds : 0,
+      retryAfterSeconds:
+        currentAttempts >= config.maxAttempts ? config.blockDurationSeconds : 0,
       isBlocked: false,
     };
   }
@@ -99,18 +119,36 @@ export class RateLimiterService {
   /**
    * Records a failed attempt and potentially blocks the identifier.
    */
-  async recordFailedAttempt(actionType: string, identifier: string): Promise<RateLimitResult> {
-    const config = this.rateLimitConfigs[actionType] || this.rateLimitConfigs.general;
+  async recordFailedAttempt(
+    actionType: string,
+    identifier: string,
+  ): Promise<RateLimitResult> {
+    const config =
+      this.rateLimitConfigs[actionType] || this.rateLimitConfigs.general;
     const key = `rate_limit:${actionType}:${identifier}`;
     const blockKey = `rate_block:${actionType}:${identifier}`;
     const newCount = this.incrementCounter(key, config.windowSeconds);
 
     if (newCount >= config.maxAttempts) {
       this.setBlock(blockKey, config.blockDurationSeconds);
-      this.logger.warn(`Rate limit exceeded for ${actionType}:${identifier}. Blocked for ${config.blockDurationSeconds}s`);
-      return { allowed: false, currentAttempts: newCount, maxAttempts: config.maxAttempts, retryAfterSeconds: config.blockDurationSeconds, isBlocked: true };
+      this.logger.warn(
+        `Rate limit exceeded for ${actionType}:${identifier}. Blocked for ${config.blockDurationSeconds}s`,
+      );
+      return {
+        allowed: false,
+        currentAttempts: newCount,
+        maxAttempts: config.maxAttempts,
+        retryAfterSeconds: config.blockDurationSeconds,
+        isBlocked: true,
+      };
     }
-    return { allowed: true, currentAttempts: newCount, maxAttempts: config.maxAttempts, retryAfterSeconds: 0, isBlocked: false };
+    return {
+      allowed: true,
+      currentAttempts: newCount,
+      maxAttempts: config.maxAttempts,
+      retryAfterSeconds: 0,
+      isBlocked: false,
+    };
   }
 
   /** Records a successful attempt (resets the counter). */
@@ -122,14 +160,20 @@ export class RateLimiterService {
   private isBlocked(blockKey: string): boolean {
     const entry = this.memoryStore.get(blockKey);
     if (!entry) return false;
-    if (Date.now() > entry.expiresAt) { this.memoryStore.delete(blockKey); return false; }
+    if (Date.now() > entry.expiresAt) {
+      this.memoryStore.delete(blockKey);
+      return false;
+    }
     return true;
   }
 
   private getCurrentAttempts(key: string): number {
     const entry = this.memoryStore.get(key);
     if (!entry) return 0;
-    if (Date.now() > entry.expiresAt) { this.memoryStore.delete(key); return 0; }
+    if (Date.now() > entry.expiresAt) {
+      this.memoryStore.delete(key);
+      return 0;
+    }
     return entry.count;
   }
 
@@ -137,13 +181,19 @@ export class RateLimiterService {
     const now = Date.now();
     const expiresAt = now + windowSeconds * 1000;
     const entry = this.memoryStore.get(key);
-    if (!entry || now > entry.expiresAt) { this.memoryStore.set(key, { count: 1, expiresAt }); return 1; }
+    if (!entry || now > entry.expiresAt) {
+      this.memoryStore.set(key, { count: 1, expiresAt });
+      return 1;
+    }
     entry.count += 1;
     return entry.count;
   }
 
   private setBlock(blockKey: string, durationSeconds: number): void {
-    this.memoryStore.set(blockKey, { count: 1, expiresAt: Date.now() + durationSeconds * 1000 });
+    this.memoryStore.set(blockKey, {
+      count: 1,
+      expiresAt: Date.now() + durationSeconds * 1000,
+    });
   }
 
   private getTTL(key: string): number {

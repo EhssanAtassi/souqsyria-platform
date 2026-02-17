@@ -8,6 +8,9 @@ import { getRepositoryToken } from '@nestjs/typeorm';
 import { PublicProductsService } from './public-products.service';
 import { ProductEntity } from '../../entities/product.entity';
 import { GetPublicProductsDto } from '../dto/get-public-products.dto';
+import { ReviewsService } from '../../reviews/services/reviews.service';
+import { Category } from '../../../categories/entities/category.entity';
+import { CategoryHierarchyService } from '../../../categories/services/category-hierarchy.service';
 
 describe('PublicProductsService', () => {
   let service: PublicProductsService;
@@ -32,6 +35,26 @@ describe('PublicProductsService', () => {
     // Create mock repository
     mockRepository = {
       createQueryBuilder: jest.fn().mockReturnValue(mockQueryBuilder),
+      increment: jest.fn(),
+    };
+
+    /** @description Mock ReviewsService to satisfy DI for PublicProductsService */
+    const mockReviewsService = {
+      getReviewSummary: jest.fn().mockResolvedValue({
+        averageRating: 0,
+        totalReviews: 0,
+        distribution: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 },
+      }),
+    };
+
+    /** @description Mock Category repository for category lookups */
+    const mockCategoryRepo = {
+      findOne: jest.fn().mockResolvedValue(null),
+    };
+
+    /** @description Mock CategoryHierarchyService for breadcrumb hierarchy */
+    const mockCategoryHierarchyService = {
+      getAncestors: jest.fn().mockResolvedValue([]),
     };
 
     const module: TestingModule = await Test.createTestingModule({
@@ -40,6 +63,18 @@ describe('PublicProductsService', () => {
         {
           provide: getRepositoryToken(ProductEntity),
           useValue: mockRepository,
+        },
+        {
+          provide: ReviewsService,
+          useValue: mockReviewsService,
+        },
+        {
+          provide: getRepositoryToken(Category),
+          useValue: mockCategoryRepo,
+        },
+        {
+          provide: CategoryHierarchyService,
+          useValue: mockCategoryHierarchyService,
         },
       ],
     }).compile();
@@ -646,6 +681,96 @@ describe('PublicProductsService', () => {
       expect(result.data[0].basePrice).toBeUndefined();
       expect(result.data[0].discountPrice).toBeNull();
       expect(result.data[0].currency).toBe('SYP'); // defaults to SYP
+    });
+  });
+
+  // =========================================================================
+  // INCREMENT VIEW COUNT
+  // =========================================================================
+
+  describe('incrementViewCount()', () => {
+    /**
+     * @description Verifies incrementViewCount calls repository.increment with correct parameters
+     */
+    it('should call repository increment with correct slug and conditions', async () => {
+      // Arrange
+      const slug = 'damascus-knife';
+      mockRepository.increment.mockResolvedValue({ affected: 1 });
+
+      // Act
+      await service.incrementViewCount(slug);
+
+      // Assert
+      expect(mockRepository.increment).toHaveBeenCalledWith(
+        { slug, isActive: true, isPublished: true, is_deleted: false },
+        'viewCount',
+        1,
+      );
+    });
+
+    /**
+     * @description Verifies incrementViewCount throws NotFoundException when no product is found
+     */
+    it('should throw NotFoundException when no product matches the slug', async () => {
+      // Arrange
+      const slug = 'nonexistent-product';
+      mockRepository.increment.mockResolvedValue({ affected: 0 });
+
+      // Act & Assert
+      await expect(service.incrementViewCount(slug)).rejects.toThrow(
+        NotFoundException,
+      );
+      await expect(service.incrementViewCount(slug)).rejects.toThrow(
+        /Product with slug "nonexistent-product" not found/,
+      );
+    });
+
+    /**
+     * @description Verifies incrementViewCount resolves successfully for a valid product
+     */
+    it('should resolve successfully when a product is found and incremented', async () => {
+      // Arrange
+      const slug = 'valid-product';
+      mockRepository.increment.mockResolvedValue({ affected: 1 });
+
+      // Act & Assert - should not throw
+      await expect(
+        service.incrementViewCount(slug),
+      ).resolves.toBeUndefined();
+    });
+
+    /**
+     * @description Verifies incrementViewCount re-throws non-NotFoundException errors
+     */
+    it('should re-throw unexpected database errors', async () => {
+      // Arrange
+      const slug = 'some-product';
+      const dbError = new Error('Database connection lost');
+      mockRepository.increment.mockRejectedValue(dbError);
+
+      // Act & Assert
+      await expect(service.incrementViewCount(slug)).rejects.toThrow(
+        'Database connection lost',
+      );
+    });
+
+    /**
+     * @description Verifies incrementViewCount increments by exactly 1
+     */
+    it('should increment viewCount by exactly 1', async () => {
+      // Arrange
+      const slug = 'test-product';
+      mockRepository.increment.mockResolvedValue({ affected: 1 });
+
+      // Act
+      await service.incrementViewCount(slug);
+
+      // Assert - third argument should be 1
+      expect(mockRepository.increment).toHaveBeenCalledWith(
+        expect.any(Object),
+        'viewCount',
+        1,
+      );
     });
   });
 });

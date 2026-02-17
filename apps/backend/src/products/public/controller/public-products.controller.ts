@@ -1,9 +1,12 @@
 import {
   Controller,
   Get,
+  Post,
   Query,
   Param,
   BadRequestException,
+  HttpCode,
+  HttpStatus,
 } from '@nestjs/common';
 import { GetPublicProductsDto } from '../dto/get-public-products.dto';
 import {
@@ -13,6 +16,7 @@ import {
   ApiParam,
   ApiQuery,
 } from '@nestjs/swagger';
+import { Throttle } from '@nestjs/throttler';
 import { PublicProductsService } from '../service/public-products.service';
 import { Public } from '../../../common/decorators/public.decorator';
 
@@ -122,7 +126,8 @@ export class PublicProductsController {
             slug: 'damascus-steel-chef-knife',
             nameEn: 'Damascus Steel Chef Knife',
             nameAr: 'سكين الطهاة من الفولاذ الدمشقي',
-            mainImage: 'https://placehold.co/600x400?text=Damascus+Steel+Chef+Knife',
+            mainImage:
+              'https://placehold.co/600x400?text=Damascus+Steel+Chef+Knife',
             basePrice: 500000,
             discountPrice: 450000,
             currency: 'SYP',
@@ -164,7 +169,8 @@ export class PublicProductsController {
     description: 'Requested page exceeds available pages',
     schema: {
       example: {
-        message: 'Requested page 15 exceeds available pages (8). Total products: 156.',
+        message:
+          'Requested page 15 exceeds available pages (8). Total products: 156.',
         error: 'Not Found',
         statusCode: 404,
       },
@@ -281,7 +287,8 @@ export class PublicProductsController {
     @Query('limit') limit: number = 3,
     @Query('categoryId') categoryId?: number,
     @Query('parentCategoryId') parentCategoryId?: number,
-    @Query('sort') sort: 'featured' | 'new_arrivals' | 'best_seller' = 'featured',
+    @Query('sort')
+    sort: 'featured' | 'new_arrivals' | 'best_seller' = 'featured',
   ) {
     return await this.service.getFeaturedProducts(
       limit,
@@ -472,6 +479,60 @@ export class PublicProductsController {
   }
 
   /**
+   * POST /products/:slug/view
+   * Increment product view count for analytics
+   * This endpoint is called when a customer views a product detail page
+   *
+   * NOTE: POST method doesn't conflict with GET :slug route
+   *
+   * Rate Limit: 10 view increments per minute to prevent view count inflation
+   */
+  @Post(':slug/view')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @Throttle({ default: { limit: 10, ttl: 60000 } }) // 10 per minute
+  @ApiOperation({
+    summary: 'Increment product view count',
+    description: `
+      Tracks product page views for analytics and popularity metrics.
+
+      Features:
+      • Increments viewCount field in database
+      • Used for popularity sorting and analytics
+      • Efficient UPDATE query (doesn't load full entity)
+      • Returns 204 No Content on success
+
+      Use Cases:
+      • Track product page views for analytics
+      • Calculate popularity scores
+      • Identify trending products
+      • A/B testing product page performance
+    `,
+  })
+  @ApiParam({
+    name: 'slug',
+    description: 'Product slug identifier',
+    example: 'samsung-galaxy-s24',
+  })
+  @ApiResponse({
+    status: 204,
+    description: 'View count incremented successfully (no content returned)',
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Product not found or not available',
+    schema: {
+      example: {
+        message: 'Product with slug "invalid-slug" not found or not available',
+        error: 'Not Found',
+        statusCode: 404,
+      },
+    },
+  })
+  async incrementProductViewCount(@Param('slug') slug: string): Promise<void> {
+    await this.service.incrementViewCount(slug);
+  }
+
+  /**
    * GET /products/:slug
    * Individual product details endpoint for product detail page
    * Retrieves complete product information including variants, pricing, descriptions
@@ -482,7 +543,7 @@ export class PublicProductsController {
   @ApiOperation({
     summary: 'Get product details by slug',
     description:
-      'Retrieves complete product information including variants, pricing, images, and descriptions',
+      'Retrieves complete product information including variants, pricing, images, descriptions, and category breadcrumb hierarchy',
   })
   @ApiParam({
     name: 'slug',
@@ -502,6 +563,21 @@ export class PublicProductsController {
           id: 5,
           nameEn: 'Smartphones',
           nameAr: 'الهواتف الذكية',
+          slug: 'smartphones',
+          ancestors: [
+            {
+              id: 1,
+              nameEn: 'Electronics',
+              nameAr: 'الإلكترونيات',
+              slug: 'electronics',
+            },
+            {
+              id: 3,
+              nameEn: 'Mobile Devices',
+              nameAr: 'الأجهزة المحمولة',
+              slug: 'mobile-devices',
+            },
+          ],
         },
         manufacturer: {
           id: 2,

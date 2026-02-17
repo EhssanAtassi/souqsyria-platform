@@ -349,12 +349,29 @@ export class CreateHeroBannerDto {
 
   @ApiProperty({
     description: 'Banner type for categorization',
-    enum: ['product_spotlight', 'seasonal', 'flash_sale', 'brand_story', 'cultural'],
+    enum: [
+      'product_spotlight',
+      'seasonal',
+      'flash_sale',
+      'brand_story',
+      'cultural',
+    ],
     example: 'product_spotlight',
   })
-  @IsEnum(['product_spotlight', 'seasonal', 'flash_sale', 'brand_story', 'cultural'])
+  @IsEnum([
+    'product_spotlight',
+    'seasonal',
+    'flash_sale',
+    'brand_story',
+    'cultural',
+  ])
   @IsNotEmpty()
-  type: 'product_spotlight' | 'seasonal' | 'flash_sale' | 'brand_story' | 'cultural';
+  type:
+    | 'product_spotlight'
+    | 'seasonal'
+    | 'flash_sale'
+    | 'brand_story'
+    | 'cultural';
 
   @ApiPropertyOptional({
     description: 'Display priority for banner ordering (higher = shown first)',

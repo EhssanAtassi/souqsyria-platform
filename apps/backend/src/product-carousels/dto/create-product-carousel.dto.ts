@@ -55,7 +55,8 @@ export class CreateProductCarouselDto {
     enumName: 'CarouselType',
   })
   @IsEnum(CarouselType, {
-    message: 'Type must be one of: new_arrivals, best_sellers, trending, recommended, custom',
+    message:
+      'Type must be one of: new_arrivals, best_sellers, trending, recommended, custom',
   })
   type: CarouselType;
 
@@ -103,7 +104,9 @@ export class CreateProductCarouselDto {
   })
   @IsOptional()
   @IsString({ message: 'Description (English) must be a string' })
-  @MaxLength(500, { message: 'Description (English) must not exceed 500 characters' })
+  @MaxLength(500, {
+    message: 'Description (English) must not exceed 500 characters',
+  })
   descriptionEn?: string;
 
   /**
@@ -118,7 +121,9 @@ export class CreateProductCarouselDto {
   })
   @IsOptional()
   @IsString({ message: 'Description (Arabic) must be a string' })
-  @MaxLength(500, { message: 'Description (Arabic) must not exceed 500 characters' })
+  @MaxLength(500, {
+    message: 'Description (Arabic) must not exceed 500 characters',
+  })
   descriptionAr?: string;
 
   /**
@@ -150,7 +155,8 @@ export class CreateProductCarouselDto {
    * Custom carousels ignore this field.
    */
   @ApiPropertyOptional({
-    description: 'How often to refresh dynamic carousel data (minutes, minimum 5)',
+    description:
+      'How often to refresh dynamic carousel data (minutes, minimum 5)',
     example: 30,
     minimum: 5,
   })
@@ -166,7 +172,8 @@ export class CreateProductCarouselDto {
    * Example: 0 = top, 1 = second, etc.
    */
   @ApiPropertyOptional({
-    description: 'Display order position on homepage (0-based, lower = higher priority)',
+    description:
+      'Display order position on homepage (0-based, lower = higher priority)',
     example: 0,
     default: 0,
     minimum: 0,

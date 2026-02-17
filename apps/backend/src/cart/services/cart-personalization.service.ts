@@ -45,13 +45,13 @@ import { ProductEntity } from '../../products/entities/product.entity';
  * Different recommendation approaches for A/B testing
  */
 export enum RecommendationStrategy {
-  CONTENT_BASED = 'content_based',         // Similar products by attributes
-  COLLABORATIVE = 'collaborative',         // User behavior patterns
-  REGIONAL = 'regional',                   // Syrian regional preferences
-  SEASONAL = 'seasonal',                   // Time-based (Ramadan, Eid)
-  CROSS_SELL = 'cross_sell',              // Complementary products
-  UPSELL = 'upsell',                      // Premium alternatives
-  HYBRID = 'hybrid',                      // Combined approach (default)
+  CONTENT_BASED = 'content_based', // Similar products by attributes
+  COLLABORATIVE = 'collaborative', // User behavior patterns
+  REGIONAL = 'regional', // Syrian regional preferences
+  SEASONAL = 'seasonal', // Time-based (Ramadan, Eid)
+  CROSS_SELL = 'cross_sell', // Complementary products
+  UPSELL = 'upsell', // Premium alternatives
+  HYBRID = 'hybrid', // Combined approach (default)
 }
 
 /**
@@ -59,14 +59,14 @@ export enum RecommendationStrategy {
  * Different regions with unique product preferences
  */
 export enum SyrianRegion {
-  DAMASCUS = 'damascus',        // Capital - diverse products
-  ALEPPO = 'aleppo',           // Northern - textiles, nuts
-  HOMS = 'homs',               // Central - handicrafts
-  LATAKIA = 'latakia',         // Coastal - specific flavors
-  TARTUS = 'tartus',           // Coastal - similar to Latakia
-  HAMA = 'hama',               // Central - traditional crafts
-  DEIR_EZZOR = 'deir_ezzor',   // Eastern - specific specialties
-  UNKNOWN = 'unknown',          // Default fallback
+  DAMASCUS = 'damascus', // Capital - diverse products
+  ALEPPO = 'aleppo', // Northern - textiles, nuts
+  HOMS = 'homs', // Central - handicrafts
+  LATAKIA = 'latakia', // Coastal - specific flavors
+  TARTUS = 'tartus', // Coastal - similar to Latakia
+  HAMA = 'hama', // Central - traditional crafts
+  DEIR_EZZOR = 'deir_ezzor', // Eastern - specific specialties
+  UNKNOWN = 'unknown', // Default fallback
 }
 
 /**
@@ -76,9 +76,9 @@ export enum SyrianRegion {
 export interface RecommendationResult {
   recommendations: RecommendedProduct[];
   strategy: RecommendationStrategy;
-  confidence: number;          // 0-1 confidence score
-  reason: string;              // Human-readable explanation
-  abTestVariant?: string;      // A/B test variant identifier
+  confidence: number; // 0-1 confidence score
+  reason: string; // Human-readable explanation
+  abTestVariant?: string; // A/B test variant identifier
 }
 
 /**
@@ -90,10 +90,10 @@ export interface RecommendedProduct {
   productId: number;
   name: string;
   price: number;
-  relevanceScore: number;      // 0-1 relevance to cart
+  relevanceScore: number; // 0-1 relevance to cart
   category: string;
   imageUrl?: string;
-  reason: string;              // Why this was recommended
+  reason: string; // Why this was recommended
   tags?: string[];
 }
 
@@ -105,7 +105,7 @@ export interface UserBehaviorProfile {
   userId: string;
   preferredCategories: string[];
   averagePriceRange: { min: number; max: number };
-  purchaseFrequency: string;    // 'frequent' | 'occasional' | 'rare'
+  purchaseFrequency: string; // 'frequent' | 'occasional' | 'rare'
   regionPreference: SyrianRegion;
   seasonalInterests: string[];
   lastPurchaseDate?: Date;
@@ -162,12 +162,18 @@ export class CartPersonalizationService {
   private readonly logger = new Logger(CartPersonalizationService.name);
 
   /** In-memory cache (replaces Redis) */
-  private readonly _cache = new Map<string, { value: string; expiresAt: number }>();
+  private readonly _cache = new Map<
+    string,
+    { value: string; expiresAt: number }
+  >();
 
   private _cacheGet(key: string): string | null {
     const entry = this._cache.get(key);
     if (!entry) return null;
-    if (Date.now() > entry.expiresAt) { this._cache.delete(key); return null; }
+    if (Date.now() > entry.expiresAt) {
+      this._cache.delete(key);
+      return null;
+    }
     return entry.value;
   }
 
@@ -182,7 +188,10 @@ export class CartPersonalizationService {
   private _cacheIncr(key: string, ttlSeconds: number = 3600): number {
     const entry = this._cache.get(key);
     if (!entry || Date.now() > entry.expiresAt) {
-      this._cache.set(key, { value: '1', expiresAt: Date.now() + ttlSeconds * 1000 });
+      this._cache.set(key, {
+        value: '1',
+        expiresAt: Date.now() + ttlSeconds * 1000,
+      });
       return 1;
     }
     const newVal = parseInt(entry.value, 10) + 1;
@@ -192,12 +201,12 @@ export class CartPersonalizationService {
 
   /** Personalization configuration with production defaults */
   private readonly config: PersonalizationConfig = {
-    maxRecommendations: 10,           // Top 10 recommendations
-    minRelevanceScore: 0.4,           // Minimum 40% relevance
+    maxRecommendations: 10, // Top 10 recommendations
+    minRelevanceScore: 0.4, // Minimum 40% relevance
     enableRegionalIntelligence: true, // Syrian regional preferences
     enableSeasonalRecommendations: true, // Ramadan, Eid awareness
-    cacheTTL: 1800,                   // 30-minute cache
-    abTestEnabled: true,               // A/B testing enabled
+    cacheTTL: 1800, // 30-minute cache
+    abTestEnabled: true, // A/B testing enabled
   };
 
   /** Syrian regional product affinities */
@@ -214,11 +223,7 @@ export class CartPersonalizationService {
       'Textiles',
       'Olive Products',
     ],
-    [SyrianRegion.HOMS]: [
-      'Traditional Crafts',
-      'Handmade Textiles',
-      'Spices',
-    ],
+    [SyrianRegion.HOMS]: ['Traditional Crafts', 'Handmade Textiles', 'Spices'],
     [SyrianRegion.LATAKIA]: [
       'Coastal Flavors',
       'Olive Products',
@@ -239,11 +244,7 @@ export class CartPersonalizationService {
       'Desert Herbs',
       'Traditional Crafts',
     ],
-    [SyrianRegion.UNKNOWN]: [
-      'Damascus Steel',
-      'Aleppo Soap',
-      'Syrian Spices',
-    ],
+    [SyrianRegion.UNKNOWN]: ['Damascus Steel', 'Aleppo Soap', 'Syrian Spices'],
   };
 
   /** Seasonal product categories */
@@ -285,7 +286,9 @@ export class CartPersonalizationService {
     @InjectRepository(ProductEntity)
     private readonly productRepo: Repository<ProductEntity>,
   ) {
-    this.logger.log('🎯 Cart Personalization Service initialized with ML recommendations');
+    this.logger.log(
+      '🎯 Cart Personalization Service initialized with ML recommendations',
+    );
   }
 
   /**
@@ -332,11 +335,17 @@ export class CartPersonalizationService {
           break;
 
         case RecommendationStrategy.COLLABORATIVE:
-          result = await this.getCollaborativeRecommendations(cartItems, userId);
+          result = await this.getCollaborativeRecommendations(
+            cartItems,
+            userId,
+          );
           break;
 
         case RecommendationStrategy.REGIONAL:
-          result = await this.getRegionalRecommendations(cartItems, userProfile);
+          result = await this.getRegionalRecommendations(
+            cartItems,
+            userProfile,
+          );
           break;
 
         case RecommendationStrategy.SEASONAL:
@@ -359,7 +368,9 @@ export class CartPersonalizationService {
 
       // Step 4: Apply A/B testing variant if enabled
       if (this.config.abTestEnabled) {
-        result.abTestVariant = this.getABTestVariant(userId || `guest:${cartId}`);
+        result.abTestVariant = this.getABTestVariant(
+          userId || `guest:${cartId}`,
+        );
       }
 
       // Step 5: Cache results
@@ -370,7 +381,6 @@ export class CartPersonalizationService {
       );
 
       return result;
-
     } catch (error) {
       this.logger.error('Failed to generate recommendations', error.stack);
 
@@ -389,7 +399,9 @@ export class CartPersonalizationService {
     const recommendations: RecommendedProduct[] = [];
 
     // Extract categories and price range from cart
-    const categories = [...new Set(cartItems.map(item => item.variant.product.category))];
+    const categories = [
+      ...new Set(cartItems.map((item) => item.variant.product.category)),
+    ];
     const priceRange = this.calculatePriceRange(cartItems);
 
     // Find similar products in same categories
@@ -404,7 +416,7 @@ export class CartPersonalizationService {
         })
         .andWhere('variant.stockQuantity > 0')
         .andWhere('variant.id NOT IN (:...excludeIds)', {
-          excludeIds: cartItems.map(item => item.variant.id),
+          excludeIds: cartItems.map((item) => item.variant.id),
         })
         .limit(5)
         .getMany();
@@ -428,7 +440,7 @@ export class CartPersonalizationService {
 
     // Sort by relevance and apply threshold
     const filtered = recommendations
-      .filter(r => r.relevanceScore >= this.config.minRelevanceScore)
+      .filter((r) => r.relevanceScore >= this.config.minRelevanceScore)
       .sort((a, b) => b.relevanceScore - a.relevanceScore)
       .slice(0, this.config.maxRecommendations);
 
@@ -451,21 +463,23 @@ export class CartPersonalizationService {
     // Placeholder for collaborative filtering
     // In production, this would query order history and user behavior patterns
 
-    const variantIds = cartItems.map(item => item.variant.id);
+    const variantIds = cartItems.map((item) => item.variant.id);
 
     // Simulate collaborative filtering with co-purchase patterns
     // This would typically use a pre-computed matrix or ML model
     const coPurchasedProducts = await this.findCoPurchasedProducts(variantIds);
 
-    const recommendations: RecommendedProduct[] = coPurchasedProducts.map(product => ({
-      variantId: product.variants[0].id,
-      productId: product.id,
-      name: product.nameEn,
-      price: product.variants[0].price,
-      relevanceScore: 0.75, // Simulated relevance
-      category: product.category?.nameEn || 'Unknown',
-      reason: 'Customers who bought similar items also purchased this',
-    }));
+    const recommendations: RecommendedProduct[] = coPurchasedProducts.map(
+      (product) => ({
+        variantId: product.variants[0].id,
+        productId: product.id,
+        name: product.nameEn,
+        price: product.variants[0].price,
+        relevanceScore: 0.75, // Simulated relevance
+        category: product.category?.nameEn || 'Unknown',
+        reason: 'Customers who bought similar items also purchased this',
+      }),
+    );
 
     return {
       recommendations: recommendations.slice(0, this.config.maxRecommendations),
@@ -493,24 +507,28 @@ export class CartPersonalizationService {
     const regionalProducts = await this.productRepo
       .createQueryBuilder('product')
       .leftJoinAndSelect('product.variants', 'variant')
-      .where('product.category IN (:...categories)', { categories: preferredCategories })
+      .where('product.category IN (:...categories)', {
+        categories: preferredCategories,
+      })
       .andWhere('variant.stockQuantity > 0')
       .andWhere('variant.id NOT IN (:...excludeIds)', {
-        excludeIds: cartItems.map(item => item.variant.id),
+        excludeIds: cartItems.map((item) => item.variant.id),
       })
       .limit(this.config.maxRecommendations)
       .getMany();
 
-    const recommendations: RecommendedProduct[] = regionalProducts.map(product => ({
-      variantId: product.variants[0].id,
-      productId: product.id,
-      name: product.nameEn,
-      price: product.variants[0].price,
-      relevanceScore: 0.8,
-      category: product.category?.nameEn || 'Unknown',
-      reason: `Popular in ${region.replace('_', ' ')}`,
-      tags: [],
-    }));
+    const recommendations: RecommendedProduct[] = regionalProducts.map(
+      (product) => ({
+        variantId: product.variants[0].id,
+        productId: product.id,
+        name: product.nameEn,
+        price: product.variants[0].price,
+        relevanceScore: 0.8,
+        category: product.category?.nameEn || 'Unknown',
+        reason: `Popular in ${region.replace('_', ' ')}`,
+        tags: [],
+      }),
+    );
 
     return {
       recommendations,
@@ -541,24 +559,28 @@ export class CartPersonalizationService {
     const seasonalProducts = await this.productRepo
       .createQueryBuilder('product')
       .leftJoinAndSelect('product.variants', 'variant')
-      .where('product.category IN (:...categories)', { categories: seasonalCategories })
+      .where('product.category IN (:...categories)', {
+        categories: seasonalCategories,
+      })
       .andWhere('variant.stockQuantity > 0')
       .andWhere('variant.id NOT IN (:...excludeIds)', {
-        excludeIds: cartItems.map(item => item.variant.id),
+        excludeIds: cartItems.map((item) => item.variant.id),
       })
       .limit(this.config.maxRecommendations)
       .getMany();
 
-    const recommendations: RecommendedProduct[] = seasonalProducts.map(product => ({
-      variantId: product.variants[0].id,
-      productId: product.id,
-      name: product.nameEn,
-      price: product.variants[0].price,
-      relevanceScore: 0.9,
-      category: product.category?.nameEn || 'Unknown',
-      reason: `Perfect for ${currentSeason}`,
-      tags: [],
-    }));
+    const recommendations: RecommendedProduct[] = seasonalProducts.map(
+      (product) => ({
+        variantId: product.variants[0].id,
+        productId: product.id,
+        name: product.nameEn,
+        price: product.variants[0].price,
+        relevanceScore: 0.9,
+        category: product.category?.nameEn || 'Unknown',
+        reason: `Perfect for ${currentSeason}`,
+        tags: [],
+      }),
+    );
 
     return {
       recommendations,
@@ -577,11 +599,15 @@ export class CartPersonalizationService {
   ): Promise<RecommendationResult> {
     // Define complementary product relationships
     const complementaryMap: Record<string, string[]> = {
-      'Damascus Steel': ['Leather Sheaths', 'Knife Care Kits', 'Display Stands'],
+      'Damascus Steel': [
+        'Leather Sheaths',
+        'Knife Care Kits',
+        'Display Stands',
+      ],
       'Aleppo Soap': ['Bath Accessories', 'Organic Oils', 'Skin Care'],
-      'Textiles': ['Sewing Supplies', 'Textile Care Products', 'Display Items'],
-      'Spices': ['Spice Containers', 'Cooking Tools', 'Recipe Books'],
-      'Jewelry': ['Jewelry Boxes', 'Cleaning Kits', 'Gift Wrapping'],
+      Textiles: ['Sewing Supplies', 'Textile Care Products', 'Display Items'],
+      Spices: ['Spice Containers', 'Cooking Tools', 'Recipe Books'],
+      Jewelry: ['Jewelry Boxes', 'Cleaning Kits', 'Gift Wrapping'],
     };
 
     const recommendations: RecommendedProduct[] = [];
@@ -595,7 +621,9 @@ export class CartPersonalizationService {
         const complementaryProducts = await this.productRepo
           .createQueryBuilder('product')
           .leftJoinAndSelect('product.variants', 'variant')
-          .where('product.category IN (:...categories)', { categories: complementaryCategories })
+          .where('product.category IN (:...categories)', {
+            categories: complementaryCategories,
+          })
           .andWhere('variant.stockQuantity > 0')
           .limit(2)
           .getMany();
@@ -649,7 +677,9 @@ export class CartPersonalizationService {
           maxPrice: currentPrice * 1.5,
         })
         .andWhere('variant.stockQuantity > 0')
-        .andWhere('variant.id != :currentVariantId', { currentVariantId: cartItem.variant.id })
+        .andWhere('variant.id != :currentVariantId', {
+          currentVariantId: cartItem.variant.id,
+        })
         .limit(2)
         .getMany();
 
@@ -703,14 +733,15 @@ export class CartPersonalizationService {
     ];
 
     // Deduplicate by variantId and sort by relevance
-    const uniqueRecommendations = this.deduplicateRecommendations(allRecommendations);
+    const uniqueRecommendations =
+      this.deduplicateRecommendations(allRecommendations);
 
     // Boost seasonal and regional recommendations
     for (const rec of uniqueRecommendations) {
-      if (seasonal.recommendations.some(r => r.variantId === rec.variantId)) {
+      if (seasonal.recommendations.some((r) => r.variantId === rec.variantId)) {
         rec.relevanceScore *= 1.1; // 10% boost for seasonal
       }
-      if (regional.recommendations.some(r => r.variantId === rec.variantId)) {
+      if (regional.recommendations.some((r) => r.variantId === rec.variantId)) {
         rec.relevanceScore *= 1.05; // 5% boost for regional
       }
     }
@@ -748,8 +779,11 @@ export class CartPersonalizationService {
   /**
    * Calculate price range from cart items
    */
-  private calculatePriceRange(cartItems: CartItem[]): { min: number; max: number } {
-    const prices = cartItems.map(item => item.variant.price);
+  private calculatePriceRange(cartItems: CartItem[]): {
+    min: number;
+    max: number;
+  } {
+    const prices = cartItems.map((item) => item.variant.price);
     return {
       min: Math.min(...prices),
       max: Math.max(...prices),
@@ -759,14 +793,19 @@ export class CartPersonalizationService {
   /**
    * Calculate content similarity score between cart and product
    */
-  private calculateContentSimilarity(cartItems: CartItem[], product: ProductEntity): number {
+  private calculateContentSimilarity(
+    cartItems: CartItem[],
+    product: ProductEntity,
+  ): number {
     // Simplified similarity calculation
     // In production, this would use more sophisticated algorithms (cosine similarity, etc.)
 
     let score = 0.5; // Base score
 
     // Category match
-    const cartCategories = cartItems.map(item => item.variant.product.category);
+    const cartCategories = cartItems.map(
+      (item) => item.variant.product.category,
+    );
     if (cartCategories.includes(product.category)) {
       score += 0.3;
     }
@@ -775,7 +814,10 @@ export class CartPersonalizationService {
     const cartPriceRange = this.calculatePriceRange(cartItems);
     const productPrice = product.variants[0]?.price || 0;
 
-    if (productPrice >= cartPriceRange.min && productPrice <= cartPriceRange.max) {
+    if (
+      productPrice >= cartPriceRange.min &&
+      productPrice <= cartPriceRange.max
+    ) {
       score += 0.2;
     }
 
@@ -785,7 +827,9 @@ export class CartPersonalizationService {
   /**
    * Find co-purchased products (placeholder for collaborative filtering)
    */
-  private async findCoPurchasedProducts(variantIds: number[]): Promise<ProductEntity[]> {
+  private async findCoPurchasedProducts(
+    variantIds: number[],
+  ): Promise<ProductEntity[]> {
     // Placeholder implementation
     // In production, this would query order history for co-purchase patterns
 
@@ -793,7 +837,9 @@ export class CartPersonalizationService {
       .createQueryBuilder('product')
       .leftJoinAndSelect('product.variants', 'variant')
       .where('variant.stockQuantity > 0')
-      .andWhere('variant.id NOT IN (:...excludeIds)', { excludeIds: variantIds })
+      .andWhere('variant.id NOT IN (:...excludeIds)', {
+        excludeIds: variantIds,
+      })
       .limit(5)
       .getMany();
   }
@@ -805,7 +851,7 @@ export class CartPersonalizationService {
     recommendations: RecommendedProduct[],
   ): RecommendedProduct[] {
     const seen = new Set<number>();
-    return recommendations.filter(rec => {
+    return recommendations.filter((rec) => {
       if (seen.has(rec.variantId)) {
         return false;
       }
@@ -820,7 +866,9 @@ export class CartPersonalizationService {
   private calculateConfidence(recommendations: RecommendedProduct[]): number {
     if (recommendations.length === 0) return 0;
 
-    const avgRelevance = recommendations.reduce((sum, rec) => sum + rec.relevanceScore, 0) / recommendations.length;
+    const avgRelevance =
+      recommendations.reduce((sum, rec) => sum + rec.relevanceScore, 0) /
+      recommendations.length;
     const count = recommendations.length;
     const countFactor = Math.min(count / this.config.maxRecommendations, 1.0);
 
@@ -870,7 +918,9 @@ export class CartPersonalizationService {
    * Get recommendations for empty cart
    * Returns popular products or new arrivals
    */
-  private async getEmptyCartRecommendations(userId: string | null): Promise<RecommendationResult> {
+  private async getEmptyCartRecommendations(
+    userId: string | null,
+  ): Promise<RecommendationResult> {
     return this.getPopularProductsRecommendations();
   }
 
@@ -886,16 +936,18 @@ export class CartPersonalizationService {
       .limit(this.config.maxRecommendations)
       .getMany();
 
-    const recommendations: RecommendedProduct[] = popularProducts.map(product => ({
-      variantId: product.variants[0].id,
-      productId: product.id,
-      name: product.nameEn,
-      price: product.variants[0].price,
-      relevanceScore: 0.6,
-      category: product.category?.nameEn || 'Unknown',
-      reason: 'Popular products in Syrian marketplace',
-      tags: [],
-    }));
+    const recommendations: RecommendedProduct[] = popularProducts.map(
+      (product) => ({
+        variantId: product.variants[0].id,
+        productId: product.id,
+        name: product.nameEn,
+        price: product.variants[0].price,
+        relevanceScore: 0.6,
+        category: product.category?.nameEn || 'Unknown',
+        reason: 'Popular products in Syrian marketplace',
+        tags: [],
+      }),
+    );
 
     return {
       recommendations,
@@ -922,10 +974,14 @@ export class CartPersonalizationService {
       const key = `recommendation:engagement:${variantId}:${action}`;
       this._cacheIncr(key);
 
-      this.logger.debug(`Tracked recommendation engagement: ${action} for variant ${variantId}`);
-
+      this.logger.debug(
+        `Tracked recommendation engagement: ${action} for variant ${variantId}`,
+      );
     } catch (error) {
-      this.logger.error('Failed to track recommendation engagement', error.stack);
+      this.logger.error(
+        'Failed to track recommendation engagement',
+        error.stack,
+      );
     }
   }
 }

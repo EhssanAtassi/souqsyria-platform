@@ -54,7 +54,8 @@ export class UpdateRolePriorityDto {
    * @example 50
    */
   @ApiProperty({
-    description: 'Priority value for role hierarchy. Higher values = higher priority. Must be >= 0.',
+    description:
+      'Priority value for role hierarchy. Higher values = higher priority. Must be >= 0.',
     example: 50,
     type: Number,
     minimum: 0,

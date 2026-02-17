@@ -86,10 +86,7 @@ export class CartSyncService {
    * @throws NotFoundException - If cart not found
    * @throws ConflictException - If conflict cannot be resolved
    */
-  async syncCart(
-    userId: number,
-    syncRequest: SyncCartRequest,
-  ): Promise<Cart> {
+  async syncCart(userId: number, syncRequest: SyncCartRequest): Promise<Cart> {
     const startTime = Date.now();
     this.logger.log(
       `🔄 Syncing cart: User=${userId}, Version=${syncRequest.clientVersion}`,
@@ -100,9 +97,7 @@ export class CartSyncService {
       const serverCart = await this.findCart(userId, undefined);
 
       if (!serverCart) {
-        throw new NotFoundException(
-          `Cart not found for user ${userId}`,
-        );
+        throw new NotFoundException(`Cart not found for user ${userId}`);
       }
 
       this.logger.log(
@@ -119,10 +114,7 @@ export class CartSyncService {
         this.logger.log(
           `✅ No conflict detected (version ${syncRequest.clientVersion}), applying client changes`,
         );
-        resolvedCart = await this.applyClientChanges(
-          serverCart,
-          syncRequest,
-        );
+        resolvedCart = await this.applyClientChanges(serverCart, syncRequest);
       } else {
         // Conflict detected: Resolve using CartConflictResolver
         this.logger.warn(
@@ -131,7 +123,9 @@ export class CartSyncService {
 
         const clientCart: Partial<Cart> = {
           version: syncRequest.clientVersion,
-          items: await this.convertSyncItemsToCartItems(syncRequest.items) as CartItem[],
+          items: (await this.convertSyncItemsToCartItems(
+            syncRequest.items,
+          )) as CartItem[],
           updated_at: clientTimestamp,
         };
 
@@ -245,10 +239,7 @@ export class CartSyncService {
         this.logger.log(
           `✅ No conflict detected (version ${syncRequest.clientVersion}), applying client changes`,
         );
-        resolvedCart = await this.applyClientChanges(
-          serverCart,
-          syncRequest,
-        );
+        resolvedCart = await this.applyClientChanges(serverCart, syncRequest);
       } else {
         // Conflict detected: Resolve using CartConflictResolver
         this.logger.warn(
@@ -257,7 +248,9 @@ export class CartSyncService {
 
         const clientCart: Partial<Cart> = {
           version: syncRequest.clientVersion,
-          items: await this.convertSyncItemsToCartItems(syncRequest.items) as CartItem[],
+          items: (await this.convertSyncItemsToCartItems(
+            syncRequest.items,
+          )) as CartItem[],
           updated_at: clientTimestamp,
         };
 
@@ -396,8 +389,7 @@ export class CartSyncService {
             price_at_add: syncItem.priceAtAdd,
             added_at: new Date(syncItem.addedAt),
             locked_until: new Date(
-              new Date(syncItem.addedAt).getTime() +
-                7 * 24 * 60 * 60 * 1000,
+              new Date(syncItem.addedAt).getTime() + 7 * 24 * 60 * 60 * 1000,
             ),
             added_from_campaign: syncItem.addedFromCampaign,
             valid: true,
@@ -452,8 +444,7 @@ export class CartSyncService {
           price_at_add: syncItem.priceAtAdd,
           added_at: new Date(syncItem.addedAt),
           locked_until: new Date(
-            new Date(syncItem.addedAt).getTime() +
-              7 * 24 * 60 * 60 * 1000,
+            new Date(syncItem.addedAt).getTime() + 7 * 24 * 60 * 60 * 1000,
           ),
           added_from_campaign: syncItem.addedFromCampaign,
         } as CartItem);
@@ -462,5 +453,4 @@ export class CartSyncService {
 
     return cartItems;
   }
-
 }

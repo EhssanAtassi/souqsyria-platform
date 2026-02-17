@@ -173,7 +173,9 @@ export class GuestSessionController {
         status: session.status as GuestSessionStatus,
       };
     } catch (error) {
-      this.logger.warn(`Session validation failed: ${(error as Error).message}`);
+      this.logger.warn(
+        `Session validation failed: ${(error as Error).message}`,
+      );
 
       return {
         exists: false,
@@ -219,9 +221,7 @@ export class GuestSessionController {
   @ApiBadRequestResponse({
     description: 'Session expired beyond grace period',
   })
-  async refreshSession(
-    @Req() req: Request,
-  ): Promise<GuestSessionDto> {
+  async refreshSession(@Req() req: Request): Promise<GuestSessionDto> {
     this.logger.debug('Refreshing guest session');
 
     const sessionUUID = req.cookies?.[this.COOKIE_NAME];

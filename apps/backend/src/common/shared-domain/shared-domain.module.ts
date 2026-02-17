@@ -57,14 +57,7 @@ import { DomainEventPublisher } from './services/domain-event-publisher.service'
       ignoreErrors: false,
     }),
   ],
-  providers: [
-    TransactionEventService,
-    DomainEventPublisher,
-  ],
-  exports: [
-    EventEmitterModule,
-    TransactionEventService,
-    DomainEventPublisher,
-  ],
+  providers: [TransactionEventService, DomainEventPublisher],
+  exports: [EventEmitterModule, TransactionEventService, DomainEventPublisher],
 })
 export class SharedDomainModule {}

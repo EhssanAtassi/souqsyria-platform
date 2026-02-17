@@ -29,7 +29,10 @@ import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, LessThan } from 'typeorm';
 import { GuestSession } from '../../cart/entities/guest-session.entity';
-import { CreateGuestSessionDto, GuestSessionStatus } from '../dto/guest-session.dto';
+import {
+  CreateGuestSessionDto,
+  GuestSessionStatus,
+} from '../dto/guest-session.dto';
 
 /**
  * GuestSessionService
@@ -380,7 +383,13 @@ export class GuestSessionService {
     }
 
     // Check for significant fingerprint changes
-    if (newFingerprint && this.hasSignificantFingerprintChange(session.deviceFingerprint, newFingerprint)) {
+    if (
+      newFingerprint &&
+      this.hasSignificantFingerprintChange(
+        session.deviceFingerprint,
+        newFingerprint,
+      )
+    ) {
       this.logger.warn(
         `🚨 Device fingerprint changed significantly for session ${sessionId} (possible session hijacking)`,
       );

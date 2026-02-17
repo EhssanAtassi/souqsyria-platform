@@ -180,7 +180,9 @@ export class CreateSyrianAddressDto {
   })
   @IsOptional()
   @IsString({ message: 'Additional details must be a string' })
-  @MaxLength(256, { message: 'Additional details cannot exceed 256 characters' })
+  @MaxLength(256, {
+    message: 'Additional details cannot exceed 256 characters',
+  })
   additionalDetails?: string;
 
   /**

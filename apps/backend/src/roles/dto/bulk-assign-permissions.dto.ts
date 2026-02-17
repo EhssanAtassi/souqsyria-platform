@@ -39,7 +39,8 @@ export class BulkAssignPermissionsDto {
    * @example [1, 2, 3, 15, 20, 25]
    */
   @ApiProperty({
-    description: 'Array of permission IDs to assign to the role. Replaces all existing permissions.',
+    description:
+      'Array of permission IDs to assign to the role. Replaces all existing permissions.',
     example: [1, 2, 3, 15, 20, 25],
     type: [Number],
     isArray: true,

@@ -18,6 +18,11 @@
     font-weight: $font-weight-semibold;
     color: $forest-dark;
     margin: 0 0 $space-6 0;
+
+    [dir="rtl"] & {
+      font-family: $font-family-arabic;
+      line-height: 1.375;
+    }
   }
 
   &__content {

@@ -34,9 +34,7 @@ import { Route } from '../access-control/entities/route.entity';
     forwardRef(() => RefundModule),
     AccessControlModule,
   ],
-  providers: [
-    OrdersService,
-  ],
+  providers: [OrdersService],
   controllers: [OrdersController],
   exports: [OrdersService, TypeOrmModule],
 })

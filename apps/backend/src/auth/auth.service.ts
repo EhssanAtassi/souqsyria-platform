@@ -256,7 +256,8 @@ export class AuthService {
       user: userWithoutSensitiveData,
       accessToken: tokens.accessToken,
       refreshToken: tokens.refreshToken,
-      message: 'Registration successful. Please check your email to verify your account.',
+      message:
+        'Registration successful. Please check your email to verify your account.',
     };
   }
 
@@ -278,7 +279,9 @@ export class AuthService {
     }
 
     if (!user.isOtpValid()) {
-      throw new BadRequestException('OTP code has expired. Please request a new one.');
+      throw new BadRequestException(
+        'OTP code has expired. Please request a new one.',
+      );
     }
 
     if (user.otpCode !== otpCode) {
@@ -338,8 +341,13 @@ export class AuthService {
     // Block access for soft-deleted users
     if (!user || user.deletedAt) {
       // Record failed attempt even for non-existent users (prevents user enumeration)
-      await this.rateLimiterService.recordFailedAttempt('login', `${email}:${clientIp}`);
-      throw new UnauthorizedException('Invalid credentials or deleted account.');
+      await this.rateLimiterService.recordFailedAttempt(
+        'login',
+        `${email}:${clientIp}`,
+      );
+      throw new UnauthorizedException(
+        'Invalid credentials or deleted account.',
+      );
     }
 
     // SEC-H06: Check if account is locked due to failed attempts
@@ -370,9 +378,13 @@ export class AuthService {
       await this.userRepository.save(user);
 
       // Also record in rate limiter for distributed tracking
-      await this.rateLimiterService.recordFailedAttempt('login', `${email}:${clientIp}`);
+      await this.rateLimiterService.recordFailedAttempt(
+        'login',
+        `${email}:${clientIp}`,
+      );
 
-      const remainingAttempts = this.MAX_FAILED_ATTEMPTS - user.failedLoginAttempts;
+      const remainingAttempts =
+        this.MAX_FAILED_ATTEMPTS - user.failedLoginAttempts;
       this.logger.warn(
         `Invalid password for ${email}. Failed attempts: ${user.failedLoginAttempts}/${this.MAX_FAILED_ATTEMPTS}`,
       );
@@ -402,7 +414,11 @@ export class AuthService {
 
         // Send lockout notification email (fire-and-forget)
         this.emailService
-          .sendAccountLockoutEmail(email, this.LOCKOUT_DURATION_MINUTES, clientIp)
+          .sendAccountLockoutEmail(
+            email,
+            this.LOCKOUT_DURATION_MINUTES,
+            clientIp,
+          )
           .catch((err) =>
             this.logger.error(`Failed to send lockout email: ${err.message}`),
           );
@@ -449,7 +465,10 @@ export class AuthService {
 
     // Successful login - reset failed attempts and rate limit
     user.resetFailedAttempts();
-    await this.rateLimiterService.recordSuccess('login', `${email}:${clientIp}`);
+    await this.rateLimiterService.recordSuccess(
+      'login',
+      `${email}:${clientIp}`,
+    );
 
     // Generate both access and refresh tokens with rememberMe flag
     const tokens = await this.generateTokens(user, request, !!rememberMe);
@@ -482,7 +501,10 @@ export class AuthService {
     user.lastLoginAt = new Date();
     await this.userRepository.save(user);
 
-    return { accessToken: tokens.accessToken, refreshToken: tokens.refreshToken };
+    return {
+      accessToken: tokens.accessToken,
+      refreshToken: tokens.refreshToken,
+    };
   }
 
   /**
@@ -734,7 +756,9 @@ export class AuthService {
         message: 'Logout successful. Please remove the token from your client.',
       };
     } catch (error: unknown) {
-      this.logger.error(`Logout failed for user ${userId}: ${(error as Error).message}`);
+      this.logger.error(
+        `Logout failed for user ${userId}: ${(error as Error).message}`,
+      );
       throw new BadRequestException('Logout failed. Invalid token.');
     }
   }
@@ -763,10 +787,7 @@ export class AuthService {
     this.logger.log(`Token refresh requested`);
 
     // Step 1: Hash the incoming refresh token to match against DB
-    const tokenHash = crypto
-      .createHash('sha256')
-      .update(token)
-      .digest('hex');
+    const tokenHash = crypto.createHash('sha256').update(token).digest('hex');
 
     // Step 2: Look up the refresh token in the database
     const storedToken = await this.refreshTokenRepository.findOne({
@@ -860,7 +881,9 @@ export class AuthService {
     user.lastActivityAt = new Date();
     await this.userRepository.save(user);
 
-    this.logger.log(`Token successfully refreshed for user ID: ${user.id} with new refresh token`);
+    this.logger.log(
+      `Token successfully refreshed for user ID: ${user.id} with new refresh token`,
+    );
 
     return {
       accessToken: newAccessToken,
@@ -1358,5 +1381,4 @@ export class AuthService {
       }
     }
   }
-
 }

@@ -59,8 +59,12 @@ export class CreateCategoriesIndexes1736258400000 implements MigrationInterface 
     // Check if categories table exists
     const tableExists = await queryRunner.hasTable('categories');
     if (!tableExists) {
-      console.log('⚠️  Categories table does not exist. Skipping index creation.');
-      console.log('💡 The table will be auto-created by TypeORM based on the entity.');
+      console.log(
+        '⚠️  Categories table does not exist. Skipping index creation.',
+      );
+      console.log(
+        '💡 The table will be auto-created by TypeORM based on the entity.',
+      );
       return;
     }
 
@@ -70,14 +74,22 @@ export class CreateCategoriesIndexes1736258400000 implements MigrationInterface 
      * Query Pattern: WHERE is_active = true AND approval_status = 'approved' ORDER BY sort_order
      * Impact: Main category listings, mega menu queries
      */
-    if (!(await indexExists(queryRunner, 'categories', 'IDX_categories_active_approved_sort'))) {
+    if (
+      !(await indexExists(
+        queryRunner,
+        'categories',
+        'IDX_categories_active_approved_sort',
+      ))
+    ) {
       await queryRunner.query(`
         CREATE INDEX \`IDX_categories_active_approved_sort\`
         ON \`categories\` (\`is_active\`, \`approval_status\`, \`sort_order\`)
       `);
       console.log('  ✅ Created: IDX_categories_active_approved_sort');
     } else {
-      console.log('  ⏭️  Skipped: IDX_categories_active_approved_sort (already exists)');
+      console.log(
+        '  ⏭️  Skipped: IDX_categories_active_approved_sort (already exists)',
+      );
     }
 
     /**
@@ -87,7 +99,9 @@ export class CreateCategoriesIndexes1736258400000 implements MigrationInterface 
      * Impact: Arabic language routing and SEO
      * Note: MySQL does not support partial indexes; NULL values are simply excluded from lookups
      */
-    if (!(await indexExists(queryRunner, 'categories', 'IDX_categories_seo_slug'))) {
+    if (
+      !(await indexExists(queryRunner, 'categories', 'IDX_categories_seo_slug'))
+    ) {
       await queryRunner.query(`
         CREATE INDEX \`IDX_categories_seo_slug\`
         ON \`categories\` (\`seo_slug\`)
@@ -103,7 +117,13 @@ export class CreateCategoriesIndexes1736258400000 implements MigrationInterface 
      * Query Pattern: WHERE parent_id = ? ORDER BY sort_order
      * Impact: Tree structure queries, mega menu building
      */
-    if (!(await indexExists(queryRunner, 'categories', 'IDX_categories_parent_sort'))) {
+    if (
+      !(await indexExists(
+        queryRunner,
+        'categories',
+        'IDX_categories_parent_sort',
+      ))
+    ) {
       await queryRunner.query(`
         CREATE INDEX \`IDX_categories_parent_sort\`
         ON \`categories\` (\`parent_id\`, \`sort_order\`)
@@ -120,7 +140,13 @@ export class CreateCategoriesIndexes1736258400000 implements MigrationInterface 
      * Impact: Category routing, URL generation
      * Note: This is likely already created by TypeORM @Column({ unique: true })
      */
-    if (!(await indexExists(queryRunner, 'categories', 'IDX_categories_slug_unique'))) {
+    if (
+      !(await indexExists(
+        queryRunner,
+        'categories',
+        'IDX_categories_slug_unique',
+      ))
+    ) {
       // Check if TypeORM already created a unique constraint on slug
       const slugIndexResult = await queryRunner.query(
         `SELECT 1 FROM information_schema.STATISTICS
@@ -137,7 +163,9 @@ export class CreateCategoriesIndexes1736258400000 implements MigrationInterface 
         `);
         console.log('  ✅ Created: IDX_categories_slug_unique');
       } else {
-        console.log('  ⏭️  Skipped: IDX_categories_slug_unique (TypeORM unique constraint exists)');
+        console.log(
+          '  ⏭️  Skipped: IDX_categories_slug_unique (TypeORM unique constraint exists)',
+        );
       }
     } else {
       console.log('  ⏭️  Skipped: IDX_categories_slug_unique (already exists)');
@@ -149,7 +177,9 @@ export class CreateCategoriesIndexes1736258400000 implements MigrationInterface 
      * Query Pattern: WHERE is_featured = true AND is_active = true ORDER BY featured_priority DESC
      * Impact: Homepage featured sections, promotional displays
      */
-    if (!(await indexExists(queryRunner, 'categories', 'IDX_categories_featured'))) {
+    if (
+      !(await indexExists(queryRunner, 'categories', 'IDX_categories_featured'))
+    ) {
       await queryRunner.query(`
         CREATE INDEX \`IDX_categories_featured\`
         ON \`categories\` (\`is_featured\`, \`is_active\`, \`featured_priority\`)

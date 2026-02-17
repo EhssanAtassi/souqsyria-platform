@@ -23,6 +23,7 @@ import { MatTabsModule } from '@angular/material/tabs';
 import { Subject, takeUntil, finalize } from 'rxjs';
 
 import { AdminProductsService } from '../../../services';
+import { AdminProductsApiService, AdminProductView } from '../../services/admin-products-api.service';
 import { AdminStatusBadgeComponent, CurrencyFormatPipe } from '../../../shared';
 import {
   ProductDetails,
@@ -72,6 +73,7 @@ export class ProductDetailComponent implements OnInit, OnDestroy {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly productsService = inject(AdminProductsService);
+  private readonly adminProductsApi = inject(AdminProductsApiService);
   private readonly dialog = inject(MatDialog);
   private readonly snackBar = inject(MatSnackBar);
   private readonly destroy$ = new Subject<void>();
@@ -178,7 +180,7 @@ export class ProductDetailComponent implements OnInit, OnDestroy {
 
   /**
    * Load product details
-   * @description Fetches complete product information
+   * @description Fetches complete product information using admin API
    */
   loadProductDetails(): void {
     const productId = this.productId();
@@ -187,15 +189,16 @@ export class ProductDetailComponent implements OnInit, OnDestroy {
     this.isLoading.set(true);
     this.errorMessage.set(null);
 
-    this.productsService
-      .getProductById(productId)
+    this.adminProductsApi
+      .getProduct(productId)
       .pipe(
         takeUntil(this.destroy$),
         finalize(() => this.isLoading.set(false))
       )
       .subscribe({
         next: (product) => {
-          this.product.set(product);
+          // Map AdminProductView to ProductDetails (compatible interface)
+          this.product.set(product as any);
         },
         error: (error) => {
           console.error('Error loading product:', error);

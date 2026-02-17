@@ -48,12 +48,8 @@ import { ProductCarouselsController } from './controllers/product-carousels.cont
       ProductEntity,
     ]),
   ],
-  controllers: [
-    ProductCarouselsController,
-  ],
-  providers: [
-    ProductCarouselsService,
-  ],
+  controllers: [ProductCarouselsController],
+  providers: [ProductCarouselsService],
   exports: [ProductCarouselsService], // Export for use in HomepageModule
 })
 export class ProductCarouselsModule {}

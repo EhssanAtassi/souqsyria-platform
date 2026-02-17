@@ -20,4 +20,6 @@ import { CreateFeaturedCategoryDto } from './create-featured-category.dto';
  * Extends CreateFeaturedCategoryDto with all fields optional
  * for partial updates.
  */
-export class UpdateFeaturedCategoryDto extends PartialType(CreateFeaturedCategoryDto) {}
+export class UpdateFeaturedCategoryDto extends PartialType(
+  CreateFeaturedCategoryDto,
+) {}

@@ -25,7 +25,13 @@ import {
   Inject,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, LessThanOrEqual, MoreThanOrEqual, IsNull, In } from 'typeorm';
+import {
+  Repository,
+  LessThanOrEqual,
+  MoreThanOrEqual,
+  IsNull,
+  In,
+} from 'typeorm';
 import { PromoCard } from '../entities/promo-card.entity';
 import {
   CreatePromoCardDto,
@@ -54,12 +60,18 @@ export class PromoCardsService {
   private readonly logger = new Logger(PromoCardsService.name);
 
   /** In-memory cache (replaces Redis) */
-  private readonly _cache = new Map<string, { value: string; expiresAt: number }>();
+  private readonly _cache = new Map<
+    string,
+    { value: string; expiresAt: number }
+  >();
 
   private _cacheGet(key: string): string | null {
     const entry = this._cache.get(key);
     if (!entry) return null;
-    if (Date.now() > entry.expiresAt) { this._cache.delete(key); return null; }
+    if (Date.now() > entry.expiresAt) {
+      this._cache.delete(key);
+      return null;
+    }
     return entry.value;
   }
 
@@ -74,7 +86,10 @@ export class PromoCardsService {
   private _cacheIncr(key: string, ttlSeconds: number = 3600): number {
     const entry = this._cache.get(key);
     if (!entry || Date.now() > entry.expiresAt) {
-      this._cache.set(key, { value: '1', expiresAt: Date.now() + ttlSeconds * 1000 });
+      this._cache.set(key, {
+        value: '1',
+        expiresAt: Date.now() + ttlSeconds * 1000,
+      });
       return 1;
     }
     const newVal = parseInt(entry.value, 10) + 1;
@@ -102,8 +117,13 @@ export class PromoCardsService {
    * @returns Created card entity
    * @throws ConflictException if position is already occupied by an active card
    */
-  async create(createDto: CreatePromoCardDto, userId?: string): Promise<PromoCard> {
-    this.logger.log(`Creating new promo card: ${createDto.titleEn} at position ${createDto.position}`);
+  async create(
+    createDto: CreatePromoCardDto,
+    userId?: string,
+  ): Promise<PromoCard> {
+    this.logger.log(
+      `Creating new promo card: ${createDto.titleEn} at position ${createDto.position}`,
+    );
 
     // Validate schedule dates if provided
     if (createDto.startDate && createDto.endDate) {
@@ -132,7 +152,10 @@ export class PromoCardsService {
 
       return savedCard;
     } catch (error: unknown) {
-      this.logger.error(`Failed to create promo card: ${(error as Error).message}`, (error as Error).stack);
+      this.logger.error(
+        `Failed to create promo card: ${(error as Error).message}`,
+        (error as Error).stack,
+      );
       throw new InternalServerErrorException('Failed to create promo card');
     }
   }
@@ -143,7 +166,9 @@ export class PromoCardsService {
    * @param queryDto Query parameters
    * @returns Paginated cards with metadata
    */
-  async findAll(queryDto: QueryPromoCardsDto): Promise<PaginatedPromoCardsResponseDto<PromoCard>> {
+  async findAll(
+    queryDto: QueryPromoCardsDto,
+  ): Promise<PaginatedPromoCardsResponseDto<PromoCard>> {
     this.logger.log('Fetching promo cards with filters');
 
     const {
@@ -165,7 +190,9 @@ export class PromoCardsService {
     }
 
     if (approvalStatus) {
-      queryBuilder.andWhere('card.approvalStatus = :approvalStatus', { approvalStatus });
+      queryBuilder.andWhere('card.approvalStatus = :approvalStatus', {
+        approvalStatus,
+      });
     }
 
     if (position) {
@@ -197,7 +224,9 @@ export class PromoCardsService {
       hasPreviousPage: page > 1,
     };
 
-    this.logger.log(`Fetched ${cards.length} promo cards (total: ${totalItems})`);
+    this.logger.log(
+      `Fetched ${cards.length} promo cards (total: ${totalItems})`,
+    );
 
     return {
       data: cards,
@@ -286,7 +315,11 @@ export class PromoCardsService {
    * @throws NotFoundException if card not found
    * @throws ConflictException if position change conflicts with existing card
    */
-  async update(id: string, updateDto: UpdatePromoCardDto, userId?: string): Promise<PromoCard> {
+  async update(
+    id: string,
+    updateDto: UpdatePromoCardDto,
+    userId?: string,
+  ): Promise<PromoCard> {
     this.logger.log(`Updating promo card: ${id}`);
 
     const card = await this.findOne(id);
@@ -318,7 +351,10 @@ export class PromoCardsService {
 
       return updatedCard;
     } catch (error: unknown) {
-      this.logger.error(`Failed to update promo card: ${(error as Error).message}`, (error as Error).stack);
+      this.logger.error(
+        `Failed to update promo card: ${(error as Error).message}`,
+        (error as Error).stack,
+      );
       throw new InternalServerErrorException('Failed to update promo card');
     }
   }
@@ -345,7 +381,10 @@ export class PromoCardsService {
 
       return card;
     } catch (error: unknown) {
-      this.logger.error(`Failed to delete promo card: ${(error as Error).message}`, (error as Error).stack);
+      this.logger.error(
+        `Failed to delete promo card: ${(error as Error).message}`,
+        (error as Error).stack,
+      );
       throw new InternalServerErrorException('Failed to delete promo card');
     }
   }
@@ -384,7 +423,10 @@ export class PromoCardsService {
 
       return card;
     } catch (error: unknown) {
-      this.logger.error(`Failed to restore promo card: ${(error as Error).message}`, (error as Error).stack);
+      this.logger.error(
+        `Failed to restore promo card: ${(error as Error).message}`,
+        (error as Error).stack,
+      );
       throw new InternalServerErrorException('Failed to restore promo card');
     }
   }
@@ -416,7 +458,9 @@ export class PromoCardsService {
     // Clear cache to reflect updated analytics
     await this.clearCache();
 
-    this.logger.log(`Impression tracked successfully for card: ${trackDto.cardId}`);
+    this.logger.log(
+      `Impression tracked successfully for card: ${trackDto.cardId}`,
+    );
   }
 
   /**
@@ -484,7 +528,9 @@ export class PromoCardsService {
     const card = await this.findOne(id);
 
     if (card.approvalStatus !== 'draft' && card.approvalStatus !== 'rejected') {
-      throw new BadRequestException(`Card cannot be submitted for approval in ${card.approvalStatus} status`);
+      throw new BadRequestException(
+        `Card cannot be submitted for approval in ${card.approvalStatus} status`,
+      );
     }
 
     card.approvalStatus = 'pending';
@@ -511,7 +557,9 @@ export class PromoCardsService {
     const card = await this.findOne(id);
 
     if (card.approvalStatus !== 'pending') {
-      throw new BadRequestException(`Card cannot be approved in ${card.approvalStatus} status`);
+      throw new BadRequestException(
+        `Card cannot be approved in ${card.approvalStatus} status`,
+      );
     }
 
     card.approvalStatus = 'approved';
@@ -538,7 +586,9 @@ export class PromoCardsService {
     const card = await this.findOne(id);
 
     if (card.approvalStatus !== 'pending') {
-      throw new BadRequestException(`Card cannot be rejected in ${card.approvalStatus} status`);
+      throw new BadRequestException(
+        `Card cannot be rejected in ${card.approvalStatus} status`,
+      );
     }
 
     card.approvalStatus = 'rejected';
@@ -563,10 +613,18 @@ export class PromoCardsService {
    * @param isActive Active status to set
    * @returns Number of updated cards
    */
-  async bulkUpdateActiveStatus(ids: string[], isActive: boolean): Promise<number> {
-    this.logger.log(`Bulk updating active status for ${ids.length} cards to ${isActive}`);
+  async bulkUpdateActiveStatus(
+    ids: string[],
+    isActive: boolean,
+  ): Promise<number> {
+    this.logger.log(
+      `Bulk updating active status for ${ids.length} cards to ${isActive}`,
+    );
 
-    const result = await this.promoCardRepository.update({ id: In(ids) }, { isActive });
+    const result = await this.promoCardRepository.update(
+      { id: In(ids) },
+      { isActive },
+    );
 
     // Clear cache
     await this.clearCache();
@@ -617,7 +675,9 @@ export class PromoCardsService {
     twoYearsFromNow.setFullYear(twoYearsFromNow.getFullYear() + 2);
 
     if (end > twoYearsFromNow) {
-      throw new BadRequestException('End date cannot be more than 2 years in the future');
+      throw new BadRequestException(
+        'End date cannot be more than 2 years in the future',
+      );
     }
   }
 
@@ -628,12 +688,17 @@ export class PromoCardsService {
    * @param excludeCardId Optional card ID to exclude from check (for updates)
    * @throws ConflictException if position is already occupied
    */
-  private async validatePositionAvailability(position: 1 | 2, excludeCardId?: string): Promise<void> {
+  private async validatePositionAvailability(
+    position: 1 | 2,
+    excludeCardId?: string,
+  ): Promise<void> {
     const queryBuilder = this.promoCardRepository
       .createQueryBuilder('card')
       .where('card.position = :position', { position })
       .andWhere('card.isActive = :isActive', { isActive: true })
-      .andWhere('card.approvalStatus = :approvalStatus', { approvalStatus: 'approved' })
+      .andWhere('card.approvalStatus = :approvalStatus', {
+        approvalStatus: 'approved',
+      })
       .andWhere('card.deletedAt IS NULL');
 
     if (excludeCardId) {

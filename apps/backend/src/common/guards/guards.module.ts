@@ -53,16 +53,8 @@ import { SecurityAuditLog } from '../../access-control/entities/security-audit-l
  */
 @Global()
 @Module({
-  imports: [
-    TypeOrmModule.forFeature([User, Route, SecurityAuditLog]),
-  ],
-  providers: [
-    SecurityAuditService,
-    PermissionsGuard,
-  ],
-  exports: [
-    PermissionsGuard,
-    SecurityAuditService,
-  ],
+  imports: [TypeOrmModule.forFeature([User, Route, SecurityAuditLog])],
+  providers: [SecurityAuditService, PermissionsGuard],
+  exports: [PermissionsGuard, SecurityAuditService],
 })
 export class GuardsModule {}

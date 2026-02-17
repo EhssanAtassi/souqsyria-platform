@@ -341,7 +341,9 @@ export class AuditLogService {
       );
       return logs;
     } catch (error: unknown) {
-      this.logger.error(`❌ Failed to retrieve all logs: ${(error as Error).message}`);
+      this.logger.error(
+        `❌ Failed to retrieve all logs: ${(error as Error).message}`,
+      );
       throw new InternalServerErrorException('Failed to retrieve audit logs');
     }
   }

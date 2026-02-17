@@ -34,12 +34,8 @@ import { HeroBannersController } from './controllers/hero-banners.controller';
     // Register HeroBanner entity with TypeORM
     TypeOrmModule.forFeature([HeroBanner]),
   ],
-  controllers: [
-    HeroBannersController,
-  ],
-  providers: [
-    HeroBannersService,
-  ],
+  controllers: [HeroBannersController],
+  providers: [HeroBannersService],
   exports: [
     HeroBannersService, // Export service for use in other modules
   ],

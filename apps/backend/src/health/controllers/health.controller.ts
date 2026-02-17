@@ -60,7 +60,8 @@ export class HealthController {
   @HealthCheck()
   @ApiOperation({
     summary: 'Basic health check',
-    description: 'Quick health check for load balancers. Returns OK if server is running.',
+    description:
+      'Quick health check for load balancers. Returns OK if server is running.',
   })
   @ApiResponse({
     status: 200,
@@ -92,10 +93,14 @@ export class HealthController {
   @HealthCheck()
   @ApiOperation({
     summary: 'Liveness probe',
-    description: 'Kubernetes liveness probe. Returns OK if the process is alive.',
+    description:
+      'Kubernetes liveness probe. Returns OK if the process is alive.',
   })
   @ApiResponse({ status: 200, description: 'Application is alive' })
-  @ApiResponse({ status: 503, description: 'Application is dead and needs restart' })
+  @ApiResponse({
+    status: 503,
+    description: 'Application is dead and needs restart',
+  })
   async liveness() {
     return this.health.check([
       // Check memory isn't exhausted (heap shouldn't exceed 1.5GB)
@@ -114,10 +119,14 @@ export class HealthController {
   @HealthCheck()
   @ApiOperation({
     summary: 'Readiness probe',
-    description: 'Kubernetes readiness probe. Returns OK if ready to accept traffic.',
+    description:
+      'Kubernetes readiness probe. Returns OK if ready to accept traffic.',
   })
   @ApiResponse({ status: 200, description: 'Application is ready for traffic' })
-  @ApiResponse({ status: 503, description: 'Application is not ready for traffic' })
+  @ApiResponse({
+    status: 503,
+    description: 'Application is not ready for traffic',
+  })
   async readiness() {
     return this.health.check([
       // Database must be connected and responding
@@ -136,7 +145,8 @@ export class HealthController {
   @HealthCheck()
   @ApiOperation({
     summary: 'Detailed health check',
-    description: 'Comprehensive health report with all indicators for monitoring dashboards.',
+    description:
+      'Comprehensive health report with all indicators for monitoring dashboards.',
   })
   @ApiResponse({
     status: 200,
@@ -148,10 +158,22 @@ export class HealthController {
         info: {
           type: 'object',
           properties: {
-            database: { type: 'object', properties: { status: { type: 'string' } } },
-            memory_heap: { type: 'object', properties: { status: { type: 'string' } } },
-            disk: { type: 'object', properties: { status: { type: 'string' } } },
-            business: { type: 'object', properties: { status: { type: 'string' } } },
+            database: {
+              type: 'object',
+              properties: { status: { type: 'string' } },
+            },
+            memory_heap: {
+              type: 'object',
+              properties: { status: { type: 'string' } },
+            },
+            disk: {
+              type: 'object',
+              properties: { status: { type: 'string' } },
+            },
+            business: {
+              type: 'object',
+              properties: { status: { type: 'string' } },
+            },
           },
         },
         error: { type: 'object' },
@@ -171,10 +193,11 @@ export class HealthController {
       () => this.memory.checkRSS('memory_rss', 2000 * 1024 * 1024),
 
       // Disk space (warn if less than 10% free)
-      () => this.disk.checkStorage('disk', {
-        path: '/',
-        thresholdPercent: 0.9, // 90% usage threshold
-      }),
+      () =>
+        this.disk.checkStorage('disk', {
+          path: '/',
+          thresholdPercent: 0.9, // 90% usage threshold
+        }),
 
       // Business health metrics
       () => this.business.isHealthy('business_metrics'),
@@ -188,7 +211,8 @@ export class HealthController {
   @Get('metrics')
   @ApiOperation({
     summary: 'System metrics',
-    description: 'Returns detailed system metrics including uptime, memory, and version info.',
+    description:
+      'Returns detailed system metrics including uptime, memory, and version info.',
   })
   @ApiResponse({
     status: 200,
@@ -197,7 +221,10 @@ export class HealthController {
       type: 'object',
       properties: {
         uptime: { type: 'number', example: 86400 },
-        uptimeFormatted: { type: 'string', example: '1 day, 0 hours, 0 minutes' },
+        uptimeFormatted: {
+          type: 'string',
+          example: '1 day, 0 hours, 0 minutes',
+        },
         memory: {
           type: 'object',
           properties: {

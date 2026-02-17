@@ -199,7 +199,9 @@ export class GuestSession {
    * @returns boolean - True if session is past expiration date
    */
   isExpired(): boolean {
-    return this.expiresAt < new Date() || this.status === GuestSessionStatus.EXPIRED;
+    return (
+      this.expiresAt < new Date() || this.status === GuestSessionStatus.EXPIRED
+    );
   }
 
   /**

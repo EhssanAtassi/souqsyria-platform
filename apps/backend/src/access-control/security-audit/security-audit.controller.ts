@@ -151,7 +151,8 @@ export class SecurityAuditController {
     name: 'success',
     required: false,
     type: Boolean,
-    description: 'Filter by success status (true for successful, false for failed)',
+    description:
+      'Filter by success status (true for successful, false for failed)',
     example: false,
   })
   @ApiQuery({
@@ -355,7 +356,9 @@ export class SecurityAuditController {
     @Query('timeWindowMinutes', new DefaultValuePipe(10), ParseIntPipe)
     timeWindowMinutes: number = 10,
   ) {
-    return this.securityAuditService.detectSuspiciousActivity(timeWindowMinutes);
+    return this.securityAuditService.detectSuspiciousActivity(
+      timeWindowMinutes,
+    );
   }
 
   /**

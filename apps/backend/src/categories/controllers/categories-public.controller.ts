@@ -35,7 +35,13 @@ import {
   Req,
   Res,
 } from '@nestjs/common';
-import { ApiOperation, ApiParam, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiOperation,
+  ApiParam,
+  ApiQuery,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Request, Response } from 'express';
 import { IsNull, Repository } from 'typeorm';
@@ -48,7 +54,16 @@ import { CategoriesService } from '../services/categories.service';
 import { PublicProductsService } from '../../products/public/service/public-products.service';
 
 // Import DTOs and Types
-import { CategoryQueryDto, ApprovalStatus, GetCategoriesTreeResponseDto, CategoryTreeRootDto, CategoryTreeChildDto, CategoryTreeGrandchildDto, PaginatedCategoriesResponseDto, SearchWithinCategoryDto } from '../dto/index-dto';
+import {
+  CategoryQueryDto,
+  ApprovalStatus,
+  GetCategoriesTreeResponseDto,
+  CategoryTreeRootDto,
+  CategoryTreeChildDto,
+  CategoryTreeGrandchildDto,
+  PaginatedCategoriesResponseDto,
+  SearchWithinCategoryDto,
+} from '../dto/index-dto';
 
 // Import Entities
 import { Category } from '../entities/category.entity';
@@ -356,7 +371,9 @@ export class CategoriesPublicController {
 
     try {
       // Validate language parameter
-      const sanitizedLanguage = ['en', 'ar'].includes(language) ? language : 'en';
+      const sanitizedLanguage = ['en', 'ar'].includes(language)
+        ? language
+        : 'en';
 
       // Get complete tree from service
       const tree = await this.categoriesService.getTree();
@@ -380,7 +397,10 @@ export class CategoriesPublicController {
           productCount: child.productCount,
           children: (child.children || []).map((grandchild) => ({
             id: grandchild.id,
-            name: sanitizedLanguage === 'ar' ? grandchild.nameAr : grandchild.nameEn,
+            name:
+              sanitizedLanguage === 'ar'
+                ? grandchild.nameAr
+                : grandchild.nameEn,
             nameAr: grandchild.nameAr,
             slug: grandchild.slug,
             icon: grandchild.iconUrl,
@@ -403,7 +423,10 @@ export class CategoriesPublicController {
           sum +
           1 +
           (root.children?.length || 0) +
-          (root.children?.reduce((childSum, child) => childSum + (child.children?.length || 0), 0) || 0),
+          (root.children?.reduce(
+            (childSum, child) => childSum + (child.children?.length || 0),
+            0,
+          ) || 0),
         0,
       );
 
@@ -771,9 +794,8 @@ export class CategoriesPublicController {
         : 'en';
 
       // 2. Query featured categories using simple direct query
-      const categories = await this.categoriesService.getFeaturedCategories(
-        sanitizedLimit,
-      );
+      const categories =
+        await this.categoriesService.getFeaturedCategories(sanitizedLimit);
 
       // 3. Transform to featured response format (camelCase, matching FE interface)
       const featuredResponse = categories.map((category) => ({
@@ -885,8 +907,7 @@ export class CategoriesPublicController {
                 name_en: 'Audios & Theaters',
                 name_ar: 'الصوتيات والمسارح',
                 slug: 'audios-theaters',
-                image_url:
-                  'https://images.unsplash.com/photo-1589698423558',
+                image_url: 'https://images.unsplash.com/photo-1589698423558',
                 product_count: 2,
               },
             ],
@@ -925,12 +946,13 @@ export class CategoriesPublicController {
       const sections = await Promise.all(
         parentCategories.map(async (parent) => {
           // Get one featured product for this category
-          const productsResponse = await this.publicProductsService.getFeaturedProducts(
-            1,
-            undefined,
-            parent.id,
-            'featured',
-          );
+          const productsResponse =
+            await this.publicProductsService.getFeaturedProducts(
+              1,
+              undefined,
+              parent.id,
+              'featured',
+            );
           const featuredProduct = productsResponse.data[0] || null;
 
           // Get child categories
@@ -1003,7 +1025,13 @@ export class CategoriesPublicController {
     language?: string;
     featured?: boolean | string;
     parentId?: number | string;
-  }): { page: number; limit: number; language: 'en' | 'ar'; featured: boolean; parentId: number | undefined } {
+  }): {
+    page: number;
+    limit: number;
+    language: 'en' | 'ar';
+    featured: boolean;
+    parentId: number | undefined;
+  } {
     const page = Math.max(1, Number(params.page) || 1);
     const limit = Math.min(Math.max(1, Number(params.limit) || 20), 50); // Max 50 for public
     const language: 'en' | 'ar' = params.language === 'ar' ? 'ar' : 'en';
@@ -1069,7 +1097,9 @@ export class CategoriesPublicController {
     result: PaginatedCategoriesResponseDto,
     language: string,
     userContext: { type: 'local' | 'diaspora'; country?: string },
-  ): Omit<PaginatedCategoriesResponseDto, 'data'> & { data: Record<string, unknown>[] } {
+  ): Omit<PaginatedCategoriesResponseDto, 'data'> & {
+    data: Record<string, unknown>[];
+  } {
     // Remove admin-only fields and optimize for public consumption
     const publicData = result.data.map((category) => ({
       id: category.id,
@@ -1135,7 +1165,8 @@ export class CategoriesPublicController {
   @ApiParam({
     name: 'slug',
     type: String,
-    description: 'Category slug identifier (e.g., "damascus-steel", "electronics")',
+    description:
+      'Category slug identifier (e.g., "damascus-steel", "electronics")',
     example: 'damascus-steel',
   })
   @ApiOperation({
@@ -1390,7 +1421,9 @@ export class CategoriesPublicController {
   ) {
     const startTime = Date.now();
 
-    this.logger.log(`🌳 Get category hierarchy request: id=${id}, language=${language}`);
+    this.logger.log(
+      `🌳 Get category hierarchy request: id=${id}, language=${language}`,
+    );
 
     try {
       // 1. Validate category ID
@@ -1400,14 +1433,22 @@ export class CategoriesPublicController {
       }
 
       // 2. Validate language
-      const sanitizedLanguage: 'en' | 'ar' = ['en', 'ar'].includes(language) ? language : 'en';
+      const sanitizedLanguage: 'en' | 'ar' = ['en', 'ar'].includes(language)
+        ? language
+        : 'en';
 
       // 3. Find category (must be active + approved)
       const category = await this.categoryRepository.findOne({
         where: {
           id: sanitizedId,
           isActive: true,
-          approvalStatus: 'approved' as 'draft' | 'pending' | 'approved' | 'rejected' | 'suspended' | 'archived',
+          approvalStatus: 'approved' as
+            | 'draft'
+            | 'pending'
+            | 'approved'
+            | 'rejected'
+            | 'suspended'
+            | 'archived',
         },
         relations: ['parent', 'children'],
       });
@@ -1422,10 +1463,11 @@ export class CategoriesPublicController {
       }
 
       // 4. Generate breadcrumbs using existing hierarchy service
-      const breadcrumbs = await this.categoryHierarchyService.generateBreadcrumbs(
-        category,
-        sanitizedLanguage,
-      );
+      const breadcrumbs =
+        await this.categoryHierarchyService.generateBreadcrumbs(
+          category,
+          sanitizedLanguage,
+        );
 
       // 5. Build path from breadcrumbs (need to fetch full category data for each breadcrumb)
       const pathPromises = breadcrumbs.map(async (crumb) => {
@@ -1443,7 +1485,9 @@ export class CategoriesPublicController {
 
       // 6. Get children with product counts (only active + approved)
       const children = (category.children || [])
-        .filter((child) => child.isActive && child.approvalStatus === 'approved')
+        .filter(
+          (child) => child.isActive && child.approvalStatus === 'approved',
+        )
         .map((child) => ({
           id: child.id,
           nameEn: child.nameEn,
@@ -1468,7 +1512,8 @@ export class CategoriesPublicController {
         success: true,
         data: {
           path,
-          currentName: sanitizedLanguage === 'ar' ? category.nameAr : category.nameEn,
+          currentName:
+            sanitizedLanguage === 'ar' ? category.nameAr : category.nameEn,
           children,
         },
       });
@@ -1536,7 +1581,8 @@ export class CategoriesPublicController {
     example: 'damascus-steel',
   })
   @ApiOperation({
-    summary: 'Search products within a specific category with advanced filtering',
+    summary:
+      'Search products within a specific category with advanced filtering',
     description: `
       Search for products within a specific category with optional keyword search, sorting, price filtering, and pagination.
 
@@ -1576,7 +1622,8 @@ export class CategoriesPublicController {
     name: 'search',
     required: false,
     type: String,
-    description: 'Search keyword for filtering products (optional, min 2 chars)',
+    description:
+      'Search keyword for filtering products (optional, min 2 chars)',
     example: 'damascus steel',
   })
   @ApiQuery({
@@ -1689,7 +1736,14 @@ export class CategoriesPublicController {
     @Res() response: Response,
   ) {
     const startTime = Date.now();
-    const { search, page = 1, limit = 20, sortBy = 'newest', minPrice, maxPrice } = query;
+    const {
+      search,
+      page = 1,
+      limit = 20,
+      sortBy = 'newest',
+      minPrice,
+      maxPrice,
+    } = query;
 
     this.logger.log(
       `🔍 Search within category request: categoryIdOrSlug=${categoryIdOrSlug}, search="${search || 'all'}", page=${page}, limit=${limit}, sortBy=${sortBy}, minPrice=${minPrice}, maxPrice=${maxPrice}`,

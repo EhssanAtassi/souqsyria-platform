@@ -11,7 +11,7 @@ import { AccessControlModule } from '../access-control/access-control.module';
 
 /**
  * RolesModule
- * 
+ *
  * Provides comprehensive role management capabilities including:
  * - CRUD operations for roles
  * - Role templates for quick creation
@@ -19,7 +19,7 @@ import { AccessControlModule } from '../access-control/access-control.module';
  * - User tracking and assignment
  * - Role hierarchy and priority
  * - Security audit integration
- * 
+ *
  * Dependencies:
  * - AccessControlModule: For permissions and security audit
  * - TypeORM entities: Role, RolePermission, Permission, User
@@ -29,15 +29,8 @@ import { AccessControlModule } from '../access-control/access-control.module';
     TypeOrmModule.forFeature([Role, RolePermission, Permission, User]),
     forwardRef(() => AccessControlModule),
   ],
-  controllers: [
-    RolesController,
-  ],
-  providers: [
-    RolesService,
-  ],
-  exports: [
-    RolesService,
-    TypeOrmModule,
-  ],
+  controllers: [RolesController],
+  providers: [RolesService],
+  exports: [RolesService, TypeOrmModule],
 })
 export class RolesModule {}

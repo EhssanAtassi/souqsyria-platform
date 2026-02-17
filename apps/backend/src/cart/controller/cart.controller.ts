@@ -55,14 +55,21 @@ import { CartMergeService } from '../service/cart-merge.service';
 import { CartValidationService } from '../service/cart-validation.service';
 import { CreateCartItemDto } from '../dto/CreateCartItem.dto';
 import { SyncCartRequest } from '../dto/SyncCartRequest.dto';
-import { MergeCartRequest, MergeCartResponse } from '../dto/MergeCartRequest.dto';
+import {
+  MergeCartRequest,
+  MergeCartResponse,
+} from '../dto/MergeCartRequest.dto';
 import { ValidateCartResponse } from '../dto/ValidateCartResponse.dto';
 import { OptionalAuthGuard } from '../../common/guards/optional-auth.guard';
 
 @ApiTags('🛒 Shopping Cart')
 @ApiBearerAuth()
 @UseGuards(CartRateLimitGuard, PermissionsGuard)
-@RateLimit({ maxRequests: 100, windowSizeInSeconds: 3600, message: 'Too many cart requests. Please wait before trying again.' })
+@RateLimit({
+  maxRequests: 100,
+  windowSizeInSeconds: 3600,
+  message: 'Too many cart requests. Please wait before trying again.',
+})
 @Controller('cart')
 export class CartController {
   private readonly logger = new Logger(CartController.name);
@@ -132,7 +139,8 @@ export class CartController {
     maxRequests: 20,
     windowSizeInSeconds: 300,
     penaltyDelayMs: 1000,
-    message: 'Too many add-to-cart requests. Please wait 5 minutes before adding more items.'
+    message:
+      'Too many add-to-cart requests. Please wait 5 minutes before adding more items.',
   })
   @ApiOperation({
     summary: 'Add product item to cart',
@@ -212,7 +220,8 @@ export class CartController {
   @RateLimit({
     maxRequests: 30,
     windowSizeInSeconds: 300,
-    message: 'Too many update requests. Please wait before updating cart items again.'
+    message:
+      'Too many update requests. Please wait before updating cart items again.',
   })
   @ApiOperation({
     summary: 'Update cart item quantity (idempotent)',
@@ -238,7 +247,8 @@ export class CartController {
           minimum: 0,
           maximum: 50,
           example: 5,
-          description: 'Absolute quantity (0 to remove item, 1-50 to set quantity)',
+          description:
+            'Absolute quantity (0 to remove item, 1-50 to set quantity)',
         },
       },
       required: ['quantity'],
@@ -258,7 +268,8 @@ export class CartController {
   })
   @ApiResponse({
     status: 200,
-    description: 'Cart item quantity updated successfully (idempotent operation)',
+    description:
+      'Cart item quantity updated successfully (idempotent operation)',
     schema: {
       example: {
         id: 789,
@@ -324,7 +335,8 @@ export class CartController {
   @RateLimit({
     maxRequests: 25,
     windowSizeInSeconds: 300,
-    message: 'Too many remove requests. Please wait before removing more items.'
+    message:
+      'Too many remove requests. Please wait before removing more items.',
   })
   @ApiOperation({
     summary: 'Remove specific item from cart',
@@ -370,7 +382,7 @@ export class CartController {
   @RateLimit({
     maxRequests: 25,
     windowSizeInSeconds: 300,
-    message: 'Too many undo requests. Please wait before trying again.'
+    message: 'Too many undo requests. Please wait before trying again.',
   })
   @ApiOperation({
     summary: 'Undo remove cart item (5s window)',
@@ -423,7 +435,8 @@ export class CartController {
   @RateLimit({
     maxRequests: 5,
     windowSizeInSeconds: 600,
-    message: 'Too many clear cart requests. Please wait 10 minutes before clearing your cart again.'
+    message:
+      'Too many clear cart requests. Please wait 10 minutes before clearing your cart again.',
   })
   @ApiOperation({
     summary: 'Clear entire shopping cart',

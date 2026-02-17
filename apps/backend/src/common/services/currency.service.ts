@@ -164,7 +164,10 @@ export class CurrencyService {
         `Initialized ${defaultCurrencies.length} default currencies`,
       );
     } catch (error: unknown) {
-      this.logger.error('Failed to initialize default currencies', (error as Error).stack);
+      this.logger.error(
+        'Failed to initialize default currencies',
+        (error as Error).stack,
+      );
     }
   }
 
@@ -353,7 +356,10 @@ export class CurrencyService {
       );
       return updates;
     } catch (error: unknown) {
-      this.logger.error('Failed to update exchange rates', (error as Error).stack);
+      this.logger.error(
+        'Failed to update exchange rates',
+        (error as Error).stack,
+      );
       throw new InternalServerErrorException('Exchange rate update failed');
     }
   }

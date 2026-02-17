@@ -68,9 +68,7 @@ export class HealthController {
   // Application startup time for uptime calculation
   private readonly startTime = Date.now();
 
-  constructor(
-    private dataSource: DataSource,
-  ) {}
+  constructor(private dataSource: DataSource) {}
 
   /**
    * Simple health check endpoint

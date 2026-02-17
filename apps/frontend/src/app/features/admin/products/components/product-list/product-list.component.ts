@@ -31,6 +31,7 @@ import {
 } from 'rxjs';
 
 import { AdminProductsService } from '../../../services';
+import { AdminProductsApiService, AdminProductListItem } from '../../services/admin-products-api.service';
 import { AdminStatusBadgeComponent, CurrencyFormatPipe } from '../../../shared';
 import {
   ProductListItem,
@@ -114,6 +115,7 @@ export class ProductListComponent implements OnInit {
   // =========================================================================
 
   private readonly productsService = inject(AdminProductsService);
+  private readonly adminProductsApi = inject(AdminProductsApiService);
   private readonly router = inject(Router);
   private readonly dialog = inject(MatDialog);
   private readonly snackBar = inject(MatSnackBar);
@@ -256,50 +258,41 @@ export class ProductListComponent implements OnInit {
   loadProducts(): void {
     this.isLoading.set(true);
 
-    const query: ProductListQuery = {
+    const params = {
       page: this.pagination().page,
       limit: this.pagination().limit,
-      sortBy: this.sortField(),
-      sortOrder: this.sortOrder()
     };
 
     // Add search term
     const search = this.searchTerm();
     if (search) {
-      query.search = search;
+      Object.assign(params, { search });
     }
 
-    // Add filters
+    // Add filters from currentFilters (map to admin API params)
     const filters = this.currentFilters();
-    if (filters.approvalStatus) {
-      query.approvalStatus = filters.approvalStatus;
-    }
-    if (filters.status) {
-      query.status = filters.status;
-    }
     if (filters.categoryId) {
-      query.categoryId = filters.categoryId;
+      Object.assign(params, { categoryId: filters.categoryId });
     }
     if (filters.vendorId) {
-      query.vendorId = filters.vendorId;
-    }
-    if (filters.lowStock) {
-      query.lowStock = filters.lowStock;
+      Object.assign(params, { vendorId: filters.vendorId });
     }
 
-    this.productsService
-      .getProducts(query)
+    // Use admin API service
+    this.adminProductsApi
+      .getProducts(params)
       .pipe(
         takeUntilDestroyed(this.destroyRef),
         finalize(() => this.isLoading.set(false))
       )
       .subscribe({
-        next: (response: PaginatedResponse<ProductListItem>) => {
-          this.products.set(response.items);
+        next: (response) => {
+          // Map backend response to component state
+          this.products.set(response.data as any);
           this.pagination.update(p => ({
             ...p,
-            total: response.total,
-            totalPages: response.totalPages
+            total: response.meta.total,
+            totalPages: response.meta.totalPages
           }));
           this.clearSelection();
         },
@@ -486,18 +479,32 @@ export class ProductListComponent implements OnInit {
    * Bulk activate selected products
    */
   bulkActivate(): void {
-    this.performBulkStatusUpdate('active');
+    this.performBulkStatusUpdate({ isActive: true });
   }
 
   /**
    * Bulk deactivate selected products
    */
   bulkDeactivate(): void {
-    this.performBulkStatusUpdate('inactive');
+    this.performBulkStatusUpdate({ isActive: false });
   }
 
   /**
-   * Bulk approve selected products
+   * Bulk publish selected products
+   */
+  bulkPublish(): void {
+    this.performBulkStatusUpdate({ isPublished: true });
+  }
+
+  /**
+   * Bulk unpublish selected products
+   */
+  bulkUnpublish(): void {
+    this.performBulkStatusUpdate({ isPublished: false });
+  }
+
+  /**
+   * Bulk approve selected products (legacy - kept for compatibility)
    */
   bulkApprove(): void {
     const productIds = Array.from(this.selectedProductIds());
@@ -527,45 +534,29 @@ export class ProductListComponent implements OnInit {
   }
 
   /**
-   * Perform bulk status update
-   * @param status - New status for selected products
+   * Perform bulk status update using admin API
+   * @param statusUpdate - Status fields to update
    */
-  private performBulkStatusUpdate(status: ProductStatus): void {
+  private performBulkStatusUpdate(statusUpdate: { isActive?: boolean; isPublished?: boolean }): void {
     const productIds = Array.from(this.selectedProductIds());
-    let completed = 0;
-    let failed = 0;
 
-    productIds.forEach(productId => {
-      this.productsService
-        .updateProductStatus(productId, status)
-        .pipe(takeUntilDestroyed(this.destroyRef))
-        .subscribe({
-          next: () => {
-            completed++;
-            if (completed + failed === productIds.length) {
-              this.snackBar.open(
-                `${completed} products updated`,
-                'Close',
-                { duration: 3000 }
-              );
-              this.loadProducts();
-              this.loadStatistics();
-            }
-          },
-          error: () => {
-            failed++;
-            if (completed + failed === productIds.length) {
-              this.snackBar.open(
-                `${completed} updated, ${failed} failed`,
-                'Close',
-                { duration: 3000 }
-              );
-              this.loadProducts();
-              this.loadStatistics();
-            }
-          }
-        });
-    });
+    this.adminProductsApi
+      .bulkUpdateStatus({
+        ids: productIds,
+        ...statusUpdate
+      })
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (result) => {
+          this.snackBar.open(result.message, 'Close', { duration: 3000 });
+          this.loadProducts();
+          this.loadStatistics();
+        },
+        error: (error) => {
+          console.error('Bulk status update failed:', error);
+          this.snackBar.open('Bulk update failed', 'Close', { duration: 3000 });
+        }
+      });
   }
 
   // =========================================================================

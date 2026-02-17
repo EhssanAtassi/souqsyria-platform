@@ -27,15 +27,9 @@ import { FeaturedCategoriesController } from './controllers/featured-categories.
  * with bilingual support, scheduling, and Syrian market features.
  */
 @Module({
-  imports: [
-    TypeOrmModule.forFeature([FeaturedCategory, Category]),
-  ],
-  controllers: [
-    FeaturedCategoriesController,
-  ],
-  providers: [
-    FeaturedCategoriesService,
-  ],
+  imports: [TypeOrmModule.forFeature([FeaturedCategory, Category])],
+  controllers: [FeaturedCategoriesController],
+  providers: [FeaturedCategoriesService],
   exports: [FeaturedCategoriesService], // Export for use in HomepageModule
 })
 export class FeaturedCategoriesModule {}

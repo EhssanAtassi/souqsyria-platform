@@ -14,21 +14,23 @@ const devFormat = winston.format.combine(
   winston.format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }),
   winston.format.errors({ stack: true }),
   winston.format.colorize(),
-  winston.format.printf(({ timestamp, level, message, context, trace, ...meta }) => {
-    let log = `${timestamp} [${context || 'Application'}] ${level}: ${message}`;
+  winston.format.printf(
+    ({ timestamp, level, message, context, trace, ...meta }) => {
+      let log = `${timestamp} [${context || 'Application'}] ${level}: ${message}`;
 
-    // Add metadata if present
-    if (Object.keys(meta).length > 0) {
-      log += `\n${JSON.stringify(meta, null, 2)}`;
-    }
+      // Add metadata if present
+      if (Object.keys(meta).length > 0) {
+        log += `\n${JSON.stringify(meta, null, 2)}`;
+      }
 
-    // Add stack trace if present
-    if (trace) {
-      log += `\n${trace}`;
-    }
+      // Add stack trace if present
+      if (trace) {
+        log += `\n${trace}`;
+      }
 
-    return log;
-  }),
+      return log;
+    },
+  ),
 );
 
 /**
@@ -91,7 +93,10 @@ export class CustomLogger {
   }
 
   log(message: string, ...optionalParams: any[]) {
-    logger.info(message, { context: this.context, ...this.parseParams(optionalParams) });
+    logger.info(message, {
+      context: this.context,
+      ...this.parseParams(optionalParams),
+    });
   }
 
   error(message: string, trace?: string, ...optionalParams: any[]) {
@@ -103,15 +108,24 @@ export class CustomLogger {
   }
 
   warn(message: string, ...optionalParams: any[]) {
-    logger.warn(message, { context: this.context, ...this.parseParams(optionalParams) });
+    logger.warn(message, {
+      context: this.context,
+      ...this.parseParams(optionalParams),
+    });
   }
 
   debug(message: string, ...optionalParams: any[]) {
-    logger.debug(message, { context: this.context, ...this.parseParams(optionalParams) });
+    logger.debug(message, {
+      context: this.context,
+      ...this.parseParams(optionalParams),
+    });
   }
 
   verbose(message: string, ...optionalParams: any[]) {
-    logger.verbose(message, { context: this.context, ...this.parseParams(optionalParams) });
+    logger.verbose(message, {
+      context: this.context,
+      ...this.parseParams(optionalParams),
+    });
   }
 
   /**

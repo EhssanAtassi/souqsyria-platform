@@ -71,7 +71,9 @@ async function bootstrap() {
           // Only allow no-origin requests from truly trusted sources in development
           // Log these requests for monitoring
           const logger = new Logger('CORS');
-          logger.warn('Request with no origin received - allowing only in development');
+          logger.warn(
+            'Request with no origin received - allowing only in development',
+          );
           return callback(null, true);
         }
 
@@ -93,8 +95,12 @@ async function bootstrap() {
       ];
 
       // Also allow from environment configuration for flexibility
-      const additionalOrigins = process.env.CORS_ALLOWED_ORIGINS?.split(',') || [];
-      const allAllowedOrigins = [...allowedDomains, ...additionalOrigins.map(o => o.trim())];
+      const additionalOrigins =
+        process.env.CORS_ALLOWED_ORIGINS?.split(',') || [];
+      const allAllowedOrigins = [
+        ...allowedDomains,
+        ...additionalOrigins.map((o) => o.trim()),
+      ];
 
       if (origin && allAllowedOrigins.includes(origin)) {
         return callback(null, true);
@@ -114,44 +120,48 @@ async function bootstrap() {
       'X-CSRF-Token',
       'X-Request-ID',
     ],
-    exposedHeaders: ['X-Request-ID', 'X-RateLimit-Remaining', 'X-RateLimit-Reset'],
+    exposedHeaders: [
+      'X-Request-ID',
+      'X-RateLimit-Remaining',
+      'X-RateLimit-Reset',
+    ],
     credentials: true,
     preflightContinue: false,
     optionsSuccessStatus: 204,
     maxAge: 86400, // Cache preflight requests for 24 hours
   });
-  
+
   app.setGlobalPrefix('api');
   // ========================================
   // GLOBAL FILTERS, PIPES & INTERCEPTORS
   // ========================================
-  
+
   // Global validation pipe with detailed error messages
   // SECURITY: enableImplicitConversion disabled to prevent prototype pollution
   app.useGlobalPipes(
     new ValidationPipe({
-      whitelist: true,           // Strip non-whitelisted properties
+      whitelist: true, // Strip non-whitelisted properties
       forbidNonWhitelisted: true, // Throw error on non-whitelisted properties
-      transform: true,           // Auto-transform payloads to DTO instances
+      transform: true, // Auto-transform payloads to DTO instances
       transformOptions: {
         enableImplicitConversion: false, // SECURITY: Prevent prototype pollution attacks
         // Use explicit @Type() decorators in DTOs instead
       },
       validationError: {
-        target: false,            // Don't include target object in errors
-        value: false,             // Don't include value in errors (security)
+        target: false, // Don't include target object in errors
+        value: false, // Don't include value in errors (security)
       },
     }),
   );
-  
+
   // Global exception filter for standardized error responses
   app.useGlobalFilters(new GlobalExceptionFilter());
-  
+
   // Global interceptors for response transformation and audit logging
   const reflector = app.get(Reflector);
   const auditLogService = app.get(AuditLogService);
   app.useGlobalInterceptors(
-    new ResponseInterceptor(reflector),      // Standardize success responses
+    new ResponseInterceptor(reflector), // Standardize success responses
     new AuditInterceptor(auditLogService, reflector), // Audit logging
   );
 

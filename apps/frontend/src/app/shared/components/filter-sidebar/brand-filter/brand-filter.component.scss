@@ -1,0 +1,162 @@
+/**
+ * @file brand-filter.component.scss
+ * @description Styles for brand filter component
+ *
+ * Uses Golden Wheat design system colors:
+ * - $golden-wheat-primary: #988561
+ * - $golden-wheat-light: #edebe0
+ * - $forest-dark: #002623
+ */
+
+@import '../../../styles/variables';
+
+.brand-filter {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 0.5rem 0;
+}
+
+// ============================================================================
+// LOADING & ERROR STATES
+// ============================================================================
+
+.loading-container,
+.error-container,
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 1rem;
+  text-align: center;
+  color: rgba($forest-dark, 0.6);
+
+  mat-icon {
+    font-size: 2rem;
+    width: 2rem;
+    height: 2rem;
+    margin-bottom: 0.5rem;
+    color: rgba($forest-dark, 0.4);
+  }
+
+  p {
+    margin: 0;
+    font-size: 0.875rem;
+    color: rgba($forest-dark, 0.6);
+  }
+}
+
+.error-container {
+  mat-icon {
+    color: #dc2626; // Red for errors
+  }
+}
+
+// ============================================================================
+// BRAND LIST
+// ============================================================================
+
+.brand-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.brand-item {
+  display: flex;
+  align-items: center;
+  padding: 0.25rem 0;
+  min-height: 44px; // WCAG touch target
+
+  .brand-checkbox {
+    width: 100%;
+    margin: 0;
+
+    ::ng-deep .mdc-checkbox {
+      margin-right: 0.5rem;
+      margin-left: 0;
+    }
+
+    ::ng-deep .mdc-form-field {
+      width: 100%;
+    }
+
+    // RTL adjustment
+    [dir='rtl'] & {
+      ::ng-deep .mdc-checkbox {
+        margin-right: 0;
+        margin-left: 0.5rem;
+      }
+    }
+  }
+}
+
+.brand-content {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+
+  .brand-name {
+    font-size: 0.875rem;
+    color: $forest-dark;
+    font-weight: $font-weight-normal;
+    flex: 1;
+  }
+
+  .brand-count {
+    font-size: 0.75rem;
+    color: rgba($forest-dark, 0.5);
+    font-weight: $font-weight-normal;
+    white-space: nowrap;
+  }
+}
+
+// ============================================================================
+// CHECKBOX CUSTOMIZATION
+// ============================================================================
+
+.brand-checkbox {
+  ::ng-deep .mdc-checkbox__background {
+    border-color: rgba($forest-dark, 0.3);
+  }
+
+  ::ng-deep .mdc-checkbox--selected .mdc-checkbox__background {
+    background-color: $golden-wheat-primary;
+    border-color: $golden-wheat-primary;
+  }
+
+  ::ng-deep .mdc-checkbox:hover .mdc-checkbox__native-control:not(:checked)~.mdc-checkbox__background {
+    border-color: $golden-wheat-primary;
+  }
+
+  ::ng-deep .mdc-label {
+    color: $forest-dark;
+    cursor: pointer;
+  }
+}
+
+// ============================================================================
+// RESPONSIVE DESIGN
+// ============================================================================
+
+@media (max-width: 768px) {
+  .brand-filter {
+    padding: 0.25rem 0;
+  }
+
+  .brand-item {
+    padding: 0.125rem 0;
+  }
+
+  .brand-content {
+    .brand-name {
+      font-size: 0.8125rem;
+    }
+
+    .brand-count {
+      font-size: 0.6875rem;
+    }
+  }
+}

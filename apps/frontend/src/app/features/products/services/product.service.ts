@@ -10,7 +10,7 @@
  */
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable, of, tap } from 'rxjs';
+import { Observable, of, tap, take } from 'rxjs';
 import { environment } from '../../../../environments/environment';
 import { ProductListResponse } from '../models/product-list.interface';
 import {
@@ -39,6 +39,8 @@ export interface ProductQueryParams {
   maxPrice?: number;
   /** Comma-separated brand IDs to filter by */
   brandIds?: string;
+  /** Minimum average rating filter (1-5) */
+  minRating?: number;
 }
 
 /**
@@ -114,6 +116,9 @@ export class ProductService {
     if (params.brandIds) {
       httpParams = httpParams.set('brandIds', params.brandIds);
     }
+    if (params.minRating) {
+      httpParams = httpParams.set('minRating', params.minRating.toString());
+    }
 
     return this.http.get<ProductListResponse>(this.apiUrl, { params: httpParams }).pipe(
       tap(response => {
@@ -180,6 +185,20 @@ export class ProductService {
       `${this.apiUrl}/suggestions`,
       { params: httpParams }
     );
+  }
+
+  /**
+   * @description Tracks a product view by calling POST /products/:slug/view.
+   * Fire-and-forget: errors are silently ignored to avoid disrupting the user experience.
+   * Uses take(1) to automatically complete the subscription after the first emission.
+   * @param slug - URL-friendly product identifier
+   */
+  trackView(slug: string): void {
+    this.http.post(`${this.apiUrl}/${slug}/view`, {})
+      .pipe(take(1))
+      .subscribe({
+        error: () => { /* Silently ignore view tracking errors */ }
+      });
   }
 
   /**

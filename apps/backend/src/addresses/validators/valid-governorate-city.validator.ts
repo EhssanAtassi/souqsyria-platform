@@ -23,7 +23,11 @@
  * @version 1.0.0 - MVP1 Syrian Address Support
  */
 
-import { Injectable, Logger, InternalServerErrorException } from '@nestjs/common';
+import {
+  Injectable,
+  Logger,
+  InternalServerErrorException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, QueryFailedError } from 'typeorm';
 import {
@@ -206,12 +210,18 @@ export class GovernorateCityValidator {
     } catch (error) {
       // Distinguish database errors from validation logic errors
       if (error instanceof QueryFailedError) {
-        this.logger.error('Database error during address hierarchy validation', error);
+        this.logger.error(
+          'Database error during address hierarchy validation',
+          error,
+        );
         throw new InternalServerErrorException(
           'Database error during address validation. Please try again later.',
         );
       }
-      this.logger.error('Unexpected error during address hierarchy validation', error);
+      this.logger.error(
+        'Unexpected error during address hierarchy validation',
+        error,
+      );
       throw new InternalServerErrorException(
         'An unexpected error occurred during address validation.',
       );
