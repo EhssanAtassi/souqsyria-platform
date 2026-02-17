@@ -14,6 +14,7 @@ import {
   HttpCode,
   HttpStatus,
 } from '@nestjs/common';
+import { Throttle } from '@nestjs/throttler';
 import { AddressesService } from '../service/addresses.service';
 import { SyrianAddressCrudService } from '../service/syrian-address-crud.service';
 import { CreateSyrianAddressDto } from '../dto/create-syrian-address.dto';
@@ -41,7 +42,7 @@ import { SyrianAddressService } from '../service/syrian-address.service';
 @ApiTags('Addresses')
 @ApiBearerAuth()
 @UseGuards(JwtAuthGuard)
-@UsePipes(new ValidationPipe({ transform: true, whitelist: true }))
+@UsePipes(new ValidationPipe({ transform: true, whitelist: true, forbidNonWhitelisted: true }))
 @Controller('addresses')
 export class AddressesController {
   constructor(
@@ -55,6 +56,7 @@ export class AddressesController {
    * @description Get all Syrian governorates (must be before :id routes).
    * Public endpoint - no JWT required so guest users can browse locations.
    */
+  @Throttle({ default: { limit: 60, ttl: 60000 } })
   @Public()
   @Get('governorates')
   @ApiOperation({
@@ -75,6 +77,7 @@ export class AddressesController {
    * @description Get cities for a specific governorate.
    * Public endpoint - no JWT required so guest users can browse locations.
    */
+  @Throttle({ default: { limit: 60, ttl: 60000 } })
   @Public()
   @Get('governorates/:id/cities')
   @ApiOperation({
@@ -96,6 +99,7 @@ export class AddressesController {
    * @description Get districts for a specific city.
    * Public endpoint - no JWT required so guest users can browse locations.
    */
+  @Throttle({ default: { limit: 60, ttl: 60000 } })
   @Public()
   @Get('cities/:id/districts')
   @ApiOperation({
@@ -116,6 +120,7 @@ export class AddressesController {
    * @description Add a new Syrian address for the current user
    * Accepts the Syrian address DTO with governorate/city/district hierarchy
    */
+  @Throttle({ default: { limit: 5, ttl: 60000 } })
   @Post()
   @ApiOperation({
     summary: 'Add a new Syrian address',
@@ -139,6 +144,7 @@ export class AddressesController {
    * @description Update a Syrian address (full update) for the current user.
    * Redirects to Syrian address service for consistency.
    */
+  @Throttle({ default: { limit: 10, ttl: 60000 } })
   @Put(':id')
   @ApiOperation({
     summary: 'Update a Syrian address (full update)',
@@ -174,6 +180,7 @@ export class AddressesController {
    * @route PATCH /addresses/:id/default
    * @description Set an address as default (MUST be before PATCH :id to avoid route collision)
    */
+  @Throttle({ default: { limit: 10, ttl: 60000 } })
   @Patch(':id/default')
   @ApiOperation({
     summary: 'Set address as default',
@@ -199,6 +206,7 @@ export class AddressesController {
    * @route PATCH /addresses/:id
    * @description Update a Syrian address (partial update)
    */
+  @Throttle({ default: { limit: 10, ttl: 60000 } })
   @Patch(':id')
   @ApiOperation({
     summary: 'Update a Syrian address',
@@ -239,6 +247,7 @@ export class AddressesController {
    * @description Soft-delete an address with business rule checks
    * Blocks deletion of default address or only remaining address
    */
+  @Throttle({ default: { limit: 3, ttl: 60000 } })
   @Delete(':id')
   @ApiOperation({
     summary: 'Delete (soft) an address',

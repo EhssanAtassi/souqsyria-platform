@@ -91,6 +91,17 @@ describe('SyrianAddressCrudService - Syrian Methods', () => {
   } as SyrianDistrictEntity;
 
   beforeEach(async () => {
+    // Mock QueryBuilder for findAll and findOne methods
+    const mockQueryBuilder = {
+      leftJoinAndSelect: jest.fn().mockReturnThis(),
+      where: jest.fn().mockReturnThis(),
+      andWhere: jest.fn().mockReturnThis(),
+      orderBy: jest.fn().mockReturnThis(),
+      addOrderBy: jest.fn().mockReturnThis(),
+      getMany: jest.fn(),
+      getOne: jest.fn(),
+    };
+
     mockAddressRepo = {
       create: jest.fn(),
       save: jest.fn(),
@@ -99,6 +110,7 @@ describe('SyrianAddressCrudService - Syrian Methods', () => {
       update: jest.fn(),
       softRemove: jest.fn(),
       count: jest.fn(),
+      createQueryBuilder: jest.fn().mockReturnValue(mockQueryBuilder),
     } as any;
 
     mockGovRepo = {
@@ -662,24 +674,28 @@ describe('SyrianAddressCrudService - Syrian Methods', () => {
         } as Address,
       ];
 
-      mockAddressRepo.find.mockResolvedValue(addresses);
+      const mockQueryBuilder = mockAddressRepo.createQueryBuilder();
+      (mockQueryBuilder.getMany as jest.Mock).mockResolvedValue(addresses);
 
       // Act
       const result = await service.findAllSyrianAddresses(mockUser);
 
       // Assert
-      expect(mockAddressRepo.find).toHaveBeenCalledWith({
-        where: { user: { id: mockUser.id } },
-        relations: ['governorate', 'syrianCity', 'district'],
-        order: { isDefault: 'DESC', createdAt: 'DESC' },
-      });
+      expect(mockAddressRepo.createQueryBuilder).toHaveBeenCalledWith('address');
+      expect(mockQueryBuilder.leftJoinAndSelect).toHaveBeenCalledWith('address.governorate', 'governorate');
+      expect(mockQueryBuilder.leftJoinAndSelect).toHaveBeenCalledWith('address.syrianCity', 'syrianCity');
+      expect(mockQueryBuilder.leftJoinAndSelect).toHaveBeenCalledWith('address.district', 'district');
+      expect(mockQueryBuilder.where).toHaveBeenCalledWith('address.user = :userId', { userId: mockUser.id });
+      expect(mockQueryBuilder.orderBy).toHaveBeenCalledWith('address.isDefault', 'DESC');
+      expect(mockQueryBuilder.addOrderBy).toHaveBeenCalledWith('address.createdAt', 'DESC');
       expect(result).toHaveLength(2);
       expect(result[0].isDefault).toBe(true);
     });
 
     it('should return empty array when user has no addresses', async () => {
       // Arrange
-      mockAddressRepo.find.mockResolvedValue([]);
+      const mockQueryBuilder = mockAddressRepo.createQueryBuilder();
+      (mockQueryBuilder.getMany as jest.Mock).mockResolvedValue([]);
 
       // Act
       const result = await service.findAllSyrianAddresses(mockUser);
@@ -708,16 +724,19 @@ describe('SyrianAddressCrudService - Syrian Methods', () => {
         updatedAt: new Date(),
       } as Address;
 
-      mockAddressRepo.findOne.mockResolvedValue(address);
+      const mockQueryBuilder = mockAddressRepo.createQueryBuilder();
+      (mockQueryBuilder.getOne as jest.Mock).mockResolvedValue(address);
 
       // Act
       const result = await service.findOneSyrianAddress(mockUser, addressId);
 
       // Assert
-      expect(mockAddressRepo.findOne).toHaveBeenCalledWith({
-        where: { id: addressId, user: { id: mockUser.id } },
-        relations: ['governorate', 'syrianCity', 'district'],
-      });
+      expect(mockAddressRepo.createQueryBuilder).toHaveBeenCalledWith('address');
+      expect(mockQueryBuilder.leftJoinAndSelect).toHaveBeenCalledWith('address.governorate', 'governorate');
+      expect(mockQueryBuilder.leftJoinAndSelect).toHaveBeenCalledWith('address.syrianCity', 'syrianCity');
+      expect(mockQueryBuilder.leftJoinAndSelect).toHaveBeenCalledWith('address.district', 'district');
+      expect(mockQueryBuilder.where).toHaveBeenCalledWith('address.id = :id', { id: addressId });
+      expect(mockQueryBuilder.andWhere).toHaveBeenCalledWith('address.user = :userId', { userId: mockUser.id });
       expect(result.id).toBe(addressId);
     });
 
@@ -725,7 +744,8 @@ describe('SyrianAddressCrudService - Syrian Methods', () => {
       // Arrange
       const addressId = 999;
 
-      mockAddressRepo.findOne.mockResolvedValue(null);
+      const mockQueryBuilder = mockAddressRepo.createQueryBuilder();
+      (mockQueryBuilder.getOne as jest.Mock).mockResolvedValue(null);
 
       // Act & Assert
       await expect(
@@ -738,7 +758,8 @@ describe('SyrianAddressCrudService - Syrian Methods', () => {
       const otherUser = { ...mockUser, id: 2 } as unknown as User;
       const addressId = 1;
 
-      mockAddressRepo.findOne.mockResolvedValue(null);
+      const mockQueryBuilder = mockAddressRepo.createQueryBuilder();
+      (mockQueryBuilder.getOne as jest.Mock).mockResolvedValue(null);
 
       // Act & Assert
       await expect(

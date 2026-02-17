@@ -383,16 +383,21 @@ export class SyrianAddressCrudService {
    * @description Retrieves all addresses belonging to the user with
    * governorate, syrianCity, and district relations loaded. Sorted
    * by default status (default first) then creation date (newest first).
+   * Uses QueryBuilder to ensure a single JOIN query and prevent N+1 issues.
    *
    * @param user - The user whose addresses to retrieve
    * @returns Array of addresses sorted by default status and creation date
    */
   async findAllSyrianAddresses(user: User): Promise<Address[]> {
-    return this.addressRepo.find({
-      where: { user: { id: user.id } },
-      relations: ['governorate', 'syrianCity', 'district'],
-      order: { isDefault: 'DESC', createdAt: 'DESC' },
-    });
+    return this.addressRepo
+      .createQueryBuilder('address')
+      .leftJoinAndSelect('address.governorate', 'governorate')
+      .leftJoinAndSelect('address.syrianCity', 'syrianCity')
+      .leftJoinAndSelect('address.district', 'district')
+      .where('address.user = :userId', { userId: user.id })
+      .orderBy('address.isDefault', 'DESC')
+      .addOrderBy('address.createdAt', 'DESC')
+      .getMany();
   }
 
   /**
@@ -400,6 +405,7 @@ export class SyrianAddressCrudService {
    *
    * @description Retrieves one address by ID, verifying user ownership.
    * Loads governorate, syrianCity, and district relations.
+   * Uses QueryBuilder to ensure a single JOIN query and prevent N+1 issues.
    *
    * @param user - The user requesting the address
    * @param id - Address ID
@@ -408,10 +414,14 @@ export class SyrianAddressCrudService {
    * @throws NotFoundException if address not found or not owned by user
    */
   async findOneSyrianAddress(user: User, id: number): Promise<Address> {
-    const address = await this.addressRepo.findOne({
-      where: { id, user: { id: user.id } },
-      relations: ['governorate', 'syrianCity', 'district'],
-    });
+    const address = await this.addressRepo
+      .createQueryBuilder('address')
+      .leftJoinAndSelect('address.governorate', 'governorate')
+      .leftJoinAndSelect('address.syrianCity', 'syrianCity')
+      .leftJoinAndSelect('address.district', 'district')
+      .where('address.id = :id', { id })
+      .andWhere('address.user = :userId', { userId: user.id })
+      .getOne();
 
     if (!address) {
       throw new NotFoundException('Address not found');
