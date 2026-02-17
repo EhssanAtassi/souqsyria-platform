@@ -5,10 +5,10 @@
 
 export const environment = {
   production: false,
-  apiUrl: 'http://localhost:3006/api',
-  campaignApiUrl: 'http://localhost:3006/api/campaigns',
-  productApiUrl: 'http://localhost:3006/api/products',
-  userApiUrl: 'http://localhost:3006/api/users',
+  apiUrl: 'http://localhost:3001/api',
+  campaignApiUrl: 'http://localhost:3001/api/campaigns',
+  productApiUrl: 'http://localhost:3001/api/products',
+  userApiUrl: 'http://localhost:3001/api/users',
 
   // Feature flags
   enableCampaigns: true,
