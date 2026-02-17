@@ -9,6 +9,7 @@
 
 /** Primary colors from SouqSyria golden wheat palette */
 $primary-color: var(--golden-wheat-primary, #988561);
+$primary-color-a11y: var(--golden-wheat-a11y, #6f6047);
 $primary-medium: var(--golden-wheat-medium, #b9a779);
 $primary-light: var(--golden-wheat-light, #edebe0);
 
@@ -91,7 +92,7 @@ $shadow-lg: 0 4px 12px rgba(0, 0, 0, 0.12);
           }
 
           .mat-mdc-form-field-icon-prefix {
-            color: $primary-color;
+            color: $primary-color-a11y;
             margin-right: $spacing-sm;
           }
         }
@@ -303,7 +304,7 @@ $shadow-lg: 0 4px 12px rgba(0, 0, 0, 0.12);
 
         &.mat-focused {
           .mat-mdc-form-field-label {
-            color: $primary-color;
+            color: $primary-color-a11y;
           }
 
           .mdc-notched-outline__leading,

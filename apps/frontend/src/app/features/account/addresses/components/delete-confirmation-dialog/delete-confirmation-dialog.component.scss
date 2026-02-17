@@ -9,6 +9,7 @@
 
 /** Primary colors */
 $primary-color: var(--golden-wheat-primary, #988561);
+$primary-color-a11y: var(--golden-wheat-a11y, #6f6047);
 $primary-light: var(--golden-wheat-light, #edebe0);
 
 /** Error and warning colors */
@@ -102,7 +103,7 @@ $shadow-lg: 0 4px 12px rgba(0, 0, 0, 0.12);
       box-shadow: 0 2px 8px rgba(245, 158, 11, 0.1);
 
       mat-icon {
-        color: $primary-color;
+        color: $primary-color-a11y;
         flex-shrink: 0;
         font-size: 1.5rem;
         width: 1.5rem;

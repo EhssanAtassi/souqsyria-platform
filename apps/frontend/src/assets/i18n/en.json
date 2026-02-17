@@ -855,6 +855,7 @@
     "setAsDefault": "Set as Default",
     "defaultAddress": "Default",
     "save": "Save Address",
+    "saving": "Saving address...",
     "cancel": "Cancel",
     "delete": "Delete",
     "deleteConfirmTitle": "Delete Address",

@@ -333,6 +333,12 @@ html, body {
   text-align: right;
 }
 
+/* RTL Arabic font fallback chain for better readability */
+[dir='rtl'] body,
+:host-context([dir='rtl']) {
+  font-family: 'Cairo', 'Segoe UI Arabic', 'Tahoma', 'Arial', sans-serif;
+}
+
 /* Bilingual text containers */
 .bilingual-text {
   .english-text {
