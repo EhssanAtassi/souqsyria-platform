@@ -211,6 +211,66 @@
   }
 }
 
+// ============================================
+// Shop by Category — Premium Card Section v2.0
+// ============================================
+
+.sq-shop-by-category {
+  // Card entrance animation (staggered via inline animation-delay)
+  .sq-category-card {
+    animation: sq-fadeInUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+
+    // Lift on hover
+    &:hover {
+      transform: translateY(-6px);
+    }
+
+    // Press feedback
+    &:active {
+      transform: translateY(-2px) scale(0.98);
+    }
+  }
+
+  // Icon circle hover ring animation
+  .sq-icon-circle {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+  }
+}
+
+@keyframes sq-fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+// Reduced motion: disable stagger animations
+@media (prefers-reduced-motion: reduce) {
+  .sq-shop-by-category .sq-category-card {
+    animation: none !important;
+    transition: none !important;
+  }
+
+  .sq-shop-by-category .sq-icon-circle {
+    transition: none !important;
+  }
+}
+
+// High contrast mode: thicker outlines
+@media (prefers-contrast: high) {
+  .sq-shop-by-category .sq-category-card {
+    border-width: 2px;
+
+    &:focus-visible {
+      outline-width: 3px;
+    }
+  }
+}
+
 // Animation Keyframes
 @keyframes damascusPattern {
   0% {

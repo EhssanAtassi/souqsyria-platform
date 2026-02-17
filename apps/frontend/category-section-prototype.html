@@ -1,0 +1,868 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Shop by Category — SouqSyria Prototype</title>
+
+  <!-- Google Fonts: Inter (Latin) + Cairo (Arabic) -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+
+  <!-- Material Icons -->
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
+  <!-- Tailwind CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Tailwind Config — matching SouqSyria design tokens -->
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            'golden-wheat': {
+              100: '#edebe0',
+              200: '#b9a779',
+              300: '#988561',
+              DEFAULT: '#988561',
+              light: '#b9a779',
+              lighter: '#edebe0',
+              dark: '#988561'
+            },
+            'forest': {
+              100: '#428177',
+              200: '#054239',
+              300: '#002623',
+              DEFAULT: '#002623',
+              light: '#054239',
+              lighter: '#428177',
+              dark: '#002623'
+            },
+            'charcoal': {
+              100: '#ffffff',
+              200: '#3d3a3b',
+              300: '#161616',
+              DEFAULT: '#161616',
+              light: '#3d3a3b',
+              dark: '#161616'
+            },
+            'deep-umber': {
+              100: '#6b1f2a',
+              200: '#4a151e',
+              300: '#260f14',
+              DEFAULT: '#4a151e',
+              light: '#6b1f2a',
+              dark: '#260f14'
+            }
+          },
+          fontFamily: {
+            sans: ['Inter', 'Cairo', 'system-ui', 'sans-serif'],
+            arabic: ['Cairo', 'Amiri', 'Noto Sans Arabic', 'system-ui', 'sans-serif']
+          }
+        }
+      }
+    };
+  </script>
+
+  <style>
+    /* ================================================================
+       SouqSyria — "Shop by Category" Section Prototype
+       Design Tokens aligned with tailwind.config.js
+       ================================================================ */
+
+    :root {
+      /* Golden Wheat Palette */
+      --golden-wheat-100: #edebe0;
+      --golden-wheat-200: #b9a779;
+      --golden-wheat-300: #988561;
+
+      /* Forest Palette */
+      --forest-100: #428177;
+      --forest-200: #054239;
+      --forest-300: #002623;
+
+      /* Charcoal */
+      --charcoal-200: #3d3a3b;
+      --charcoal-300: #161616;
+
+      /* Deep Umber */
+      --deep-umber-100: #6b1f2a;
+      --deep-umber-200: #4a151e;
+
+      /* Category-specific brand colors */
+      --cat-damascus: #059669;
+      --cat-beauty: #C41E3A;
+      --cat-textiles: #D4AF37;
+      --cat-food: #EA580C;
+      --cat-crafts: #1E3A8A;
+      --cat-jewelry: #8B5CF6;
+
+      /* Neutrals */
+      --neutral-50: #fafafa;
+      --neutral-100: #f5f5f5;
+      --neutral-200: #e5e5e5;
+      --neutral-400: #a3a3a3;
+      --neutral-500: #737373;
+      --neutral-600: #525252;
+      --neutral-700: #404040;
+
+      /* Shadows */
+      --shadow-card: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+      --shadow-card-hover: 0 12px 28px rgba(152, 133, 97, 0.18), 0 4px 10px rgba(0,0,0,0.06);
+      --shadow-icon: 0 4px 14px rgba(0,0,0,0.12);
+      --shadow-icon-hover: 0 8px 24px rgba(0,0,0,0.18);
+
+      /* Transitions */
+      --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    /* ---- Reset & Base ---- */
+    *, *::before, *::after { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Inter', 'Cairo', system-ui, sans-serif;
+      background: #f8f8f6;
+      color: var(--charcoal-300);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ---- Page Context Bar (just for prototype) ---- */
+    .prototype-context {
+      background: var(--forest-300);
+      color: var(--golden-wheat-200);
+      text-align: center;
+      padding: 10px 16px;
+      font-size: 12px;
+      font-weight: 500;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
+    .prototype-context span {
+      color: var(--golden-wheat-100);
+      font-weight: 400;
+    }
+
+    /* ---- Section Container ---- */
+    .category-section {
+      padding: 56px 0 64px;
+      background: linear-gradient(180deg, #ffffff 0%, #faf9f6 100%);
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Subtle decorative top border */
+    .category-section::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 120px;
+      height: 3px;
+      background: linear-gradient(90deg, transparent, var(--golden-wheat-200), transparent);
+      border-radius: 2px;
+    }
+
+    /* ---- Section Header ---- */
+    .section-header {
+      text-align: center;
+      margin-bottom: 44px;
+      position: relative;
+    }
+
+    .section-header__ornament {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .section-header__ornament-line {
+      width: 48px;
+      height: 1px;
+      background: var(--golden-wheat-200);
+      opacity: 0.6;
+    }
+
+    .section-header__ornament-diamond {
+      width: 8px;
+      height: 8px;
+      background: var(--golden-wheat-200);
+      transform: rotate(45deg);
+      border-radius: 1px;
+    }
+
+    .section-header__title {
+      font-size: 28px;
+      font-weight: 700;
+      color: var(--charcoal-300);
+      margin: 0 0 4px;
+      line-height: 1.2;
+      letter-spacing: -0.02em;
+    }
+
+    .section-header__title-ar {
+      font-family: 'Cairo', sans-serif;
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--golden-wheat-300);
+      margin: 0 0 8px;
+      direction: rtl;
+      line-height: 1.3;
+    }
+
+    .section-header__subtitle {
+      font-size: 15px;
+      color: var(--neutral-500);
+      margin: 0;
+      line-height: 1.5;
+    }
+
+    .section-header__subtitle-divider {
+      display: inline-block;
+      width: 1px;
+      height: 14px;
+      background: var(--neutral-400);
+      margin: 0 10px;
+      vertical-align: middle;
+      opacity: 0.5;
+    }
+
+    .section-header__subtitle-ar {
+      font-family: 'Cairo', sans-serif;
+      direction: rtl;
+    }
+
+    /* ---- Categories Grid ---- */
+    .categories-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 16px;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+
+    @media (min-width: 640px) {
+      .categories-grid {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 20px;
+        padding: 0 24px;
+      }
+    }
+
+    @media (min-width: 1024px) {
+      .categories-grid {
+        grid-template-columns: repeat(6, 1fr);
+        gap: 20px;
+        padding: 0 32px;
+      }
+      .section-header__title {
+        font-size: 32px;
+      }
+    }
+
+    /* ---- Category Card ---- */
+    .category-card {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      padding: 24px 12px 20px;
+      background: #ffffff;
+      border: 1px solid var(--neutral-200);
+      border-radius: 16px;
+      cursor: pointer;
+      transition:
+        transform 0.35s var(--ease-out-expo),
+        box-shadow 0.35s var(--ease-out-expo),
+        border-color 0.25s ease;
+      box-shadow: var(--shadow-card);
+      text-decoration: none;
+      color: inherit;
+      outline: none;
+      min-height: 180px;
+    }
+
+    /* 44px min touch target via the entire card being tappable */
+    .category-card:hover {
+      transform: translateY(-6px);
+      box-shadow: var(--shadow-card-hover);
+      border-color: var(--golden-wheat-200);
+    }
+
+    .category-card:focus-visible {
+      outline: 2px solid var(--golden-wheat-300);
+      outline-offset: 3px;
+      border-color: var(--golden-wheat-200);
+    }
+
+    .category-card:active {
+      transform: translateY(-2px) scale(0.98);
+      transition-duration: 0.1s;
+    }
+
+    /* ---- Discount Badge ---- */
+    .category-card__badge {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      padding: 3px 8px;
+      background: linear-gradient(135deg, var(--deep-umber-100), var(--deep-umber-200));
+      color: #ffffff;
+      font-size: 11px;
+      font-weight: 700;
+      border-radius: 6px;
+      line-height: 1.4;
+      letter-spacing: 0.02em;
+      box-shadow: 0 2px 6px rgba(106, 31, 42, 0.3);
+      z-index: 2;
+    }
+
+    .category-card__badge-text {
+      font-size: 9px;
+      font-weight: 600;
+      text-transform: uppercase;
+      opacity: 0.9;
+    }
+
+    /* ---- Icon Container ---- */
+    .category-card__icon-wrap {
+      position: relative;
+      width: 68px;
+      height: 68px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 14px;
+      transition:
+        transform 0.35s var(--ease-out-expo),
+        box-shadow 0.35s var(--ease-out-expo);
+      box-shadow: var(--shadow-icon);
+      overflow: hidden;
+    }
+
+    /* Gradient overlay for depth */
+    .category-card__icon-wrap::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: 50%;
+      background: linear-gradient(135deg, rgba(255,255,255,0.25) 0%, rgba(0,0,0,0.08) 100%);
+      z-index: 1;
+    }
+
+    /* Soft ring around icon */
+    .category-card__icon-wrap::after {
+      content: '';
+      position: absolute;
+      inset: -3px;
+      border-radius: 50%;
+      border: 2px solid rgba(255,255,255,0.15);
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .category-card:hover .category-card__icon-wrap {
+      transform: scale(1.08);
+      box-shadow: var(--shadow-icon-hover);
+    }
+
+    .category-card:hover .category-card__icon-wrap::after {
+      opacity: 1;
+      border-color: var(--golden-wheat-200);
+    }
+
+    .category-card__icon {
+      font-size: 30px;
+      color: #ffffff;
+      position: relative;
+      z-index: 2;
+      line-height: 1;
+    }
+
+    /* Per-category icon background colors */
+    .category-card__icon-wrap--damascus { background: var(--cat-damascus); }
+    .category-card__icon-wrap--beauty   { background: var(--cat-beauty); }
+    .category-card__icon-wrap--textiles { background: var(--cat-textiles); }
+    .category-card__icon-wrap--food     { background: var(--cat-food); }
+    .category-card__icon-wrap--crafts   { background: var(--cat-crafts); }
+    .category-card__icon-wrap--jewelry  { background: var(--cat-jewelry); }
+
+    /* ---- Category Text ---- */
+    .category-card__name {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--charcoal-300);
+      margin: 0 0 3px;
+      line-height: 1.3;
+      transition: color 0.2s ease;
+    }
+
+    .category-card:hover .category-card__name {
+      color: var(--golden-wheat-300);
+    }
+
+    .category-card__name-ar {
+      font-family: 'Cairo', sans-serif;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--neutral-500);
+      margin: 0 0 8px;
+      direction: rtl;
+      line-height: 1.4;
+    }
+
+    /* ---- "Shop Now" CTA (appears on hover) ---- */
+    .category-card__cta {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 4px 0;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--golden-wheat-300);
+      opacity: 0;
+      transform: translateY(6px);
+      transition:
+        opacity 0.3s ease,
+        transform 0.3s var(--ease-out-expo);
+      border-bottom: 1px solid transparent;
+    }
+
+    .category-card:hover .category-card__cta {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .category-card__cta .material-icons {
+      font-size: 14px;
+      transition: transform 0.2s ease;
+    }
+
+    .category-card:hover .category-card__cta .material-icons {
+      transform: translateX(2px);
+    }
+
+    /* ---- Responsive Card Adjustments ---- */
+    @media (max-width: 639px) {
+      .category-card {
+        padding: 20px 10px 16px;
+        min-height: 160px;
+        border-radius: 12px;
+      }
+      .category-card__icon-wrap {
+        width: 56px;
+        height: 56px;
+        margin-bottom: 10px;
+      }
+      .category-card__icon {
+        font-size: 26px;
+      }
+      .category-card__name {
+        font-size: 13px;
+      }
+      .category-card__name-ar {
+        font-size: 11px;
+      }
+      .category-card__badge {
+        font-size: 10px;
+        top: 8px;
+        right: 8px;
+        padding: 2px 6px;
+      }
+      .section-header {
+        margin-bottom: 28px;
+      }
+      .section-header__title {
+        font-size: 22px;
+      }
+      .section-header__title-ar {
+        font-size: 18px;
+      }
+      .section-header__subtitle {
+        font-size: 13px;
+      }
+      .category-section {
+        padding: 40px 0 48px;
+      }
+    }
+
+    /* ---- Reduced Motion ---- */
+    @media (prefers-reduced-motion: reduce) {
+      .category-card,
+      .category-card__icon-wrap,
+      .category-card__cta,
+      .category-card__name,
+      .category-card__icon-wrap::after {
+        transition: none !important;
+      }
+      .category-card:hover {
+        transform: none;
+      }
+      .category-card:hover .category-card__icon-wrap {
+        transform: none;
+      }
+      .category-card:hover .category-card__cta {
+        opacity: 1;
+        transform: none;
+      }
+    }
+
+    /* ---- High Contrast Mode ---- */
+    @media (prefers-contrast: high) {
+      .category-card {
+        border-width: 2px;
+        border-color: var(--charcoal-300);
+      }
+      .category-card:focus-visible {
+        outline-width: 3px;
+        outline-color: currentColor;
+      }
+      .category-card__badge {
+        border: 1px solid #ffffff;
+      }
+    }
+
+    /* ---- Viewport Breakpoint Labels (prototype only) ---- */
+    .breakpoint-label {
+      position: fixed;
+      bottom: 12px;
+      right: 12px;
+      background: var(--charcoal-300);
+      color: var(--golden-wheat-200);
+      font-size: 11px;
+      font-weight: 600;
+      padding: 4px 10px;
+      border-radius: 6px;
+      z-index: 100;
+      letter-spacing: 0.5px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    }
+
+    /* ---- Entrance Animations ---- */
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(24px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .category-card {
+      animation: fadeInUp 0.5s var(--ease-out-expo) backwards;
+    }
+    .category-card:nth-child(1) { animation-delay: 0.05s; }
+    .category-card:nth-child(2) { animation-delay: 0.1s; }
+    .category-card:nth-child(3) { animation-delay: 0.15s; }
+    .category-card:nth-child(4) { animation-delay: 0.2s; }
+    .category-card:nth-child(5) { animation-delay: 0.25s; }
+    .category-card:nth-child(6) { animation-delay: 0.3s; }
+
+    .section-header {
+      animation: fadeInUp 0.5s var(--ease-out-expo) backwards;
+    }
+
+    /* ---- Simulated Page Context: Navbar Placeholder ---- */
+    .navbar-placeholder {
+      height: 64px;
+      background: #ffffff;
+      border-bottom: 1px solid var(--neutral-200);
+      display: flex;
+      align-items: center;
+      padding: 0 32px;
+      gap: 12px;
+    }
+
+    .navbar-placeholder__logo {
+      font-size: 20px;
+      font-weight: 800;
+      color: var(--charcoal-300);
+      letter-spacing: -0.03em;
+    }
+
+    .navbar-placeholder__logo span {
+      color: var(--golden-wheat-300);
+    }
+
+    /* ---- Hero placeholder (context) ---- */
+    .hero-placeholder {
+      height: 200px;
+      background: linear-gradient(135deg, var(--forest-300) 0%, var(--forest-200) 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--golden-wheat-200);
+      font-size: 14px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      font-weight: 500;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero-placeholder::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: repeating-linear-gradient(
+        45deg,
+        transparent,
+        transparent 20px,
+        rgba(255,255,255,0.02) 20px,
+        rgba(255,255,255,0.02) 22px
+      );
+    }
+
+    /* ---- Next Section Placeholder (context) ---- */
+    .next-section-placeholder {
+      padding: 48px 32px;
+      background: var(--neutral-100);
+      text-align: center;
+      color: var(--neutral-400);
+      font-size: 14px;
+      border-top: 1px solid var(--neutral-200);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Prototype Context Bar -->
+  <div class="prototype-context">
+    SouqSyria Design Prototype <span>| "Shop by Category" Section | February 2026</span>
+  </div>
+
+  <!-- Simulated Navbar (context) -->
+  <nav class="navbar-placeholder" aria-label="Simulated navigation">
+    <div class="navbar-placeholder__logo">
+      Souq<span>Syria</span>
+    </div>
+  </nav>
+
+  <!-- Simulated Hero (context) -->
+  <div class="hero-placeholder" aria-hidden="true">
+    [ Hero Banner Section Above ]
+  </div>
+
+  <!-- ============================================================
+       SHOP BY CATEGORY SECTION  (This is the deliverable)
+       ============================================================ -->
+  <section class="category-section" aria-labelledby="category-section-title">
+    <div style="max-width: 1200px; margin: 0 auto;">
+
+      <!-- Section Header — Bilingual -->
+      <header class="section-header">
+        <!-- Decorative Ornament -->
+        <div class="section-header__ornament" aria-hidden="true">
+          <span class="section-header__ornament-line"></span>
+          <span class="section-header__ornament-diamond"></span>
+          <span class="section-header__ornament-line"></span>
+        </div>
+
+        <!-- English Title -->
+        <h2 id="category-section-title" class="section-header__title">
+          Shop by Category
+        </h2>
+
+        <!-- Arabic Title -->
+        <p class="section-header__title-ar" lang="ar">
+          تسوّق حسب الفئة
+        </p>
+
+        <!-- Bilingual Subtitle -->
+        <p class="section-header__subtitle">
+          Discover authentic Syrian heritage products
+          <span class="section-header__subtitle-divider" aria-hidden="true"></span>
+          <span class="section-header__subtitle-ar" lang="ar">اكتشف منتجات التراث السوري الأصيلة</span>
+        </p>
+      </header>
+
+      <!-- Categories Grid -->
+      <div class="categories-grid" role="list">
+
+        <!-- 1. Damascus Steel -->
+        <a
+          href="/category/damascus-steel"
+          class="category-card"
+          role="listitem"
+          aria-label="Damascus Steel - Up to 15% off. Navigate to Damascus Steel category"
+        >
+          <div class="category-card__badge" aria-hidden="true">
+            <span class="category-card__badge-text">Up to</span> 15% OFF
+          </div>
+          <div class="category-card__icon-wrap category-card__icon-wrap--damascus">
+            <span class="material-icons category-card__icon" aria-hidden="true">hardware</span>
+          </div>
+          <h3 class="category-card__name">Damascus Steel</h3>
+          <p class="category-card__name-ar" lang="ar">الفولاذ الدمشقي</p>
+          <span class="category-card__cta" aria-hidden="true">
+            Shop Now <span class="material-icons">arrow_forward</span>
+          </span>
+        </a>
+
+        <!-- 2. Beauty & Wellness -->
+        <a
+          href="/category/beauty-wellness"
+          class="category-card"
+          role="listitem"
+          aria-label="Beauty and Wellness - Up to 20% off. Navigate to Beauty and Wellness category"
+        >
+          <div class="category-card__badge" aria-hidden="true">
+            <span class="category-card__badge-text">Up to</span> 20% OFF
+          </div>
+          <div class="category-card__icon-wrap category-card__icon-wrap--beauty">
+            <span class="material-icons category-card__icon" aria-hidden="true">face</span>
+          </div>
+          <h3 class="category-card__name">Beauty & Wellness</h3>
+          <p class="category-card__name-ar" lang="ar">الجمال والعافية</p>
+          <span class="category-card__cta" aria-hidden="true">
+            Shop Now <span class="material-icons">arrow_forward</span>
+          </span>
+        </a>
+
+        <!-- 3. Textiles & Fabrics -->
+        <a
+          href="/category/textiles-fabrics"
+          class="category-card"
+          role="listitem"
+          aria-label="Textiles and Fabrics - Up to 25% off. Navigate to Textiles and Fabrics category"
+        >
+          <div class="category-card__badge" aria-hidden="true">
+            <span class="category-card__badge-text">Up to</span> 25% OFF
+          </div>
+          <div class="category-card__icon-wrap category-card__icon-wrap--textiles">
+            <span class="material-icons category-card__icon" aria-hidden="true">texture</span>
+          </div>
+          <h3 class="category-card__name">Textiles & Fabrics</h3>
+          <p class="category-card__name-ar" lang="ar">المنسوجات والأقمشة</p>
+          <span class="category-card__cta" aria-hidden="true">
+            Shop Now <span class="material-icons">arrow_forward</span>
+          </span>
+        </a>
+
+        <!-- 4. Food & Spices -->
+        <a
+          href="/category/food-spices"
+          class="category-card"
+          role="listitem"
+          aria-label="Food and Spices - Up to 10% off. Navigate to Food and Spices category"
+        >
+          <div class="category-card__badge" aria-hidden="true">
+            <span class="category-card__badge-text">Up to</span> 10% OFF
+          </div>
+          <div class="category-card__icon-wrap category-card__icon-wrap--food">
+            <span class="material-icons category-card__icon" aria-hidden="true">restaurant</span>
+          </div>
+          <h3 class="category-card__name">Food & Spices</h3>
+          <p class="category-card__name-ar" lang="ar">الطعام والبهارات</p>
+          <span class="category-card__cta" aria-hidden="true">
+            Shop Now <span class="material-icons">arrow_forward</span>
+          </span>
+        </a>
+
+        <!-- 5. Traditional Crafts -->
+        <a
+          href="/category/traditional-crafts"
+          class="category-card"
+          role="listitem"
+          aria-label="Traditional Crafts - Up to 30% off. Navigate to Traditional Crafts category"
+        >
+          <div class="category-card__badge" aria-hidden="true">
+            <span class="category-card__badge-text">Up to</span> 30% OFF
+          </div>
+          <div class="category-card__icon-wrap category-card__icon-wrap--crafts">
+            <span class="material-icons category-card__icon" aria-hidden="true">handyman</span>
+          </div>
+          <h3 class="category-card__name">Traditional Crafts</h3>
+          <p class="category-card__name-ar" lang="ar">الحرف التقليدية</p>
+          <span class="category-card__cta" aria-hidden="true">
+            Shop Now <span class="material-icons">arrow_forward</span>
+          </span>
+        </a>
+
+        <!-- 6. Jewelry & Accessories -->
+        <a
+          href="/category/jewelry-accessories"
+          class="category-card"
+          role="listitem"
+          aria-label="Jewelry and Accessories - Up to 35% off. Navigate to Jewelry and Accessories category"
+        >
+          <div class="category-card__badge" aria-hidden="true">
+            <span class="category-card__badge-text">Up to</span> 35% OFF
+          </div>
+          <div class="category-card__icon-wrap category-card__icon-wrap--jewelry">
+            <span class="material-icons category-card__icon" aria-hidden="true">diamond</span>
+          </div>
+          <h3 class="category-card__name">Jewelry & Accessories</h3>
+          <p class="category-card__name-ar" lang="ar">المجوهرات والاكسسوارات</p>
+          <span class="category-card__cta" aria-hidden="true">
+            Shop Now <span class="material-icons">arrow_forward</span>
+          </span>
+        </a>
+
+      </div><!-- /.categories-grid -->
+
+    </div>
+  </section>
+
+  <!-- Next Section Placeholder (context) -->
+  <div class="next-section-placeholder" aria-hidden="true">
+    [ Hot Deals / Product Offers Row Below ]
+  </div>
+
+  <!-- Responsive Breakpoint Label (prototype utility) -->
+  <div class="breakpoint-label" id="breakpointLabel">Desktop</div>
+
+  <script>
+    /**
+     * Breakpoint indicator for prototype review
+     * @description Updates the fixed badge to show current responsive breakpoint
+     */
+    function updateBreakpointLabel() {
+      const label = document.getElementById('breakpointLabel');
+      const w = window.innerWidth;
+      if (w < 640) {
+        label.textContent = 'Mobile (' + w + 'px) — 2 cols';
+      } else if (w < 1024) {
+        label.textContent = 'Tablet (' + w + 'px) — 3 cols';
+      } else {
+        label.textContent = 'Desktop (' + w + 'px) — 6 cols';
+      }
+    }
+
+    updateBreakpointLabel();
+    window.addEventListener('resize', updateBreakpointLabel);
+
+    /**
+     * Prevent default navigation for prototype links
+     * @description Intercepts anchor clicks and logs the target route to console
+     */
+    document.querySelectorAll('.category-card').forEach(function(card) {
+      card.addEventListener('click', function(e) {
+        e.preventDefault();
+        var route = card.getAttribute('href');
+        var name = card.querySelector('.category-card__name').textContent.trim();
+        console.log('Category clicked:', name, '-> Route:', route);
+
+        /* Visual feedback ripple */
+        card.style.transform = 'translateY(-2px) scale(0.97)';
+        setTimeout(function() {
+          card.style.transform = '';
+        }, 150);
+      });
+    });
+  </script>
+
+</body>
+</html>

@@ -41,6 +41,7 @@ $transition-medium: $mm-transition-medium;
 
 .sq-mega-dropdown {
   position: absolute;
+  top: 100%;
   left: 50%;
   transform: translateX(-50%);
   z-index: 40;
@@ -65,13 +66,14 @@ $transition-medium: $mm-transition-medium;
   }
 }
 
-// Invisible hover bridge
+// Invisible hover bridge — prevents gap between nav bar trigger and dropdown
+// Must be tall enough to cover any visual gap + border-top
 .sq-mega-bridge {
   position: absolute;
-  top: -8px;
+  top: -16px;
   left: 0;
   right: 0;
-  height: 8px;
+  height: 16px;
   pointer-events: auto;
   background: transparent;
 }

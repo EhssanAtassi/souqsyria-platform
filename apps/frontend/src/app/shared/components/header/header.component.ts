@@ -8,7 +8,7 @@
  * - Overlay: triggered by "All Categories" click
  * - Dropdown: triggered by category hover in Row 3
  */
-import { Component, Input, Output, EventEmitter, OnInit, DestroyRef, inject, ChangeDetectionStrategy } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnInit, DestroyRef, inject, ChangeDetectionStrategy, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 
@@ -136,6 +136,9 @@ export class HeaderComponent implements OnInit {
    * Set when hovering featured categories, cleared on hide
    */
   activeMegaMenu: string | null = null;
+
+  /** Reference to CategoryNavigationComponent for cancelling hide timeouts */
+  @ViewChild(CategoryNavigationComponent) private categoryNav!: CategoryNavigationComponent;
 
   //#endregion
 
@@ -273,6 +276,10 @@ export class HeaderComponent implements OnInit {
    */
   showMegaMenu(categoryId: string): void {
     if (!this.categoryTreeLoaded) this.loadCategoryTree();
+    if (this.dropdownHideTimeout) {
+      clearTimeout(this.dropdownHideTimeout);
+      this.dropdownHideTimeout = null;
+    }
     this.megaMenuOpen.set(false); // Close overlay if open
     this.activeMegaMenu = categoryId;
     this.megaMenuDropdownOpen.set(true);
@@ -286,14 +293,26 @@ export class HeaderComponent implements OnInit {
 
   /** Mega menu container mouseenter — cancel pending hide */
   onDropdownMenuMouseEnter(): void {
-    // Mouse entered mega menu dropdown: keep it open
-    // The CategoryNavigationComponent's cancelHiding() is called via template
+    // Mouse entered mega menu dropdown: cancel ALL pending hide timers
+    // so the dropdown stays open while the user browses subcategories
+    this.categoryNav?.cancelHiding();
+    if (this.dropdownHideTimeout) {
+      clearTimeout(this.dropdownHideTimeout);
+      this.dropdownHideTimeout = null;
+    }
   }
 
-  /** Mega menu container mouseleave — trigger hide */
+  /** Hide timeout for dropdown mega menu mouseleave */
+  private dropdownHideTimeout: ReturnType<typeof setTimeout> | null = null;
+
+  /** Mega menu container mouseleave — trigger hide with delay */
   onDropdownMenuMouseLeave(): void {
-    this.activeMegaMenu = null;
-    this.megaMenuDropdownOpen.set(false);
+    if (this.dropdownHideTimeout) clearTimeout(this.dropdownHideTimeout);
+    this.dropdownHideTimeout = setTimeout(() => {
+      this.activeMegaMenu = null;
+      this.megaMenuDropdownOpen.set(false);
+      this.dropdownHideTimeout = null;
+    }, 200);
   }
 
   /**
