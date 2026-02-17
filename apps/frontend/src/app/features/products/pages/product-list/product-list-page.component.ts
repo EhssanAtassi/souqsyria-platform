@@ -407,9 +407,46 @@ export class ProductListPageComponent implements OnInit, OnDestroy {
     });
   }
 
-  /** @description Toggles sidebar visibility for mobile */
+  /**
+   * @description Toggles sidebar visibility for mobile
+   * Opens sidebar and locks body scroll
+   */
   toggleSidebar(): void {
-    this.sidebarOpen.update(open => !open);
+    this.sidebarOpen.update(open => {
+      const newState = !open;
+      if (newState) {
+        this.lockBodyScroll();
+      } else {
+        this.unlockBodyScroll();
+      }
+      return newState;
+    });
+  }
+
+  /**
+   * @description Closes sidebar and unlocks body scroll
+   */
+  closeSidebar(): void {
+    this.sidebarOpen.set(false);
+    this.unlockBodyScroll();
+  }
+
+  /**
+   * @description Locks body scroll to prevent background scrolling when sidebar is open
+   */
+  private lockBodyScroll(): void {
+    if (typeof document !== 'undefined') {
+      document.body.style.overflow = 'hidden';
+    }
+  }
+
+  /**
+   * @description Unlocks body scroll when sidebar closes
+   */
+  private unlockBodyScroll(): void {
+    if (typeof document !== 'undefined') {
+      document.body.style.overflow = '';
+    }
   }
 
   /**
@@ -589,9 +626,10 @@ export class ProductListPageComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * @description Clean up SEO meta tags on component destroy
+   * @description Clean up SEO meta tags and unlock body scroll on component destroy
    */
   ngOnDestroy(): void {
     this.seoService.clearMeta();
+    this.unlockBodyScroll();
   }
 }

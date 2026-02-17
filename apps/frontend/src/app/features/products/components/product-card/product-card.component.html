@@ -18,7 +18,7 @@
       }
 
       <!-- Stock Badge -->
-      <span class="stock-badge" [ngClass]="stockClass()">
+      <span class="stock-badge" [ngClass]="stockClass()" role="status" [attr.aria-label]="stockLabel()">
         {{ stockLabel() }}
       </span>
     </div>
@@ -41,9 +41,9 @@
     <!-- Rating -->
     <div class="product-card__rating">
       @if (product().reviewCount > 0) {
-        <div class="product-card__stars">
+        <div class="product-card__stars" role="img" [attr.aria-label]="ratingAriaLabel()">
           @for (star of stars(); track $index) {
-            <mat-icon class="product-card__star">{{ star }}</mat-icon>
+            <mat-icon class="product-card__star" aria-hidden="true">{{ star }}</mat-icon>
           }
         </div>
         <span class="product-card__review-count">({{ product().reviewCount }})</span>
@@ -56,15 +56,15 @@
     <div class="product-card__price-container">
       @if (hasDiscount()) {
         <div class="product-card__price-wrapper">
-          <span class="product-card__price product-card__price--current">
+          <span class="product-card__price product-card__price--current" [attr.aria-label]="currentPriceAriaLabel()">
             {{ formattedDiscountPrice() }}
           </span>
-          <span class="product-card__price product-card__price--original">
+          <span class="product-card__price product-card__price--original" [attr.aria-label]="originalPriceAriaLabel()">
             {{ formattedBasePrice() }}
           </span>
         </div>
       } @else {
-        <span class="product-card__price product-card__price--current">
+        <span class="product-card__price product-card__price--current" [attr.aria-label]="currentPriceAriaLabel()">
           {{ formattedBasePrice() }}
         </span>
       }

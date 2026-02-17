@@ -96,12 +96,12 @@
 }
 
 .product-list-page__view-toggle {
-  color: $golden-wheat-primary;
+  color: $golden-wheat-dark;
 }
 
 .product-list-page__filter-toggle {
   display: none;
-  color: $golden-wheat-primary;
+  color: $golden-wheat-dark;
 
   @media (max-width: $breakpoint-md) {
     display: inline-flex;
@@ -158,6 +158,27 @@
 .product-list-page__layout {
   display: flex;
   gap: $space-6;
+}
+
+/**
+ * Backdrop overlay for mobile sidebar
+ */
+.product-list-page__backdrop {
+  display: none;
+
+  @media (max-width: $breakpoint-md) {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 999;
+    animation: fadeIn 0.2s ease;
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
 .product-list-page__sidebar {

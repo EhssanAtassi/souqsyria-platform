@@ -908,6 +908,38 @@ export class ProductDetailPageComponent implements OnInit, OnDestroy {
     this.recommendationsService.trackProductView(product);
   }
 
+  /** @description Computed current price aria label (bilingual) */
+  currentPriceAriaLabel = computed(() => {
+    const lang = this.language();
+    const price = this.selectedVariant()
+      ? this.formattedEffectivePrice()
+      : this.hasDiscount()
+      ? this.formattedDiscountPrice()
+      : this.formattedBasePrice();
+    return lang === 'ar' ? `السعر الحالي: ${price}` : `Current price: ${price}`;
+  });
+
+  /** @description Computed original price aria label (bilingual) */
+  originalPriceAriaLabel = computed(() => {
+    const lang = this.language();
+    const price = this.formattedBasePrice();
+    return lang === 'ar' ? `السعر الأصلي: ${price}` : `Original price: ${price}`;
+  });
+
+  /** @description Computed rating aria label for screen readers (bilingual) */
+  ratingAriaLabel = computed(() => {
+    const summary = this.reviewSummary();
+    if (!summary) return '';
+    const lang = this.language();
+    const rating = summary.averageRating;
+    const reviewCount = summary.totalReviews;
+    if (lang === 'ar') {
+      return `${rating.toFixed(1)} من 5 نجوم، ${reviewCount} مراجعة`;
+    } else {
+      return `${rating.toFixed(1)} out of 5 stars, ${reviewCount} reviews`;
+    }
+  });
+
   /**
    * @description Clean up SEO meta tags on component destroy
    */

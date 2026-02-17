@@ -33,12 +33,12 @@
 }
 
 .breadcrumb__link {
-  color: $golden-wheat-primary;
+  color: $golden-wheat-dark;
   text-decoration: none;
   transition: color $transition-fast;
 
   &:hover {
-    color: $golden-wheat-dark;
+    color: $forest-dark;
   }
 }
 
@@ -175,7 +175,7 @@
   width: 18px;
   height: 18px;
   font-size: 18px;
-  color: $golden-wheat-primary;
+  color: $golden-wheat-dark;
 }
 
 .rating__text {
@@ -225,7 +225,7 @@
 
   &--low-stock {
     background: rgba($color-warning, 0.1);
-    color: $umber-medium;
+    color: $golden-wheat-dark;
   }
 
   &--out-of-stock {
@@ -351,17 +351,17 @@
 }
 
 .share-button {
-  width: 36px;
-  height: 36px;
+  width: 44px;
+  height: 44px;
   border: 1px solid $charcoal-medium;
   border-radius: $border-radius-full;
   color: $charcoal-medium;
   transition: all $transition-fast ease;
 
   mat-icon {
-    font-size: 18px;
-    width: 18px;
-    height: 18px;
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
   }
 
   &:hover {
@@ -496,7 +496,7 @@
     padding: 12px 16px;
     background: white;
     box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.1);
-    z-index: 100;
+    z-index: $z-index-sticky;
     align-items: center;
     gap: 12px;
   }
@@ -508,7 +508,7 @@
   }
 
   .sticky-cart__discount-price {
-    color: #c8102e;
+    color: $color-error;
   }
 
   .sticky-cart__button {

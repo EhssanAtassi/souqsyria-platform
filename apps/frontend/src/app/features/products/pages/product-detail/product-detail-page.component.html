@@ -47,9 +47,9 @@
         <!-- Star Rating Summary (if available) -->
         @if (reviewSummary() && reviewSummary()!.totalReviews > 0) {
           <div class="info__rating">
-            <div class="rating__stars">
+            <div class="rating__stars" role="img" [attr.aria-label]="ratingAriaLabel()">
               @for (star of [1, 2, 3, 4, 5]; track star) {
-                <mat-icon class="star-icon">
+                <mat-icon class="star-icon" aria-hidden="true">
                   {{ star <= Math.floor(reviewSummary()!.averageRating) ? 'star' :
                      (star === Math.ceil(reviewSummary()!.averageRating) && reviewSummary()!.averageRating % 1 >= 0.5) ? 'star_half' : 'star_border' }}
                 </mat-icon>
@@ -65,18 +65,18 @@
         <!-- Price (variant-aware) -->
         <div class="info__pricing">
           @if (selectedVariant()) {
-            <span class="info__price">{{ formattedEffectivePrice() }}</span>
+            <span class="info__price" [attr.aria-label]="currentPriceAriaLabel()">{{ formattedEffectivePrice() }}</span>
           } @else if (hasDiscount()) {
-            <span class="info__price info__price--discounted">{{ formattedDiscountPrice() }}</span>
-            <span class="info__price info__price--original">{{ formattedBasePrice() }}</span>
+            <span class="info__price info__price--discounted" [attr.aria-label]="currentPriceAriaLabel()">{{ formattedDiscountPrice() }}</span>
+            <span class="info__price info__price--original" [attr.aria-label]="originalPriceAriaLabel()">{{ formattedBasePrice() }}</span>
           } @else {
-            <span class="info__price">{{ formattedBasePrice() }}</span>
+            <span class="info__price" [attr.aria-label]="currentPriceAriaLabel()">{{ formattedBasePrice() }}</span>
           }
         </div>
 
         <!-- Stock Badge (variant-aware) -->
         <div class="info__stock">
-          <span class="stock-badge" [class]="effectiveStockClass()">
+          <span class="stock-badge" [class]="effectiveStockClass()" role="status" [attr.aria-label]="effectiveStockLabel()">
             {{ effectiveStockLabel() }}
           </span>
         </div>
@@ -307,11 +307,11 @@
     <div class="product-detail__sticky-cart">
       <div class="sticky-cart__price">
         @if (selectedVariant()) {
-          <span class="sticky-cart__price-text">{{ formattedEffectivePrice() }}</span>
+          <span class="sticky-cart__price-text" [attr.aria-label]="currentPriceAriaLabel()">{{ formattedEffectivePrice() }}</span>
         } @else if (hasDiscount()) {
-          <span class="sticky-cart__discount-price">{{ formattedDiscountPrice() }}</span>
+          <span class="sticky-cart__discount-price" [attr.aria-label]="currentPriceAriaLabel()">{{ formattedDiscountPrice() }}</span>
         } @else {
-          <span class="sticky-cart__price-text">{{ formattedBasePrice() }}</span>
+          <span class="sticky-cart__price-text" [attr.aria-label]="currentPriceAriaLabel()">{{ formattedBasePrice() }}</span>
         }
       </div>
       <button

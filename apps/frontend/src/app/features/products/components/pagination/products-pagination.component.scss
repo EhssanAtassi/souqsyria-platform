@@ -54,7 +54,7 @@
 }
 
 .pagination__nav-button {
-  color: $golden-wheat-primary;
+  color: $golden-wheat-dark;
 
   &:disabled {
     color: rgba($charcoal-medium, 0.4);
@@ -77,8 +77,8 @@
   transition: background-color $transition-fast ease, color $transition-fast ease;
 
   @media (min-width: $breakpoint-sm) {
-    min-width: 40px;
-    height: 40px;
+    min-width: 44px;
+    height: 44px;
     font-size: $font-size-base;
   }
 
@@ -108,8 +108,8 @@
   font-weight: $font-weight-medium;
 
   @media (min-width: $breakpoint-sm) {
-    min-width: 40px;
-    height: 40px;
+    min-width: 44px;
+    height: 44px;
   }
 }
 

@@ -199,4 +199,30 @@ export class ProductCardComponent {
     const lang = this.language();
     return lang === 'ar' ? 'قارن المنتج' : 'Compare Product';
   });
+
+  /** @description Computed current price aria label (bilingual) */
+  currentPriceAriaLabel = computed(() => {
+    const lang = this.language();
+    const price = this.hasDiscount() ? this.formattedDiscountPrice() : this.formattedBasePrice();
+    return lang === 'ar' ? `السعر الحالي: ${price}` : `Current price: ${price}`;
+  });
+
+  /** @description Computed original price aria label (bilingual) */
+  originalPriceAriaLabel = computed(() => {
+    const lang = this.language();
+    const price = this.formattedBasePrice();
+    return lang === 'ar' ? `السعر الأصلي: ${price}` : `Original price: ${price}`;
+  });
+
+  /** @description Computed rating aria label for screen readers (bilingual) */
+  ratingAriaLabel = computed(() => {
+    const lang = this.language();
+    const rating = this.product().rating;
+    const reviewCount = this.product().reviewCount;
+    if (lang === 'ar') {
+      return `${rating} من 5 نجوم، ${reviewCount} تقييم`;
+    } else {
+      return `${rating} out of 5 stars, ${reviewCount} reviews`;
+    }
+  });
 }

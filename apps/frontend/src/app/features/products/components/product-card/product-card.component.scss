@@ -89,7 +89,7 @@
 
   &--low_stock {
     background: $color-warning;
-    color: $charcoal-dark;
+    color: $golden-wheat-dark;
   }
 
   &--out_of_stock {
@@ -160,7 +160,7 @@
   font-size: 16px;
   width: 16px;
   height: 16px;
-  color: $golden-wheat-primary;
+  color: $golden-wheat-dark;
 }
 
 .product-card__review-count {
@@ -258,6 +258,37 @@
 
     mat-icon {
       animation: heart-bounce $transition-normal ease;
+    }
+  }
+
+  mat-icon {
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+  }
+}
+
+.product-card__compare {
+  width: 48px;
+  height: 48px;
+  border: 1px solid $charcoal-medium;
+  border-radius: $border-radius-md;
+  color: $charcoal-medium;
+  transition: color $transition-fast ease, background-color $transition-fast ease, border-color $transition-fast ease;
+
+  &:hover {
+    background: $golden-wheat-light;
+    border-color: $golden-wheat-primary;
+    color: $golden-wheat-primary;
+  }
+
+  &--active {
+    color: $golden-wheat-primary;
+    border-color: $golden-wheat-primary;
+    background: rgba($golden-wheat-primary, 0.1);
+
+    &:hover {
+      background: rgba($golden-wheat-primary, 0.15);
     }
   }
 

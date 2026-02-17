@@ -86,6 +86,11 @@
 
   <!-- Main layout: sidebar + content -->
   <div class="product-list-page__layout">
+    <!-- Backdrop overlay for mobile sidebar -->
+    @if (sidebarOpen()) {
+      <div class="product-list-page__backdrop" (click)="closeSidebar()"></div>
+    }
+
     <!-- Filter Sidebar -->
     <aside class="product-list-page__sidebar" [class.product-list-page__sidebar--open]="sidebarOpen()">
       <app-filter-sidebar
