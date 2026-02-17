@@ -55,7 +55,9 @@ export class UsersService {
     });
 
     if (!user) {
-      this.logger.log(`User not found for UID: ${firebaseUser.uid}. Creating new user...`);
+      this.logger.log(
+        `User not found for UID: ${firebaseUser.uid}. Creating new user...`,
+      );
       const defaultRole = await this.roleRepository.findOne({
         where: { name: 'buyer' },
       });

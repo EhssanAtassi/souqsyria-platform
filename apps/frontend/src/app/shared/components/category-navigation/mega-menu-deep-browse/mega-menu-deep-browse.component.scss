@@ -1,0 +1,346 @@
+/**
+ * Deep-Browse Mega Menu Styles — SouqSyria Golden Wheat Theme
+ *
+ * @description Two-panel layout: left sidebar (220px) + right content panel
+ * with hover-activated switching. Tokens imported from shared partial.
+ *
+ * @version 1.1.0 — Shared tokens + WCAG touch target fixes (audit C-4, W-7)
+ */
+
+@use '../../../../features/category/components/mega-menu/mega-menu-tokens' as *;
+
+// Local aliases — map prefixed tokens to short names
+$golden-wheat: $mm-golden-wheat;
+$golden-wheat-dark: $mm-golden-wheat-dark;
+$golden-wheat-light: $mm-golden-wheat-light;
+$golden-wheat-glow: $mm-golden-wheat-glow;
+$golden-wheat-border: $mm-golden-wheat-border;
+
+$text-primary: $mm-text-primary;
+$text-secondary: $mm-text-secondary;
+$text-tertiary: $mm-text-tertiary;
+
+$border-light: $mm-border-light;
+$border-medium: $mm-border-medium;
+$bg-surface: $mm-bg-surface;
+
+$transition-fast: $mm-transition-fast;
+
+// ═══════════════════════════════════════
+// CONTAINER
+// ═══════════════════════════════════════
+
+.sq-deep-browse {
+  display: flex;
+  min-height: 380px;
+
+  &.rtl {
+    direction: rtl;
+    text-align: right;
+
+    .sq-db-sidebar {
+      border-right: none;
+      border-left: 1px solid $border-light;
+    }
+
+    .sq-db-sidebar-item {
+      border-left: none;
+      border-right: 3px solid transparent;
+
+      &.active,
+      &:hover {
+        border-right-color: $golden-wheat;
+        border-left-color: transparent;
+      }
+    }
+
+    .sq-db-sidebar-arrow {
+      transform: rotate(180deg);
+    }
+
+    .sq-db-item-link:hover {
+      padding-left: 6px;
+      padding-right: 10px;
+    }
+  }
+}
+
+// ═══════════════════════════════════════
+// LEFT SIDEBAR
+// ═══════════════════════════════════════
+
+.sq-db-sidebar {
+  width: 220px;
+  flex-shrink: 0;
+  border-right: 1px solid $border-light;
+  overflow-y: auto;
+}
+
+/**
+ * Sidebar items — WCAG 2.2 compliant touch targets (min 44px)
+ * @audit-fix C-4: min-height increased from implicit ~38px to 44px
+ */
+.sq-db-sidebar-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  min-height: 44px;
+  font-size: 13.5px;
+  font-weight: 500;
+  color: $text-primary;
+  cursor: pointer;
+  border: none;
+  background: none;
+  width: 100%;
+  text-align: inherit;
+  border-left: 3px solid transparent;
+  transition: all $transition-fast;
+  user-select: none;
+
+  &:hover,
+  &.active {
+    background: $golden-wheat-light;
+    color: $golden-wheat-dark;
+    border-left-color: $golden-wheat;
+  }
+
+  &:focus-visible {
+    outline: 2px solid $golden-wheat;
+    outline-offset: -2px;
+  }
+}
+
+.sq-db-sidebar-icon {
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
+  color: $text-tertiary;
+  transition: color $transition-fast;
+
+  .sq-db-sidebar-item:hover &,
+  .sq-db-sidebar-item.active & {
+    color: $golden-wheat;
+  }
+}
+
+.sq-db-sidebar-name {
+  flex: 1;
+  line-height: 1.3;
+}
+
+.sq-db-sidebar-arrow {
+  font-size: 16px;
+  width: 16px;
+  height: 16px;
+  color: $text-tertiary;
+  opacity: 0.4;
+  transition: all $transition-fast;
+
+  .sq-db-sidebar-item:hover &,
+  .sq-db-sidebar-item.active & {
+    opacity: 1;
+    color: $golden-wheat;
+  }
+}
+
+// ═══════════════════════════════════════
+// RIGHT PANELS CONTAINER
+// ═══════════════════════════════════════
+
+.sq-db-panels {
+  flex: 1;
+  padding: 0 24px;
+  min-width: 0;
+}
+
+.sq-db-panel {
+  // Panels use [hidden] for instant toggling — no *ngIf DOM churn
+}
+
+// ═══════════════════════════════════════
+// PANEL HEADER
+// ═══════════════════════════════════════
+
+.sq-db-panel-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding-bottom: 12px;
+  margin-bottom: 14px;
+  border-bottom: 2px solid $golden-wheat-border;
+}
+
+.sq-db-panel-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 16px;
+  font-weight: 700;
+  color: $golden-wheat-dark;
+  flex: 1;
+  margin: 0;
+}
+
+.sq-db-panel-icon {
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
+  color: $golden-wheat;
+}
+
+.sq-db-see-all {
+  font-size: 12px;
+  font-weight: 600;
+  color: $golden-wheat-dark;
+  text-decoration: none;
+  padding: 4px 12px;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid $golden-wheat-border;
+  border-radius: 6px;
+  transition: all $transition-fast;
+  white-space: nowrap;
+
+  &:hover {
+    background: $golden-wheat-light;
+    border-color: $golden-wheat;
+  }
+
+  &:focus-visible {
+    outline: 2px solid $golden-wheat;
+    outline-offset: 2px;
+  }
+}
+
+// ═══════════════════════════════════════
+// ITEMS GRID (auto-flowing 3-column layout)
+// ═══════════════════════════════════════
+
+.sq-db-items-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2px 24px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+/**
+ * Item links — WCAG 2.2 compliant touch targets (min 44px)
+ * @audit-fix C-4: min-height set to 44px, padding increased for comfortable tap area
+ */
+.sq-db-item-link {
+  display: flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 8px 6px;
+  font-size: 13px;
+  color: $text-primary;
+  text-decoration: none;
+  border-radius: 4px;
+  transition: all $transition-fast;
+
+  &:hover {
+    background: $golden-wheat-light;
+    color: $golden-wheat-dark;
+    padding-left: 10px;
+  }
+
+  &:focus-visible {
+    outline: 2px solid $golden-wheat;
+    outline-offset: -2px;
+  }
+}
+
+// ═══════════════════════════════════════
+// BRAND CHIPS
+// ═══════════════════════════════════════
+
+.sq-db-brands {
+  margin-top: 16px;
+  padding-top: 12px;
+  border-top: 1px solid $border-light;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.sq-db-brands-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: $text-tertiary;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+/**
+ * Brand chip links — WCAG 2.2 touch target (min 44px height)
+ * @audit-fix C-4: min-height added for touch compliance
+ */
+.sq-db-brand-chip {
+  padding: 4px 10px;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  font-size: 11.5px;
+  font-weight: 500;
+  border: 1px solid $border-medium;
+  border-radius: 6px;
+  color: $text-secondary;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all $transition-fast;
+
+  &:hover {
+    border-color: $golden-wheat;
+    color: $golden-wheat-dark;
+    background: $golden-wheat-light;
+  }
+
+  &:focus-visible {
+    outline: 2px solid $golden-wheat;
+    outline-offset: 2px;
+  }
+}
+
+// ═══════════════════════════════════════
+// ACCESSIBILITY
+// ═══════════════════════════════════════
+
+@media (prefers-contrast: high) {
+  .sq-db-sidebar-item.active {
+    outline: 2px solid currentColor;
+  }
+
+  .sq-db-panel-header {
+    border-bottom-width: 3px;
+  }
+}
+
+/**
+ * Reduced motion — disable transitions + reset hover padding shifts
+ * @audit-fix W-7: Added RTL padding-right reset alongside padding-left
+ */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition: none !important;
+  }
+
+  .sq-db-item-link:hover {
+    padding-left: 6px;
+    padding-right: 6px;
+  }
+}
+
+// ═══════════════════════════════════════
+// PRINT
+// ═══════════════════════════════════════
+
+@media print {
+  .sq-deep-browse {
+    display: none !important;
+  }
+}

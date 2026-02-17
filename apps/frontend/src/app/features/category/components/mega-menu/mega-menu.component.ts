@@ -2,13 +2,16 @@
  * Mega Menu Component
  *
  * @description Responsive mega menu for category navigation with desktop hover
- * and mobile accordion behaviors. Supports RTL layout and keyboard accessibility.
+ * and mobile accordion behaviors. Supports both category-specific dropdown
+ * (from HEADER_NAV_CATEGORIES) and full tree overlay (from API).
  *
  * @pattern Smart Component
- * - Desktop: hover-activated mega menu with subcategory grid
- * - Mobile: full-screen accordion overlay with slide animation
+ * - Dropdown: category-specific subcategories with sidebar/fullwidth layout
+ * - Overlay: full category tree with hover-activated subcategory grid
+ * - Mobile: full-screen accordion with back button navigation
  * - Keyboard navigation with arrow keys and Escape
  * - RTL-aware layout mirroring
+ * - Golden wheat SouqSyria theme with glassmorphism
  *
  * @swagger
  * components:
@@ -22,6 +25,9 @@
  *           items:
  *             $ref: '#/components/schemas/CategoryTreeNode'
  *           description: Hierarchical category tree data
+ *         hoveredCategory:
+ *           $ref: '#/components/schemas/Category'
+ *           description: Currently hovered category from HEADER_NAV_CATEGORIES
  *         isOpen:
  *           type: boolean
  *           description: Menu open state
@@ -45,19 +51,24 @@ import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
 import { CategoryTreeNode } from '../../models/category-tree.interface';
+import { Category, Subcategory, MenuColumn, FeaturedTile, MegaMenuFeaturedProduct, NavigationConfig } from '../../../../shared/interfaces/navigation.interface';
+import { MegaMenuDeepBrowseComponent } from '../../../../shared/components/category-navigation/mega-menu-deep-browse/mega-menu-deep-browse.component';
 import { trigger, transition, style, animate } from '@angular/animations';
 
 /**
  * Mega Menu Component for category navigation
  *
  * @description Provides responsive mega menu with hover (desktop) and
- * accordion (mobile) behaviors. Includes keyboard navigation and RTL support.
+ * accordion (mobile) behaviors. Dropdown mode shows category-specific
+ * content from HEADER_NAV_CATEGORIES. Overlay mode shows full API tree.
  *
  * @example
  * ```html
  * <app-mega-menu
  *   [categories]="categories"
+ *   [hoveredCategory]="hoveredCategoryData"
  *   [isOpen]="menuOpen"
+ *   [displayMode]="'dropdown'"
  *   (categorySelected)="onCategorySelect($event)"
  *   (menuClosed)="onMenuClose()">
  * </app-mega-menu>
@@ -68,15 +79,15 @@ import { trigger, transition, style, animate } from '@angular/animations';
 @Component({
   selector: 'app-mega-menu',
   standalone: true,
-  imports: [CommonModule, RouterLink, MatIconModule],
+  imports: [CommonModule, RouterLink, MatIconModule, MegaMenuDeepBrowseComponent],
   templateUrl: './mega-menu.component.html',
   styleUrls: ['./mega-menu.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
   animations: [
     trigger('fadeIn', [
       transition(':enter', [
-        style({ opacity: 0, transform: 'translateY(-10px)' }),
-        animate('200ms ease-out', style({ opacity: 1, transform: 'translateY(0)' }))
+        style({ opacity: 0, transform: 'translateY(-8px)' }),
+        animate('250ms cubic-bezier(0.4, 0, 0.2, 1)', style({ opacity: 1, transform: 'translateY(0)' }))
       ])
     ]),
     trigger('slideIn', [
@@ -91,58 +102,61 @@ import { trigger, transition, style, animate } from '@angular/animations';
   ]
 })
 export class MegaMenuComponent implements OnInit, OnDestroy {
+
+  //#region Input Properties
+
   /**
-   * Category tree data for menu structure
-   *
+   * Category tree data for overlay mode (full API tree)
    * @input
    */
   @Input() categories: CategoryTreeNode[] = [];
 
   /**
+   * Currently hovered category from HEADER_NAV_CATEGORIES
+   * @description Used in dropdown mode to show category-specific subcategories,
+   * featured products, menu columns, and featured tiles
+   * @input
+   */
+  @Input() hoveredCategory: Category | null = null;
+
+  /**
    * Menu open/closed state
-   *
    * @input
    */
   @Input() isOpen = false;
 
   /**
    * Display mode: 'overlay' (full screen click) or 'dropdown' (positioned below nav bar on hover)
-   *
    * @input
    * @default 'overlay'
    */
   @Input() displayMode: 'overlay' | 'dropdown' = 'overlay';
 
+  //#endregion
+
+  //#region Output Events
+
   /**
    * Event emitted when user selects a category
-   *
    * @output
    * @emits {string} categorySlug - Selected category slug
    */
   @Output() categorySelected = new EventEmitter<string>();
 
-  /**
-   * Event emitted when menu is closed
-   *
-   * @output
-   */
+  /** Event emitted when menu is closed */
   @Output() menuClosed = new EventEmitter<void>();
 
-  /**
-   * Event emitted when mouse enters the mega menu container (for hover intent)
-   *
-   * @output
-   */
+  /** Event emitted when mouse enters the mega menu container (for hover intent) */
   @Output() menuMouseEnter = new EventEmitter<void>();
 
-  /**
-   * Event emitted when mouse leaves the mega menu container (for hover intent)
-   *
-   * @output
-   */
+  /** Event emitted when mouse leaves the mega menu container (for hover intent) */
   @Output() menuMouseLeave = new EventEmitter<void>();
 
-  /** Currently active/hovered category */
+  //#endregion
+
+  //#region Signals
+
+  /** Currently active/hovered category in overlay mode */
   activeCategory = signal<CategoryTreeNode | null>(null);
 
   /** Mobile view state (screen < 1024px) */
@@ -160,13 +174,17 @@ export class MegaMenuComponent implements OnInit, OnDestroy {
   /** Focused category index for keyboard navigation */
   focusedCategoryIndex = signal<number>(0);
 
+  //#endregion
+
+  //#region Computed Properties
+
   /** Computed: slide animation params based on RTL direction */
   slideAnimationParams = computed(() => {
     const direction = this.isRtl() ? 'translateX(-100%)' : 'translateX(100%)';
     return { enterFrom: direction, leaveTo: direction };
   });
 
-  /** Computed: categories to display in current view */
+  /** Computed: categories to display in current overlay view */
   displayCategories = computed(() => {
     if (this.isMobile() && this.currentMobileCategory()) {
       return this.currentMobileCategory()?.children || [];
@@ -174,7 +192,9 @@ export class MegaMenuComponent implements OnInit, OnDestroy {
     return this.categories;
   });
 
-  /** Bound resize handler for proper cleanup (avoids .bind() identity mismatch) */
+  //#endregion
+
+  /** Bound resize handler for proper cleanup */
   private resizeHandler = () => this.checkMobileView();
 
   constructor(
@@ -182,9 +202,10 @@ export class MegaMenuComponent implements OnInit, OnDestroy {
     @Inject(PLATFORM_ID) private platformId: object
   ) {}
 
+  //#region Lifecycle
+
   /**
    * Initialize component — detect viewport and RTL, attach resize listener
-   *
    * @lifecycle
    */
   ngOnInit(): void {
@@ -197,7 +218,6 @@ export class MegaMenuComponent implements OnInit, OnDestroy {
 
   /**
    * Cleanup resize listener on destroy
-   *
    * @lifecycle
    */
   ngOnDestroy(): void {
@@ -206,9 +226,144 @@ export class MegaMenuComponent implements OnInit, OnDestroy {
     }
   }
 
+  //#endregion
+
+  //#region Dropdown Mode Helpers (Category-Specific Content)
+
   /**
-   * Handle category hover (desktop only)
-   *
+   * Check if hovered category uses sidebar layout
+   * @description Sidebar layout: left subcategory list + right featured products.
+   * Default layout when no megaMenuType is explicitly set (unless fullwidth/deep-browse).
+   * @returns True if megaMenuType is 'sidebar' or fallback default
+   */
+  get isSidebarLayout(): boolean {
+    if (!this.hoveredCategory) return true;
+    if (this.hoveredCategory.megaMenuType === 'fullwidth') return false;
+    if (this.hoveredCategory.megaMenuType === 'deep-browse') return false;
+    return this.hoveredCategory.megaMenuType === 'sidebar' ||
+           (!this.hoveredCategory.menuColumns && !!this.hoveredCategory.subcategories?.length);
+  }
+
+  /**
+   * Check if hovered category uses fullwidth layout
+   * @description Fullwidth layout: multi-column grid with featured tiles
+   * @returns True if megaMenuType is 'fullwidth'
+   */
+  get isFullwidthLayout(): boolean {
+    return this.hoveredCategory?.megaMenuType === 'fullwidth';
+  }
+
+  /**
+   * Check if hovered category uses deep-browse layout
+   * @description Deep-browse layout: left sidebar with category groups + right switchable panels
+   * @returns True if megaMenuType is 'deep-browse'
+   */
+  get isDeepBrowseLayout(): boolean {
+    return this.hoveredCategory?.megaMenuType === 'deep-browse';
+  }
+
+  /**
+   * Build NavigationConfig for child components from current state
+   * @returns NavigationConfig object for deep-browse/sidebar/fullwidth child components
+   */
+  get navigationConfig(): NavigationConfig {
+    return {
+      showArabic: true,
+      language: this.isRtl() ? 'ar' : 'en',
+      rtl: this.isRtl(),
+      locations: [],
+      featuredCategories: []
+    };
+  }
+
+  /**
+   * Get subcategories for the hovered category
+   * @returns Array of subcategories
+   */
+  get subcategories(): Subcategory[] {
+    return this.hoveredCategory?.subcategories || [];
+  }
+
+  /**
+   * Get menu columns for fullwidth layout
+   * @returns Array of menu columns
+   */
+  get menuColumns(): MenuColumn[] {
+    return this.hoveredCategory?.menuColumns || [];
+  }
+
+  /**
+   * Get featured tiles for fullwidth layout
+   * @returns Array of featured tiles
+   */
+  get featuredTiles(): FeaturedTile[] {
+    return this.hoveredCategory?.featuredTiles || [];
+  }
+
+  /**
+   * Get featured products for sidebar layout
+   * @returns Array of featured products
+   */
+  get featuredProducts(): MegaMenuFeaturedProduct[] {
+    return this.hoveredCategory?.megaMenuFeaturedProducts || [];
+  }
+
+  /**
+   * Get hovered category display name based on locale
+   * @returns Localized category name
+   */
+  getHoveredCategoryName(): string {
+    if (!this.hoveredCategory) return '';
+    return this.isRtl() ? this.hoveredCategory.nameAr : this.hoveredCategory.name;
+  }
+
+  /**
+   * Get localized name for subcategory
+   * @param sub - Subcategory object
+   * @returns Localized subcategory name
+   */
+  getSubcategoryName(sub: Subcategory): string {
+    return this.isRtl() ? sub.nameAr : sub.name;
+  }
+
+  /**
+   * Get localized text from bilingual object
+   * @param en - English text
+   * @param ar - Arabic text
+   * @returns Text in current language
+   */
+  getLocalizedText(en: string, ar: string): string {
+    return this.isRtl() ? ar : en;
+  }
+
+  /**
+   * Navigate to a URL and close the menu
+   * @param url - URL to navigate to
+   */
+  navigateToUrl(url: string): void {
+    this.router.navigateByUrl(url);
+    this.close();
+  }
+
+  /**
+   * Handle image load error with gradient fallback
+   * @param event - Error event
+   */
+  onImageError(event: Event): void {
+    const img = event.target as HTMLImageElement;
+    img.style.display = 'none';
+    const parent = img.parentElement;
+    if (parent) {
+      parent.classList.add('sq-img-fallback');
+    }
+  }
+
+  //#endregion
+
+  //#region Overlay Mode Handlers (API Tree)
+
+  /**
+   * Handle category hover in overlay mode (desktop only)
    * @param category - Category being hovered
    */
   onCategoryHover(category: CategoryTreeNode): void {
@@ -219,17 +374,14 @@ export class MegaMenuComponent implements OnInit, OnDestroy {
 
   /**
    * Handle category click for mobile accordion
-   *
    * @param category - Category being clicked
    */
   onCategoryClick(category: CategoryTreeNode): void {
     if (this.isMobile()) {
       if (category.children && category.children.length > 0) {
-        // Push to stack and show children
         this.categoryStack.update(stack => [...stack, category]);
         this.currentMobileCategory.set(category);
       } else {
-        // Navigate to category page
         this.navigateToCategory(category.slug);
       }
     } else {
@@ -239,12 +391,11 @@ export class MegaMenuComponent implements OnInit, OnDestroy {
 
   /**
    * Navigate to category page
-   *
    * @param slug - Category slug for routing
    */
   navigateToCategory(slug: string): void {
     this.categorySelected.emit(slug);
-    this.router.navigate(['/categories', slug]);
+    this.router.navigate(['/category', slug]);
     this.close();
   }
 
@@ -272,9 +423,12 @@ export class MegaMenuComponent implements OnInit, OnDestroy {
     this.menuClosed.emit();
   }
 
+  //#endregion
+
+  //#region Keyboard Navigation
+
   /**
    * Listen for Escape key to close menu
-   *
    * @param event - Keyboard event
    */
   @HostListener('document:keydown.escape', ['$event'])
@@ -287,7 +441,6 @@ export class MegaMenuComponent implements OnInit, OnDestroy {
 
   /**
    * Handle keyboard navigation
-   *
    * @param event - Keyboard event
    */
   @HostListener('document:keydown', ['$event'])
@@ -304,23 +457,13 @@ export class MegaMenuComponent implements OnInit, OnDestroy {
           Math.min(currentIndex + 1, categories.length - 1)
         );
         break;
-
       case 'ArrowUp':
         event.preventDefault();
         this.focusedCategoryIndex.set(Math.max(currentIndex - 1, 0));
         break;
-
       case 'ArrowRight':
         event.preventDefault();
-        if (!this.isMobile() && this.activeCategory()) {
-          // Focus on subcategories
-          const active = this.activeCategory();
-          if (active && active.children && active.children.length > 0) {
-            // Could implement subcategory navigation
-          }
-        }
         break;
-
       case 'Enter':
         event.preventDefault();
         const selectedCategory = categories[currentIndex];
@@ -331,32 +474,12 @@ export class MegaMenuComponent implements OnInit, OnDestroy {
     }
   }
 
-  /**
-   * Check if viewport is mobile size
-   *
-   * @private
-   */
-  private checkMobileView(): void {
-    if (isPlatformBrowser(this.platformId)) {
-      this.isMobile.set(window.innerWidth < 1024);
-    }
-  }
+  //#endregion
+
+  //#region Utility Helpers
 
   /**
-   * Detect RTL layout from document
-   *
-   * @private
-   */
-  private detectRTL(): void {
-    if (isPlatformBrowser(this.platformId)) {
-      const dir = document.documentElement.getAttribute('dir');
-      this.isRtl.set(dir === 'rtl');
-    }
-  }
-
-  /**
-   * Get category display name based on locale
-   *
+   * Get category display name based on locale (for overlay tree nodes)
    * @param category - Category object
    * @returns Localized category name
    */
@@ -364,13 +487,18 @@ export class MegaMenuComponent implements OnInit, OnDestroy {
     return this.isRtl() ? category.nameAr : category.name;
   }
 
-  /**
-   * Handle image load error with fallback
-   *
-   * @param event - Error event
-   */
-  onImageError(event: Event): void {
-    const img = event.target as HTMLImageElement;
-    img.src = '/assets/images/placeholder-category.png';
+  private checkMobileView(): void {
+    if (isPlatformBrowser(this.platformId)) {
+      this.isMobile.set(window.innerWidth < 1024);
+    }
   }
+
+  private detectRTL(): void {
+    if (isPlatformBrowser(this.platformId)) {
+      const dir = document.documentElement.getAttribute('dir');
+      this.isRtl.set(dir === 'rtl');
+    }
+  }
+
+  //#endregion
 }

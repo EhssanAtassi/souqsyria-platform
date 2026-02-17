@@ -1,0 +1,148 @@
+<!-- Image Uploader Template -->
+<!-- Simplified image management interface -->
+
+<div class="image-uploader">
+  <!-- Upload Zone -->
+  <div
+    class="image-uploader__dropzone"
+    [class.image-uploader__dropzone--active]="isDragOver()"
+    (dragover)="onDragOver($event)"
+    (dragleave)="onDragLeave($event)"
+    (drop)="onDrop($event)"
+  >
+    <span class="material-icons image-uploader__dropzone-icon">cloud_upload</span>
+    <p class="image-uploader__dropzone-text">
+      Drag and drop images here or click to browse
+    </p>
+    <p class="image-uploader__dropzone-hint">
+      (Upload functionality requires backend integration)
+    </p>
+    <input
+      type="file"
+      accept="image/*"
+      multiple
+      class="image-uploader__file-input"
+      (change)="onFileSelect($event)"
+    />
+  </div>
+
+  <!-- Image List -->
+  <div *ngIf="hasImages()" class="image-uploader__list">
+    <h3 class="image-uploader__list-title">
+      Product Images ({{ imageList().length }})
+    </h3>
+
+    <div class="image-grid">
+      <div
+        *ngFor="let image of imageList(); let i = index; trackBy: trackByImageId"
+        class="image-card"
+        [class.image-card--primary]="image.isPrimary"
+      >
+        <!-- Image -->
+        <div class="image-card__image-wrapper">
+          <img
+            [src]="image.imageUrl"
+            [alt]="image.altText"
+            class="image-card__image"
+          />
+          <div *ngIf="image.isPrimary" class="image-card__primary-badge">
+            <span class="material-icons">star</span>
+            Primary
+          </div>
+        </div>
+
+        <!-- Alt Text -->
+        <div class="image-card__alt">
+          <span *ngIf="editingAltTextId() !== image.id" class="image-card__alt-text">
+            {{ image.altText || 'No alt text' }}
+          </span>
+          <input
+            *ngIf="editingAltTextId() === image.id"
+            type="text"
+            class="image-card__alt-input"
+            [value]="image.altText"
+            (keydown.enter)="saveAltText(image.id, $any($event.target).value)"
+            (keydown.escape)="cancelEditAltText()"
+            autofocus
+          />
+        </div>
+
+        <!-- Actions -->
+        <div class="image-card__actions">
+          <!-- Set Primary -->
+          <button
+            *ngIf="!image.isPrimary"
+            type="button"
+            class="image-card__action-btn"
+            (click)="setPrimary(image.id)"
+            matTooltip="Set as primary"
+          >
+            <span class="material-icons">star_border</span>
+          </button>
+
+          <!-- Edit Alt Text -->
+          <button
+            type="button"
+            class="image-card__action-btn"
+            (click)="editingAltTextId() === image.id ? cancelEditAltText() : startEditAltText(image.id)"
+            [matTooltip]="editingAltTextId() === image.id ? 'Cancel' : 'Edit alt text'"
+          >
+            <span class="material-icons">
+              {{ editingAltTextId() === image.id ? 'close' : 'edit' }}
+            </span>
+          </button>
+
+          <!-- Save Alt Text -->
+          <button
+            *ngIf="editingAltTextId() === image.id"
+            type="button"
+            class="image-card__action-btn image-card__action-btn--primary"
+            (click)="saveAltText(image.id, image.altText)"
+            matTooltip="Save"
+          >
+            <span class="material-icons">check</span>
+          </button>
+
+          <!-- Move Up -->
+          <button
+            type="button"
+            class="image-card__action-btn"
+            (click)="moveUp(i)"
+            [disabled]="i === 0"
+            matTooltip="Move up"
+          >
+            <span class="material-icons">arrow_upward</span>
+          </button>
+
+          <!-- Move Down -->
+          <button
+            type="button"
+            class="image-card__action-btn"
+            (click)="moveDown(i)"
+            [disabled]="i === imageList().length - 1"
+            matTooltip="Move down"
+          >
+            <span class="material-icons">arrow_downward</span>
+          </button>
+
+          <!-- Delete -->
+          <button
+            type="button"
+            class="image-card__action-btn image-card__action-btn--danger"
+            (click)="onDeleteImage(image.id)"
+            matTooltip="Delete"
+          >
+            <span class="material-icons">delete</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Empty State -->
+  <div *ngIf="!hasImages()" class="image-uploader__empty">
+    <span class="material-icons image-uploader__empty-icon">image</span>
+    <p class="image-uploader__empty-text">No images yet</p>
+    <p class="image-uploader__empty-hint">Upload images to get started</p>
+  </div>
+</div>

@@ -186,7 +186,9 @@ export class SyrianStockAnalyticsController {
 
       return dashboard;
     } catch (error: unknown) {
-      this.logger.error(`Failed to generate stock dashboard: ${(error as Error).message}`);
+      this.logger.error(
+        `Failed to generate stock dashboard: ${(error as Error).message}`,
+      );
       throw error;
     }
   }
@@ -280,7 +282,9 @@ export class SyrianStockAnalyticsController {
         },
       };
     } catch (error: unknown) {
-      this.logger.error(`Failed to generate stock overview: ${(error as Error).message}`);
+      this.logger.error(
+        `Failed to generate stock overview: ${(error as Error).message}`,
+      );
       throw error;
     }
   }
@@ -502,7 +506,9 @@ export class SyrianStockAnalyticsController {
 
       return forecasts;
     } catch (error: unknown) {
-      this.logger.error(`Failed to generate stock forecast: ${(error as Error).message}`);
+      this.logger.error(
+        `Failed to generate stock forecast: ${(error as Error).message}`,
+      );
       throw error;
     }
   }
@@ -576,7 +582,9 @@ export class SyrianStockAnalyticsController {
         estimatedTotalCostSyp: 0,
       };
     } catch (error: unknown) {
-      this.logger.error(`Failed to generate reorder alerts: ${(error as Error).message}`);
+      this.logger.error(
+        `Failed to generate reorder alerts: ${(error as Error).message}`,
+      );
       throw error;
     }
   }
@@ -856,7 +864,9 @@ export class SyrianStockAnalyticsController {
         },
       };
     } catch (error: unknown) {
-      this.logger.error(`Failed to retrieve alerts: ${(error as Error).message}`);
+      this.logger.error(
+        `Failed to retrieve alerts: ${(error as Error).message}`,
+      );
       throw error;
     }
   }
@@ -907,7 +917,9 @@ export class SyrianStockAnalyticsController {
       // This would be implemented to get governorates with stock data
       return [];
     } catch (error: unknown) {
-      this.logger.error(`Failed to retrieve governorates: ${(error as Error).message}`);
+      this.logger.error(
+        `Failed to retrieve governorates: ${(error as Error).message}`,
+      );
       throw error;
     }
   }

@@ -1,4 +1,4 @@
-<!-- Hero Image Slider Container -->
+<!-- Hero Image Slider — Premium Redesign with Ken Burns, CTA, and Error Fallback -->
 <div class="hero-slider" (mouseenter)="pauseAutoplay()" (mouseleave)="resumeAutoplay()">
 
   <!-- Slider Track with Slides -->
@@ -9,24 +9,45 @@
         [class.active]="i === currentSlide()"
         [routerLink]="banner.link">
 
-        <!-- Slide Image -->
-        <img
-          [src]="banner.image"
-          [alt]="banner.title"
-          class="slide-image"
-          loading="lazy">
+        <!-- Slide Image with Error Fallback -->
+        @if (!imageErrors()[i]) {
+          <img
+            [src]="banner.image"
+            [alt]="banner.title"
+            class="slide-image"
+            loading="lazy"
+            (error)="onImageError(i)">
+        } @else {
+          <!-- Gradient fallback when image fails -->
+          <div class="slide-fallback"></div>
+        }
 
-        <!-- Text Overlay -->
+        <!-- Text Overlay with Staggered Entrance -->
         <div class="slide-content">
           <h2 class="slide-title">{{ banner.title }}</h2>
           <h3 class="slide-title-ar">{{ banner.titleAr }}</h3>
           <p class="slide-subtitle">{{ banner.subtitle }}</p>
+          <button
+            class="slide-cta"
+            [routerLink]="banner.link"
+            (click)="$event.stopPropagation()"
+            type="button">
+            {{ banner.ctaText || 'Shop Now' }}
+            <mat-icon>arrow_forward</mat-icon>
+          </button>
         </div>
       </div>
     }
   </div>
 
-  <!-- Navigation Arrows -->
+  <!-- Slide Counter (top-right) -->
+  <div class="slide-counter">
+    <span class="counter-current">{{ currentSlide() + 1 }}</span>
+    <span class="counter-separator">/</span>
+    <span class="counter-total">{{ totalSlides() }}</span>
+  </div>
+
+  <!-- Navigation Arrows — Glassmorphism -->
   <button
     mat-icon-button
     class="slider-arrow slider-arrow-left"
@@ -45,7 +66,7 @@
     <mat-icon>chevron_right</mat-icon>
   </button>
 
-  <!-- Dot Indicators -->
+  <!-- Dot Indicators — Pill morph with golden glow -->
   <div class="slider-dots">
     @for (banner of banners(); track banner.id; let i = $index) {
       <button
@@ -58,7 +79,7 @@
     }
   </div>
 
-  <!-- Progress Bar -->
+  <!-- Progress Bar with Glow -->
   <div class="slider-progress">
     <div
       class="progress-bar"

@@ -584,8 +584,7 @@ export class RolesController {
       example: {
         id: 18,
         name: 'Level 1 Support',
-        description:
-          'Customer service representatives who handle inquiries',
+        description: 'Customer service representatives who handle inquiries',
         isDefault: false,
         priority: 30,
         rolePermissions: [
@@ -625,10 +624,7 @@ export class RolesController {
     this.logger.log(
       `Creating role from template: ${templateId}${body?.customName ? ` with custom name: ${body.customName}` : ''}`,
     );
-    return this.rolesService.createFromTemplate(
-      templateId,
-      body?.customName,
-    );
+    return this.rolesService.createFromTemplate(templateId, body?.customName);
   }
 
   // ============================================================
@@ -671,9 +667,7 @@ export class RolesController {
       extensive: {
         summary: 'Extensive permissions',
         value: {
-          permissionIds: [
-            1, 2, 3, 5, 8, 10, 12, 15, 18, 20, 22, 25, 28, 30,
-          ],
+          permissionIds: [1, 2, 3, 5, 8, 10, 12, 15, 18, 20, 22, 25, 28, 30],
         },
       },
     },
@@ -782,9 +776,7 @@ export class RolesController {
       throw new BadRequestException('Invalid role ID or permission ID');
     }
 
-    this.logger.log(
-      `Removing permission ID ${permId} from role ID ${roleId}`,
-    );
+    this.logger.log(`Removing permission ID ${permId} from role ID ${roleId}`);
     return this.rolesService.removePermission(roleId, permId);
   }
 
@@ -877,11 +869,7 @@ export class RolesController {
     this.logger.log(
       `Fetching users with role ID ${roleId} (page ${query.page}, limit ${query.limit})`,
     );
-    return this.rolesService.getUsersWithRole(
-      roleId,
-      query.page,
-      query.limit,
-    );
+    return this.rolesService.getUsersWithRole(roleId, query.page, query.limit);
   }
 
   // ============================================================

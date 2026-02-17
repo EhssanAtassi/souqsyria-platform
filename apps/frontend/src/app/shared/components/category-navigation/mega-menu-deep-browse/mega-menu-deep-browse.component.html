@@ -1,0 +1,87 @@
+<!-- SouqSyria Deep-Browse Mega Menu Component -->
+<!-- Two-panel layout: left sidebar (220px) + right content panel (switchable on hover) -->
+<!-- Follows Electronics layout from mega-menu-prototype.html -->
+
+<div
+  class="sq-deep-browse"
+  [class.rtl]="config.rtl"
+  (mouseenter)="menuMouseEnter.emit()"
+  (mouseleave)="menuMouseLeave.emit()"
+  role="menu"
+  [attr.aria-label]="getCategoryName()"
+>
+  <!-- ═══ LEFT SIDEBAR: Category Groups ═══ -->
+  <!-- @audit-fix W-1: Changed <div> to <button> for WCAG 4.1.2 semantic interactivity -->
+  <nav class="sq-db-sidebar" role="menubar" [attr.aria-label]="getCategoryName()">
+    <button
+      *ngFor="let sub of getSidebarItems(); let i = index; trackBy: trackBySubcategory"
+      type="button"
+      class="sq-db-sidebar-item"
+      [class.active]="isSidebarActive(i)"
+      (mouseenter)="onSidebarHover(i)"
+      (click)="onSubcategoryClick(sub)"
+      role="menuitem"
+      [attr.aria-expanded]="isSidebarActive(i)"
+    >
+      <mat-icon class="sq-db-sidebar-icon" aria-hidden="true">{{ sub.icon || 'category' }}</mat-icon>
+      <span class="sq-db-sidebar-name">{{ getSubcategoryName(sub) }}</span>
+      <mat-icon class="sq-db-sidebar-arrow" aria-hidden="true">chevron_right</mat-icon>
+    </button>
+  </nav>
+
+  <!-- ═══ RIGHT PANELS: One per sidebar item, toggled with [hidden] ═══ -->
+  <div class="sq-db-panels">
+    <div
+      *ngFor="let sub of getSidebarItems(); let i = index; trackBy: trackBySubcategory"
+      class="sq-db-panel"
+      [hidden]="!isSidebarActive(i)"
+      role="menu"
+    >
+      <!-- Panel Header -->
+      <div class="sq-db-panel-header">
+        <h3 class="sq-db-panel-title">
+          <mat-icon *ngIf="sub.icon" class="sq-db-panel-icon" aria-hidden="true">{{ sub.icon }}</mat-icon>
+          {{ getSubcategoryName(sub) }}
+        </h3>
+        <a
+          [routerLink]="sub.url"
+          class="sq-db-see-all"
+          (click)="onSubcategoryClick(sub)"
+        >
+          {{ getSeeAllText() }}
+        </a>
+      </div>
+
+      <!-- Subcategory Items Grid (auto-flowing 3-column CSS grid) -->
+      <ul class="sq-db-items-grid" *ngIf="sub.children && sub.children.length > 0">
+        <li
+          *ngFor="let child of sub.children; trackBy: trackByChild"
+          class="sq-db-item"
+        >
+          <a
+            [routerLink]="child.url"
+            class="sq-db-item-link"
+            (click)="subcategoryClick.emit(sub)"
+            role="menuitem"
+          >
+            {{ getChildName(child) }}
+          </a>
+        </li>
+      </ul>
+
+      <!-- Brand Chips Row (shared from megaMenuConfig) -->
+      <!-- @audit-fix W-5: Routes use /search with brand query param instead of /category/:brand -->
+      <div class="sq-db-brands" *ngIf="getBrandChips().length > 0">
+        <span class="sq-db-brands-label">{{ getBrandsLabel() }}</span>
+        <a
+          *ngFor="let brand of getBrandChips(); trackBy: trackByBrand"
+          [routerLink]="'/search'"
+          [queryParams]="{ brand: brand.slug, category: category.id }"
+          class="sq-db-brand-chip"
+        >
+          {{ getBrandName(brand) }}
+        </a>
+      </div>
+    </div>
+  </div>
+</div>

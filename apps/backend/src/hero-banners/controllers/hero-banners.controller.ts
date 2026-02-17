@@ -86,7 +86,8 @@ export class HeroBannersController {
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({
     summary: 'Create new hero banner',
-    description: 'Creates a new hero banner campaign with scheduling and analytics tracking',
+    description:
+      'Creates a new hero banner campaign with scheduling and analytics tracking',
   })
   @ApiResponse({
     status: HttpStatus.CREATED,
@@ -105,7 +106,8 @@ export class HeroBannersController {
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
     summary: 'List all hero banners (Admin)',
-    description: 'Returns paginated list of all hero banners with filtering and sorting',
+    description:
+      'Returns paginated list of all hero banners with filtering and sorting',
   })
   @ApiResponse({
     status: HttpStatus.OK,
@@ -120,7 +122,8 @@ export class HeroBannersController {
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
     summary: 'Get active hero banners (Public)',
-    description: 'Returns currently active, approved banners for public display on homepage',
+    description:
+      'Returns currently active, approved banners for public display on homepage',
   })
   @ApiResponse({
     status: HttpStatus.OK,
@@ -200,7 +203,10 @@ export class HeroBannersController {
     status: HttpStatus.BAD_REQUEST,
     description: 'Invalid input data',
   })
-  async update(@Param('id') id: string, @Body() updateDto: UpdateHeroBannerDto) {
+  async update(
+    @Param('id') id: string,
+    @Body() updateDto: UpdateHeroBannerDto,
+  ) {
     return await this.heroBannersService.update(id, updateDto);
   }
 
@@ -479,7 +485,10 @@ export class HeroBannersController {
     description: 'Banners activated successfully',
   })
   async bulkActivate(@Body('ids') ids: string[]) {
-    const count = await this.heroBannersService.bulkUpdateActiveStatus(ids, true);
+    const count = await this.heroBannersService.bulkUpdateActiveStatus(
+      ids,
+      true,
+    );
     return { message: `${count} banners activated successfully`, count };
   }
 
@@ -508,7 +517,10 @@ export class HeroBannersController {
     description: 'Banners deactivated successfully',
   })
   async bulkDeactivate(@Body('ids') ids: string[]) {
-    const count = await this.heroBannersService.bulkUpdateActiveStatus(ids, false);
+    const count = await this.heroBannersService.bulkUpdateActiveStatus(
+      ids,
+      false,
+    );
     return { message: `${count} banners deactivated successfully`, count };
   }
 

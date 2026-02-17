@@ -14,6 +14,14 @@ export const productsRoutes: Routes = [
     title: 'Products - SouqSyria | المنتجات',
   },
   {
+    path: 'compare',
+    loadComponent: () =>
+      import('./pages/product-compare/product-compare-page.component').then(
+        (m) => m.ProductComparePageComponent,
+      ),
+    title: 'Compare Products - SouqSyria | مقارنة المنتجات',
+  },
+  {
     path: ':productSlug',
     loadComponent: () =>
       import('./pages/product-detail/product-detail-page.component').then(

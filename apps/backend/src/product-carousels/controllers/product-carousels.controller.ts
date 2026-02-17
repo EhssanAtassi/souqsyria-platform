@@ -101,7 +101,10 @@ export class ProductCarouselsController {
       items: {
         type: 'object',
         properties: {
-          id: { type: 'string', example: '550e8400-e29b-41d4-a716-446655440000' },
+          id: {
+            type: 'string',
+            example: '550e8400-e29b-41d4-a716-446655440000',
+          },
           type: { type: 'string', enum: Object.values(CarouselType) },
           titleEn: { type: 'string', example: 'New Arrivals' },
           titleAr: { type: 'string', example: 'الوافدون الجدد' },
@@ -119,7 +122,11 @@ export class ProductCarouselsController {
     @Query('limit') limit: number = 10,
   ) {
     const typeArray = types
-      ? types.split(',').filter((t) => Object.values(CarouselType).includes(t as CarouselType))
+      ? types
+          .split(',')
+          .filter((t) =>
+            Object.values(CarouselType).includes(t as CarouselType),
+          )
       : undefined;
 
     return this.carouselsService.findActiveWithProducts({
@@ -212,7 +219,8 @@ export class ProductCarouselsController {
   @ApiBearerAuth()
   @ApiOperation({
     summary: 'Update product carousel (Admin)',
-    description: 'Update carousel configuration. Requires admin authentication.',
+    description:
+      'Update carousel configuration. Requires admin authentication.',
   })
   @ApiParam({
     name: 'id',
@@ -352,7 +360,8 @@ export class ProductCarouselsController {
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({
     summary: 'Remove product from custom carousel (Admin)',
-    description: 'Remove a product from a custom carousel. Requires admin authentication.',
+    description:
+      'Remove a product from a custom carousel. Requires admin authentication.',
   })
   @ApiParam({
     name: 'id',

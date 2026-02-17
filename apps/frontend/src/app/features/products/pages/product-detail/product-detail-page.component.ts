@@ -16,6 +16,7 @@ import {
   inject,
   DestroyRef,
   OnInit,
+  OnDestroy,
   SecurityContext,
 } from '@angular/core';
 import { CommonModule, CurrencyPipe } from '@angular/common';
@@ -28,6 +29,7 @@ import { MatTabsModule } from '@angular/material/tabs';
 import { MatDividerModule } from '@angular/material/divider';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import { TranslateService, TranslateModule } from '@ngx-translate/core';
 import { ProductService } from '../../services/product.service';
@@ -41,11 +43,27 @@ import {
   ProductDetailRelated,
 } from '../../models/product-detail.interface';
 import { ProductListItem } from '../../models/product-list.interface';
+import { ReviewSummary } from '../../models/review.interface';
 import { ProductCardComponent } from '../../components/product-card/product-card.component';
 import { VariantSelectorComponent } from '../../components/variant-selector/variant-selector.component';
 import { SpecificationsTableComponent } from '../../components/specifications-table/specifications-table.component';
 import { ImageGalleryComponent } from '../../components/image-gallery/image-gallery.component';
+import { ReviewSummaryComponent } from '../../components/review-summary/review-summary.component';
+import { ReviewListComponent } from '../../components/review-list/review-list.component';
+import { ReviewFormComponent } from '../../components/review-form/review-form.component';
 import { BreadcrumbComponent, BreadcrumbItem } from '../../../../shared/components/ui/breadcrumb/breadcrumb.component';
+import { JsonLdComponent } from '../../../../shared/components/json-ld/json-ld.component';
+import { SeoService } from '../../../../shared/services/seo.service';
+import { ShareService } from '../../../../shared/services/share.service';
+import { ReviewService } from '../../services/review.service';
+import { TokenService } from '../../../auth/services/token.service';
+import { ProductRecommendationsService } from '../../../../shared/services/product-recommendations.service';
+import { ProductComparisonService } from '../../../../shared/services/product-comparison.service';
+import {
+  NotifyDialogComponent,
+  NotifyDialogData,
+} from '../../components/notify-dialog/notify-dialog.component';
+import { RecentlyViewedComponent } from '../../../../shared/components/recently-viewed/recently-viewed.component';
 
 /**
  * @description Product detail page component
@@ -68,13 +86,18 @@ import { BreadcrumbComponent, BreadcrumbItem } from '../../../../shared/componen
     VariantSelectorComponent,
     SpecificationsTableComponent,
     ImageGalleryComponent,
+    ReviewSummaryComponent,
+    ReviewListComponent,
+    ReviewFormComponent,
     BreadcrumbComponent,
+    JsonLdComponent,
+    RecentlyViewedComponent,
   ],
   templateUrl: './product-detail-page.component.html',
   styleUrls: ['./product-detail-page.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ProductDetailPageComponent implements OnInit {
+export class ProductDetailPageComponent implements OnInit, OnDestroy {
   private readonly productService = inject(ProductService);
   private readonly route = inject(ActivatedRoute);
   private readonly destroyRef = inject(DestroyRef);
@@ -85,6 +108,13 @@ export class ProductDetailPageComponent implements OnInit {
   private readonly router = inject(Router);
   private readonly wishlistService = inject(WishlistService);
   private readonly translateService = inject(TranslateService);
+  private readonly seoService = inject(SeoService);
+  private readonly shareService = inject(ShareService);
+  private readonly reviewService = inject(ReviewService);
+  private readonly tokenService = inject(TokenService);
+  private readonly dialog = inject(MatDialog);
+  private readonly recommendationsService = inject(ProductRecommendationsService);
+  private readonly comparisonService = inject(ProductComparisonService);
 
   /** Current UI language from shared LanguageService */
   readonly language = this.languageService.language;
@@ -106,6 +136,18 @@ export class ProductDetailPageComponent implements OnInit {
 
   /** Selected quantity for add to cart */
   quantity = signal(1);
+
+  /** @description Review summary data (from product response or separate fetch) */
+  reviewSummary = signal<ReviewSummary | null>(null);
+
+  /** @description Whether user is authenticated */
+  isAuthenticated = computed(() => !!this.tokenService.getAccessToken());
+
+  /** @description Whether to show review form */
+  showReviewForm = signal(false);
+
+  /** @description Math object for template use */
+  readonly Math = Math;
 
   /** @description Computed product name based on language */
   productName = computed(() => {
@@ -251,7 +293,10 @@ export class ProductDetailPageComponent implements OnInit {
     return `stock-badge--${status.replace('_', '-')}`;
   });
 
-  /** @description Breadcrumb navigation items */
+  /**
+   * @description Breadcrumb navigation items built from category ancestor chain.
+   * Shows: Products > [ancestor1] > [ancestor2] > [current category] > Product Name
+   */
   breadcrumbItems = computed(() => {
     const product = this.product();
     if (!product) return [];
@@ -261,6 +306,18 @@ export class ProductDetailPageComponent implements OnInit {
     ];
 
     if (product.category) {
+      // Add ancestor categories (root → parent) if available
+      if (product.category.ancestors?.length) {
+        for (const ancestor of product.category.ancestors) {
+          items.push({
+            label: ancestor.nameEn,
+            labelArabic: ancestor.nameAr,
+            url: `/category/${ancestor.slug}`
+          });
+        }
+      }
+
+      // Add the direct category
       items.push({
         label: product.category.nameEn,
         labelArabic: product.category.nameAr,
@@ -271,7 +328,6 @@ export class ProductDetailPageComponent implements OnInit {
     items.push({
       label: product.nameEn,
       labelArabic: product.nameAr
-      // No url = current page (not clickable)
     });
 
     return items;
@@ -283,6 +339,56 @@ export class ProductDetailPageComponent implements OnInit {
     if (!p) return false;
     return this.wishlistService.isInWishlist(String(p.id));
   });
+
+  /** @description Whether current product is in comparison */
+  isInComparison = computed(() => {
+    const p = this.product();
+    if (!p) return false;
+    return this.comparisonService.isInComparison(String(p.id));
+  });
+
+  /** @description JSON-LD structured data for product */
+  productJsonLd = computed(() => {
+    const p = this.product();
+    if (!p) return null;
+
+    const lang = this.language();
+    const productName = lang === 'ar' ? p.nameAr : p.nameEn;
+    const description = p.descriptions.find(d => d.language === lang);
+
+    return {
+      '@context': 'https://schema.org',
+      '@type': 'Product',
+      name: productName,
+      image: p.images?.[0]?.imageUrl,
+      description: description?.shortDescription || description?.fullDescription,
+      sku: p.sku,
+      brand: p.manufacturer ? {
+        '@type': 'Brand',
+        name: p.manufacturer.name
+      } : undefined,
+      offers: {
+        '@type': 'Offer',
+        price: p.pricing?.discountPrice || p.pricing?.basePrice,
+        priceCurrency: p.pricing?.currency || 'SYP',
+        availability: p.stockStatus === 'in_stock'
+          ? 'https://schema.org/InStock'
+          : p.stockStatus === 'low_stock'
+          ? 'https://schema.org/LimitedAvailability'
+          : 'https://schema.org/OutOfStock',
+      },
+    };
+  });
+
+  /** @description Current product URL for sharing */
+  productUrl = computed(() => {
+    const p = this.product();
+    if (!p) return '';
+    return `${window.location.origin}/products/${p.slug}`;
+  });
+
+  /** @description Whether native share is supported */
+  isNativeShareSupported = this.shareService.isNativeShareSupported();
 
   ngOnInit(): void {
     this.route.params
@@ -315,6 +421,23 @@ export class ProductDetailPageComponent implements OnInit {
           if (response.variants.length > 0) {
             this.selectedVariant.set(response.variants[0]);
           }
+
+          // Set review summary if included in response
+          if (response.reviewSummary) {
+            this.reviewSummary.set(response.reviewSummary);
+          } else {
+            // Fetch review summary separately
+            this.loadReviewSummary(slug);
+          }
+
+          // Set SEO meta tags
+          this.seoService.setProductMeta(response, this.language());
+
+          // Track product view for recently viewed
+          this.trackProductView(response);
+
+          // Track view count on backend (fire-and-forget)
+          this.productService.trackView(slug);
         },
         error: (err) => {
           const message =
@@ -535,12 +658,292 @@ export class ProductDetailPageComponent implements OnInit {
     return this.language() === 'ar' ? 'منتجات ذات صلة' : 'Related Products';
   }
 
-  /** @description Placeholder for stock notification signup — full implementation in S3 */
+  /**
+   * @description Opens stock notification dialog
+   * Allows users to subscribe to email notifications when product is back in stock
+   */
   onNotifyMe(): void {
-    // TODO: Implement notification subscription in S3
+    const p = this.product();
+    if (!p) return;
+
+    const variant = this.selectedVariant();
+    // Build variant name from variantData attributes
+    const variantName = variant
+      ? Object.entries(variant.variantData)
+          .map(([key, value]) => value)
+          .join(' - ')
+      : undefined;
+
+    // Get user email if authenticated
+    const userEmail = this.tokenService.getAccessToken()
+      ? undefined // In real app, would fetch from user service
+      : undefined;
+
+    const dialogData: NotifyDialogData = {
+      productId: p.id,
+      productName: this.productName(),
+      variantId: variant?.id,
+      variantName,
+      userEmail,
+    };
+
+    this.dialog.open(NotifyDialogComponent, {
+      width: '500px',
+      maxWidth: '90vw',
+      data: dialogData,
+      autoFocus: true,
+      restoreFocus: true,
+    });
+  }
+
+  /**
+   * @description Share product using native share API
+   */
+  async onShareNative(): Promise<void> {
+    const p = this.product();
+    if (!p) return;
+
+    const productName = this.language() === 'ar' ? p.nameAr : p.nameEn;
+    const result = await this.shareService.shareNative({
+      title: `${productName} - SouqSyria`,
+      text: this.language() === 'ar'
+        ? `شاهد هذا المنتج السوري الأصيل: ${productName}`
+        : `Check out this authentic Syrian product: ${productName}`,
+      url: this.productUrl(),
+    });
+
+    if (result.method === 'clipboard') {
+      const message = this.language() === 'ar'
+        ? 'تم نسخ الرابط'
+        : 'Link copied to clipboard';
+      this.snackBar.open(message, '✓', { duration: 3000 });
+    }
+  }
+
+  /**
+   * @description Share product on WhatsApp
+   */
+  onShareWhatsApp(): void {
+    const p = this.product();
+    if (!p) return;
+
+    const productName = this.language() === 'ar' ? p.nameAr : p.nameEn;
+    const text = this.language() === 'ar'
+      ? `شاهد هذا المنتج من سوق سوريا: ${productName}`
+      : `Check out this product from SouqSyria: ${productName}`;
+
+    this.shareService.shareOnWhatsApp(this.productUrl(), text);
+  }
+
+  /**
+   * @description Share product on Facebook
+   */
+  onShareFacebook(): void {
+    const p = this.product();
+    if (!p) return;
+
+    const productName = this.language() === 'ar' ? p.nameAr : p.nameEn;
+    this.shareService.shareOnFacebook(this.productUrl(), productName);
+  }
+
+  /**
+   * @description Share product on Twitter
+   */
+  onShareTwitter(): void {
+    const p = this.product();
+    if (!p) return;
+
+    const productName = this.language() === 'ar' ? p.nameAr : p.nameEn;
+    const text = this.language() === 'ar'
+      ? `${productName} - منتج سوري أصيل من سوق سوريا`
+      : `${productName} - Authentic Syrian product from SouqSyria`;
+
+    this.shareService.shareOnTwitter(this.productUrl(), text, ['SyrianProducts', 'Handmade']);
+  }
+
+  /**
+   * @description Copy product link to clipboard
+   */
+  async onCopyLink(): Promise<void> {
+    const success = await this.shareService.copyToClipboard(this.productUrl());
+
     const message = this.language() === 'ar'
-      ? 'سنبلغك عندما يتوفر هذا المنتج'
-      : 'We will notify you when this product is available';
-    this.snackBar.open(message, '✓', { duration: 3000 });
+      ? (success ? 'تم نسخ الرابط' : 'فشل نسخ الرابط')
+      : (success ? 'Link copied to clipboard' : 'Failed to copy link');
+
+    this.snackBar.open(message, '✓', {
+      duration: 3000,
+      panelClass: success ? 'success-snackbar' : 'error-snackbar',
+    });
+  }
+
+  /**
+   * @description Loads review summary for the product
+   * @param slug - Product slug
+   */
+  private loadReviewSummary(slug: string): void {
+    this.reviewService
+      .getReviewSummary(slug)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (summary) => {
+          this.reviewSummary.set(summary);
+        },
+        error: (err) => {
+          console.error('Failed to load review summary:', err);
+          // Silently fail - reviews are optional
+        },
+      });
+  }
+
+  /**
+   * @description Handles write review button click
+   * Opens the review form
+   */
+  onWriteReview(): void {
+    this.showReviewForm.set(true);
+  }
+
+  /**
+   * @description Handles review submission success
+   * Closes form and reloads review summary
+   */
+  onReviewSubmitted(): void {
+    this.showReviewForm.set(false);
+    const p = this.product();
+    if (p) {
+      this.loadReviewSummary(p.slug);
+    }
+  }
+
+  /** @description Localized reviews tab label */
+  get reviewsTabLabel(): string {
+    const count = this.reviewSummary()?.totalReviews || 0;
+    const base = this.language() === 'ar' ? 'المراجعات' : 'Reviews';
+    return count > 0 ? `${base} (${count})` : base;
+  }
+
+  /**
+   * @description Adds or removes product from comparison
+   */
+  onAddToComparison(): void {
+    const p = this.product();
+    if (!p) return;
+
+    // Map ProductDetailResponse to Product interface
+    const mappedProduct: Product = this.mapToProduct(p);
+
+    const result = this.comparisonService.addProduct(mappedProduct);
+
+    const message = result.success
+      ? this.language() === 'ar'
+        ? 'تمت الإضافة للمقارنة'
+        : 'Added to comparison'
+      : this.language() === 'ar'
+      ? result.message
+      : result.message;
+
+    this.snackBar.open(message, '✓', {
+      duration: 3000,
+      panelClass: result.success ? 'success-snackbar' : 'info-snackbar',
+    });
+  }
+
+  /**
+   * @description Maps ProductDetailResponse to Product interface
+   * Helper method to convert API response to Product interface format
+   * @param response - Product detail response
+   * @returns Mapped Product object
+   */
+  private mapToProduct(response: ProductDetailResponse): Product {
+    return {
+      id: String(response.id),
+      name: response.nameEn,
+      nameArabic: response.nameAr,
+      slug: response.slug,
+      description: response.descriptions.find(d => d.language === 'en')?.shortDescription || '',
+      descriptionArabic: response.descriptions.find(d => d.language === 'ar')?.shortDescription,
+      price: {
+        amount: response.pricing.discountPrice || response.pricing.basePrice,
+        currency: response.pricing.currency || 'SYP',
+        originalPrice: response.pricing.discountPrice ? response.pricing.basePrice : undefined,
+      },
+      category: {
+        id: String(response.category?.id || ''),
+        name: response.category?.nameEn || '',
+        nameArabic: response.category?.nameAr,
+        slug: response.category?.slug || '',
+        breadcrumb: [],
+      },
+      images: response.images.map((img, idx) => ({
+        id: String(img.id),
+        url: img.imageUrl,
+        alt: img.altText || response.nameEn,
+        isPrimary: idx === 0,
+        order: img.sortOrder,
+      })),
+      specifications: {} as any,
+      seller: {} as any,
+      shipping: {} as any,
+      authenticity: { certified: false, heritage: 'modern', badges: [] },
+      inventory: {
+        inStock: response.stockStatus === 'in_stock',
+        quantity: 0,
+        minOrderQuantity: 1,
+        status: response.stockStatus,
+        lowStockThreshold: 10,
+      },
+      reviews: { averageRating: 0, totalReviews: 0, ratingDistribution: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 } },
+      timestamps: { created: new Date(), updated: new Date() },
+    };
+  }
+
+  /**
+   * @description Track product view for recently viewed list
+   * Converts ProductDetailResponse to Product interface format
+   * @param response - Product detail response
+   */
+  private trackProductView(response: ProductDetailResponse): void {
+    const product = this.mapToProduct(response);
+    this.recommendationsService.trackProductView(product);
+  }
+
+  /** @description Computed current price aria label (bilingual) */
+  currentPriceAriaLabel = computed(() => {
+    const lang = this.language();
+    const price = this.selectedVariant()
+      ? this.formattedEffectivePrice()
+      : this.hasDiscount()
+      ? this.formattedDiscountPrice()
+      : this.formattedBasePrice();
+    return lang === 'ar' ? `السعر الحالي: ${price}` : `Current price: ${price}`;
+  });
+
+  /** @description Computed original price aria label (bilingual) */
+  originalPriceAriaLabel = computed(() => {
+    const lang = this.language();
+    const price = this.formattedBasePrice();
+    return lang === 'ar' ? `السعر الأصلي: ${price}` : `Original price: ${price}`;
+  });
+
+  /** @description Computed rating aria label for screen readers (bilingual) */
+  ratingAriaLabel = computed(() => {
+    const summary = this.reviewSummary();
+    if (!summary) return '';
+    const lang = this.language();
+    const rating = summary.averageRating;
+    const reviewCount = summary.totalReviews;
+    if (lang === 'ar') {
+      return `${rating.toFixed(1)} من 5 نجوم، ${reviewCount} مراجعة`;
+    } else {
+      return `${rating.toFixed(1)} out of 5 stars, ${reviewCount} reviews`;
+    }
+  });
+
+  /**
+   * @description Clean up SEO meta tags on component destroy
+   */
+  ngOnDestroy(): void {
+    this.seoService.clearMeta();
   }
 }

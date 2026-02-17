@@ -93,10 +93,7 @@ export class CategoryApprovalService {
 
     try {
       // 1. Validate transition is allowed
-      await this.validateStatusTransition(
-        category.approvalStatus,
-        newStatus,
-      );
+      await this.validateStatusTransition(category.approvalStatus, newStatus);
 
       // 2. Validate admin permissions
       await this.validateApprovalPermissions(adminUser, newStatus);
@@ -948,7 +945,9 @@ export class CategoryApprovalService {
 
       return results;
     } catch (error: unknown) {
-      this.logger.error(`❌ Bulk status change failed: ${(error as Error).message}`);
+      this.logger.error(
+        `❌ Bulk status change failed: ${(error as Error).message}`,
+      );
       throw error;
     }
   }

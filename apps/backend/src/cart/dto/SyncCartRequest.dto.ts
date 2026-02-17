@@ -71,8 +71,7 @@ export class SyncCartItemDto {
    * Used for price locking feature (7-day price guarantee)
    */
   @ApiProperty({
-    description:
-      'Price when item was added to cart (for price lock feature)',
+    description: 'Price when item was added to cart (for price lock feature)',
     example: 125000,
     type: Number,
   })
@@ -85,8 +84,7 @@ export class SyncCartItemDto {
    * Used for conflict resolution and price lock expiration
    */
   @ApiProperty({
-    description:
-      'ISO 8601 timestamp when item was added to cart',
+    description: 'ISO 8601 timestamp when item was added to cart',
     example: '2025-11-12T10:30:00.000Z',
     type: String,
   })
@@ -98,8 +96,7 @@ export class SyncCartItemDto {
    * Tracks marketing attribution for analytics
    */
   @ApiProperty({
-    description:
-      'Campaign code if item was added via promotion',
+    description: 'Campaign code if item was added via promotion',
     example: 'ramadan_sale_2025',
     required: false,
   })
@@ -118,8 +115,7 @@ export class SyncCartRequest {
    * Maximum 100 items per cart (business rule)
    */
   @ApiProperty({
-    description:
-      'Array of cart items to synchronize (max 100 items)',
+    description: 'Array of cart items to synchronize (max 100 items)',
     type: [SyncCartItemDto],
     example: [
       {
@@ -161,8 +157,7 @@ export class SyncCartRequest {
    * Used for conflict resolution (last-write-wins strategy)
    */
   @ApiProperty({
-    description:
-      'ISO 8601 timestamp of last client cart modification',
+    description: 'ISO 8601 timestamp of last client cart modification',
     example: '2025-11-12T12:00:00.000Z',
     type: String,
   })

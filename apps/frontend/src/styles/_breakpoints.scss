@@ -23,6 +23,14 @@ $xxl: 1536px;
   }
 }
 
+// ── Below medium (< md) ────────────────────────
+// Targets: phones and small tablets (< 768px)
+@mixin below-md {
+  @media (max-width: #{$md - 1px}) {
+    @content;
+  }
+}
+
 // ── Small devices and up (sm+) ───────────────────
 @mixin sm-up {
   @media (min-width: #{$sm}) {

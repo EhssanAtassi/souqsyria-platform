@@ -1,0 +1,827 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr" id="root">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SouqSyria - Complete Header Prototype</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined|Material+Icons+Round" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;600;700&family=Cairo:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'primary': {
+                            50: '#FAF6EB',
+                            100: '#F2E9D0',
+                            200: '#E5D4A1',
+                            300: '#D4BC6A',
+                            400: '#C4A052',
+                            500: '#B8943D',
+                            600: '#9A7B32',
+                            700: '#7D6329',
+                        },
+                        'surface': '#FFFFFF',
+                        'background': '#FAFAFA',
+                        'on-surface': '#1F1F1F',
+                        'on-surface-variant': '#5F6368',
+                        'outline': '#DADCE0',
+                    },
+                    fontFamily: {
+                        'sans': ['Roboto', 'Cairo', 'system-ui', 'sans-serif'],
+                    },
+                    boxShadow: {
+                        'soft': '0 2px 8px rgba(0, 0, 0, 0.08)',
+                        'medium': '0 4px 12px rgba(0, 0, 0, 0.1)',
+                        'menu': '0 8px 30px rgba(0, 0, 0, 0.12)',
+                        'button': '0 2px 4px rgba(0, 0, 0, 0.1)',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* RTL Support */
+        [dir="rtl"] { font-family: 'Cairo', 'Roboto', system-ui, sans-serif; }
+        [dir="rtl"] .flip-rtl { transform: scaleX(-1); }
+
+        /* Smooth transitions for everything */
+        * { transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease, opacity 0.2s ease; }
+
+        /* Hide scrollbar */
+        .scroll-hidden::-webkit-scrollbar { display: none; }
+        .scroll-hidden { -ms-overflow-style: none; scrollbar-width: none; }
+
+        /* Button hover effects */
+        .btn-hover:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15); }
+        .btn-hover:active { transform: translateY(0); }
+
+        /* Link underline animation */
+        .link-underline { position: relative; }
+        .link-underline::after {
+            content: ''; position: absolute; bottom: -2px; left: 0; width: 0; height: 2px;
+            background: currentColor; transition: width 0.2s ease;
+        }
+        .link-underline:hover::after { width: 100%; }
+
+        /* Card hover */
+        .card-hover:hover { transform: translateY(-4px); box-shadow: 0 12px 24px rgba(0, 0, 0, 0.12); }
+
+        /* Dropdown animations */
+        .dropdown-menu {
+            opacity: 0; visibility: hidden; transform: translateY(8px);
+            transition: all 0.2s ease;
+        }
+        .dropdown-trigger:hover .dropdown-menu,
+        .dropdown-trigger:focus-within .dropdown-menu {
+            opacity: 1; visibility: visible; transform: translateY(0);
+        }
+
+        /* Mega menu */
+        .mega-menu { opacity: 0; visibility: hidden; transform: translateY(8px); }
+        .category-item:hover .mega-menu { opacity: 1; visibility: visible; transform: translateY(0); }
+
+        /* Category underline */
+        .category-item .cat-line { width: 0; transition: width 0.2s ease; }
+        .category-item:hover .cat-line { width: 100%; }
+
+        /* Promo card */
+        .promo-card:hover { transform: translateY(-4px); box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15); }
+
+        /* Badge gradients */
+        .badge-gold { background: linear-gradient(135deg, #C4A052 0%, #9A7B32 100%); }
+        .badge-olive { background: linear-gradient(135deg, #6B8E23 0%, #556B2F 100%); }
+        .badge-terracotta { background: linear-gradient(135deg, #CD5C5C 0%, #8B4513 100%); }
+        .badge-blue { background: linear-gradient(135deg, #4A90A4 0%, #2E6171 100%); }
+        .badge-purple { background: linear-gradient(135deg, #8B5A8B 0%, #5D3A5D 100%); }
+        .badge-teal { background: linear-gradient(135deg, #2A9D8F 0%, #1A6B5F 100%); }
+        .badge-rose { background: linear-gradient(135deg, #C97B84 0%, #8B4852 100%); }
+        .badge-amber { background: linear-gradient(135deg, #D4A03E 0%, #A67C2E 100%); }
+
+        /* Search focus */
+        .search-box:focus-within {
+            border-color: #C4A052;
+            box-shadow: 0 0 0 3px rgba(196, 160, 82, 0.15);
+        }
+
+        /* Icon button */
+        .icon-btn {
+            display: flex; align-items: center; justify-content: center;
+            width: 40px; height: 40px; border-radius: 10px;
+            transition: all 0.2s ease;
+        }
+        .icon-btn:hover { background: rgba(0, 0, 0, 0.04); }
+    </style>
+</head>
+<body class="font-sans bg-background antialiased">
+
+    <!-- ═══════════════════════════════════════════════════════════════════════
+         ROW 1: TOP BAR
+         ═══════════════════════════════════════════════════════════════════════ -->
+    <div class="bg-surface border-b border-outline/40">
+        <div class="max-w-[1400px] mx-auto px-6">
+            <div class="flex items-center justify-between h-10">
+                <!-- Left spacer -->
+                <div class="w-40"></div>
+
+                <!-- Navigation Links -->
+                <nav class="flex items-center gap-1">
+                    <a href="#" class="px-3 py-1.5 text-[12px] text-on-surface-variant hover:text-primary-500 hover:bg-primary-50 rounded-md transition-all"
+                       data-en="My Orders" data-ar="طلباتي">My Orders</a>
+                    <a href="#" class="px-3 py-1.5 text-[12px] text-on-surface-variant hover:text-primary-500 hover:bg-primary-50 rounded-md transition-all"
+                       data-en="Super Deals" data-ar="عروض خارقة">Super Deals</a>
+                    <a href="#" class="px-3 py-1.5 text-[12px] font-medium text-primary-500 hover:bg-primary-50 rounded-md transition-all"
+                       data-en="Become a Seller" data-ar="كن بائعاً">Become a Seller</a>
+                    <a href="#" class="px-3 py-1.5 text-[12px] text-on-surface-variant hover:text-primary-500 hover:bg-primary-50 rounded-md transition-all"
+                       data-en="Help" data-ar="مساعدة">Help</a>
+                    <a href="#" class="px-3 py-1.5 text-[12px] font-medium text-primary-600 hover:bg-primary-50 rounded-md transition-all"
+                       data-en="SouqSyria Premium" data-ar="سوق سوريا بريميوم">SouqSyria Premium</a>
+
+                    <!-- Language Toggle -->
+                    <div class="flex items-center gap-1 ms-4 ps-4 border-s border-outline/50">
+                        <button onclick="setLanguage('en')" id="btn-en"
+                                class="px-3 py-1 text-[11px] font-medium rounded-full bg-primary-400 text-white shadow-button transition-all">
+                            EN
+                        </button>
+                        <button onclick="setLanguage('ar')" id="btn-ar"
+                                class="px-3 py-1 text-[11px] font-medium rounded-full text-on-surface-variant hover:bg-gray-100 transition-all">
+                            عربي
+                        </button>
+                    </div>
+                </nav>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════════════════
+         ROW 2: MAIN HEADER
+         ═══════════════════════════════════════════════════════════════════════ -->
+    <div class="bg-surface border-b border-outline/30 shadow-soft relative z-[60]">
+        <div class="max-w-[1400px] mx-auto px-6">
+            <div class="flex items-center h-[72px] gap-6">
+
+                <!-- Logo -->
+                <a href="#" class="flex items-center gap-3 flex-shrink-0 group">
+                    <div class="w-11 h-11 bg-gradient-to-br from-primary-400 to-primary-600 rounded-xl flex items-center justify-center shadow-button group-hover:shadow-medium transition-all">
+                        <span class="text-white font-bold text-xl">س</span>
+                    </div>
+                    <div class="flex flex-col">
+                        <span class="text-[18px] font-semibold text-on-surface leading-tight">SouqSyria</span>
+                        <span class="text-[10px] text-on-surface-variant">سوق سوريا</span>
+                    </div>
+                </a>
+
+                <!-- Search Bar -->
+                <div class="flex-1 max-w-[600px]">
+                    <div class="search-box flex items-center h-11 bg-gray-50/80 border border-outline/60 rounded-full overflow-hidden transition-all">
+                        <span class="material-icons-outlined text-on-surface-variant/50 text-[20px] ms-4">search</span>
+                        <input type="text"
+                               class="flex-1 h-full px-3 bg-transparent text-[14px] text-on-surface placeholder:text-on-surface-variant/50 outline-none"
+                               data-placeholder-en="Search products, brands, categories..."
+                               data-placeholder-ar="ابحث عن المنتجات، العلامات التجارية، الفئات..."
+                               placeholder="Search products, brands, categories...">
+                        <button class="h-full px-5 bg-primary-400 hover:bg-primary-500 transition-colors">
+                            <span class="material-icons text-white text-[20px]">search</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Location Selector -->
+                <div class="dropdown-trigger relative">
+                    <button class="flex items-center gap-2 px-3 py-2 hover:bg-gray-50 rounded-xl transition-all">
+                        <span class="material-icons-round text-primary-400 text-[22px]">location_on</span>
+                        <div class="flex flex-col items-start">
+                            <span class="text-[10px] text-on-surface-variant" data-en="Deliver to" data-ar="التوصيل إلى">Deliver to</span>
+                            <span class="text-[13px] font-medium text-on-surface flex items-center gap-0.5">
+                                <span data-en="Damascus" data-ar="دمشق">Damascus</span>
+                                <span class="material-icons-round text-[16px] text-on-surface-variant/50">expand_more</span>
+                            </span>
+                        </div>
+                    </button>
+                    <!-- Dropdown -->
+                    <div class="dropdown-menu absolute top-full end-0 mt-2 w-72 bg-surface rounded-xl shadow-menu border border-outline/30 py-2 z-50">
+                        <div class="px-4 py-2 border-b border-outline/30">
+                            <p class="text-[12px] font-medium text-on-surface-variant" data-en="Saved Addresses" data-ar="العناوين المحفوظة">Saved Addresses</p>
+                        </div>
+                        <a href="#" class="flex items-center gap-3 px-4 py-3 hover:bg-gray-50">
+                            <span class="material-icons-outlined text-primary-400">home</span>
+                            <div>
+                                <p class="text-[13px] font-medium text-on-surface" data-en="Home" data-ar="المنزل">Home</p>
+                                <p class="text-[11px] text-on-surface-variant" data-en="Damascus, Mezzeh" data-ar="دمشق، المزة">Damascus, Mezzeh</p>
+                            </div>
+                        </a>
+                        <a href="#" class="flex items-center gap-3 px-4 py-3 hover:bg-gray-50">
+                            <span class="material-icons-outlined text-on-surface-variant">business</span>
+                            <div>
+                                <p class="text-[13px] font-medium text-on-surface" data-en="Work" data-ar="العمل">Work</p>
+                                <p class="text-[11px] text-on-surface-variant" data-en="Damascus, Malki" data-ar="دمشق، المالكي">Damascus, Malki</p>
+                            </div>
+                        </a>
+                        <div class="border-t border-outline/30 mt-2 pt-2">
+                            <button class="w-full px-4 py-2 text-start text-[13px] text-primary-500 hover:bg-primary-50 flex items-center gap-2">
+                                <span class="material-icons-outlined text-[18px]">add</span>
+                                <span data-en="Add New Address" data-ar="إضافة عنوان جديد">Add New Address</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Account Menu -->
+                <div class="dropdown-trigger relative">
+                    <button class="flex items-center gap-2 px-3 py-2 hover:bg-gray-50 rounded-xl transition-all">
+                        <span class="material-icons-outlined text-on-surface-variant text-[22px]">person</span>
+                        <div class="flex flex-col items-start">
+                            <span class="text-[10px] text-on-surface-variant" data-en="My Account" data-ar="حسابي">My Account</span>
+                            <span class="text-[13px] font-medium text-on-surface flex items-center gap-0.5">
+                                Ahmad
+                                <span class="material-icons-round text-[16px] text-on-surface-variant/50">expand_more</span>
+                            </span>
+                        </div>
+                    </button>
+                    <!-- Dropdown -->
+                    <div class="dropdown-menu absolute top-full end-0 mt-2 w-64 bg-surface rounded-xl shadow-menu border border-outline/30 py-3 z-50">
+                        <div class="px-4 pb-3 border-b border-outline/30">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 bg-primary-100 rounded-full flex items-center justify-center">
+                                    <span class="text-primary-600 font-semibold">A</span>
+                                </div>
+                                <div>
+                                    <p class="text-[14px] font-medium text-on-surface">Ahmad</p>
+                                    <p class="text-[11px] text-on-surface-variant">ahmad@email.com</p>
+                                </div>
+                            </div>
+                        </div>
+                        <nav class="py-2">
+                            <a href="#" class="flex items-center gap-3 px-4 py-2.5 hover:bg-gray-50 text-[13px] text-on-surface">
+                                <span class="material-icons-outlined text-on-surface-variant text-[20px]">shopping_bag</span>
+                                <span data-en="My Orders" data-ar="طلباتي">My Orders</span>
+                            </a>
+                            <a href="#" class="flex items-center gap-3 px-4 py-2.5 hover:bg-gray-50 text-[13px] text-on-surface">
+                                <span class="material-icons-outlined text-on-surface-variant text-[20px]">favorite_border</span>
+                                <span data-en="Wishlist" data-ar="قائمة الأمنيات">Wishlist</span>
+                            </a>
+                            <a href="#" class="flex items-center gap-3 px-4 py-2.5 hover:bg-gray-50 text-[13px] text-on-surface">
+                                <span class="material-icons-outlined text-on-surface-variant text-[20px]">settings</span>
+                                <span data-en="Settings" data-ar="الإعدادات">Settings</span>
+                            </a>
+                        </nav>
+                        <div class="border-t border-outline/30 pt-2 mt-1">
+                            <button class="w-full px-4 py-2.5 text-start text-[13px] text-red-500 hover:bg-red-50 flex items-center gap-3">
+                                <span class="material-icons-outlined text-[20px]">logout</span>
+                                <span data-en="Sign Out" data-ar="تسجيل الخروج">Sign Out</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Favorites -->
+                <a href="#" class="icon-btn relative">
+                    <span class="material-icons-outlined text-on-surface-variant text-[22px]">favorite_border</span>
+                    <span class="absolute -top-0.5 -end-0.5 min-w-[18px] h-[18px] px-1 bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center">5</span>
+                </a>
+
+                <!-- Cart -->
+                <a href="#" class="flex items-center gap-2 h-10 px-4 bg-primary-400 hover:bg-primary-500 text-white rounded-xl shadow-button btn-hover">
+                    <div class="relative">
+                        <span class="material-icons-outlined text-[20px]">shopping_cart</span>
+                        <span class="absolute -top-1 -end-1.5 min-w-[16px] h-4 px-0.5 bg-white text-primary-500 text-[10px] font-bold rounded-full flex items-center justify-center">3</span>
+                    </div>
+                    <span class="text-[13px] font-medium" data-en="My Cart" data-ar="سلتي">My Cart</span>
+                </a>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════════════════
+         ROW 3: CATEGORY NAVIGATION WITH MEGA MENUS
+         ═══════════════════════════════════════════════════════════════════════ -->
+    <nav class="bg-primary-50 border-b border-outline/30 relative z-50">
+        <div class="max-w-[1400px] mx-auto px-6">
+            <div class="flex items-center h-12 gap-1">
+
+                <!-- All Categories -->
+                <button class="flex items-center gap-2 h-full px-4 hover:bg-primary-100/60 rounded-lg transition-all">
+                    <span class="material-icons-round text-on-surface text-[20px]">menu</span>
+                    <span class="text-[13px] font-medium text-on-surface" data-en="All" data-ar="الكل">All</span>
+                </button>
+
+                <!-- ============ DAMASCUS STEEL (SIDEBAR MEGA MENU) ============ -->
+                <div class="category-item relative h-full flex items-center">
+                    <a href="#" class="flex items-center h-full px-4 text-[13px] font-medium text-on-surface hover:text-primary-600 transition-colors"
+                       data-en="Damascus Steel" data-ar="فولاذ دمشقي">Damascus Steel</a>
+                    <div class="cat-line absolute bottom-0 start-4 end-4 h-[3px] bg-primary-500 rounded-t"></div>
+
+                    <!-- SIDEBAR MEGA MENU -->
+                    <div class="mega-menu absolute top-full start-0 flex bg-surface rounded-b-2xl shadow-menu border border-t-0 border-outline/20 overflow-hidden">
+                        <!-- Sidebar -->
+                        <div class="w-56 bg-gray-50/50 border-e border-outline/20">
+                            <div class="py-2">
+                                <a href="#" class="sidebar-link flex items-center justify-between px-4 py-2.5 text-[13px] text-on-surface hover:bg-primary-50 hover:text-primary-600 group">
+                                    <span data-en="Kitchen Knives" data-ar="سكاكين المطبخ">Kitchen Knives</span>
+                                    <span class="material-icons-round text-[16px] text-on-surface-variant/40 group-hover:text-primary-500 flip-rtl">chevron_right</span>
+                                </a>
+                                <a href="#" class="sidebar-link flex items-center justify-between px-4 py-2.5 text-[13px] text-on-surface hover:bg-primary-50 hover:text-primary-600 group">
+                                    <span data-en="Hunting Knives" data-ar="سكاكين الصيد">Hunting Knives</span>
+                                    <span class="material-icons-round text-[16px] text-on-surface-variant/40 group-hover:text-primary-500 flip-rtl">chevron_right</span>
+                                </a>
+                                <a href="#" class="sidebar-link flex items-center justify-between px-4 py-2.5 text-[13px] text-on-surface hover:bg-primary-50 hover:text-primary-600 group">
+                                    <span data-en="Collectibles" data-ar="المقتنيات">Collectibles</span>
+                                    <span class="material-icons-round text-[16px] text-on-surface-variant/40 group-hover:text-primary-500 flip-rtl">chevron_right</span>
+                                </a>
+                                <a href="#" class="sidebar-link flex items-center justify-between px-4 py-2.5 text-[13px] text-on-surface hover:bg-primary-50 hover:text-primary-600 group">
+                                    <span data-en="Swords & Daggers" data-ar="سيوف وخناجر">Swords & Daggers</span>
+                                    <span class="material-icons-round text-[16px] text-on-surface-variant/40 group-hover:text-primary-500 flip-rtl">chevron_right</span>
+                                </a>
+                                <a href="#" class="sidebar-link flex items-center justify-between px-4 py-2.5 text-[13px] text-on-surface hover:bg-primary-50 hover:text-primary-600 group">
+                                    <span data-en="Custom Orders" data-ar="طلبات خاصة">Custom Orders</span>
+                                    <span class="material-icons-round text-[16px] text-on-surface-variant/40 group-hover:text-primary-500 flip-rtl">chevron_right</span>
+                                </a>
+                            </div>
+                            <div class="border-t border-outline/20 p-3">
+                                <a href="#" class="flex items-center gap-2 text-[12px] font-medium text-primary-500 hover:text-primary-600">
+                                    <span data-en="View All Damascus Steel" data-ar="عرض كل فولاذ دمشقي">View All Damascus Steel</span>
+                                    <span class="material-icons-round text-[14px] flip-rtl">arrow_forward</span>
+                                </a>
+                            </div>
+                        </div>
+                        <!-- Featured Products -->
+                        <div class="w-80 p-5">
+                            <h4 class="text-[11px] font-semibold text-on-surface-variant uppercase tracking-wide mb-4" data-en="Featured Products" data-ar="منتجات مميزة">Featured Products</h4>
+                            <div class="grid grid-cols-2 gap-4">
+                                <a href="#" class="group">
+                                    <div class="aspect-square bg-gray-50 rounded-xl overflow-hidden mb-2">
+                                        <img src="https://images.unsplash.com/photo-1593618998160-e34014e67f23?w=200&h=200&fit=crop" alt="" class="w-full h-full object-cover group-hover:scale-105 transition-transform">
+                                    </div>
+                                    <p class="text-[11px] text-on-surface truncate group-hover:text-primary-500" data-en="Chef Knife 8\"" data-ar="سكين شيف 8 إنش">Chef Knife 8"</p>
+                                    <p class="text-[11px] font-semibold text-primary-600">$299</p>
+                                </a>
+                                <a href="#" class="group">
+                                    <div class="aspect-square bg-gray-50 rounded-xl overflow-hidden mb-2">
+                                        <img src="https://images.unsplash.com/photo-1566576912321-d58ddd7a6088?w=200&h=200&fit=crop" alt="" class="w-full h-full object-cover group-hover:scale-105 transition-transform">
+                                    </div>
+                                    <p class="text-[11px] text-on-surface truncate group-hover:text-primary-500" data-en="Santoku Knife" data-ar="سكين سانتوكو">Santoku Knife</p>
+                                    <p class="text-[11px] font-semibold text-primary-600">$249</p>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ============ ELECTRONICS (SIDEBAR MEGA MENU) ============ -->
+                <div class="category-item relative h-full flex items-center">
+                    <a href="#" class="flex items-center h-full px-4 text-[13px] font-medium text-on-surface hover:text-primary-600 transition-colors"
+                       data-en="Electronics" data-ar="إلكترونيات">Electronics</a>
+                    <div class="cat-line absolute bottom-0 start-4 end-4 h-[3px] bg-primary-500 rounded-t"></div>
+
+                    <!-- SIDEBAR MEGA MENU -->
+                    <div class="mega-menu absolute top-full start-0 flex bg-surface rounded-b-2xl shadow-menu border border-t-0 border-outline/20 overflow-hidden">
+                        <div class="w-56 bg-gray-50/50 border-e border-outline/20 py-2">
+                            <a href="#" class="flex items-center justify-between px-4 py-2.5 text-[13px] text-on-surface hover:bg-primary-50 hover:text-primary-600 group">
+                                <span data-en="Smartphones" data-ar="هواتف ذكية">Smartphones</span>
+                                <span class="material-icons-round text-[16px] text-on-surface-variant/40 group-hover:text-primary-500 flip-rtl">chevron_right</span>
+                            </a>
+                            <a href="#" class="flex items-center justify-between px-4 py-2.5 text-[13px] text-on-surface hover:bg-primary-50 hover:text-primary-600 group">
+                                <span data-en="Laptops" data-ar="حواسيب محمولة">Laptops</span>
+                                <span class="material-icons-round text-[16px] text-on-surface-variant/40 group-hover:text-primary-500 flip-rtl">chevron_right</span>
+                            </a>
+                            <a href="#" class="flex items-center justify-between px-4 py-2.5 text-[13px] text-on-surface hover:bg-primary-50 hover:text-primary-600 group">
+                                <span data-en="TVs & Monitors" data-ar="تلفزيونات وشاشات">TVs & Monitors</span>
+                                <span class="material-icons-round text-[16px] text-on-surface-variant/40 group-hover:text-primary-500 flip-rtl">chevron_right</span>
+                            </a>
+                            <a href="#" class="flex items-center justify-between px-4 py-2.5 text-[13px] text-on-surface hover:bg-primary-50 hover:text-primary-600 group">
+                                <span data-en="Audio" data-ar="صوتيات">Audio</span>
+                                <span class="material-icons-round text-[16px] text-on-surface-variant/40 group-hover:text-primary-500 flip-rtl">chevron_right</span>
+                            </a>
+                            <a href="#" class="flex items-center justify-between px-4 py-2.5 text-[13px] text-on-surface hover:bg-primary-50 hover:text-primary-600 group">
+                                <span data-en="Accessories" data-ar="إكسسوارات">Accessories</span>
+                                <span class="material-icons-round text-[16px] text-on-surface-variant/40 group-hover:text-primary-500 flip-rtl">chevron_right</span>
+                            </a>
+                        </div>
+                        <div class="w-72 p-5">
+                            <h4 class="text-[11px] font-semibold text-on-surface-variant uppercase tracking-wide mb-4" data-en="Top Brands" data-ar="أفضل العلامات">Top Brands</h4>
+                            <div class="flex flex-wrap gap-2">
+                                <span class="px-3 py-1.5 bg-gray-100 rounded-lg text-[11px] text-on-surface hover:bg-primary-50 hover:text-primary-600 cursor-pointer transition-colors">Apple</span>
+                                <span class="px-3 py-1.5 bg-gray-100 rounded-lg text-[11px] text-on-surface hover:bg-primary-50 hover:text-primary-600 cursor-pointer transition-colors">Samsung</span>
+                                <span class="px-3 py-1.5 bg-gray-100 rounded-lg text-[11px] text-on-surface hover:bg-primary-50 hover:text-primary-600 cursor-pointer transition-colors">Sony</span>
+                                <span class="px-3 py-1.5 bg-gray-100 rounded-lg text-[11px] text-on-surface hover:bg-primary-50 hover:text-primary-600 cursor-pointer transition-colors">LG</span>
+                                <span class="px-3 py-1.5 bg-gray-100 rounded-lg text-[11px] text-on-surface hover:bg-primary-50 hover:text-primary-600 cursor-pointer transition-colors">Xiaomi</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ============ FASHION (FULLWIDTH MEGA MENU) ============ -->
+                <div class="category-item relative h-full flex items-center">
+                    <a href="#" class="flex items-center h-full px-4 text-[13px] font-medium text-on-surface hover:text-primary-600 transition-colors"
+                       data-en="Fashion" data-ar="أزياء">Fashion</a>
+                    <div class="cat-line absolute bottom-0 start-4 end-4 h-[3px] bg-primary-500 rounded-t"></div>
+
+                    <!-- FULLWIDTH MEGA MENU -->
+                    <div class="mega-menu absolute top-full start-1/2 -translate-x-1/2 w-[900px] bg-surface rounded-b-2xl shadow-menu border border-t-0 border-outline/20 p-6">
+                        <div class="grid grid-cols-5 gap-6">
+                            <!-- Column 1 -->
+                            <div>
+                                <h4 class="text-[12px] font-semibold text-on-surface pb-2 mb-3 border-b border-outline/30" data-en="Women" data-ar="نسائي">Women</h4>
+                                <div class="space-y-2">
+                                    <a href="#" class="block text-[12px] text-on-surface-variant hover:text-primary-500 transition-colors" data-en="Dresses" data-ar="فساتين">Dresses</a>
+                                    <a href="#" class="block text-[12px] text-on-surface-variant hover:text-primary-500 transition-colors" data-en="Tops & Blouses" data-ar="قمصان">Tops & Blouses</a>
+                                    <a href="#" class="block text-[12px] text-on-surface-variant hover:text-primary-500 transition-colors" data-en="Pants" data-ar="بناطيل">Pants</a>
+                                    <a href="#" class="block text-[12px] text-on-surface-variant hover:text-primary-500 transition-colors" data-en="Abayas" data-ar="عبايات">Abayas</a>
+                                    <a href="#" class="block text-[12px] text-on-surface-variant hover:text-primary-500 transition-colors" data-en="Hijabs" data-ar="حجاب">Hijabs</a>
+                                </div>
+                            </div>
+                            <!-- Column 2 -->
+                            <div>
+                                <h4 class="text-[12px] font-semibold text-on-surface pb-2 mb-3 border-b border-outline/30" data-en="Men" data-ar="رجالي">Men</h4>
+                                <div class="space-y-2">
+                                    <a href="#" class="block text-[12px] text-on-surface-variant hover:text-primary-500 transition-colors" data-en="Shirts" data-ar="قمصان">Shirts</a>
+                                    <a href="#" class="block text-[12px] text-on-surface-variant hover:text-primary-500 transition-colors" data-en="T-Shirts" data-ar="تي شيرت">T-Shirts</a>
+                                    <a href="#" class="block text-[12px] text-on-surface-variant hover:text-primary-500 transition-colors" data-en="Pants" data-ar="بناطيل">Pants</a>
+                                    <a href="#" class="block text-[12px] text-on-surface-variant hover:text-primary-500 transition-colors" data-en="Suits" data-ar="بدلات">Suits</a>
+                                    <a href="#" class="block text-[12px] text-on-surface-variant hover:text-primary-500 transition-colors" data-en="Traditional" data-ar="تقليدي">Traditional</a>
+                                </div>
+                            </div>
+                            <!-- Column 3 -->
+                            <div>
+                                <h4 class="text-[12px] font-semibold text-on-surface pb-2 mb-3 border-b border-outline/30" data-en="Kids" data-ar="أطفال">Kids</h4>
+                                <div class="space-y-2">
+                                    <a href="#" class="block text-[12px] text-on-surface-variant hover:text-primary-500 transition-colors" data-en="Boys" data-ar="أولاد">Boys</a>
+                                    <a href="#" class="block text-[12px] text-on-surface-variant hover:text-primary-500 transition-colors" data-en="Girls" data-ar="بنات">Girls</a>
+                                    <a href="#" class="block text-[12px] text-on-surface-variant hover:text-primary-500 transition-colors" data-en="Baby" data-ar="رضع">Baby</a>
+                                    <a href="#" class="block text-[12px] text-on-surface-variant hover:text-primary-500 transition-colors" data-en="School Uniforms" data-ar="زي مدرسي">School Uniforms</a>
+                                </div>
+                            </div>
+                            <!-- Column 4 -->
+                            <div>
+                                <h4 class="text-[12px] font-semibold text-on-surface pb-2 mb-3 border-b border-outline/30" data-en="Accessories" data-ar="إكسسوارات">Accessories</h4>
+                                <div class="space-y-2">
+                                    <a href="#" class="block text-[12px] text-on-surface-variant hover:text-primary-500 transition-colors" data-en="Bags" data-ar="حقائب">Bags</a>
+                                    <a href="#" class="block text-[12px] text-on-surface-variant hover:text-primary-500 transition-colors" data-en="Shoes" data-ar="أحذية">Shoes</a>
+                                    <a href="#" class="block text-[12px] text-on-surface-variant hover:text-primary-500 transition-colors" data-en="Jewelry" data-ar="مجوهرات">Jewelry</a>
+                                    <a href="#" class="block text-[12px] text-on-surface-variant hover:text-primary-500 transition-colors" data-en="Watches" data-ar="ساعات">Watches</a>
+                                </div>
+                            </div>
+                            <!-- Featured Banner -->
+                            <div class="bg-gradient-to-br from-primary-50 to-primary-100 rounded-xl p-4">
+                                <img src="https://images.unsplash.com/photo-1445205170230-053b83016050?w=200&h=150&fit=crop" alt="" class="w-full h-20 object-cover rounded-lg mb-3">
+                                <h5 class="text-[12px] font-semibold text-on-surface" data-en="Spring Collection" data-ar="مجموعة الربيع">Spring Collection</h5>
+                                <p class="text-[10px] text-on-surface-variant mb-2" data-en="Up to 40% Off" data-ar="خصم حتى 40%">Up to 40% Off</p>
+                                <a href="#" class="text-[11px] font-medium text-primary-600 hover:text-primary-700 flex items-center gap-1">
+                                    <span data-en="Shop Now" data-ar="تسوق الآن">Shop Now</span>
+                                    <span class="material-icons-round text-[14px] flip-rtl">arrow_forward</span>
+                                </a>
+                            </div>
+                        </div>
+                        <!-- Brands Row -->
+                        <div class="mt-5 pt-4 border-t border-outline/20">
+                            <div class="flex items-center gap-3">
+                                <span class="text-[11px] font-medium text-on-surface-variant" data-en="Popular Brands:" data-ar="علامات تجارية:">Popular Brands:</span>
+                                <div class="flex gap-2">
+                                    <span class="px-3 py-1 bg-gray-100 rounded-full text-[10px] text-on-surface hover:bg-primary-50 hover:text-primary-600 cursor-pointer transition-colors">Zara</span>
+                                    <span class="px-3 py-1 bg-gray-100 rounded-full text-[10px] text-on-surface hover:bg-primary-50 hover:text-primary-600 cursor-pointer transition-colors">H&M</span>
+                                    <span class="px-3 py-1 bg-gray-100 rounded-full text-[10px] text-on-surface hover:bg-primary-50 hover:text-primary-600 cursor-pointer transition-colors">Mango</span>
+                                    <span class="px-3 py-1 bg-gray-100 rounded-full text-[10px] text-on-surface hover:bg-primary-50 hover:text-primary-600 cursor-pointer transition-colors">LC Waikiki</span>
+                                    <span class="px-3 py-1 bg-gray-100 rounded-full text-[10px] text-on-surface hover:bg-primary-50 hover:text-primary-600 cursor-pointer transition-colors">Defacto</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ============ HOME & LIVING (FULLWIDTH MEGA MENU) ============ -->
+                <div class="category-item relative h-full flex items-center">
+                    <a href="#" class="flex items-center h-full px-4 text-[13px] font-medium text-on-surface hover:text-primary-600 transition-colors"
+                       data-en="Home & Living" data-ar="المنزل">Home & Living</a>
+                    <div class="cat-line absolute bottom-0 start-4 end-4 h-[3px] bg-primary-500 rounded-t"></div>
+
+                    <!-- FULLWIDTH MEGA MENU -->
+                    <div class="mega-menu absolute top-full start-1/2 -translate-x-1/2 w-[800px] bg-surface rounded-b-2xl shadow-menu border border-t-0 border-outline/20 p-6">
+                        <div class="grid grid-cols-4 gap-6">
+                            <div>
+                                <h4 class="text-[12px] font-semibold text-on-surface pb-2 mb-3 border-b border-outline/30" data-en="Furniture" data-ar="أثاث">Furniture</h4>
+                                <div class="space-y-2">
+                                    <a href="#" class="block text-[12px] text-on-surface-variant hover:text-primary-500" data-en="Living Room" data-ar="غرفة المعيشة">Living Room</a>
+                                    <a href="#" class="block text-[12px] text-on-surface-variant hover:text-primary-500" data-en="Bedroom" data-ar="غرفة النوم">Bedroom</a>
+                                    <a href="#" class="block text-[12px] text-on-surface-variant hover:text-primary-500" data-en="Dining" data-ar="طعام">Dining</a>
+                                    <a href="#" class="block text-[12px] text-on-surface-variant hover:text-primary-500" data-en="Office" data-ar="مكتب">Office</a>
+                                </div>
+                            </div>
+                            <div>
+                                <h4 class="text-[12px] font-semibold text-on-surface pb-2 mb-3 border-b border-outline/30" data-en="Decor" data-ar="ديكور">Decor</h4>
+                                <div class="space-y-2">
+                                    <a href="#" class="block text-[12px] text-on-surface-variant hover:text-primary-500" data-en="Rugs & Carpets" data-ar="سجاد">Rugs & Carpets</a>
+                                    <a href="#" class="block text-[12px] text-on-surface-variant hover:text-primary-500" data-en="Lighting" data-ar="إضاءة">Lighting</a>
+                                    <a href="#" class="block text-[12px] text-on-surface-variant hover:text-primary-500" data-en="Wall Art" data-ar="فن جداري">Wall Art</a>
+                                    <a href="#" class="block text-[12px] text-on-surface-variant hover:text-primary-500" data-en="Mirrors" data-ar="مرايا">Mirrors</a>
+                                </div>
+                            </div>
+                            <div>
+                                <h4 class="text-[12px] font-semibold text-on-surface pb-2 mb-3 border-b border-outline/30" data-en="Kitchen" data-ar="مطبخ">Kitchen</h4>
+                                <div class="space-y-2">
+                                    <a href="#" class="block text-[12px] text-on-surface-variant hover:text-primary-500" data-en="Cookware" data-ar="أواني طبخ">Cookware</a>
+                                    <a href="#" class="block text-[12px] text-on-surface-variant hover:text-primary-500" data-en="Dinnerware" data-ar="أطباق">Dinnerware</a>
+                                    <a href="#" class="block text-[12px] text-on-surface-variant hover:text-primary-500" data-en="Storage" data-ar="تخزين">Storage</a>
+                                    <a href="#" class="block text-[12px] text-on-surface-variant hover:text-primary-500" data-en="Small Appliances" data-ar="أجهزة صغيرة">Small Appliances</a>
+                                </div>
+                            </div>
+                            <div>
+                                <h4 class="text-[12px] font-semibold text-on-surface pb-2 mb-3 border-b border-outline/30" data-en="Textiles" data-ar="منسوجات">Textiles</h4>
+                                <div class="space-y-2">
+                                    <a href="#" class="block text-[12px] text-on-surface-variant hover:text-primary-500" data-en="Bedding" data-ar="مفروشات">Bedding</a>
+                                    <a href="#" class="block text-[12px] text-on-surface-variant hover:text-primary-500" data-en="Curtains" data-ar="ستائر">Curtains</a>
+                                    <a href="#" class="block text-[12px] text-on-surface-variant hover:text-primary-500" data-en="Towels" data-ar="مناشف">Towels</a>
+                                    <a href="#" class="block text-[12px] text-on-surface-variant hover:text-primary-500" data-en="Cushions" data-ar="وسائد">Cushions</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ============ FOOD & GROCERIES (NO MEGA MENU) ============ -->
+                <div class="category-item relative h-full flex items-center">
+                    <a href="#" class="flex items-center h-full px-4 text-[13px] font-medium text-on-surface hover:text-primary-600 transition-colors"
+                       data-en="Food & Groceries" data-ar="طعام وبقالة">Food & Groceries</a>
+                    <div class="cat-line absolute bottom-0 start-4 end-4 h-[3px] bg-primary-500 rounded-t"></div>
+                </div>
+
+                <!-- ============ BEAUTY (NO MEGA MENU) ============ -->
+                <div class="category-item relative h-full flex items-center">
+                    <a href="#" class="flex items-center h-full px-4 text-[13px] font-medium text-on-surface hover:text-primary-600 transition-colors"
+                       data-en="Beauty" data-ar="جمال">Beauty</a>
+                    <div class="cat-line absolute bottom-0 start-4 end-4 h-[3px] bg-primary-500 rounded-t"></div>
+                </div>
+
+                <!-- ============ ARTISAN CRAFTS (NO MEGA MENU) ============ -->
+                <div class="category-item relative h-full flex items-center">
+                    <a href="#" class="flex items-center h-full px-4 text-[13px] font-medium text-on-surface hover:text-primary-600 transition-colors"
+                       data-en="Artisan Crafts" data-ar="حرف يدوية">Artisan Crafts</a>
+                    <div class="cat-line absolute bottom-0 start-4 end-4 h-[3px] bg-primary-500 rounded-t"></div>
+                </div>
+
+            </div>
+        </div>
+    </nav>
+
+    <!-- ═══════════════════════════════════════════════════════════════════════
+         ROW 4: PROMOTIONAL CARDS CAROUSEL
+         ═══════════════════════════════════════════════════════════════════════ -->
+    <section class="bg-surface border-b border-outline/30 py-4">
+        <div class="max-w-[1400px] mx-auto px-6 relative">
+
+            <!-- Scroll Left -->
+            <button onclick="scrollCarousel(-1)"
+                    class="absolute start-1 top-1/2 -translate-y-1/2 z-10 w-9 h-9 bg-white border border-outline/50 rounded-full shadow-soft flex items-center justify-center hover:border-primary-400 hover:shadow-medium transition-all">
+                <span class="material-icons-round text-on-surface-variant text-[18px] flip-rtl">chevron_left</span>
+            </button>
+
+            <!-- Cards Container -->
+            <div id="carousel" class="flex gap-4 overflow-x-auto scroll-hidden px-6 py-1">
+
+                <!-- Card 1 -->
+                <a href="#" class="promo-card flex-shrink-0 w-[130px] bg-white rounded-xl overflow-hidden shadow-soft border border-outline/20 transition-all">
+                    <div class="badge-gold px-2 py-1">
+                        <span class="text-[9px] font-semibold text-white truncate block" data-en="Damascus Steel" data-ar="فولاذ دمشقي">Damascus Steel</span>
+                    </div>
+                    <div class="p-2.5">
+                        <div class="w-full h-[70px] bg-gray-50 rounded-lg flex items-center justify-center mb-2 overflow-hidden">
+                            <img src="https://images.unsplash.com/photo-1593618998160-e34014e67f23?w=200&h=200&fit=crop" alt="" class="w-full h-full object-cover">
+                        </div>
+                        <p class="text-[11px] font-medium text-on-surface truncate" data-en="Best Sellers" data-ar="الأكثر مبيعاً">Best Sellers</p>
+                        <p class="text-[9px] text-on-surface-variant truncate" data-en="Up to 40% Off" data-ar="خصم 40%">Up to 40% Off</p>
+                    </div>
+                </a>
+
+                <!-- Card 2 -->
+                <a href="#" class="promo-card flex-shrink-0 w-[130px] bg-white rounded-xl overflow-hidden shadow-soft border border-outline/20 transition-all">
+                    <div class="badge-blue px-2 py-1">
+                        <span class="text-[9px] font-semibold text-white truncate block" data-en="Electronics" data-ar="إلكترونيات">Electronics</span>
+                    </div>
+                    <div class="p-2.5">
+                        <div class="w-full h-[70px] bg-gray-50 rounded-lg flex items-center justify-center mb-2 overflow-hidden">
+                            <img src="https://images.unsplash.com/photo-1498049794561-7780e7231661?w=200&h=200&fit=crop" alt="" class="w-full h-full object-cover">
+                        </div>
+                        <p class="text-[11px] font-medium text-on-surface truncate" data-en="Hot Deals" data-ar="عروض ساخنة">Hot Deals</p>
+                        <p class="text-[9px] text-on-surface-variant truncate" data-en="Limited Time" data-ar="لفترة محدودة">Limited Time</p>
+                    </div>
+                </a>
+
+                <!-- Card 3 -->
+                <a href="#" class="promo-card flex-shrink-0 w-[130px] bg-white rounded-xl overflow-hidden shadow-soft border border-outline/20 transition-all">
+                    <div class="badge-rose px-2 py-1">
+                        <span class="text-[9px] font-semibold text-white truncate block" data-en="Fashion" data-ar="أزياء">Fashion</span>
+                    </div>
+                    <div class="p-2.5">
+                        <div class="w-full h-[70px] bg-gray-50 rounded-lg flex items-center justify-center mb-2 overflow-hidden">
+                            <img src="https://images.unsplash.com/photo-1445205170230-053b83016050?w=200&h=200&fit=crop" alt="" class="w-full h-full object-cover">
+                        </div>
+                        <p class="text-[11px] font-medium text-on-surface truncate" data-en="New Arrivals" data-ar="وصل حديثاً">New Arrivals</p>
+                        <p class="text-[9px] text-on-surface-variant truncate" data-en="Spring 2026" data-ar="ربيع 2026">Spring 2026</p>
+                    </div>
+                </a>
+
+                <!-- Card 4 -->
+                <a href="#" class="promo-card flex-shrink-0 w-[130px] bg-white rounded-xl overflow-hidden shadow-soft border border-outline/20 transition-all">
+                    <div class="badge-terracotta px-2 py-1">
+                        <span class="text-[9px] font-semibold text-white truncate block" data-en="Artisan Crafts" data-ar="حرف يدوية">Artisan Crafts</span>
+                    </div>
+                    <div class="p-2.5">
+                        <div class="w-full h-[70px] bg-gray-50 rounded-lg flex items-center justify-center mb-2 overflow-hidden">
+                            <img src="https://images.unsplash.com/photo-1565193566173-7a0ee3dbe261?w=200&h=200&fit=crop" alt="" class="w-full h-full object-cover">
+                        </div>
+                        <p class="text-[11px] font-medium text-on-surface truncate" data-en="Handmade" data-ar="صناعة يدوية">Handmade</p>
+                        <p class="text-[9px] text-on-surface-variant truncate" data-en="Syrian Heritage" data-ar="تراث سوري">Syrian Heritage</p>
+                    </div>
+                </a>
+
+                <!-- Card 5 -->
+                <a href="#" class="promo-card flex-shrink-0 w-[130px] bg-white rounded-xl overflow-hidden shadow-soft border border-outline/20 transition-all">
+                    <div class="badge-olive px-2 py-1">
+                        <span class="text-[9px] font-semibold text-white truncate block" data-en="Food & Spices" data-ar="طعام وتوابل">Food & Spices</span>
+                    </div>
+                    <div class="p-2.5">
+                        <div class="w-full h-[70px] bg-gray-50 rounded-lg flex items-center justify-center mb-2 overflow-hidden">
+                            <img src="https://images.unsplash.com/photo-1596040033229-a9821ebd058d?w=200&h=200&fit=crop" alt="" class="w-full h-full object-cover">
+                        </div>
+                        <p class="text-[11px] font-medium text-on-surface truncate" data-en="Aleppo Specials" data-ar="منتجات حلب">Aleppo Specials</p>
+                        <p class="text-[9px] text-on-surface-variant truncate" data-en="Free Delivery" data-ar="توصيل مجاني">Free Delivery</p>
+                    </div>
+                </a>
+
+                <!-- Card 6 -->
+                <a href="#" class="promo-card flex-shrink-0 w-[130px] bg-white rounded-xl overflow-hidden shadow-soft border border-outline/20 transition-all">
+                    <div class="badge-teal px-2 py-1">
+                        <span class="text-[9px] font-semibold text-white truncate block" data-en="Home & Living" data-ar="المنزل">Home & Living</span>
+                    </div>
+                    <div class="p-2.5">
+                        <div class="w-full h-[70px] bg-gray-50 rounded-lg flex items-center justify-center mb-2 overflow-hidden">
+                            <img src="https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=200&h=200&fit=crop" alt="" class="w-full h-full object-cover">
+                        </div>
+                        <p class="text-[11px] font-medium text-on-surface truncate" data-en="Decor Sale" data-ar="تخفيض الديكور">Decor Sale</p>
+                        <p class="text-[9px] text-on-surface-variant truncate" data-en="Up to 30% Off" data-ar="خصم 30%">Up to 30% Off</p>
+                    </div>
+                </a>
+
+                <!-- Card 7 -->
+                <a href="#" class="promo-card flex-shrink-0 w-[130px] bg-white rounded-xl overflow-hidden shadow-soft border border-outline/20 transition-all">
+                    <div class="badge-amber px-2 py-1">
+                        <span class="text-[9px] font-semibold text-white truncate block" data-en="Ramadan Shop" data-ar="تسوق رمضان">Ramadan Shop</span>
+                    </div>
+                    <div class="p-2.5">
+                        <div class="w-full h-[70px] bg-gray-50 rounded-lg flex items-center justify-center mb-2 overflow-hidden">
+                            <img src="https://images.unsplash.com/photo-1564890369478-c89ca6d9cde9?w=200&h=200&fit=crop" alt="" class="w-full h-full object-cover">
+                        </div>
+                        <p class="text-[11px] font-medium text-on-surface truncate" data-en="Special Offers" data-ar="عروض خاصة">Special Offers</p>
+                        <p class="text-[9px] text-on-surface-variant truncate" data-en="Don't Miss" data-ar="لا تفوت">Don't Miss</p>
+                    </div>
+                </a>
+
+                <!-- Card 8 -->
+                <a href="#" class="promo-card flex-shrink-0 w-[130px] bg-white rounded-xl overflow-hidden shadow-soft border border-outline/20 transition-all">
+                    <div class="badge-purple px-2 py-1">
+                        <span class="text-[9px] font-semibold text-white truncate block" data-en="Beauty" data-ar="جمال">Beauty</span>
+                    </div>
+                    <div class="p-2.5">
+                        <div class="w-full h-[70px] bg-gray-50 rounded-lg flex items-center justify-center mb-2 overflow-hidden">
+                            <img src="https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=200&h=200&fit=crop" alt="" class="w-full h-full object-cover">
+                        </div>
+                        <p class="text-[11px] font-medium text-on-surface truncate" data-en="Laurel Soap" data-ar="صابون الغار">Laurel Soap</p>
+                        <p class="text-[9px] text-on-surface-variant truncate" data-en="Natural" data-ar="طبيعي">Natural</p>
+                    </div>
+                </a>
+
+                <!-- Card 9 -->
+                <a href="#" class="promo-card flex-shrink-0 w-[130px] bg-white rounded-xl overflow-hidden shadow-soft border border-outline/20 transition-all">
+                    <div class="badge-gold px-2 py-1">
+                        <span class="text-[9px] font-semibold text-white truncate block" data-en="Flash Sale" data-ar="تخفيضات سريعة">Flash Sale</span>
+                    </div>
+                    <div class="p-2.5">
+                        <div class="w-full h-[70px] bg-gray-50 rounded-lg flex items-center justify-center mb-2 overflow-hidden">
+                            <img src="https://images.unsplash.com/photo-1607083206869-4c7672e72a8a?w=200&h=200&fit=crop" alt="" class="w-full h-full object-cover">
+                        </div>
+                        <p class="text-[11px] font-medium text-on-surface truncate" data-en="24 Hours Only" data-ar="24 ساعة فقط">24 Hours Only</p>
+                        <p class="text-[9px] text-on-surface-variant truncate" data-en="Up to 70% Off" data-ar="خصم 70%">Up to 70% Off</p>
+                    </div>
+                </a>
+
+                <!-- Card 10 -->
+                <a href="#" class="promo-card flex-shrink-0 w-[130px] bg-white rounded-xl overflow-hidden shadow-soft border border-outline/20 transition-all">
+                    <div class="badge-terracotta px-2 py-1">
+                        <span class="text-[9px] font-semibold text-white truncate block" data-en="Textiles" data-ar="منسوجات">Textiles</span>
+                    </div>
+                    <div class="p-2.5">
+                        <div class="w-full h-[70px] bg-gray-50 rounded-lg flex items-center justify-center mb-2 overflow-hidden">
+                            <img src="https://images.unsplash.com/photo-1558171813-4c088753af8f?w=200&h=200&fit=crop" alt="" class="w-full h-full object-cover">
+                        </div>
+                        <p class="text-[11px] font-medium text-on-surface truncate" data-en="Brocade Fabric" data-ar="قماش البروكار">Brocade Fabric</p>
+                        <p class="text-[9px] text-on-surface-variant truncate" data-en="Damascus Silk" data-ar="حرير دمشقي">Damascus Silk</p>
+                    </div>
+                </a>
+
+                <!-- Card 11 -->
+                <a href="#" class="promo-card flex-shrink-0 w-[130px] bg-white rounded-xl overflow-hidden shadow-soft border border-outline/20 transition-all">
+                    <div class="badge-teal px-2 py-1">
+                        <span class="text-[9px] font-semibold text-white truncate block" data-en="Local Sellers" data-ar="بائعون محليون">Local Sellers</span>
+                    </div>
+                    <div class="p-2.5">
+                        <div class="w-full h-[70px] bg-gray-50 rounded-lg flex items-center justify-center mb-2 overflow-hidden">
+                            <img src="https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=200&h=200&fit=crop" alt="" class="w-full h-full object-cover">
+                        </div>
+                        <p class="text-[11px] font-medium text-on-surface truncate" data-en="Support Local" data-ar="ادعم المحلي">Support Local</p>
+                        <p class="text-[9px] text-on-surface-variant truncate" data-en="Syrian Brands" data-ar="ماركات سورية">Syrian Brands</p>
+                    </div>
+                </a>
+
+                <!-- Card 12 -->
+                <a href="#" class="promo-card flex-shrink-0 w-[130px] bg-white rounded-xl overflow-hidden shadow-soft border border-outline/20 transition-all">
+                    <div class="badge-blue px-2 py-1">
+                        <span class="text-[9px] font-semibold text-white truncate block" data-en="Free Shipping" data-ar="شحن مجاني">Free Shipping</span>
+                    </div>
+                    <div class="p-2.5">
+                        <div class="w-full h-[70px] bg-gray-50 rounded-lg flex items-center justify-center mb-2 overflow-hidden">
+                            <img src="https://images.unsplash.com/photo-1566576912321-d58ddd7a6088?w=200&h=200&fit=crop" alt="" class="w-full h-full object-cover">
+                        </div>
+                        <p class="text-[11px] font-medium text-on-surface truncate" data-en="All Orders" data-ar="جميع الطلبات">All Orders</p>
+                        <p class="text-[9px] text-on-surface-variant truncate" data-en="No Minimum" data-ar="بدون حد أدنى">No Minimum</p>
+                    </div>
+                </a>
+
+            </div>
+
+            <!-- Scroll Right -->
+            <button onclick="scrollCarousel(1)"
+                    class="absolute end-1 top-1/2 -translate-y-1/2 z-10 w-9 h-9 bg-white border border-outline/50 rounded-full shadow-soft flex items-center justify-center hover:border-primary-400 hover:shadow-medium transition-all">
+                <span class="material-icons-round text-on-surface-variant text-[18px] flip-rtl">chevron_right</span>
+            </button>
+
+        </div>
+    </section>
+
+    <!-- Sample Content Below Header -->
+    <main class="max-w-[1400px] mx-auto px-6 py-8">
+        <div class="bg-gradient-to-br from-primary-50 to-primary-100/50 rounded-2xl p-8 text-center">
+            <h1 class="text-2xl font-semibold text-on-surface mb-2" data-en="Complete Header Prototype" data-ar="النموذج الكامل للهيدر">
+                Complete Header Prototype
+            </h1>
+            <p class="text-on-surface-variant" data-en="SouqSyria - Professional E-commerce Header with EN/AR Support" data-ar="سوق سوريا - هيدر احترافي مع دعم الإنجليزية والعربية">
+                SouqSyria - Professional E-commerce Header with EN/AR Support
+            </p>
+            <div class="mt-6 flex justify-center gap-4">
+                <span class="px-4 py-2 bg-white rounded-lg shadow-soft text-sm text-on-surface-variant">✓ Tailwind CSS</span>
+                <span class="px-4 py-2 bg-white rounded-lg shadow-soft text-sm text-on-surface-variant">✓ Material Icons</span>
+                <span class="px-4 py-2 bg-white rounded-lg shadow-soft text-sm text-on-surface-variant">✓ RTL Support</span>
+                <span class="px-4 py-2 bg-white rounded-lg shadow-soft text-sm text-on-surface-variant">✓ Responsive</span>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        let currentLang = 'en';
+
+        function setLanguage(lang) {
+            currentLang = lang;
+            const root = document.getElementById('root');
+            root.dir = lang === 'ar' ? 'rtl' : 'ltr';
+            root.lang = lang;
+
+            // Update all translatable text
+            document.querySelectorAll('[data-en]').forEach(el => {
+                el.textContent = el.getAttribute(`data-${lang}`);
+            });
+
+            // Update placeholders
+            document.querySelectorAll('[data-placeholder-en]').forEach(el => {
+                el.placeholder = el.getAttribute(`data-placeholder-${lang}`);
+            });
+
+            // Update language buttons
+            const btnEn = document.getElementById('btn-en');
+            const btnAr = document.getElementById('btn-ar');
+
+            if (lang === 'en') {
+                btnEn.classList.add('bg-primary-400', 'text-white', 'shadow-button');
+                btnEn.classList.remove('text-on-surface-variant', 'hover:bg-gray-100');
+                btnAr.classList.remove('bg-primary-400', 'text-white', 'shadow-button');
+                btnAr.classList.add('text-on-surface-variant', 'hover:bg-gray-100');
+            } else {
+                btnAr.classList.add('bg-primary-400', 'text-white', 'shadow-button');
+                btnAr.classList.remove('text-on-surface-variant', 'hover:bg-gray-100');
+                btnEn.classList.remove('bg-primary-400', 'text-white', 'shadow-button');
+                btnEn.classList.add('text-on-surface-variant', 'hover:bg-gray-100');
+            }
+        }
+
+        function scrollCarousel(direction) {
+            const carousel = document.getElementById('carousel');
+            const scrollAmount = 280;
+            const actualDirection = currentLang === 'ar' ? -direction : direction;
+            carousel.scrollBy({ left: scrollAmount * actualDirection, behavior: 'smooth' });
+        }
+    </script>
+
+</body>
+</html>

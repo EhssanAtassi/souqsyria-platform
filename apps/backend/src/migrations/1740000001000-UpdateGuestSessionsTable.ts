@@ -22,9 +22,7 @@
 
 import { MigrationInterface, QueryRunner } from 'typeorm';
 
-export class UpdateGuestSessionsTable1740000001000
-  implements MigrationInterface
-{
+export class UpdateGuestSessionsTable1740000001000 implements MigrationInterface {
   name = 'UpdateGuestSessionsTable1740000001000';
 
   /**

@@ -28,7 +28,8 @@
             [class.image-gallery__main-image--loaded]="isImageLoaded(currentIndex())"
             (load)="onImageLoad(currentIndex())"
             (error)="onImageError($event, currentIndex())"
-            loading="lazy"
+            [attr.loading]="currentIndex() === 0 ? 'eager' : 'lazy'"
+            [attr.fetchpriority]="currentIndex() === 0 ? 'high' : null"
           />
         }
 

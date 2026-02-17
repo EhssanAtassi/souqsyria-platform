@@ -37,6 +37,7 @@ import { ProductsService } from '../../../store/products/products.service';
 import { ProductsQuery } from '../../../store/products/products.query';
 import { environment } from '../../../../environments/environment';
 import { RELATED_CATEGORIES_CONFIG, getRelatedCategories } from '../config/related-categories.config';
+import { CategorySEOMetaTags, BreadcrumbListStructuredData, ItemListStructuredData } from '../models/category.interface';
 
 /**
  * Category Service
@@ -66,6 +67,7 @@ export class CategoryService extends AbstractCategoryService {
   //#region Configuration
 
   private readonly apiUrl = environment.apiUrl;
+  private readonly siteUrl = environment.production ? 'https://souqsyria.com' : 'http://localhost:4200';
   private readonly mockDelay = 700; // Simulate API delay
 
   /**
@@ -681,13 +683,25 @@ export class CategoryService extends AbstractCategoryService {
 
   //#region SEO Operations
 
-  generateSEOMetaTags(category: any, products: Product[], totalProducts: number): any {
+  /**
+   * Generate SEO meta tags for category page
+   * @description Creates complete SEO metadata for category pages
+   * @param category - Category information with name, nameArabic, slug, and description
+   * @param products - Array of products to extract featured image
+   * @param totalProducts - Total number of products in category
+   * @returns SEO meta tags with Open Graph and Twitter Card data
+   */
+  generateSEOMetaTags(
+    category: { name: string; nameArabic: string; slug: string; description: string },
+    products: Product[],
+    totalProducts: number
+  ): CategorySEOMetaTags {
     const title = `${category.name} - Syrian Marketplace | ${totalProducts} Authentic Products`;
     const description = `${category.description} Browse ${totalProducts} authentic Syrian products in ${category.name}. UNESCO-recognized crafts, traditional items, and more.`;
-    const url = `https://souqsyria.com/category/${category.slug}`;
+    const url = `${this.siteUrl}/category/${category.slug}`;
     const imageUrl = products.length > 0 && products[0].images.length > 0
       ? products[0].images[0].url
-      : 'https://souqsyria.com/assets/default-category.jpg';
+      : `${this.siteUrl}/assets/default-category.jpg`;
 
     return {
       title,
@@ -711,8 +725,18 @@ export class CategoryService extends AbstractCategoryService {
     };
   }
 
-  generateStructuredData(category: any, products: Product[]): any {
-    const breadcrumbList = {
+  /**
+   * Generate structured data for category page
+   * @description Creates JSON-LD structured data for Google rich results
+   * @param category - Category information with name, slug, and description
+   * @param products - Array of products to include in structured data
+   * @returns Structured data object with breadcrumbs and product list
+   */
+  generateStructuredData(
+    category: { name: string; nameArabic: string; slug: string; description: string },
+    products: Product[]
+  ): { '@context': string; '@graph': Array<BreadcrumbListStructuredData | ItemListStructuredData> } {
+    const breadcrumbList: BreadcrumbListStructuredData = {
       '@context': 'https://schema.org',
       '@type': 'BreadcrumbList',
       'itemListElement': [
@@ -720,18 +744,18 @@ export class CategoryService extends AbstractCategoryService {
           '@type': 'ListItem',
           'position': 1,
           'name': 'Home',
-          'item': 'https://souqsyria.com'
+          'item': this.siteUrl
         },
         {
           '@type': 'ListItem',
           'position': 2,
           'name': category.name,
-          'item': `https://souqsyria.com/category/${category.slug}`
+          'item': `${this.siteUrl}/category/${category.slug}`
         }
       ]
     };
 
-    const itemList = {
+    const itemList: ItemListStructuredData = {
       '@context': 'https://schema.org',
       '@type': 'ItemList',
       'name': `${category.name} Products`,
@@ -743,7 +767,7 @@ export class CategoryService extends AbstractCategoryService {
         'name': product.name,
         'description': product.description,
         'image': product.images.length > 0 ? product.images[0].url : '',
-        'url': `https://souqsyria.com/product/${product.slug}`,
+        'url': `${this.siteUrl}/product/${product.slug}`,
         'offers': {
           '@type': 'Offer',
           'price': product.price.amount,

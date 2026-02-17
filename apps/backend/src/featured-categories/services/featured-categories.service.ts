@@ -51,14 +51,18 @@ export class FeaturedCategoriesService {
    * @throws NotFoundException if category doesn't exist
    * @throws BadRequestException if validation fails
    */
-  async create(createDto: CreateFeaturedCategoryDto): Promise<FeaturedCategory> {
+  async create(
+    createDto: CreateFeaturedCategoryDto,
+  ): Promise<FeaturedCategory> {
     // Validate that category exists
     const category = await this.categoryRepository.findOne({
       where: { id: createDto.categoryId },
     });
 
     if (!category) {
-      throw new NotFoundException(`Category with ID ${createDto.categoryId} not found`);
+      throw new NotFoundException(
+        `Category with ID ${createDto.categoryId} not found`,
+      );
     }
 
     // Validate that category is active and approved
@@ -101,7 +105,10 @@ export class FeaturedCategoriesService {
    * @param activeOnly - Filter only currently active categories
    * @returns Array of featured categories with category relations
    */
-  async findAll(limit: number = 20, activeOnly: boolean = false): Promise<FeaturedCategory[]> {
+  async findAll(
+    limit: number = 20,
+    activeOnly: boolean = false,
+  ): Promise<FeaturedCategory[]> {
     const queryBuilder = this.featuredCategoryRepository
       .createQueryBuilder('fc')
       .leftJoinAndSelect('fc.category', 'category')
@@ -142,7 +149,9 @@ export class FeaturedCategoriesService {
       .andWhere('(fc.startDate IS NULL OR fc.startDate <= :now)', { now })
       .andWhere('(fc.endDate IS NULL OR fc.endDate > :now)', { now })
       .andWhere('category.isActive = :categoryActive', { categoryActive: true })
-      .andWhere('category.approvalStatus = :approvalStatus', { approvalStatus: 'approved' })
+      .andWhere('category.approvalStatus = :approvalStatus', {
+        approvalStatus: 'approved',
+      })
       .orderBy('fc.displayOrder', 'ASC')
       .take(maxLimit)
       .getMany();
@@ -184,13 +193,18 @@ export class FeaturedCategoriesService {
     const featuredCategory = await this.findOne(id);
 
     // If updating category, validate it exists
-    if (updateDto.categoryId && updateDto.categoryId !== featuredCategory.categoryId) {
+    if (
+      updateDto.categoryId &&
+      updateDto.categoryId !== featuredCategory.categoryId
+    ) {
       const category = await this.categoryRepository.findOne({
         where: { id: updateDto.categoryId },
       });
 
       if (!category) {
-        throw new NotFoundException(`Category with ID ${updateDto.categoryId} not found`);
+        throw new NotFoundException(
+          `Category with ID ${updateDto.categoryId} not found`,
+        );
       }
 
       if (!category.isActive || category.approvalStatus !== 'approved') {
@@ -203,8 +217,12 @@ export class FeaturedCategoriesService {
     // Merge updates
     Object.assign(featuredCategory, {
       ...updateDto,
-      startDate: updateDto.startDate ? new Date(updateDto.startDate) : featuredCategory.startDate,
-      endDate: updateDto.endDate ? new Date(updateDto.endDate) : featuredCategory.endDate,
+      startDate: updateDto.startDate
+        ? new Date(updateDto.startDate)
+        : featuredCategory.startDate,
+      endDate: updateDto.endDate
+        ? new Date(updateDto.endDate)
+        : featuredCategory.endDate,
     });
 
     // Validate business rules

@@ -303,13 +303,13 @@ describe('CartSyncService', () => {
     it('should validate cart and return validation result', () => {
       const cart = createMockCart({ items: [createMockCartItem()] });
       const validationResult: ValidateCartResponse = {
-        isValid: true,
+        valid: true,
         warnings: [],
         errors: [],
       };
 
       service.validateCart(cart).subscribe(result => {
-        expect(result.isValid).toBeTrue();
+        expect(result.valid).toBeTrue();
       });
 
       const req = httpMock.expectOne(r => r.url.includes('/cart/validate'));

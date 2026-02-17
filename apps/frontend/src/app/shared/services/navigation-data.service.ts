@@ -142,13 +142,17 @@ export class NavigationDataService {
     combineLatest([
       this.cartQuery.itemCount$,
       this.cartQuery.total$,
+      this.cartQuery.items$,
+      this.cartQuery.subtotal$,
     ])
       .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(([itemCount, totalAmount]) => {
+      .subscribe(([itemCount, totalAmount, items, subtotal]) => {
         this.cartSubject.next({
           itemCount,
           totalAmount,
           currency: 'SYP',
+          items,
+          subtotal,
         });
       });
   }

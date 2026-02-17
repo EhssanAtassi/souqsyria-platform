@@ -352,7 +352,10 @@ export class SyrianAddressService implements OnModuleInit {
       // Initialize major cities (this would be expanded with full city data)
       await this.initializeMajorCities();
     } catch (error: unknown) {
-      this.logger.error('Failed to initialize Syrian divisions', (error as Error).stack);
+      this.logger.error(
+        'Failed to initialize Syrian divisions',
+        (error as Error).stack,
+      );
     }
   }
 
@@ -608,7 +611,10 @@ export class SyrianAddressService implements OnModuleInit {
       (city ? city.logistics?.deliverySupported !== false : true);
 
     const baseDeliveryTime = city?.logistics?.averageDeliveryTime || 24;
-    const deliveryFee = this.calculateDeliveryFee(governorate, city ?? undefined);
+    const deliveryFee = this.calculateDeliveryFee(
+      governorate,
+      city ?? undefined,
+    );
 
     return {
       isSupported,

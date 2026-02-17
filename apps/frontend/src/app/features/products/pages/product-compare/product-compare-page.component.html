@@ -1,0 +1,35 @@
+<div class="product-compare-page" [class.rtl]="language() === 'ar'">
+  <!-- Page Header -->
+  <header class="product-compare-page__header">
+    <button
+      mat-button
+      class="product-compare-page__back"
+      (click)="goBack()"
+    >
+      <mat-icon>{{ language() === 'ar' ? 'arrow_forward' : 'arrow_back' }}</mat-icon>
+      <span>{{ backLabel }}</span>
+    </button>
+    <h1 class="product-compare-page__title">{{ pageTitle }}</h1>
+  </header>
+
+  <!-- Comparison Content -->
+  @if (hasItems()) {
+    <div class="product-compare-page__content">
+      <app-product-comparison-table />
+    </div>
+  } @else {
+    <!-- Empty State -->
+    <div class="product-compare-page__empty">
+      <mat-icon class="product-compare-page__empty-icon">compare_arrows</mat-icon>
+      <h2 class="product-compare-page__empty-title">{{ emptyMessage }}</h2>
+      <button
+        mat-raised-button
+        color="primary"
+        (click)="goBack()"
+      >
+        <mat-icon>shopping_bag</mat-icon>
+        <span>{{ browseLabel }}</span>
+      </button>
+    </div>
+  }
+</div>

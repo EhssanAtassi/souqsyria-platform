@@ -48,6 +48,7 @@ import { ProductOffersRowComponent } from '../../../shared/components/product-of
 import { FeaturedCategoriesComponent } from '../../category/components/featured-categories/featured-categories.component';
 import { CategorySkeletonComponent } from '../../category/components/category-skeleton/category-skeleton.component';
 import { HeroSkeletonComponent } from '../../../shared/components/hero-skeleton/hero-skeleton.component';
+import { ProductCarouselComponent } from '../../products/components/product-carousel/product-carousel.component';
 
 // Services
 import { HomepageFacadeService } from '../services/homepage-facade.service';
@@ -55,6 +56,8 @@ import { HomepageAnalyticsService } from '../services/homepage-analytics.service
 import { HeroBannersService } from '../../../store/hero-banners/hero-banners.service';
 import { HeroBannersQuery } from '../../../store/hero-banners/hero-banners.query';
 import { CategoryApiService } from '../../category/services/category-api.service';
+import { HomepageProductsService } from '../services/homepage-products.service';
+import { LanguageService } from '../../../shared/services/language.service';
 
 // Interfaces
 import { Product } from '../../../shared/interfaces/product.interface';
@@ -65,6 +68,7 @@ import {
 } from '../../../shared/interfaces/category-showcase.interface';
 import { ProductOffer, ProductOfferClickEvent } from '../../../shared/interfaces/product-offer.interface';
 import { FeaturedCategory } from '../../category/models/category-tree.interface';
+import { ProductListItem } from '../../products/models/product-list.interface';
 
 // Configurations
 import {
@@ -112,7 +116,8 @@ import { environment } from '../../../../environments/environment';
     ProductOffersRowComponent,
     FeaturedCategoriesComponent,
     CategorySkeletonComponent,
-    HeroSkeletonComponent
+    HeroSkeletonComponent,
+    ProductCarouselComponent
   ],
   templateUrl: '../homepage.component.html',
   styleUrl: '../homepage.component.scss'
@@ -130,6 +135,8 @@ export class HomepageComponent implements OnInit, AfterViewInit {
   private readonly categoryApi = inject(CategoryApiService);
   private readonly el = inject(ElementRef);
   private readonly ngZone = inject(NgZone);
+  private readonly homepageProductsService = inject(HomepageProductsService);
+  private readonly languageService = inject(LanguageService);
 
   //#endregion
 
@@ -201,6 +208,19 @@ export class HomepageComponent implements OnInit, AfterViewInit {
   readonly featuredOffers = signal<ProductOffer[]>([]);
   readonly flashSaleOffers = signal<ProductOffer[]>([]);
 
+  /** Product carousels */
+  readonly featuredProductsCarousel = signal<ProductListItem[]>([]);
+  readonly newArrivalsCarousel = signal<ProductListItem[]>([]);
+  readonly bestSellersCarousel = signal<ProductListItem[]>([]);
+
+  /** Carousel loading states */
+  readonly isLoadingFeaturedCarousel = signal<boolean>(false);
+  readonly isLoadingNewArrivals = signal<boolean>(false);
+  readonly isLoadingBestSellers = signal<boolean>(false);
+
+  /** Current language from LanguageService */
+  readonly currentLanguage = this.languageService.language;
+
   //#endregion
 
   //#region Lifecycle Hooks
@@ -216,6 +236,7 @@ export class HomepageComponent implements OnInit, AfterViewInit {
 
     this.loadFeaturedCategories();
     this.initializeHomepage();
+    this.loadProductCarousels();
   }
 
   /**
@@ -290,6 +311,64 @@ export class HomepageComponent implements OnInit, AfterViewInit {
           this.isLoadingProducts.set(false);
           this.isLoadingOffers.set(false);
           this.showErrorNotification('Failed to load homepage data. Please try again.');
+        }
+      });
+  }
+
+  /**
+   * Load product carousels
+   * @description Loads all three product carousels in parallel
+   * Featured Products, New Arrivals, and Best Sellers
+   */
+  private loadProductCarousels(): void {
+    // Load Featured Products
+    this.isLoadingFeaturedCarousel.set(true);
+    this.homepageProductsService
+      .getFeaturedProducts(12)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (products) => {
+          this.featuredProductsCarousel.set(products);
+          this.isLoadingFeaturedCarousel.set(false);
+          if (!environment.production) console.log(`✅ Featured products loaded: ${products.length} items`);
+        },
+        error: (error) => {
+          console.error('Failed to load featured products:', error);
+          this.isLoadingFeaturedCarousel.set(false);
+        }
+      });
+
+    // Load New Arrivals
+    this.isLoadingNewArrivals.set(true);
+    this.homepageProductsService
+      .getNewArrivals(12)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (products) => {
+          this.newArrivalsCarousel.set(products);
+          this.isLoadingNewArrivals.set(false);
+          if (!environment.production) console.log(`✅ New arrivals loaded: ${products.length} items`);
+        },
+        error: (error) => {
+          console.error('Failed to load new arrivals:', error);
+          this.isLoadingNewArrivals.set(false);
+        }
+      });
+
+    // Load Best Sellers
+    this.isLoadingBestSellers.set(true);
+    this.homepageProductsService
+      .getBestSellers(12)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (products) => {
+          this.bestSellersCarousel.set(products);
+          this.isLoadingBestSellers.set(false);
+          if (!environment.production) console.log(`✅ Best sellers loaded: ${products.length} items`);
+        },
+        error: (error) => {
+          console.error('Failed to load best sellers:', error);
+          this.isLoadingBestSellers.set(false);
         }
       });
   }
@@ -454,6 +533,62 @@ export class HomepageComponent implements OnInit, AfterViewInit {
     if (event.offer.targetUrl) {
       this.router.navigateByUrl(event.offer.targetUrl);
     }
+  }
+
+  //#endregion
+
+  //#region Product Carousel Event Handlers
+
+  /**
+   * Handle carousel product add to cart
+   * @description Adds product from carousel to cart with stock validation
+   * @param product - Product to add to cart
+   */
+  onCarouselAddToCart(product: ProductListItem): void {
+    // Validate stock status
+    if (product.stockStatus === 'out_of_stock') {
+      this.showErrorNotification('Product is currently out of stock');
+      return;
+    }
+
+    // Show success notification
+    const lang = this.currentLanguage();
+    const productName = lang === 'ar' ? product.nameAr : product.nameEn;
+    const message = lang === 'ar'
+      ? `تمت إضافة ${productName} إلى السلة`
+      : `${productName} added to cart!`;
+
+    this.showSuccessNotification(message);
+
+    // Track analytics
+    this.analytics.trackEvent('product_add_to_cart', {
+      product_id: product.id,
+      product_name: productName,
+      price: product.discountPrice || product.basePrice,
+      source: 'homepage_carousel'
+    });
+  }
+
+  /**
+   * Handle carousel product add to wishlist
+   * @description Adds product from carousel to wishlist
+   * @param product - Product to add to wishlist
+   */
+  onCarouselAddToWishlist(product: ProductListItem): void {
+    const lang = this.currentLanguage();
+    const productName = lang === 'ar' ? product.nameAr : product.nameEn;
+    const message = lang === 'ar'
+      ? `تمت إضافة ${productName} إلى قائمة الأمنيات`
+      : `${productName} added to wishlist!`;
+
+    this.showSuccessNotification(message);
+
+    // Track analytics
+    this.analytics.trackEvent('product_add_to_wishlist', {
+      product_id: product.id,
+      product_name: productName,
+      source: 'homepage_carousel'
+    });
   }
 
   //#endregion

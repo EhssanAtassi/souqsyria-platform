@@ -168,14 +168,20 @@ export class EncryptionService {
       decipher.setAuthTag(authTag);
 
       // Decrypt the data
-      let decrypted = decipher.update(encryptedData.encryptedData, 'hex', 'utf8');
+      let decrypted = decipher.update(
+        encryptedData.encryptedData,
+        'hex',
+        'utf8',
+      );
       decrypted += decipher.final('utf8');
 
       return decrypted;
     } catch (error: unknown) {
       // Authentication failure indicates tampered data
       if ((error as Error).message.includes('Unsupported state')) {
-        this.logger.error('Data integrity check failed - possible tampering detected');
+        this.logger.error(
+          'Data integrity check failed - possible tampering detected',
+        );
         throw new Error('Data integrity verification failed');
       }
       this.logger.error(`Decryption failed: ${(error as Error).message}`);
@@ -216,7 +222,9 @@ export class EncryptionService {
       ) as EncryptedData;
       return this.decrypt(encryptedData);
     } catch (error: unknown) {
-      this.logger.error(`Failed to parse encrypted string: ${(error as Error).message}`);
+      this.logger.error(
+        `Failed to parse encrypted string: ${(error as Error).message}`,
+      );
       throw new Error('Invalid encrypted data format');
     }
   }

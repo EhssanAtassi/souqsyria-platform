@@ -179,11 +179,9 @@ export class DeviceFingerprintService {
     }
 
     // Calculate similarity with most recent fingerprint
-    const mostRecent = historicalFingerprints[historicalFingerprints.length - 1];
-    const similarity = this.calculateSimilarity(
-      currentFingerprint,
-      mostRecent,
-    );
+    const mostRecent =
+      historicalFingerprints[historicalFingerprints.length - 1];
+    const similarity = this.calculateSimilarity(currentFingerprint, mostRecent);
 
     // Detect anomalies
     const anomalies = this.detectAnomalies(currentFingerprint, mostRecent);
@@ -273,10 +271,7 @@ export class DeviceFingerprintService {
     }
 
     // Check for uncommon screen resolutions (bots often have default values)
-    if (
-      components.screen.width === 800 &&
-      components.screen.height === 600
-    ) {
+    if (components.screen.width === 800 && components.screen.height === 600) {
       score -= 15;
     }
 
@@ -288,7 +283,8 @@ export class DeviceFingerprintService {
     // Check for very low or very high hardware (suspicious)
     if (
       components.hardwareConcurrency > 0 &&
-      (components.hardwareConcurrency < 2 || components.hardwareConcurrency > 32)
+      (components.hardwareConcurrency < 2 ||
+        components.hardwareConcurrency > 32)
     ) {
       score -= 10;
     }

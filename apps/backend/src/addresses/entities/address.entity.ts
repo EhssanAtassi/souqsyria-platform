@@ -12,7 +12,11 @@ import { User } from '../../users/entities/user.entity';
 import { Region } from '../region/entities/region.entity';
 import { Country } from '../country/entities/country.entity';
 import { City } from '../city/entities/city.entity';
-import { SyrianGovernorateEntity, SyrianCityEntity, SyrianDistrictEntity } from './index';
+import {
+  SyrianGovernorateEntity,
+  SyrianCityEntity,
+  SyrianDistrictEntity,
+} from './index';
 
 /**
  * @file address.entity.ts

@@ -19,7 +19,9 @@ import { IDomainEventBase } from '../events/domain.events';
 /**
  * Generic event payload
  */
-export interface IGenericDomainEvent<T = Record<string, unknown>> extends IDomainEventBase {
+export interface IGenericDomainEvent<
+  T = Record<string, unknown>,
+> extends IDomainEventBase {
   /** Event type/name */
   eventType: string;
   /** Event payload data */
@@ -74,10 +76,10 @@ export class DomainEventPublisher {
       data,
     };
 
-    this.logger.debug(
-      `Publishing domain event: ${eventName}`,
-      { correlationId, source: event.source }
-    );
+    this.logger.debug(`Publishing domain event: ${eventName}`, {
+      correlationId,
+      source: event.source,
+    });
 
     try {
       // Emit asynchronously to allow multiple listeners
@@ -86,7 +88,7 @@ export class DomainEventPublisher {
     } catch (error: unknown) {
       this.logger.error(
         `Failed to publish domain event: ${eventName}`,
-        error instanceof Error ? (error as Error).stack : String(error)
+        error instanceof Error ? (error as Error).stack : String(error),
       );
       // Don't throw - let the main flow continue
     }
@@ -134,19 +136,21 @@ export class DomainEventPublisher {
         lastError = error instanceof Error ? error : new Error(String(error));
         this.logger.warn(
           `Event publish attempt ${attempt}/${maxRetries} failed for ${eventName}`,
-          lastError.message
+          lastError.message,
         );
 
         if (attempt < maxRetries) {
           // Exponential backoff: 100ms, 200ms, 400ms...
-          await new Promise(resolve => setTimeout(resolve, 100 * Math.pow(2, attempt - 1)));
+          await new Promise((resolve) =>
+            setTimeout(resolve, 100 * Math.pow(2, attempt - 1)),
+          );
         }
       }
     }
 
     this.logger.error(
       `All ${maxRetries} attempts to publish ${eventName} failed`,
-      lastError?.stack
+      lastError?.stack,
     );
 
     return correlationId; // Return ID even on failure for tracing

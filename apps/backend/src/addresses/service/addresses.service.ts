@@ -222,7 +222,14 @@ export class AddressesService {
   async findAll(user: User, type?: AddressType): Promise<Address[]> {
     return this.addressRepo.find({
       where: { user: { id: user.id }, ...(type ? { addressType: type } : {}) },
-      relations: ['country', 'region', 'city', 'governorate', 'syrianCity', 'district'],
+      relations: [
+        'country',
+        'region',
+        'city',
+        'governorate',
+        'syrianCity',
+        'district',
+      ],
       order: { isDefault: 'DESC', createdAt: 'DESC' },
     });
   }
@@ -283,7 +290,14 @@ export class AddressesService {
   async findOne(user: User, addressId: number): Promise<Address> {
     const address = await this.addressRepo.findOne({
       where: { id: addressId, user: { id: user.id } },
-      relations: ['country', 'region', 'city', 'governorate', 'syrianCity', 'district'],
+      relations: [
+        'country',
+        'region',
+        'city',
+        'governorate',
+        'syrianCity',
+        'district',
+      ],
     });
     if (!address) throw new NotFoundException('Address not found');
     return address;
@@ -384,14 +398,22 @@ export class AddressesService {
     }
 
     // Explicitly map safe fields to prevent mass assignment
-    if (updateAddressDto.label !== undefined) address.label = updateAddressDto.label;
-    if (updateAddressDto.addressLine1 !== undefined) address.addressLine1 = updateAddressDto.addressLine1;
-    if (updateAddressDto.addressLine2 !== undefined) address.addressLine2 = updateAddressDto.addressLine2;
-    if (updateAddressDto.postalCode !== undefined) address.postalCode = updateAddressDto.postalCode;
-    if (updateAddressDto.phone !== undefined) address.phone = updateAddressDto.phone;
-    if (updateAddressDto.notes !== undefined) address.notes = updateAddressDto.notes;
-    if (updateAddressDto.latitude !== undefined) address.latitude = updateAddressDto.latitude;
-    if (updateAddressDto.longitude !== undefined) address.longitude = updateAddressDto.longitude;
+    if (updateAddressDto.label !== undefined)
+      address.label = updateAddressDto.label;
+    if (updateAddressDto.addressLine1 !== undefined)
+      address.addressLine1 = updateAddressDto.addressLine1;
+    if (updateAddressDto.addressLine2 !== undefined)
+      address.addressLine2 = updateAddressDto.addressLine2;
+    if (updateAddressDto.postalCode !== undefined)
+      address.postalCode = updateAddressDto.postalCode;
+    if (updateAddressDto.phone !== undefined)
+      address.phone = updateAddressDto.phone;
+    if (updateAddressDto.notes !== undefined)
+      address.notes = updateAddressDto.notes;
+    if (updateAddressDto.latitude !== undefined)
+      address.latitude = updateAddressDto.latitude;
+    if (updateAddressDto.longitude !== undefined)
+      address.longitude = updateAddressDto.longitude;
 
     return this.addressRepo.save(address);
   }

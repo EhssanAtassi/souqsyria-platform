@@ -66,12 +66,15 @@
           (favoritesClick)="onWishlistClick()"
         ></app-favorites-button>
 
-        <!-- Cart Button (Desktop) -->
+        <!-- Cart Button (Desktop) with Mini Cart Dropdown (SS-CART-010) -->
         <app-cart-button
           class="hidden lg:block"
           [itemCount]="cart.itemCount"
+          [items]="cart.items || []"
+          [subtotal]="cart.subtotal || 0"
           [language]="config.language"
           (cartClick)="onCartClick()"
+          (removeItem)="onCartRemoveItem($event)"
         ></app-cart-button>
 
         <!-- Mobile Cart Button -->
@@ -123,6 +126,7 @@
     <!-- S1 Sprint Mega Menu — Dropdown Mode (hover on featured categories) -->
     <app-mega-menu
       [categories]="categoryTree()"
+      [hoveredCategory]="getHoveredCategoryData()"
       [isOpen]="megaMenuDropdownOpen()"
       [displayMode]="'dropdown'"
       (categorySelected)="onMegaMenuCategorySelected($event)"

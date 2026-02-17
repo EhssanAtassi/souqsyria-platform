@@ -7,7 +7,10 @@
           [src]="product().mainImage"
           [alt]="productName()"
           class="product-card__image"
-          loading="lazy"
+          width="400"
+          height="300"
+          [loading]="priority() ? 'eager' : 'lazy'"
+          [attr.fetchpriority]="priority() ? 'high' : null"
           (error)="onImageError($event)"
         />
       } @else {
@@ -17,7 +20,7 @@
       }
 
       <!-- Stock Badge -->
-      <span class="stock-badge" [ngClass]="stockClass()">
+      <span class="stock-badge" [ngClass]="stockClass()" role="status" [attr.aria-label]="stockLabel()">
         {{ stockLabel() }}
       </span>
     </div>
@@ -40,9 +43,9 @@
     <!-- Rating -->
     <div class="product-card__rating">
       @if (product().reviewCount > 0) {
-        <div class="product-card__stars">
+        <div class="product-card__stars" role="img" [attr.aria-label]="ratingAriaLabel()">
           @for (star of stars(); track $index) {
-            <mat-icon class="product-card__star">{{ star }}</mat-icon>
+            <mat-icon class="product-card__star" aria-hidden="true">{{ star }}</mat-icon>
           }
         </div>
         <span class="product-card__review-count">({{ product().reviewCount }})</span>
@@ -55,15 +58,15 @@
     <div class="product-card__price-container">
       @if (hasDiscount()) {
         <div class="product-card__price-wrapper">
-          <span class="product-card__price product-card__price--current">
+          <span class="product-card__price product-card__price--current" [attr.aria-label]="currentPriceAriaLabel()">
             {{ formattedDiscountPrice() }}
           </span>
-          <span class="product-card__price product-card__price--original">
+          <span class="product-card__price product-card__price--original" [attr.aria-label]="originalPriceAriaLabel()">
             {{ formattedBasePrice() }}
           </span>
         </div>
       } @else {
-        <span class="product-card__price product-card__price--current">
+        <span class="product-card__price product-card__price--current" [attr.aria-label]="currentPriceAriaLabel()">
           {{ formattedBasePrice() }}
         </span>
       }
@@ -90,6 +93,16 @@
         (click)="onAddToWishlistClick()"
       >
         <mat-icon>{{ wishlistIcon() }}</mat-icon>
+      </button>
+
+      <button
+        mat-icon-button
+        class="product-card__compare"
+        [class.product-card__compare--active]="isInComparison()"
+        [attr.aria-label]="compareLabel()"
+        (click)="onCompareClick()"
+      >
+        <mat-icon>{{ compareIcon() }}</mat-icon>
       </button>
     </div>
   </div>

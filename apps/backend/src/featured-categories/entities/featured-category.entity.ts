@@ -91,7 +91,8 @@ export class FeaturedCategory {
    * Lower values appear first
    */
   @ApiProperty({
-    description: 'Display order position on homepage (0-based, lower = higher priority)',
+    description:
+      'Display order position on homepage (0-based, lower = higher priority)',
     example: 0,
     default: 0,
     minimum: 0,
@@ -338,7 +339,9 @@ export class FeaturedCategory {
 
     // At least one badge text must be provided if badge color is set
     if (this.badgeColor && !this.badgeTextEn && !this.badgeTextAr) {
-      errors.push('Badge text (English or Arabic) is required when badge color is set');
+      errors.push(
+        'Badge text (English or Arabic) is required when badge color is set',
+      );
     }
 
     // Badge color must be valid hex format

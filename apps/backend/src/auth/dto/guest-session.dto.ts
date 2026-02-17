@@ -57,8 +57,7 @@ export class CreateGuestSessionDto {
     description:
       'Device fingerprint metadata for security and analytics tracking',
     example: {
-      userAgent:
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+      userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
       platform: 'Win32',
       language: 'en-US',
       screenResolution: '1920x1080',
@@ -125,8 +124,7 @@ export class GuestSessionDto {
   @ApiProperty({
     description: 'Device fingerprint metadata',
     example: {
-      userAgent:
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+      userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
       platform: 'Win32',
       language: 'en-US',
     },

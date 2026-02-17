@@ -28,6 +28,10 @@
   color: $charcoal-dark;
   text-transform: uppercase;
   letter-spacing: 0.5px;
+
+  [dir="rtl"] & {
+    letter-spacing: 0;
+  }
 }
 
 .variant-selector__options {
@@ -39,6 +43,9 @@
 // Standard chip button
 .variant-option {
   padding: $space-2 $space-4;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
   border: 2px solid $charcoal-medium;
   border-radius: $border-radius-md;
   background: $charcoal-light;
@@ -46,7 +53,7 @@
   font-size: $font-size-sm;
   font-weight: $font-weight-medium;
   cursor: pointer;
-  transition: all $transition-fast;
+  transition: border-color $transition-fast, background-color $transition-fast, color $transition-fast;
 
   &:hover:not(:disabled) {
     border-color: $golden-wheat-primary;
@@ -73,8 +80,8 @@
 
 // Color swatch button
 .variant-option--color {
-  width: 40px;
-  height: 40px;
+  width: 44px;
+  height: 44px;
   border-radius: $border-radius-full;
   padding: 0;
   display: flex;

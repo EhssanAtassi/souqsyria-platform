@@ -369,7 +369,10 @@ export class LocalizationService {
         `Initialized ${commonTranslations.length * 2} translations`,
       );
     } catch (error: unknown) {
-      this.logger.error('Failed to initialize translations', (error as Error).stack);
+      this.logger.error(
+        'Failed to initialize translations',
+        (error as Error).stack,
+      );
     }
   }
 

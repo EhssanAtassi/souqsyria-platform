@@ -375,4 +375,127 @@ describe('ProductService', () => {
       req.flush('Error', { status: 500, statusText: 'Server Error' });
     });
   });
+
+  describe('trackView', () => {
+    /**
+     * @description Verifies trackView sends POST to correct endpoint
+     */
+    it('should call POST to products/:slug/view', () => {
+      const slug = 'damascus-knife';
+
+      // Act
+      service.trackView(slug);
+
+      // Assert
+      const req = httpController.expectOne(`${API_URL}/${slug}/view`);
+      expect(req.request.method).toBe('POST');
+      expect(req.request.body).toEqual({});
+      req.flush({});
+    });
+
+    /**
+     * @description Verifies trackView silently handles HTTP errors
+     */
+    it('should silently handle errors without propagating', () => {
+      const slug = 'some-product';
+
+      // Act - should not throw
+      service.trackView(slug);
+
+      // Simulate server error
+      const req = httpController.expectOne(`${API_URL}/${slug}/view`);
+      expect(req.request.method).toBe('POST');
+      req.flush('Server Error', { status: 500, statusText: 'Internal Server Error' });
+
+      // If the error propagated (threw), this line would never execute
+      expect(true).toBeTrue();
+    });
+
+    /**
+     * @description Verifies trackView is fire-and-forget (does not block)
+     */
+    it('should be fire-and-forget with no return value', () => {
+      const slug = 'test-product';
+
+      // Act
+      const result = service.trackView(slug);
+
+      // Assert - trackView returns void
+      expect(result).toBeUndefined();
+
+      // Flush the request to avoid afterEach verify error
+      const req = httpController.expectOne(`${API_URL}/${slug}/view`);
+      req.flush({});
+    });
+  });
+
+  describe('clearCache', () => {
+    /**
+     * @description Verifies clearCache causes subsequent getProducts calls to hit the API
+     */
+    it('should cause getProducts to make a new HTTP request after clearing cache', () => {
+      const mockResponse = createMockResponse();
+
+      // First call - populates cache
+      service.getProducts().subscribe();
+      const firstReq = httpController.expectOne(API_URL);
+      firstReq.flush(mockResponse);
+
+      // Second call - should use cache (no new request)
+      service.getProducts().subscribe();
+      httpController.expectNone(API_URL);
+
+      // Clear cache
+      service.clearCache();
+
+      // Third call - should make a new request since cache is cleared
+      service.getProducts().subscribe();
+      const thirdReq = httpController.expectOne(API_URL);
+      expect(thirdReq.request.method).toBe('GET');
+      thirdReq.flush(mockResponse);
+    });
+
+    /**
+     * @description Verifies clearCache causes subsequent getProductBySlug calls to hit the API
+     */
+    it('should cause getProductBySlug to make a new HTTP request after clearing cache', () => {
+      const slug = 'damascus-knife';
+      const mockDetail: ProductDetailResponse = {
+        id: 1,
+        slug: 'damascus-knife',
+        nameEn: 'Damascus Knife',
+        nameAr: '\u0633\u0643\u064a\u0646 \u062f\u0645\u0634\u0642\u064a',
+        sku: 'DK-001',
+        category: { id: 1, nameEn: 'Knives', nameAr: '\u0633\u0643\u0627\u0643\u064a\u0646', slug: 'knives' },
+        manufacturer: null,
+        vendor: null,
+        pricing: { basePrice: 100, discountPrice: 80, currency: 'USD' },
+        images: [{ id: 1, imageUrl: '/img.jpg', sortOrder: 0 }],
+        descriptions: [{ language: 'en', shortDescription: 'Short', fullDescription: 'Full' }],
+        variants: [],
+        attributes: [],
+        stockStatus: 'in_stock',
+        totalStock: 10,
+        relatedProducts: [],
+      };
+
+      // First call - populates cache
+      service.getProductBySlug(slug).subscribe();
+      const firstReq = httpController.expectOne(`${API_URL}/${slug}`);
+      firstReq.flush(mockDetail);
+
+      // Second call - should use cache
+      service.getProductBySlug(slug).subscribe();
+      httpController.expectNone(`${API_URL}/${slug}`);
+
+      // Clear cache
+      service.clearCache();
+
+      // Third call - should make a new request
+      service.getProductBySlug(slug).subscribe();
+      const thirdReq = httpController.expectOne(`${API_URL}/${slug}`);
+      expect(thirdReq.request.method).toBe('GET');
+      thirdReq.flush(mockDetail);
+    });
+  });
 });

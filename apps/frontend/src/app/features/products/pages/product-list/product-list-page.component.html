@@ -70,6 +70,14 @@
           </button>
         </span>
       }
+      @if (activeFilterBrands()) {
+        <span class="filter-badge">
+          {{ language() === 'ar' ? 'العلامات' : 'Brands' }}: {{ activeFilterBrands() }}
+          <button (click)="removeFilter('brandIds')" class="filter-badge__remove" [attr.aria-label]="language() === 'ar' ? 'إزالة الفلتر' : 'Remove filter'">
+            <mat-icon>close</mat-icon>
+          </button>
+        </span>
+      }
       <button class="filter-badge filter-badge--clear" (click)="onClearFilters()">
         {{ language() === 'ar' ? 'مسح الكل' : 'Clear All' }}
       </button>
@@ -78,6 +86,11 @@
 
   <!-- Main layout: sidebar + content -->
   <div class="product-list-page__layout">
+    <!-- Backdrop overlay for mobile sidebar -->
+    @if (sidebarOpen()) {
+      <div class="product-list-page__backdrop" (click)="closeSidebar()"></div>
+    }
+
     <!-- Filter Sidebar -->
     <aside class="product-list-page__sidebar" [class.product-list-page__sidebar--open]="sidebarOpen()">
       <app-filter-sidebar
@@ -122,11 +135,12 @@
       <!-- Products Grid -->
       @else {
         <div class="product-list-page__grid" [class.product-list-page__grid--list]="viewMode() === 'list'">
-          @for (product of products(); track product.id) {
+          @for (product of products(); track product.id; let i = $index) {
             <app-product-card
               [product]="product"
               [language]="language()"
-              [isWishlisted]="isProductWishlisted(product.id)"
+              [priority]="i < 4"
+              [isWishlisted]="wishlistedProductIds().has(product.id)"
               (addToCart)="onAddToCart($event)"
               (addToWishlist)="onAddToWishlist($event)"
             />

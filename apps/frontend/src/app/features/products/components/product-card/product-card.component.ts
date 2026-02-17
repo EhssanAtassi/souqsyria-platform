@@ -36,11 +36,20 @@ export class ProductCardComponent {
   /** Whether product is in wishlist */
   isWishlisted = input<boolean>(false);
 
+  /** @description Whether this card's image should load eagerly (for above-the-fold cards) */
+  priority = input<boolean>(false);
+
+  /** @description Whether product is in comparison */
+  isInComparison = input<boolean>(false);
+
   /** Emits when user clicks Add to Cart button */
   addToCart = output<ProductListItem>();
 
   /** Emits when user clicks Add to Wishlist button */
   addToWishlist = output<ProductListItem>();
+
+  /** @description Emits when user clicks Compare button */
+  compare = output<ProductListItem>();
 
   /** Computed product name based on language */
   productName = computed(() => {
@@ -145,7 +154,7 @@ export class ProductCardComponent {
   private formatPrice(price: number): string {
     const locale = this.language() === 'ar' ? 'ar-SY' : 'en-US';
     const formatted = price.toLocaleString(locale);
-    return `${formatted} ل.س`;
+    return `${formatted}\u00A0ل.س`;
   }
 
   /**
@@ -172,4 +181,48 @@ export class ProductCardComponent {
   onAddToWishlistClick(): void {
     this.addToWishlist.emit(this.product());
   }
+
+  /**
+   * @description Handles Compare button click
+   */
+  onCompareClick(): void {
+    this.compare.emit(this.product());
+  }
+
+  /** @description Computed compare icon based on comparison state */
+  compareIcon = computed(() => {
+    return this.isInComparison() ? 'compare' : 'compare_arrows';
+  });
+
+  /** @description Computed compare button aria label (bilingual) */
+  compareLabel = computed(() => {
+    const lang = this.language();
+    return lang === 'ar' ? 'قارن المنتج' : 'Compare Product';
+  });
+
+  /** @description Computed current price aria label (bilingual) */
+  currentPriceAriaLabel = computed(() => {
+    const lang = this.language();
+    const price = this.hasDiscount() ? this.formattedDiscountPrice() : this.formattedBasePrice();
+    return lang === 'ar' ? `السعر الحالي: ${price}` : `Current price: ${price}`;
+  });
+
+  /** @description Computed original price aria label (bilingual) */
+  originalPriceAriaLabel = computed(() => {
+    const lang = this.language();
+    const price = this.formattedBasePrice();
+    return lang === 'ar' ? `السعر الأصلي: ${price}` : `Original price: ${price}`;
+  });
+
+  /** @description Computed rating aria label for screen readers (bilingual) */
+  ratingAriaLabel = computed(() => {
+    const lang = this.language();
+    const rating = this.product().rating;
+    const reviewCount = this.product().reviewCount;
+    if (lang === 'ar') {
+      return `${rating} من 5 نجوم، ${reviewCount} تقييم`;
+    } else {
+      return `${rating} out of 5 stars, ${reviewCount} reviews`;
+    }
+  });
 }

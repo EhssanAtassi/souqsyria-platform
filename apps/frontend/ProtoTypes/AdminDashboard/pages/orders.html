@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Orders - SouqSyria Admin</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: { 50: '#faf8f2', 100: '#f5f0e0', 500: '#C4A962', 600: '#b8942d', 700: '#96782a' },
+            charcoal: '#1A1A1A',
+            forest: { 500: '#2D5A3D', 600: '#244a32' },
+          },
+          fontFamily: { sans: ['Inter', 'sans-serif'] }
+        }
+      }
+    }
+  </script>
+  <style>
+    .sidebar-collapsed { width: 80px; }
+    .sidebar-collapsed .nav-text { display: none; }
+    .sidebar-collapsed .logo-text { display: none; }
+    .sidebar-collapsed .nav-item { justify-content: center; padding-left: 0; padding-right: 0; }
+  </style>
+</head>
+<body class="bg-gray-50 font-sans">
+  <div class="flex min-h-screen">
+    <!-- Sidebar -->
+    <aside id="sidebar" class="w-64 bg-charcoal text-white flex flex-col transition-all duration-300">
+      <div class="p-6 border-b border-white/10">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 bg-primary-500 rounded-lg flex items-center justify-center flex-shrink-0">
+            <span class="text-lg font-bold text-charcoal">SS</span>
+          </div>
+          <span class="logo-text font-semibold text-lg">SouqSyria</span>
+        </div>
+      </div>
+      <nav class="flex-1 p-4 space-y-1">
+        <a href="dashboard.html" class="nav-item flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-white/10 text-gray-300 hover:text-white transition-colors">
+          <span class="material-icons-round text-[22px]">dashboard</span>
+          <span class="nav-text">Dashboard</span>
+        </a>
+        <a href="orders.html" class="nav-item flex items-center gap-3 px-4 py-3 rounded-lg bg-primary-500/20 text-primary-500">
+          <span class="material-icons-round text-[22px]">shopping_cart</span>
+          <span class="nav-text">Orders</span>
+          <span class="nav-text ml-auto bg-red-500 text-white text-xs px-2 py-0.5 rounded-full">12</span>
+        </a>
+        <a href="#" class="nav-item flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-white/10 text-gray-300 hover:text-white transition-colors">
+          <span class="material-icons-round text-[22px]">inventory_2</span>
+          <span class="nav-text">Products</span>
+        </a>
+        <a href="vendors.html" class="nav-item flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-white/10 text-gray-300 hover:text-white transition-colors">
+          <span class="material-icons-round text-[22px]">store</span>
+          <span class="nav-text">Vendors</span>
+          <span class="nav-text ml-auto bg-amber-500 text-white text-xs px-2 py-0.5 rounded-full">3</span>
+        </a>
+        <a href="#" class="nav-item flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-white/10 text-gray-300 hover:text-white transition-colors">
+          <span class="material-icons-round text-[22px]">people</span>
+          <span class="nav-text">Customers</span>
+        </a>
+        <a href="#" class="nav-item flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-white/10 text-gray-300 hover:text-white transition-colors">
+          <span class="material-icons-round text-[22px]">local_offer</span>
+          <span class="nav-text">Marketing</span>
+        </a>
+        <a href="#" class="nav-item flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-white/10 text-gray-300 hover:text-white transition-colors">
+          <span class="material-icons-round text-[22px]">bar_chart</span>
+          <span class="nav-text">Analytics</span>
+        </a>
+        <a href="#" class="nav-item flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-white/10 text-gray-300 hover:text-white transition-colors">
+          <span class="material-icons-round text-[22px]">settings</span>
+          <span class="nav-text">Settings</span>
+        </a>
+      </nav>
+      <div class="p-4 border-t border-white/10">
+        <button onclick="toggleSidebar()" class="nav-item w-full flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-white/10 text-gray-400 hover:text-white transition-colors">
+          <span class="material-icons-round text-[22px]" id="collapseIcon">chevron_left</span>
+          <span class="nav-text">Collapse</span>
+        </button>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <div class="flex-1 flex flex-col">
+      <!-- Header -->
+      <header class="bg-white border-b border-gray-200 px-6 py-4">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-4">
+            <h1 class="text-xl font-semibold text-gray-900">Orders</h1>
+            <span class="text-sm text-gray-500">Manage all marketplace orders</span>
+          </div>
+          <div class="flex items-center gap-4">
+            <div class="relative">
+              <span class="material-icons-round absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-[20px]">search</span>
+              <input type="text" placeholder="Search orders..." class="w-64 pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none">
+            </div>
+            <button class="relative p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg">
+              <span class="material-icons-round">notifications</span>
+              <span class="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
+            </button>
+            <div class="w-8 h-8 bg-primary-500 rounded-full flex items-center justify-center">
+              <span class="text-sm font-semibold text-charcoal">AK</span>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <!-- Orders Content -->
+      <main class="flex-1 p-6 overflow-auto">
+        <!-- Status Tabs -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-100 mb-6">
+          <div class="flex border-b border-gray-100 overflow-x-auto">
+            <button class="px-6 py-4 text-sm font-medium text-primary-600 border-b-2 border-primary-500 whitespace-nowrap">
+              All Orders <span class="ml-2 bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full text-xs">1,247</span>
+            </button>
+            <button class="px-6 py-4 text-sm font-medium text-gray-500 hover:text-gray-700 whitespace-nowrap">
+              Pending <span class="ml-2 bg-amber-100 text-amber-600 px-2 py-0.5 rounded-full text-xs">23</span>
+            </button>
+            <button class="px-6 py-4 text-sm font-medium text-gray-500 hover:text-gray-700 whitespace-nowrap">
+              Confirmed <span class="ml-2 bg-blue-100 text-blue-600 px-2 py-0.5 rounded-full text-xs">45</span>
+            </button>
+            <button class="px-6 py-4 text-sm font-medium text-gray-500 hover:text-gray-700 whitespace-nowrap">
+              Processing <span class="ml-2 bg-purple-100 text-purple-600 px-2 py-0.5 rounded-full text-xs">67</span>
+            </button>
+            <button class="px-6 py-4 text-sm font-medium text-gray-500 hover:text-gray-700 whitespace-nowrap">
+              Shipped <span class="ml-2 bg-indigo-100 text-indigo-600 px-2 py-0.5 rounded-full text-xs">156</span>
+            </button>
+            <button class="px-6 py-4 text-sm font-medium text-gray-500 hover:text-gray-700 whitespace-nowrap">
+              Delivered <span class="ml-2 bg-green-100 text-green-600 px-2 py-0.5 rounded-full text-xs">842</span>
+            </button>
+            <button class="px-6 py-4 text-sm font-medium text-gray-500 hover:text-gray-700 whitespace-nowrap">
+              Cancelled <span class="ml-2 bg-red-100 text-red-600 px-2 py-0.5 rounded-full text-xs">60</span>
+            </button>
+          </div>
+
+          <!-- Filters -->
+          <div class="p-4 flex flex-wrap items-center gap-4 border-b border-gray-100">
+            <div class="flex items-center gap-2">
+              <span class="text-sm text-gray-500">Payment:</span>
+              <select class="px-3 py-1.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 outline-none">
+                <option>All</option>
+                <option>Paid</option>
+                <option>Pending</option>
+                <option>Failed</option>
+              </select>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="text-sm text-gray-500">Region:</span>
+              <select class="px-3 py-1.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 outline-none">
+                <option>All Regions</option>
+                <option>Damascus</option>
+                <option>Aleppo</option>
+                <option>Homs</option>
+                <option>Latakia</option>
+                <option>Tartus</option>
+              </select>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="text-sm text-gray-500">Date:</span>
+              <input type="date" class="px-3 py-1.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 outline-none">
+              <span class="text-gray-400">to</span>
+              <input type="date" class="px-3 py-1.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 outline-none">
+            </div>
+            <button class="ml-auto flex items-center gap-2 px-4 py-1.5 border border-gray-300 rounded-lg text-sm hover:bg-gray-50">
+              <span class="material-icons-round text-[18px]">download</span>
+              Export
+            </button>
+          </div>
+
+          <!-- Orders Table -->
+          <div class="overflow-x-auto">
+            <table class="w-full">
+              <thead class="bg-gray-50 text-xs text-gray-500 uppercase">
+                <tr>
+                  <th class="px-6 py-3 text-left">
+                    <input type="checkbox" id="selectAll" onclick="toggleSelectAll()" class="w-4 h-4 text-primary-500 rounded border-gray-300 focus:ring-primary-500">
+                  </th>
+                  <th class="px-6 py-3 text-left">Order ID <span class="material-icons-round text-[14px] align-middle">unfold_more</span></th>
+                  <th class="px-6 py-3 text-left">Customer</th>
+                  <th class="px-6 py-3 text-left">Date <span class="material-icons-round text-[14px] align-middle">unfold_more</span></th>
+                  <th class="px-6 py-3 text-left">Items</th>
+                  <th class="px-6 py-3 text-left">Total <span class="material-icons-round text-[14px] align-middle">unfold_more</span></th>
+                  <th class="px-6 py-3 text-left">Payment</th>
+                  <th class="px-6 py-3 text-left">Status</th>
+                  <th class="px-6 py-3 text-left">Actions</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-gray-100">
+                <tr class="hover:bg-gray-50">
+                  <td class="px-6 py-4"><input type="checkbox" class="order-checkbox w-4 h-4 text-primary-500 rounded border-gray-300 focus:ring-primary-500"></td>
+                  <td class="px-6 py-4"><a href="order-detail.html" class="text-sm font-medium text-primary-600 hover:underline">#ORD-2024-1247</a></td>
+                  <td class="px-6 py-4">
+                    <div class="flex items-center gap-3">
+                      <div class="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center text-sm font-medium">م</div>
+                      <div>
+                        <p class="text-sm font-medium text-gray-900">محمد أحمد</p>
+                        <p class="text-xs text-gray-500">Damascus</p>
+                      </div>
+                    </div>
+                  </td>
+                  <td class="px-6 py-4 text-sm text-gray-600">Jan 31, 2024<br><span class="text-xs text-gray-400">10:23 AM</span></td>
+                  <td class="px-6 py-4 text-sm text-gray-600">3 items</td>
+                  <td class="px-6 py-4 text-sm font-medium text-gray-900">125,000 SYP</td>
+                  <td class="px-6 py-4"><span class="px-2 py-1 bg-amber-100 text-amber-700 text-xs font-medium rounded-full">COD</span></td>
+                  <td class="px-6 py-4"><span class="px-2 py-1 bg-amber-100 text-amber-700 text-xs font-medium rounded-full">Pending</span></td>
+                  <td class="px-6 py-4">
+                    <div class="flex items-center gap-2">
+                      <a href="order-detail.html" class="p-1 text-gray-500 hover:text-primary-600 hover:bg-gray-100 rounded" title="View">
+                        <span class="material-icons-round text-[18px]">visibility</span>
+                      </a>
+                      <button class="p-1 text-gray-500 hover:text-green-600 hover:bg-gray-100 rounded" title="Confirm">
+                        <span class="material-icons-round text-[18px]">check_circle</span>
+                      </button>
+                      <button class="p-1 text-gray-500 hover:text-red-600 hover:bg-gray-100 rounded" title="Cancel">
+                        <span class="material-icons-round text-[18px]">cancel</span>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+                <tr class="hover:bg-gray-50">
+                  <td class="px-6 py-4"><input type="checkbox" class="order-checkbox w-4 h-4 text-primary-500 rounded border-gray-300 focus:ring-primary-500"></td>
+                  <td class="px-6 py-4"><a href="order-detail.html" class="text-sm font-medium text-primary-600 hover:underline">#ORD-2024-1246</a></td>
+                  <td class="px-6 py-4">
+                    <div class="flex items-center gap-3">
+                      <div class="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center text-sm font-medium">س</div>
+                      <div>
+                        <p class="text-sm font-medium text-gray-900">سارة الخطيب</p>
+                        <p class="text-xs text-gray-500">Aleppo</p>
+                      </div>
+                    </div>
+                  </td>
+                  <td class="px-6 py-4 text-sm text-gray-600">Jan 31, 2024<br><span class="text-xs text-gray-400">09:15 AM</span></td>
+                  <td class="px-6 py-4 text-sm text-gray-600">2 items</td>
+                  <td class="px-6 py-4 text-sm font-medium text-gray-900">89,500 SYP</td>
+                  <td class="px-6 py-4"><span class="px-2 py-1 bg-green-100 text-green-700 text-xs font-medium rounded-full">Paid</span></td>
+                  <td class="px-6 py-4"><span class="px-2 py-1 bg-indigo-100 text-indigo-700 text-xs font-medium rounded-full">Shipped</span></td>
+                  <td class="px-6 py-4">
+                    <div class="flex items-center gap-2">
+                      <a href="order-detail.html" class="p-1 text-gray-500 hover:text-primary-600 hover:bg-gray-100 rounded">
+                        <span class="material-icons-round text-[18px]">visibility</span>
+                      </a>
+                      <button class="p-1 text-gray-500 hover:text-blue-600 hover:bg-gray-100 rounded" title="Track">
+                        <span class="material-icons-round text-[18px]">local_shipping</span>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+                <tr class="hover:bg-gray-50">
+                  <td class="px-6 py-4"><input type="checkbox" class="order-checkbox w-4 h-4 text-primary-500 rounded border-gray-300 focus:ring-primary-500"></td>
+                  <td class="px-6 py-4"><a href="order-detail.html" class="text-sm font-medium text-primary-600 hover:underline">#ORD-2024-1245</a></td>
+                  <td class="px-6 py-4">
+                    <div class="flex items-center gap-3">
+                      <div class="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center text-sm font-medium">خ</div>
+                      <div>
+                        <p class="text-sm font-medium text-gray-900">خالد عبدالله</p>
+                        <p class="text-xs text-gray-500">Homs</p>
+                      </div>
+                    </div>
+                  </td>
+                  <td class="px-6 py-4 text-sm text-gray-600">Jan 30, 2024<br><span class="text-xs text-gray-400">03:45 PM</span></td>
+                  <td class="px-6 py-4 text-sm text-gray-600">5 items</td>
+                  <td class="px-6 py-4 text-sm font-medium text-gray-900">234,000 SYP</td>
+                  <td class="px-6 py-4"><span class="px-2 py-1 bg-green-100 text-green-700 text-xs font-medium rounded-full">Paid</span></td>
+                  <td class="px-6 py-4"><span class="px-2 py-1 bg-green-100 text-green-700 text-xs font-medium rounded-full">Delivered</span></td>
+                  <td class="px-6 py-4">
+                    <div class="flex items-center gap-2">
+                      <a href="order-detail.html" class="p-1 text-gray-500 hover:text-primary-600 hover:bg-gray-100 rounded">
+                        <span class="material-icons-round text-[18px]">visibility</span>
+                      </a>
+                      <button class="p-1 text-gray-500 hover:text-amber-600 hover:bg-gray-100 rounded" title="Refund">
+                        <span class="material-icons-round text-[18px]">currency_exchange</span>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+                <tr class="hover:bg-gray-50">
+                  <td class="px-6 py-4"><input type="checkbox" class="order-checkbox w-4 h-4 text-primary-500 rounded border-gray-300 focus:ring-primary-500"></td>
+                  <td class="px-6 py-4"><a href="order-detail.html" class="text-sm font-medium text-primary-600 hover:underline">#ORD-2024-1244</a></td>
+                  <td class="px-6 py-4">
+                    <div class="flex items-center gap-3">
+                      <div class="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center text-sm font-medium">ل</div>
+                      <div>
+                        <p class="text-sm font-medium text-gray-900">ليلى حسن</p>
+                        <p class="text-xs text-gray-500">Latakia</p>
+                      </div>
+                    </div>
+                  </td>
+                  <td class="px-6 py-4 text-sm text-gray-600">Jan 30, 2024<br><span class="text-xs text-gray-400">01:20 PM</span></td>
+                  <td class="px-6 py-4 text-sm text-gray-600">1 item</td>
+                  <td class="px-6 py-4 text-sm font-medium text-gray-900">67,800 SYP</td>
+                  <td class="px-6 py-4"><span class="px-2 py-1 bg-green-100 text-green-700 text-xs font-medium rounded-full">Paid</span></td>
+                  <td class="px-6 py-4"><span class="px-2 py-1 bg-purple-100 text-purple-700 text-xs font-medium rounded-full">Processing</span></td>
+                  <td class="px-6 py-4">
+                    <div class="flex items-center gap-2">
+                      <a href="order-detail.html" class="p-1 text-gray-500 hover:text-primary-600 hover:bg-gray-100 rounded">
+                        <span class="material-icons-round text-[18px]">visibility</span>
+                      </a>
+                      <button class="p-1 text-gray-500 hover:text-blue-600 hover:bg-gray-100 rounded">
+                        <span class="material-icons-round text-[18px]">local_shipping</span>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+                <tr class="hover:bg-gray-50">
+                  <td class="px-6 py-4"><input type="checkbox" class="order-checkbox w-4 h-4 text-primary-500 rounded border-gray-300 focus:ring-primary-500"></td>
+                  <td class="px-6 py-4"><a href="order-detail.html" class="text-sm font-medium text-primary-600 hover:underline">#ORD-2024-1243</a></td>
+                  <td class="px-6 py-4">
+                    <div class="flex items-center gap-3">
+                      <div class="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center text-sm font-medium">أ</div>
+                      <div>
+                        <p class="text-sm font-medium text-gray-900">أحمد الصالح</p>
+                        <p class="text-xs text-gray-500">Damascus</p>
+                      </div>
+                    </div>
+                  </td>
+                  <td class="px-6 py-4 text-sm text-gray-600">Jan 29, 2024<br><span class="text-xs text-gray-400">11:00 AM</span></td>
+                  <td class="px-6 py-4 text-sm text-gray-600">4 items</td>
+                  <td class="px-6 py-4 text-sm font-medium text-gray-900">156,200 SYP</td>
+                  <td class="px-6 py-4"><span class="px-2 py-1 bg-green-100 text-green-700 text-xs font-medium rounded-full">Paid</span></td>
+                  <td class="px-6 py-4"><span class="px-2 py-1 bg-green-100 text-green-700 text-xs font-medium rounded-full">Delivered</span></td>
+                  <td class="px-6 py-4">
+                    <div class="flex items-center gap-2">
+                      <a href="order-detail.html" class="p-1 text-gray-500 hover:text-primary-600 hover:bg-gray-100 rounded">
+                        <span class="material-icons-round text-[18px]">visibility</span>
+                      </a>
+                      <button class="p-1 text-gray-500 hover:text-amber-600 hover:bg-gray-100 rounded">
+                        <span class="material-icons-round text-[18px]">currency_exchange</span>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+                <tr class="hover:bg-gray-50 bg-red-50/50">
+                  <td class="px-6 py-4"><input type="checkbox" class="order-checkbox w-4 h-4 text-primary-500 rounded border-gray-300 focus:ring-primary-500"></td>
+                  <td class="px-6 py-4"><a href="order-detail.html" class="text-sm font-medium text-primary-600 hover:underline">#ORD-2024-1242</a></td>
+                  <td class="px-6 py-4">
+                    <div class="flex items-center gap-3">
+                      <div class="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center text-sm font-medium">ر</div>
+                      <div>
+                        <p class="text-sm font-medium text-gray-900">رنا محمود</p>
+                        <p class="text-xs text-gray-500">Tartus</p>
+                      </div>
+                    </div>
+                  </td>
+                  <td class="px-6 py-4 text-sm text-gray-600">Jan 29, 2024<br><span class="text-xs text-gray-400">09:30 AM</span></td>
+                  <td class="px-6 py-4 text-sm text-gray-600">2 items</td>
+                  <td class="px-6 py-4 text-sm font-medium text-gray-900">45,000 SYP</td>
+                  <td class="px-6 py-4"><span class="px-2 py-1 bg-red-100 text-red-700 text-xs font-medium rounded-full">Refunded</span></td>
+                  <td class="px-6 py-4"><span class="px-2 py-1 bg-red-100 text-red-700 text-xs font-medium rounded-full">Cancelled</span></td>
+                  <td class="px-6 py-4">
+                    <div class="flex items-center gap-2">
+                      <a href="order-detail.html" class="p-1 text-gray-500 hover:text-primary-600 hover:bg-gray-100 rounded">
+                        <span class="material-icons-round text-[18px]">visibility</span>
+                      </a>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Pagination -->
+          <div class="px-6 py-4 border-t border-gray-100 flex items-center justify-between">
+            <p class="text-sm text-gray-500">Showing 1-10 of 1,247 orders</p>
+            <div class="flex items-center gap-2">
+              <button class="px-3 py-1.5 border border-gray-300 rounded-lg text-sm hover:bg-gray-50 disabled:opacity-50" disabled>Previous</button>
+              <button class="px-3 py-1.5 bg-primary-500 text-charcoal rounded-lg text-sm font-medium">1</button>
+              <button class="px-3 py-1.5 border border-gray-300 rounded-lg text-sm hover:bg-gray-50">2</button>
+              <button class="px-3 py-1.5 border border-gray-300 rounded-lg text-sm hover:bg-gray-50">3</button>
+              <span class="text-gray-400">...</span>
+              <button class="px-3 py-1.5 border border-gray-300 rounded-lg text-sm hover:bg-gray-50">125</button>
+              <button class="px-3 py-1.5 border border-gray-300 rounded-lg text-sm hover:bg-gray-50">Next</button>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <!-- Bulk Actions Bar (shown when items selected) -->
+  <div id="bulkActionsBar" class="hidden fixed bottom-6 left-1/2 -translate-x-1/2 bg-charcoal text-white px-6 py-3 rounded-xl shadow-lg flex items-center gap-4">
+    <span class="text-sm"><span id="selectedCount">0</span> orders selected</span>
+    <div class="w-px h-6 bg-white/20"></div>
+    <button class="flex items-center gap-2 px-3 py-1.5 bg-green-600 hover:bg-green-700 rounded-lg text-sm">
+      <span class="material-icons-round text-[16px]">check</span>
+      Confirm
+    </button>
+    <button class="flex items-center gap-2 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 rounded-lg text-sm">
+      <span class="material-icons-round text-[16px]">local_shipping</span>
+      Mark Shipped
+    </button>
+    <button class="flex items-center gap-2 px-3 py-1.5 bg-red-600 hover:bg-red-700 rounded-lg text-sm">
+      <span class="material-icons-round text-[16px]">close</span>
+      Cancel
+    </button>
+    <button onclick="clearSelection()" class="p-1.5 hover:bg-white/10 rounded">
+      <span class="material-icons-round text-[18px]">close</span>
+    </button>
+  </div>
+
+  <script>
+    function toggleSidebar() {
+      const sidebar = document.getElementById('sidebar');
+      const icon = document.getElementById('collapseIcon');
+      sidebar.classList.toggle('sidebar-collapsed');
+      icon.textContent = sidebar.classList.contains('sidebar-collapsed') ? 'chevron_right' : 'chevron_left';
+    }
+
+    function toggleSelectAll() {
+      const selectAll = document.getElementById('selectAll');
+      const checkboxes = document.querySelectorAll('.order-checkbox');
+      checkboxes.forEach(cb => cb.checked = selectAll.checked);
+      updateBulkActions();
+    }
+
+    function updateBulkActions() {
+      const checkboxes = document.querySelectorAll('.order-checkbox:checked');
+      const bar = document.getElementById('bulkActionsBar');
+      const count = document.getElementById('selectedCount');
+      if (checkboxes.length > 0) {
+        bar.classList.remove('hidden');
+        count.textContent = checkboxes.length;
+      } else {
+        bar.classList.add('hidden');
+      }
+    }
+
+    function clearSelection() {
+      document.getElementById('selectAll').checked = false;
+      document.querySelectorAll('.order-checkbox').forEach(cb => cb.checked = false);
+      updateBulkActions();
+    }
+
+    document.querySelectorAll('.order-checkbox').forEach(cb => {
+      cb.addEventListener('change', updateBulkActions);
+    });
+  </script>
+</body>
+</html>

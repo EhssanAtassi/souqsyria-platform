@@ -159,7 +159,20 @@ export class ProductEntity {
   @Column({ name: 'sales_count', type: 'int', default: 0 })
   salesCount: number;
 
-  @Column({ name: 'featured_priority', type: 'int', nullable: true, default: 0 })
+  /**
+   * View count - tracks how many times this product detail page has been viewed
+   * Used for analytics and popularity tracking
+   * Incremented via POST /products/:slug/view endpoint
+   */
+  @Column({ name: 'view_count', type: 'int', default: 0 })
+  viewCount: number;
+
+  @Column({
+    name: 'featured_priority',
+    type: 'int',
+    nullable: true,
+    default: 0,
+  })
   featuredPriority: number;
 
   @Column({ name: 'featured_start_date', type: 'timestamp', nullable: true })
@@ -168,7 +181,12 @@ export class ProductEntity {
   @Column({ name: 'featured_end_date', type: 'timestamp', nullable: true })
   featuredEndDate: Date;
 
-  @Column({ name: 'featured_badge', type: 'varchar', length: 50, nullable: true })
+  @Column({
+    name: 'featured_badge',
+    type: 'varchar',
+    length: 50,
+    nullable: true,
+  })
   featuredBadge: string;
 
   @OneToMany(

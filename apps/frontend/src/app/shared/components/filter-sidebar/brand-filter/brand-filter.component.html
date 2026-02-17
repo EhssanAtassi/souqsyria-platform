@@ -1,0 +1,47 @@
+<!-- Brand Filter Container -->
+<div class="brand-filter" [attr.dir]="language() === 'ar' ? 'rtl' : 'ltr'">
+
+  <!-- Loading State -->
+  @if (loading()) {
+    <div class="loading-container">
+      <mat-spinner diameter="40"></mat-spinner>
+      <p>{{ language() === 'ar' ? 'جاري التحميل...' : 'Loading...' }}</p>
+    </div>
+  }
+
+  <!-- Error State -->
+  @if (error() && !loading()) {
+    <div class="error-container">
+      <mat-icon>error</mat-icon>
+      <p>{{ error() }}</p>
+    </div>
+  }
+
+  <!-- Brand List -->
+  @if (!loading() && !error()) {
+    <div class="brand-list">
+      @for (brand of brands(); track brand.id) {
+        <div class="brand-item">
+          <mat-checkbox
+            [checked]="isBrandSelected(brand.id)"
+            (change)="onBrandToggle(brand.id, $event.checked)"
+            class="brand-checkbox">
+            <div class="brand-content">
+              <span class="brand-name">{{ getBrandName(brand) }}</span>
+              <span class="brand-count">{{ formatCount(brand.productCount) }}</span>
+            </div>
+          </mat-checkbox>
+        </div>
+      }
+    </div>
+  }
+
+  <!-- Empty State -->
+  @if (!loading() && !error() && brands().length === 0) {
+    <div class="empty-state">
+      <mat-icon>store</mat-icon>
+      <p>{{ language() === 'ar' ? 'لا توجد علامات تجارية متاحة' : 'No brands available' }}</p>
+    </div>
+  }
+
+</div>

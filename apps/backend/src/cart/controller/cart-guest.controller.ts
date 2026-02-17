@@ -76,7 +76,7 @@ interface RequestWithGuestSession extends Request {
 @RateLimit({
   maxRequests: 50,
   windowSizeInSeconds: 3600,
-  message: 'Too many cart requests. Please wait before trying again.'
+  message: 'Too many cart requests. Please wait before trying again.',
 })
 export class CartGuestController {
   private readonly logger = new Logger(CartGuestController.name);

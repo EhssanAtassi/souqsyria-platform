@@ -45,7 +45,7 @@ export interface ComparisonRow {
   values: (string | number | boolean | null)[];
 
   /** Data type for formatting */
-  type: 'text' | 'number' | 'currency' | 'rating' | 'boolean' | 'date';
+  type: 'text' | 'number' | 'currency' | 'rating' | 'boolean' | 'date' | 'list';
 
   /** Whether this row has differences between products */
   hasDifference: boolean;

@@ -4,6 +4,7 @@ module.exports = {
     "./src/**/*.{html,ts}",
     "./projects/**/*.{html,ts}"
   ],
+  darkMode: 'class',
   theme: {
     extend: {
       // ✅ UPDATED Color Palette - Pixorus-inspired Modern E-commerce
@@ -161,6 +162,16 @@ module.exports = {
         'on-surface-variant': '#5F6368',
         'outline': '#DADCE0'
       },
+      // Animations used in category components
+      keyframes: {
+        'fade-in': {
+          '0%': { opacity: '0', transform: 'translateY(4px)' },
+          '100%': { opacity: '1', transform: 'translateY(0)' }
+        }
+      },
+      animation: {
+        'fade-in': 'fade-in 200ms ease-out'
+      },
       // Custom box shadows for mega menus
       boxShadow: {
         'menu': '0 8px 30px rgba(0, 0, 0, 0.12)',
@@ -179,25 +190,7 @@ module.exports = {
         display: ['Poppins', 'system-ui', 'sans-serif'],
         arabic: ['Cairo', 'Amiri', 'Scheherazade New', 'Noto Sans Arabic', 'system-ui', 'sans-serif']
       },
-      // RTL-specific utilities
-      margin: {
-        'rtl-0': '0',
-        'rtl-1': '0.25rem',
-        'rtl-2': '0.5rem', 
-        'rtl-3': '0.75rem',
-        'rtl-4': '1rem',
-        'rtl-6': '1.5rem',
-        'rtl-8': '2rem'
-      },
-      padding: {
-        'rtl-0': '0',
-        'rtl-1': '0.25rem',
-        'rtl-2': '0.5rem',
-        'rtl-3': '0.75rem', 
-        'rtl-4': '1rem',
-        'rtl-6': '1.5rem',
-        'rtl-8': '2rem'
-      }
+      // RTL handled by Tailwind's built-in rtl: variant — no custom tokens needed
     },
   },
   plugins: [],

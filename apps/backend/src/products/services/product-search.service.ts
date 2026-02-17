@@ -157,7 +157,10 @@ export class ProductSearchService {
         },
       };
     } catch (error: unknown) {
-      this.logger.error(`❌ Search failed: ${(error as Error).message}`, (error as Error).stack);
+      this.logger.error(
+        `❌ Search failed: ${(error as Error).message}`,
+        (error as Error).stack,
+      );
       throw error;
     }
   }
@@ -305,7 +308,9 @@ export class ProductSearchService {
         approvalTrends,
       };
     } catch (error: unknown) {
-      this.logger.error(`❌ Analytics generation failed: ${(error as Error).message}`);
+      this.logger.error(
+        `❌ Analytics generation failed: ${(error as Error).message}`,
+      );
       throw error;
     }
   }
@@ -515,7 +520,9 @@ export class ProductSearchService {
         description: `Product search: "${filters.search || ''}" returned ${resultCount} results in ${processingTime}ms`,
       });
     } catch (error: unknown) {
-      this.logger.warn(`Failed to log search event: ${(error as Error).message}`);
+      this.logger.warn(
+        `Failed to log search event: ${(error as Error).message}`,
+      );
     }
   }
 

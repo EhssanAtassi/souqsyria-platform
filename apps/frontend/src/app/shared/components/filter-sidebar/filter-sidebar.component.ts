@@ -1,4 +1,4 @@
-import { Component, ChangeDetectionStrategy, input, output, signal, computed, effect } from '@angular/core';
+import { Component, ChangeDetectionStrategy, input, output, signal, computed, effect, DestroyRef, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -7,7 +7,11 @@ import { MatDividerModule } from '@angular/material/divider';
 import { PriceRangeFilterComponent } from './price-range-filter/price-range-filter.component';
 import { RatingFilterComponent } from './rating-filter/rating-filter.component';
 import { AuthenticityFilterComponent } from './authenticity-filter/authenticity-filter.component';
+import { CategoryFilterComponent } from './category-filter/category-filter.component';
+import { BrandFilterComponent } from './brand-filter/brand-filter.component';
 import { MatCheckboxModule } from '@angular/material/checkbox';
+import { Subject, debounceTime } from 'rxjs';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 /**
  * Filter State Interface
@@ -65,6 +69,8 @@ export interface FilterState {
     outOfStock?: boolean;
   };
   regions?: string[];
+  categoryIds?: number[];
+  brandIds?: string; // comma-separated
 }
 
 /**
@@ -117,7 +123,9 @@ export interface FilterState {
     MatCheckboxModule,
     PriceRangeFilterComponent,
     RatingFilterComponent,
-    AuthenticityFilterComponent
+    AuthenticityFilterComponent,
+    CategoryFilterComponent,
+    BrandFilterComponent
   ],
   templateUrl: './filter-sidebar.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -195,7 +203,9 @@ export class FilterSidebarComponent {
       (filters.ratings && filters.ratings.length > 0) ||
       (filters.authenticity && (filters.authenticity.unesco || filters.authenticity.handmade || filters.authenticity.regional)) ||
       (filters.availability && (filters.availability.inStock || filters.availability.outOfStock)) ||
-      (filters.regions && filters.regions.length > 0)
+      (filters.regions && filters.regions.length > 0) ||
+      (filters.categoryIds && filters.categoryIds.length > 0) ||
+      filters.brandIds
     );
   });
 
@@ -214,9 +224,24 @@ export class FilterSidebarComponent {
     if (filters.availability?.inStock) count++;
     if (filters.availability?.outOfStock) count++;
     if (filters.regions && filters.regions.length > 0) count += filters.regions.length;
+    if (filters.categoryIds && filters.categoryIds.length > 0) count += filters.categoryIds.length;
+    if (filters.brandIds) {
+      const brandCount = filters.brandIds.split(',').filter(id => id.trim()).length;
+      count += brandCount;
+    }
 
     return count;
   });
+
+  /**
+   * Subject for debouncing filter changes
+   * @description Prevents excessive API calls during rapid filter interactions
+   * @private
+   */
+  private readonly filterSubject = new Subject<FilterState>();
+
+  /** Dependency injection for cleanup */
+  private readonly destroyRef = inject(DestroyRef);
 
   constructor() {
     // Initialize filters from input when component loads
@@ -226,6 +251,16 @@ export class FilterSidebarComponent {
         this.currentFilters.set(initial);
       }
     });
+
+    // Debounce filter emissions to prevent excessive URL navigation and API calls
+    this.filterSubject
+      .pipe(
+        debounceTime(300),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe(filters => {
+        this.filtersChange.emit(filters);
+      });
   }
 
   /**
@@ -317,6 +352,30 @@ export class FilterSidebarComponent {
   }
 
   /**
+   * Handles category filter change from category filter component
+   * @param categoryIds - Array of selected category IDs
+   */
+  onCategoryChange(categoryIds: number[]): void {
+    this.currentFilters.update(filters => ({
+      ...filters,
+      categoryIds: categoryIds.length > 0 ? categoryIds : undefined
+    }));
+    this.emitFilters();
+  }
+
+  /**
+   * Handles brand filter change from brand filter component
+   * @param brandIds - Comma-separated brand IDs
+   */
+  onBrandChange(brandIds: string): void {
+    this.currentFilters.update(filters => ({
+      ...filters,
+      brandIds: brandIds || undefined
+    }));
+    this.emitFilters();
+  }
+
+  /**
    * Clears all active filters
    * Resets filter state and emits clear event
    */
@@ -327,10 +386,10 @@ export class FilterSidebarComponent {
 
   /**
    * Emits current filter state to parent component
-   * Debounced to prevent excessive updates
+   * Debounced via filterSubject to prevent excessive updates
    */
   private emitFilters(): void {
-    this.filtersChange.emit(this.currentFilters());
+    this.filterSubject.next(this.currentFilters());
   }
 
   /**

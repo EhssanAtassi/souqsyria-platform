@@ -28,7 +28,8 @@ export class SimpleAuditLogDto {
   module: string;
 
   @ApiPropertyOptional({
-    description: 'ID of the user performing the action (null for anonymous users)',
+    description:
+      'ID of the user performing the action (null for anonymous users)',
     example: 123,
   })
   @IsOptional()
@@ -39,10 +40,26 @@ export class SimpleAuditLogDto {
   // Replace your current actorType with this enhanced version:
   @ApiProperty({
     description: 'Type of actor performing the action',
-    enum: ['admin', 'vendor', 'user', 'system', 'api_client', 'support_agent', 'anonymous'],
+    enum: [
+      'admin',
+      'vendor',
+      'user',
+      'system',
+      'api_client',
+      'support_agent',
+      'anonymous',
+    ],
     example: 'user',
   })
-  @IsEnum(['admin', 'vendor', 'user', 'system', 'api_client', 'support_agent', 'anonymous'])
+  @IsEnum([
+    'admin',
+    'vendor',
+    'user',
+    'system',
+    'api_client',
+    'support_agent',
+    'anonymous',
+  ])
   actorType:
     | 'admin'
     | 'vendor'

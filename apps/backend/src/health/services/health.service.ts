@@ -109,7 +109,8 @@ export class HealthService {
     if (days > 0) parts.push(`${days} day${days !== 1 ? 's' : ''}`);
     if (hours > 0) parts.push(`${hours} hour${hours !== 1 ? 's' : ''}`);
     if (minutes > 0) parts.push(`${minutes} minute${minutes !== 1 ? 's' : ''}`);
-    if (secs > 0 || parts.length === 0) parts.push(`${secs} second${secs !== 1 ? 's' : ''}`);
+    if (secs > 0 || parts.length === 0)
+      parts.push(`${secs} second${secs !== 1 ? 's' : ''}`);
 
     return parts.join(', ');
   }

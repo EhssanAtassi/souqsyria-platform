@@ -74,11 +74,15 @@ export async function seedSyrianDivisions(
     console.log(
       `${colors.yellow}⚠️  Syrian divisions already seeded (${existingGovCount} governorates found)${colors.reset}`,
     );
-    console.log(`${colors.yellow}   Skipping seed operation...${colors.reset}\n`);
+    console.log(
+      `${colors.yellow}   Skipping seed operation...${colors.reset}\n`,
+    );
     return;
   }
 
-  console.log(`${colors.blue}📍 Seeding Syrian governorates...${colors.reset}\n`);
+  console.log(
+    `${colors.blue}📍 Seeding Syrian governorates...${colors.reset}\n`,
+  );
 
   // ═══════════════════════════════════════════════════════════════════════
   // 14 SYRIAN GOVERNORATES WITH COMPLETE DATA
@@ -163,11 +167,11 @@ export async function seedSyrianDivisions(
           logistics: {
             deliverySupported: true,
             averageDeliveryTime: 1,
-            lastMileOptions: [
-              'standard',
-              'express',
-              'pickup_point',
-            ] as ('standard' | 'express' | 'pickup_point')[],
+            lastMileOptions: ['standard', 'express', 'pickup_point'] as (
+              | 'standard'
+              | 'express'
+              | 'pickup_point'
+            )[],
           },
           infrastructure: {
             hasPostOffice: true,
@@ -1326,12 +1330,8 @@ export async function seedSyrianDivisions(
     console.log(
       `${colors.green}${colors.bright}✅ SEED COMPLETED SUCCESSFULLY!${colors.reset}`,
     );
-    console.log(
-      `${colors.green}   📊 ${govCount} governorates${colors.reset}`,
-    );
-    console.log(
-      `${colors.blue}   📊 ${cityCount} cities${colors.reset}`,
-    );
+    console.log(`${colors.green}   📊 ${govCount} governorates${colors.reset}`);
+    console.log(`${colors.blue}   📊 ${cityCount} cities${colors.reset}`);
     console.log(
       `${colors.cyan}   📊 ${districtCount} districts${colors.reset}`,
     );

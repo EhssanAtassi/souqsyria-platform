@@ -1,7 +1,7 @@
 /**
  * @file validation.decorators.ts
  * @description Custom validation decorators for Syrian marketplace requirements.
- * 
+ *
  * These decorators provide:
  * - Syrian phone number validation
  * - Syrian National ID validation
@@ -10,7 +10,7 @@
  * - Price validation for SYP (Syrian Pound)
  * - Safe string validation (XSS prevention)
  * - Common validation patterns
- * 
+ *
  * @author SouqSyria Development Team
  * @since 2026-01-20
  */
@@ -39,7 +39,7 @@ import { ApiProperty } from '@nestjs/swagger';
 /**
  * Syrian phone number validator constraint
  * Validates Syrian mobile and landline numbers
- * 
+ *
  * Valid formats:
  * - Mobile: +963 9XX XXX XXX (Syriatel, MTN, etc.)
  * - Landline: +963 11 XXX XXXX (Damascus), +963 21 XXX XXXX (Aleppo), etc.
@@ -52,22 +52,25 @@ export class IsSyrianPhoneConstraint implements ValidatorConstraintInterface {
    * 93X, 94X, 95X, 96X, 99X - Various operators
    */
   private readonly mobileRegex = /^(\+963|00963|0)?9[3-69]\d{7}$/;
-  
+
   /**
    * Syrian landline prefixes (area codes)
    * 11 - Damascus, 21 - Aleppo, 31 - Homs, etc.
    */
-  private readonly landlineRegex = /^(\+963|00963|0)?(11|21|31|33|41|43|51|52|53)\d{7}$/;
-  
+  private readonly landlineRegex =
+    /^(\+963|00963|0)?(11|21|31|33|41|43|51|52|53)\d{7}$/;
+
   validate(phone: any): boolean {
     if (typeof phone !== 'string') return false;
-    
+
     // Remove spaces and dashes for validation
     const cleanPhone = phone.replace(/[\s-]/g, '');
-    
-    return this.mobileRegex.test(cleanPhone) || this.landlineRegex.test(cleanPhone);
+
+    return (
+      this.mobileRegex.test(cleanPhone) || this.landlineRegex.test(cleanPhone)
+    );
   }
-  
+
   defaultMessage(args: ValidationArguments): string {
     return `${args.property} must be a valid Syrian phone number (e.g., +963912345678 or 0912345678)`;
   }
@@ -75,7 +78,7 @@ export class IsSyrianPhoneConstraint implements ValidatorConstraintInterface {
 
 /**
  * Decorator for validating Syrian phone numbers
- * 
+ *
  * @example
  * @IsSyrianPhone()
  * phone: string;
@@ -104,12 +107,12 @@ export function IsSyrianPhone(validationOptions?: ValidationOptions) {
 @ValidatorConstraint({ name: 'isSyrianNationalId', async: false })
 export class IsSyrianNationalIdConstraint implements ValidatorConstraintInterface {
   private readonly nationalIdRegex = /^\d{11}$/;
-  
+
   validate(nationalId: any): boolean {
     if (typeof nationalId !== 'string') return false;
     return this.nationalIdRegex.test(nationalId.trim());
   }
-  
+
   defaultMessage(args: ValidationArguments): string {
     return `${args.property} must be a valid Syrian National ID (11 digits)`;
   }
@@ -146,12 +149,12 @@ export class IsSyrianPostalCodeConstraint implements ValidatorConstraintInterfac
    * Format varies by governorate
    */
   private readonly postalCodeRegex = /^\d{5,6}$/;
-  
+
   validate(postalCode: any): boolean {
     if (typeof postalCode !== 'string') return false;
     return this.postalCodeRegex.test(postalCode.trim());
   }
-  
+
   defaultMessage(args: ValidationArguments): string {
     return `${args.property} must be a valid Syrian postal code (5-6 digits)`;
   }
@@ -186,13 +189,14 @@ export class IsArabicTextConstraint implements ValidatorConstraintInterface {
   /**
    * Matches Arabic characters (including numbers and common punctuation)
    */
-  private readonly arabicRegex = /^[\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF\s\d.,!?()-]+$/;
-  
+  private readonly arabicRegex =
+    /^[\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF\s\d.,!?()-]+$/;
+
   validate(text: any): boolean {
     if (typeof text !== 'string') return false;
     return this.arabicRegex.test(text.trim());
   }
-  
+
   defaultMessage(args: ValidationArguments): string {
     return `${args.property} must contain only Arabic characters`;
   }
@@ -222,14 +226,15 @@ export class IsMultilingualTextConstraint implements ValidatorConstraintInterfac
   /**
    * Allows Arabic, English, numbers, and common punctuation
    */
-  private readonly multilingualRegex = /^[\u0600-\u06FF\u0750-\u077F\u08A0-\u08FFa-zA-Z\s\d.,!?()'\"-:;@#$%&*+=]+$/;
-  
+  private readonly multilingualRegex =
+    /^[\u0600-\u06FF\u0750-\u077F\u08A0-\u08FFa-zA-Z\s\d.,!?()'\"-:;@#$%&*+=]+$/;
+
   validate(text: any): boolean {
     if (typeof text !== 'string') return false;
     if (text.trim().length === 0) return true; // Empty is valid (use IsNotEmpty separately)
     return this.multilingualRegex.test(text.trim());
   }
-  
+
   defaultMessage(args: ValidationArguments): string {
     return `${args.property} contains invalid characters`;
   }
@@ -265,13 +270,13 @@ export class IsSYPPriceConstraint implements ValidatorConstraintInterface {
    * Maximum price in SYP (10 billion - reasonable for high-value items)
    */
   private readonly maxPrice = 10_000_000_000;
-  
+
   validate(price: any): boolean {
     if (typeof price !== 'number') return false;
     if (!Number.isFinite(price)) return false;
     return price >= 0 && price <= this.maxPrice;
   }
-  
+
   defaultMessage(args: ValidationArguments): string {
     return `${args.property} must be a valid SYP price (0 to ${this.maxPrice.toLocaleString()})`;
   }
@@ -308,7 +313,7 @@ export class IsSafeStringConstraint implements ValidatorConstraintInterface {
    */
   private readonly dangerousPatterns = [
     /<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi,
-    /<[^>]*on\w+\s*=/gi,  // Event handlers like onclick, onerror
+    /<[^>]*on\w+\s*=/gi, // Event handlers like onclick, onerror
     /javascript:/gi,
     /data:/gi,
     /<iframe/gi,
@@ -318,10 +323,10 @@ export class IsSafeStringConstraint implements ValidatorConstraintInterface {
     /<style/gi,
     /expression\s*\(/gi,
   ];
-  
+
   validate(text: any): boolean {
     if (typeof text !== 'string') return false;
-    
+
     for (const pattern of this.dangerousPatterns) {
       if (pattern.test(text)) {
         return false;
@@ -329,7 +334,7 @@ export class IsSafeStringConstraint implements ValidatorConstraintInterface {
     }
     return true;
   }
-  
+
   defaultMessage(args: ValidationArguments): string {
     return `${args.property} contains potentially dangerous content`;
   }
@@ -375,7 +380,9 @@ export function IsProductTitle(validationOptions?: ValidationOptions) {
 export function IsProductDescription(validationOptions?: ValidationOptions) {
   return applyDecorators(
     IsString(validationOptions),
-    MaxLength(5000, { message: 'Product description cannot exceed 5000 characters' }),
+    MaxLength(5000, {
+      message: 'Product description cannot exceed 5000 characters',
+    }),
     IsSafeString(validationOptions),
   );
 }
@@ -427,9 +434,9 @@ export function SanitizeString() {
 export function NormalizeSyrianPhone() {
   return Transform(({ value }) => {
     if (typeof value !== 'string') return value;
-    
+
     let phone = value.replace(/[\s-]/g, '');
-    
+
     // Convert to international format
     if (phone.startsWith('00963')) {
       phone = '+963' + phone.slice(5);
@@ -438,7 +445,7 @@ export function NormalizeSyrianPhone() {
     } else if (!phone.startsWith('+963')) {
       phone = '+963' + phone;
     }
-    
+
     return phone;
   });
 }
@@ -472,14 +479,17 @@ export function SyrianPhoneProperty(required: boolean = true) {
     NormalizeSyrianPhone(),
     IsSyrianPhone(),
   ];
-  
+
   return applyDecorators(...decorators);
 }
 
 /**
  * Complete price property decorator for SYP
  */
-export function SYPPriceProperty(description: string, required: boolean = true) {
+export function SYPPriceProperty(
+  description: string,
+  required: boolean = true,
+) {
   const decorators = [
     ApiProperty({
       description: `${description} (in SYP)`,
@@ -492,7 +502,7 @@ export function SYPPriceProperty(description: string, required: boolean = true) 
     IsSYPPrice(),
     NormalizePrice(),
   ];
-  
+
   return applyDecorators(...decorators);
 }
 
@@ -520,19 +530,16 @@ export const SYRIAN_GOVERNORATES = [
   'As-Suwayda',
 ] as const;
 
-export type SyrianGovernorate = typeof SYRIAN_GOVERNORATES[number];
+export type SyrianGovernorate = (typeof SYRIAN_GOVERNORATES)[number];
 
 /**
  * Decorator for validating Syrian governorate
  */
 export function IsSyrianGovernorate(validationOptions?: ValidationOptions) {
-  return Matches(
-    new RegExp(`^(${SYRIAN_GOVERNORATES.join('|')})$`, 'i'),
-    {
-      message: 'Must be a valid Syrian governorate',
-      ...validationOptions,
-    },
-  );
+  return Matches(new RegExp(`^(${SYRIAN_GOVERNORATES.join('|')})$`, 'i'), {
+    message: 'Must be a valid Syrian governorate',
+    ...validationOptions,
+  });
 }
 
 /**
@@ -545,17 +552,15 @@ export const SYRIAN_PAYMENT_METHODS = [
   'bank_transfer',
 ] as const;
 
-export type SyrianPaymentMethod = typeof SYRIAN_PAYMENT_METHODS[number];
+export type SyrianPaymentMethod = (typeof SYRIAN_PAYMENT_METHODS)[number];
 
 /**
  * Decorator for validating Syrian payment methods
  */
 export function IsSyrianPaymentMethod(validationOptions?: ValidationOptions) {
-  return Matches(
-    new RegExp(`^(${SYRIAN_PAYMENT_METHODS.join('|')})$`),
-    {
-      message: 'Must be a valid Syrian payment method (syriatel_cash, mtn_cash, cash_on_delivery, bank_transfer)',
-      ...validationOptions,
-    },
-  );
+  return Matches(new RegExp(`^(${SYRIAN_PAYMENT_METHODS.join('|')})$`), {
+    message:
+      'Must be a valid Syrian payment method (syriatel_cash, mtn_cash, cash_on_delivery, bank_transfer)',
+    ...validationOptions,
+  });
 }

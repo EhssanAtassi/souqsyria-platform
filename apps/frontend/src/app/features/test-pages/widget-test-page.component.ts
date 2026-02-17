@@ -77,7 +77,7 @@ export class WidgetTestPageComponent {
       titleAr: 'مجموعة الفولاذ الدمشقي',
       subtitle: 'Handcrafted by Master Artisans',
       subtitleAr: 'صنعة يدوية من حرفيين ماهرين',
-      imageUrl: '/assets/images/products/exp1.png',
+      imageUrl: 'https://images.unsplash.com/photo-1606760227091-3dd870d97f1d?w=300&h=300&fit=crop&q=80',
       link: '/category/damascus-steel',
       buttonText: 'Shop Now',
       buttonTextAr: 'تسوق الآن',
@@ -89,7 +89,7 @@ export class WidgetTestPageComponent {
       titleAr: 'صابون حلب الأصيل',
       subtitle: 'Natural Beauty from Syria',
       subtitleAr: 'جمال طبيعي من سوريا',
-      imageUrl: '/assets/images/products/1.png',
+      imageUrl: 'https://images.unsplash.com/photo-1608571423902-eed4a5ad8108?w=300&h=300&fit=crop&q=80',
       link: '/category/beauty-wellness',
       buttonText: 'Discover',
       buttonTextAr: 'اكتشف',
@@ -101,7 +101,7 @@ export class WidgetTestPageComponent {
       titleAr: 'المنسوجات السورية',
       subtitle: 'Brocade & Traditional Fabrics',
       subtitleAr: 'بروكار وأقمشة تقليدية',
-      imageUrl: '/assets/images/products/5.png',
+      imageUrl: 'https://images.unsplash.com/photo-1558171813-4c088753af8f?w=300&h=300&fit=crop&q=80',
       link: '/category/textiles-fabrics',
       buttonText: 'View Collection',
       buttonTextAr: 'عرض المجموعة',
@@ -117,7 +117,7 @@ export class WidgetTestPageComponent {
       id: 'brand-1',
       name: 'Damascus Artisans Guild',
       nameAr: 'نقابة حرفيي دمشق',
-      logoUrl: '/assets/images/products/exp1.png',
+      logoUrl: 'https://images.unsplash.com/photo-1606760227091-3dd870d97f1d?w=300&h=300&fit=crop&q=80',
       location: 'Damascus, Syria',
       verified: true,
       link: '/seller/damascus-artisans'
@@ -126,7 +126,7 @@ export class WidgetTestPageComponent {
       id: 'brand-2',
       name: 'Aleppo Soap House',
       nameAr: 'بيت صابون حلب',
-      logoUrl: '/assets/images/products/1.png',
+      logoUrl: 'https://images.unsplash.com/photo-1608571423902-eed4a5ad8108?w=300&h=300&fit=crop&q=80',
       location: 'Aleppo, Syria',
       verified: true,
       link: '/seller/aleppo-soap'
@@ -135,7 +135,7 @@ export class WidgetTestPageComponent {
       id: 'brand-3',
       name: 'Traditional Crafts Co.',
       nameAr: 'شركة الحرف التقليدية',
-      logoUrl: '/assets/images/products/31.png',
+      logoUrl: 'https://images.unsplash.com/photo-1540189549336-e6e99c3679fe?w=300&h=300&fit=crop&q=80',
       location: 'Homs, Syria',
       verified: true,
       link: '/seller/traditional-crafts'
@@ -144,7 +144,7 @@ export class WidgetTestPageComponent {
       id: 'brand-4',
       name: 'Syrian Spice Market',
       nameAr: 'سوق البهارات السورية',
-      logoUrl: '/assets/images/products/8.png',
+      logoUrl: 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=300&h=300&fit=crop&q=80',
       location: 'Damascus, Syria',
       verified: true,
       link: '/seller/spice-market'
@@ -153,7 +153,7 @@ export class WidgetTestPageComponent {
       id: 'brand-5',
       name: 'Heritage Textiles',
       nameAr: 'منسوجات التراث',
-      logoUrl: '/assets/images/products/5.png',
+      logoUrl: 'https://images.unsplash.com/photo-1558171813-4c088753af8f?w=300&h=300&fit=crop&q=80',
       location: 'Damascus, Syria',
       verified: false
     },
@@ -161,7 +161,7 @@ export class WidgetTestPageComponent {
       id: 'brand-6',
       name: 'Artisan Ceramics',
       nameAr: 'خزف الحرفيين',
-      logoUrl: '/assets/images/products/32.png',
+      logoUrl: 'https://images.unsplash.com/photo-1540189549336-e6e99c3679fe?w=300&h=300&fit=crop&q=80',
       location: 'Hama, Syria',
       verified: true
     }
@@ -221,7 +221,7 @@ export class WidgetTestPageComponent {
       titleAr: 'تخفيضات الفولاذ الدمشقي',
       subtitle: 'Up to 30% off on selected items',
       subtitleAr: 'خصم يصل إلى 30% على قطع مختارة',
-      imageUrl: '/assets/images/products/exp1.png',
+      imageUrl: 'https://images.unsplash.com/photo-1606760227091-3dd870d97f1d?w=300&h=300&fit=crop&q=80',
       linkUrl: '/category/damascus-steel',
       ctaText: 'Shop Now',
       ctaTextAr: 'تسوق الآن',
@@ -236,7 +236,7 @@ export class WidgetTestPageComponent {
       titleAr: 'مجموعة صابون حلب',
       subtitle: 'Natural & Authentic',
       subtitleAr: 'طبيعي وأصيل',
-      imageUrl: '/assets/images/products/1.png',
+      imageUrl: 'https://images.unsplash.com/photo-1608571423902-eed4a5ad8108?w=300&h=300&fit=crop&q=80',
       linkUrl: '/category/beauty-wellness',
       ctaText: 'Discover',
       ctaTextAr: 'اكتشف',
@@ -263,7 +263,7 @@ export class WidgetTestPageComponent {
       images: [
         {
           id: 'img-1',
-          url: '/assets/images/products/exp1.png',
+          url: 'https://images.unsplash.com/photo-1606760227091-3dd870d97f1d?w=300&h=300&fit=crop&q=80',
           alt: 'Damascus Chef Knife',
           isPrimary: true,
           order: 1
@@ -287,7 +287,7 @@ export class WidgetTestPageComponent {
       images: [
         {
           id: 'img-2',
-          url: '/assets/images/products/1.png',
+          url: 'https://images.unsplash.com/photo-1608571423902-eed4a5ad8108?w=300&h=300&fit=crop&q=80',
           alt: 'Aleppo Soap',
           isPrimary: true,
           order: 1
@@ -306,7 +306,7 @@ export class WidgetTestPageComponent {
       images: [
         {
           id: 'img-3',
-          url: '/assets/images/products/5.png',
+          url: 'https://images.unsplash.com/photo-1558171813-4c088753af8f?w=300&h=300&fit=crop&q=80',
           alt: 'Brocade Fabric',
           isPrimary: true,
           order: 1

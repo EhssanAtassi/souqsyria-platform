@@ -25,9 +25,7 @@ import { Permissions } from '../../access-control/decorators/permissions.decorat
 @UseGuards(PermissionsGuard)
 @ApiBearerAuth()
 export class CartMonitoringController {
-  constructor(
-    private readonly cartMonitoringService: CartMonitoringService,
-  ) {}
+  constructor(private readonly cartMonitoringService: CartMonitoringService) {}
 
   /**
    * Get comprehensive monitoring dashboard data

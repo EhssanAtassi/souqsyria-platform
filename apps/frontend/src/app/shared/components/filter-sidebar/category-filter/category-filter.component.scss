@@ -1,0 +1,260 @@
+/**
+ * @file category-filter.component.scss
+ * @description Styles for hierarchical category filter component
+ *
+ * Uses Golden Wheat design system colors:
+ * - $golden-wheat-primary: #988561
+ * - $golden-wheat-light: #edebe0
+ * - $forest-dark: #002623
+ */
+
+@import '../../../styles/variables';
+
+.category-filter {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 0.5rem 0;
+}
+
+// ============================================================================
+// LOADING & ERROR STATES
+// ============================================================================
+
+.loading-container,
+.error-container,
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 1rem;
+  text-align: center;
+  color: rgba($forest-dark, 0.6);
+
+  mat-icon {
+    font-size: 2rem;
+    width: 2rem;
+    height: 2rem;
+    margin-bottom: 0.5rem;
+    color: rgba($forest-dark, 0.4);
+  }
+
+  p {
+    margin: 0;
+    font-size: 0.875rem;
+    color: rgba($forest-dark, 0.6);
+  }
+}
+
+.error-container {
+  mat-icon {
+    color: #dc2626; // Red for errors
+  }
+}
+
+// ============================================================================
+// CATEGORY TREE STRUCTURE
+// ============================================================================
+
+.category-tree {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.category-parent {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 0.5rem;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.category-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.25rem 0;
+  min-height: 44px; // WCAG touch target
+
+  .category-checkbox {
+    flex: 1;
+    margin: 0;
+
+    ::ng-deep .mdc-checkbox {
+      margin-right: 0.5rem;
+      margin-left: 0;
+    }
+
+    ::ng-deep .mdc-form-field {
+      width: 100%;
+    }
+
+    // RTL adjustment
+    [dir='rtl'] & {
+      ::ng-deep .mdc-checkbox {
+        margin-right: 0;
+        margin-left: 0.5rem;
+      }
+    }
+  }
+
+  .expand-btn {
+    background: none;
+    border: none;
+    padding: 0.5rem;
+    cursor: pointer;
+    color: $golden-wheat-primary;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 44px;
+    min-height: 44px;
+    transition: background-color 0.2s ease;
+    border-radius: 4px;
+
+    &:hover {
+      background-color: rgba($golden-wheat-light, 0.5);
+    }
+
+    &:focus {
+      outline: 2px solid $golden-wheat-primary;
+      outline-offset: 2px;
+    }
+
+    mat-icon {
+      font-size: 1.5rem;
+      width: 1.5rem;
+      height: 1.5rem;
+    }
+  }
+}
+
+.category-content {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+
+  .category-name {
+    font-size: 0.875rem;
+    color: $forest-dark;
+    font-weight: $font-weight-normal;
+    flex: 1;
+  }
+
+  .category-count {
+    font-size: 0.75rem;
+    color: rgba($forest-dark, 0.5);
+    font-weight: $font-weight-normal;
+    white-space: nowrap;
+  }
+}
+
+// ============================================================================
+// HIERARCHY INDENTATION
+// ============================================================================
+
+.category-children {
+  display: flex;
+  flex-direction: column;
+  padding-left: 1.5rem;
+  margin-top: 0.25rem;
+  border-left: 1px solid rgba($golden-wheat-primary, 0.2);
+
+  [dir='rtl'] & {
+    padding-left: 0;
+    padding-right: 1.5rem;
+    border-left: none;
+    border-right: 1px solid rgba($golden-wheat-primary, 0.2);
+  }
+}
+
+.category-child {
+  display: flex;
+  flex-direction: column;
+}
+
+.category-grandchildren {
+  display: flex;
+  flex-direction: column;
+  padding-left: 1.5rem;
+  margin-top: 0.25rem;
+  border-left: 1px solid rgba($golden-wheat-primary, 0.15);
+
+  [dir='rtl'] & {
+    padding-left: 0;
+    padding-right: 1.5rem;
+    border-left: none;
+    border-right: 1px solid rgba($golden-wheat-primary, 0.15);
+  }
+
+  .category-item {
+    .category-content {
+      .category-name {
+        font-size: 0.8125rem; // Slightly smaller for grandchildren
+      }
+    }
+  }
+}
+
+// ============================================================================
+// CHECKBOX CUSTOMIZATION
+// ============================================================================
+
+.category-checkbox {
+  ::ng-deep .mdc-checkbox__background {
+    border-color: rgba($forest-dark, 0.3);
+  }
+
+  ::ng-deep .mdc-checkbox--selected .mdc-checkbox__background {
+    background-color: $golden-wheat-primary;
+    border-color: $golden-wheat-primary;
+  }
+
+  ::ng-deep .mdc-checkbox:hover .mdc-checkbox__native-control:not(:checked)~.mdc-checkbox__background {
+    border-color: $golden-wheat-primary;
+  }
+
+  ::ng-deep .mdc-label {
+    color: $forest-dark;
+    cursor: pointer;
+  }
+}
+
+// ============================================================================
+// RESPONSIVE DESIGN
+// ============================================================================
+
+@media (max-width: 768px) {
+  .category-filter {
+    padding: 0.25rem 0;
+  }
+
+  .category-item {
+    padding: 0.125rem 0;
+  }
+
+  .category-content {
+    .category-name {
+      font-size: 0.8125rem;
+    }
+
+    .category-count {
+      font-size: 0.6875rem;
+    }
+  }
+
+  .category-children,
+  .category-grandchildren {
+    padding-left: 1rem;
+
+    [dir='rtl'] & {
+      padding-left: 0;
+      padding-right: 1rem;
+    }
+  }
+}

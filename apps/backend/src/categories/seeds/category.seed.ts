@@ -47,7 +47,13 @@ interface CategorySeedData {
   featuredImageUrl?: string;
   featuredDiscount?: string;
   isActive: boolean;
-  approvalStatus: 'draft' | 'pending' | 'approved' | 'rejected' | 'suspended' | 'archived';
+  approvalStatus:
+    | 'draft'
+    | 'pending'
+    | 'approved'
+    | 'rejected'
+    | 'suspended'
+    | 'archived';
   sortOrder: number;
   showInNav: boolean;
   productCount: number;
@@ -72,14 +78,17 @@ const categorySeedData: CategorySeedData[] = [
     descriptionEn: 'Electronic devices, gadgets, and home electronics',
     descriptionAr: 'أجهزة إلكترونية ومنزلية وأدوات ذكية',
     iconUrl: 'devices',
-    bannerUrl: 'https://images.unsplash.com/photo-1498049794561-7780e7231661?w=800&h=400&fit=crop',
+    bannerUrl:
+      'https://images.unsplash.com/photo-1498049794561-7780e7231661?w=800&h=400&fit=crop',
     themeColor: '#2196F3',
     seoTitle: 'Electronics - Shop Online in Syria | SouqSyria',
-    seoDescription: 'Buy electronics, smartphones, laptops & more with fast delivery across Syria',
+    seoDescription:
+      'Buy electronics, smartphones, laptops & more with fast delivery across Syria',
     seoSlug: 'الكترونيات',
     isFeatured: true,
     featuredPriority: 10,
-    featuredImageUrl: 'https://images.unsplash.com/photo-1498049794561-7780e7231661?w=600&h=400&fit=crop',
+    featuredImageUrl:
+      'https://images.unsplash.com/photo-1498049794561-7780e7231661?w=600&h=400&fit=crop',
     isActive: true,
     approvalStatus: 'approved',
     sortOrder: 10,
@@ -96,7 +105,8 @@ const categorySeedData: CategorySeedData[] = [
     descriptionEn: 'Smartphones and mobile devices',
     descriptionAr: 'هواتف ذكية وأجهزة محمولة',
     iconUrl: 'smartphone',
-    bannerUrl: 'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=800&h=400&fit=crop',
+    bannerUrl:
+      'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=800&h=400&fit=crop',
     isFeatured: false,
     isActive: true,
     approvalStatus: 'approved',
@@ -114,7 +124,8 @@ const categorySeedData: CategorySeedData[] = [
     descriptionEn: 'Laptops and portable computers',
     descriptionAr: 'أجهزة كمبيوتر محمولة',
     iconUrl: 'laptop',
-    bannerUrl: 'https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=800&h=400&fit=crop',
+    bannerUrl:
+      'https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=800&h=400&fit=crop',
     isFeatured: false,
     isActive: true,
     approvalStatus: 'approved',
@@ -205,14 +216,17 @@ const categorySeedData: CategorySeedData[] = [
     descriptionEn: 'Clothing, shoes, and fashion accessories',
     descriptionAr: 'ملابس وأحذية وإكسسوارات الموضة',
     iconUrl: 'checkroom',
-    bannerUrl: 'https://images.unsplash.com/photo-1445205170230-053b83016050?w=800&h=400&fit=crop',
+    bannerUrl:
+      'https://images.unsplash.com/photo-1445205170230-053b83016050?w=800&h=400&fit=crop',
     themeColor: '#E91E63',
     seoTitle: 'Fashion - Shop Latest Trends in Syria | SouqSyria',
-    seoDescription: 'Discover latest fashion trends, clothing, and accessories with delivery across Syria',
+    seoDescription:
+      'Discover latest fashion trends, clothing, and accessories with delivery across Syria',
     seoSlug: 'ازياء',
     isFeatured: true,
     featuredPriority: 9,
-    featuredImageUrl: 'https://images.unsplash.com/photo-1445205170230-053b83016050?w=600&h=400&fit=crop',
+    featuredImageUrl:
+      'https://images.unsplash.com/photo-1445205170230-053b83016050?w=600&h=400&fit=crop',
     isActive: true,
     approvalStatus: 'approved',
     sortOrder: 20,
@@ -226,7 +240,7 @@ const categorySeedData: CategorySeedData[] = [
     nameEn: 'Men',
     nameAr: 'رجالي',
     slug: 'men-fashion',
-    descriptionEn: 'Men\'s clothing and accessories',
+    descriptionEn: "Men's clothing and accessories",
     descriptionAr: 'ملابس وإكسسوارات رجالية',
     iconUrl: 'man',
     isFeatured: false,
@@ -244,7 +258,7 @@ const categorySeedData: CategorySeedData[] = [
     nameEn: 'T-Shirts',
     nameAr: 'تيشيرتات',
     slug: 'men-tshirts',
-    descriptionEn: 'Men\'s t-shirts and casual tops',
+    descriptionEn: "Men's t-shirts and casual tops",
     descriptionAr: 'تيشيرتات وملابس كاجوال رجالية',
     iconUrl: 'dry_cleaning',
     isFeatured: false,
@@ -261,7 +275,7 @@ const categorySeedData: CategorySeedData[] = [
     nameEn: 'Shoes',
     nameAr: 'أحذية رجالية',
     slug: 'men-shoes',
-    descriptionEn: 'Men\'s footwear and shoes',
+    descriptionEn: "Men's footwear and shoes",
     descriptionAr: 'أحذية رجالية',
     iconUrl: 'steps',
     isFeatured: false,
@@ -278,7 +292,7 @@ const categorySeedData: CategorySeedData[] = [
     nameEn: 'Women',
     nameAr: 'نسائي',
     slug: 'women-fashion',
-    descriptionEn: 'Women\'s clothing and accessories',
+    descriptionEn: "Women's clothing and accessories",
     descriptionAr: 'ملابس وإكسسوارات نسائية',
     iconUrl: 'woman',
     isFeatured: false,
@@ -295,7 +309,7 @@ const categorySeedData: CategorySeedData[] = [
     nameEn: 'Kids',
     nameAr: 'أطفال',
     slug: 'kids-fashion',
-    descriptionEn: 'Children\'s clothing and accessories',
+    descriptionEn: "Children's clothing and accessories",
     descriptionAr: 'ملابس وإكسسوارات للأطفال',
     iconUrl: 'child_care',
     isFeatured: false,
@@ -319,14 +333,17 @@ const categorySeedData: CategorySeedData[] = [
     descriptionEn: 'Furniture, home decor, and garden supplies',
     descriptionAr: 'أثاث وديكور منزلي ومستلزمات الحديقة',
     iconUrl: 'home',
-    bannerUrl: 'https://images.unsplash.com/photo-1556912172-45b7abe8b7e1?w=800&h=400&fit=crop',
+    bannerUrl:
+      'https://images.unsplash.com/photo-1556912172-45b7abe8b7e1?w=800&h=400&fit=crop',
     themeColor: '#4CAF50',
     seoTitle: 'Home & Garden - Furniture & Decor in Syria | SouqSyria',
-    seoDescription: 'Shop furniture, home decor, and garden supplies with delivery across Syria',
+    seoDescription:
+      'Shop furniture, home decor, and garden supplies with delivery across Syria',
     seoSlug: 'المنزل-والحديقة',
     isFeatured: true,
     featuredPriority: 8,
-    featuredImageUrl: 'https://images.unsplash.com/photo-1556912172-45b7abe8b7e1?w=600&h=400&fit=crop',
+    featuredImageUrl:
+      'https://images.unsplash.com/photo-1556912172-45b7abe8b7e1?w=600&h=400&fit=crop',
     isActive: true,
     approvalStatus: 'approved',
     sortOrder: 30,
@@ -381,14 +398,17 @@ const categorySeedData: CategorySeedData[] = [
     descriptionEn: 'Skincare, makeup, and beauty products',
     descriptionAr: 'منتجات العناية بالبشرة والمكياج والجمال',
     iconUrl: 'spa',
-    bannerUrl: 'https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=800&h=400&fit=crop',
+    bannerUrl:
+      'https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=800&h=400&fit=crop',
     themeColor: '#FF69B4',
     seoTitle: 'Beauty Products - Skincare & Makeup in Syria | SouqSyria',
-    seoDescription: 'Shop skincare, makeup, and beauty products with delivery across Syria',
+    seoDescription:
+      'Shop skincare, makeup, and beauty products with delivery across Syria',
     seoSlug: 'جمال',
     isFeatured: true,
     featuredPriority: 7,
-    featuredImageUrl: 'https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=600&h=400&fit=crop',
+    featuredImageUrl:
+      'https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=600&h=400&fit=crop',
     featuredDiscount: '20%',
     isActive: true,
     approvalStatus: 'approved',
@@ -479,14 +499,17 @@ const categorySeedData: CategorySeedData[] = [
     descriptionEn: 'Syrian foods, spices, and grocery items',
     descriptionAr: 'أطعمة سورية وبهارات ومواد غذائية',
     iconUrl: 'restaurant',
-    bannerUrl: 'https://images.unsplash.com/photo-1542838132-92c53300491e?w=800&h=400&fit=crop',
+    bannerUrl:
+      'https://images.unsplash.com/photo-1542838132-92c53300491e?w=800&h=400&fit=crop',
     themeColor: '#FF9800',
     seoTitle: 'Food & Grocery - Syrian Foods & Spices | SouqSyria',
-    seoDescription: 'Shop authentic Syrian foods, spices, and grocery items with delivery',
+    seoDescription:
+      'Shop authentic Syrian foods, spices, and grocery items with delivery',
     seoSlug: 'طعام-وبقالة',
     isFeatured: true,
     featuredPriority: 6,
-    featuredImageUrl: 'https://images.unsplash.com/photo-1542838132-92c53300491e?w=600&h=400&fit=crop',
+    featuredImageUrl:
+      'https://images.unsplash.com/photo-1542838132-92c53300491e?w=600&h=400&fit=crop',
     featuredDiscount: '10%',
     isActive: true,
     approvalStatus: 'approved',
@@ -542,14 +565,17 @@ const categorySeedData: CategorySeedData[] = [
     descriptionEn: 'Sports equipment and athletic wear',
     descriptionAr: 'معدات رياضية وملابس رياضية',
     iconUrl: 'sports_soccer',
-    bannerUrl: 'https://images.unsplash.com/photo-1461896836934-ffe607ba8211?w=800&h=400&fit=crop',
+    bannerUrl:
+      'https://images.unsplash.com/photo-1461896836934-ffe607ba8211?w=800&h=400&fit=crop',
     themeColor: '#009688',
     seoTitle: 'Sports - Equipment & Athletic Wear in Syria | SouqSyria',
-    seoDescription: 'Shop sports equipment and athletic wear with delivery across Syria',
+    seoDescription:
+      'Shop sports equipment and athletic wear with delivery across Syria',
     seoSlug: 'رياضة',
     isFeatured: true,
     featuredPriority: 5,
-    featuredImageUrl: 'https://images.unsplash.com/photo-1461896836934-ffe607ba8211?w=600&h=400&fit=crop',
+    featuredImageUrl:
+      'https://images.unsplash.com/photo-1461896836934-ffe607ba8211?w=600&h=400&fit=crop',
     isActive: true,
     approvalStatus: 'approved',
     sortOrder: 60,
@@ -603,11 +629,14 @@ const categorySeedData: CategorySeedData[] = [
 export async function seedCategories(dataSource: DataSource): Promise<void> {
   console.log('🌱 Starting category seeding...');
 
-  const categoryRepository: Repository<Category> = dataSource.getRepository(Category);
+  const categoryRepository: Repository<Category> =
+    dataSource.getRepository(Category);
 
   try {
     // First, insert/update root categories (depthLevel = 0)
-    const rootCategories = categorySeedData.filter((cat) => cat.depthLevel === 0);
+    const rootCategories = categorySeedData.filter(
+      (cat) => cat.depthLevel === 0,
+    );
     console.log(`📦 Seeding ${rootCategories.length} root categories...`);
 
     for (const seedData of rootCategories) {
@@ -621,7 +650,9 @@ export async function seedCategories(dataSource: DataSource): Promise<void> {
     }
 
     // Then, insert/update child categories (depthLevel = 1)
-    const childCategories = categorySeedData.filter((cat) => cat.depthLevel === 1);
+    const childCategories = categorySeedData.filter(
+      (cat) => cat.depthLevel === 1,
+    );
     console.log(`📦 Seeding ${childCategories.length} child categories...`);
 
     for (const seedData of childCategories) {
@@ -630,7 +661,9 @@ export async function seedCategories(dataSource: DataSource): Promise<void> {
       });
 
       if (!parent) {
-        console.warn(`  ⚠️  Parent not found for: ${seedData.nameEn} (parentId: ${seedData.parentId})`);
+        console.warn(
+          `  ⚠️  Parent not found for: ${seedData.nameEn} (parentId: ${seedData.parentId})`,
+        );
         continue;
       }
 
@@ -640,12 +673,18 @@ export async function seedCategories(dataSource: DataSource): Promise<void> {
       });
 
       await categoryRepository.save(category);
-      console.log(`  ✅ Saved: ${seedData.nameEn} (${seedData.nameAr}) under ${parent.nameEn}`);
+      console.log(
+        `  ✅ Saved: ${seedData.nameEn} (${seedData.nameAr}) under ${parent.nameEn}`,
+      );
     }
 
     // Finally, insert/update grandchild categories (depthLevel = 2)
-    const grandchildCategories = categorySeedData.filter((cat) => cat.depthLevel === 2);
-    console.log(`📦 Seeding ${grandchildCategories.length} grandchild categories...`);
+    const grandchildCategories = categorySeedData.filter(
+      (cat) => cat.depthLevel === 2,
+    );
+    console.log(
+      `📦 Seeding ${grandchildCategories.length} grandchild categories...`,
+    );
 
     for (const seedData of grandchildCategories) {
       const parent = await categoryRepository.findOne({
@@ -653,7 +692,9 @@ export async function seedCategories(dataSource: DataSource): Promise<void> {
       });
 
       if (!parent) {
-        console.warn(`  ⚠️  Parent not found for: ${seedData.nameEn} (parentId: ${seedData.parentId})`);
+        console.warn(
+          `  ⚠️  Parent not found for: ${seedData.nameEn} (parentId: ${seedData.parentId})`,
+        );
         continue;
       }
 
@@ -663,7 +704,9 @@ export async function seedCategories(dataSource: DataSource): Promise<void> {
       });
 
       await categoryRepository.save(category);
-      console.log(`  ✅ Saved: ${seedData.nameEn} (${seedData.nameAr}) under ${parent.nameEn}`);
+      console.log(
+        `  ✅ Saved: ${seedData.nameEn} (${seedData.nameAr}) under ${parent.nameEn}`,
+      );
     }
 
     console.log('✅ Category seeding completed successfully!');

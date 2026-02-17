@@ -76,19 +76,14 @@ export class CartMonitoringService {
   async getDashboardData(): Promise<CartMonitoringData> {
     this.logger.log('Fetching cart monitoring dashboard data...');
 
-    const [
-      statistics,
-      security,
-      performance,
-      operations,
-      abandonedItems,
-    ] = await Promise.all([
-      this.getCartStatistics(),
-      this.getSecurityMetrics(),
-      this.getPerformanceMetrics(),
-      this.getRecentOperations(),
-      this.getTopAbandonedItems(),
-    ]);
+    const [statistics, security, performance, operations, abandonedItems] =
+      await Promise.all([
+        this.getCartStatistics(),
+        this.getSecurityMetrics(),
+        this.getPerformanceMetrics(),
+        this.getRecentOperations(),
+        this.getTopAbandonedItems(),
+      ]);
 
     this.logger.log('✅ Dashboard data compiled successfully');
 
@@ -205,17 +200,14 @@ export class CartMonitoringService {
     const fraudAlertsCount = await this.auditLogRepo
       .createQueryBuilder('audit')
       .where('audit.module = :module', { module: 'cart_security' })
-      .andWhere(
-        'audit.action IN (:...actions)',
-        {
-          actions: [
-            'SECURITY_ALERT_VELOCITY',
-            'SECURITY_ALERT_QUANTITY',
-            'SECURITY_ALERT_PRICE',
-            'SECURITY_ALERT_BOT',
-          ],
-        },
-      )
+      .andWhere('audit.action IN (:...actions)', {
+        actions: [
+          'SECURITY_ALERT_VELOCITY',
+          'SECURITY_ALERT_QUANTITY',
+          'SECURITY_ALERT_PRICE',
+          'SECURITY_ALERT_BOT',
+        ],
+      })
       .andWhere('audit.createdAt >= :oneDayAgo', { oneDayAgo })
       .getCount();
 

@@ -23,9 +23,7 @@ import { PromoCardsController } from './controllers/promo-cards.controller';
  * - Approval workflow
  */
 @Module({
-  imports: [
-    TypeOrmModule.forFeature([PromoCard]),
-  ],
+  imports: [TypeOrmModule.forFeature([PromoCard])],
   controllers: [PromoCardsController],
   providers: [PromoCardsService],
   exports: [PromoCardsService],

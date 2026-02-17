@@ -258,7 +258,9 @@ export class Week4PerformanceIndexes1704000000000 implements MigrationInterface 
       WHERE expires_at IS NOT NULL
     `);
 
-    console.log('✅ Week 4 Performance Indexes: All 17 indexes created successfully');
+    console.log(
+      '✅ Week 4 Performance Indexes: All 17 indexes created successfully',
+    );
     console.log('📊 Expected Performance Improvements:');
     console.log('   - Cart operations: 90% faster');
     console.log('   - Reservation cleanup: 90% faster');
@@ -279,12 +281,18 @@ export class Week4PerformanceIndexes1704000000000 implements MigrationInterface 
 
     // Personalization & Recommendation Indexes
     await queryRunner.query('DROP INDEX IF EXISTS IDX_product_variants_price');
-    await queryRunner.query('DROP INDEX IF EXISTS IDX_product_variants_availability');
-    await queryRunner.query('DROP INDEX IF EXISTS IDX_products_category_active');
+    await queryRunner.query(
+      'DROP INDEX IF EXISTS IDX_product_variants_availability',
+    );
+    await queryRunner.query(
+      'DROP INDEX IF EXISTS IDX_products_category_active',
+    );
 
     // User & Session Indexes
     await queryRunner.query('DROP INDEX IF EXISTS IDX_guest_sessions_cleanup');
-    await queryRunner.query('DROP INDEX IF EXISTS IDX_guest_sessions_token_status');
+    await queryRunner.query(
+      'DROP INDEX IF EXISTS IDX_guest_sessions_token_status',
+    );
     await queryRunner.query('DROP INDEX IF EXISTS IDX_carts_session_status');
     await queryRunner.query('DROP INDEX IF EXISTS IDX_carts_user_status');
 
@@ -294,10 +302,18 @@ export class Week4PerformanceIndexes1704000000000 implements MigrationInterface 
     await queryRunner.query('DROP INDEX IF EXISTS IDX_cart_items_cart_variant');
 
     // Inventory Reservation Indexes
-    await queryRunner.query('DROP INDEX IF EXISTS IDX_cart_items_reservation_status');
-    await queryRunner.query('DROP INDEX IF EXISTS IDX_cart_items_reservation_id');
-    await queryRunner.query('DROP INDEX IF EXISTS IDX_cart_items_reservation_cleanup');
+    await queryRunner.query(
+      'DROP INDEX IF EXISTS IDX_cart_items_reservation_status',
+    );
+    await queryRunner.query(
+      'DROP INDEX IF EXISTS IDX_cart_items_reservation_id',
+    );
+    await queryRunner.query(
+      'DROP INDEX IF EXISTS IDX_cart_items_reservation_cleanup',
+    );
 
-    console.log('✅ Week 4 Performance Indexes: All 17 indexes dropped successfully');
+    console.log(
+      '✅ Week 4 Performance Indexes: All 17 indexes dropped successfully',
+    );
   }
 }

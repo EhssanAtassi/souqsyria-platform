@@ -38,6 +38,8 @@ import { ProductSearchService } from './services/product-search.service';
 import { ProductsAdminSearchController } from './controllers/products-admin-search.controller';
 import { AuditLogModule } from '../audit-log/audit-log.module';
 import { UsersModule } from '../users/users.module';
+import { ReviewsModule } from './reviews/reviews.module';
+import { StockNotificationModule } from './notifications/stock-notification.module';
 
 @Module({
   imports: [
@@ -68,6 +70,8 @@ import { UsersModule } from '../users/users.module';
     PublicModule,
     AuditLogModule, // ✅ For comprehensive audit logging
     UsersModule, // ✅ For product approval permissions
+    ReviewsModule, // ✅ Product reviews and ratings
+    StockNotificationModule, // ✅ Stock notification subscriptions
   ],
   controllers: [
     ProductsController,

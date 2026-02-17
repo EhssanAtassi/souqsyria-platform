@@ -1,0 +1,52 @@
+<!--
+  Trust Indicators Component Template
+  Displays trust and security badges for customer confidence
+-->
+
+<div class="trust-indicators-container"
+     [ngClass]="[sizeClass, layoutClass]"
+     [attr.dir]="currentLang === 'ar' ? 'rtl' : 'ltr'">
+
+  <!-- Badge chips -->
+  <div class="trust-badges-wrapper">
+    @for (badge of displayBadges; track trackByType($index, badge)) {
+      <div class="trust-badge-item">
+        <!-- Badge chip -->
+        <div class="souqsyria-trust-badge"
+             [ngClass]="badge.colorClass"
+             [matTooltip]="badge.description"
+             matTooltipPosition="above"
+             role="img"
+             [attr.aria-label]="badge.label + ': ' + badge.description">
+
+          <!-- Icon -->
+          <mat-icon class="trust-badge-icon">{{ badge.icon }}</mat-icon>
+
+          <!-- Label -->
+          <span class="trust-badge-label">{{ badge.label }}</span>
+        </div>
+
+        <!-- Optional description below badge -->
+        @if (showDescriptions) {
+          <p class="trust-badge-description mat-caption">
+            {{ badge.description }}
+          </p>
+        }
+      </div>
+    }
+  </div>
+
+  <!-- Optional security disclaimer (for checkout) -->
+  @if (badges.includes('ssl-secure')) {
+    <div class="security-disclaimer">
+      <mat-icon class="security-icon">shield</mat-icon>
+      <span class="mat-caption security-text">
+        @if (currentLang === 'ar') {
+          معلوماتك محمية ومشفرة بأعلى معايير الأمان
+        } @else {
+          Your information is protected with highest security standards
+        }
+      </span>
+    </div>
+  }
+</div>

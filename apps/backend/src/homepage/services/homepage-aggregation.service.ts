@@ -82,7 +82,9 @@ export class HomepageAggregationService {
    * @param query - Query parameters for customization
    * @returns Complete homepage data with metadata
    */
-  async getHomepageData(query: HomepageQueryDto = {}): Promise<HomepageDataDto> {
+  async getHomepageData(
+    query: HomepageQueryDto = {},
+  ): Promise<HomepageDataDto> {
     this.logger.log('Fetching homepage data...');
     const startTime = Date.now();
 
@@ -93,11 +95,12 @@ export class HomepageAggregationService {
 
     try {
       // Fetch all data in parallel for optimal performance
-      const [heroBanners, featuredCategories, productCarousels] = await Promise.all([
-        this.fetchHeroBanners(lang),
-        this.fetchFeaturedCategories(lang),
-        this.fetchProductCarousels(query),
-      ]);
+      const [heroBanners, featuredCategories, productCarousels] =
+        await Promise.all([
+          this.fetchHeroBanners(lang),
+          this.fetchFeaturedCategories(lang),
+          this.fetchProductCarousels(query),
+        ]);
 
       const duration = Date.now() - startTime;
       this.logger.log(`Homepage data fetched in ${duration}ms`);
@@ -114,7 +117,10 @@ export class HomepageAggregationService {
         },
       };
     } catch (error: unknown) {
-      this.logger.error(`Failed to fetch homepage data: ${(error as Error).message}`, (error as Error).stack);
+      this.logger.error(
+        `Failed to fetch homepage data: ${(error as Error).message}`,
+        (error as Error).stack,
+      );
       throw error;
     }
   }
@@ -144,7 +150,9 @@ export class HomepageAggregationService {
       this.logger.log(`Fetched ${result.data.length} hero banners`);
       return result.data;
     } catch (error: unknown) {
-      this.logger.error(`Failed to fetch hero banners: ${(error as Error).message}`);
+      this.logger.error(
+        `Failed to fetch hero banners: ${(error as Error).message}`,
+      );
       return []; // Return empty array on error to prevent homepage failure
     }
   }
@@ -164,7 +172,9 @@ export class HomepageAggregationService {
       this.logger.log(`Fetched ${categories.length} featured categories`);
       return categories;
     } catch (error: unknown) {
-      this.logger.error(`Failed to fetch featured categories: ${(error as Error).message}`);
+      this.logger.error(
+        `Failed to fetch featured categories: ${(error as Error).message}`,
+      );
       return []; // Return empty array on error
     }
   }
@@ -192,15 +202,18 @@ export class HomepageAggregationService {
         carouselTypes.push(CarouselType.RECOMMENDED);
       }
 
-      const carousels = await this.productCarouselsService.findActiveWithProducts({
-        types: carouselTypes,
-        limit: 10,
-      });
+      const carousels =
+        await this.productCarouselsService.findActiveWithProducts({
+          types: carouselTypes,
+          limit: 10,
+        });
 
       this.logger.log(`Fetched ${carousels.length} product carousels`);
       return carousels;
     } catch (error: unknown) {
-      this.logger.error(`Failed to fetch product carousels: ${(error as Error).message}`);
+      this.logger.error(
+        `Failed to fetch product carousels: ${(error as Error).message}`,
+      );
       return []; // Return empty array on error
     }
   }
@@ -219,18 +232,24 @@ export class HomepageAggregationService {
     totalProducts: number;
   }> {
     try {
-      const [heroBannersCount, featuredCategoriesCount, carousels] = await Promise.all([
-        this.heroBannersService.findAll({
-          isActive: true,
-          approvalStatus: 'approved',
-          page: 1,
-          limit: 1,
-        }).then((result) => result.meta.totalItems),
-        this.featuredCategoriesService.getActiveCount(),
-        this.productCarouselsService.findActiveWithProducts({ limit: 50 }),
-      ]);
+      const [heroBannersCount, featuredCategoriesCount, carousels] =
+        await Promise.all([
+          this.heroBannersService
+            .findAll({
+              isActive: true,
+              approvalStatus: 'approved',
+              page: 1,
+              limit: 1,
+            })
+            .then((result) => result.meta.totalItems),
+          this.featuredCategoriesService.getActiveCount(),
+          this.productCarouselsService.findActiveWithProducts({ limit: 50 }),
+        ]);
 
-      const totalProducts = carousels.reduce((sum, carousel) => sum + carousel.products.length, 0);
+      const totalProducts = carousels.reduce(
+        (sum, carousel) => sum + carousel.products.length,
+        0,
+      );
 
       return {
         heroBannersCount,
@@ -239,7 +258,9 @@ export class HomepageAggregationService {
         totalProducts,
       };
     } catch (error: unknown) {
-      this.logger.error(`Failed to fetch performance metrics: ${(error as Error).message}`);
+      this.logger.error(
+        `Failed to fetch performance metrics: ${(error as Error).message}`,
+      );
       throw error;
     }
   }

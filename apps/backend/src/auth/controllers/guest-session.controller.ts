@@ -150,7 +150,9 @@ export class GuestSessionController {
     @Req() req: Request,
     @Res({ passthrough: true }) res: Response,
   ): Promise<GuestSessionDto> {
-    this.logger.log('📥 POST /auth/guest-session/init - Creating guest session');
+    this.logger.log(
+      '📥 POST /auth/guest-session/init - Creating guest session',
+    );
 
     try {
       // Extract IP address from request using shared utility
@@ -273,9 +275,8 @@ export class GuestSessionController {
 
     try {
       // Validate session in database
-      const session = await this.guestSessionService.getSession(
-        sessionIdFromCookie,
-      );
+      const session =
+        await this.guestSessionService.getSession(sessionIdFromCookie);
 
       if (!session) {
         this.logger.warn(
@@ -299,9 +300,7 @@ export class GuestSessionController {
       // Only return exists:false for NOT_FOUND cases
       // Re-throw actual database/infrastructure errors
       if (error.message?.includes('not found')) {
-        this.logger.warn(
-          `⚠️ Guest session not found: ${sessionIdFromCookie}`,
-        );
+        this.logger.warn(`⚠️ Guest session not found: ${sessionIdFromCookie}`);
         return {
           exists: false,
           isValid: false,

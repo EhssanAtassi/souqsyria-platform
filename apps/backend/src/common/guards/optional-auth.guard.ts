@@ -105,9 +105,7 @@ export class OptionalAuthGuard implements CanActivate {
           );
         } catch (jwtError) {
           // JWT is invalid but don't block request
-          this.logger.debug(
-            `⚠️ Invalid JWT token: ${jwtError.message}`,
-          );
+          this.logger.debug(`⚠️ Invalid JWT token: ${jwtError.message}`);
           this.handleGuestSession(request);
         }
       } else {
@@ -116,9 +114,7 @@ export class OptionalAuthGuard implements CanActivate {
       }
     } catch (error: unknown) {
       // Any error - still allow request as guest
-      this.logger.warn(
-        `⚠️ Optional auth error: ${(error as Error).message}`,
-      );
+      this.logger.warn(`⚠️ Optional auth error: ${(error as Error).message}`);
       this.handleGuestSession(request);
     }
 
@@ -132,9 +128,7 @@ export class OptionalAuthGuard implements CanActivate {
    * @param request - Express Request object
    * @returns JWT token string or undefined
    */
-  private extractTokenFromHeader(
-    request: Request,
-  ): string | undefined {
+  private extractTokenFromHeader(request: Request): string | undefined {
     const authHeader = request.headers.authorization;
 
     if (!authHeader) {
@@ -158,9 +152,7 @@ export class OptionalAuthGuard implements CanActivate {
    *
    * @param request - Express Request object
    */
-  private handleGuestSession(
-    request: RequestWithOptionalAuth,
-  ): void {
+  private handleGuestSession(request: RequestWithOptionalAuth): void {
     // Guest session should be attached by GuestSessionMiddleware
     if (request.guestSessionId || request.guestSession) {
       request['isAuthenticatedUser'] = false;
@@ -186,9 +178,10 @@ export class OptionalAuthGuard implements CanActivate {
    * @param request - Express Request object
    * @returns User ID or Guest Session ID
    */
-  static getUserIdentifier(
-    request: RequestWithOptionalAuth,
-  ): { userId?: number; guestSessionId?: string } {
+  static getUserIdentifier(request: RequestWithOptionalAuth): {
+    userId?: number;
+    guestSessionId?: string;
+  } {
     if (request['isAuthenticatedUser'] && request.user) {
       return { userId: request.user.id };
     }
@@ -206,9 +199,7 @@ export class OptionalAuthGuard implements CanActivate {
    * @param request - Express Request object
    * @returns boolean - True if user is authenticated (not guest)
    */
-  static isAuthenticated(
-    request: RequestWithOptionalAuth,
-  ): boolean {
+  static isAuthenticated(request: RequestWithOptionalAuth): boolean {
     return request['isAuthenticatedUser'] === true;
   }
 

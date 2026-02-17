@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Authentication Prototypes - SouqSyria</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: { 500: '#C9A961' },
+            charcoal: { DEFAULT: '#1A1A1A' }
+          },
+          fontFamily: { sans: ['Inter', 'sans-serif'] }
+        }
+      }
+    }
+  </script>
+</head>
+<body class="bg-gray-100 font-sans min-h-screen p-8">
+
+  <div class="max-w-4xl mx-auto">
+
+    <!-- Header -->
+    <div class="text-center mb-12">
+      <div class="flex items-center justify-center gap-2 mb-4">
+        <div class="w-12 h-12 bg-primary-500 rounded-xl flex items-center justify-center">
+          <span class="text-charcoal font-bold text-2xl">س</span>
+        </div>
+        <span class="font-bold text-3xl text-charcoal">SouqSyria</span>
+      </div>
+      <h1 class="text-2xl font-bold text-charcoal mb-2">Authentication Prototypes</h1>
+      <p class="text-gray-500">Interactive HTML prototypes for developer reference</p>
+    </div>
+
+    <!-- Prototype Cards -->
+    <div class="grid md:grid-cols-2 gap-6">
+
+      <!-- Login -->
+      <a href="login.html" class="bg-white rounded-2xl p-6 shadow-sm hover:shadow-lg transition-shadow group">
+        <div class="flex items-start gap-4">
+          <div class="w-14 h-14 bg-primary-500/10 rounded-xl flex items-center justify-center group-hover:bg-primary-500 transition-colors">
+            <span class="material-icons-round text-primary-500 text-2xl group-hover:text-white transition-colors">login</span>
+          </div>
+          <div class="flex-1">
+            <h3 class="font-semibold text-charcoal text-lg mb-1">Login Page</h3>
+            <p class="text-gray-500 text-sm mb-3">Email/password login with remember me, forgot password link, and error states.</p>
+            <div class="flex flex-wrap gap-2">
+              <span class="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded">Form Validation</span>
+              <span class="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded">Password Toggle</span>
+              <span class="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded">Error States</span>
+            </div>
+          </div>
+        </div>
+      </a>
+
+      <!-- Register -->
+      <a href="register.html" class="bg-white rounded-2xl p-6 shadow-sm hover:shadow-lg transition-shadow group">
+        <div class="flex items-start gap-4">
+          <div class="w-14 h-14 bg-green-500/10 rounded-xl flex items-center justify-center group-hover:bg-green-500 transition-colors">
+            <span class="material-icons-round text-green-500 text-2xl group-hover:text-white transition-colors">person_add</span>
+          </div>
+          <div class="flex-1">
+            <h3 class="font-semibold text-charcoal text-lg mb-1">Register Page</h3>
+            <p class="text-gray-500 text-sm mb-3">Account creation with password strength indicator and terms agreement.</p>
+            <div class="flex flex-wrap gap-2">
+              <span class="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded">Password Strength</span>
+              <span class="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded">Confirm Password</span>
+              <span class="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded">Terms Checkbox</span>
+            </div>
+          </div>
+        </div>
+      </a>
+
+      <!-- Verify OTP -->
+      <a href="verify-otp.html" class="bg-white rounded-2xl p-6 shadow-sm hover:shadow-lg transition-shadow group">
+        <div class="flex items-start gap-4">
+          <div class="w-14 h-14 bg-blue-500/10 rounded-xl flex items-center justify-center group-hover:bg-blue-500 transition-colors">
+            <span class="material-icons-round text-blue-500 text-2xl group-hover:text-white transition-colors">mark_email_read</span>
+          </div>
+          <div class="flex-1">
+            <h3 class="font-semibold text-charcoal text-lg mb-1">OTP Verification</h3>
+            <p class="text-gray-500 text-sm mb-3">6-digit OTP input with auto-advance, paste support, and resend cooldown.</p>
+            <div class="flex flex-wrap gap-2">
+              <span class="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded">Auto-Advance</span>
+              <span class="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded">Paste Support</span>
+              <span class="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded">Resend Timer</span>
+            </div>
+          </div>
+        </div>
+      </a>
+
+      <!-- Forgot Password -->
+      <a href="forgot-password.html" class="bg-white rounded-2xl p-6 shadow-sm hover:shadow-lg transition-shadow group">
+        <div class="flex items-start gap-4">
+          <div class="w-14 h-14 bg-amber-500/10 rounded-xl flex items-center justify-center group-hover:bg-amber-500 transition-colors">
+            <span class="material-icons-round text-amber-500 text-2xl group-hover:text-white transition-colors">lock_reset</span>
+          </div>
+          <div class="flex-1">
+            <h3 class="font-semibold text-charcoal text-lg mb-1">Forgot Password</h3>
+            <p class="text-gray-500 text-sm mb-3">Request password reset link with success confirmation view.</p>
+            <div class="flex flex-wrap gap-2">
+              <span class="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded">Email Input</span>
+              <span class="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded">Success View</span>
+              <span class="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded">Resend Option</span>
+            </div>
+          </div>
+        </div>
+      </a>
+
+      <!-- Reset Password -->
+      <a href="reset-password.html" class="bg-white rounded-2xl p-6 shadow-sm hover:shadow-lg transition-shadow group">
+        <div class="flex items-start gap-4">
+          <div class="w-14 h-14 bg-purple-500/10 rounded-xl flex items-center justify-center group-hover:bg-purple-500 transition-colors">
+            <span class="material-icons-round text-purple-500 text-2xl group-hover:text-white transition-colors">password</span>
+          </div>
+          <div class="flex-1">
+            <h3 class="font-semibold text-charcoal text-lg mb-1">Reset Password</h3>
+            <p class="text-gray-500 text-sm mb-3">Set new password with strength meter and confirmation.</p>
+            <div class="flex flex-wrap gap-2">
+              <span class="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded">Password Strength</span>
+              <span class="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded">Success View</span>
+              <span class="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded">Expired State</span>
+            </div>
+          </div>
+        </div>
+      </a>
+
+      <!-- Expired Token Demo -->
+      <a href="reset-password.html?expired=true" class="bg-white rounded-2xl p-6 shadow-sm hover:shadow-lg transition-shadow group border-2 border-dashed border-gray-200">
+        <div class="flex items-start gap-4">
+          <div class="w-14 h-14 bg-red-500/10 rounded-xl flex items-center justify-center group-hover:bg-red-500 transition-colors">
+            <span class="material-icons-round text-red-500 text-2xl group-hover:text-white transition-colors">timer_off</span>
+          </div>
+          <div class="flex-1">
+            <h3 class="font-semibold text-charcoal text-lg mb-1">Expired Token (Demo)</h3>
+            <p class="text-gray-500 text-sm mb-3">Shows the expired token error state on reset password page.</p>
+            <div class="flex flex-wrap gap-2">
+              <span class="px-2 py-1 bg-red-100 text-red-600 text-xs rounded">Error State</span>
+            </div>
+          </div>
+        </div>
+      </a>
+
+    </div>
+
+    <!-- Documentation Links -->
+    <div class="mt-12 bg-white rounded-2xl p-6 shadow-sm">
+      <h2 class="font-semibold text-charcoal text-lg mb-4">📄 Documentation</h2>
+      <div class="grid md:grid-cols-3 gap-4">
+        <a href="../README.md" class="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 transition-colors">
+          <span class="material-icons-round text-gray-400">description</span>
+          <span class="text-charcoal">README.md</span>
+        </a>
+        <a href="../COMPONENTS.md" class="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 transition-colors">
+          <span class="material-icons-round text-gray-400">widgets</span>
+          <span class="text-charcoal">COMPONENTS.md</span>
+        </a>
+        <a href="../DEVELOPER_READY_STORIES.md" class="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 transition-colors">
+          <span class="material-icons-round text-gray-400">task</span>
+          <span class="text-charcoal">DEVELOPER_READY_STORIES.md</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- API Reference -->
+    <div class="mt-6 bg-charcoal rounded-2xl p-6 text-white">
+      <h2 class="font-semibold text-lg mb-4">🔌 API Endpoints Reference</h2>
+      <div class="font-mono text-sm space-y-2 text-gray-300">
+        <p><span class="text-green-400">POST</span> /auth/register <span class="text-gray-500">- Create account</span></p>
+        <p><span class="text-green-400">POST</span> /auth/email-login <span class="text-gray-500">- Login</span></p>
+        <p><span class="text-green-400">POST</span> /auth/verify <span class="text-gray-500">- Verify OTP</span></p>
+        <p><span class="text-green-400">POST</span> /auth/forgot-password <span class="text-gray-500">- Request reset</span></p>
+        <p><span class="text-green-400">POST</span> /auth/reset-password <span class="text-gray-500">- Reset password</span></p>
+        <p><span class="text-green-400">POST</span> /auth/resend-otp <span class="text-gray-500">- Resend OTP</span></p>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="mt-8 text-center text-gray-400 text-sm">
+      <p>SouqSyria Authentication Module - February 2026</p>
+    </div>
+
+  </div>
+
+</body>
+</html>

@@ -42,9 +42,7 @@ import {
 export class HomepageController {
   private readonly logger = new Logger(HomepageController.name);
 
-  constructor(
-    private readonly homepageService: HomepageAggregationService,
-  ) {}
+  constructor(private readonly homepageService: HomepageAggregationService) {}
 
   /**
    * Get complete homepage data
@@ -98,10 +96,16 @@ export class HomepageController {
           items: {
             type: 'object',
             properties: {
-              id: { type: 'string', example: '550e8400-e29b-41d4-a716-446655440000' },
+              id: {
+                type: 'string',
+                example: '550e8400-e29b-41d4-a716-446655440000',
+              },
               nameEn: { type: 'string', example: 'Summer Sale 2025' },
               nameAr: { type: 'string', example: 'تخفيضات الصيف 2025' },
-              imageUrl: { type: 'string', example: 'https://cdn.souqsyria.com/banners/summer-sale.jpg' },
+              imageUrl: {
+                type: 'string',
+                example: 'https://cdn.souqsyria.com/banners/summer-sale.jpg',
+              },
               linkUrl: { type: 'string', example: '/promotions/summer-sale' },
               displayOrder: { type: 'number', example: 0 },
             },
@@ -113,7 +117,10 @@ export class HomepageController {
           items: {
             type: 'object',
             properties: {
-              id: { type: 'string', example: '550e8400-e29b-41d4-a716-446655440000' },
+              id: {
+                type: 'string',
+                example: '550e8400-e29b-41d4-a716-446655440000',
+              },
               categoryId: { type: 'number', example: 1 },
               category: {
                 type: 'object',
@@ -132,7 +139,10 @@ export class HomepageController {
           items: {
             type: 'object',
             properties: {
-              id: { type: 'string', example: '550e8400-e29b-41d4-a716-446655440000' },
+              id: {
+                type: 'string',
+                example: '550e8400-e29b-41d4-a716-446655440000',
+              },
               type: { type: 'string', example: 'new_arrivals' },
               titleEn: { type: 'string', example: 'New Arrivals' },
               titleAr: { type: 'string', example: 'الوافدون الجدد' },
@@ -154,7 +164,11 @@ export class HomepageController {
         metadata: {
           type: 'object',
           properties: {
-            timestamp: { type: 'string', format: 'date-time', example: '2025-11-10T14:30:00Z' },
+            timestamp: {
+              type: 'string',
+              format: 'date-time',
+              example: '2025-11-10T14:30:00Z',
+            },
             language: { type: 'string', example: 'ar' },
             currency: { type: 'string', example: 'SYP' },
             personalized: { type: 'boolean', example: false },
@@ -176,7 +190,9 @@ export class HomepageController {
     const lang = acceptLanguage?.split(',')[0]?.split('-')[0] || 'ar';
 
     // Log request for analytics
-    this.logger.log(`Homepage request - lang: ${lang}, currency: ${currency || 'SYP'}, personalized: ${personalized || false}`);
+    this.logger.log(
+      `Homepage request - lang: ${lang}, currency: ${currency || 'SYP'}, personalized: ${personalized || false}`,
+    );
 
     // Fetch and return homepage data
     return this.homepageService.getHomepageData({

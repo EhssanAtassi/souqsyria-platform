@@ -4,8 +4,13 @@
  * Sets up global modules, TypeORM, and security guards.
  */
 import { join } from 'path';
-import { Module, NestModule, MiddlewareConsumer, RequestMethod } from '@nestjs/common';
-import { ConfigModule } from "@nestjs/config";
+import {
+  Module,
+  NestModule,
+  MiddlewareConsumer,
+  RequestMethod,
+} from '@nestjs/common';
+import { ConfigModule } from '@nestjs/config';
 import { ScheduleModule } from '@nestjs/schedule';
 import { GuestSessionMiddleware } from './common/middleware/guest-session.middleware';
 import { IdempotencyMiddleware } from './common/middleware/idempotency.middleware';
@@ -28,6 +33,7 @@ import { UsersModule } from './users/users.module';
 import { RolesModule } from './roles/roles.module';
 import { AccessControlModule } from './access-control/access-control.module';
 import { CategoriesModule } from './categories/categories.module';
+import { BrandsModule } from './brands/brands.module';
 import { ProductsModule } from './products/products.module';
 import { VendorsModule } from './vendors/vendors.module';
 import { CartModule } from './cart/cart.module';
@@ -83,6 +89,7 @@ import { HealthModule } from './health';
     RolesModule,
     AccessControlModule,
     CategoriesModule,
+    BrandsModule,
     ProductsModule,
     VendorsModule,
     CartModule,

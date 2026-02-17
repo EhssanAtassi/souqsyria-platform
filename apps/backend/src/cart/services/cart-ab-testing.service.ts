@@ -44,11 +44,11 @@ import { Repository } from 'typeorm';
  * Tracks experiment lifecycle
  */
 export enum ExperimentStatus {
-  DRAFT = 'draft',             // Being configured
-  ACTIVE = 'active',           // Currently running
-  PAUSED = 'paused',           // Temporarily stopped
-  COMPLETED = 'completed',     // Finished, has winner
-  ARCHIVED = 'archived',       // Historical record
+  DRAFT = 'draft', // Being configured
+  ACTIVE = 'active', // Currently running
+  PAUSED = 'paused', // Temporarily stopped
+  COMPLETED = 'completed', // Finished, has winner
+  ARCHIVED = 'archived', // Historical record
 }
 
 /**
@@ -56,12 +56,12 @@ export enum ExperimentStatus {
  * Different categories of experiments
  */
 export enum ExperimentType {
-  RECOMMENDATION = 'recommendation',   // Recommendation algorithm testing
-  UI_VARIATION = 'ui_variation',      // Frontend layout testing
-  PRICING = 'pricing',                // Pricing strategy testing
-  RESERVATION = 'reservation',        // Inventory reservation config testing
-  CROSS_SELL = 'cross_sell',         // Cross-selling approach testing
-  CHECKOUT_FLOW = 'checkout_flow',    // Checkout process testing
+  RECOMMENDATION = 'recommendation', // Recommendation algorithm testing
+  UI_VARIATION = 'ui_variation', // Frontend layout testing
+  PRICING = 'pricing', // Pricing strategy testing
+  RESERVATION = 'reservation', // Inventory reservation config testing
+  CROSS_SELL = 'cross_sell', // Cross-selling approach testing
+  CHECKOUT_FLOW = 'checkout_flow', // Checkout process testing
 }
 
 /**
@@ -69,12 +69,12 @@ export enum ExperimentType {
  * Different metrics to track
  */
 export enum MetricType {
-  CONVERSION_RATE = 'conversion_rate',     // % users who checkout
-  AVG_ORDER_VALUE = 'avg_order_value',     // Average cart total
-  ITEMS_PER_CART = 'items_per_cart',       // Average items added
-  CART_ABANDONMENT = 'cart_abandonment',   // % users who abandon
+  CONVERSION_RATE = 'conversion_rate', // % users who checkout
+  AVG_ORDER_VALUE = 'avg_order_value', // Average cart total
+  ITEMS_PER_CART = 'items_per_cart', // Average items added
+  CART_ABANDONMENT = 'cart_abandonment', // % users who abandon
   RECOMMENDATION_CTR = 'recommendation_ctr', // % recommended items clicked
-  TIME_TO_CHECKOUT = 'time_to_checkout',   // Average time spent
+  TIME_TO_CHECKOUT = 'time_to_checkout', // Average time spent
 }
 
 /**
@@ -82,12 +82,12 @@ export enum MetricType {
  * Single variant in an A/B test
  */
 export interface ExperimentVariant {
-  id: string;                    // Unique variant identifier
-  name: string;                  // Human-readable name (A, B, Control, etc.)
-  description: string;           // What makes this variant different
-  trafficAllocation: number;     // % of traffic (0-100)
+  id: string; // Unique variant identifier
+  name: string; // Human-readable name (A, B, Control, etc.)
+  description: string; // What makes this variant different
+  trafficAllocation: number; // % of traffic (0-100)
   configuration: Record<string, any>; // Variant-specific config
-  isControl: boolean;            // Is this the control variant
+  isControl: boolean; // Is this the control variant
 }
 
 /**
@@ -95,21 +95,21 @@ export interface ExperimentVariant {
  * Complete experiment definition
  */
 export interface ExperimentConfig {
-  id: string;                    // Unique experiment identifier
-  name: string;                  // Human-readable name
-  description: string;           // Experiment purpose and hypothesis
-  type: ExperimentType;          // Experiment category
-  status: ExperimentStatus;      // Current status
+  id: string; // Unique experiment identifier
+  name: string; // Human-readable name
+  description: string; // Experiment purpose and hypothesis
+  type: ExperimentType; // Experiment category
+  status: ExperimentStatus; // Current status
   variants: ExperimentVariant[]; // All variants (A, B, C, ...)
-  primaryMetric: MetricType;     // Main success metric
+  primaryMetric: MetricType; // Main success metric
   secondaryMetrics: MetricType[]; // Additional metrics to track
-  startDate: Date;               // When experiment started
-  endDate?: Date;                // When experiment ended
-  targetSampleSize: number;      // Minimum users per variant
-  significanceLevel: number;     // Alpha (usually 0.05 for 95% confidence)
+  startDate: Date; // When experiment started
+  endDate?: Date; // When experiment ended
+  targetSampleSize: number; // Minimum users per variant
+  significanceLevel: number; // Alpha (usually 0.05 for 95% confidence)
   minimumDetectableEffect: number; // Smallest meaningful difference (%)
-  createdBy: string;             // User who created experiment
-  winnerVariantId?: string;      // Winning variant (if concluded)
+  createdBy: string; // User who created experiment
+  winnerVariantId?: string; // Winning variant (if concluded)
 }
 
 /**
@@ -133,7 +133,7 @@ export interface ExperimentEvent {
   variantId: string;
   userId: string | null;
   sessionId: string | null;
-  eventType: string;             // 'view', 'add_to_cart', 'checkout', 'recommendation_click'
+  eventType: string; // 'view', 'add_to_cart', 'checkout', 'recommendation_click'
   eventData?: Record<string, any>; // Additional event context
   timestamp: Date;
 }
@@ -149,9 +149,9 @@ export interface ExperimentResults {
   variants: VariantResults[];
   primaryMetric: MetricType;
   statisticalSignificance: boolean;
-  confidenceLevel: number;       // e.g., 95%
+  confidenceLevel: number; // e.g., 95%
   winnerVariantId?: string;
-  recommendation: string;        // Human-readable conclusion
+  recommendation: string; // Human-readable conclusion
   sampleSize: number;
   durationDays: number;
 }
@@ -169,7 +169,7 @@ export interface VariantResults {
   conversionRate?: number;
   avgOrderValue?: number;
   confidenceInterval?: { lower: number; upper: number };
-  relativeImprovement?: number;  // % improvement vs control
+  relativeImprovement?: number; // % improvement vs control
 }
 
 /**
@@ -204,12 +204,18 @@ export class CartABTestingService {
   private readonly logger = new Logger(CartABTestingService.name);
 
   /** In-memory cache (replaces Redis) */
-  private readonly _cache = new Map<string, { value: string; expiresAt: number }>();
+  private readonly _cache = new Map<
+    string,
+    { value: string; expiresAt: number }
+  >();
 
   private _cacheGet(key: string): string | null {
     const entry = this._cache.get(key);
     if (!entry) return null;
-    if (Date.now() > entry.expiresAt) { this._cache.delete(key); return null; }
+    if (Date.now() > entry.expiresAt) {
+      this._cache.delete(key);
+      return null;
+    }
     return entry.value;
   }
 
@@ -224,7 +230,10 @@ export class CartABTestingService {
   private _cacheIncr(key: string, ttlSeconds: number = 3600): number {
     const entry = this._cache.get(key);
     if (!entry || Date.now() > entry.expiresAt) {
-      this._cache.set(key, { value: '1', expiresAt: Date.now() + ttlSeconds * 1000 });
+      this._cache.set(key, {
+        value: '1',
+        expiresAt: Date.now() + ttlSeconds * 1000,
+      });
       return 1;
     }
     const newVal = parseInt(entry.value, 10) + 1;
@@ -238,8 +247,7 @@ export class CartABTestingService {
   /** Cache TTL for experiment config (1 hour) */
   private readonly CONFIG_CACHE_TTL = 3600;
 
-  constructor(
-  ) {
+  constructor() {
     this.logger.log('🧪 A/B Testing Service initialized for cart optimization');
   }
 
@@ -259,12 +267,11 @@ export class CartABTestingService {
       this._cacheSet(key, JSON.stringify(config), this.CONFIG_CACHE_TTL);
 
       // Also store in active experiments list
-      this._cacheSet('experiments:active' + ":" + config.id, "1", 86400);
+      this._cacheSet('experiments:active' + ':' + config.id, '1', 86400);
 
       this.logger.log(`✅ Created experiment: ${config.name} (${config.id})`);
 
       return config;
-
     } catch (error) {
       this.logger.error('Failed to create experiment', error.stack);
       throw new BadRequestException('Failed to create experiment');
@@ -294,7 +301,9 @@ export class CartABTestingService {
       if (cachedAssignment) {
         const assignment: ExperimentAssignment = JSON.parse(cachedAssignment);
         const experiment = await this.getExperiment(experimentId);
-        const variant = experiment.variants.find(v => v.id === assignment.variantId);
+        const variant = experiment.variants.find(
+          (v) => v.id === assignment.variantId,
+        );
 
         if (variant) {
           return variant;
@@ -306,7 +315,9 @@ export class CartABTestingService {
 
       if (experiment.status !== ExperimentStatus.ACTIVE) {
         // Return control variant if experiment not active
-        return experiment.variants.find(v => v.isControl) || experiment.variants[0];
+        return (
+          experiment.variants.find((v) => v.isControl) || experiment.variants[0]
+        );
       }
 
       // Step 3: Assign variant using consistent hashing
@@ -321,12 +332,17 @@ export class CartABTestingService {
         assignedAt: new Date(),
       };
 
-      this._cacheSet(assignmentKey, JSON.stringify(assignment), this.ASSIGNMENT_CACHE_TTL);
+      this._cacheSet(
+        assignmentKey,
+        JSON.stringify(assignment),
+        this.ASSIGNMENT_CACHE_TTL,
+      );
 
-      this.logger.debug(`Assigned ${identifier} to variant ${variant.name} in experiment ${experimentId}`);
+      this.logger.debug(
+        `Assigned ${identifier} to variant ${variant.name} in experiment ${experimentId}`,
+      );
 
       return variant;
-
     } catch (error) {
       this.logger.error('Failed to get variant assignment', error.stack);
 
@@ -347,14 +363,19 @@ export class CartABTestingService {
       const eventKey = `experiment:${event.experimentId}:variant:${event.variantId}:events`;
       const timestamp = event.timestamp.getTime();
 
-      this._cacheSet(eventKey + ":" + String(timestamp), JSON.stringify(event), 86400);
+      this._cacheSet(
+        eventKey + ':' + String(timestamp),
+        JSON.stringify(event),
+        86400,
+      );
 
       // Increment event counter for quick metrics
       const counterKey = `experiment:${event.experimentId}:variant:${event.variantId}:${event.eventType}`;
       this._cacheIncr(counterKey);
 
-      this.logger.debug(`Tracked ${event.eventType} event for variant ${event.variantId}`);
-
+      this.logger.debug(
+        `Tracked ${event.eventType} event for variant ${event.variantId}`,
+      );
     } catch (error) {
       this.logger.error('Failed to track experiment event', error.stack);
     }
@@ -374,8 +395,14 @@ export class CartABTestingService {
       const variantResults: VariantResults[] = [];
 
       for (const variant of experiment.variants) {
-        const metrics = await this.calculateVariantMetrics(experimentId, variant.id);
-        const sampleSize = await this.getVariantSampleSize(experimentId, variant.id);
+        const metrics = await this.calculateVariantMetrics(
+          experimentId,
+          variant.id,
+        );
+        const sampleSize = await this.getVariantSampleSize(
+          experimentId,
+          variant.id,
+        );
 
         variantResults.push({
           variantId: variant.id,
@@ -390,10 +417,13 @@ export class CartABTestingService {
 
       // Calculate statistical significance
       const { isSignificant, confidenceLevel, winnerVariantId } =
-        this.calculateStatisticalSignificance(variantResults, experiment.significanceLevel);
+        this.calculateStatisticalSignificance(
+          variantResults,
+          experiment.significanceLevel,
+        );
 
       // Calculate relative improvements vs control
-      const controlVariant = variantResults.find(v => v.isControl);
+      const controlVariant = variantResults.find((v) => v.isControl);
       if (controlVariant) {
         for (const variant of variantResults) {
           if (!variant.isControl) {
@@ -413,10 +443,16 @@ export class CartABTestingService {
       );
 
       const durationDays = experiment.startDate
-        ? Math.ceil((Date.now() - experiment.startDate.getTime()) / (1000 * 60 * 60 * 24))
+        ? Math.ceil(
+            (Date.now() - experiment.startDate.getTime()) /
+              (1000 * 60 * 60 * 24),
+          )
         : 0;
 
-      const totalSampleSize = variantResults.reduce((sum, v) => sum + v.sampleSize, 0);
+      const totalSampleSize = variantResults.reduce(
+        (sum, v) => sum + v.sampleSize,
+        0,
+      );
 
       return {
         experimentId,
@@ -431,7 +467,6 @@ export class CartABTestingService {
         sampleSize: totalSampleSize,
         durationDays,
       };
-
     } catch (error) {
       this.logger.error('Failed to get experiment results', error.stack);
       throw error;
@@ -444,7 +479,10 @@ export class CartABTestingService {
    * @param experimentId - Experiment ID
    * @param winnerVariantId - Winning variant ID
    */
-  async concludeExperiment(experimentId: string, winnerVariantId: string): Promise<void> {
+  async concludeExperiment(
+    experimentId: string,
+    winnerVariantId: string,
+  ): Promise<void> {
     try {
       const experiment = await this.getExperiment(experimentId);
 
@@ -456,13 +494,14 @@ export class CartABTestingService {
       this._cacheSet(key, JSON.stringify(experiment), this.CONFIG_CACHE_TTL);
 
       // Remove from active experiments
-      this._cacheDel('experiments:active' + ":" + experimentId);
+      this._cacheDel('experiments:active' + ':' + experimentId);
 
       // Add to completed experiments
-      this._cacheSet('experiments:completed' + ":" + experimentId, "1", 86400);
+      this._cacheSet('experiments:completed' + ':' + experimentId, '1', 86400);
 
-      this.logger.log(`✅ Concluded experiment ${experimentId} - Winner: ${winnerVariantId}`);
-
+      this.logger.log(
+        `✅ Concluded experiment ${experimentId} - Winner: ${winnerVariantId}`,
+      );
     } catch (error) {
       this.logger.error('Failed to conclude experiment', error.stack);
       throw error;
@@ -487,7 +526,10 @@ export class CartABTestingService {
    * Assign variant using consistent hashing
    * Ensures same user always gets same variant
    */
-  private assignVariant(experiment: ExperimentConfig, identifier: string): ExperimentVariant {
+  private assignVariant(
+    experiment: ExperimentConfig,
+    identifier: string,
+  ): ExperimentVariant {
     // Calculate hash of identifier
     const hash = this.hashString(identifier + experiment.id);
 
@@ -549,14 +591,16 @@ export class CartABTestingService {
     const clickCount = parseInt(clicks || '0', 10);
 
     // Calculate metrics
-    metrics[MetricType.CONVERSION_RATE] = viewCount > 0 ? (checkoutCount / viewCount) * 100 : 0;
-    metrics[MetricType.RECOMMENDATION_CTR] = viewCount > 0 ? (clickCount / viewCount) * 100 : 0;
+    metrics[MetricType.CONVERSION_RATE] =
+      viewCount > 0 ? (checkoutCount / viewCount) * 100 : 0;
+    metrics[MetricType.RECOMMENDATION_CTR] =
+      viewCount > 0 ? (clickCount / viewCount) * 100 : 0;
 
     // Placeholders for other metrics (would be calculated from actual data)
     metrics[MetricType.AVG_ORDER_VALUE] = 50.0; // Placeholder
-    metrics[MetricType.ITEMS_PER_CART] = 2.5;    // Placeholder
+    metrics[MetricType.ITEMS_PER_CART] = 2.5; // Placeholder
     metrics[MetricType.CART_ABANDONMENT] = 30.0; // Placeholder
-    metrics[MetricType.TIME_TO_CHECKOUT] = 300;  // Placeholder (seconds)
+    metrics[MetricType.TIME_TO_CHECKOUT] = 300; // Placeholder (seconds)
 
     return metrics;
   }
@@ -564,7 +608,10 @@ export class CartABTestingService {
   /**
    * Get sample size for a variant
    */
-  private async getVariantSampleSize(experimentId: string, variantId: string): Promise<number> {
+  private async getVariantSampleSize(
+    experimentId: string,
+    variantId: string,
+  ): Promise<number> {
     const viewsKey = `experiment:${experimentId}:variant:${variantId}:view`;
     const views = this._cacheGet(viewsKey);
     return parseInt(views || '0', 10);
@@ -577,8 +624,12 @@ export class CartABTestingService {
   private calculateStatisticalSignificance(
     variantResults: VariantResults[],
     significanceLevel: number,
-  ): { isSignificant: boolean; confidenceLevel: number; winnerVariantId?: string } {
-    const control = variantResults.find(v => v.isControl);
+  ): {
+    isSignificant: boolean;
+    confidenceLevel: number;
+    winnerVariantId?: string;
+  } {
+    const control = variantResults.find((v) => v.isControl);
 
     if (!control || variantResults.length < 2) {
       return { isSignificant: false, confidenceLevel: 0 };
@@ -594,7 +645,10 @@ export class CartABTestingService {
     for (const variant of variantResults) {
       if (variant.isControl) continue;
 
-      const improvement = ((variant.conversionRate || 0) - (control.conversionRate || 0)) / (control.conversionRate || 1) * 100;
+      const improvement =
+        (((variant.conversionRate || 0) - (control.conversionRate || 0)) /
+          (control.conversionRate || 1)) *
+        100;
 
       // Simplified significance check (5% improvement threshold)
       // Real implementation would calculate p-value
@@ -620,7 +674,10 @@ export class CartABTestingService {
   /**
    * Calculate relative improvement percentage
    */
-  private calculateRelativeImprovement(variantValue: number, controlValue: number): number {
+  private calculateRelativeImprovement(
+    variantValue: number,
+    controlValue: number,
+  ): number {
     if (controlValue === 0) return 0;
     return ((variantValue - controlValue) / controlValue) * 100;
   }
@@ -633,7 +690,10 @@ export class CartABTestingService {
     isSignificant: boolean,
     targetSampleSize: number,
   ): string {
-    const totalSampleSize = variantResults.reduce((sum, v) => sum + v.sampleSize, 0);
+    const totalSampleSize = variantResults.reduce(
+      (sum, v) => sum + v.sampleSize,
+      0,
+    );
 
     if (totalSampleSize < targetSampleSize) {
       return `Continue running experiment. Current sample size: ${totalSampleSize}, Target: ${targetSampleSize}`;
@@ -643,7 +703,9 @@ export class CartABTestingService {
       return 'No statistically significant difference found. Consider running longer or trying different variants.';
     }
 
-    const winner = variantResults.find(v => !v.isControl && v.relativeImprovement && v.relativeImprovement > 0);
+    const winner = variantResults.find(
+      (v) => !v.isControl && v.relativeImprovement && v.relativeImprovement > 0,
+    );
 
     if (winner) {
       return `${winner.variantName} shows ${winner.relativeImprovement?.toFixed(1)}% improvement. Recommend rolling out to 100% traffic.`;
@@ -664,16 +726,21 @@ export class CartABTestingService {
       throw new BadRequestException('Experiment must have at least 2 variants');
     }
 
-    const totalAllocation = config.variants.reduce((sum, v) => sum + v.trafficAllocation, 0);
+    const totalAllocation = config.variants.reduce(
+      (sum, v) => sum + v.trafficAllocation,
+      0,
+    );
 
     if (Math.abs(totalAllocation - 100) > 0.1) {
       throw new BadRequestException('Traffic allocation must sum to 100%');
     }
 
-    const controlCount = config.variants.filter(v => v.isControl).length;
+    const controlCount = config.variants.filter((v) => v.isControl).length;
 
     if (controlCount !== 1) {
-      throw new BadRequestException('Experiment must have exactly one control variant');
+      throw new BadRequestException(
+        'Experiment must have exactly one control variant',
+      );
     }
   }
 }
