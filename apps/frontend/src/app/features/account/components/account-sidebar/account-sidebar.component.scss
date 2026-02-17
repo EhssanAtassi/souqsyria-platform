@@ -2,14 +2,15 @@
  * @fileoverview Styles for account sidebar navigation component
  * @description Responsive sidebar with active state highlighting and mobile drawer support
  */
+@use '../../_account-tokens' as t;
 
 .account-sidebar {
   background: white;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border-radius: t.$radius-md;
+  box-shadow: t.$shadow-md;
   overflow: hidden;
 
-  @media (max-width: 768px) {
+  @include t.mobile {
     border-radius: 0;
     box-shadow: none;
     border-bottom: 1px solid rgba(0, 0, 0, 0.12);
@@ -28,16 +29,16 @@
   cursor: pointer;
 
   &:hover:not(.disabled) {
-    background-color: rgba(103, 126, 234, 0.08);
+    background-color: t.$sidebar-active-hover;
   }
 
   &.active {
-    background-color: rgba(103, 126, 234, 0.12);
-    border-left-color: #667eea;
+    background-color: t.$sidebar-active-bg;
+    border-left-color: t.$sidebar-active;
 
     .nav-icon,
     .nav-label {
-      color: #667eea;
+      color: t.$sidebar-active;
       font-weight: 500;
     }
   }
@@ -64,7 +65,7 @@
 }
 
 .nav-label {
-  color: rgba(0, 0, 0, 0.87);
+  color: t.$text-primary;
   font-size: 1rem;
   transition: color 0.2s ease;
 }
@@ -76,7 +77,7 @@
     border-right: 4px solid transparent;
 
     &.active {
-      border-right-color: #667eea;
+      border-right-color: t.$sidebar-active;
     }
   }
 
@@ -87,7 +88,7 @@
 }
 
 /* Mobile Styles */
-@media (max-width: 768px) {
+@include t.mobile {
   .account-sidebar {
     width: 100%;
   }

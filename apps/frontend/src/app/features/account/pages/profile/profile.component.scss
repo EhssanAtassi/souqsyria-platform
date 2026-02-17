@@ -3,12 +3,14 @@
  * @description Responsive styles with RTL support for profile display
  */
 
+@use '../../_account-tokens' as t;
+
 .profile-container {
   max-width: 1200px;
   margin: 0 auto;
   padding: 2rem;
 
-  @media (max-width: 768px) {
+  @include t.mobile {
     padding: 1rem;
   }
 }
@@ -47,7 +49,7 @@
   font-size: 4rem;
   width: 4rem;
   height: 4rem;
-  color: #f44336;
+  color: t.$color-error;
   margin-bottom: 1rem;
 }
 
@@ -70,14 +72,14 @@
 
 .profile-card {
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  border-radius: 12px;
+  border-radius: t.$card-radius-sm;
 }
 
 .profile-title {
   font-size: 1.75rem;
   font-weight: 600;
   margin: 0;
-  color: rgba(0, 0, 0, 0.87);
+  color: t.$text-primary;
 }
 
 /* Profile Header */
@@ -89,7 +91,7 @@
   border-bottom: 1px solid rgba(0, 0, 0, 0.12);
   margin-bottom: 1.5rem;
 
-  @media (max-width: 640px) {
+  @include t.mobile {
     flex-direction: column;
     align-items: center;
     text-align: center;
@@ -109,7 +111,7 @@
   object-fit: cover;
   border: 4px solid #f5f5f5;
 
-  @media (max-width: 640px) {
+  @include t.mobile {
     width: 80px;
     height: 80px;
   }
@@ -128,7 +130,7 @@
   color: white;
   user-select: none;
 
-  @media (max-width: 640px) {
+  @include t.mobile {
     font-size: 1.75rem;
   }
 }
@@ -145,7 +147,7 @@
   font-size: 1.5rem;
   font-weight: 600;
   margin: 0;
-  color: rgba(0, 0, 0, 0.87);
+  color: t.$text-primary;
 }
 
 .user-detail {
@@ -182,7 +184,7 @@
     grid-template-columns: repeat(2, 1fr);
   }
 
-  @media (max-width: 640px) {
+  @include t.mobile {
     grid-template-columns: 1fr;
   }
 }
@@ -193,7 +195,7 @@
   gap: 1rem;
   padding: 1rem;
   background: #f5f5f5;
-  border-radius: 8px;
+  border-radius: t.$radius-md;
   transition: transform 0.2s, box-shadow 0.2s;
 
   &:hover {
@@ -217,7 +219,7 @@
 .stat-value {
   font-size: 1.5rem;
   font-weight: 600;
-  color: rgba(0, 0, 0, 0.87);
+  color: t.$text-primary;
   line-height: 1;
 }
 
@@ -233,7 +235,7 @@
   gap: 1rem;
   flex-wrap: wrap;
 
-  @media (max-width: 640px) {
+  @include t.mobile {
     flex-direction: column;
   }
 }
@@ -254,7 +256,7 @@
     height: 1.25rem;
   }
 
-  @media (max-width: 640px) {
+  @include t.mobile {
     min-width: 100%;
   }
 }

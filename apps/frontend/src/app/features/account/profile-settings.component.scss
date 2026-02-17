@@ -1,18 +1,20 @@
+@use './_account-tokens' as t;
+
 .rtl {
   direction: rtl;
   text-align: right;
 }
 
 .bg-damascus-gold {
-  background: linear-gradient(135deg, #D4AF37, #FFD700);
+  @include t.gold-gradient;
 }
 
 .bg-aleppo-green {
-  background: linear-gradient(135deg, #228B22, #32CD32);
+  @include t.green-gradient;
 }
 
 mat-card {
-  border-radius: 12px;
+  border-radius: t.$card-radius-sm;
   border: 1px solid rgba(0, 0, 0, 0.05);
 }
 
@@ -33,9 +35,9 @@ mat-form-field {
 }
 
 mat-slide-toggle.mat-checked .mat-slide-toggle-bar {
-  background-color: rgba(212, 175, 55, 0.5);
+  background-color: rgba(t.$damascus-gold, 0.5);
 }
 
 mat-slide-toggle.mat-checked .mat-slide-toggle-thumb {
-  background-color: #D4AF37;
+  background-color: t.$damascus-gold;
 }

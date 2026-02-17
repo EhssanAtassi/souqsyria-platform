@@ -1,6 +1,8 @@
 // Promotional Offers Component Styles - Syrian Marketplace
 // Damascus gold theme with bilingual RTL support
 
+@use './_account-tokens' as t;
+
 .promotional-offers-container {
   @apply min-h-screen bg-gradient-to-br from-gray-50 to-white;
   font-family: 'Inter', 'Cairo', sans-serif;
@@ -44,7 +46,7 @@
     .title-section {
       .main-title {
         @apply text-3xl font-bold mb-2;
-        background: linear-gradient(45deg, #D4AF37, #FFD700);
+        background: linear-gradient(45deg, t.$damascus-gold, t.$damascus-gold-bright);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         background-clip: text;
@@ -64,7 +66,7 @@
 
           &.active {
             @apply bg-yellow-500 text-blue-900 font-semibold;
-            background: #D4AF37;
+            background: t.$damascus-gold;
           }
 
           &:hover:not(.active) {
@@ -78,8 +80,8 @@
   // Loyalty Status Card
   .loyalty-status-card {
     @apply max-w-7xl mx-auto;
-    background: linear-gradient(135deg, #D4AF37 0%, #FFD700 50%, #F4D03F 100%);
-    border-radius: 16px;
+    background: linear-gradient(135deg, t.$damascus-gold 0%, t.$damascus-gold-bright 50%, #F4D03F 100%);
+    border-radius: t.$radius-xl;
     color: #1a1a1a;
 
     &.damascus-gradient {
@@ -171,7 +173,7 @@
   @apply max-w-7xl mx-auto px-4;
 
   ::ng-deep .mat-tab-header {
-    border-bottom: 2px solid #D4AF37;
+    border-bottom: 2px solid t.$damascus-gold;
 
     .mat-tab-label {
       @apply flex items-center gap-2 font-medium;
@@ -179,7 +181,7 @@
 
       .offers-count {
         @apply bg-blue-500 text-white text-xs;
-        border-radius: 12px;
+        border-radius: t.$card-radius-sm;
         padding: 2px 8px;
 
         &.urgent {
@@ -188,7 +190,7 @@
       }
 
       &.mat-tab-label-active {
-        color: #D4AF37;
+        color: t.$damascus-gold;
         font-weight: 600;
       }
     }
@@ -225,7 +227,7 @@
 // Offer Cards
 .offer-card {
   @apply relative overflow-hidden transition-all duration-300;
-  border-radius: 16px;
+  border-radius: t.$radius-xl;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
 
   &:hover {
@@ -243,7 +245,7 @@
 
   // Personal Offers
   &.personal-offer {
-    border-top: 4px solid #D4AF37;
+    border-top: 4px solid t.$damascus-gold;
 
     .offer-image {
       position: relative;
@@ -306,7 +308,7 @@
 
   // Seasonal Offers
   &.seasonal-offer {
-    border-top: 4px solid #10B981;
+    border-top: 4px solid t.$aleppo-green-light;
 
     .cultural-badge {
       @apply absolute top-3 left-3 bg-green-500 text-white px-3 py-1 rounded-full text-sm font-medium;
@@ -384,7 +386,7 @@
   @apply mb-8;
   background: linear-gradient(135deg, #3B82F6 0%, #1E40AF 100%);
   color: white;
-  border-radius: 16px;
+  border-radius: t.$radius-xl;
 
   ::ng-deep .mat-card-header-text {
     .mat-card-title {
@@ -421,7 +423,7 @@
           cursor: pointer;
 
           &:hover {
-            color: #D4AF37;
+            color: t.$damascus-gold;
           }
         }
       }
@@ -538,7 +540,7 @@
 }
 
 // Responsive Design
-@media (max-width: 768px) {
+@include t.mobile {
   .promotional-offers-container {
     .offers-header {
       padding: 1rem;
@@ -581,7 +583,7 @@
       @apply bg-gray-800 text-white;
       
       &.personal-offer {
-        border-top-color: #D4AF37;
+        border-top-color: t.$damascus-gold;
       }
     }
 

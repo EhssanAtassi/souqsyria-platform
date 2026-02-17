@@ -6,20 +6,12 @@
  * Follows established design patterns from dashboard and profile components.
  */
 
-// Syrian marketplace color palette
-:host {
-  --damascus-gold: #d4af37;
-  --aleppo-green: #2d5930;
-  --syrian-blue: #1e40af;
-  --heritage-red: #dc2626;
-  --warm-beige: #fef7e6;
-  --sand-color: #f5f5dc;
-}
+@use './_account-tokens' as t;
 
 // Main container with cultural background
 .min-h-screen {
   background: linear-gradient(135deg, 
-    var(--warm-beige) 0%, 
+    #fef7e6 0%,
     rgba(255, 255, 255, 0.95) 50%, 
     rgba(30, 64, 175, 0.05) 100%);
   
@@ -49,7 +41,7 @@
 .bg-white.shadow-sm {
   background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(10px);
-  border-bottom: 2px solid var(--damascus-gold);
+  border-bottom: 2px solid t.$damascus-gold;
   
   // Damascus steel pattern inspiration
   background-image: linear-gradient(45deg, 
@@ -65,7 +57,7 @@ nav[aria-label="Breadcrumb"] {
     transition: all 0.3s ease;
     
     &:hover {
-      color: var(--damascus-gold);
+      color: t.$damascus-gold;
       text-decoration: none;
       
       mat-icon {
@@ -78,7 +70,7 @@ nav[aria-label="Breadcrumb"] {
 // Title section with cultural styling
 h1 {
   font-family: 'Tajawal', 'Inter', sans-serif;
-  background: linear-gradient(135deg, var(--syrian-blue), var(--damascus-gold));
+  background: linear-gradient(135deg, #1e40af, t.$damascus-gold);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -119,14 +111,14 @@ h1 {
 // Material Design card enhancements
 mat-card {
   border: 1px solid rgba(212, 175, 55, 0.1);
-  border-radius: 12px;
+  border-radius: t.$card-radius-sm;
   overflow: hidden;
   
   &.group {
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     
     &:hover {
-      border-color: var(--damascus-gold);
+      border-color: t.$damascus-gold;
       box-shadow: 0 8px 30px rgba(212, 175, 55, 0.15);
     }
   }
@@ -140,11 +132,11 @@ mat-form-field {
   
   &.mat-focused {
     .mat-mdc-form-field-outline-thick {
-      color: var(--damascus-gold);
+      color: t.$damascus-gold;
     }
     
     .mat-mdc-floating-label {
-      color: var(--damascus-gold);
+      color: t.$damascus-gold;
     }
   }
 }
@@ -189,7 +181,7 @@ mat-form-field {
 mat-chip {
   font-size: 0.75rem;
   font-weight: 500;
-  border-radius: 16px;
+  border-radius: t.$radius-xl;
   
   // Custom category colors reflecting Syrian culture
   &.bg-gray-100 { background-color: rgba(107, 114, 128, 0.1) !important; }
@@ -208,7 +200,7 @@ mat-chip {
 
 // Price display with Syrian Pound styling
 .text-lg.font-bold {
-  color: var(--syrian-blue);
+  color: #1e40af;
   font-family: 'Inter', monospace;
   
   // Arabic numerals support
@@ -221,15 +213,15 @@ mat-chip {
 button {
   &.mat-mdc-raised-button {
     &[color="primary"] {
-      background: linear-gradient(135deg, var(--syrian-blue), var(--damascus-gold));
+      background: linear-gradient(135deg, #1e40af, t.$damascus-gold);
       color: white;
       border: none;
       font-weight: 600;
       
       &:hover:not([disabled]) {
         background: linear-gradient(135deg, 
-          color-mix(in srgb, var(--syrian-blue) 90%, black), 
-          color-mix(in srgb, var(--damascus-gold) 90%, black));
+          color-mix(in srgb, #1e40af 90%, black), 
+          color-mix(in srgb, t.$damascus-gold 90%, black));
         transform: translateY(-1px);
         box-shadow: 0 4px 15px rgba(30, 64, 175, 0.3);
       }
@@ -254,7 +246,7 @@ button {
   &.mat-mdc-icon-button {
     &.text-red-600:hover {
       background-color: rgba(220, 38, 38, 0.1);
-      color: var(--heritage-red);
+      color: #dc2626;
     }
   }
 }
@@ -265,18 +257,18 @@ button {
     rgba(59, 130, 246, 0.05) 0%, 
     rgba(212, 175, 55, 0.05) 100%);
   border: 2px solid rgba(59, 130, 246, 0.2);
-  border-radius: 12px;
+  border-radius: t.$card-radius-sm;
 }
 
 // Selection checkboxes
 mat-checkbox {
   .mat-mdc-checkbox-frame {
-    border-color: var(--damascus-gold);
+    border-color: t.$damascus-gold;
   }
   
   &.mat-mdc-checkbox-checked {
     .mat-mdc-checkbox-background {
-      background-color: var(--damascus-gold);
+      background-color: t.$damascus-gold;
     }
   }
 }
@@ -289,23 +281,13 @@ mat-checkbox {
   }
   
   h3 {
-    color: var(--syrian-blue);
+    color: #1e40af;
     font-family: 'Tajawal', 'Inter', sans-serif;
   }
 }
 
-// Snackbar customization
-::ng-deep {
-  .success-snackbar {
-    background: linear-gradient(135deg, var(--aleppo-green), #059669);
-    color: white;
-  }
-  
-  .error-snackbar {
-    background: linear-gradient(135deg, var(--heritage-red), #dc2626);
-    color: white;
-  }
-}
+// Snackbar styles provided by global Material theme (material-syrian-theme.scss).
+// Use panelClass: ['success-snackbar'] or ['error-snackbar'] in TS — no ::ng-deep needed.
 
 // Animations
 @keyframes gentle-pulse {
@@ -320,7 +302,7 @@ mat-checkbox {
 }
 
 // Responsive design optimizations
-@media (max-width: 768px) {
+@include t.mobile {
   // Mobile-first approach for small screens
   .grid {
     grid-template-columns: 1fr;
@@ -353,14 +335,14 @@ mat-checkbox {
   }
 }
 
-@media (min-width: 769px) and (max-width: 1024px) {
+@include t.tablet {
   // Tablet optimizations
   .grid.grid-cols-1.md\:grid-cols-2.lg\:grid-cols-3.xl\:grid-cols-4 {
     grid-template-columns: repeat(2, 1fr);
   }
 }
 
-@media (min-width: 1025px) {
+@include t.desktop {
   // Desktop optimizations
   .grid.grid-cols-1.md\:grid-cols-2.lg\:grid-cols-3.xl\:grid-cols-4 {
     grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -405,7 +387,7 @@ mat-checkbox {
 // High contrast mode support
 @media (prefers-contrast: high) {
   mat-card {
-    border: 2px solid var(--syrian-blue);
+    border: 2px solid #1e40af;
   }
   
   button {
