@@ -1,14 +1,16 @@
+@use './_account-tokens' as t;
+
 .rtl {
   direction: rtl;
   text-align: right;
 }
 
 .bg-damascus-gold {
-  background: linear-gradient(135deg, #D4AF37, #FFD700);
+  @include t.gold-gradient;
 }
 
 .bg-aleppo-green {
-  background: linear-gradient(135deg, #228B22, #32CD32);
+  @include t.green-gradient;
 }
 
 .hover\:shadow-xl:hover {
@@ -16,12 +18,12 @@
 }
 
 mat-card {
-  border-radius: 12px;
+  border-radius: t.$card-radius-sm;
   border: 1px solid rgba(0, 0, 0, 0.05);
 }
 
 .text-gradient {
-  background: linear-gradient(135deg, #D4AF37, #FFD700);
+  background: linear-gradient(135deg, t.$damascus-gold, t.$damascus-gold-bright);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;

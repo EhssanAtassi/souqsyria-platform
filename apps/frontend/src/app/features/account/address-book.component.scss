@@ -1,3 +1,5 @@
+@use './_account-tokens' as t;
+
 /* Address Book Component Styles - Syrian Marketplace */
 
 :host {
@@ -8,9 +10,9 @@
 
 // Header
 .address-book-header {
-  background: linear-gradient(135deg, #D4AF37 0%, #B8941F 100%);
+  @include t.gold-gradient;
   color: white;
-  box-shadow: 0 4px 20px rgba(212, 175, 55, 0.3);
+  box-shadow: 0 4px 20px rgba(t.$damascus-gold, 0.3);
 
   .header-content {
     h1 {
@@ -33,9 +35,9 @@
   }
 
   .add-address-btn {
-    background: linear-gradient(135deg, #16a085 0%, #27ae60 100%);
+    @include t.green-gradient;
     border: none;
-    border-radius: 25px;
+    border-radius: t.$radius-full;
     padding: 12px 24px;
     font-weight: 600;
     text-transform: none;
@@ -52,7 +54,7 @@
 // Loading
 .loading-container {
   background: white;
-  border-radius: 16px;
+  border-radius: t.$card-radius;
   margin: 20px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
 }
@@ -70,7 +72,7 @@
     box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
 
     .modal-header {
-      background: linear-gradient(135deg, #D4AF37 0%, #B8941F 100%);
+      @include t.gold-gradient;
 
       h3 {
         font-weight: 600;
@@ -91,20 +93,20 @@
 
       .form-actions {
         padding-top: 20px;
-        border-top: 1px solid #e2e8f0;
+        border-top: 1px solid t.$border-light;
         margin-top: 20px;
 
         .save-btn {
-          background: linear-gradient(135deg, #D4AF37 0%, #B8941F 100%);
+          @include t.gold-gradient;
           border: none;
-          border-radius: 25px;
+          border-radius: t.$radius-full;
           padding: 12px 24px;
           font-weight: 600;
-          box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3);
+          box-shadow: 0 4px 15px rgba(t.$damascus-gold, 0.3);
 
           &:hover:not(:disabled) {
             transform: translateY(-1px);
-            box-shadow: 0 6px 20px rgba(212, 175, 55, 0.4);
+            box-shadow: 0 6px 20px rgba(t.$damascus-gold, 0.4);
           }
 
           &:disabled {
@@ -119,7 +121,7 @@
 // Default Address
 .default-addresses {
   .default-address-card {
-    border-radius: 16px;
+    border-radius: t.$card-radius;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
     border-top: 4px solid #3182ce;
     transition: all 0.3s ease;
@@ -132,7 +134,7 @@
     .shipping-icon {
       background: linear-gradient(135deg, #3182ce, #2c5aa0);
       color: white;
-      border-radius: 12px;
+      border-radius: t.$card-radius-sm;
     }
   }
 }
@@ -140,7 +142,7 @@
 // Address Cards Grid
 .addresses-grid {
   .address-card {
-    border-radius: 16px;
+    border-radius: t.$card-radius;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
     transition: all 0.3s ease;
     overflow: hidden;
@@ -171,18 +173,8 @@
   }
 }
 
-// Snackbar
-::ng-deep {
-  .success-snackbar {
-    background: linear-gradient(135deg, #27ae60, #16a085) !important;
-    color: white !important;
-  }
-
-  .error-snackbar {
-    background: linear-gradient(135deg, #e74c3c, #c0392b) !important;
-    color: white !important;
-  }
-}
+// Snackbar styles provided by global Material theme (material-syrian-theme.scss).
+// Use panelClass: ['success-snackbar'] or ['error-snackbar'] in TS — no ::ng-deep needed.
 
 // Animations
 @keyframes fadeIn {
@@ -196,7 +188,7 @@
 }
 
 // Responsive
-@media (max-width: 768px) {
+@include t.mobile {
   .address-book-header .container .flex {
     flex-direction: column;
     align-items: flex-start;

@@ -1,3 +1,5 @@
+@use '../../../_account-tokens' as t;
+
 /**
  * @fileoverview Styles for governorate cascading dropdown component
  * @description Responsive layout for hierarchical Syrian location selection (Governorate > City > District)
@@ -48,7 +50,7 @@ $shadow-lg: 0 4px 16px rgba(0, 0, 0, 0.1);
   gap: $spacing-md;
   padding: $spacing-md;
   background: linear-gradient(135deg, $info-light 0%, $surface-light 100%);
-  border-radius: $border-radius;
+  border-radius: t.$radius-md;
   border: 1px solid $border-color;
 
   .full-width {
@@ -129,7 +131,7 @@ $shadow-lg: 0 4px 16px rgba(0, 0, 0, 0.1);
     .mat-mdc-select-panel {
       background: $surface-white;
       box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
-      border-radius: 8px;
+      border-radius: t.$radius-md;
       max-height: 320px;
 
       .mat-mdc-option {
@@ -172,14 +174,14 @@ $shadow-lg: 0 4px 16px rgba(0, 0, 0, 0.1);
   }
 
   // Tablet and desktop: three-column grid
-  @media (min-width: 768px) {
+  @include t.md-up {
     grid-template-columns: repeat(3, 1fr);
     gap: 1.25rem;
     padding: 1.25rem;
   }
 
   // Large desktop: more spacing
-  @media (min-width: 1024px) {
+  @include t.desktop {
     gap: $spacing-lg;
     padding: $spacing-lg;
   }
@@ -202,7 +204,7 @@ $shadow-lg: 0 4px 16px rgba(0, 0, 0, 0.1);
       display: flex;
       align-items: center;
       justify-content: center;
-      border-radius: 8px;
+      border-radius: t.$radius-md;
       z-index: 10;
     }
   }
@@ -255,7 +257,7 @@ $shadow-lg: 0 4px 16px rgba(0, 0, 0, 0.1);
 /** ============================================
  *  P0 #7 FIX: Mobile optimizations
  *  ============================================ */
-@media (max-width: 599px) {
+@include t.mobile {
   .governorate-dropdown-container {
     gap: 0.75rem;
     padding: 0.75rem;

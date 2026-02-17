@@ -4,23 +4,21 @@
  * Supports RTL/LTR layouts with Damascus Gold & Aleppo Green accents
  */
 
-// Syrian Marketplace Color Palette
-$damascus-gold: #D4AF37;
-$damascus-gold-light: #E8C858;
-$damascus-gold-dark: #B8941F;
-$aleppo-green: #2E7D32;
-$aleppo-green-light: #4CAF50;
+@use '../_account-tokens' as t;
+
+// Syrian Marketplace Color Palette — migrated to token bridge
+// Tokens: t.$damascus-gold, t.$damascus-gold-bright (was $damascus-gold-light),
+//         t.$damascus-gold-dark, t.$aleppo-green, t.$aleppo-green-light
 $aleppo-green-dark: #1B5E20;
 $syrian-red: #C62828;
 $syrian-blue: #1565C0;
 $syrian-amber: #FF8F00;
 
-// Status Colors
-$status-pending: #FF9800;
+// Status Colors — partially migrated
+// Tokens: t.$color-warning (was $status-pending), t.$aleppo-green-light (was $status-delivered)
 $status-confirmed: #2196F3;
 $status-preparing: #FF8F00;
 $status-transit: #673AB7;
-$status-delivered: #4CAF50;
 $status-cancelled: #F44336;
 
 .order-history-container {
@@ -87,7 +85,7 @@ $status-cancelled: #F44336;
         color: #1a1a1a;
 
         .page-icon {
-          color: $damascus-gold;
+          color: t.$damascus-gold;
           font-size: 2rem;
         }
       }
@@ -100,13 +98,13 @@ $status-cancelled: #F44336;
     }
 
     .language-toggle {
-      background: rgba($damascus-gold, 0.1);
-      color: $damascus-gold-dark;
-      border: 1px solid rgba($damascus-gold, 0.3);
+      background: rgba(t.$damascus-gold, 0.1);
+      color: t.$damascus-gold-dark;
+      border: 1px solid rgba(t.$damascus-gold, 0.3);
       transition: all 0.3s ease;
 
       &:hover {
-        background: rgba($damascus-gold, 0.2);
+        background: rgba(t.$damascus-gold, 0.2);
         transform: scale(1.05);
       }
     }
@@ -139,29 +137,29 @@ $status-cancelled: #F44336;
       }
 
       &.total-spent {
-        border-left: 4px solid $damascus-gold;
+        border-left: 4px solid t.$damascus-gold;
         
         .stat-icon {
-          background: rgba($damascus-gold, 0.1);
-          color: $damascus-gold-dark;
+          background: rgba(t.$damascus-gold, 0.1);
+          color: t.$damascus-gold-dark;
         }
       }
 
       &.pending-orders {
-        border-left: 4px solid $status-pending;
+        border-left: 4px solid t.$color-warning;
         
         .stat-icon {
-          background: rgba($status-pending, 0.1);
-          color: $status-pending;
+          background: rgba(t.$color-warning, 0.1);
+          color: t.$color-warning;
         }
       }
 
       &.recent-deliveries {
-        border-left: 4px solid $aleppo-green;
+        border-left: 4px solid t.$aleppo-green;
         
         .stat-icon {
-          background: rgba($aleppo-green, 0.1);
-          color: $aleppo-green;
+          background: rgba(t.$aleppo-green, 0.1);
+          color: t.$aleppo-green;
         }
       }
 
@@ -173,7 +171,7 @@ $status-cancelled: #F44336;
         .stat-icon {
           width: 48px;
           height: 48px;
-          border-radius: 12px;
+          border-radius: t.$card-radius-sm;
           display: flex;
           align-items: center;
           justify-content: center;
@@ -228,7 +226,7 @@ $status-cancelled: #F44336;
       color: #1a1a1a;
 
       mat-icon {
-        color: $aleppo-green;
+        color: t.$aleppo-green;
       }
     }
 
@@ -246,11 +244,11 @@ $status-cancelled: #F44336;
       }
 
       .export-btn {
-        color: $damascus-gold-dark;
-        border: 1px solid rgba($damascus-gold, 0.3);
+        color: t.$damascus-gold-dark;
+        border: 1px solid rgba(t.$damascus-gold, 0.3);
 
         &:hover {
-          background: rgba($damascus-gold, 0.05);
+          background: rgba(t.$damascus-gold, 0.05);
         }
       }
     }
@@ -283,18 +281,18 @@ $status-cancelled: #F44336;
       .date-filter-chips {
         .mat-chip-listbox {
           .mat-chip-option {
-            background: rgba($damascus-gold, 0.1);
-            color: $damascus-gold-dark;
-            border: 1px solid rgba($damascus-gold, 0.3);
+            background: rgba(t.$damascus-gold, 0.1);
+            color: t.$damascus-gold-dark;
+            border: 1px solid rgba(t.$damascus-gold, 0.3);
             transition: all 0.3s ease;
 
             &:hover {
-              background: rgba($damascus-gold, 0.2);
+              background: rgba(t.$damascus-gold, 0.2);
               transform: scale(1.02);
             }
 
             &.mdc-evolution-chip--selected {
-              background: $damascus-gold;
+              background: t.$damascus-gold;
               color: white;
             }
           }
@@ -360,14 +358,14 @@ $status-cancelled: #F44336;
     }
 
     button {
-      background: linear-gradient(135deg, $damascus-gold 0%, $damascus-gold-light 100%);
+      background: linear-gradient(135deg, t.$damascus-gold 0%, t.$damascus-gold-bright 100%);
       color: white;
       border: none;
       padding: 12px 24px;
       font-weight: 600;
 
       &:hover {
-        background: linear-gradient(135deg, $damascus-gold-dark 0%, $damascus-gold 100%);
+        background: linear-gradient(135deg, t.$damascus-gold-dark 0%, t.$damascus-gold 100%);
         transform: translateY(-1px);
       }
     }
@@ -381,19 +379,19 @@ $status-cancelled: #F44336;
     .order-card {
       background: linear-gradient(145deg, #ffffff 0%, #fafafa 100%);
       border: 1px solid #e0e0e0;
-      border-radius: 12px;
+      border-radius: t.$card-radius-sm;
       transition: all 0.3s ease;
       overflow: hidden;
 
       &:hover {
         transform: translateY(-2px);
         box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
-        border-color: rgba($damascus-gold, 0.3);
+        border-color: rgba(t.$damascus-gold, 0.3);
       }
 
       &.expanded {
-        border-color: $damascus-gold;
-        box-shadow: 0 8px 25px rgba($damascus-gold, 0.2);
+        border-color: t.$damascus-gold;
+        box-shadow: 0 8px 25px rgba(t.$damascus-gold, 0.2);
       }
 
       .order-header {
@@ -415,7 +413,7 @@ $status-cancelled: #F44336;
               margin: 0 0 4px 0;
               font-size: 1.3rem;
               font-weight: 600;
-              color: $damascus-gold-dark;
+              color: t.$damascus-gold-dark;
             }
 
             .order-date {
@@ -435,7 +433,7 @@ $status-cancelled: #F44336;
               align-items: center;
               gap: 6px;
               padding: 6px 12px;
-              border-radius: 16px;
+              border-radius: t.$card-radius;
               font-size: 0.85rem;
               font-weight: 500;
 
@@ -447,9 +445,9 @@ $status-cancelled: #F44336;
 
               // Status-specific colors
               &.status-chip-orange {
-                background: rgba($status-pending, 0.1);
-                color: $status-pending;
-                border: 1px solid rgba($status-pending, 0.3);
+                background: rgba(t.$color-warning, 0.1);
+                color: t.$color-warning;
+                border: 1px solid rgba(t.$color-warning, 0.3);
               }
 
               &.status-chip-blue {
@@ -471,9 +469,9 @@ $status-cancelled: #F44336;
               }
 
               &.status-chip-green {
-                background: rgba($status-delivered, 0.1);
-                color: $status-delivered;
-                border: 1px solid rgba($status-delivered, 0.3);
+                background: rgba(t.$aleppo-green-light, 0.1);
+                color: t.$aleppo-green-light;
+                border: 1px solid rgba(t.$aleppo-green-light, 0.3);
               }
 
               &.status-chip-red {
@@ -513,8 +511,8 @@ $status-cancelled: #F44336;
             transition: all 0.3s ease;
 
             &:hover {
-              color: $damascus-gold-dark;
-              background: rgba($damascus-gold, 0.1);
+              color: t.$damascus-gold-dark;
+              background: rgba(t.$damascus-gold, 0.1);
             }
           }
 
@@ -591,7 +589,7 @@ $status-cancelled: #F44336;
                     }
 
                     .price {
-                      color: $damascus-gold-dark;
+                      color: t.$damascus-gold-dark;
                     }
                   }
                 }
@@ -602,8 +600,8 @@ $status-cancelled: #F44336;
                 align-items: center;
                 gap: 4px;
                 padding: 8px 12px;
-                background: rgba($damascus-gold, 0.1);
-                color: $damascus-gold-dark;
+                background: rgba(t.$damascus-gold, 0.1);
+                color: t.$damascus-gold-dark;
                 border-radius: 8px;
                 font-size: 0.85rem;
                 font-weight: 500;
@@ -628,7 +626,7 @@ $status-cancelled: #F44336;
                 display: block;
                 font-size: 1.4rem;
                 font-weight: 700;
-                color: $damascus-gold-dark;
+                color: t.$damascus-gold-dark;
                 line-height: 1.2;
               }
 
@@ -639,7 +637,7 @@ $status-cancelled: #F44336;
             }
 
             .gift-badge {
-              background: linear-gradient(135deg, $aleppo-green 0%, $aleppo-green-light 100%);
+              background: linear-gradient(135deg, t.$aleppo-green 0%, t.$aleppo-green-light 100%);
               color: white;
               border: none;
 
@@ -658,10 +656,10 @@ $status-cancelled: #F44336;
           padding: 12px;
           background: rgba(#f5f5f5, 0.3);
           border-radius: 8px;
-          border-left: 3px solid $aleppo-green;
+          border-left: 3px solid t.$aleppo-green;
 
           .address-icon {
-            color: $aleppo-green;
+            color: t.$aleppo-green;
             font-size: 20px;
           }
 
@@ -724,7 +722,7 @@ $status-cancelled: #F44336;
           color: #1a1a1a;
 
           mat-icon {
-            color: $damascus-gold;
+            color: t.$damascus-gold;
           }
         }
 
@@ -778,11 +776,11 @@ $status-cancelled: #F44336;
                   }
 
                   .craft-origin {
-                    color: $aleppo-green;
+                    color: t.$aleppo-green;
                   }
 
                   .artisan-info {
-                    color: $damascus-gold-dark;
+                    color: t.$damascus-gold-dark;
                   }
                 }
               }
@@ -814,7 +812,7 @@ $status-cancelled: #F44336;
 
                 .total-price {
                   font-weight: 600;
-                  color: $damascus-gold-dark;
+                  color: t.$damascus-gold-dark;
                   font-size: 1.1rem;
                 }
               }
@@ -863,7 +861,7 @@ $status-cancelled: #F44336;
                 justify-content: center;
 
                 .completed-icon {
-                  color: $aleppo-green;
+                  color: t.$aleppo-green;
                   font-size: 24px;
                 }
 
@@ -913,7 +911,7 @@ $status-cancelled: #F44336;
                   }
 
                   .event-location {
-                    color: $aleppo-green;
+                    color: t.$aleppo-green;
                   }
 
                   .event-timestamp {
@@ -930,7 +928,7 @@ $status-cancelled: #F44336;
               &.completed {
                 .event-details {
                   .event-title {
-                    color: $aleppo-green;
+                    color: t.$aleppo-green;
                   }
                 }
               }
@@ -971,7 +969,7 @@ $status-cancelled: #F44336;
                   .primary-total {
                     font-size: 1.4rem;
                     font-weight: 700;
-                    color: $damascus-gold-dark;
+                    color: t.$damascus-gold-dark;
                   }
 
                   .secondary-total {
@@ -1026,13 +1024,13 @@ $status-cancelled: #F44336;
               margin-left: auto;
 
               &.payment-status-completed {
-                background: rgba($aleppo-green, 0.1);
-                color: $aleppo-green;
+                background: rgba(t.$aleppo-green, 0.1);
+                color: t.$aleppo-green;
               }
 
               &.payment-status-pending {
-                background: rgba($status-pending, 0.1);
-                color: $status-pending;
+                background: rgba(t.$color-warning, 0.1);
+                color: t.$color-warning;
               }
 
               &.payment-status-failed {
@@ -1071,7 +1069,7 @@ $status-cancelled: #F44336;
 /* ===========================================
    RESPONSIVE DESIGN
    =========================================== */
-@media (max-width: 768px) {
+@include t.mobile {
   .order-history-container {
     padding: 16px;
 

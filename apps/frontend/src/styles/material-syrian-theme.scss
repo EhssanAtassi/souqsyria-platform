@@ -689,6 +689,21 @@ $souqsyria-dark-theme: mat.m2-define-dark-theme((
     --mat-snack-bar-button-color: #b9a779;
   }
 
+  // Plain aliases — used by account components via panelClass: ['success-snackbar']
+  // These match the souqsyria- prefixed variants above so component TS files
+  // don't need ::ng-deep overrides in their SCSS.
+  &.success-snackbar {
+    --mdc-snackbar-container-color: #054239;
+    --mdc-snackbar-supporting-text-color: white;
+    --mat-snack-bar-button-color: #d4af37;
+  }
+
+  &.error-snackbar {
+    --mdc-snackbar-container-color: #4a151e;
+    --mdc-snackbar-supporting-text-color: white;
+    --mat-snack-bar-button-color: #f7c5cd;
+  }
+
   // Arabic snackbar - RTL support
   &[dir="rtl"] {
     .mdc-snackbar__label {

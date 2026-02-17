@@ -1,0 +1,193 @@
+/**
+ * @fileoverview Shared design tokens bridge for Account feature components
+ * @description Imports global tokens and exposes account-specific semantic aliases.
+ *              Every account component should `@use` this file instead of hard-coding values.
+ *
+ * Usage in component SCSS:
+ *   @use '../_account-tokens' as t;
+ *   // or from deeper paths:
+ *   @use '../../_account-tokens' as t;
+ *
+ *   .my-class {
+ *     color: t.$text-primary;
+ *     @include t.mobile { padding: 1rem; }
+ *   }
+ */
+
+@use '../../../styles/colors' as colors;
+@use '../../../styles/breakpoints' as bp;
+
+// ============================================
+// BREAKPOINT MIXINS (re-exported)
+// ============================================
+// Usage: @include t.mobile { ... }
+
+/// Below 640px (phones)
+@mixin mobile { @include bp.mobile { @content; } }
+
+/// 640px and up
+@mixin sm-up { @include bp.sm-up { @content; } }
+
+/// 640px to 1023px
+@mixin tablet { @include bp.tablet { @content; } }
+
+/// 768px and up
+@mixin md-up { @include bp.md-up { @content; } }
+
+/// 1024px and up
+@mixin desktop { @include bp.desktop { @content; } }
+
+/// 1024px to 1279px
+@mixin desktop-sm { @include bp.desktop-sm { @content; } }
+
+/// 1280px and up
+@mixin xl-up { @include bp.xl-up { @content; } }
+
+/// 1536px and up
+@mixin xxl-up { @include bp.xxl-up { @content; } }
+
+// ============================================
+// BRAND COLORS
+// ============================================
+// Components use Damascus gold (#D4AF37) while the global theme defines
+// golden-wheat (#988561). Both are exposed so components tokenize NOW
+// and the palette can be unified later by changing ONE variable.
+
+$brand-gold: colors.$golden-wheat;           // #988561 — global theme primary
+$brand-gold-light: colors.$golden-wheat-200; // #b9a779
+$brand-gold-lighter: colors.$golden-wheat-100; // #edebe0
+
+$brand-green: colors.$forest-200;            // #054239
+$brand-green-dark: colors.$forest-300;       // #002623
+$brand-green-light: colors.$forest-100;      // #428177
+
+// ── Account-specific palette (Damascus heritage) ──
+// TODO: Reconcile with global golden-wheat when design team decides.
+// Until then, use these for the account feature's gold/green gradients.
+$damascus-gold: #D4AF37;
+$damascus-gold-dark: #B8941F;
+$damascus-gold-bright: #FFD700;
+$aleppo-green: #2E7D32;
+$aleppo-green-light: #4CAF50;
+$sidebar-active: #667eea;
+$sidebar-active-hover: rgba(103, 126, 234, 0.08);
+$sidebar-active-bg: rgba(103, 126, 234, 0.12);
+
+// ── Gradient shortcuts ──
+/// Damascus gold gradient (used by headers, CTAs, save buttons)
+@mixin gold-gradient {
+  background: linear-gradient(135deg, $damascus-gold, $damascus-gold-dark);
+}
+
+/// Green CTA gradient (used by add-address, secondary actions)
+@mixin green-gradient {
+  background: linear-gradient(135deg, #16a085, #27ae60);
+}
+
+// ============================================
+// TEXT COLORS
+// ============================================
+
+$text-primary: colors.$color-text-primary;
+$text-secondary: colors.$color-text-secondary;
+$text-inverse: colors.$color-text-inverse;
+$text-muted: var(--color-text-muted);
+
+// ============================================
+// SEMANTIC / STATUS COLORS
+// ============================================
+
+$color-success: colors.$color-success;
+$color-warning: colors.$color-warning;
+$color-error: colors.$color-error;
+$color-info: colors.$color-info;
+
+// ============================================
+// BACKGROUND COLORS
+// ============================================
+
+$bg-primary: colors.$color-bg-primary;
+$bg-secondary: colors.$color-bg-secondary;
+$bg-dark: colors.$color-bg-dark;
+
+// ============================================
+// BORDER COLORS
+// ============================================
+
+$border-light: colors.$color-border-light;
+$border-medium: colors.$color-border-medium;
+$border-dark: colors.$color-border-dark;
+
+// ============================================
+// SHADOWS (CSS custom properties)
+// ============================================
+
+$shadow-sm: var(--shadow-sm);
+$shadow-md: var(--shadow-md);
+$shadow-lg: var(--shadow-lg);
+$shadow-xl: var(--shadow-xl);
+
+// ============================================
+// BORDER RADIUS (CSS custom properties)
+// ============================================
+
+$radius-sm: var(--radius-sm);   // 0.25rem = 4px
+$radius-md: var(--radius-md);   // 0.5rem  = 8px
+$radius-lg: var(--radius-lg);   // 0.75rem = 12px
+$radius-xl: var(--radius-xl);   // 1rem    = 16px
+$radius-full: var(--radius-full); // 9999px (pill)
+
+// ============================================
+// TRANSITIONS (CSS custom properties)
+// ============================================
+
+$transition-fast: var(--transition-fast);   // 150ms
+$transition-base: var(--transition-base);   // 250ms
+$transition-slow: var(--transition-slow);   // 350ms
+
+// ============================================
+// Z-INDEX (CSS custom properties)
+// ============================================
+
+$z-overlay: var(--z-index-overlay);
+$z-modal: var(--z-index-modal);
+$z-modal-backdrop: var(--z-index-modal-backdrop);
+$z-toast: var(--z-index-toast);
+
+// ============================================
+// TOUCH TARGETS (WCAG 2.2)
+// ============================================
+
+$touch-min: bp.$touch-min;             // 48px - AA primary
+$touch-secondary: bp.$touch-secondary; // 44px - AA secondary
+
+// ============================================
+// ACCOUNT CARD PATTERNS
+// ============================================
+// Standardized card behavior for all account components
+
+$card-radius: $radius-xl;            // 16px — consistent across account
+$card-radius-sm: $radius-lg;         // 12px — for smaller cards/panels
+$card-shadow: $shadow-md;
+$card-shadow-hover: $shadow-lg;
+
+/// Shared hover elevation for account cards
+/// @param {Length} $lift [-2px] Vertical translate on hover
+@mixin card-hover($lift: -2px) {
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+              box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+  &:hover {
+    transform: translateY($lift);
+    box-shadow: #{$card-shadow-hover};
+  }
+}
+
+// ============================================
+// SNACKBAR
+// ============================================
+// DO NOT define snackbar styles here. Use the global Material theme classes:
+//   panelClass: ['success-snackbar']   — green success
+//   panelClass: ['error-snackbar']     — red error
+//   panelClass: ['souqsyria-info-snackbar']  — info blue-green
+// These are defined in material-syrian-theme.scss (global scope, no ::ng-deep needed).

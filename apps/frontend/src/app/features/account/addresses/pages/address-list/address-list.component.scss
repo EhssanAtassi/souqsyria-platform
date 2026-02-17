@@ -1,3 +1,5 @@
+@use '../../../_account-tokens' as t;
+
 /**
  * @fileoverview Styles for address list page component
  * @description Responsive grid layout for address cards with Material Design and Syrian marketplace theme
@@ -71,7 +73,7 @@ $shadow-xl: 0 8px 24px rgba(0, 0, 0, 0.12);
   margin: 0 auto;
   background: linear-gradient(135deg, $primary-light 0%, $surface-white 50%, #d1fae5 100%);
   min-height: 100vh;
-  border-radius: $border-radius-lg;
+  border-radius: t.$card-radius-sm;
 
   .page-header {
     display: flex;
@@ -103,7 +105,7 @@ $shadow-xl: 0 8px 24px rgba(0, 0, 0, 0.12);
     button {
       height: 48px;
       padding: 0 $spacing-lg;
-      border-radius: $border-radius;
+      border-radius: t.$radius-md;
       font-weight: 600;
       background: linear-gradient(135deg, $success-color, #10b981);
       color: $surface-white;
@@ -141,7 +143,7 @@ $shadow-xl: 0 8px 24px rgba(0, 0, 0, 0.12);
     margin-bottom: $spacing-xl;
     padding: $spacing-xl;
     background-color: $surface-white;
-    border-radius: $border-radius;
+    border-radius: t.$radius-md;
     box-shadow: $shadow-md;
   }
 
@@ -153,7 +155,7 @@ $shadow-xl: 0 8px 24px rgba(0, 0, 0, 0.12);
     padding: 5rem 2rem;
     text-align: center;
     background: white;
-    border-radius: 16px;
+    border-radius: t.$card-radius;
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
     margin: 2rem auto;
     max-width: 600px;
@@ -219,7 +221,7 @@ $shadow-xl: 0 8px 24px rgba(0, 0, 0, 0.12);
     .address-card {
       position: relative;
       background: $surface-white;
-      border-radius: 12px;
+      border-radius: t.$card-radius-sm;
       border: 2px solid transparent;
       transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
       overflow: hidden;
@@ -281,7 +283,7 @@ $shadow-xl: 0 8px 24px rgba(0, 0, 0, 0.12);
             padding: 0.375rem 0.875rem;
             background: linear-gradient(135deg, #eff6ff, #dbeafe);
             color: #1e40af;
-            border-radius: 20px;
+            border-radius: t.$radius-full;
             font-size: 0.8125rem;
             font-weight: 600;
             border: 1px solid #bfdbfe;
@@ -307,7 +309,7 @@ $shadow-xl: 0 8px 24px rgba(0, 0, 0, 0.12);
             padding: 0.375rem 0.875rem;
             background: linear-gradient(135deg, #fef7cd, #fde68a);
             color: #92400e;
-            border-radius: 20px;
+            border-radius: t.$radius-full;
             font-size: 0.8125rem;
             font-weight: 700;
             border: 1px solid #fbbf24;
@@ -374,7 +376,7 @@ $shadow-xl: 0 8px 24px rgba(0, 0, 0, 0.12);
           flex: 1;
           min-width: fit-content;
           height: 40px;
-          border-radius: 8px;
+          border-radius: t.$radius-md;
           font-weight: 600;
           font-size: 0.875rem;
           transition: all 0.2s ease;
@@ -608,7 +610,7 @@ $shadow-xl: 0 8px 24px rgba(0, 0, 0, 0.12);
 }
 
 // Mobile devices
-@media (max-width: 768px) {
+@include t.mobile {
   .address-list-container {
     padding: 1.5rem 1rem;
     border-radius: 0;
@@ -636,7 +638,7 @@ $shadow-xl: 0 8px 24px rgba(0, 0, 0, 0.12);
 
     .form-section {
       padding: 1.5rem;
-      border-radius: 8px;
+      border-radius: t.$radius-md;
     }
 
     .address-grid {
@@ -770,7 +772,7 @@ $shadow-xl: 0 8px 24px rgba(0, 0, 0, 0.12);
 
     .empty-state {
       padding: 2.5rem 1rem;
-      border-radius: 12px;
+      border-radius: t.$card-radius-sm;
 
       .empty-icon {
         font-size: 4rem;

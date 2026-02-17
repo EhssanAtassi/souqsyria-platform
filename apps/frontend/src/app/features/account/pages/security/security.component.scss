@@ -3,12 +3,14 @@
  * @description Responsive styles with RTL support for password change form
  */
 
+@use '../../_account-tokens' as t;
+
 .security-container {
   max-width: 600px;
   margin: 0 auto;
   padding: 2rem;
 
-  @media (max-width: 768px) {
+  @include t.mobile {
     padding: 1rem;
   }
 }
@@ -16,14 +18,14 @@
 /* Security Card */
 .security-card {
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  border-radius: 12px;
+  border-radius: t.$card-radius-sm;
 }
 
 .security-title {
   font-size: 1.75rem;
   font-weight: 600;
   margin: 0;
-  color: rgba(0, 0, 0, 0.87);
+  color: t.$text-primary;
 }
 
 /* Form Fields */
@@ -40,8 +42,8 @@
   padding: 0.75rem 1rem;
   margin-bottom: 1.5rem;
   background-color: #ffebee;
-  border-radius: 4px;
-  color: #c62828;
+  border-radius: t.$radius-sm;
+  color: t.$color-error;
   font-size: 0.875rem;
 
   mat-icon {
@@ -73,7 +75,7 @@
     height: 1.25rem;
   }
 
-  @media (max-width: 640px) {
+  @include t.mobile {
     width: 100%;
   }
 }
@@ -100,13 +102,5 @@
   }
 }
 
-/* Success/Error Snackbar Styles */
-::ng-deep .success-snackbar {
-  background-color: #4caf50 !important;
-  color: white !important;
-}
-
-::ng-deep .error-snackbar {
-  background-color: #f44336 !important;
-  color: white !important;
-}
+// Snackbar styles provided by global Material theme (material-syrian-theme.scss).
+// Use panelClass: ['success-snackbar'] or ['error-snackbar'] in TS — no ::ng-deep needed.
