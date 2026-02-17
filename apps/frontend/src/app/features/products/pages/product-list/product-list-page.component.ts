@@ -19,6 +19,7 @@ import {
   DestroyRef,
   OnInit,
   OnDestroy,
+  HostListener,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule, ActivatedRoute } from '@angular/router';
@@ -432,6 +433,16 @@ export class ProductListPageComponent implements OnInit, OnDestroy {
   }
 
   /**
+   * @description Handles ESC key press to close sidebar
+   */
+  @HostListener('document:keydown.escape')
+  onEscKey(): void {
+    if (this.sidebarOpen()) {
+      this.closeSidebar();
+    }
+  }
+
+  /**
    * @description Locks body scroll to prevent background scrolling when sidebar is open
    */
   private lockBodyScroll(): void {
@@ -617,13 +628,12 @@ export class ProductListPageComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * @description Checks if a product is in the wishlist
-   * @param productId - Product ID to check
-   * @returns True if product is wishlisted
+   * @description Computed set of wishlisted product IDs for O(1) lookup
+   * Prevents method calls in template loop for better performance
    */
-  isProductWishlisted(productId: number): boolean {
-    return this.wishlistService.isInWishlist(String(productId));
-  }
+  wishlistedProductIds = computed(() => {
+    return new Set(this.wishlistService.getWishlistItems().map(item => Number(item.id)));
+  });
 
   /**
    * @description Clean up SEO meta tags and unlock body scroll on component destroy

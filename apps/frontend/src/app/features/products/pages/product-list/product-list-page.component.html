@@ -140,7 +140,7 @@
               [product]="product"
               [language]="language()"
               [priority]="i < 4"
-              [isWishlisted]="isProductWishlisted(product.id)"
+              [isWishlisted]="wishlistedProductIds().has(product.id)"
               (addToCart)="onAddToCart($event)"
               (addToWishlist)="onAddToWishlist($event)"
             />

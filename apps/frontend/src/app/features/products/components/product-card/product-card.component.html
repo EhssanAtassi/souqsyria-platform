@@ -7,6 +7,8 @@
           [src]="product().mainImage"
           [alt]="productName()"
           class="product-card__image"
+          width="400"
+          height="300"
           [loading]="priority() ? 'eager' : 'lazy'"
           [attr.fetchpriority]="priority() ? 'high' : null"
           (error)="onImageError($event)"

@@ -77,6 +77,10 @@
   text-transform: uppercase;
   letter-spacing: 0.5px;
 
+  [dir="rtl"] & {
+    letter-spacing: 0;
+  }
+
   .rtl & {
     right: auto;
     left: $space-3;
@@ -117,6 +121,10 @@
   color: $forest-text;
   text-transform: uppercase;
   letter-spacing: 0.5px;
+
+  [dir="rtl"] & {
+    letter-spacing: 0;
+  }
 }
 
 .product-card__name {
@@ -129,6 +137,8 @@
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
+  overflow-wrap: break-word;
+  word-break: break-word;
 
   @media (min-width: $breakpoint-sm) {
     font-size: $font-size-base;

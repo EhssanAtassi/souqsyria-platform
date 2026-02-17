@@ -2,7 +2,13 @@
  * @file public-products.service.ts
  * @description Handles customer-facing product queries (catalog feed).
  */
-import { Injectable, Logger, NotFoundException, Inject, forwardRef } from '@nestjs/common';
+import {
+  Injectable,
+  Logger,
+  NotFoundException,
+  Inject,
+  forwardRef,
+} from '@nestjs/common';
 import { GetPublicProductsDto } from '../dto/get-public-products.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ProductEntity } from '../../entities/product.entity';
@@ -353,10 +359,16 @@ export class PublicProductsService {
     // Apply sorting based on sortBy parameter
     if (filters.sortBy === 'price_asc') {
       // Sort by final price ascending (discount price takes priority)
-      query.orderBy('COALESCE(pricing.discountPrice, pricing.basePrice)', 'ASC');
+      query.orderBy(
+        'COALESCE(pricing.discountPrice, pricing.basePrice)',
+        'ASC',
+      );
     } else if (filters.sortBy === 'price_desc') {
       // Sort by final price descending (discount price takes priority)
-      query.orderBy('COALESCE(pricing.discountPrice, pricing.basePrice)', 'DESC');
+      query.orderBy(
+        'COALESCE(pricing.discountPrice, pricing.basePrice)',
+        'DESC',
+      );
     } else if (filters.sortBy === 'rating') {
       // Placeholder: Sort by rating (currently same as newest)
       // TODO: Implement when review system is available
@@ -539,11 +551,21 @@ export class PublicProductsService {
       nameEn: string;
       nameAr: string;
       slug: string;
-      ancestors: Array<{ id: number; nameEn: string; nameAr: string; slug: string }>;
+      ancestors: Array<{
+        id: number;
+        nameEn: string;
+        nameAr: string;
+        slug: string;
+      }>;
     } | null = null;
 
     if (product.category) {
-      const ancestors: Array<{ id: number; nameEn: string; nameAr: string; slug: string }> = [];
+      const ancestors: Array<{
+        id: number;
+        nameEn: string;
+        nameAr: string;
+        slug: string;
+      }> = [];
 
       try {
         // Load the category with parent relationship
@@ -661,7 +683,9 @@ export class PublicProductsService {
       totalStock,
       reviewSummary,
       relatedProducts: relatedProducts
-        .filter((rp) => rp.pricing?.basePrice != null && rp.pricing.basePrice > 0) // Exclude products without valid pricing or $0
+        .filter(
+          (rp) => rp.pricing?.basePrice != null && rp.pricing.basePrice > 0,
+        ) // Exclude products without valid pricing or $0
         .map((rp) => {
           let rpTotalStock = 0;
           rp.variants?.forEach((v) =>

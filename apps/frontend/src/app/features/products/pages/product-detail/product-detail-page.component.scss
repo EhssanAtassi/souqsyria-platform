@@ -121,7 +121,7 @@
   gap: $space-8;
   margin-bottom: $space-10;
 
-  @media (min-width: $breakpoint-md) {
+  @media (min-width: $breakpoint-sm) {
     grid-template-columns: 1fr 1fr;
   }
 
@@ -218,6 +218,10 @@
   font-size: $font-size-sm;
   font-weight: $font-weight-semibold;
 
+  [dir="rtl"] & {
+    letter-spacing: 0;
+  }
+
   &--in-stock {
     background: rgba($color-success, 0.1);
     color: $color-success;
@@ -267,6 +271,11 @@
   border: 1px solid $charcoal-medium;
   border-radius: $border-radius-md;
   padding: $space-1;
+
+  button[mat-icon-button] {
+    width: 48px;
+    height: 48px;
+  }
 }
 
 .quantity-value {
