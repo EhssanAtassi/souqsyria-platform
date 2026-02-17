@@ -196,11 +196,47 @@ export class HeaderComponent implements OnInit {
           this.categoryTree.set(response.data);
           this.categoryTreeLoaded = true;
           this.categoryTreeLoading.set(false);
+          this.enrichCategoriesFromTree(response.data);
         },
         error: () => {
           this.categoryTreeLoading.set(false);
         }
       });
+  }
+
+  /**
+   * Merges mega menu fields from API tree response into static categories.
+   * @description Static data provides instant rendering; API data applies admin
+   * overrides for megaMenuType, isPinnedInNav, and megaMenuConfig when available.
+   * @param treeNodes - Root-level category tree nodes from GET /categories/tree
+   */
+  private enrichCategoriesFromTree(treeNodes: CategoryTreeNode[]): void {
+    if (!treeNodes?.length) return;
+
+    // Build slug→node lookup for O(1) matching
+    const treeBySlug = new Map<string, CategoryTreeNode>();
+    treeNodes.forEach(node => treeBySlug.set(node.slug, node));
+
+    // Enrich each static category if API provides mega menu overrides
+    this.categories = this.categories.map(cat => {
+      // Extract slug from the category URL (e.g., '/category/electronics' → 'electronics')
+      const slug = cat.url?.split('/').pop();
+      const apiNode = slug ? treeBySlug.get(slug) : null;
+      if (!apiNode) return cat;
+
+      // Only override if API explicitly provides the field
+      const enriched = { ...cat };
+      if (apiNode.megaMenuType) {
+        enriched.megaMenuType = apiNode.megaMenuType as Category['megaMenuType'];
+      }
+      if (apiNode.isPinnedInNav !== undefined) {
+        enriched.isPinnedInNav = apiNode.isPinnedInNav;
+      }
+      if (apiNode.megaMenuConfig) {
+        enriched.megaMenuConfig = apiNode.megaMenuConfig as Category['megaMenuConfig'];
+      }
+      return enriched;
+    });
   }
 
   //#endregion

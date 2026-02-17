@@ -1,0 +1,62 @@
+/**
+ * Mega Menu Shared Design Tokens — SouqSyria Golden Wheat Theme
+ *
+ * @description Centralized SCSS tokens shared by mega-menu.component.scss
+ * and mega-menu-deep-browse.component.scss. Single source of truth for
+ * mega menu colors, shadows, radii, and transitions.
+ *
+ * @note These tokens intentionally differ from the global _colors.scss palette
+ * ($golden-wheat-400: #b9a779). The mega menu uses a warmer, more saturated
+ * gold (#C8A860) as designed in the SouqSyria mega-menu prototype.
+ *
+ * @version 1.0.0
+ */
+
+// ═══════════════════════════════════════
+// GOLDEN WHEAT — MEGA MENU PALETTE
+// ═══════════════════════════════════════
+
+$mm-golden-wheat: #C8A860;
+$mm-golden-wheat-dark: #9A7B32;
+$mm-golden-wheat-light: #FAF6EB;
+$mm-golden-wheat-glow: rgba(200, 168, 96, 0.25);
+$mm-golden-wheat-border: rgba(200, 168, 96, 0.3);
+
+// ═══════════════════════════════════════
+// TEXT COLORS
+// ═══════════════════════════════════════
+
+$mm-text-primary: #1F2937;    // gray-800
+$mm-text-secondary: #6B7280;  // gray-500
+$mm-text-tertiary: #9CA3AF;   // gray-400
+
+// ═══════════════════════════════════════
+// BORDERS & BACKGROUNDS
+// ═══════════════════════════════════════
+
+$mm-border-light: #F3F4F6;    // gray-100
+$mm-border-medium: #E5E7EB;   // gray-200
+$mm-bg-surface: #FFFFFF;
+$mm-bg-hover: #FEFDFB;        // warm white
+
+// ═══════════════════════════════════════
+// SHADOWS (dropdown-specific)
+// ═══════════════════════════════════════
+
+$mm-shadow-dropdown: 0 10px 40px rgba(0, 0, 0, 0.12), 0 2px 12px rgba(0, 0, 0, 0.06);
+$mm-shadow-card: 0 2px 8px rgba(0, 0, 0, 0.06);
+$mm-shadow-card-hover: 0 4px 16px rgba(200, 168, 96, 0.2);
+
+// ═══════════════════════════════════════
+// LAYOUT
+// ═══════════════════════════════════════
+
+$mm-radius-dropdown: 12px;
+$mm-radius-card: 8px;
+
+// ═══════════════════════════════════════
+// TRANSITIONS
+// ═══════════════════════════════════════
+
+$mm-transition-fast: 200ms cubic-bezier(0.4, 0, 0.2, 1);
+$mm-transition-medium: 300ms cubic-bezier(0.4, 0, 0.2, 1);
