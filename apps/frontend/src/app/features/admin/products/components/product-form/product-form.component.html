@@ -1,0 +1,176 @@
+<!-- Product Form Template -->
+<!-- Product create/edit form with bilingual support -->
+
+<section class="product-form" aria-label="Product form">
+  <!-- Header -->
+  <header class="product-form__header">
+    <div class="product-form__title-section">
+      <button
+        type="button"
+        class="product-form__back-btn"
+        (click)="onCancel()"
+        aria-label="Back to products"
+      >
+        <span class="material-icons">arrow_back</span>
+      </button>
+      <div>
+        <h1 class="product-form__title">{{ formTitle() }}</h1>
+        <p class="product-form__subtitle" *ngIf="isEditMode()">
+          Product ID: {{ productId() }}
+        </p>
+      </div>
+    </div>
+  </header>
+
+  <!-- Loading State -->
+  <div *ngIf="isLoading()" class="product-form__loading">
+    <div class="spinner"></div>
+    <p>Loading product...</p>
+  </div>
+
+  <!-- Form -->
+  <form
+    *ngIf="!isLoading()"
+    [formGroup]="productForm"
+    (ngSubmit)="onSubmit()"
+    class="product-form__form"
+  >
+    <!-- Basic Information Section -->
+    <section class="form-section">
+      <h2 class="form-section__title">Basic Information</h2>
+
+      <div class="form-section__content">
+        <!-- English Name -->
+        <div class="form-field">
+          <label for="nameEn" class="form-field__label">
+            English Name <span class="form-field__required">*</span>
+          </label>
+          <input
+            id="nameEn"
+            type="text"
+            formControlName="nameEn"
+            class="form-field__input"
+            [class.form-field__input--error]="hasError('nameEn')"
+            placeholder="Enter product name in English"
+          />
+          <span *ngIf="hasError('nameEn')" class="form-field__error">
+            {{ getErrorMessage('nameEn') }}
+          </span>
+        </div>
+
+        <!-- Arabic Name -->
+        <div class="form-field">
+          <label for="nameAr" class="form-field__label">
+            Arabic Name <span class="form-field__required">*</span>
+          </label>
+          <input
+            id="nameAr"
+            type="text"
+            formControlName="nameAr"
+            class="form-field__input"
+            [class.form-field__input--error]="hasError('nameAr')"
+            placeholder="أدخل اسم المنتج بالعربية"
+            dir="rtl"
+            lang="ar"
+          />
+          <span *ngIf="hasError('nameAr')" class="form-field__error">
+            {{ getErrorMessage('nameAr') }}
+          </span>
+        </div>
+
+        <!-- SKU -->
+        <div class="form-field">
+          <label for="sku" class="form-field__label">
+            SKU <span class="form-field__required">*</span>
+          </label>
+          <input
+            id="sku"
+            type="text"
+            formControlName="sku"
+            class="form-field__input"
+            [class.form-field__input--error]="hasError('sku')"
+            placeholder="e.g., PROD-12345"
+            style="text-transform: uppercase"
+          />
+          <span *ngIf="hasError('sku')" class="form-field__error">
+            {{ getErrorMessage('sku') }}
+          </span>
+          <span class="form-field__hint">
+            Use uppercase letters, numbers, and hyphens only
+          </span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Status Section -->
+    <section class="form-section">
+      <h2 class="form-section__title">Status</h2>
+
+      <div class="form-section__content">
+        <!-- Active Toggle -->
+        <div class="form-toggle">
+          <label class="form-toggle__label">
+            <input
+              type="checkbox"
+              formControlName="isActive"
+              class="form-toggle__input"
+            />
+            <span class="form-toggle__slider"></span>
+            <span class="form-toggle__text">Active</span>
+          </label>
+          <p class="form-toggle__hint">
+            Active products are visible to vendors and admins
+          </p>
+        </div>
+
+        <!-- Published Toggle -->
+        <div class="form-toggle">
+          <label class="form-toggle__label">
+            <input
+              type="checkbox"
+              formControlName="isPublished"
+              class="form-toggle__input"
+            />
+            <span class="form-toggle__slider"></span>
+            <span class="form-toggle__text">Published</span>
+          </label>
+          <p class="form-toggle__hint">
+            Published products are visible to customers on the storefront
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Form Actions -->
+    <div class="product-form__actions">
+      <button
+        type="button"
+        class="btn btn--secondary"
+        (click)="onCancel()"
+        [disabled]="isSaving()"
+      >
+        <span class="material-icons">close</span>
+        Cancel
+      </button>
+
+      <button
+        type="button"
+        class="btn btn--outline"
+        (click)="onReset()"
+        [disabled]="isSaving()"
+      >
+        <span class="material-icons">refresh</span>
+        Reset
+      </button>
+
+      <button
+        type="submit"
+        class="btn btn--primary"
+        [disabled]="productForm.invalid || isSaving()"
+      >
+        <span class="material-icons">{{ isEditMode() ? 'save' : 'add' }}</span>
+        {{ isEditMode() ? 'Save Changes' : 'Create Product' }}
+      </button>
+    </div>
+  </form>
+</section>

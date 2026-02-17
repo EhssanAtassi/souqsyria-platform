@@ -27,7 +27,13 @@
  * @version 1.0.0 - MVP1 Syrian Address Support
  */
 
-import { MigrationInterface, QueryRunner, TableColumn, TableForeignKey, TableIndex } from 'typeorm';
+import {
+  MigrationInterface,
+  QueryRunner,
+  TableColumn,
+  TableForeignKey,
+  TableIndex,
+} from 'typeorm';
 
 export class AddSyrianAddressFields1738600000000 implements MigrationInterface {
   name = 'AddSyrianAddressFields1738600000000';

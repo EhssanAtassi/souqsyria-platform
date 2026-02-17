@@ -8,7 +8,11 @@
  */
 
 import { Injectable } from '@nestjs/common';
-import { HealthIndicator, HealthIndicatorResult, HealthCheckError } from '@nestjs/terminus';
+import {
+  HealthIndicator,
+  HealthIndicatorResult,
+  HealthCheckError,
+} from '@nestjs/terminus';
 import * as os from 'os';
 import * as fs from 'fs';
 
@@ -59,7 +63,7 @@ export class DiskHealthIndicator extends HealthIndicator {
       const usagePercent = ((usedSpace / totalSpace) * 100).toFixed(2);
 
       // Consider unhealthy if more than 90% used
-      const isHealthy = (usedSpace / totalSpace) < 0.9;
+      const isHealthy = usedSpace / totalSpace < 0.9;
 
       const result = this.getStatus(key, isHealthy, {
         path: checkPath,
@@ -134,7 +138,10 @@ export class DiskHealthIndicator extends HealthIndicator {
         throw error;
       }
 
-      const errorMessage = error instanceof Error ? (error as Error).message : 'Unknown disk error';
+      const errorMessage =
+        error instanceof Error
+          ? (error as Error).message
+          : 'Unknown disk error';
 
       throw new HealthCheckError(
         'Disk health check failed',

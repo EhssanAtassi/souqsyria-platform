@@ -455,15 +455,32 @@ export class HeroBanner {
    */
   @ApiProperty({
     description: 'Banner type for categorization',
-    enum: ['product_spotlight', 'seasonal', 'flash_sale', 'brand_story', 'cultural'],
+    enum: [
+      'product_spotlight',
+      'seasonal',
+      'flash_sale',
+      'brand_story',
+      'cultural',
+    ],
     example: 'product_spotlight',
   })
   @Column({
     name: 'type',
     type: 'enum',
-    enum: ['product_spotlight', 'seasonal', 'flash_sale', 'brand_story', 'cultural'],
+    enum: [
+      'product_spotlight',
+      'seasonal',
+      'flash_sale',
+      'brand_story',
+      'cultural',
+    ],
   })
-  type: 'product_spotlight' | 'seasonal' | 'flash_sale' | 'brand_story' | 'cultural';
+  type:
+    | 'product_spotlight'
+    | 'seasonal'
+    | 'flash_sale'
+    | 'brand_story'
+    | 'cultural';
 
   /**
    * Display priority (higher = shown first)
@@ -749,7 +766,13 @@ export class HeroBanner {
     enum: ['draft', 'pending', 'approved', 'rejected', 'suspended', 'archived'],
     default: 'draft',
   })
-  approvalStatus: 'draft' | 'pending' | 'approved' | 'rejected' | 'suspended' | 'archived';
+  approvalStatus:
+    | 'draft'
+    | 'pending'
+    | 'approved'
+    | 'rejected'
+    | 'suspended'
+    | 'archived';
 
   /**
    * Admin who approved this banner
@@ -962,7 +985,9 @@ export class HeroBanner {
   getImageUrl(device: 'desktop' | 'tablet' | 'mobile' = 'desktop'): string {
     switch (device) {
       case 'mobile':
-        return this.imageUrlMobile || this.imageUrlTablet || this.imageUrlDesktop;
+        return (
+          this.imageUrlMobile || this.imageUrlTablet || this.imageUrlDesktop
+        );
       case 'tablet':
         return this.imageUrlTablet || this.imageUrlDesktop;
       default:
@@ -977,7 +1002,9 @@ export class HeroBanner {
     return (
       this.approvalStatus === 'pending' ||
       this.approvalStatus === 'rejected' ||
-      (this.isCurrentlyActive() && this.impressions === 0 && this.getDaysActive() > 3)
+      (this.isCurrentlyActive() &&
+        this.impressions === 0 &&
+        this.getDaysActive() > 3)
     );
   }
 
@@ -999,7 +1026,8 @@ export class HeroBanner {
     // Weighted scoring: CTR (40%) + Conversion Rate (40%) + Revenue/Impression (20%)
     const ctrScore = Math.min(this.clickThroughRate * 8, 40); // 5% CTR = 40 points
     const conversionScore = Math.min(this.conversionRate * 4, 40); // 10% conversion = 40 points
-    const revenuePerImpression = this.impressions > 0 ? this.revenue / this.impressions : 0;
+    const revenuePerImpression =
+      this.impressions > 0 ? this.revenue / this.impressions : 0;
     const revenueScore = Math.min((revenuePerImpression / 1000) * 20, 20); // 1000 SYP/impression = 20 points
 
     return Math.round(ctrScore + conversionScore + revenueScore);

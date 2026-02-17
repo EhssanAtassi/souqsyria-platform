@@ -96,7 +96,7 @@ export class ProductOffersService {
         titleAr: 'مجموعة الفولاذ الدمشقي',
         subtitle: 'Minimal Speaker',
         subtitleAr: 'سماعة صغيرة',
-        image: 'https://images.unsplash.com/photo-1589698423558-7537249a5144?w=600&h=400&fit=crop&q=80',
+        image: 'https://images.unsplash.com/photo-1606760227091-3dd870d97f1d?w=600&h=400&fit=crop&q=80',
         priceDisplay: {
           type: 'discount',
           discountBadge: '40%\nOFF',
@@ -217,7 +217,7 @@ export class ProductOffersService {
         id: 102,
         title: 'Syrian Brocade Fabric',
         titleAr: 'قماش البروكار السوري',
-        image: 'https://images.unsplash.com/photo-1519167758481-83f29da8c42f?w=600&h=400&fit=crop&q=80',
+        image: 'https://images.unsplash.com/photo-1558171813-4c088753af8f?w=600&h=400&fit=crop&q=80',
         priceDisplay: {
           type: 'sale',
           saleLabel: 'FLASH SALE',
@@ -237,7 +237,7 @@ export class ProductOffersService {
         id: 103,
         title: 'Damascus Seven Spice Mix',
         titleAr: 'بهارات سبع بهارات دمشقية',
-        image: 'https://images.unsplash.com/photo-1596040033229-a0b3b4f88dd2?w=600&h=400&fit=crop&q=80',
+        image: 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=600&h=400&fit=crop&q=80',
         priceDisplay: {
           type: 'price',
           priceLabel: 'ONLY',

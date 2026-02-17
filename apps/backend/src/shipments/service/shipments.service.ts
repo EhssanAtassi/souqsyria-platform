@@ -65,7 +65,9 @@ export class ShipmentsService {
   ): Promise<Shipment> {
     this.logger.log(`Creating shipment for order #${dto.order_id}`);
 
-    const order = await this.orderRepo.findOne({ where: { id: dto.order_id } })!;
+    const order = await this.orderRepo.findOne({
+      where: { id: dto.order_id },
+    })!;
     if (!order) throw new NotFoundException('Order not found');
 
     const items = await this.orderItemRepo.findByIds(dto.order_item_ids);

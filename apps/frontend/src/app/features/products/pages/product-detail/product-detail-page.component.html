@@ -21,6 +21,9 @@
 
   <!-- Product Content -->
   @else if (product()) {
+    <!-- JSON-LD Structured Data -->
+    <app-json-ld [data]="productJsonLd()" />
+
     <!-- Breadcrumb -->
     <app-breadcrumb [items]="breadcrumbItems()" [language]="language()"></app-breadcrumb>
 
@@ -41,21 +44,39 @@
       <div class="product-detail__info">
         <h1 class="info__title">{{ productName() }}</h1>
 
+        <!-- Star Rating Summary (if available) -->
+        @if (reviewSummary() && reviewSummary()!.totalReviews > 0) {
+          <div class="info__rating">
+            <div class="rating__stars" role="img" [attr.aria-label]="ratingAriaLabel()">
+              @for (star of [1, 2, 3, 4, 5]; track star) {
+                <mat-icon class="star-icon" aria-hidden="true">
+                  {{ star <= Math.floor(reviewSummary()!.averageRating) ? 'star' :
+                     (star === Math.ceil(reviewSummary()!.averageRating) && reviewSummary()!.averageRating % 1 >= 0.5) ? 'star_half' : 'star_border' }}
+                </mat-icon>
+              }
+            </div>
+            <span class="rating__text">
+              {{ reviewSummary()!.averageRating | number:'1.1-1' }}
+              ({{ reviewSummary()!.totalReviews }} {{ language() === 'ar' ? 'مراجعة' : 'reviews' }})
+            </span>
+          </div>
+        }
+
         <!-- Price (variant-aware) -->
         <div class="info__pricing">
           @if (selectedVariant()) {
-            <span class="info__price">{{ formattedEffectivePrice() }}</span>
+            <span class="info__price" [attr.aria-label]="currentPriceAriaLabel()">{{ formattedEffectivePrice() }}</span>
           } @else if (hasDiscount()) {
-            <span class="info__price info__price--discounted">{{ formattedDiscountPrice() }}</span>
-            <span class="info__price info__price--original">{{ formattedBasePrice() }}</span>
+            <span class="info__price info__price--discounted" [attr.aria-label]="currentPriceAriaLabel()">{{ formattedDiscountPrice() }}</span>
+            <span class="info__price info__price--original" [attr.aria-label]="originalPriceAriaLabel()">{{ formattedBasePrice() }}</span>
           } @else {
-            <span class="info__price">{{ formattedBasePrice() }}</span>
+            <span class="info__price" [attr.aria-label]="currentPriceAriaLabel()">{{ formattedBasePrice() }}</span>
           }
         </div>
 
         <!-- Stock Badge (variant-aware) -->
         <div class="info__stock">
-          <span class="stock-badge" [class]="effectiveStockClass()">
+          <span class="stock-badge" [class]="effectiveStockClass()" role="status" [attr.aria-label]="effectiveStockLabel()">
             {{ effectiveStockLabel() }}
           </span>
         </div>
@@ -123,6 +144,69 @@
           >
             <mat-icon>{{ isInWishlist() ? 'favorite' : 'favorite_border' }}</mat-icon>
           </button>
+
+          <button
+            mat-icon-button
+            class="info__compare"
+            [class.info__compare--active]="isInComparison()"
+            (click)="onAddToComparison()"
+            [attr.aria-label]="language() === 'ar' ? 'مقارنة المنتج' : 'Compare Product'"
+          >
+            <mat-icon>{{ isInComparison() ? 'compare' : 'compare_arrows' }}</mat-icon>
+          </button>
+        </div>
+
+        <!-- Share Buttons -->
+        <div class="info__share">
+          <span class="share-label">{{ language() === 'ar' ? 'مشاركة' : 'Share' }}:</span>
+          <div class="share-buttons">
+            @if (isNativeShareSupported) {
+              <button
+                mat-icon-button
+                class="share-button"
+                (click)="onShareNative()"
+                [attr.aria-label]="language() === 'ar' ? 'مشاركة' : 'Share'"
+              >
+                <mat-icon>share</mat-icon>
+              </button>
+            }
+
+            <button
+              mat-icon-button
+              class="share-button share-button--whatsapp"
+              (click)="onShareWhatsApp()"
+              [attr.aria-label]="language() === 'ar' ? 'مشاركة عبر واتساب' : 'Share on WhatsApp'"
+            >
+              <mat-icon svgIcon="whatsapp">chat</mat-icon>
+            </button>
+
+            <button
+              mat-icon-button
+              class="share-button share-button--facebook"
+              (click)="onShareFacebook()"
+              [attr.aria-label]="language() === 'ar' ? 'مشاركة على فيسبوك' : 'Share on Facebook'"
+            >
+              <mat-icon svgIcon="facebook">facebook</mat-icon>
+            </button>
+
+            <button
+              mat-icon-button
+              class="share-button share-button--twitter"
+              (click)="onShareTwitter()"
+              [attr.aria-label]="language() === 'ar' ? 'مشاركة على تويتر' : 'Share on Twitter'"
+            >
+              <mat-icon>tag</mat-icon>
+            </button>
+
+            <button
+              mat-icon-button
+              class="share-button"
+              (click)="onCopyLink()"
+              [attr.aria-label]="language() === 'ar' ? 'نسخ الرابط' : 'Copy Link'"
+            >
+              <mat-icon>link</mat-icon>
+            </button>
+          </div>
         </div>
 
         <!-- Notify Me for out-of-stock products -->
@@ -143,7 +227,7 @@
       </div>
     </div>
 
-    <!-- Tabs: Description | Specifications -->
+    <!-- Tabs: Description | Specifications | Reviews -->
     <mat-tab-group class="product-detail__tabs">
       <mat-tab [label]="descriptionTabLabel">
         <div class="tab-content">
@@ -160,6 +244,35 @@
           <app-specifications-table
             [attributes]="product()!.attributes"
             [language]="language()"
+          />
+        </div>
+      </mat-tab>
+
+      <mat-tab [label]="reviewsTabLabel">
+        <div class="tab-content tab-content--reviews">
+          <!-- Review Summary -->
+          @if (reviewSummary() && reviewSummary()!.totalReviews > 0) {
+            <app-review-summary
+              [summary]="reviewSummary()!"
+              [language]="language()"
+            />
+          }
+
+          <!-- Review Form (collapsible) -->
+          @if (showReviewForm()) {
+            <app-review-form
+              [slug]="product()!.slug"
+              [language]="language()"
+              [isAuthenticated]="isAuthenticated()"
+              (reviewSubmitted)="onReviewSubmitted()"
+            />
+          }
+
+          <!-- Review List -->
+          <app-review-list
+            [slug]="product()!.slug"
+            [language]="language()"
+            (writeReview)="onWriteReview()"
           />
         </div>
       </mat-tab>
@@ -180,15 +293,25 @@
       </section>
     }
 
+    <!-- Recently Viewed Products -->
+    <section class="product-detail__recently-viewed">
+      <app-recently-viewed
+        [maxItems]="8"
+        [showClearButton]="true"
+        [title]="language() === 'ar' ? 'شاهدته مؤخراً' : 'Recently Viewed'"
+        [titleAr]="'شاهدته مؤخراً'"
+      />
+    </section>
+
     <!-- Mobile Sticky Add to Cart -->
     <div class="product-detail__sticky-cart">
       <div class="sticky-cart__price">
         @if (selectedVariant()) {
-          <span class="sticky-cart__price-text">{{ formattedEffectivePrice() }}</span>
+          <span class="sticky-cart__price-text" [attr.aria-label]="currentPriceAriaLabel()">{{ formattedEffectivePrice() }}</span>
         } @else if (hasDiscount()) {
-          <span class="sticky-cart__discount-price">{{ formattedDiscountPrice() }}</span>
+          <span class="sticky-cart__discount-price" [attr.aria-label]="currentPriceAriaLabel()">{{ formattedDiscountPrice() }}</span>
         } @else {
-          <span class="sticky-cart__price-text">{{ formattedBasePrice() }}</span>
+          <span class="sticky-cart__price-text" [attr.aria-label]="currentPriceAriaLabel()">{{ formattedBasePrice() }}</span>
         }
       </div>
       <button

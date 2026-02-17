@@ -1,0 +1,56 @@
+<div class="notify-dialog" [class.rtl]="language() === 'ar'">
+  <h2 mat-dialog-title>{{ dialogTitle }}</h2>
+
+  <mat-dialog-content>
+    <!-- Product Info -->
+    <div class="notify-dialog__product">
+      <mat-icon class="notify-dialog__icon">notifications_active</mat-icon>
+      <p class="notify-dialog__product-name">{{ productDescription }}</p>
+    </div>
+
+    <!-- Helper Text -->
+    <p class="notify-dialog__helper">{{ helperText }}</p>
+
+    <!-- Email Form -->
+    <form [formGroup]="notifyForm" class="notify-dialog__form">
+      <mat-form-field appearance="outline" class="notify-dialog__field">
+        <mat-label>{{ emailLabel }}</mat-label>
+        <input
+          matInput
+          type="email"
+          formControlName="email"
+          [placeholder]="emailLabel"
+          autocomplete="email"
+        />
+        <mat-icon matPrefix>email</mat-icon>
+        @if (emailError) {
+          <mat-error>{{ emailError }}</mat-error>
+        }
+      </mat-form-field>
+    </form>
+  </mat-dialog-content>
+
+  <mat-dialog-actions align="end">
+    <button
+      mat-button
+      (click)="onCancel()"
+      [disabled]="loading()"
+      type="button"
+    >
+      {{ cancelLabel }}
+    </button>
+    <button
+      mat-raised-button
+      color="primary"
+      (click)="onSubmit()"
+      [disabled]="loading() || notifyForm.invalid"
+      type="submit"
+    >
+      @if (loading()) {
+        <mat-spinner diameter="20" class="notify-dialog__spinner"></mat-spinner>
+      } @else {
+        <span>{{ submitLabel }}</span>
+      }
+    </button>
+  </mat-dialog-actions>
+</div>

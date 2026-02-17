@@ -1,4 +1,4 @@
-import { Component, OnInit, signal, computed, inject, ChangeDetectionStrategy } from '@angular/core';
+import { Component, OnInit, signal, computed, inject, ChangeDetectionStrategy, DestroyRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
@@ -16,6 +16,8 @@ import { MatSnackBarModule, MatSnackBar } from '@angular/material/snack-bar';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { TranslateModule } from '@ngx-translate/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { tap } from 'rxjs/operators';
 
 import { CartService } from '../../store/cart/cart.service';
 import { CartQuery } from '../../store/cart/cart.query';
@@ -23,10 +25,11 @@ import { CartItem } from '../../shared/interfaces/cart.interface';
 import { Product } from '../../shared/interfaces/product.interface';
 import { ProductRecommendationsCarouselComponent } from '../../shared/components/product-recommendations-carousel';
 import { Router } from '@angular/router';
-import { AddressApiService } from '../account/addresses/services/address-api.service';
+import { AddressFacadeService } from '../../shared/services/address-facade.service';
 import { AddressResponse } from '../account/addresses/interfaces/address.interface';
 import { AddressFormComponent } from '../account/addresses/components/address-form/address-form.component';
 import { LanguageService } from '../../shared/services/language.service';
+import { SYRIAN_SHIPPING_RATES, DEFAULT_SHIPPING_RATE } from './constants/shipping-rates';
 
 /**
  * @description Comprehensive Checkout Component for Syrian Marketplace
@@ -87,11 +90,14 @@ import { LanguageService } from '../../shared/services/language.service';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class CheckoutComponent implements OnInit {
-  /** @description Address API service for loading and managing saved addresses */
-  private readonly addressService = inject(AddressApiService);
+  /** @description Address facade service for loading and managing saved addresses (decoupled) */
+  private readonly addressService = inject(AddressFacadeService);
 
   /** @description Language service for bilingual support */
   private readonly languageService = inject(LanguageService);
+
+  /** @description DestroyRef for automatic subscription cleanup */
+  private readonly destroyRef = inject(DestroyRef);
 
   // Component state using signals
   private readonly currentStepSignal = signal<number>(0);
@@ -105,7 +111,10 @@ export class CheckoutComponent implements OnInit {
   /** @description Signal: Whether to show the inline address creation form */
   readonly showAddressForm = signal<boolean>(false);
 
-  /** @description Signal: Whether saved addresses are being loaded */
+  /** @description Signal: Saved addresses from facade service */
+  readonly savedAddresses = this.addressService.addresses;
+
+  /** @description Signal: Whether addresses are being loaded */
   readonly addressesLoading = this.addressService.isLoading;
 
   // Form signals
@@ -129,9 +138,6 @@ export class CheckoutComponent implements OnInit {
 
   /** @description Payment method form group */
   readonly paymentForm = this.paymentFormSignal.asReadonly();
-
-  /** @description List of saved user addresses from AddressApiService */
-  readonly savedAddresses = this.addressService.addresses;
 
   /** @description Cart items from cart state */
   readonly cartItems = computed(() => this.cartQuery.getValue().items);
@@ -164,32 +170,32 @@ export class CheckoutComponent implements OnInit {
 
   /**
    * @description Component initialization
-   * Loads saved addresses and sets up payment form
+   * Loads saved addresses and chains auto-selection after load completes
    */
   ngOnInit(): void {
-    this.addressService.loadAddresses();
     this.paymentFormSignal.set(this.createPaymentForm());
-    this.autoSelectDefaultAddress();
+
+    // Chain address loading with auto-selection (no setTimeout race condition)
+    this.addressService.loadAddresses().pipe(
+      tap(() => this.autoSelectDefaultAddress()),
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe();
   }
 
   /**
    * @description Auto-select the user's default address if one exists
-   * Called after addresses are loaded
+   * Called after addresses are loaded successfully
    */
   private autoSelectDefaultAddress(): void {
-    // Use a simple setTimeout to wait for addresses to load
-    // In production, this would use an effect() or subscription
-    setTimeout(() => {
-      const addresses = this.savedAddresses();
-      if (addresses.length > 0) {
-        const defaultAddr = addresses.find(a => a.isDefault);
-        if (defaultAddr) {
-          this.selectedAddressId.set(defaultAddr.id);
-        } else {
-          this.selectedAddressId.set(addresses[0].id);
-        }
+    const addresses = this.savedAddresses();
+    if (addresses.length > 0) {
+      const defaultAddr = addresses.find(a => a.isDefault);
+      if (defaultAddr) {
+        this.selectedAddressId.set(defaultAddr.id);
+      } else {
+        this.selectedAddressId.set(addresses[0].id);
       }
-    }, 1000);
+    }
   }
 
   /**
@@ -227,16 +233,18 @@ export class CheckoutComponent implements OnInit {
    */
   onAddressFormSaved(): void {
     this.showAddressForm.set(false);
-    this.addressService.loadAddresses();
 
-    // Auto-select the newest address after a brief delay for the API to respond
-    setTimeout(() => {
-      const addresses = this.savedAddresses();
-      if (addresses.length > 0) {
-        // Select the last address (most recently created)
-        this.selectedAddressId.set(addresses[addresses.length - 1].id);
-      }
-    }, 1000);
+    // Reload addresses and select newest in the subscription callback
+    this.addressService.loadAddresses().pipe(
+      tap(() => {
+        const addresses = this.savedAddresses();
+        if (addresses.length > 0) {
+          // Select the last address (most recently created)
+          this.selectedAddressId.set(addresses[addresses.length - 1].id);
+        }
+      }),
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe();
 
     const message = this.currentLanguage() === 'ar'
       ? 'تمت إضافة العنوان بنجاح'
@@ -315,23 +323,13 @@ export class CheckoutComponent implements OnInit {
 
   /**
    * @description Calculate shipping cost based on selected address governorate
-   * Uses governorate code to determine regional shipping rates
+   * Uses governorate code to determine regional shipping rates from constant map
    * @returns Shipping cost in SYP
    */
   getShippingCost(): number {
     const address = this.selectedAddress();
     const governorateCode = address?.governorate?.code ?? '';
-    // Different shipping costs for different governorates
-    const shippingRates: Record<string, number> = {
-      'DAM': 5000,
-      'RIF': 7500,
-      'ALE': 10000,
-      'HOM': 8000,
-      'HAM': 8500,
-      'LAT': 12000,
-      'TAR': 12000
-    };
-    return shippingRates[governorateCode] || 15000;
+    return SYRIAN_SHIPPING_RATES[governorateCode] || DEFAULT_SHIPPING_RATE;
   }
 
   /**

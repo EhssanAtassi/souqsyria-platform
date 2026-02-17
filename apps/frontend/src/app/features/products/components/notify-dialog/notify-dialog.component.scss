@@ -1,0 +1,77 @@
+@import '../../../../shared/styles/variables';
+
+.notify-dialog {
+  min-width: 320px;
+  max-width: 500px;
+
+  &__product {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+    padding: 12px;
+    background-color: rgba($golden-wheat-primary, 0.1);
+    border-radius: 8px;
+  }
+
+  &__icon {
+    color: $golden-wheat-primary;
+    font-size: 32px;
+    width: 32px;
+    height: 32px;
+  }
+
+  &__product-name {
+    margin: 0;
+    font-weight: $font-weight-medium;
+    color: $charcoal-dark;
+    line-height: 1.4;
+  }
+
+  &__helper {
+    margin: 0 0 24px 0;
+    color: $charcoal-medium;
+    font-size: 14px;
+    line-height: 1.5;
+  }
+
+  &__form {
+    margin-bottom: 8px;
+  }
+
+  &__field {
+    width: 100%;
+  }
+
+  &__spinner {
+    display: inline-block;
+    vertical-align: middle;
+  }
+
+  // RTL styles
+  &.rtl {
+    direction: rtl;
+
+    .notify-dialog__product {
+      flex-direction: row-reverse;
+    }
+
+    mat-dialog-actions {
+      flex-direction: row-reverse;
+    }
+  }
+}
+
+// Dialog actions spacing
+::ng-deep {
+  .notify-dialog {
+    mat-dialog-content {
+      padding-top: 16px;
+    }
+
+    mat-dialog-actions {
+      padding: 16px 24px;
+      gap: 8px;
+    }
+  }
+}

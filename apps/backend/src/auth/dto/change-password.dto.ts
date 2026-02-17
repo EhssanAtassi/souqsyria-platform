@@ -22,8 +22,12 @@ export class ChangePasswordDto {
   })
   @IsString({ message: 'New password must be a valid string' })
   @MinLength(8, { message: 'New password must be at least 8 characters long' })
-  @Matches(/[A-Z]/, { message: 'New password must contain at least one uppercase letter' })
-  @Matches(/[0-9]/, { message: 'New password must contain at least one number' })
+  @Matches(/[A-Z]/, {
+    message: 'New password must contain at least one uppercase letter',
+  })
+  @Matches(/[0-9]/, {
+    message: 'New password must contain at least one number',
+  })
   @IsNotEmpty({ message: 'New password is required' })
   newPassword: string;
 }

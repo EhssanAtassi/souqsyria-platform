@@ -61,9 +61,7 @@ export class GuestSessionMiddleware implements NestMiddleware {
   private readonly COOKIE_NAME = 'guest_session_id';
   private readonly COOKIE_MAX_AGE = 30 * 24 * 60 * 60 * 1000; // 30 days in milliseconds
 
-  constructor(
-    private readonly guestSessionService: GuestSessionService,
-  ) {
+  constructor(private readonly guestSessionService: GuestSessionService) {
     this.logger.log('🍪 Guest Session Middleware initialized');
   }
 
@@ -86,11 +84,7 @@ export class GuestSessionMiddleware implements NestMiddleware {
 
       if (sessionIdFromCookie) {
         // Validate existing session
-        await this.validateExistingSession(
-          req,
-          res,
-          sessionIdFromCookie,
-        );
+        await this.validateExistingSession(req, res, sessionIdFromCookie);
       } else {
         // Create new session for first-time visitor
         await this.createNewSession(req, res);
@@ -160,9 +154,7 @@ export class GuestSessionMiddleware implements NestMiddleware {
     req.guestSession = session;
     req.guestSessionId = session.id;
 
-    this.logger.log(
-      `✅ Guest session validated and refreshed: ${sessionId}`,
-    );
+    this.logger.log(`✅ Guest session validated and refreshed: ${sessionId}`);
   }
 
   /**
@@ -203,9 +195,7 @@ export class GuestSessionMiddleware implements NestMiddleware {
     req.guestSession = session;
     req.guestSessionId = session.id;
 
-    this.logger.log(
-      `✅ New guest session created: ${session.id}`,
-    );
+    this.logger.log(`✅ New guest session created: ${session.id}`);
   }
 
   /**

@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr" id="root">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SouqSyria - Promotional Cards Carousel</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined|Material+Icons+Round" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;600;700&family=Cairo:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'primary': {
+                            50: '#FAF6EB',
+                            100: '#F2E9D0',
+                            200: '#E5D4A1',
+                            300: '#D4BC6A',
+                            400: '#C4A052',
+                            500: '#B8943D',
+                            600: '#9A7B32',
+                            700: '#7D6329',
+                        },
+                        'surface': '#FFFFFF',
+                        'background': '#FAFAFA',
+                        'on-surface': '#1F1F1F',
+                        'on-surface-variant': '#5F6368',
+                        'outline': '#DADCE0',
+                    },
+                    fontFamily: {
+                        'sans': ['Roboto', 'Cairo', 'system-ui', 'sans-serif'],
+                        'arabic': ['Cairo', 'Roboto', 'system-ui', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* RTL Support */
+        [dir="rtl"] {
+            font-family: 'Cairo', 'Roboto', system-ui, sans-serif;
+        }
+
+        /* Hide scrollbar but keep functionality */
+        .scroll-hidden::-webkit-scrollbar {
+            display: none;
+        }
+        .scroll-hidden {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        /* Card hover effects */
+        .promo-card {
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .promo-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        /* Scroll buttons */
+        .scroll-btn {
+            transition: all 0.2s ease;
+        }
+        .scroll-btn:hover {
+            background: rgba(196, 160, 82, 0.1);
+        }
+        .scroll-btn:active {
+            transform: scale(0.95);
+        }
+
+        /* Badge colors - Syrian inspired */
+        .badge-gold { background: linear-gradient(135deg, #C4A052 0%, #9A7B32 100%); }
+        .badge-olive { background: linear-gradient(135deg, #6B8E23 0%, #556B2F 100%); }
+        .badge-terracotta { background: linear-gradient(135deg, #CD5C5C 0%, #8B4513 100%); }
+        .badge-blue { background: linear-gradient(135deg, #4A90A4 0%, #2E6171 100%); }
+        .badge-purple { background: linear-gradient(135deg, #8B5A8B 0%, #5D3A5D 100%); }
+        .badge-teal { background: linear-gradient(135deg, #2A9D8F 0%, #1A6B5F 100%); }
+        .badge-rose { background: linear-gradient(135deg, #C97B84 0%, #8B4852 100%); }
+        .badge-amber { background: linear-gradient(135deg, #D4A03E 0%, #A67C2E 100%); }
+    </style>
+</head>
+<body class="font-sans bg-background antialiased">
+
+    <!-- Language Toggle (Top Right) -->
+    <div class="fixed top-4 right-4 z-50 flex items-center gap-2 bg-white rounded-full shadow-lg px-2 py-1">
+        <button onclick="setLanguage('en')" id="btn-en"
+                class="px-3 py-1.5 text-[12px] font-medium rounded-full transition-all bg-primary-400 text-white">
+            EN
+        </button>
+        <button onclick="setLanguage('ar')" id="btn-ar"
+                class="px-3 py-1.5 text-[12px] font-medium rounded-full transition-all text-on-surface-variant hover:bg-gray-100">
+            عربي
+        </button>
+    </div>
+
+    <!-- Component Title -->
+    <div class="max-w-[1400px] mx-auto px-6 pt-16 pb-4">
+        <h1 class="text-2xl font-semibold text-on-surface" data-en="Promotional Cards Carousel" data-ar="عرض البطاقات الترويجية">
+            Promotional Cards Carousel
+        </h1>
+        <p class="text-sm text-on-surface-variant mt-1" data-en="SouqSyria - Quick Access Promotions" data-ar="سوق سوريا - الوصول السريع للعروض">
+            SouqSyria - Quick Access Promotions
+        </p>
+    </div>
+
+    <!-- ==================== PROMOTIONAL CARDS CAROUSEL ==================== -->
+    <section class="bg-surface border-y border-outline/30 py-4">
+        <div class="max-w-[1400px] mx-auto px-6 relative">
+
+            <!-- Scroll Left Button -->
+            <button onclick="scrollCarousel(-1)"
+                    class="scroll-btn absolute left-0 top-1/2 -translate-y-1/2 z-10 w-10 h-10 bg-white border border-outline/50 rounded-full shadow-md flex items-center justify-center hover:border-primary-400">
+                <span class="material-icons-round text-on-surface-variant text-[20px]" style="transform: scaleX(var(--direction, 1))">chevron_left</span>
+            </button>
+
+            <!-- Cards Container -->
+            <div id="carousel" class="flex gap-4 overflow-x-auto scroll-hidden px-8 py-2">
+
+                <!-- Card 1: Damascus Steel -->
+                <a href="#" class="promo-card flex-shrink-0 w-[140px] bg-white rounded-xl overflow-hidden shadow-sm border border-outline/30">
+                    <div class="badge-gold px-2 py-1">
+                        <span class="text-[10px] font-semibold text-white truncate block" data-en="Damascus Steel" data-ar="فولاذ دمشقي">Damascus Steel</span>
+                    </div>
+                    <div class="p-3">
+                        <div class="w-full h-[80px] bg-gray-50 rounded-lg flex items-center justify-center mb-2 overflow-hidden">
+                            <img src="https://images.unsplash.com/photo-1593618998160-e34014e67f23?w=200&h=200&fit=crop" alt="Damascus Steel" class="w-full h-full object-cover">
+                        </div>
+                        <p class="text-[12px] font-medium text-on-surface truncate" data-en="Best Sellers" data-ar="الأكثر مبيعاً">Best Sellers</p>
+                        <p class="text-[10px] text-on-surface-variant truncate" data-en="Up to 40% Off" data-ar="خصم حتى 40%">Up to 40% Off</p>
+                    </div>
+                </a>
+
+                <!-- Card 2: Electronics -->
+                <a href="#" class="promo-card flex-shrink-0 w-[140px] bg-white rounded-xl overflow-hidden shadow-sm border border-outline/30">
+                    <div class="badge-blue px-2 py-1">
+                        <span class="text-[10px] font-semibold text-white truncate block" data-en="Electronics" data-ar="إلكترونيات">Electronics</span>
+                    </div>
+                    <div class="p-3">
+                        <div class="w-full h-[80px] bg-gray-50 rounded-lg flex items-center justify-center mb-2 overflow-hidden">
+                            <img src="https://images.unsplash.com/photo-1498049794561-7780e7231661?w=200&h=200&fit=crop" alt="Electronics" class="w-full h-full object-cover">
+                        </div>
+                        <p class="text-[12px] font-medium text-on-surface truncate" data-en="Hot Deals" data-ar="عروض ساخنة">Hot Deals</p>
+                        <p class="text-[10px] text-on-surface-variant truncate" data-en="Limited Time" data-ar="لفترة محدودة">Limited Time</p>
+                    </div>
+                </a>
+
+                <!-- Card 3: Fashion -->
+                <a href="#" class="promo-card flex-shrink-0 w-[140px] bg-white rounded-xl overflow-hidden shadow-sm border border-outline/30">
+                    <div class="badge-rose px-2 py-1">
+                        <span class="text-[10px] font-semibold text-white truncate block" data-en="Fashion" data-ar="أزياء">Fashion</span>
+                    </div>
+                    <div class="p-3">
+                        <div class="w-full h-[80px] bg-gray-50 rounded-lg flex items-center justify-center mb-2 overflow-hidden">
+                            <img src="https://images.unsplash.com/photo-1445205170230-053b83016050?w=200&h=200&fit=crop" alt="Fashion" class="w-full h-full object-cover">
+                        </div>
+                        <p class="text-[12px] font-medium text-on-surface truncate" data-en="New Arrivals" data-ar="وصل حديثاً">New Arrivals</p>
+                        <p class="text-[10px] text-on-surface-variant truncate" data-en="Spring Collection" data-ar="مجموعة الربيع">Spring Collection</p>
+                    </div>
+                </a>
+
+                <!-- Card 4: Artisan Crafts -->
+                <a href="#" class="promo-card flex-shrink-0 w-[140px] bg-white rounded-xl overflow-hidden shadow-sm border border-outline/30">
+                    <div class="badge-terracotta px-2 py-1">
+                        <span class="text-[10px] font-semibold text-white truncate block" data-en="Artisan Crafts" data-ar="حرف يدوية">Artisan Crafts</span>
+                    </div>
+                    <div class="p-3">
+                        <div class="w-full h-[80px] bg-gray-50 rounded-lg flex items-center justify-center mb-2 overflow-hidden">
+                            <img src="https://images.unsplash.com/photo-1565193566173-7a0ee3dbe261?w=200&h=200&fit=crop" alt="Artisan" class="w-full h-full object-cover">
+                        </div>
+                        <p class="text-[12px] font-medium text-on-surface truncate" data-en="Handmade" data-ar="صناعة يدوية">Handmade</p>
+                        <p class="text-[10px] text-on-surface-variant truncate" data-en="Syrian Heritage" data-ar="تراث سوري">Syrian Heritage</p>
+                    </div>
+                </a>
+
+                <!-- Card 5: Food & Spices -->
+                <a href="#" class="promo-card flex-shrink-0 w-[140px] bg-white rounded-xl overflow-hidden shadow-sm border border-outline/30">
+                    <div class="badge-olive px-2 py-1">
+                        <span class="text-[10px] font-semibold text-white truncate block" data-en="Food & Spices" data-ar="طعام وتوابل">Food & Spices</span>
+                    </div>
+                    <div class="p-3">
+                        <div class="w-full h-[80px] bg-gray-50 rounded-lg flex items-center justify-center mb-2 overflow-hidden">
+                            <img src="https://images.unsplash.com/photo-1596040033229-a9821ebd058d?w=200&h=200&fit=crop" alt="Spices" class="w-full h-full object-cover">
+                        </div>
+                        <p class="text-[12px] font-medium text-on-surface truncate" data-en="Aleppo Specials" data-ar="منتجات حلب">Aleppo Specials</p>
+                        <p class="text-[10px] text-on-surface-variant truncate" data-en="Free Delivery" data-ar="توصيل مجاني">Free Delivery</p>
+                    </div>
+                </a>
+
+                <!-- Card 6: Home & Living -->
+                <a href="#" class="promo-card flex-shrink-0 w-[140px] bg-white rounded-xl overflow-hidden shadow-sm border border-outline/30">
+                    <div class="badge-teal px-2 py-1">
+                        <span class="text-[10px] font-semibold text-white truncate block" data-en="Home & Living" data-ar="المنزل">Home & Living</span>
+                    </div>
+                    <div class="p-3">
+                        <div class="w-full h-[80px] bg-gray-50 rounded-lg flex items-center justify-center mb-2 overflow-hidden">
+                            <img src="https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=200&h=200&fit=crop" alt="Home" class="w-full h-full object-cover">
+                        </div>
+                        <p class="text-[12px] font-medium text-on-surface truncate" data-en="Decor Sale" data-ar="تخفيض الديكور">Decor Sale</p>
+                        <p class="text-[10px] text-on-surface-variant truncate" data-en="Up to 30% Off" data-ar="خصم حتى 30%">Up to 30% Off</p>
+                    </div>
+                </a>
+
+                <!-- Card 7: Ramadan -->
+                <a href="#" class="promo-card flex-shrink-0 w-[140px] bg-white rounded-xl overflow-hidden shadow-sm border border-outline/30">
+                    <div class="badge-amber px-2 py-1">
+                        <span class="text-[10px] font-semibold text-white truncate block" data-en="Ramadan Shop" data-ar="تسوق رمضان">Ramadan Shop</span>
+                    </div>
+                    <div class="p-3">
+                        <div class="w-full h-[80px] bg-gray-50 rounded-lg flex items-center justify-center mb-2 overflow-hidden">
+                            <img src="https://images.unsplash.com/photo-1564890369478-c89ca6d9cde9?w=200&h=200&fit=crop" alt="Ramadan" class="w-full h-full object-cover">
+                        </div>
+                        <p class="text-[12px] font-medium text-on-surface truncate" data-en="Special Offers" data-ar="عروض خاصة">Special Offers</p>
+                        <p class="text-[10px] text-on-surface-variant truncate" data-en="Don't Miss Out" data-ar="لا تفوت الفرصة">Don't Miss Out</p>
+                    </div>
+                </a>
+
+                <!-- Card 8: Beauty -->
+                <a href="#" class="promo-card flex-shrink-0 w-[140px] bg-white rounded-xl overflow-hidden shadow-sm border border-outline/30">
+                    <div class="badge-purple px-2 py-1">
+                        <span class="text-[10px] font-semibold text-white truncate block" data-en="Beauty" data-ar="جمال">Beauty</span>
+                    </div>
+                    <div class="p-3">
+                        <div class="w-full h-[80px] bg-gray-50 rounded-lg flex items-center justify-center mb-2 overflow-hidden">
+                            <img src="https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=200&h=200&fit=crop" alt="Beauty" class="w-full h-full object-cover">
+                        </div>
+                        <p class="text-[12px] font-medium text-on-surface truncate" data-en="Laurel Soap" data-ar="صابون الغار">Laurel Soap</p>
+                        <p class="text-[10px] text-on-surface-variant truncate" data-en="Natural Products" data-ar="منتجات طبيعية">Natural Products</p>
+                    </div>
+                </a>
+
+                <!-- Card 9: Flash Sale -->
+                <a href="#" class="promo-card flex-shrink-0 w-[140px] bg-white rounded-xl overflow-hidden shadow-sm border border-outline/30">
+                    <div class="badge-gold px-2 py-1">
+                        <span class="text-[10px] font-semibold text-white truncate block" data-en="Flash Sale" data-ar="تخفيضات سريعة">Flash Sale</span>
+                    </div>
+                    <div class="p-3">
+                        <div class="w-full h-[80px] bg-gray-50 rounded-lg flex items-center justify-center mb-2 overflow-hidden">
+                            <img src="https://images.unsplash.com/photo-1607083206869-4c7672e72a8a?w=200&h=200&fit=crop" alt="Flash Sale" class="w-full h-full object-cover">
+                        </div>
+                        <p class="text-[12px] font-medium text-on-surface truncate" data-en="24 Hours Only" data-ar="24 ساعة فقط">24 Hours Only</p>
+                        <p class="text-[10px] text-on-surface-variant truncate" data-en="Up to 70% Off" data-ar="خصم حتى 70%">Up to 70% Off</p>
+                    </div>
+                </a>
+
+                <!-- Card 10: Textiles -->
+                <a href="#" class="promo-card flex-shrink-0 w-[140px] bg-white rounded-xl overflow-hidden shadow-sm border border-outline/30">
+                    <div class="badge-terracotta px-2 py-1">
+                        <span class="text-[10px] font-semibold text-white truncate block" data-en="Textiles" data-ar="منسوجات">Textiles</span>
+                    </div>
+                    <div class="p-3">
+                        <div class="w-full h-[80px] bg-gray-50 rounded-lg flex items-center justify-center mb-2 overflow-hidden">
+                            <img src="https://images.unsplash.com/photo-1558171813-4c088753af8f?w=200&h=200&fit=crop" alt="Textiles" class="w-full h-full object-cover">
+                        </div>
+                        <p class="text-[12px] font-medium text-on-surface truncate" data-en="Brocade Fabric" data-ar="قماش البروكار">Brocade Fabric</p>
+                        <p class="text-[10px] text-on-surface-variant truncate" data-en="Damascus Silk" data-ar="حرير دمشقي">Damascus Silk</p>
+                    </div>
+                </a>
+
+                <!-- Card 11: Local Sellers -->
+                <a href="#" class="promo-card flex-shrink-0 w-[140px] bg-white rounded-xl overflow-hidden shadow-sm border border-outline/30">
+                    <div class="badge-teal px-2 py-1">
+                        <span class="text-[10px] font-semibold text-white truncate block" data-en="Local Sellers" data-ar="بائعون محليون">Local Sellers</span>
+                    </div>
+                    <div class="p-3">
+                        <div class="w-full h-[80px] bg-gray-50 rounded-lg flex items-center justify-center mb-2 overflow-hidden">
+                            <img src="https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=200&h=200&fit=crop" alt="Local" class="w-full h-full object-cover">
+                        </div>
+                        <p class="text-[12px] font-medium text-on-surface truncate" data-en="Support Local" data-ar="ادعم المحلي">Support Local</p>
+                        <p class="text-[10px] text-on-surface-variant truncate" data-en="Syrian Brands" data-ar="ماركات سورية">Syrian Brands</p>
+                    </div>
+                </a>
+
+                <!-- Card 12: Free Shipping -->
+                <a href="#" class="promo-card flex-shrink-0 w-[140px] bg-white rounded-xl overflow-hidden shadow-sm border border-outline/30">
+                    <div class="badge-blue px-2 py-1">
+                        <span class="text-[10px] font-semibold text-white truncate block" data-en="Free Shipping" data-ar="شحن مجاني">Free Shipping</span>
+                    </div>
+                    <div class="p-3">
+                        <div class="w-full h-[80px] bg-gray-50 rounded-lg flex items-center justify-center mb-2 overflow-hidden">
+                            <img src="https://images.unsplash.com/photo-1566576912321-d58ddd7a6088?w=200&h=200&fit=crop" alt="Shipping" class="w-full h-full object-cover">
+                        </div>
+                        <p class="text-[12px] font-medium text-on-surface truncate" data-en="All Orders" data-ar="جميع الطلبات">All Orders</p>
+                        <p class="text-[10px] text-on-surface-variant truncate" data-en="No Minimum" data-ar="بدون حد أدنى">No Minimum</p>
+                    </div>
+                </a>
+
+            </div>
+
+            <!-- Scroll Right Button -->
+            <button onclick="scrollCarousel(1)"
+                    class="scroll-btn absolute right-0 top-1/2 -translate-y-1/2 z-10 w-10 h-10 bg-white border border-outline/50 rounded-full shadow-md flex items-center justify-center hover:border-primary-400">
+                <span class="material-icons-round text-on-surface-variant text-[20px]" style="transform: scaleX(var(--direction, 1))">chevron_right</span>
+            </button>
+
+        </div>
+    </section>
+
+    <!-- Component Specifications -->
+    <div class="max-w-[1400px] mx-auto px-6 py-8">
+        <div class="bg-primary-50 rounded-xl p-6">
+            <h2 class="text-lg font-semibold text-on-surface mb-4" data-en="Component Specifications" data-ar="مواصفات المكون">
+                Component Specifications
+            </h2>
+            <div class="grid md:grid-cols-2 gap-6 text-sm">
+                <div>
+                    <h3 class="font-medium text-primary-600 mb-2" data-en="Card Structure" data-ar="هيكل البطاقة">Card Structure</h3>
+                    <ul class="space-y-1 text-on-surface-variant">
+                        <li>• <span data-en="Width: 140px (fixed)" data-ar="العرض: 140 بكسل (ثابت)">Width: 140px (fixed)</span></li>
+                        <li>• <span data-en="Badge: Gradient background, 10px text" data-ar="الشارة: خلفية متدرجة، نص 10 بكسل">Badge: Gradient background, 10px text</span></li>
+                        <li>• <span data-en="Image: 80px height, cover fit" data-ar="الصورة: ارتفاع 80 بكسل">Image: 80px height, cover fit</span></li>
+                        <li>• <span data-en="Title: 12px medium weight" data-ar="العنوان: 12 بكسل متوسط">Title: 12px medium weight</span></li>
+                        <li>• <span data-en="Subtitle: 10px regular" data-ar="العنوان الفرعي: 10 بكسل عادي">Subtitle: 10px regular</span></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="font-medium text-primary-600 mb-2" data-en="Carousel Behavior" data-ar="سلوك العرض">Carousel Behavior</h3>
+                    <ul class="space-y-1 text-on-surface-variant">
+                        <li>• <span data-en="Horizontal scroll with hidden scrollbar" data-ar="تمرير أفقي مع شريط مخفي">Horizontal scroll with hidden scrollbar</span></li>
+                        <li>• <span data-en="Navigation arrows on sides" data-ar="أسهم التنقل على الجانبين">Navigation arrows on sides</span></li>
+                        <li>• <span data-en="Card gap: 16px" data-ar="المسافة بين البطاقات: 16 بكسل">Card gap: 16px</span></li>
+                        <li>• <span data-en="Hover: lift effect + shadow" data-ar="التمرير: تأثير رفع + ظل">Hover: lift effect + shadow</span></li>
+                        <li>• <span data-en="RTL support for Arabic" data-ar="دعم RTL للعربية">RTL support for Arabic</span></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Badge Color Palette -->
+    <div class="max-w-[1400px] mx-auto px-6 pb-8">
+        <h3 class="text-md font-semibold text-on-surface mb-4" data-en="Syrian-Inspired Color Palette" data-ar="لوحة ألوان مستوحاة من سوريا">
+            Syrian-Inspired Color Palette
+        </h3>
+        <div class="flex flex-wrap gap-3">
+            <div class="flex items-center gap-2">
+                <div class="w-8 h-8 rounded-lg badge-gold"></div>
+                <span class="text-sm text-on-surface-variant">Gold</span>
+            </div>
+            <div class="flex items-center gap-2">
+                <div class="w-8 h-8 rounded-lg badge-olive"></div>
+                <span class="text-sm text-on-surface-variant">Olive</span>
+            </div>
+            <div class="flex items-center gap-2">
+                <div class="w-8 h-8 rounded-lg badge-terracotta"></div>
+                <span class="text-sm text-on-surface-variant">Terracotta</span>
+            </div>
+            <div class="flex items-center gap-2">
+                <div class="w-8 h-8 rounded-lg badge-blue"></div>
+                <span class="text-sm text-on-surface-variant">Blue</span>
+            </div>
+            <div class="flex items-center gap-2">
+                <div class="w-8 h-8 rounded-lg badge-purple"></div>
+                <span class="text-sm text-on-surface-variant">Purple</span>
+            </div>
+            <div class="flex items-center gap-2">
+                <div class="w-8 h-8 rounded-lg badge-teal"></div>
+                <span class="text-sm text-on-surface-variant">Teal</span>
+            </div>
+            <div class="flex items-center gap-2">
+                <div class="w-8 h-8 rounded-lg badge-rose"></div>
+                <span class="text-sm text-on-surface-variant">Rose</span>
+            </div>
+            <div class="flex items-center gap-2">
+                <div class="w-8 h-8 rounded-lg badge-amber"></div>
+                <span class="text-sm text-on-surface-variant">Amber</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Language switching
+        let currentLang = 'en';
+
+        function setLanguage(lang) {
+            currentLang = lang;
+            const root = document.getElementById('root');
+
+            // Set direction
+            root.dir = lang === 'ar' ? 'rtl' : 'ltr';
+            root.lang = lang;
+
+            // Update CSS variable for arrow direction
+            document.documentElement.style.setProperty('--direction', lang === 'ar' ? '-1' : '1');
+
+            // Update all text elements
+            document.querySelectorAll('[data-en]').forEach(el => {
+                el.textContent = el.getAttribute(`data-${lang}`);
+            });
+
+            // Update button styles
+            const btnEn = document.getElementById('btn-en');
+            const btnAr = document.getElementById('btn-ar');
+
+            if (lang === 'en') {
+                btnEn.classList.add('bg-primary-400', 'text-white');
+                btnEn.classList.remove('text-on-surface-variant', 'hover:bg-gray-100');
+                btnAr.classList.remove('bg-primary-400', 'text-white');
+                btnAr.classList.add('text-on-surface-variant', 'hover:bg-gray-100');
+            } else {
+                btnAr.classList.add('bg-primary-400', 'text-white');
+                btnAr.classList.remove('text-on-surface-variant', 'hover:bg-gray-100');
+                btnEn.classList.remove('bg-primary-400', 'text-white');
+                btnEn.classList.add('text-on-surface-variant', 'hover:bg-gray-100');
+            }
+        }
+
+        // Carousel scroll
+        function scrollCarousel(direction) {
+            const carousel = document.getElementById('carousel');
+            const scrollAmount = 320; // ~2 cards
+            const actualDirection = currentLang === 'ar' ? -direction : direction;
+            carousel.scrollBy({
+                left: scrollAmount * actualDirection,
+                behavior: 'smooth'
+            });
+        }
+
+        // Touch/swipe support
+        let touchStartX = 0;
+        let touchEndX = 0;
+
+        const carousel = document.getElementById('carousel');
+
+        carousel.addEventListener('touchstart', e => {
+            touchStartX = e.changedTouches[0].screenX;
+        });
+
+        carousel.addEventListener('touchend', e => {
+            touchEndX = e.changedTouches[0].screenX;
+            handleSwipe();
+        });
+
+        function handleSwipe() {
+            const diff = touchStartX - touchEndX;
+            if (Math.abs(diff) > 50) {
+                scrollCarousel(diff > 0 ? 1 : -1);
+            }
+        }
+    </script>
+
+</body>
+</html>

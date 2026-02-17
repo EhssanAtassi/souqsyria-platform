@@ -1,0 +1,728 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Compact Quick-Access Cards Prototype — SouqSyria Frontend Brain</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      /* Design tokens — light mode */
+      --color-primary: #C8A860;
+      --color-primary-hover: #B8984A;
+      --color-text-primary: #1A1A1A;
+      --color-text-secondary: #666666;
+      --color-background: #FFFFFF;
+      --color-border: #E5E5E5;
+      --color-surface: #F9F9F9;
+      --color-discount-bg: #FFF4E6;
+      --color-discount-text: #D97706;
+
+      /* Spacing */
+      --card-width: 90px;
+      --image-size: 48px;
+      --card-gap: 12px;
+      --section-padding: 16px;
+
+      /* Typography */
+      --font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    }
+
+    [data-theme="dark"] {
+      /* Design tokens — dark mode */
+      --color-primary: #D4B16C;
+      --color-primary-hover: #E4C17C;
+      --color-text-primary: #F5F5F5;
+      --color-text-secondary: #A0A0A0;
+      --color-background: #1A1A1A;
+      --color-border: #333333;
+      --color-surface: #242424;
+      --color-discount-bg: #2D2416;
+      --color-discount-text: #FFA726;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: var(--font-family);
+      background: var(--color-surface);
+      color: var(--color-text-primary);
+      padding: 40px 20px;
+      transition: background-color 0.3s, color 0.3s;
+    }
+
+    .demo-container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .demo-header {
+      margin-bottom: 32px;
+    }
+
+    .demo-header h1 {
+      font-size: 24px;
+      font-weight: 700;
+      margin-bottom: 8px;
+      color: var(--color-text-primary);
+    }
+
+    .demo-header p {
+      font-size: 14px;
+      color: var(--color-text-secondary);
+    }
+
+    /* Quick Access Section */
+    .quick-access-section {
+      background: var(--color-background);
+      border-radius: 12px;
+      padding: var(--section-padding);
+      margin-bottom: 24px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+      transition: background-color 0.3s;
+    }
+
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+
+    .section-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--color-text-primary);
+    }
+
+    .scroll-controls {
+      display: flex;
+      gap: 8px;
+    }
+
+    .scroll-btn {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      border: 1px solid var(--color-border);
+      background: var(--color-background);
+      color: var(--color-text-secondary);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+      font-size: 14px;
+    }
+
+    .scroll-btn:hover:not(:disabled) {
+      background: var(--color-primary);
+      color: white;
+      border-color: var(--color-primary);
+      transform: scale(1.05);
+    }
+
+    .scroll-btn:disabled {
+      opacity: 0.3;
+      cursor: not-allowed;
+    }
+
+    /* Carousel Container */
+    .carousel-wrapper {
+      position: relative;
+      overflow: hidden;
+    }
+
+    .carousel-track {
+      display: flex;
+      gap: var(--card-gap);
+      overflow-x: auto;
+      scroll-behavior: smooth;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+      padding-bottom: 4px;
+    }
+
+    .carousel-track::-webkit-scrollbar {
+      display: none;
+    }
+
+    /* Quick Access Card */
+    .quick-access-card {
+      flex: 0 0 var(--card-width);
+      width: var(--card-width);
+      text-decoration: none;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      padding: 8px;
+      border-radius: 8px;
+      transition: all 0.2s;
+      position: relative;
+    }
+
+    .quick-access-card:hover {
+      background: var(--color-surface);
+      transform: translateY(-2px);
+    }
+
+    .quick-access-card:active {
+      transform: translateY(0);
+    }
+
+    /* Image Container */
+    .card-image-wrapper {
+      position: relative;
+      width: var(--image-size);
+      height: var(--image-size);
+      border-radius: 50%;
+      overflow: hidden;
+      border: 2px solid var(--color-border);
+      transition: border-color 0.2s;
+      background: var(--color-surface);
+    }
+
+    .quick-access-card:hover .card-image-wrapper {
+      border-color: var(--color-primary);
+    }
+
+    .card-image {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    /* Discount Badge */
+    .discount-badge {
+      position: absolute;
+      top: -4px;
+      right: -4px;
+      background: var(--color-discount-bg);
+      color: var(--color-discount-text);
+      font-size: 10px;
+      font-weight: 600;
+      padding: 2px 6px;
+      border-radius: 10px;
+      border: 1.5px solid var(--color-background);
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+      z-index: 1;
+    }
+
+    /* Card Title */
+    .card-title {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--color-text-primary);
+      text-align: center;
+      line-height: 1.2;
+      max-width: 100%;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      transition: color 0.2s;
+    }
+
+    .quick-access-card:hover .card-title {
+      color: var(--color-primary);
+    }
+
+    /* Active Indicator */
+    .active-indicator {
+      width: 4px;
+      height: 4px;
+      border-radius: 50%;
+      background: var(--color-primary);
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+
+    .quick-access-card:hover .active-indicator {
+      opacity: 1;
+    }
+
+    /* Theme Toggle */
+    .theme-toggle {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      border: 1px solid var(--color-border);
+      background: var(--color-background);
+      color: var(--color-text-primary);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      transition: all 0.3s;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      z-index: 1000;
+    }
+
+    .theme-toggle:hover {
+      transform: scale(1.1) rotate(15deg);
+      background: var(--color-primary);
+      color: white;
+    }
+
+    /* Specs Section */
+    .specs-section {
+      background: var(--color-background);
+      border-radius: 12px;
+      padding: 24px;
+      margin-top: 24px;
+    }
+
+    .specs-section h2 {
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 16px;
+      color: var(--color-text-primary);
+    }
+
+    .specs-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .spec-item {
+      padding: 12px;
+      background: var(--color-surface);
+      border-radius: 8px;
+      border-left: 3px solid var(--color-primary);
+    }
+
+    .spec-label {
+      font-size: 11px;
+      text-transform: uppercase;
+      color: var(--color-text-secondary);
+      margin-bottom: 4px;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+    }
+
+    .spec-value {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--color-text-primary);
+    }
+
+    .comparison-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 16px;
+    }
+
+    .comparison-table th,
+    .comparison-table td {
+      padding: 12px;
+      text-align: left;
+      border-bottom: 1px solid var(--color-border);
+      font-size: 13px;
+    }
+
+    .comparison-table th {
+      background: var(--color-surface);
+      font-weight: 600;
+      color: var(--color-text-primary);
+    }
+
+    .comparison-table td {
+      color: var(--color-text-secondary);
+    }
+
+    .comparison-table .old-value {
+      color: #DC2626;
+      text-decoration: line-through;
+    }
+
+    .comparison-table .new-value {
+      color: #16A34A;
+      font-weight: 600;
+    }
+
+    /* Responsive */
+    @media (max-width: 640px) {
+      body {
+        padding: 20px 12px;
+      }
+
+      .demo-header h1 {
+        font-size: 20px;
+      }
+
+      .quick-access-section {
+        padding: 12px;
+      }
+
+      .specs-section {
+        padding: 16px;
+      }
+
+      .specs-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
+    🌙
+  </button>
+
+  <div class="demo-container">
+    <div class="demo-header">
+      <h1>Compact Quick-Access Promotional Cards</h1>
+      <p>Syrian e-commerce marketplace — Professional category quick-access design</p>
+    </div>
+
+    <!-- Quick Access Section -->
+    <div class="quick-access-section">
+      <div class="section-header">
+        <h2 class="section-title">Quick Access</h2>
+        <div class="scroll-controls">
+          <button class="scroll-btn" id="scrollLeft" aria-label="Scroll left">←</button>
+          <button class="scroll-btn" id="scrollRight" aria-label="Scroll right">→</button>
+        </div>
+      </div>
+
+      <div class="carousel-wrapper">
+        <div class="carousel-track" id="carouselTrack">
+          <!-- Card 1: Spices & Herbs -->
+          <a href="#" class="quick-access-card" data-category="spices">
+            <div class="card-image-wrapper">
+              <img src="https://images.unsplash.com/photo-1596040033229-a0b00b1b6e6a?w=200&h=200&fit=crop&q=80"
+                   alt="Spices & Herbs"
+                   class="card-image">
+              <span class="discount-badge">-20%</span>
+            </div>
+            <span class="card-title">Spices & Herbs</span>
+            <div class="active-indicator"></div>
+          </a>
+
+          <!-- Card 2: Damascus Steel -->
+          <a href="#" class="quick-access-card" data-category="damascus">
+            <div class="card-image-wrapper">
+              <img src="https://images.unsplash.com/photo-1593462475660-3f7d0b4a3478?w=200&h=200&fit=crop&q=80"
+                   alt="Damascus Steel"
+                   class="card-image">
+            </div>
+            <span class="card-title">Damascus Steel</span>
+            <div class="active-indicator"></div>
+          </a>
+
+          <!-- Card 3: Olive Oil -->
+          <a href="#" class="quick-access-card" data-category="olive-oil">
+            <div class="card-image-wrapper">
+              <img src="https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?w=200&h=200&fit=crop&q=80"
+                   alt="Olive Oil"
+                   class="card-image">
+              <span class="discount-badge">-15%</span>
+            </div>
+            <span class="card-title">Olive Oil</span>
+            <div class="active-indicator"></div>
+          </a>
+
+          <!-- Card 4: Handmade Soap -->
+          <a href="#" class="quick-access-card" data-category="soap">
+            <div class="card-image-wrapper">
+              <img src="https://images.unsplash.com/photo-1595966787038-d56e14c6c0d4?w=200&h=200&fit=crop&q=80"
+                   alt="Handmade Soap"
+                   class="card-image">
+            </div>
+            <span class="card-title">Aleppo Soap</span>
+            <div class="active-indicator"></div>
+          </a>
+
+          <!-- Card 5: Sweets -->
+          <a href="#" class="quick-access-card" data-category="sweets">
+            <div class="card-image-wrapper">
+              <img src="https://images.unsplash.com/photo-1563805042-7684c019e1cb?w=200&h=200&fit=crop&q=80"
+                   alt="Traditional Sweets"
+                   class="card-image">
+              <span class="discount-badge">-25%</span>
+            </div>
+            <span class="card-title">Sweets</span>
+            <div class="active-indicator"></div>
+          </a>
+
+          <!-- Card 6: Textiles -->
+          <a href="#" class="quick-access-card" data-category="textiles">
+            <div class="card-image-wrapper">
+              <img src="https://images.unsplash.com/photo-1564584217132-2271feaeb3c5?w=200&h=200&fit=crop&q=80"
+                   alt="Traditional Textiles"
+                   class="card-image">
+            </div>
+            <span class="card-title">Textiles</span>
+            <div class="active-indicator"></div>
+          </a>
+
+          <!-- Card 7: Ceramics -->
+          <a href="#" class="quick-access-card" data-category="ceramics">
+            <div class="card-image-wrapper">
+              <img src="https://images.unsplash.com/photo-1610701596007-11502861dcfa?w=200&h=200&fit=crop&q=80"
+                   alt="Ceramics & Pottery"
+                   class="card-image">
+            </div>
+            <span class="card-title">Ceramics</span>
+            <div class="active-indicator"></div>
+          </a>
+
+          <!-- Card 8: Coffee & Tea -->
+          <a href="#" class="quick-access-card" data-category="coffee">
+            <div class="card-image-wrapper">
+              <img src="https://images.unsplash.com/photo-1559056199-641a0ac8b55e?w=200&h=200&fit=crop&q=80"
+                   alt="Coffee & Tea"
+                   class="card-image">
+              <span class="discount-badge">-10%</span>
+            </div>
+            <span class="card-title">Coffee & Tea</span>
+            <div class="active-indicator"></div>
+          </a>
+
+          <!-- Card 9: Brass & Copper -->
+          <a href="#" class="quick-access-card" data-category="brass">
+            <div class="card-image-wrapper">
+              <img src="https://images.unsplash.com/photo-1522096823084-2d1aa8411c13?w=200&h=200&fit=crop&q=80"
+                   alt="Brass & Copper"
+                   class="card-image">
+            </div>
+            <span class="card-title">Brass Decor</span>
+            <div class="active-indicator"></div>
+          </a>
+
+          <!-- Card 10: Jewelry -->
+          <a href="#" class="quick-access-card" data-category="jewelry">
+            <div class="card-image-wrapper">
+              <img src="https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?w=200&h=200&fit=crop&q=80"
+                   alt="Traditional Jewelry"
+                   class="card-image">
+            </div>
+            <span class="card-title">Jewelry</span>
+            <div class="active-indicator"></div>
+          </a>
+
+          <!-- Card 11: Rugs & Carpets -->
+          <a href="#" class="quick-access-card" data-category="rugs">
+            <div class="card-image-wrapper">
+              <img src="https://images.unsplash.com/photo-1600166898405-da9535204843?w=200&h=200&fit=crop&q=80"
+                   alt="Rugs & Carpets"
+                   class="card-image">
+            </div>
+            <span class="card-title">Rugs</span>
+            <div class="active-indicator"></div>
+          </a>
+
+          <!-- Card 12: Dried Fruits -->
+          <a href="#" class="quick-access-card" data-category="fruits">
+            <div class="card-image-wrapper">
+              <img src="https://images.unsplash.com/photo-1607623814075-e51df1bdc82f?w=200&h=200&fit=crop&q=80"
+                   alt="Dried Fruits"
+                   class="card-image">
+              <span class="discount-badge">-30%</span>
+            </div>
+            <span class="card-title">Dried Fruits</span>
+            <div class="active-indicator"></div>
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Specifications Section -->
+    <div class="specs-section">
+      <h2>Design Specifications</h2>
+
+      <div class="specs-grid">
+        <div class="spec-item">
+          <div class="spec-label">Total Height</div>
+          <div class="spec-value">~76px</div>
+        </div>
+        <div class="spec-item">
+          <div class="spec-label">Card Width</div>
+          <div class="spec-value">90px</div>
+        </div>
+        <div class="spec-item">
+          <div class="spec-label">Image Size</div>
+          <div class="spec-value">48px (circular)</div>
+        </div>
+        <div class="spec-item">
+          <div class="spec-label">Card Gap</div>
+          <div class="spec-value">12px</div>
+        </div>
+        <div class="spec-item">
+          <div class="spec-label">Font Size</div>
+          <div class="spec-value">13px (title)</div>
+        </div>
+        <div class="spec-item">
+          <div class="spec-label">Border Radius</div>
+          <div class="spec-value">50% (image), 8px (card)</div>
+        </div>
+      </div>
+
+      <h3 style="font-size: 16px; margin-top: 24px; margin-bottom: 12px; color: var(--color-text-primary);">
+        Before/After Comparison
+      </h3>
+
+      <table class="comparison-table">
+        <thead>
+          <tr>
+            <th>Metric</th>
+            <th>Old Design</th>
+            <th>New Design</th>
+            <th>Improvement</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Total Height</strong></td>
+            <td class="old-value">~180px</td>
+            <td class="new-value">~76px</td>
+            <td class="new-value">↓ 58% reduction</td>
+          </tr>
+          <tr>
+            <td><strong>Card Width</strong></td>
+            <td class="old-value">130px</td>
+            <td class="new-value">90px</td>
+            <td class="new-value">↓ 31% smaller</td>
+          </tr>
+          <tr>
+            <td><strong>Image Area</strong></td>
+            <td class="old-value">70px rectangular</td>
+            <td class="new-value">48px circular</td>
+            <td class="new-value">Cleaner, modern</td>
+          </tr>
+          <tr>
+            <td><strong>Badge Style</strong></td>
+            <td class="old-value">Large gradient overlay</td>
+            <td class="new-value">Small corner badge</td>
+            <td class="new-value">Subtle, professional</td>
+          </tr>
+          <tr>
+            <td><strong>Text Visibility</strong></td>
+            <td class="old-value">Truncated at 11px/9px</td>
+            <td class="new-value">Single 13px line</td>
+            <td class="new-value">↑ Better readability</td>
+          </tr>
+          <tr>
+            <td><strong>Visual Style</strong></td>
+            <td class="old-value">Prototype-like</td>
+            <td class="new-value">Professional e-commerce</td>
+            <td class="new-value">✓ Industry standard</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <script>
+    // Theme Toggle
+    const themeToggle = document.getElementById('themeToggle');
+    const html = document.documentElement;
+
+    // Initialize theme from localStorage
+    const savedTheme = localStorage.getItem('theme') || 'light';
+    html.setAttribute('data-theme', savedTheme);
+    themeToggle.textContent = savedTheme === 'dark' ? '☀️' : '🌙';
+
+    themeToggle.addEventListener('click', () => {
+      const currentTheme = html.getAttribute('data-theme');
+      const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+
+      html.setAttribute('data-theme', newTheme);
+      localStorage.setItem('theme', newTheme);
+      themeToggle.textContent = newTheme === 'dark' ? '☀️' : '🌙';
+    });
+
+    // Carousel Scroll Controls
+    const carouselTrack = document.getElementById('carouselTrack');
+    const scrollLeftBtn = document.getElementById('scrollLeft');
+    const scrollRightBtn = document.getElementById('scrollRight');
+
+    const scrollAmount = 300; // pixels to scroll
+
+    scrollLeftBtn.addEventListener('click', () => {
+      carouselTrack.scrollBy({
+        left: -scrollAmount,
+        behavior: 'smooth'
+      });
+    });
+
+    scrollRightBtn.addEventListener('click', () => {
+      carouselTrack.scrollBy({
+        left: scrollAmount,
+        behavior: 'smooth'
+      });
+    });
+
+    // Update button states based on scroll position
+    function updateScrollButtons() {
+      const isAtStart = carouselTrack.scrollLeft <= 0;
+      const isAtEnd = carouselTrack.scrollLeft + carouselTrack.clientWidth >= carouselTrack.scrollWidth - 1;
+
+      scrollLeftBtn.disabled = isAtStart;
+      scrollRightBtn.disabled = isAtEnd;
+    }
+
+    carouselTrack.addEventListener('scroll', updateScrollButtons);
+    window.addEventListener('resize', updateScrollButtons);
+    updateScrollButtons(); // Initial state
+
+    // Card Click Handler (for demo)
+    document.querySelectorAll('.quick-access-card').forEach(card => {
+      card.addEventListener('click', (e) => {
+        e.preventDefault();
+        const category = card.getAttribute('data-category');
+        console.log(`Navigating to category: ${category}`);
+
+        // Visual feedback
+        card.style.transform = 'scale(0.95)';
+        setTimeout(() => {
+          card.style.transform = '';
+        }, 150);
+      });
+    });
+
+    // Touch/Mobile scroll handling
+    let isDown = false;
+    let startX;
+    let scrollLeft;
+
+    carouselTrack.addEventListener('mousedown', (e) => {
+      isDown = true;
+      startX = e.pageX - carouselTrack.offsetLeft;
+      scrollLeft = carouselTrack.scrollLeft;
+      carouselTrack.style.cursor = 'grabbing';
+    });
+
+    carouselTrack.addEventListener('mouseleave', () => {
+      isDown = false;
+      carouselTrack.style.cursor = 'grab';
+    });
+
+    carouselTrack.addEventListener('mouseup', () => {
+      isDown = false;
+      carouselTrack.style.cursor = 'grab';
+    });
+
+    carouselTrack.addEventListener('mousemove', (e) => {
+      if (!isDown) return;
+      e.preventDefault();
+      const x = e.pageX - carouselTrack.offsetLeft;
+      const walk = (x - startX) * 2;
+      carouselTrack.scrollLeft = scrollLeft - walk;
+    });
+
+    // Set initial cursor
+    carouselTrack.style.cursor = 'grab';
+  </script>
+</body>
+</html>

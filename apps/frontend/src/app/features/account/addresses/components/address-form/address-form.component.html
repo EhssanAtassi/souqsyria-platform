@@ -43,7 +43,7 @@
     />
 
     <!-- Validation errors for location -->
-    <div class="location-errors" *ngIf="form.get('governorateId')?.touched || form.get('cityId')?.touched">
+    <div class="location-errors" role="alert" aria-live="polite" *ngIf="form.get('governorateId')?.touched || form.get('cityId')?.touched">
       <mat-error *ngIf="hasError('governorateId', 'required')">
         {{ 'addresses.validation.governorateRequired' | translate }}
       </mat-error>
@@ -87,7 +87,7 @@
     <!-- Address Label -->
     <div class="form-section">
       <label class="section-label">{{ 'addresses.label' | translate }}</label>
-      <mat-button-toggle-group formControlName="label" class="label-toggle">
+      <mat-button-toggle-group formControlName="label" class="label-toggle" [attr.aria-label]="'addresses.label' | translate">
         <mat-button-toggle *ngFor="let label of labelOptions; trackBy: trackByLabel" [value]="label">
           <mat-icon>
             {{ label === 'home' ? 'home' : label === 'work' ? 'business' : label === 'family' ? 'people' : 'location_on' }}
@@ -121,7 +121,7 @@
         type="submit"
         [disabled]="isSubmitting()"
       >
-        <mat-spinner *ngIf="isSubmitting()" diameter="20"></mat-spinner>
+        <mat-spinner *ngIf="isSubmitting()" diameter="20" [attr.aria-label]="'addresses.saving' | translate"></mat-spinner>
         <span *ngIf="!isSubmitting()">{{ 'addresses.save' | translate }}</span>
       </button>
     </div>

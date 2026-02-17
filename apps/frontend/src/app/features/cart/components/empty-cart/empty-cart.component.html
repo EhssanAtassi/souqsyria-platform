@@ -1,0 +1,62 @@
+<!-- Empty Cart State: illustration + CTAs + product recommendations -->
+<div class="empty-cart" [attr.dir]="language === 'ar' ? 'rtl' : 'ltr'">
+
+  <!-- SVG Illustration: empty cart with Syrian gold accent -->
+  <div class="empty-cart__illustration">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="160" height="160" aria-hidden="true">
+      <!-- Cart body -->
+      <path d="M40 70 L55 140 H145 L160 70 Z" fill="none" stroke="#d4a853" stroke-width="3" stroke-linejoin="round"/>
+      <!-- Cart wheels -->
+      <circle cx="75" cy="155" r="10" fill="none" stroke="#d4a853" stroke-width="3"/>
+      <circle cx="130" cy="155" r="10" fill="none" stroke="#d4a853" stroke-width="3"/>
+      <!-- Cart handle -->
+      <path d="M30 70 L40 70" stroke="#d4a853" stroke-width="3" stroke-linecap="round"/>
+      <!-- Dashed line inside (empty indicator) -->
+      <line x1="70" y1="100" x2="130" y2="100" stroke="#e5d5a0" stroke-width="2" stroke-dasharray="8,6"/>
+      <line x1="75" y1="115" x2="125" y2="115" stroke="#e5d5a0" stroke-width="2" stroke-dasharray="8,6"/>
+    </svg>
+  </div>
+
+  <!-- Heading -->
+  <h2 class="empty-cart__title">
+    {{ language === 'ar' ? 'سلة التسوق فارغة' : 'Your cart is empty' }}
+  </h2>
+
+  <!-- Subtitle -->
+  <p class="empty-cart__subtitle">
+    {{ language === 'ar'
+      ? 'اكتشف منتجات سورية أصلية وأضفها إلى سلتك.'
+      : 'Discover authentic Syrian products and add them to your cart.' }}
+  </p>
+
+  <!-- CTAs -->
+  <div class="empty-cart__actions">
+    <button
+      class="empty-cart__btn empty-cart__btn--primary"
+      (click)="startShopping.emit()">
+      <span class="material-icons-outlined text-lg align-middle me-1" aria-hidden="true">shopping_bag</span>
+      {{ language === 'ar' ? 'ابدأ التسوق' : 'Start Shopping' }}
+    </button>
+    <button
+      class="empty-cart__btn empty-cart__btn--secondary"
+      (click)="browseCategories.emit()">
+      <span class="material-icons-outlined text-lg align-middle me-1" aria-hidden="true">category</span>
+      {{ language === 'ar' ? 'تصفح الفئات' : 'Browse Categories' }}
+    </button>
+  </div>
+
+  <!-- Product Recommendations -->
+  <div *ngIf="recommendedProducts.length > 0" class="empty-cart__recommendations">
+    <h3 class="empty-cart__recommendations-title">
+      {{ language === 'ar' ? 'منتجات رائجة' : 'Trending Products' }}
+    </h3>
+    <div class="empty-cart__recommendations-grid">
+      <app-product-box-grid
+        *ngFor="let product of recommendedProducts; trackBy: trackByProductId"
+        [product]="product"
+        [language]="language"
+        (addToCart)="addToCart.emit($event)">
+      </app-product-box-grid>
+    </div>
+  </div>
+</div>

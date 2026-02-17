@@ -8,7 +8,11 @@
  */
 
 import { Injectable } from '@nestjs/common';
-import { HealthIndicator, HealthIndicatorResult, HealthCheckError } from '@nestjs/terminus';
+import {
+  HealthIndicator,
+  HealthIndicatorResult,
+  HealthCheckError,
+} from '@nestjs/terminus';
 import { DataSource } from 'typeorm';
 import { InjectDataSource } from '@nestjs/typeorm';
 
@@ -42,7 +46,7 @@ export class BusinessHealthIndicator extends HealthIndicator {
       const isHealthy = Boolean(
         metrics.databaseConnected &&
         metrics.criticalTablesExist &&
-        metrics.recentActivityDetected
+        metrics.recentActivityDetected,
       );
 
       const result = this.getStatus(key, isHealthy, {
@@ -51,10 +55,7 @@ export class BusinessHealthIndicator extends HealthIndicator {
       });
 
       if (!isHealthy) {
-        throw new HealthCheckError(
-          'Business health check failed',
-          result,
-        );
+        throw new HealthCheckError('Business health check failed', result);
       }
 
       return result;
@@ -63,7 +64,10 @@ export class BusinessHealthIndicator extends HealthIndicator {
         throw error;
       }
 
-      const errorMessage = error instanceof Error ? (error as Error).message : 'Unknown business health error';
+      const errorMessage =
+        error instanceof Error
+          ? (error as Error).message
+          : 'Unknown business health error';
 
       throw new HealthCheckError(
         'Business health check failed',
@@ -125,28 +129,34 @@ export class BusinessHealthIndicator extends HealthIndicator {
 
       // Get some basic counts for monitoring
       try {
-        const userCount = await this.dataSource.query('SELECT COUNT(*) as count FROM users');
+        const userCount = await this.dataSource.query(
+          'SELECT COUNT(*) as count FROM users',
+        );
         metrics.totalUsers = parseInt(userCount[0]?.count || '0', 10);
       } catch {
         metrics.totalUsers = 'unavailable';
       }
 
       try {
-        const productCount = await this.dataSource.query('SELECT COUNT(*) as count FROM products');
+        const productCount = await this.dataSource.query(
+          'SELECT COUNT(*) as count FROM products',
+        );
         metrics.totalProducts = parseInt(productCount[0]?.count || '0', 10);
       } catch {
         metrics.totalProducts = 'unavailable';
       }
 
       try {
-        const orderCount = await this.dataSource.query('SELECT COUNT(*) as count FROM orders');
+        const orderCount = await this.dataSource.query(
+          'SELECT COUNT(*) as count FROM orders',
+        );
         metrics.totalOrders = parseInt(orderCount[0]?.count || '0', 10);
       } catch {
         metrics.totalOrders = 'unavailable';
       }
-
     } catch (error: unknown) {
-      metrics.error = error instanceof Error ? (error as Error).message : 'Unknown error';
+      metrics.error =
+        error instanceof Error ? (error as Error).message : 'Unknown error';
     }
 
     return metrics;

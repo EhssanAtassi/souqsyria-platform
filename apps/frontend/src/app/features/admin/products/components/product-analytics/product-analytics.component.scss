@@ -1,0 +1,699 @@
+/**
+ * Product Analytics Dashboard Styles
+ * @description Styles for product analytics component using Golden Wheat design system
+ */
+
+@import '../../../../../shared/styles/variables';
+
+// ============================================================================
+// CONTAINER
+// ============================================================================
+
+/**
+ * Main analytics container
+ * @description Root wrapper for analytics dashboard
+ */
+.analytics-container {
+  padding: $space-6;
+  max-width: 1600px;
+  margin: 0 auto;
+
+  @media (max-width: $breakpoint-md) {
+    padding: $space-4;
+  }
+}
+
+// ============================================================================
+// HEADER
+// ============================================================================
+
+/**
+ * Page header section
+ * @description Title and subtitle area
+ */
+.analytics-header {
+  margin-bottom: $space-8;
+}
+
+/**
+ * Main page title
+ */
+.analytics-title {
+  font-size: $font-size-3xl;
+  font-weight: $font-weight-bold;
+  color: $charcoal-dark;
+  margin: 0 0 $space-2 0;
+  line-height: $line-height-tight;
+}
+
+/**
+ * Page subtitle
+ */
+.analytics-subtitle {
+  font-size: $font-size-lg;
+  color: $charcoal-medium;
+  margin: 0;
+  line-height: $line-height-normal;
+}
+
+// ============================================================================
+// LOADING & ERROR STATES
+// ============================================================================
+
+/**
+ * Loading state container
+ */
+.loading-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: $space-16;
+  gap: $space-4;
+
+  p {
+    font-size: $font-size-lg;
+    color: $charcoal-medium;
+    margin: 0;
+  }
+}
+
+/**
+ * Loading spinner
+ */
+.spinner {
+  width: 48px;
+  height: 48px;
+  border: 4px solid $golden-wheat-light;
+  border-top-color: $golden-wheat-primary;
+  border-radius: $border-radius-full;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/**
+ * Error state container
+ */
+.error-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: $space-4;
+  padding: $space-12;
+  background-color: lighten($color-error, 45%);
+  border: $border-width-thin solid $color-error;
+  border-radius: $border-radius-md;
+}
+
+/**
+ * Error message text
+ */
+.error-message {
+  font-size: $font-size-lg;
+  color: $color-error;
+  margin: 0;
+  font-weight: $font-weight-medium;
+}
+
+/**
+ * Retry button
+ */
+.retry-button {
+  padding: $space-3 $space-6;
+  background-color: $golden-wheat-primary;
+  color: $charcoal-light;
+  border: none;
+  border-radius: $border-radius-md;
+  font-size: $font-size-base;
+  font-weight: $font-weight-medium;
+  cursor: pointer;
+  transition: background-color $transition-fast $ease-in-out;
+
+  &:hover {
+    background-color: $golden-wheat-dark;
+  }
+}
+
+// ============================================================================
+// KPI CARDS SECTION
+// ============================================================================
+
+/**
+ * KPI section container
+ */
+.kpi-section {
+  margin-bottom: $space-8;
+}
+
+/**
+ * KPI cards grid
+ */
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: $space-6;
+
+  @media (max-width: $breakpoint-sm) {
+    grid-template-columns: 1fr;
+  }
+}
+
+/**
+ * Individual KPI card
+ */
+.kpi-card {
+  background-color: $charcoal-light;
+  border: $border-width-thin solid $golden-wheat-light;
+  border-radius: $border-radius-lg;
+  padding: $space-6;
+  box-shadow: $shadow-sm;
+  transition: box-shadow $transition-fast $ease-in-out;
+
+  &:hover {
+    box-shadow: $shadow-md;
+  }
+}
+
+/**
+ * KPI card header
+ */
+.kpi-header {
+  display: flex;
+  align-items: center;
+  gap: $space-3;
+  margin-bottom: $space-4;
+}
+
+/**
+ * KPI icon placeholder
+ */
+.kpi-icon {
+  width: 40px;
+  height: 40px;
+  background-color: $golden-wheat-light;
+  border-radius: $border-radius-md;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  &.icon-box::before {
+    content: '📦';
+    font-size: $font-size-xl;
+  }
+
+  &.icon-dollar::before {
+    content: '💰';
+    font-size: $font-size-xl;
+  }
+
+  &.icon-star::before {
+    content: '⭐';
+    font-size: $font-size-xl;
+  }
+
+  &.icon-alert::before {
+    content: '⚠️';
+    font-size: $font-size-xl;
+  }
+}
+
+/**
+ * KPI title
+ */
+.kpi-title {
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+  color: $charcoal-medium;
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/**
+ * KPI body
+ */
+.kpi-body {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+}
+
+/**
+ * KPI value
+ */
+.kpi-value {
+  font-size: $font-size-3xl;
+  font-weight: $font-weight-bold;
+  color: $charcoal-dark;
+  margin: 0;
+  line-height: $line-height-tight;
+}
+
+/**
+ * KPI change indicator
+ */
+.kpi-change {
+  display: flex;
+  align-items: center;
+  gap: $space-1;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+
+  &.trend-up {
+    color: $color-success;
+
+    .trend-icon::before {
+      content: '↑';
+    }
+  }
+
+  &.trend-down {
+    color: $color-error;
+
+    .trend-icon::before {
+      content: '↓';
+    }
+  }
+
+  &.trend-neutral {
+    color: $charcoal-medium;
+
+    .trend-icon::before {
+      content: '→';
+    }
+  }
+}
+
+// ============================================================================
+// MAIN ANALYTICS GRID
+// ============================================================================
+
+/**
+ * Two-column analytics grid
+ */
+.analytics-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: $space-6;
+
+  @media (max-width: $breakpoint-lg) {
+    grid-template-columns: 1fr;
+  }
+}
+
+/**
+ * Left column (wider)
+ */
+.analytics-col-left {
+  display: flex;
+  flex-direction: column;
+  gap: $space-6;
+}
+
+/**
+ * Right column (narrower)
+ */
+.analytics-col-right {
+  display: flex;
+  flex-direction: column;
+  gap: $space-6;
+}
+
+// ============================================================================
+// ANALYTICS CARD
+// ============================================================================
+
+/**
+ * Reusable analytics card
+ */
+.analytics-card {
+  background-color: $charcoal-light;
+  border: $border-width-thin solid $golden-wheat-light;
+  border-radius: $border-radius-lg;
+  box-shadow: $shadow-sm;
+  overflow: hidden;
+}
+
+/**
+ * Card header
+ */
+.card-header {
+  padding: $space-6;
+  border-bottom: $border-width-thin solid $golden-wheat-light;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/**
+ * Card title
+ */
+.card-title {
+  font-size: $font-size-xl;
+  font-weight: $font-weight-semibold;
+  color: $charcoal-dark;
+  margin: 0;
+}
+
+/**
+ * Card subtitle
+ */
+.card-subtitle {
+  font-size: $font-size-sm;
+  color: $charcoal-medium;
+  margin: 0;
+}
+
+/**
+ * Card body
+ */
+.card-body {
+  padding: $space-6;
+}
+
+// ============================================================================
+// TOP PRODUCTS TABLE
+// ============================================================================
+
+/**
+ * Table container with horizontal scroll on mobile
+ */
+.table-container {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/**
+ * Products table
+ */
+.products-table {
+  width: 100%;
+  border-collapse: collapse;
+
+  th,
+  td {
+    padding: $space-4;
+    text-align: left;
+  }
+
+  th {
+    font-size: $font-size-sm;
+    font-weight: $font-weight-semibold;
+    color: $charcoal-medium;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border-bottom: $border-width-medium solid $golden-wheat-light;
+
+    &.text-center {
+      text-align: center;
+    }
+  }
+
+  td {
+    font-size: $font-size-base;
+    color: $charcoal-dark;
+    border-bottom: $border-width-thin solid $golden-wheat-light;
+
+    &.text-center {
+      text-align: center;
+    }
+  }
+
+  tbody tr {
+    transition: background-color $transition-fast $ease-in-out;
+
+    &:hover {
+      background-color: lighten($golden-wheat-light, 5%);
+    }
+  }
+}
+
+/**
+ * Product name cell
+ */
+.product-name {
+  font-weight: $font-weight-medium;
+  color: $charcoal-dark;
+  max-width: 300px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/**
+ * Conversion rate badge
+ */
+.conversion-badge {
+  display: inline-block;
+  padding: $space-1 $space-3;
+  background-color: $golden-wheat-light;
+  color: $golden-wheat-dark;
+  border-radius: $border-radius-full;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+}
+
+// ============================================================================
+// REVENUE BY CATEGORY
+// ============================================================================
+
+/**
+ * Category list
+ */
+.category-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: $space-5;
+}
+
+/**
+ * Category item
+ */
+.category-item {
+  display: flex;
+  flex-direction: column;
+  gap: $space-2;
+}
+
+/**
+ * Category info row
+ */
+.category-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/**
+ * Category name
+ */
+.category-name {
+  font-size: $font-size-base;
+  font-weight: $font-weight-medium;
+  color: $charcoal-dark;
+}
+
+/**
+ * Category revenue
+ */
+.category-revenue {
+  font-size: $font-size-base;
+  font-weight: $font-weight-semibold;
+  color: $golden-wheat-primary;
+}
+
+/**
+ * Progress bar background
+ */
+.progress-bar {
+  height: 8px;
+  background-color: $golden-wheat-light;
+  border-radius: $border-radius-full;
+  overflow: hidden;
+}
+
+/**
+ * Progress bar fill
+ */
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(to right, $golden-wheat-primary, $golden-wheat-medium);
+  border-radius: $border-radius-full;
+  transition: width $transition-normal $ease-out;
+}
+
+/**
+ * Category percentage
+ */
+.category-percentage {
+  font-size: $font-size-sm;
+  color: $charcoal-medium;
+  text-align: right;
+  margin: 0;
+}
+
+// ============================================================================
+// STOCK ALERTS
+// ============================================================================
+
+/**
+ * Alert badge in header
+ */
+.alert-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 28px;
+  height: 28px;
+  padding: 0 $space-2;
+  background-color: $color-error;
+  color: $charcoal-light;
+  border-radius: $border-radius-full;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-semibold;
+}
+
+/**
+ * Alerts list
+ */
+.alerts-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: $space-4;
+}
+
+/**
+ * Alert item
+ */
+.alert-item {
+  padding: $space-4;
+  background-color: lighten($golden-wheat-light, 5%);
+  border-left: 4px solid transparent;
+  border-radius: $border-radius-md;
+  transition: transform $transition-fast $ease-in-out;
+
+  &.stock-out {
+    border-left-color: $color-error;
+  }
+
+  &.stock-low {
+    border-left-color: $color-warning;
+  }
+
+  &:hover {
+    transform: translateX(-2px);
+  }
+}
+
+/**
+ * Alert header
+ */
+.alert-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: $space-3;
+}
+
+/**
+ * Alert product name
+ */
+.alert-product-name {
+  font-size: $font-size-base;
+  font-weight: $font-weight-semibold;
+  color: $charcoal-dark;
+  margin: 0;
+}
+
+/**
+ * Alert SKU
+ */
+.alert-sku {
+  font-size: $font-size-sm;
+  color: $charcoal-medium;
+  font-family: monospace;
+}
+
+/**
+ * Alert body
+ */
+.alert-body {
+  display: flex;
+  flex-direction: column;
+  gap: $space-2;
+}
+
+/**
+ * Stock info row
+ */
+.stock-info {
+  display: flex;
+  align-items: center;
+  gap: $space-3;
+}
+
+/**
+ * Status badges
+ */
+.status-badge {
+  display: inline-block;
+  padding: $space-1 $space-3;
+  border-radius: $border-radius-full;
+  font-size: $font-size-xs;
+  font-weight: $font-weight-semibold;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+
+  &.status-out {
+    background-color: lighten($color-error, 35%);
+    color: $color-error;
+  }
+
+  &.status-low {
+    background-color: lighten($color-warning, 25%);
+    color: darken($color-warning, 25%);
+  }
+}
+
+/**
+ * Stock count
+ */
+.stock-count {
+  font-size: $font-size-sm;
+  color: $charcoal-medium;
+  font-weight: $font-weight-medium;
+}
+
+/**
+ * Stock threshold
+ */
+.stock-threshold {
+  font-size: $font-size-xs;
+  color: $charcoal-medium;
+  margin: 0;
+}
+
+/**
+ * Empty state
+ */
+.empty-state {
+  padding: $space-8;
+  text-align: center;
+
+  p {
+    font-size: $font-size-lg;
+    color: $charcoal-medium;
+    margin: 0;
+  }
+}

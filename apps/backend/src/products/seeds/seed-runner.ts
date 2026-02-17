@@ -55,11 +55,18 @@ const colors = {
  * Logger utility with color-coded output
  */
 const logger = {
-  info: (message: string) => console.log(`${colors.blue}ℹ${colors.reset} ${message}`),
-  success: (message: string) => console.log(`${colors.green}✓${colors.reset} ${message}`),
-  warning: (message: string) => console.log(`${colors.yellow}⚠${colors.reset} ${message}`),
-  error: (message: string) => console.error(`${colors.red}✗${colors.reset} ${message}`),
-  section: (title: string) => console.log(`\n${colors.bright}${colors.cyan}═══ ${title} ═══${colors.reset}\n`),
+  info: (message: string) =>
+    console.log(`${colors.blue}ℹ${colors.reset} ${message}`),
+  success: (message: string) =>
+    console.log(`${colors.green}✓${colors.reset} ${message}`),
+  warning: (message: string) =>
+    console.log(`${colors.yellow}⚠${colors.reset} ${message}`),
+  error: (message: string) =>
+    console.error(`${colors.red}✗${colors.reset} ${message}`),
+  section: (title: string) =>
+    console.log(
+      `\n${colors.bright}${colors.cyan}═══ ${title} ═══${colors.reset}\n`,
+    ),
 };
 
 /**
@@ -96,7 +103,9 @@ async function seed() {
     // Initialize connection
     await dataSource.initialize();
     logger.success('Database connection established');
-    logger.info(`Connected to: ${dataSource.options.database}@${(dataSource.options as unknown as { host?: string }).host ?? 'localhost'}`);
+    logger.info(
+      `Connected to: ${dataSource.options.database}@${(dataSource.options as unknown as { host?: string }).host ?? 'localhost'}`,
+    );
 
     // Start transaction for atomic operations
     await dataSource.transaction(async (transactionalEntityManager) => {
@@ -104,22 +113,34 @@ async function seed() {
 
       // Clear existing data in reverse dependency order
       logger.info('Clearing product stocks...');
-      await transactionalEntityManager.query('DELETE FROM product_stocks WHERE variant_id IN (SELECT id FROM product_variants WHERE product_id IN (SELECT id FROM products WHERE sku LIKE "DAM-%" OR sku LIKE "SOAP-%" OR sku LIKE "FABRIC-%" OR sku LIKE "SPICE-%" OR sku LIKE "CRAFT-%" OR sku LIKE "JEWELRY-%"))');
+      await transactionalEntityManager.query(
+        'DELETE FROM product_stocks WHERE variant_id IN (SELECT id FROM product_variants WHERE product_id IN (SELECT id FROM products WHERE sku LIKE "DAM-%" OR sku LIKE "SOAP-%" OR sku LIKE "FABRIC-%" OR sku LIKE "SPICE-%" OR sku LIKE "CRAFT-%" OR sku LIKE "JEWELRY-%"))',
+      );
 
       logger.info('Clearing product variants...');
-      await transactionalEntityManager.query('DELETE FROM product_variants WHERE product_id IN (SELECT id FROM products WHERE sku LIKE "DAM-%" OR sku LIKE "SOAP-%" OR sku LIKE "FABRIC-%" OR sku LIKE "SPICE-%" OR sku LIKE "CRAFT-%" OR sku LIKE "JEWELRY-%")');
+      await transactionalEntityManager.query(
+        'DELETE FROM product_variants WHERE product_id IN (SELECT id FROM products WHERE sku LIKE "DAM-%" OR sku LIKE "SOAP-%" OR sku LIKE "FABRIC-%" OR sku LIKE "SPICE-%" OR sku LIKE "CRAFT-%" OR sku LIKE "JEWELRY-%")',
+      );
 
       logger.info('Clearing product images...');
-      await transactionalEntityManager.query('DELETE FROM product_images WHERE product_id IN (SELECT id FROM products WHERE sku LIKE "DAM-%" OR sku LIKE "SOAP-%" OR sku LIKE "FABRIC-%" OR sku LIKE "SPICE-%" OR sku LIKE "CRAFT-%" OR sku LIKE "JEWELRY-%")');
+      await transactionalEntityManager.query(
+        'DELETE FROM product_images WHERE product_id IN (SELECT id FROM products WHERE sku LIKE "DAM-%" OR sku LIKE "SOAP-%" OR sku LIKE "FABRIC-%" OR sku LIKE "SPICE-%" OR sku LIKE "CRAFT-%" OR sku LIKE "JEWELRY-%")',
+      );
 
       logger.info('Clearing product descriptions...');
-      await transactionalEntityManager.query('DELETE FROM product_descriptions WHERE product_id IN (SELECT id FROM products WHERE sku LIKE "DAM-%" OR sku LIKE "SOAP-%" OR sku LIKE "FABRIC-%" OR sku LIKE "SPICE-%" OR sku LIKE "CRAFT-%" OR sku LIKE "JEWELRY-%")');
+      await transactionalEntityManager.query(
+        'DELETE FROM product_descriptions WHERE product_id IN (SELECT id FROM products WHERE sku LIKE "DAM-%" OR sku LIKE "SOAP-%" OR sku LIKE "FABRIC-%" OR sku LIKE "SPICE-%" OR sku LIKE "CRAFT-%" OR sku LIKE "JEWELRY-%")',
+      );
 
       logger.info('Clearing product pricing...');
-      await transactionalEntityManager.query('DELETE FROM product_pricing WHERE product_id IN (SELECT id FROM products WHERE sku LIKE "DAM-%" OR sku LIKE "SOAP-%" OR sku LIKE "FABRIC-%" OR sku LIKE "SPICE-%" OR sku LIKE "CRAFT-%" OR sku LIKE "JEWELRY-%")');
+      await transactionalEntityManager.query(
+        'DELETE FROM product_pricing WHERE product_id IN (SELECT id FROM products WHERE sku LIKE "DAM-%" OR sku LIKE "SOAP-%" OR sku LIKE "FABRIC-%" OR sku LIKE "SPICE-%" OR sku LIKE "CRAFT-%" OR sku LIKE "JEWELRY-%")',
+      );
 
       logger.info('Clearing products...');
-      await transactionalEntityManager.query('DELETE FROM products WHERE sku LIKE "DAM-%" OR sku LIKE "SOAP-%" OR sku LIKE "FABRIC-%" OR sku LIKE "SPICE-%" OR sku LIKE "CRAFT-%" OR sku LIKE "JEWELRY-%"');
+      await transactionalEntityManager.query(
+        'DELETE FROM products WHERE sku LIKE "DAM-%" OR sku LIKE "SOAP-%" OR sku LIKE "FABRIC-%" OR sku LIKE "SPICE-%" OR sku LIKE "CRAFT-%" OR sku LIKE "JEWELRY-%"',
+      );
 
       logger.success('Existing seed data cleared');
 
@@ -133,7 +154,7 @@ async function seed() {
         // Check if category exists
         const existingCategory = await transactionalEntityManager.query(
           'SELECT id FROM categories WHERE id = ?',
-          [category.id]
+          [category.id],
         );
 
         if (existingCategory.length === 0) {
@@ -141,7 +162,14 @@ async function seed() {
           await transactionalEntityManager.query(
             `INSERT INTO categories (id, name_en, name_ar, slug, approval_status, is_active, created_at, updated_at)
              VALUES (?, ?, ?, ?, ?, ?, NOW(), NOW())`,
-            [category.id, category.nameEn, category.nameAr, category.slug, category.approvalStatus, category.isActive]
+            [
+              category.id,
+              category.nameEn,
+              category.nameAr,
+              category.slug,
+              category.approvalStatus,
+              category.isActive,
+            ],
           );
           logger.success(`Created category: ${category.nameEn}`);
         } else {
@@ -181,7 +209,7 @@ async function seed() {
             product.isFeatured,
             product.featuredPriority || 0,
             false,
-          ]
+          ],
         );
 
         const productId = productResult.insertId;
@@ -198,7 +226,7 @@ async function seed() {
             product.pricing.discountPrice || null,
             product.currency,
             product.pricing.isActive,
-          ]
+          ],
         );
 
         // Insert images
@@ -207,7 +235,7 @@ async function seed() {
             `INSERT INTO product_images (
               product_id, image_url, alt_text, sort_order, created_at, updated_at
             ) VALUES (?, ?, ?, ?, NOW(), NOW())`,
-            [productId, image.imageUrl, image.altText, image.sortOrder]
+            [productId, image.imageUrl, image.altText, image.sortOrder],
           );
         }
 
@@ -217,7 +245,7 @@ async function seed() {
             `INSERT INTO product_descriptions (
               product_id, language, description, created_at, updated_at
             ) VALUES (?, ?, ?, NOW(), NOW())`,
-            [productId, description.language, description.description]
+            [productId, description.language, description.description],
           );
         }
 
@@ -233,7 +261,7 @@ async function seed() {
               JSON.stringify(variant.variantData),
               variant.price,
               true,
-            ]
+            ],
           );
 
           const variantId = variantResult.insertId;
@@ -245,7 +273,7 @@ async function seed() {
               `INSERT INTO product_stocks (
                 variant_id, warehouse_id, quantity, updated_at
               ) VALUES (?, ?, ?, NOW())`,
-              [variantId, stock.warehouseId, stock.quantity]
+              [variantId, stock.warehouseId, stock.quantity],
             );
             stockCount++;
           }
@@ -267,14 +295,21 @@ async function seed() {
       logger.success(`Products inserted: ${productCount}`);
       logger.success(`Variants created: ${variantCount}`);
       logger.success(`Stock entries created: ${stockCount}`);
-      logger.info(`Average variants per product: ${(variantCount / productCount).toFixed(1)}`);
-      logger.info(`Average stock entries per variant: ${(stockCount / variantCount).toFixed(1)}`);
+      logger.info(
+        `Average variants per product: ${(variantCount / productCount).toFixed(1)}`,
+      );
+      logger.info(
+        `Average stock entries per variant: ${(stockCount / variantCount).toFixed(1)}`,
+      );
     });
 
     logger.section('Seeding Complete');
-    logger.success('Database seeded successfully! You can now browse products via the API.');
-    logger.info('Example: GET http://localhost:3000/api/products?page=1&limit=20');
-
+    logger.success(
+      'Database seeded successfully! You can now browse products via the API.',
+    );
+    logger.info(
+      'Example: GET http://localhost:3000/api/products?page=1&limit=20',
+    );
   } catch (error) {
     logger.error('Seeding failed with error:');
     console.error(error);

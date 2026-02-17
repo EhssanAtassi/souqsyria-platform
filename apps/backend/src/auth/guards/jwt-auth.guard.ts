@@ -4,7 +4,11 @@
  * Respects @Public() decorator to skip authentication for public routes.
  * Checks the token_blacklist table to reject revoked tokens (C2 fix).
  */
-import { ExecutionContext, Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  ExecutionContext,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { AuthGuard } from '@nestjs/passport';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -52,10 +56,7 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
     const token = authHeader?.split(' ')[1];
 
     if (token) {
-      const tokenHash = crypto
-        .createHash('sha256')
-        .update(token)
-        .digest('hex');
+      const tokenHash = crypto.createHash('sha256').update(token).digest('hex');
 
       const blacklisted = await this.tokenBlacklistRepository.findOne({
         where: { tokenHash },

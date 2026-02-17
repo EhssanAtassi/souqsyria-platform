@@ -16,7 +16,12 @@ import {
   ParseIntPipe,
   Query,
 } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiBearerAuth, ApiResponse } from '@nestjs/swagger';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiBearerAuth,
+  ApiResponse,
+} from '@nestjs/swagger';
 import { VariantsService } from './variants.service';
 import { CreateProductVariantDto } from './dto/create-product-variant.dto';
 import { UpdateProductVariantDto } from './dto/update-product-variant.dto';

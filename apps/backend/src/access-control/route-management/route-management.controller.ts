@@ -1,7 +1,7 @@
 /**
  * @file route-management.controller.ts
  * @description Controller for route-permission mapping management API.
- * 
+ *
  * Provides 8 comprehensive endpoints for managing route-permission mappings:
  * 1. GET /discovery - Discover all application routes
  * 2. GET /unmapped - Get routes without permission mappings
@@ -11,12 +11,12 @@
  * 6. GET /by-permission/:id - Get routes by permission
  * 7. POST /generate-mappings - Auto-generate mappings
  * 8. GET /stats - Get mapping statistics
- * 
+ *
  * Security:
  * - All endpoints require 'manage_routes' permission
  * - JWT authentication required
  * - Full audit logging via SecurityAuditService
- * 
+ *
  * @author SouqSyria Security Team
  * @version 1.0.0
  */
@@ -53,16 +53,16 @@ import { AutoMappingResultDto } from './dto/auto-mapping-result.dto';
 
 /**
  * Controller for route-permission mapping management
- * 
+ *
  * This controller orchestrates the route-permission mapping system,
  * enabling administrators to:
  * - Discover all application routes via metadata scanning
  * - Create manual or automated route-permission mappings
  * - Monitor mapping coverage and security posture
  * - Link/unlink permissions dynamically
- * 
+ *
  * All operations require 'manage_routes' permission and are fully audited.
- * 
+ *
  * Workflow:
  * 1. GET /discovery to see all routes
  * 2. GET /unmapped to identify security gaps
@@ -82,19 +82,19 @@ export class RouteManagementController {
 
   /**
    * Endpoint 1: Discover All Routes
-   * 
+   *
    * Scans the entire application for registered routes and returns
    * comprehensive metadata including mapping status, suggested permissions,
    * and public route detection.
-   * 
+   *
    * Use Cases:
    * - Initial system audit
    * - Security review
    * - Understanding API surface area
    * - Identifying unmapped routes
-   * 
+   *
    * Performance: <1000ms for typical application (50-200 routes)
-   * 
+   *
    * @returns Array of discovered routes with full metadata
    */
   @Get('discovery')
@@ -119,21 +119,21 @@ export class RouteManagementController {
 
   /**
    * Endpoint 2: Get Unmapped Routes
-   * 
+   *
    * Returns routes that:
    * - Do NOT have @Public() decorator
    * - Are NOT yet mapped to permissions in database
-   * 
+   *
    * These routes represent security gaps that need administrator attention.
-   * 
+   *
    * Use Cases:
    * - Identify routes needing permission assignment
    * - Security gap analysis
    * - Post-deployment checks
    * - Compliance audits
-   * 
+   *
    * Performance: <200ms
-   * 
+   *
    * @returns Array of unmapped routes (excluding public routes)
    */
   @Get('unmapped')
@@ -158,24 +158,24 @@ export class RouteManagementController {
 
   /**
    * Endpoint 3: Bulk Create Route Mappings
-   * 
+   *
    * Creates multiple route-permission mappings in a single operation.
    * Much faster than individual requests for batch setup scenarios.
-   * 
+   *
    * Features:
    * - Validates all permissions exist
    * - Detects and skips duplicates
    * - Returns detailed success/failure report
    * - Atomic transaction (all-or-nothing optional)
-   * 
+   *
    * Performance: <500ms for 100 routes
-   * 
+   *
    * Use Cases:
    * - Initial system setup
    * - Migration from another system
    * - Bulk permission changes
    * - Automated provisioning
-   * 
+   *
    * @param dto - Bulk creation request with array of route mappings
    * @param req - Request object for user identification
    * @returns Detailed results with created/skipped/failed counts
@@ -217,33 +217,30 @@ export class RouteManagementController {
     status: 403,
     description: 'Forbidden - Missing manage_routes permission',
   })
-  async bulkCreateMappings(
-    @Body() dto: BulkCreateMappingDto,
-    @Req() req: any,
-  ) {
+  async bulkCreateMappings(@Body() dto: BulkCreateMappingDto, @Req() req: any) {
     const userId = req.user?.id || 0;
     return this.routeManagementService.bulkCreateMappings(dto, userId);
   }
 
   /**
    * Endpoint 4: Link Permission to Route
-   * 
+   *
    * Associates an existing permission with an existing route.
    * Replaces any previous permission link.
-   * 
+   *
    * Use Cases:
    * - Initial permission assignment
    * - Changing permission requirements
    * - Fixing incorrectly mapped routes
    * - Security policy updates
-   * 
+   *
    * Performance: <100ms
-   * 
+   *
    * Security Impact:
    * - Route becomes protected immediately
    * - Users without new permission lose access
    * - Old permission no longer grants access
-   * 
+   *
    * @param id - Route ID to update
    * @param dto - Permission ID to link
    * @param req - Request object for user identification
@@ -304,23 +301,23 @@ export class RouteManagementController {
 
   /**
    * Endpoint 5: Unlink Permission from Route
-   * 
+   *
    * Removes permission association from a route, making it effectively public
    * (accessible without permission checks, but still requires authentication).
-   * 
+   *
    * Use Cases:
    * - Making route public
    * - Removing incorrect mappings
    * - Temporary access opening
    * - Migration scenarios
-   * 
+   *
    * Performance: <100ms
-   * 
+   *
    * Security Warning:
    * - Route becomes accessible to all authenticated users
    * - Use @Public() decorator for truly public routes instead
    * - Consider security implications before unlinking
-   * 
+   *
    * @param id - Route ID to unlink
    * @param req - Request object for user identification
    */
@@ -359,18 +356,18 @@ export class RouteManagementController {
 
   /**
    * Endpoint 6: Get Routes by Permission
-   * 
+   *
    * Returns all routes that require a specific permission.
    * Useful for understanding permission scope and impact analysis.
-   * 
+   *
    * Use Cases:
    * - Understanding permission scope
    * - Impact analysis before permission changes
    * - Documentation generation
    * - Security audits
-   * 
+   *
    * Performance: <200ms
-   * 
+   *
    * @param id - Permission ID to query
    * @returns Array of routes protected by this permission
    */
@@ -423,20 +420,20 @@ export class RouteManagementController {
 
   /**
    * Endpoint 7: Auto-Generate Route Mappings
-   * 
+   *
    * Automatically creates route-permission mappings based on:
    * - Discovered routes via metadata scanning
    * - Naming convention suggestions (action_resource pattern)
    * - Existing permissions in database
-   * 
+   *
    * Features:
    * - Dry run mode for safe preview (dryRun=true)
    * - Skip existing mappings option (skipExisting=true)
    * - Auto-create missing permissions (createMissingPermissions=true)
    * - Detailed success/failure reporting
-   * 
+   *
    * Performance: <1500ms for typical application
-   * 
+   *
    * Workflow:
    * 1. Run with dryRun=true to preview
    * 2. Review suggested mappings
@@ -444,7 +441,7 @@ export class RouteManagementController {
    * 4. Run with dryRun=false to execute
    * 5. Review results and fix failures
    * 6. Verify with GET /stats
-   * 
+   *
    * @param options - Configuration options (query parameters)
    * @param req - Request object for user identification
    * @returns Detailed results of auto-mapping operation
@@ -497,7 +494,7 @@ export class RouteManagementController {
 
   /**
    * Endpoint 8: Get Mapping Statistics
-   * 
+   *
    * Returns comprehensive statistics about route-permission mappings:
    * - Total routes discovered
    * - Mapped vs. unmapped counts
@@ -505,17 +502,17 @@ export class RouteManagementController {
    * - Coverage percentage (key security metric)
    * - Distribution by HTTP method
    * - Distribution by controller
-   * 
+   *
    * Use Cases:
    * - Security dashboards
    * - Compliance reporting
    * - Monitoring coverage after deployments
    * - Identifying high-risk areas
-   * 
+   *
    * Performance: <100ms (uses aggregation)
-   * 
+   *
    * Target Coverage: 95%+ for production systems
-   * 
+   *
    * @returns Statistics DTO with comprehensive metrics
    */
   @Get('stats')

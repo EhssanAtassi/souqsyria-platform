@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login - SouqSyria</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+Arabic:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: {
+              50: '#fffbeb',
+              100: '#fef3c7',
+              400: '#fbbf24',
+              500: '#C9A961',
+              600: '#b8942d'
+            },
+            charcoal: {
+              DEFAULT: '#1A1A1A',
+              light: '#2D2D2D'
+            },
+            forest: {
+              500: '#2D5A3D'
+            }
+          },
+          fontFamily: {
+            sans: ['Inter', 'Noto Sans Arabic', 'sans-serif'],
+            arabic: ['Noto Sans Arabic', 'sans-serif']
+          }
+        }
+      }
+    }
+  </script>
+</head>
+<body class="bg-gray-50 font-sans min-h-screen flex items-center justify-center p-6">
+
+  <div class="w-full max-w-md">
+
+    <!-- Card -->
+    <div class="bg-white rounded-2xl shadow-xl p-8">
+
+      <!-- Logo -->
+      <div class="flex items-center justify-center gap-2 mb-6">
+        <div class="w-10 h-10 bg-primary-500 rounded-lg flex items-center justify-center">
+          <span class="text-charcoal font-bold text-lg font-arabic">س</span>
+        </div>
+        <span class="font-bold text-xl text-charcoal">SouqSyria</span>
+      </div>
+
+      <!-- Header -->
+      <div class="text-center mb-6">
+        <h2 class="text-2xl font-bold text-charcoal mb-2">Welcome Back</h2>
+        <p class="text-lg font-arabic text-primary-500 mb-1">أهلاً بعودتك</p>
+        <p class="text-gray-500">Sign in to continue shopping</p>
+      </div>
+
+      <!-- Form -->
+      <form id="loginForm">
+
+        <!-- Email Field -->
+        <div class="mb-4">
+          <label for="email" class="block text-sm font-medium text-charcoal mb-2">
+            Email Address
+          </label>
+          <div class="relative">
+            <span class="material-icons-round absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-xl">mail</span>
+            <input
+              type="email"
+              id="email"
+              name="email"
+              placeholder="you@example.com"
+              class="w-full pl-12 pr-4 py-3.5 border border-gray-200 rounded-xl text-charcoal placeholder-gray-400 focus:outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-100"
+              required
+            >
+          </div>
+          <p id="emailError" class="hidden mt-1.5 text-sm text-red-500 flex items-center gap-1">
+            <span class="material-icons-round text-sm">error</span>
+            Please enter a valid email address
+          </p>
+        </div>
+
+        <!-- Password Field -->
+        <div class="mb-4">
+          <label for="password" class="block text-sm font-medium text-charcoal mb-2">
+            Password
+          </label>
+          <div class="relative">
+            <span class="material-icons-round absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-xl">lock</span>
+            <input
+              type="password"
+              id="password"
+              name="password"
+              placeholder="Enter your password"
+              class="w-full pl-12 pr-12 py-3.5 border border-gray-200 rounded-xl text-charcoal placeholder-gray-400 focus:outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-100"
+              required
+              minlength="6"
+            >
+            <button
+              type="button"
+              onclick="togglePassword()"
+              class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-charcoal"
+            >
+              <span id="toggleIcon" class="material-icons-round text-xl">visibility</span>
+            </button>
+          </div>
+          <p id="passwordError" class="hidden mt-1.5 text-sm text-red-500 flex items-center gap-1">
+            <span class="material-icons-round text-sm">error</span>
+            Password must be at least 6 characters
+          </p>
+        </div>
+
+        <!-- Remember Me & Forgot Password -->
+        <div class="flex items-center justify-between mb-6">
+          <label class="flex items-center gap-2 cursor-pointer">
+            <input type="checkbox" id="rememberMe" class="w-4 h-4 rounded border-gray-300 text-primary-500 focus:ring-primary-500">
+            <span class="text-sm text-gray-600">Remember me</span>
+          </label>
+          <a href="forgot-password.html" class="text-sm text-primary-500 hover:underline">
+            Forgot password?
+          </a>
+        </div>
+
+        <!-- Error Message (Global) -->
+        <div id="globalError" class="hidden bg-red-50 border border-red-200 rounded-xl p-4 mb-4">
+          <div class="flex items-center gap-2 text-red-600">
+            <span class="material-icons-round text-sm">error</span>
+            <span class="text-sm">Invalid email or password. Please try again.</span>
+          </div>
+        </div>
+
+        <!-- Submit Button -->
+        <button
+          type="submit"
+          id="submitBtn"
+          class="w-full py-3.5 bg-primary-500 text-charcoal font-semibold rounded-xl hover:bg-primary-400 transition-colors flex items-center justify-center gap-2"
+        >
+          <span id="btnText">Sign In</span>
+          <span id="btnLoader" class="hidden">
+            <svg class="animate-spin h-5 w-5 text-charcoal" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+          </span>
+        </button>
+
+      </form>
+
+      <!-- Divider -->
+      <div class="border-t border-gray-100 my-6"></div>
+
+      <!-- Register Link -->
+      <p class="text-center text-gray-600">
+        Don't have an account?
+        <a href="register.html" class="text-primary-500 font-medium hover:underline">
+          Create one
+        </a>
+      </p>
+
+    </div>
+
+    <!-- Help Text -->
+    <p class="text-center text-sm text-gray-400 mt-6">
+      By signing in, you agree to our
+      <a href="#" class="text-primary-500 hover:underline">Terms of Service</a>
+      and
+      <a href="#" class="text-primary-500 hover:underline">Privacy Policy</a>
+    </p>
+
+  </div>
+
+  <script>
+    // Toggle Password Visibility
+    function togglePassword() {
+      const passwordInput = document.getElementById('password');
+      const toggleIcon = document.getElementById('toggleIcon');
+
+      if (passwordInput.type === 'password') {
+        passwordInput.type = 'text';
+        toggleIcon.textContent = 'visibility_off';
+      } else {
+        passwordInput.type = 'password';
+        toggleIcon.textContent = 'visibility';
+      }
+    }
+
+    // Form Submission
+    document.getElementById('loginForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+      const submitBtn = document.getElementById('submitBtn');
+      const btnText = document.getElementById('btnText');
+      const btnLoader = document.getElementById('btnLoader');
+
+      // Clear previous errors
+      document.getElementById('emailError').classList.add('hidden');
+      document.getElementById('passwordError').classList.add('hidden');
+      document.getElementById('globalError').classList.add('hidden');
+
+      // Validation
+      let hasError = false;
+
+      if (!email || !email.includes('@')) {
+        document.getElementById('emailError').classList.remove('hidden');
+        hasError = true;
+      }
+
+      if (!password || password.length < 6) {
+        document.getElementById('passwordError').classList.remove('hidden');
+        hasError = true;
+      }
+
+      if (hasError) return;
+
+      // Show loading
+      submitBtn.disabled = true;
+      btnText.textContent = 'Signing in...';
+      btnLoader.classList.remove('hidden');
+
+      // Simulate API call
+      setTimeout(() => {
+        // Demo: test@test.com / password123 is valid
+        if (email === 'test@test.com' && password === 'password123') {
+          // Success - redirect to OTP verification
+          window.location.href = 'verify-otp.html?email=' + encodeURIComponent(email);
+        } else {
+          // Show error
+          document.getElementById('globalError').classList.remove('hidden');
+          submitBtn.disabled = false;
+          btnText.textContent = 'Sign In';
+          btnLoader.classList.add('hidden');
+        }
+      }, 1500);
+    });
+
+    // Clear errors on input
+    document.getElementById('email').addEventListener('input', function() {
+      document.getElementById('emailError').classList.add('hidden');
+      document.getElementById('globalError').classList.add('hidden');
+    });
+
+    document.getElementById('password').addEventListener('input', function() {
+      document.getElementById('passwordError').classList.add('hidden');
+      document.getElementById('globalError').classList.add('hidden');
+    });
+  </script>
+
+</body>
+</html>

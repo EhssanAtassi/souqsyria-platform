@@ -46,7 +46,7 @@ export const SENSITIVE_OPERATION_KEY = 'sensitiveOperation';
 
 /**
  * Enhanced Admin Guard
- * 
+ *
  * Provides additional security for administrative operations beyond
  * basic JWT authentication and role-based access control.
  */
@@ -75,22 +75,24 @@ export class EnhancedAdminGuard implements CanActivate {
     private readonly configService: ConfigService,
     private readonly rateLimiterService: RateLimiterService,
   ) {}
-  
+
   /**
    * Validates admin access with enhanced security checks
-   * 
+   *
    * @param context - The execution context
    * @returns True if access is granted
    */
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest<Request>();
     const user = (request as any).user;
-    
+
     // 1. Verify user is authenticated
     if (!user) {
-      throw new UnauthorizedException('Authentication required for admin access');
+      throw new UnauthorizedException(
+        'Authentication required for admin access',
+      );
     }
-    
+
     // 2. Verify user has admin role
     const userRole = user.role?.name || user.role;
     const allowedRoles = ['owner', 'admin', 'super_admin'];
@@ -101,7 +103,7 @@ export class EnhancedAdminGuard implements CanActivate {
       });
       throw new ForbiddenException('Admin access required');
     }
-    
+
     // 3. Check IP whitelist if enabled
     const skipIpCheck = this.reflector.get<boolean>(
       SKIP_IP_WHITELIST_KEY,
@@ -110,22 +112,24 @@ export class EnhancedAdminGuard implements CanActivate {
     if (!skipIpCheck && this.isIpWhitelistEnabled()) {
       await this.validateIpAddress(request, user);
     }
-    
+
     // 4. Check for rate limiting (failed attempts)
     await this.checkRateLimiting(request);
-    
+
     // 5. Check for suspicious activity patterns
     await this.checkSuspiciousActivity(request, user);
-    
+
     // 6. Check if 2FA is required for this endpoint
     const require2FA = this.reflector.get<boolean>(
       REQUIRE_2FA_KEY,
       context.getHandler(),
     );
     if (require2FA && !this.isUser2FAVerified(user)) {
-      throw new ForbiddenException('Two-factor authentication required for this operation');
+      throw new ForbiddenException(
+        'Two-factor authentication required for this operation',
+      );
     }
-    
+
     // 7. Log successful admin access for sensitive operations
     const isSensitive = this.reflector.get<boolean>(
       SENSITIVE_OPERATION_KEY,
@@ -137,70 +141,78 @@ export class EnhancedAdminGuard implements CanActivate {
         method: request.method,
       });
     }
-    
+
     return true;
   }
-  
+
   /**
    * Checks if IP whitelist is enabled
    */
   private isIpWhitelistEnabled(): boolean {
     return this.configService.get<boolean>('ADMIN_IP_WHITELIST_ENABLED', false);
   }
-  
+
   /**
    * Gets the configured IP whitelist
    */
   private getIpWhitelist(): string[] {
-    const configuredIps = this.configService.get<string>('ADMIN_IP_WHITELIST', '');
+    const configuredIps = this.configService.get<string>(
+      'ADMIN_IP_WHITELIST',
+      '',
+    );
     if (!configuredIps) {
       return this.defaultAllowedIps;
     }
-    return [...this.defaultAllowedIps, ...configuredIps.split(',').map(ip => ip.trim())];
+    return [
+      ...this.defaultAllowedIps,
+      ...configuredIps.split(',').map((ip) => ip.trim()),
+    ];
   }
-  
+
   /**
    * Validates the request IP against the whitelist
    */
   private async validateIpAddress(request: Request, user: any): Promise<void> {
     const clientIp = this.getClientIp(request);
     const allowedIps = this.getIpWhitelist();
-    
+
     // Check if IP is in whitelist or matches CIDR pattern
-    const isAllowed = allowedIps.some(ip => {
+    const isAllowed = allowedIps.some((ip) => {
       if (ip.includes('/')) {
         return this.matchCIDR(clientIp, ip);
       }
       return ip === clientIp;
     });
-    
+
     if (!isAllowed) {
       this.logSecurityEvent(request, user, 'IP_WHITELIST_VIOLATION', {
         clientIp,
         allowedIps,
       });
-      throw new ForbiddenException('Admin access not allowed from this IP address');
+      throw new ForbiddenException(
+        'Admin access not allowed from this IP address',
+      );
     }
   }
-  
+
   /**
    * Gets the client IP address from the request
    */
   private getClientIp(request: Request): string {
     const forwardedFor = request.headers['x-forwarded-for'];
     if (forwardedFor) {
-      const ips = (forwardedFor as string).split(',').map(ip => ip.trim());
+      const ips = (forwardedFor as string).split(',').map((ip) => ip.trim());
       return ips[0];
     }
-    
+
     const realIp = request.headers['x-real-ip'];
     if (realIp) {
       return realIp as string;
     }
-    
+
     return request.ip || request.connection?.remoteAddress || 'unknown';
   }
-  
+
   /**
    * Matches an IP against a CIDR notation
    * Basic implementation - for production, use a proper CIDR library
@@ -209,21 +221,21 @@ export class EnhancedAdminGuard implements CanActivate {
     // Simple implementation for /24 and /16 blocks
     const [network, bits] = cidr.split('/');
     const maskBits = parseInt(bits);
-    
+
     const ipParts = ip.split('.').map(Number);
     const networkParts = network.split('.').map(Number);
-    
+
     const octetsToCheck = Math.floor(maskBits / 8);
-    
+
     for (let i = 0; i < octetsToCheck; i++) {
       if (ipParts[i] !== networkParts[i]) {
         return false;
       }
     }
-    
+
     return true;
   }
-  
+
   /**
    * Checks rate limiting using Redis-based distributed rate limiter
    * SEC-H03 FIX: Replaced in-memory Map with RateLimiterService
@@ -231,7 +243,10 @@ export class EnhancedAdminGuard implements CanActivate {
   private async checkRateLimiting(request: Request): Promise<void> {
     const clientIp = this.getClientIp(request);
 
-    const result = await this.rateLimiterService.checkLimit('adminApi', clientIp);
+    const result = await this.rateLimiterService.checkLimit(
+      'adminApi',
+      clientIp,
+    );
 
     if (!result.allowed) {
       this.logger.warn(
@@ -282,23 +297,27 @@ export class EnhancedAdminGuard implements CanActivate {
     const clientIp = this.getClientIp(request);
     await this.rateLimiterService.recordSuccess('adminApi', clientIp);
   }
-  
+
   /**
    * Checks for suspicious activity patterns
    */
-  private async checkSuspiciousActivity(request: Request, user: any): Promise<void> {
+  private async checkSuspiciousActivity(
+    request: Request,
+    user: any,
+  ): Promise<void> {
     // Check for rapid succession of requests (potential automation)
     const lastAccessTime = (request as any).lastAdminAccessTime;
     if (lastAccessTime) {
       const timeDiff = Date.now() - lastAccessTime;
-      if (timeDiff < 100) { // Less than 100ms between requests
+      if (timeDiff < 100) {
+        // Less than 100ms between requests
         this.logSecurityEvent(request, user, 'RAPID_REQUEST_DETECTED', {
           timeDiffMs: timeDiff,
         });
         // Don't block, just log for analysis
       }
     }
-    
+
     // Check for unusual user agent
     const userAgent = request.headers['user-agent'] || '';
     if (this.isUnusualUserAgent(userAgent)) {
@@ -307,11 +326,11 @@ export class EnhancedAdminGuard implements CanActivate {
       });
       // Don't block, just log for analysis
     }
-    
+
     // Track this access time
     (request as any).lastAdminAccessTime = Date.now();
   }
-  
+
   /**
    * Checks if user agent is unusual for admin access
    */
@@ -323,15 +342,15 @@ export class EnhancedAdminGuard implements CanActivate {
       /postman/i, // Allow Postman in development
       /insomnia/i,
     ];
-    
+
     // In development, allow these
     if (process.env.NODE_ENV === 'development') {
       return false;
     }
-    
-    return suspiciousPatterns.some(pattern => pattern.test(userAgent));
+
+    return suspiciousPatterns.some((pattern) => pattern.test(userAgent));
   }
-  
+
   /**
    * Checks if user has completed 2FA verification
    */
@@ -340,7 +359,7 @@ export class EnhancedAdminGuard implements CanActivate {
     // This should be set after successful 2FA verification
     return user.twoFactorVerified === true;
   }
-  
+
   /**
    * Logs security events for monitoring and alerting
    */
@@ -362,12 +381,15 @@ export class EnhancedAdminGuard implements CanActivate {
       method: request.method,
       details,
     };
-    
+
     // Log with appropriate level based on event type
     switch (eventType) {
       case 'UNAUTHORIZED_ADMIN_ACCESS':
       case 'IP_WHITELIST_VIOLATION':
-        this.logger.error(`🚨 SECURITY: ${eventType}`, JSON.stringify(logEntry));
+        this.logger.error(
+          `🚨 SECURITY: ${eventType}`,
+          JSON.stringify(logEntry),
+        );
         break;
       case 'RAPID_REQUEST_DETECTED':
       case 'UNUSUAL_USER_AGENT':
@@ -376,7 +398,7 @@ export class EnhancedAdminGuard implements CanActivate {
       default:
         this.logger.log(`🔒 SECURITY: ${eventType}`, JSON.stringify(logEntry));
     }
-    
+
     // TODO: In production, also send to external monitoring (Sentry, ELK, etc.)
   }
 }
@@ -389,7 +411,11 @@ export class EnhancedAdminGuard implements CanActivate {
  * Decorator to skip IP whitelist check for specific endpoints
  */
 export function SkipIpWhitelist(): MethodDecorator {
-  return (target: any, propertyKey: string | symbol, descriptor: PropertyDescriptor) => {
+  return (
+    target: any,
+    propertyKey: string | symbol,
+    descriptor: PropertyDescriptor,
+  ) => {
     Reflect.defineMetadata(SKIP_IP_WHITELIST_KEY, true, descriptor.value);
     return descriptor;
   };
@@ -399,7 +425,11 @@ export function SkipIpWhitelist(): MethodDecorator {
  * Decorator to require 2FA for specific endpoints
  */
 export function Require2FA(): MethodDecorator {
-  return (target: any, propertyKey: string | symbol, descriptor: PropertyDescriptor) => {
+  return (
+    target: any,
+    propertyKey: string | symbol,
+    descriptor: PropertyDescriptor,
+  ) => {
     Reflect.defineMetadata(REQUIRE_2FA_KEY, true, descriptor.value);
     return descriptor;
   };
@@ -409,7 +439,11 @@ export function Require2FA(): MethodDecorator {
  * Decorator to mark sensitive operations (for audit logging)
  */
 export function SensitiveOperation(): MethodDecorator {
-  return (target: any, propertyKey: string | symbol, descriptor: PropertyDescriptor) => {
+  return (
+    target: any,
+    propertyKey: string | symbol,
+    descriptor: PropertyDescriptor,
+  ) => {
     Reflect.defineMetadata(SENSITIVE_OPERATION_KEY, true, descriptor.value);
     return descriptor;
   };

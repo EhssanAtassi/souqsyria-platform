@@ -19,7 +19,7 @@
 
     <!-- Page Numbers -->
     <div class="pagination__pages">
-      @for (page of pageNumbers(); track $index) {
+      @for (page of pageNumbers(); track page) {
         @if (page === 'ellipsis') {
           <span class="pagination__ellipsis">...</span>
         } @else {

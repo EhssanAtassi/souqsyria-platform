@@ -14,7 +14,11 @@ export { HealthModule } from './health.module';
 export { HealthController } from './controllers/health.controller';
 
 // Services
-export { HealthService, SystemMetrics, VersionInfo } from './services/health.service';
+export {
+  HealthService,
+  SystemMetrics,
+  VersionInfo,
+} from './services/health.service';
 
 // Health Indicators
 export { DatabaseHealthIndicator } from './indicators/database.health';

@@ -28,4 +28,6 @@ import { CreateProductCarouselDto } from './create-product-carousel.dto';
  * }
  * ```
  */
-export class UpdateProductCarouselDto extends PartialType(CreateProductCarouselDto) {}
+export class UpdateProductCarouselDto extends PartialType(
+  CreateProductCarouselDto,
+) {}

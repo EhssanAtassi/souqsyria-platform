@@ -138,6 +138,14 @@ $color-border-dark: $charcoal-200;
   --color-border-medium: #{rgba($charcoal-200, 0.4)};
   --color-border-dark: #{$charcoal-200};
 
+  // Ecommerce Semantic Tokens
+  --color-price: #059669;
+  --color-price-sale: #{$umber-100};
+  --color-bg-page: #f9fafb;
+  --color-text-heading: #{$charcoal-300};
+  --color-text-body: #374151;
+  --color-border-default: #e5e7eb;
+
   // Shadows
   --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
   --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);

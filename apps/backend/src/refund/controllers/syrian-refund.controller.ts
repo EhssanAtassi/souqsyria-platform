@@ -193,7 +193,9 @@ export class SyrianRefundController {
         totalPages: 0,
       };
     } catch (error: unknown) {
-      this.logger.error(`Failed to retrieve refunds: ${(error as Error).message}`);
+      this.logger.error(
+        `Failed to retrieve refunds: ${(error as Error).message}`,
+      );
       throw error;
     }
   }
@@ -234,7 +236,9 @@ export class SyrianRefundController {
       // Placeholder return for compilation
       throw new NotFoundException('Refund not found');
     } catch (error: unknown) {
-      this.logger.error(`Failed to retrieve refund ${id}: ${(error as Error).message}`);
+      this.logger.error(
+        `Failed to retrieve refund ${id}: ${(error as Error).message}`,
+      );
       throw error;
     }
   }
@@ -272,7 +276,9 @@ export class SyrianRefundController {
       // Placeholder return for compilation
       throw new NotFoundException('Refund not found');
     } catch (error: unknown) {
-      this.logger.error(`Failed to update refund ${id}: ${(error as Error).message}`);
+      this.logger.error(
+        `Failed to update refund ${id}: ${(error as Error).message}`,
+      );
       throw error;
     }
   }
@@ -321,7 +327,9 @@ export class SyrianRefundController {
       const result = await this.refundWorkflowService.submitRefund(id, user.id);
       return result;
     } catch (error: unknown) {
-      this.logger.error(`Failed to submit refund ${id}: ${(error as Error).message}`);
+      this.logger.error(
+        `Failed to submit refund ${id}: ${(error as Error).message}`,
+      );
       throw error;
     }
   }
@@ -395,7 +403,9 @@ export class SyrianRefundController {
       );
       return result;
     } catch (error: unknown) {
-      this.logger.error(`Failed to approve refund ${id}: ${(error as Error).message}`);
+      this.logger.error(
+        `Failed to approve refund ${id}: ${(error as Error).message}`,
+      );
       throw error;
     }
   }
@@ -437,7 +447,9 @@ export class SyrianRefundController {
       );
       return result;
     } catch (error: unknown) {
-      this.logger.error(`Failed to reject refund ${id}: ${(error as Error).message}`);
+      this.logger.error(
+        `Failed to reject refund ${id}: ${(error as Error).message}`,
+      );
       throw error;
     }
   }
@@ -513,7 +525,9 @@ export class SyrianRefundController {
       );
       return result;
     } catch (error: unknown) {
-      this.logger.error(`Failed to complete refund ${id}: ${(error as Error).message}`);
+      this.logger.error(
+        `Failed to complete refund ${id}: ${(error as Error).message}`,
+      );
       throw error;
     }
   }
@@ -626,7 +640,9 @@ export class SyrianRefundController {
         })),
       };
     } catch (error: unknown) {
-      this.logger.error(`Failed to perform bulk action: ${(error as Error).message}`);
+      this.logger.error(
+        `Failed to perform bulk action: ${(error as Error).message}`,
+      );
       throw error;
     }
   }
@@ -665,7 +681,9 @@ export class SyrianRefundController {
       const result = await this.refundWorkflowService.monitorSlaCompliance();
       return result;
     } catch (error: unknown) {
-      this.logger.error(`Failed to retrieve SLA compliance: ${(error as Error).message}`);
+      this.logger.error(
+        `Failed to retrieve SLA compliance: ${(error as Error).message}`,
+      );
       throw error;
     }
   }
@@ -723,7 +741,9 @@ export class SyrianRefundController {
       );
       return result;
     } catch (error: unknown) {
-      this.logger.error(`Failed to generate analytics: ${(error as Error).message}`);
+      this.logger.error(
+        `Failed to generate analytics: ${(error as Error).message}`,
+      );
       throw error;
     }
   }

@@ -281,24 +281,11 @@ $forest-medium: #054239;
 .products-grid {
   .product-card {
     transition: transform 0.2s ease, box-shadow 0.2s ease;
-    
+
     &:hover {
       transform: translateY(-2px);
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     }
-  }
-  
-  // Grid responsive breakpoints
-  @media (min-width: 640px) {
-    grid-template-columns: repeat(2, 1fr);
-  }
-  
-  @media (min-width: 1024px) {
-    grid-template-columns: repeat(3, 1fr);
-  }
-  
-  @media (min-width: 1280px) {
-    grid-template-columns: repeat(4, 1fr);
   }
 }
 

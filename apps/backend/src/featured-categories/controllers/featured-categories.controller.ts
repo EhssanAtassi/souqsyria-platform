@@ -57,7 +57,9 @@ import { FeaturedCategory } from '../entities/featured-category.entity';
 @ApiTags('Featured Categories')
 @Controller()
 export class FeaturedCategoriesController {
-  constructor(private readonly featuredCategoriesService: FeaturedCategoriesService) {}
+  constructor(
+    private readonly featuredCategoriesService: FeaturedCategoriesService,
+  ) {}
 
   // ================================
   // PUBLIC ENDPOINTS
@@ -167,7 +169,9 @@ export class FeaturedCategoriesController {
     status: 409,
     description: 'Maximum active featured categories reached (12)',
   })
-  async create(@Body() createDto: CreateFeaturedCategoryDto): Promise<FeaturedCategory> {
+  async create(
+    @Body() createDto: CreateFeaturedCategoryDto,
+  ): Promise<FeaturedCategory> {
     return this.featuredCategoriesService.create(createDto);
   }
 
@@ -224,7 +228,8 @@ export class FeaturedCategoriesController {
   @ApiBearerAuth()
   @ApiOperation({
     summary: 'Get featured category by ID',
-    description: 'Admin endpoint to retrieve a specific featured category with full details.',
+    description:
+      'Admin endpoint to retrieve a specific featured category with full details.',
   })
   @ApiParam({
     name: 'id',
@@ -244,7 +249,9 @@ export class FeaturedCategoriesController {
     status: 404,
     description: 'Featured category not found',
   })
-  async findOne(@Param('id', ParseIntPipe) id: number): Promise<FeaturedCategory> {
+  async findOne(
+    @Param('id', ParseIntPipe) id: number,
+  ): Promise<FeaturedCategory> {
     return this.featuredCategoriesService.findOne(id);
   }
 

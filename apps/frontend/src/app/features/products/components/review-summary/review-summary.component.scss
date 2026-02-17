@@ -1,0 +1,170 @@
+/**
+ * @file review-summary.component.scss
+ * @description Styles for the review summary component
+ * Golden Wheat design system with rating bars and star display
+ */
+
+@import '../../../../shared/styles/variables';
+
+.review-summary {
+  padding: $space-6;
+  background-color: $golden-wheat-light;
+  border-radius: $border-radius-lg;
+  margin-bottom: $space-6;
+
+  &__heading {
+    font-family: $font-family-heading;
+    font-size: $font-size-2xl;
+    font-weight: $font-weight-semibold;
+    color: $forest-dark;
+    margin: 0 0 $space-6 0;
+
+    [dir="rtl"] & {
+      font-family: $font-family-arabic;
+      line-height: 1.375;
+    }
+  }
+
+  &__content {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: $space-8;
+    align-items: center;
+
+    @media (max-width: $breakpoint-sm) {
+      grid-template-columns: 1fr;
+      gap: $space-6;
+    }
+  }
+
+  &__average {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: $space-2;
+    padding: $space-4;
+  }
+
+  &__distribution {
+    display: flex;
+    flex-direction: column;
+    gap: $space-3;
+    width: 100%;
+  }
+
+  // RTL Support
+  &.rtl {
+    direction: rtl;
+
+    .review-summary__heading {
+      font-family: $font-family-arabic;
+    }
+
+    .review-summary__content {
+      direction: rtl;
+    }
+
+    .distribution-bar {
+      direction: rtl;
+    }
+  }
+}
+
+.average {
+  &__number {
+    font-size: $font-size-4xl;
+    font-weight: $font-weight-bold;
+    color: $golden-wheat-primary;
+    line-height: 1;
+  }
+
+  &__stars {
+    display: flex;
+    gap: $space-1;
+    margin: $space-2 0;
+  }
+
+  &__count {
+    font-size: $font-size-sm;
+    color: $charcoal-medium;
+    font-weight: $font-weight-normal;
+  }
+}
+
+.star-icon {
+  width: 20px;
+  height: 20px;
+  font-size: 20px;
+  color: $golden-wheat-dark;
+
+  &--filled {
+    color: $golden-wheat-dark;
+  }
+}
+
+.distribution-bar {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: $space-3;
+  align-items: center;
+
+  &__label {
+    display: flex;
+    align-items: center;
+    gap: $space-1;
+    min-width: 50px;
+  }
+
+  &__track {
+    position: relative;
+    height: 8px;
+    background-color: $charcoal-light;
+    border-radius: $border-radius-full;
+    overflow: hidden;
+  }
+
+  &__fill {
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: 100%;
+    background-color: $golden-wheat-primary;
+    border-radius: $border-radius-full;
+    transition: width $transition-normal $ease-out;
+  }
+
+  &__count {
+    min-width: 30px;
+    text-align: right;
+    font-size: $font-size-sm;
+    color: $charcoal-medium;
+    font-weight: $font-weight-medium;
+  }
+}
+
+.label {
+  &__stars {
+    font-size: $font-size-sm;
+    font-weight: $font-weight-medium;
+    color: $charcoal-dark;
+  }
+
+  &__icon {
+    width: 16px;
+    height: 16px;
+    font-size: 16px;
+    color: $golden-wheat-dark;
+  }
+}
+
+// RTL overrides for distribution bar
+.rtl .distribution-bar {
+  &__count {
+    text-align: left;
+  }
+
+  &__fill {
+    left: auto;
+    right: 0;
+  }
+}

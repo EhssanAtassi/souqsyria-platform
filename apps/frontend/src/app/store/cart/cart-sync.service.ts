@@ -11,7 +11,8 @@ import { Cart, CartItem, CartValidationResult } from '../../shared/interfaces/ca
  * Response structure from cart validation endpoint.
  */
 export interface ValidateCartResponse {
-  isValid: boolean;
+  /** Whether cart is valid and ready for checkout (matches backend `valid` field) */
+  valid: boolean;
   warnings: CartValidationWarning[];
   errors: CartValidationError[];
 }
@@ -311,7 +312,7 @@ export class CartSyncService {
    * **Response Format (ValidateCartResponse):**
    * ```json
    * {
-   *   "isValid": true,
+   *   "valid": true,
    *   "warnings": [
    *     {
    *       "type": "PRICE_INCREASE",

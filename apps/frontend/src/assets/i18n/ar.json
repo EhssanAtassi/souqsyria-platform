@@ -408,6 +408,7 @@
     "setAsDefault": "تعيين كافتراضي",
     "defaultAddress": "الافتراضي",
     "save": "حفظ العنوان",
+    "saving": "جاري حفظ العنوان...",
     "cancel": "إلغاء",
     "delete": "حذف",
     "deleteConfirmTitle": "حذف العنوان",

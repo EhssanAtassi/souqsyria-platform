@@ -38,12 +38,7 @@
  * @version 1.0.0
  */
 
-import {
-  Injectable,
-  NestMiddleware,
-  Logger,
-  HttpStatus,
-} from '@nestjs/common';
+import { Injectable, NestMiddleware, Logger, HttpStatus } from '@nestjs/common';
 import { Request, Response, NextFunction } from 'express';
 
 /**
@@ -78,7 +73,10 @@ export class IdempotencyMiddleware implements NestMiddleware {
   private readonly CACHE_PREFIX = 'idempotency';
 
   /** In-memory cache for idempotency responses with TTL */
-  private readonly cache = new Map<string, { value: CachedResponse; expiresAt: number }>();
+  private readonly cache = new Map<
+    string,
+    { value: CachedResponse; expiresAt: number }
+  >();
 
   constructor() {
     this.logger.log('Idempotency Middleware initialized');
@@ -111,7 +109,8 @@ export class IdempotencyMiddleware implements NestMiddleware {
 
       // Extract user ID or guest session ID
       const userId = req.user?.id;
-      const guestSessionId = req.guestSessionId || req.cookies?.guest_session_id;
+      const guestSessionId =
+        req.guestSessionId || req.cookies?.guest_session_id;
 
       // Build cache key (scoped to user/session for security)
       const cacheKey = this.buildCacheKey(
@@ -196,7 +195,9 @@ export class IdempotencyMiddleware implements NestMiddleware {
     endpoint: string,
     idempotencyKey: string,
   ): string {
-    const identity = userId ? `user:${userId}` : `guest:${guestSessionId || 'anonymous'}`;
+    const identity = userId
+      ? `user:${userId}`
+      : `guest:${guestSessionId || 'anonymous'}`;
     return `${this.CACHE_PREFIX}:${identity}:${endpoint}:${idempotencyKey}`;
   }
 
@@ -270,7 +271,10 @@ export class IdempotencyMiddleware implements NestMiddleware {
     // Override res.json to intercept response
     res.json = (body: any): Response => {
       // Only cache successful responses (200, 201)
-      if (res.statusCode === HttpStatus.OK || res.statusCode === HttpStatus.CREATED) {
+      if (
+        res.statusCode === HttpStatus.OK ||
+        res.statusCode === HttpStatus.CREATED
+      ) {
         this.logger.log(
           `💾 Caching successful response for idempotency key: ${idempotencyKey}`,
         );

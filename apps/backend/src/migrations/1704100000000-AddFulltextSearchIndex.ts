@@ -66,7 +66,9 @@ export class AddFulltextSearchIndex1704100000000 implements MigrationInterface {
       ON products (name_en, name_ar)
     `);
 
-    console.log('✅ FULLTEXT Search Index: ft_products_search created successfully');
+    console.log(
+      '✅ FULLTEXT Search Index: ft_products_search created successfully',
+    );
     console.log('📊 Performance Improvements:');
     console.log('   - Product name search: 90%+ faster');
     console.log('   - Autocomplete suggestions: 94% faster');
@@ -88,7 +90,11 @@ export class AddFulltextSearchIndex1704100000000 implements MigrationInterface {
      */
     await queryRunner.query('DROP INDEX ft_products_search ON products');
 
-    console.log('✅ FULLTEXT Search Index: ft_products_search dropped successfully');
-    console.log('⚠️  Warning: Search performance will be degraded without FULLTEXT index');
+    console.log(
+      '✅ FULLTEXT Search Index: ft_products_search dropped successfully',
+    );
+    console.log(
+      '⚠️  Warning: Search performance will be degraded without FULLTEXT index',
+    );
   }
 }

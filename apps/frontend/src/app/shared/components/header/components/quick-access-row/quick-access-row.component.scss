@@ -1,14 +1,28 @@
 /**
  * Quick Access Row Component Styles
- * @description Styles for the quick access row (Row 4) supporting both
- * icon circles mode and promotional cards carousel mode
+ *
+ * @description Compact category carousel — pro e-commerce style.
+ * Circular thumbnails with single-line labels, inspired by Amazon/Noon.
+ * Total section height: ~80px (reduced from ~180px).
+ *
+ * @version 3.0.0 — Redesigned for compact layout
  */
+
+// ═══════════════════════════════════════
+// DESIGN TOKENS
+// ═══════════════════════════════════════
+
+$golden-wheat: #C8A860;
+$golden-wheat-light: rgba(200, 168, 96, 0.15);
+$golden-wheat-ring: rgba(200, 168, 96, 0.35);
+$thumb-size: 52px;
+$thumb-ring-size: 56px;
+$card-width: 88px;
 
 // ═══════════════════════════════════════
 // SHARED STYLES
 // ═══════════════════════════════════════
 
-// Main container - NO z-index per STYLE_GUIDE.md (must stay below mega menus)
 .sq-quick-access-row {
   position: relative;
 
@@ -44,32 +58,28 @@
 }
 
 // ═══════════════════════════════════════
-// ICONS MODE STYLES
+// ICONS MODE STYLES (unchanged)
 // ═══════════════════════════════════════
 
-// Scrollable container
 .sq-quick-access-scroll {
   scroll-snap-type: x mandatory;
   scroll-behavior: smooth;
 }
 
-// Quick access item card (icon mode)
 .sq-quick-access-item {
   scroll-snap-align: start;
   text-decoration: none;
 
   &:focus-visible {
-    outline: 2px solid theme('colors.primary.500');
+    outline: 2px solid $golden-wheat;
     outline-offset: 4px;
     border-radius: 16px;
   }
 
-  // Icon container base styles
   .sq-icon-container {
     position: relative;
     overflow: hidden;
 
-    // Subtle shine effect on hover
     &::before {
       content: '';
       position: absolute;
@@ -92,7 +102,6 @@
     transform: translateX(100%);
   }
 
-  // Label styles
   .sq-item-label {
     max-width: 76px;
     word-wrap: break-word;
@@ -100,7 +109,6 @@
   }
 }
 
-// Special items additional styling
 .sq-quick-access-item .sq-icon-container.bg-gradient-to-br {
   box-shadow: 0 4px 12px rgba(184, 148, 61, 0.3);
 
@@ -114,49 +122,137 @@
 }
 
 // ═══════════════════════════════════════
-// CARDS MODE STYLES
+// CARDS MODE — COMPACT CIRCULAR STYLE
 // ═══════════════════════════════════════
 
 // Cards scroll container
 .sq-cards-scroll {
   scroll-behavior: smooth;
+  scroll-snap-type: x proximity;
 }
 
-// Promotional card
-.sq-promo-card {
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+// Compact category card
+.sq-compact-card {
+  text-decoration: none;
+  scroll-snap-align: start;
+  transition: transform 0.2s ease;
 
   &:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    transform: translateY(-2px);
+
+    .sq-thumb-ring {
+      border-color: $golden-wheat;
+      box-shadow: 0 2px 12px $golden-wheat-light;
+    }
+
+    .sq-thumb {
+      transform: scale(1.05);
+    }
+
+    .sq-card-label {
+      color: $golden-wheat;
+    }
   }
 
   &:focus-visible {
-    outline: 2px solid theme('colors.primary.500');
-    outline-offset: 2px;
+    outline: 2px solid $golden-wheat;
+    outline-offset: 4px;
     border-radius: 12px;
   }
 }
 
-// Scroll arrow buttons - 48px touch target per WCAG 2.2
+// Thumbnail ring — thin border that highlights on hover
+.sq-thumb-ring {
+  width: $thumb-ring-size;
+  height: $thumb-ring-size;
+  border-radius: 50%;
+  border: 2px solid #E5E7EB;
+  padding: 2px;
+  transition: border-color 0.25s ease, box-shadow 0.25s ease;
+  flex-shrink: 0;
+}
+
+// Circular thumbnail image
+.sq-thumb {
+  width: $thumb-size;
+  height: $thumb-size;
+  border-radius: 50%;
+  overflow: hidden;
+  background: #F3F4F6;
+  transition: transform 0.25s ease;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+}
+
+// Category label — single line, centered
+.sq-card-label {
+  display: block;
+  margin-top: 6px;
+  font-size: 11px;
+  font-weight: 500;
+  color: #374151;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: $card-width;
+  line-height: 1.2;
+  transition: color 0.2s ease;
+}
+
+// ═══════════════════════════════════════
+// SCROLL ARROW BUTTONS
+// ═══════════════════════════════════════
+
 .sq-scroll-btn {
-  min-width: 48px;
-  min-height: 48px;
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 5;
+  width: 28px;
+  height: 28px;
+  min-width: 44px;   // WCAG 2.2 touch target (invisible padding)
+  min-height: 44px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  background: white;
+  border: 1px solid #E5E7EB;
+  border-radius: 50%;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+  cursor: pointer;
   transition: all 0.2s ease;
+  padding: 0;
+
+  &--left {
+    left: 2px;
+  }
+
+  &--right {
+    right: 2px;
+  }
 
   &:hover {
-    background-color: rgba(196, 160, 82, 0.1);
+    border-color: $golden-wheat;
+    box-shadow: 0 2px 8px rgba(200, 168, 96, 0.2);
+    background: #FEFDFB;
+
+    mat-icon {
+      color: $golden-wheat !important;
+    }
   }
 
   &:active {
-    transform: translateY(-50%) scale(0.95);
+    transform: translateY(-50%) scale(0.92);
   }
 
   &:focus-visible {
-    outline: 2px solid theme('colors.primary.500');
+    outline: 2px solid $golden-wheat;
     outline-offset: 2px;
   }
 }
@@ -175,30 +271,20 @@
       position: absolute;
       top: 0;
       bottom: 0;
-      width: 40px;
+      width: 32px;
       pointer-events: none;
-      z-index: 1;
-      opacity: 0;
-      transition: opacity 0.3s ease;
+      z-index: 2;
     }
 
     &::before {
       left: 0;
-      background: linear-gradient(to right, theme('colors.gray.50'), transparent);
+      background: linear-gradient(to right, white, transparent);
     }
 
     &::after {
       right: 0;
-      background: linear-gradient(to left, theme('colors.gray.50'), transparent);
+      background: linear-gradient(to left, white, transparent);
     }
-  }
-
-  &.scrolled-start .sq-container::before {
-    opacity: 1;
-  }
-
-  &.scrolled-end .sq-container::after {
-    opacity: 1;
   }
 
   // RTL fade direction swap
@@ -206,13 +292,13 @@
     &::before {
       left: auto;
       right: 0;
-      background: linear-gradient(to left, theme('colors.gray.50'), transparent);
+      background: linear-gradient(to left, white, transparent);
     }
 
     &::after {
       right: auto;
       left: 0;
-      background: linear-gradient(to right, theme('colors.gray.50'), transparent);
+      background: linear-gradient(to right, white, transparent);
     }
   }
 }
@@ -221,7 +307,6 @@
 // ACCESSIBILITY & MOTION
 // ═══════════════════════════════════════
 
-// Reduced motion support
 @media (prefers-reduced-motion: reduce) {
   .sq-quick-access-item {
     .sq-icon-container {
@@ -238,21 +323,26 @@
     scroll-behavior: auto;
   }
 
-  .sq-promo-card {
+  .sq-compact-card {
     transition: none;
 
     &:hover {
       transform: none;
     }
   }
+
+  .sq-thumb-ring,
+  .sq-thumb,
+  .sq-card-label {
+    transition: none;
+  }
 }
 
-// High contrast mode support
 @media (prefers-contrast: high) {
   .sq-quick-access-item {
     .sq-icon-container {
       border-width: 2px;
-      border-color: theme('colors.gray.900');
+      border-color: #111827;
     }
 
     &:focus-visible {
@@ -260,8 +350,13 @@
     }
   }
 
-  .sq-promo-card {
-    border-width: 2px;
+  .sq-thumb-ring {
+    border-width: 3px;
+    border-color: #111827;
+  }
+
+  .sq-compact-card:focus-visible {
+    outline-width: 3px;
   }
 }
 
@@ -269,7 +364,6 @@
 // RESPONSIVE
 // ═══════════════════════════════════════
 
-// Hide below desktop - aligned with Tailwind lg breakpoint (1024px)
 @media (max-width: 1023px) {
   .sq-quick-access-row {
     display: none;

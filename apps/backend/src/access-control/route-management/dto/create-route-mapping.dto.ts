@@ -1,10 +1,10 @@
 /**
  * @file create-route-mapping.dto.ts
  * @description DTO for creating a single route-to-permission mapping.
- * 
+ *
  * Used when manually creating route mappings through the API.
  * Validates that the route path follows REST conventions and that the permission exists.
- * 
+ *
  * @example
  * {
  *   "path": "/api/admin/products",
@@ -25,7 +25,7 @@ import {
 
 /**
  * DTO for creating a route-to-permission mapping
- * 
+ *
  * This DTO is used when administrators manually create mappings between
  * API routes and permissions. It ensures data integrity by validating:
  * - Path format (must start with /)
@@ -35,19 +35,19 @@ import {
 export class CreateRouteMappingDto {
   /**
    * API endpoint path
-   * 
+   *
    * Must start with a forward slash and follow REST conventions.
    * Supports route parameters using Express syntax (e.g., /api/products/:id)
-   * 
+   *
    * Valid Examples:
    * - "/api/admin/products"
    * - "/api/admin/users/:id"
    * - "/api/vendors/:vendorId/products"
-   * 
+   *
    * Invalid Examples:
    * - "api/products" (missing leading slash)
    * - "/api/products?" (query parameters not allowed)
-   * 
+   *
    * @example "/api/admin/products"
    */
   @ApiProperty({
@@ -64,7 +64,7 @@ export class CreateRouteMappingDto {
 
   /**
    * HTTP method for this route
-   * 
+   *
    * Standard HTTP methods used in REST APIs.
    * Each method represents a different operation:
    * - GET: Retrieve data (read)
@@ -74,7 +74,7 @@ export class CreateRouteMappingDto {
    * - DELETE: Remove resources
    * - OPTIONS: CORS preflight requests
    * - HEAD: Get headers only (no body)
-   * 
+   *
    * @example "GET"
    */
   @ApiProperty({
@@ -92,11 +92,11 @@ export class CreateRouteMappingDto {
 
   /**
    * ID of the permission required to access this route
-   * 
+   *
    * Must reference an existing permission in the permissions table.
    * The service layer will validate that this permission ID exists
    * before creating the route mapping.
-   * 
+   *
    * @example 5
    */
   @ApiProperty({

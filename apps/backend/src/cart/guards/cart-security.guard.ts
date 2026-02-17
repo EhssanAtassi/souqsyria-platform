@@ -38,9 +38,18 @@ import {
 import { Reflector } from '@nestjs/core';
 import { Request } from 'express';
 import { AuditLogService } from '../../audit-log/service/audit-log.service';
-import { CartFraudDetectionService, FraudDetectionContext } from '../services/cart-fraud-detection.service';
-import { DeviceFingerprintService, DeviceData } from '../services/device-fingerprint.service';
-import { ThreatResponseService, ThreatResponseContext } from '../services/threat-response.service';
+import {
+  CartFraudDetectionService,
+  FraudDetectionContext,
+} from '../services/cart-fraud-detection.service';
+import {
+  DeviceFingerprintService,
+  DeviceData,
+} from '../services/device-fingerprint.service';
+import {
+  ThreatResponseService,
+  ThreatResponseContext,
+} from '../services/threat-response.service';
 
 /**
  * Security Configuration Interface
@@ -91,7 +100,10 @@ export class CartSecurityGuard implements CanActivate {
   private readonly logger = new Logger(CartSecurityGuard.name);
 
   /** In-memory cache (replaces Redis) */
-  private readonly _cache = new Map<string, { value: string; expiresAt: number }>();
+  private readonly _cache = new Map<
+    string,
+    { value: string; expiresAt: number }
+  >();
 
   /** Counter for periodic cache cleanup */
   private _cacheAccessCount = 0;
@@ -112,7 +124,10 @@ export class CartSecurityGuard implements CanActivate {
     }
     const entry = this._cache.get(key);
     if (!entry) return null;
-    if (Date.now() > entry.expiresAt) { this._cache.delete(key); return null; }
+    if (Date.now() > entry.expiresAt) {
+      this._cache.delete(key);
+      return null;
+    }
     return entry.value;
   }
 
@@ -148,7 +163,10 @@ export class CartSecurityGuard implements CanActivate {
   private _cacheIncr(key: string, ttlSeconds: number = 3600): number {
     const entry = this._cache.get(key);
     if (!entry || Date.now() > entry.expiresAt) {
-      this._cache.set(key, { value: '1', expiresAt: Date.now() + ttlSeconds * 1000 });
+      this._cache.set(key, {
+        value: '1',
+        expiresAt: Date.now() + ttlSeconds * 1000,
+      });
       return 1;
     }
     const newVal = parseInt(entry.value, 10) + 1;
@@ -194,13 +212,15 @@ export class CartSecurityGuard implements CanActivate {
 
   constructor(
     private readonly reflector: Reflector,
-    
+
     private readonly auditLogService: AuditLogService,
     private readonly fraudDetectionService: CartFraudDetectionService,
     private readonly deviceFingerprintService: DeviceFingerprintService,
     private readonly threatResponseService: ThreatResponseService,
   ) {
-    this.logger.log('🛡️ Enhanced Cart Security Guard initialized with Week 3 ML-based threat detection');
+    this.logger.log(
+      '🛡️ Enhanced Cart Security Guard initialized with Week 3 ML-based threat detection',
+    );
   }
 
   /**
@@ -221,7 +241,10 @@ export class CartSecurityGuard implements CanActivate {
     try {
       // Step 1: Extract device data and context
       const deviceData = this.extractDeviceData(request);
-      const detectionContext = await this.buildDetectionContext(request, deviceData);
+      const detectionContext = await this.buildDetectionContext(
+        request,
+        deviceData,
+      );
 
       // Step 2: Parallel security checks for performance
       const [deviceFingerprint, riskAssessment] = await Promise.all([
@@ -230,7 +253,10 @@ export class CartSecurityGuard implements CanActivate {
       ]);
 
       // Step 3: Build threat response context
-      const responseContext = this.buildResponseContext(request, deviceFingerprint);
+      const responseContext = this.buildResponseContext(
+        request,
+        deviceFingerprint,
+      );
 
       // Step 4: Execute automated threat response
       const threatResponse = await this.threatResponseService.executeResponse(
@@ -239,7 +265,12 @@ export class CartSecurityGuard implements CanActivate {
       );
 
       // Step 5: Log security event (non-blocking)
-      this.logSecurityEvent(request, riskAssessment, deviceFingerprint, threatResponse).catch(err => {
+      this.logSecurityEvent(
+        request,
+        riskAssessment,
+        deviceFingerprint,
+        threatResponse,
+      ).catch((err) => {
         this.logger.error('Failed to log security event', err.stack);
       });
 
@@ -257,23 +288,32 @@ export class CartSecurityGuard implements CanActivate {
 
         case 'challenge':
           // In production, this would trigger CAPTCHA or additional verification
-          this.logger.warn(`🔐 Challenge required for request: ${threatResponse.reason}`);
+          this.logger.warn(
+            `🔐 Challenge required for request: ${threatResponse.reason}`,
+          );
           break;
 
         case 'rate_limit':
           // Rate limiting is handled by CartRateLimitGuard, just log
-          this.logger.warn(`⏱️ Rate limiting applied: ${threatResponse.reason}`);
+          this.logger.warn(
+            `⏱️ Rate limiting applied: ${threatResponse.reason}`,
+          );
           break;
 
         case 'escalate':
-          this.logger.error(`🚨 SECURITY ESCALATION: ${threatResponse.reason}`, {
-            escalationLevel: threatResponse.escalationLevel,
-            riskScore: riskAssessment.riskScore,
-          });
+          this.logger.error(
+            `🚨 SECURITY ESCALATION: ${threatResponse.reason}`,
+            {
+              escalationLevel: threatResponse.escalationLevel,
+              riskScore: riskAssessment.riskScore,
+            },
+          );
           break;
 
         case 'log':
-          this.logger.log(`📝 Enhanced logging enabled: ${threatResponse.reason}`);
+          this.logger.log(
+            `📝 Enhanced logging enabled: ${threatResponse.reason}`,
+          );
           break;
 
         case 'allow':
@@ -283,10 +323,12 @@ export class CartSecurityGuard implements CanActivate {
       }
 
       return true;
-
     } catch (error) {
       // Re-throw security exceptions (ForbiddenException, UnauthorizedException)
-      if (error instanceof ForbiddenException || error instanceof UnauthorizedException) {
+      if (
+        error instanceof ForbiddenException ||
+        error instanceof UnauthorizedException
+      ) {
         throw error;
       }
 
@@ -299,7 +341,9 @@ export class CartSecurityGuard implements CanActivate {
 
       // Fail open or closed based on configuration
       if (this.config.failOpen) {
-        this.logger.warn('⚠️ Security check failed, allowing request (fail-open mode)');
+        this.logger.warn(
+          '⚠️ Security check failed, allowing request (fail-open mode)',
+        );
         return true;
       } else {
         throw new ForbiddenException('Security validation failed');
@@ -319,7 +363,9 @@ export class CartSecurityGuard implements CanActivate {
 
     // Extract screen resolution if available (from custom header)
     const screenResolution = request.headers['x-screen-resolution'] as string;
-    const timezone = request.headers['x-timezone'] as string || Intl.DateTimeFormat().resolvedOptions().timeZone;
+    const timezone =
+      (request.headers['x-timezone'] as string) ||
+      Intl.DateTimeFormat().resolvedOptions().timeZone;
 
     return {
       userAgent,
@@ -327,15 +373,19 @@ export class CartSecurityGuard implements CanActivate {
       timezone,
       language: acceptLanguage,
       platform: this.extractPlatform(userAgent),
-      hardwareConcurrency: parseInt(request.headers['x-hardware-concurrency'] as string) || 0,
+      hardwareConcurrency:
+        parseInt(request.headers['x-hardware-concurrency'] as string) || 0,
       deviceMemory: parseInt(request.headers['x-device-memory'] as string) || 0,
       colorDepth: parseInt(request.headers['x-color-depth'] as string) || 24,
       pixelRatio: parseFloat(request.headers['x-pixel-ratio'] as string) || 1,
       touchSupport: (request.headers['x-touch-support'] as string) === 'true',
-      webglVendor: request.headers['x-webgl-vendor'] as string || 'unknown',
-      webglRenderer: request.headers['x-webgl-renderer'] as string || 'unknown',
-      canvasFingerprint: request.headers['x-canvas-fingerprint'] as string || '',
-      audioFingerprint: request.headers['x-audio-fingerprint'] as string || '',
+      webglVendor: (request.headers['x-webgl-vendor'] as string) || 'unknown',
+      webglRenderer:
+        (request.headers['x-webgl-renderer'] as string) || 'unknown',
+      canvasFingerprint:
+        (request.headers['x-canvas-fingerprint'] as string) || '',
+      audioFingerprint:
+        (request.headers['x-audio-fingerprint'] as string) || '',
       clientIP,
     };
   }
@@ -361,7 +411,8 @@ export class CartSecurityGuard implements CanActivate {
 
     return {
       userId,
-      sessionId: request.cookies?.guest_session_id || request.cookies?.session_id,
+      sessionId:
+        request.cookies?.guest_session_id || request.cookies?.session_id,
       clientIP,
       userAgent: deviceData.userAgent,
       deviceFingerprint: '', // Will be set after fingerprint generation
@@ -388,7 +439,8 @@ export class CartSecurityGuard implements CanActivate {
 
     try {
       // Generate device fingerprint
-      const deviceFingerprint = this.deviceFingerprintService.generateFingerprint(deviceData);
+      const deviceFingerprint =
+        this.deviceFingerprintService.generateFingerprint(deviceData);
 
       // Get historical fingerprints for this user/session
       const fingerprintKey = userId
@@ -413,14 +465,17 @@ export class CartSecurityGuard implements CanActivate {
         if (storedFingerprints.length > 5) {
           storedFingerprints.shift();
         }
-        this._cacheSet(fingerprintKey, JSON.stringify(storedFingerprints), this.config.fingerprintCacheTTL);
+        this._cacheSet(
+          fingerprintKey,
+          JSON.stringify(storedFingerprints),
+          this.config.fingerprintCacheTTL,
+        );
       }
 
       return {
         ...deviceFingerprint,
         validation,
       };
-
     } catch (error) {
       this.logger.error('Device validation failed', error.stack);
       return null;
@@ -453,13 +508,17 @@ export class CartSecurityGuard implements CanActivate {
       }
 
       // Perform fraud assessment
-      const riskAssessment = await this.fraudDetectionService.assessFraudRisk(context);
+      const riskAssessment =
+        await this.fraudDetectionService.assessFraudRisk(context);
 
       // Cache assessment
-      this._cacheSet(cacheKey, JSON.stringify(riskAssessment), this.config.riskCacheTTL);
+      this._cacheSet(
+        cacheKey,
+        JSON.stringify(riskAssessment),
+        this.config.riskCacheTTL,
+      );
 
       return riskAssessment;
-
     } catch (error) {
       this.logger.error('Fraud detection failed', error.stack);
       return {
@@ -483,7 +542,8 @@ export class CartSecurityGuard implements CanActivate {
 
     return {
       userId: user?.id || null,
-      sessionId: request.cookies?.guest_session_id || request.cookies?.session_id,
+      sessionId:
+        request.cookies?.guest_session_id || request.cookies?.session_id,
       clientIP: this.extractClientIP(request),
       userAgent: request.headers['user-agent'] || '',
       deviceFingerprint: deviceFingerprint?.fingerprintId || '',
@@ -513,13 +573,16 @@ export class CartSecurityGuard implements CanActivate {
         triggeredRules: riskAssessment.triggeredRules,
         shouldBlock: riskAssessment.shouldBlock,
       },
-      deviceFingerprint: deviceFingerprint ? {
-        fingerprintId: deviceFingerprint.fingerprintId,
-        trustScore: deviceFingerprint.trustScore,
-        isVirtualDevice: deviceFingerprint.isVirtualDevice,
-        isBotLike: deviceFingerprint.isBotLike,
-        validationConsistency: deviceFingerprint.validation?.consistencyScore,
-      } : null,
+      deviceFingerprint: deviceFingerprint
+        ? {
+            fingerprintId: deviceFingerprint.fingerprintId,
+            trustScore: deviceFingerprint.trustScore,
+            isVirtualDevice: deviceFingerprint.isVirtualDevice,
+            isBotLike: deviceFingerprint.isBotLike,
+            validationConsistency:
+              deviceFingerprint.validation?.consistencyScore,
+          }
+        : null,
       threatResponse: {
         action: threatResponse.action,
         reason: threatResponse.reason,
@@ -555,7 +618,8 @@ export class CartSecurityGuard implements CanActivate {
 
     if (method === 'POST' && path.includes('/cart/items')) return 'add_item';
     if (method === 'PUT' && path.includes('/cart/items')) return 'update_item';
-    if (method === 'DELETE' && path.includes('/cart/items')) return 'remove_item';
+    if (method === 'DELETE' && path.includes('/cart/items'))
+      return 'remove_item';
     if (method === 'DELETE' && path.includes('/cart')) return 'clear_cart';
     if (method === 'GET' && path.includes('/cart')) return 'view_cart';
 
@@ -596,7 +660,8 @@ export class CartSecurityGuard implements CanActivate {
   private extractClientIP(request: Request): string {
     const forwardedFor = request.headers['x-forwarded-for'] as string;
     const realIp = request.headers['x-real-ip'] as string;
-    const remoteAddress = request.connection?.remoteAddress || request.socket?.remoteAddress;
+    const remoteAddress =
+      request.connection?.remoteAddress || request.socket?.remoteAddress;
 
     if (forwardedFor) {
       return forwardedFor.split(',')[0].trim();

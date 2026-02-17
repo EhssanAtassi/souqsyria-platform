@@ -1,9 +1,9 @@
 /**
  * Hero Split Layout Component Styles (Container)
  *
- * E-commerce style hero section with 65/35 split layout
+ * @description E-commerce style hero section with 65/35 split layout
  * - Left: Image slider (65%)
- * - Right: Products (top 50%) + Categories (bottom 50%)
+ * - Right: Two promotional offer cards stacked vertically (35%)
  *
  * Syrian Golden Wheat theme: #C8A860
  */
@@ -16,11 +16,12 @@ $light-bg: #F9FAFB;
 .hero-split-container {
   display: grid;
   grid-template-columns: 65% 35%;
-  gap: 16px;
+  gap: 12px;
   max-width: 1600px;
   margin: 0 auto 32px auto;
   padding: 0 24px;
   height: 450px;
+  border-radius: 14px;
 
   // LEFT SIDE: Image Slider Section (65%)
   .hero-slider-section {
@@ -31,8 +32,8 @@ $light-bg: #F9FAFB;
   // RIGHT SIDE: Sidebar (35%)
   .hero-sidebar {
     display: grid;
-    grid-template-rows: 1fr 1fr; // Split into two equal halves
-    gap: 16px;
+    grid-template-rows: 1fr 1fr;
+    gap: 12px;
     height: 100%;
 
     // Each promotional offer card takes 50% height
@@ -47,14 +48,15 @@ $light-bg: #F9FAFB;
 // Tablet Layout (768px - 1024px)
 @media (max-width: 1024px) {
   .hero-split-container {
-    grid-template-columns: 60% 40%; // Slightly adjust split
-    gap: 12px;
+    grid-template-columns: 60% 40%;
+    gap: 10px;
     padding: 0 16px;
     height: 400px;
     margin-bottom: 24px;
+    border-radius: 12px;
 
     .hero-sidebar {
-      gap: 12px;
+      gap: 10px;
     }
   }
 }
@@ -62,12 +64,13 @@ $light-bg: #F9FAFB;
 // Mobile Layout (< 768px) - Stack Vertically
 @media (max-width: 768px) {
   .hero-split-container {
-    grid-template-columns: 1fr; // Single column
-    grid-template-rows: auto auto auto; // Stack vertically
-    gap: 16px;
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto auto;
+    gap: 14px;
     padding: 0 12px;
-    height: auto; // Allow content to determine height
+    height: auto;
     margin-bottom: 20px;
+    border-radius: 0;
 
     // Slider takes full width
     .hero-slider-section {
@@ -76,13 +79,13 @@ $light-bg: #F9FAFB;
 
     // Sidebar stacks below slider
     .hero-sidebar {
-      grid-template-rows: auto auto; // Auto height for each section
-      gap: 16px;
+      grid-template-rows: auto auto;
+      gap: 14px;
       height: auto;
 
       app-promotional-offer-card {
         height: auto;
-        min-height: 250px; // Minimum height for mobile
+        min-height: 240px;
       }
     }
   }
@@ -91,7 +94,7 @@ $light-bg: #F9FAFB;
 // Extra Small Mobile (< 480px)
 @media (max-width: 480px) {
   .hero-split-container {
-    gap: 12px;
+    gap: 10px;
     padding: 0 8px;
     margin-bottom: 16px;
 
@@ -100,10 +103,10 @@ $light-bg: #F9FAFB;
     }
 
     .hero-sidebar {
-      gap: 12px;
+      gap: 10px;
 
       app-promotional-offer-card {
-        min-height: 220px;
+        min-height: 210px;
       }
     }
   }

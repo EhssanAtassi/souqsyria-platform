@@ -1,6 +1,7 @@
 import { Component, OnInit, OnDestroy, signal, computed, ChangeDetectionStrategy, WritableSignal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
+import { trigger, transition, style, animate } from '@angular/animations';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -8,26 +9,23 @@ import { MatCardModule } from '@angular/material/card';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBarModule, MatSnackBar } from '@angular/material/snack-bar';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatChipsModule } from '@angular/material/chips';
-import { MatBadgeModule } from '@angular/material/badge';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatExpansionModule } from '@angular/material/expansion';
-import { MatDialogModule, MatDialog } from '@angular/material/dialog';
 import { Observable, Subject } from 'rxjs';
 import { debounceTime, takeUntil } from 'rxjs/operators';
 
 import { CartService } from '../../store/cart/cart.service';
 import { CartApiService } from '../../core/api/cart-api.service';
 import { CartQuery } from '../../store/cart/cart.query';
+import { CartSyncService } from '../../store/cart/cart-sync.service';
 import { ProductsQuery } from '../../store/products/products.query';
 import { CartItem, Cart } from '../../shared/interfaces/cart.interface';
 import { Product } from '../../shared/interfaces/product.interface';
 import { ProductRecommendationsComponent } from '../../shared/components/product-recommendations';
 import { ProductRecommendationsCarouselComponent } from '../../shared/components/product-recommendations-carousel';
 import { ProductBoxGridComponent } from '../../shared/components/ui/product-box/product-box-grid.component';
+import { StockAlertComponent } from '../../shared/components/stock-alert/stock-alert.component';
+import { EmptyCartComponent } from './components/empty-cart/empty-cart.component';
 import { Router } from '@angular/router';
 import { Store } from '@ngrx/store';
 import { selectUser } from '../auth/store/auth.selectors';
@@ -69,21 +67,26 @@ import { LanguageService } from '../../shared/services/language.service';
     MatDividerModule,
     MatFormFieldModule,
     MatInputModule,
-    MatSelectModule,
     MatSnackBarModule,
-    MatProgressSpinnerModule,
-    MatChipsModule,
-    MatBadgeModule,
     MatTooltipModule,
-    MatExpansionModule,
-    MatDialogModule,
     ProductRecommendationsComponent,
     ProductRecommendationsCarouselComponent,
-    ProductBoxGridComponent
+    ProductBoxGridComponent,
+    StockAlertComponent,
+    EmptyCartComponent
   ],
   templateUrl: './cart.component.html',
   styleUrls: ['./cart.component.scss'],
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  animations: [
+    /** Slide-out + collapse animation for removed cart items */
+    trigger('cartItemAnimation', [
+      transition(':leave', [
+        animate('300ms cubic-bezier(0.4, 0, 0.2, 1)',
+          style({ opacity: 0, transform: 'translateX(-100%)', height: 0, marginBottom: 0 }))
+      ])
+    ])
+  ]
 })
 export class CartComponent implements OnInit, OnDestroy {
   
@@ -95,6 +98,13 @@ export class CartComponent implements OnInit, OnDestroy {
   
   /** Coupon application error */
   couponError = signal<string | null>(null);
+
+  /** Screen-reader status message for aria-live region (WCAG 4.1.3) */
+  cartStatusMessage = signal<string>('');
+
+  /** Detects prefers-reduced-motion to disable Angular animations (WCAG 2.3.3) */
+  readonly prefersReducedMotion = typeof window !== 'undefined'
+    && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   
   /** Available currencies */
   availableCurrencies = [
@@ -149,9 +159,9 @@ export class CartComponent implements OnInit, OnDestroy {
     private cartService: CartService,
     private cartApiService: CartApiService,
     private cartQuery: CartQuery,
+    private cartSyncService: CartSyncService,
     private productsQuery: ProductsQuery,
     private snackBar: MatSnackBar,
-    private dialog: MatDialog,
     private router: Router,
     private languageService: LanguageService,
     private store: Store,
@@ -192,6 +202,51 @@ export class CartComponent implements OnInit, OnDestroy {
 
     // Load initial product recommendations
     this.loadCartRecommendations();
+
+    // Validate cart stock/price on load (SS-CART-007)
+    this.validateCartOnLoad();
+  }
+
+  /**
+   * Validates cart items against backend for stock and price changes
+   * Shows snackbar warnings for out-of-stock or low-stock items
+   */
+  private validateCartOnLoad(): void {
+    const cart = this.cartQuery.getValue();
+    if (cart.items.length === 0) return;
+
+    this.cartSyncService.validateCart(cart)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (result) => {
+          if (result.errors.length > 0) {
+            const oosCount = result.errors.filter(e => e.type === 'OUT_OF_STOCK').length;
+            if (oosCount > 0) {
+              this.showSnackBar(
+                this.language() === 'ar'
+                  ? `${oosCount} منتج(ات) غير متوفر في المخزون`
+                  : `${oosCount} item(s) are out of stock`,
+                'error'
+              );
+            }
+          }
+          if (result.warnings.length > 0) {
+            const lowStockCount = result.warnings.filter(w => w.type === 'LOW_STOCK').length;
+            if (lowStockCount > 0) {
+              this.showSnackBar(
+                this.language() === 'ar'
+                  ? `${lowStockCount} منتج(ات) قليل في المخزون`
+                  : `${lowStockCount} item(s) have low stock`,
+                'warning'
+              );
+            }
+          }
+        },
+        error: () => {
+          // Silently fail — validation is non-blocking
+          console.warn('[CartComponent] Cart validation failed, continuing...');
+        }
+      });
   }
 
   /**
@@ -212,6 +267,11 @@ export class CartComponent implements OnInit, OnDestroy {
    */
   updateQuantity(itemId: string, newQuantity: number): void {
     this.cartService.updateQuantity(itemId, newQuantity);
+    this.cartStatusMessage.set(
+      this.language() === 'ar'
+        ? `تم تحديث الكمية إلى ${newQuantity}`
+        : `Quantity updated to ${newQuantity}`
+    );
     this.showSnackBar('Quantity updated', 'success');
   }
 
@@ -222,24 +282,36 @@ export class CartComponent implements OnInit, OnDestroy {
    */
   removeItem(item: CartItem): void {
     this.cartService.removeFromCart(item.id);
+    this.cartStatusMessage.set(
+      this.language() === 'ar'
+        ? `تمت إزالة ${item.product.name} من السلة`
+        : `${item.product.name} removed from cart`
+    );
 
-    // Show snackbar with Undo action (5-second duration matching backend window)
-    const ref = this.snackBar.open('Item removed from cart', 'Undo', {
-      duration: 5000,
-      panelClass: 'success-snackbar',
-    });
+    // Show bilingual snackbar with Undo action (5-second duration matching backend window)
+    const ref = this.snackBar.open(
+      this.language() === 'ar' ? 'تمت إزالة المنتج من السلة' : 'Item removed from cart',
+      this.language() === 'ar' ? 'تراجع' : 'Undo',
+      { duration: 5000, panelClass: 'success-snackbar' }
+    );
 
     ref.onAction().subscribe(() => {
-      // Call backend undo endpoint (uses product ID, not cart item ID)
-      this.cartApiService.undoRemove(item.product.id).subscribe({
+      // Call backend undo endpoint using cart item ID (not product ID)
+      this.cartApiService.undoRemove(item.id).subscribe({
         next: () => {
           // Re-fetch cart to restore the item in local state
           const userId = this.getUserId();
           this.cartService.fetchCartFromBackend(userId);
-          this.showSnackBar('Item restored', 'success');
+          this.showSnackBar(
+            this.language() === 'ar' ? 'تم استعادة المنتج' : 'Item restored',
+            'success'
+          );
         },
         error: () => {
-          this.showSnackBar('Undo window expired', 'warning');
+          this.showSnackBar(
+            this.language() === 'ar' ? 'انتهت مهلة التراجع' : 'Undo window expired',
+            'warning'
+          );
         },
       });
     });
@@ -300,10 +372,28 @@ export class CartComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Continues shopping
+   * Continues shopping — navigates to products page
    */
   continueShopping(): void {
     this.router.navigate(['/products']);
+  }
+
+  /**
+   * Navigates to category browsing page
+   * Used by EmptyCartComponent "Browse Categories" CTA
+   */
+  browseCategoriesClick(): void {
+    this.router.navigate(['/category']);
+  }
+
+  /** TrackBy function for cart items *ngFor — prevents unnecessary DOM re-creation */
+  trackByItemId(_index: number, item: CartItem): string {
+    return item.id;
+  }
+
+  /** TrackBy function for recommended products *ngFor */
+  trackByProductId(_index: number, product: Product): string | number {
+    return product.id;
   }
 
   /**
@@ -336,7 +426,7 @@ export class CartComponent implements OnInit, OnDestroy {
   formatPrice(amount: number, currency: string): string {
     const currencyInfo = this.availableCurrencies.find(c => c.code === currency);
     if (currency === 'SYP') {
-      return `${currencyInfo?.symbol || ''}${new Intl.NumberFormat('ar-SY').format(amount)}`;
+      return `${currencyInfo?.symbol || ''}\u00A0${new Intl.NumberFormat('ar-SY').format(amount)}`;
     }
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
@@ -350,14 +440,14 @@ export class CartComponent implements OnInit, OnDestroy {
    * @param productId - Product ID
    * @returns Stock status object
    */
-  getStockStatus(productId: string): { status: string; color: string; message: string } {
+  getStockStatus(productId: string): { status: 'in_stock' | 'low_stock' | 'out_of_stock'; color: string; message: string } {
     const product = this.productsQuery.getEntity(productId);
 
-    if (!product || !product.inventory.inStock) {
+    if (!product || !product.inventory?.inStock) {
       return { status: 'out_of_stock', color: 'text-red-600', message: 'Out of stock' };
     }
 
-    if (product.inventory.quantity <= product.inventory.lowStockThreshold) {
+    if ((product.inventory?.quantity ?? 0) <= (product.inventory?.lowStockThreshold ?? 0)) {
       return {
         status: 'low_stock',
         color: 'text-yellow-600',

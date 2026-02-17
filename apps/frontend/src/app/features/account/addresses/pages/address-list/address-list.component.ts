@@ -117,14 +117,12 @@ export class AddressListComponent implements OnInit {
 
   /**
    * @description Handle form save completion
-   * Reloads addresses and hides form
+   * Hides form. Service already updated addresses signal - no reload needed.
    */
   onFormSaved(): void {
     this.showForm.set(false);
     this.editingAddress.set(undefined);
-    this.addressService.loadAddresses()
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe();
+    // Service already updated addresses signal — no reload needed
   }
 
   /**

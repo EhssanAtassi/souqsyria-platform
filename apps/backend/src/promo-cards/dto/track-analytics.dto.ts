@@ -7,7 +7,15 @@
  */
 
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsString, IsOptional, IsInt, Min, IsIn, IsUUID } from 'class-validator';
+import {
+  IsNotEmpty,
+  IsString,
+  IsOptional,
+  IsInt,
+  Min,
+  IsIn,
+  IsUUID,
+} from 'class-validator';
 
 /**
  * DTO for tracking promo card impressions
@@ -139,11 +147,25 @@ export class QueryPromoCardsDto {
     example: 'createdAt',
     default: 'createdAt',
     required: false,
-    enum: ['createdAt', 'updatedAt', 'position', 'impressions', 'clicks', 'titleEn'],
+    enum: [
+      'createdAt',
+      'updatedAt',
+      'position',
+      'impressions',
+      'clicks',
+      'titleEn',
+    ],
   })
   @IsString()
   @IsOptional()
-  @IsIn(['createdAt', 'updatedAt', 'position', 'impressions', 'clicks', 'titleEn'])
+  @IsIn([
+    'createdAt',
+    'updatedAt',
+    'position',
+    'impressions',
+    'clicks',
+    'titleEn',
+  ])
   sortBy?: string = 'createdAt';
 
   @ApiProperty({

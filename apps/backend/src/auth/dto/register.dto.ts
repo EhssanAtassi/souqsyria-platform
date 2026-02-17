@@ -3,7 +3,14 @@
  * @description Request body validation for user registration.
  * Collects email, password, and optional full name.
  */
-import { IsEmail, IsString, MinLength, Matches, IsNotEmpty, MaxLength } from 'class-validator';
+import {
+  IsEmail,
+  IsString,
+  MinLength,
+  Matches,
+  IsNotEmpty,
+  MaxLength,
+} from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class RegisterDto {
@@ -20,7 +27,9 @@ export class RegisterDto {
   })
   @IsString()
   @MinLength(8, { message: 'Password must be at least 8 characters long' })
-  @Matches(/[A-Z]/, { message: 'Password must contain at least one uppercase letter' })
+  @Matches(/[A-Z]/, {
+    message: 'Password must contain at least one uppercase letter',
+  })
   @Matches(/[0-9]/, { message: 'Password must contain at least one number' })
   password: string;
 

@@ -66,7 +66,9 @@ export class ProductsService {
     }
 
     if (vendorId) {
-      const vendor = await this.vendorRepo.findOne({ where: { id: vendorId } })!;
+      const vendor = await this.vendorRepo.findOne({
+        where: { id: vendorId },
+      })!;
       if (!vendor) throw new NotFoundException('Vendor not found');
       product.vendor = vendor;
     }

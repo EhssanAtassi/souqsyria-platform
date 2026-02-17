@@ -1,0 +1,267 @@
+/**
+ * @file image-uploader.component.scss
+ * @description Styles for image uploader component with Golden Wheat design
+ * @module AdminDashboard/Products/Components
+ */
+
+@import '../../../../../shared/styles/variables';
+
+.image-uploader {
+  display: flex;
+  flex-direction: column;
+  gap: $space-8;
+
+  // Dropzone
+  &__dropzone {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: $space-12;
+    border: 2px dashed $charcoal-medium;
+    border-radius: $border-radius-lg;
+    background-color: $golden-wheat-light;
+    cursor: pointer;
+    transition: all $transition-fast;
+
+    &:hover {
+      border-color: $golden-wheat-primary;
+      background-color: rgba($golden-wheat-primary, 0.05);
+    }
+
+    &--active {
+      border-color: $golden-wheat-primary;
+      background-color: rgba($golden-wheat-primary, 0.1);
+    }
+  }
+
+  &__dropzone-icon {
+    font-size: 48px;
+    color: $charcoal-medium;
+    margin-bottom: $space-4;
+  }
+
+  &__dropzone-text {
+    font-size: $font-size-base;
+    font-weight: $font-weight-medium;
+    color: $charcoal-medium;
+    margin: 0;
+  }
+
+  &__dropzone-hint {
+    font-size: $font-size-sm;
+    color: $charcoal-medium;
+    margin: $space-2 0 0;
+  }
+
+  &__file-input {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    cursor: pointer;
+  }
+
+  // List
+  &__list {
+    display: flex;
+    flex-direction: column;
+    gap: $space-4;
+  }
+
+  &__list-title {
+    font-size: $font-size-lg;
+    font-weight: $font-weight-semibold;
+    color: $charcoal-dark;
+    margin: 0;
+  }
+
+  // Empty State
+  &__empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: $space-12;
+    text-align: center;
+  }
+
+  &__empty-icon {
+    font-size: 64px;
+    color: $charcoal-light;
+    margin-bottom: $space-4;
+  }
+
+  &__empty-text {
+    font-size: $font-size-lg;
+    font-weight: $font-weight-medium;
+    color: $charcoal-medium;
+    margin: 0;
+  }
+
+  &__empty-hint {
+    font-size: $font-size-sm;
+    color: $charcoal-medium;
+    margin: $space-2 0 0;
+  }
+}
+
+// Image Grid
+.image-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: $space-4;
+}
+
+// Image Card
+.image-card {
+  display: flex;
+  flex-direction: column;
+  gap: $space-2;
+  padding: $space-4;
+  border: 1px solid $golden-wheat-light;
+  border-radius: $border-radius-lg;
+  background-color: $charcoal-light;
+  transition: all $transition-fast;
+
+  &:hover {
+    box-shadow: 0 4px 12px rgba($charcoal-dark, 0.08);
+  }
+
+  &--primary {
+    border-color: $golden-wheat-primary;
+    box-shadow: 0 0 0 2px rgba($golden-wheat-primary, 0.1);
+  }
+
+  &__image-wrapper {
+    position: relative;
+    width: 100%;
+    padding-top: 75%; // 4:3 aspect ratio
+    border-radius: $border-radius-md;
+    overflow: hidden;
+    background-color: $golden-wheat-light;
+  }
+
+  &__image {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  &__primary-badge {
+    position: absolute;
+    top: $space-2;
+    right: $space-2;
+    display: flex;
+    align-items: center;
+    gap: $space-2;
+    padding: $space-2 $space-3;
+    background-color: $golden-wheat-primary;
+    color: $charcoal-light;
+    border-radius: $border-radius-sm;
+    font-size: $font-size-sm;
+    font-weight: $font-weight-medium;
+
+    .material-icons {
+      font-size: 16px;
+    }
+  }
+
+  &__alt {
+    min-height: 40px;
+  }
+
+  &__alt-text {
+    display: block;
+    font-size: $font-size-sm;
+    color: $charcoal-medium;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &__alt-input {
+    width: 100%;
+    padding: $space-2 $space-3;
+    border: 1px solid $golden-wheat-primary;
+    border-radius: $border-radius-sm;
+    font-size: $font-size-sm;
+
+    &:focus {
+      outline: none;
+      box-shadow: 0 0 0 3px rgba($golden-wheat-primary, 0.1);
+    }
+  }
+
+  &__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: $space-2;
+  }
+
+  &__action-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border: 1px solid $charcoal-medium;
+    border-radius: $border-radius-sm;
+    background-color: $charcoal-light;
+    color: $charcoal-medium;
+    cursor: pointer;
+    transition: all $transition-fast;
+
+    &:hover:not(:disabled) {
+      background-color: $golden-wheat-light;
+      color: $charcoal-dark;
+    }
+
+    &:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    .material-icons {
+      font-size: 18px;
+    }
+
+    &--primary {
+      background-color: $golden-wheat-primary;
+      color: $charcoal-light;
+      border-color: $golden-wheat-primary;
+
+      &:hover {
+        background-color: darken($golden-wheat-primary, 5%);
+      }
+    }
+
+    &--danger {
+      color: $color-error;
+
+      &:hover {
+        background-color: rgba($color-error, 0.1);
+        border-color: $color-error;
+      }
+    }
+  }
+}
+
+// Responsive
+@media (max-width: $breakpoint-md) {
+  .image-grid {
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  }
+}
+
+@media (max-width: $breakpoint-sm) {
+  .image-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .image-uploader__dropzone {
+    padding: $space-8;
+  }
+}

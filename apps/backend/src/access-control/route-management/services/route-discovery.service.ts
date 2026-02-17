@@ -1,23 +1,23 @@
 /**
  * @file route-discovery.service.ts
  * @description Service for discovering API routes through NestJS metadata scanning.
- * 
+ *
  * This service leverages NestJS's built-in metadata system to discover all registered
  * routes in the application. It extracts route information from controller decorators
  * and method metadata, providing a complete inventory of the API surface area.
- * 
+ *
  * Key Capabilities:
  * - Scans all registered controllers using NestJS DiscoveryService
  * - Extracts route metadata (path, method, handler names)
  * - Detects @Public() decorator usage
  * - Generates suggested permission names based on naming conventions
  * - Cross-references with database to identify mapped vs. unmapped routes
- * 
+ *
  * Performance:
  * - Discovery scan: <500ms for typical application (50-200 routes)
  * - Cached results can be implemented if needed
  * - Database queries batched for efficiency
- * 
+ *
  * @author SouqSyria Security Team
  * @version 1.0.0
  */
@@ -33,10 +33,10 @@ import { IS_PUBLIC_KEY } from '../../../common/decorators/public.decorator';
 
 /**
  * Service for discovering routes through NestJS metadata scanning
- * 
+ *
  * This service provides the foundation for the route-permission mapping system
  * by automatically discovering all routes in the application through metadata inspection.
- * 
+ *
  * Discovery Process:
  * 1. Get all registered controllers from NestJS DI container
  * 2. For each controller, extract base path from @Controller() decorator
@@ -46,7 +46,7 @@ import { IS_PUBLIC_KEY } from '../../../common/decorators/public.decorator';
  * 6. Generate suggested permission name based on conventions
  * 7. Query database to check if route is already mapped
  * 8. Compile all data into DiscoveredRouteDto array
- * 
+ *
  * Thread Safety: Stateless service, thread-safe
  * Performance: Optimized with batch database queries
  */
@@ -59,12 +59,12 @@ export class RouteDiscoveryService {
 
   /**
    * Mapping of common handler method names to permission actions
-   * 
+   *
    * This map defines the naming conventions used to automatically
    * suggest permission names based on controller method names.
-   * 
+   *
    * Convention: {handlerName} → {action}
-   * 
+   *
    * Resulting permission format: {action}_{resource}
    * Example: ProductsController.findAll() → view_products
    */
@@ -150,19 +150,19 @@ export class RouteDiscoveryService {
 
   /**
    * Discover all routes in the application
-   * 
+   *
    * Main entry point for route discovery. Scans all registered controllers,
    * extracts route metadata, and compiles comprehensive route information
    * including mapping status and suggested permissions.
-   * 
+   *
    * Performance Characteristics:
    * - Controller scanning: O(n) where n = number of controllers
    * - Method scanning: O(m) where m = total methods across all controllers
    * - Database queries: Batched for efficiency (single query for all routes)
    * - Total time: <500ms for typical application
-   * 
+   *
    * @returns Array of discovered routes with full metadata
-   * 
+   *
    * @example
    * ```typescript
    * const routes = await this.routeDiscoveryService.discoverRoutes();
@@ -235,14 +235,14 @@ export class RouteDiscoveryService {
 
   /**
    * Discover routes from a specific controller
-   * 
+   *
    * Extracts all route metadata from a single controller by:
    * 1. Getting controller base path from @Controller() decorator
    * 2. Checking for class-level @Public() decorator
    * 3. Scanning all methods for route decorators
    * 4. Extracting method-level metadata
    * 5. Combining paths and generating permission names
-   * 
+   *
    * @param wrapper - NestJS controller instance wrapper
    * @returns Array of discovered routes for this controller
    */
@@ -311,16 +311,16 @@ export class RouteDiscoveryService {
 
   /**
    * Extract route metadata from a controller method
-   * 
+   *
    * Reads decorator metadata to extract:
    * - HTTP method (GET, POST, etc.)
    * - Route path
    * - Public status (@Public() decorator)
-   * 
+   *
    * Then generates:
    * - Full route path (controller path + method path)
    * - Suggested permission name based on conventions
-   * 
+   *
    * @param method - Controller method to inspect
    * @param controllerName - Name of the controller class
    * @param methodName - Name of the method
@@ -387,9 +387,9 @@ export class RouteDiscoveryService {
 
   /**
    * Generate permission name based on controller and method names
-   * 
+   *
    * Implements the naming convention: {action}_{resource}
-   * 
+   *
    * Algorithm:
    * 1. Extract resource from controller name:
    *    - Remove "Controller" suffix
@@ -398,13 +398,13 @@ export class RouteDiscoveryService {
    * 2. Map method name to action using ACTION_MAP
    * 3. If no mapping, extract verb from method name
    * 4. Combine: action_resource
-   * 
+   *
    * Examples:
    * - ProductsController.findAll() → "view_products"
    * - OrdersController.create() → "create_orders"
    * - UsersController.banUser() → "ban_users"
    * - VendorsController.approveKyc() → "approve_kyc_vendors"
-   * 
+   *
    * @param controllerName - Name of the controller class
    * @param methodName - Name of the handler method
    * @returns Suggested permission name
@@ -433,14 +433,14 @@ export class RouteDiscoveryService {
 
   /**
    * Extract action verb from method name when no direct mapping exists
-   * 
+   *
    * Handles custom method names by extracting the leading verb.
    * Examples:
    * - banUser → ban
    * - approveKyc → approve
    * - generateReport → generate
    * - sendNotification → send
-   * 
+   *
    * @param methodName - Handler method name
    * @returns Extracted action verb
    */
@@ -455,12 +455,12 @@ export class RouteDiscoveryService {
 
   /**
    * Convert camelCase or PascalCase string to snake_case
-   * 
+   *
    * Examples:
    * - "ProductsController" → "products_controller"
    * - "findAll" → "find_all"
    * - "approveKYCDocument" → "approve_kyc_document"
-   * 
+   *
    * @param str - Input string in camelCase or PascalCase
    * @returns String in snake_case
    */
@@ -473,13 +473,13 @@ export class RouteDiscoveryService {
 
   /**
    * Normalize path by ensuring it starts with / and has no trailing /
-   * 
+   *
    * Examples:
    * - "products" → "/products"
    * - "/products/" → "/products"
    * - "products/featured" → "/products/featured"
    * - "" → ""
-   * 
+   *
    * @param path - Raw path string
    * @returns Normalized path
    */
@@ -499,14 +499,14 @@ export class RouteDiscoveryService {
 
   /**
    * Combine controller path and method path into full route path
-   * 
+   *
    * Examples:
    * - ("/admin", "/products") → "/admin/products"
    * - ("/admin", "products") → "/admin/products"
    * - ("admin", "products") → "/admin/products"
    * - ("/api", "") → "/api"
    * - ("", "/products") → "/products"
-   * 
+   *
    * @param controllerPath - Base path from @Controller()
    * @param methodPath - Path from route decorator
    * @returns Combined full path
@@ -525,12 +525,12 @@ export class RouteDiscoveryService {
 
   /**
    * Get list of all registered controller names
-   * 
+   *
    * Utility method for debugging and reporting.
    * Returns simple list of controller class names.
-   * 
+   *
    * @returns Array of controller names
-   * 
+   *
    * @example
    * ```typescript
    * const controllers = this.routeDiscoveryService.getRegisteredControllers();

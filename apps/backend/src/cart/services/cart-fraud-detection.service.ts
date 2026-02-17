@@ -330,7 +330,9 @@ export class CartFraudDetectionService {
 
     // Check operation quantity
     if (context.operation?.quantity) {
-      if (context.operation.quantity >= this.QUANTITY_THRESHOLDS.HIGH_QUANTITY) {
+      if (
+        context.operation.quantity >= this.QUANTITY_THRESHOLDS.HIGH_QUANTITY
+      ) {
         score += 60; // Very high quantity
       } else if (
         context.operation.quantity >=
@@ -539,7 +541,9 @@ export class CartFraudDetectionService {
           .filter((c) => c),
       );
 
-      if (uniqueCountries.size > this.GEO_THRESHOLDS.MAX_COUNTRY_CHANGES_PER_DAY) {
+      if (
+        uniqueCountries.size > this.GEO_THRESHOLDS.MAX_COUNTRY_CHANGES_PER_DAY
+      ) {
         score += 40; // Suspicious country hopping
       }
     }
@@ -582,7 +586,10 @@ export class CartFraudDetectionService {
     }
 
     // Check for very old or uncommon user agents
-    if (userAgentLower.includes('windows nt 5') || userAgentLower.includes('windows 98')) {
+    if (
+      userAgentLower.includes('windows nt 5') ||
+      userAgentLower.includes('windows 98')
+    ) {
       score += 30; // Very old OS is suspicious
     }
 
@@ -816,15 +823,15 @@ export class CartFraudDetectionService {
   }): number {
     const weights = {
       velocity: 0.15,
-      quantity: 0.20,
+      quantity: 0.2,
       price: 0.25,
-      device: 0.10,
+      device: 0.1,
       geo: 0.15,
-      bot: 0.20,
-      ip: 0.10,
+      bot: 0.2,
+      ip: 0.1,
       behavior: 0.15,
-      time: 0.10,
-      history: 0.10,
+      time: 0.1,
+      history: 0.1,
     };
 
     const weightedSum =

@@ -1,0 +1,42 @@
+<div class="review-summary" [class.rtl]="language() === 'ar'">
+  <h3 class="review-summary__heading">{{ headingText }}</h3>
+
+  <div class="review-summary__content">
+    <!-- Average Rating Display -->
+    <div class="review-summary__average">
+      <div class="average__number">{{ summary().averageRating | number:'1.1-1' }}</div>
+      <div class="average__stars">
+        @for (icon of starIcons(); track $index) {
+          <mat-icon class="star-icon star-icon--filled">{{ icon }}</mat-icon>
+        }
+      </div>
+      <div class="average__count">{{ reviewCountText() }}</div>
+    </div>
+
+    <!-- Rating Distribution Bars -->
+    <div class="review-summary__distribution">
+      @for (bar of distributionBars(); track bar.star) {
+        <div class="distribution-bar">
+          <div class="distribution-bar__label">
+            <span class="label__stars">{{ bar.star }}</span>
+            <mat-icon class="label__icon">star</mat-icon>
+          </div>
+          <div
+            class="distribution-bar__track"
+            role="progressbar"
+            [attr.aria-valuenow]="bar.percentage"
+            [attr.aria-valuemin]="0"
+            [attr.aria-valuemax]="100"
+            [attr.aria-label]="starsLabel(bar.star) + ': ' + bar.percentage + '%'"
+          >
+            <div
+              class="distribution-bar__fill"
+              [style.width.%]="bar.percentage"
+            ></div>
+          </div>
+          <div class="distribution-bar__count">{{ bar.count }}</div>
+        </div>
+      }
+    </div>
+  </div>
+</div>

@@ -152,27 +152,27 @@ export class HomepageComponent implements OnInit {
    */
   heroSliderImages = [
     {
-      src: '/assets/images/products/exp1.png',
+      src: 'https://images.unsplash.com/photo-1606760227091-3dd870d97f1d?w=600&h=400&fit=crop&q=80',
       alt: 'Damascus Steel Heritage Collection',
       link: '/category/damascus-steel'
     },
     {
-      src: '/assets/images/products/1.png',
+      src: 'https://images.unsplash.com/photo-1608571423902-eed4a5ad8108?w=600&h=400&fit=crop&q=80',
       alt: 'Premium Aleppo Soap Collection',
       link: '/category/beauty-wellness'
     },
     {
-      src: '/assets/images/products/5.png',
+      src: 'https://images.unsplash.com/photo-1558171813-4c088753af8f?w=600&h=400&fit=crop&q=80',
       alt: 'Syrian Textiles and Fabrics',
       link: '/category/textiles-fabrics'
     },
     {
-      src: '/assets/images/products/8.png',
+      src: 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=600&h=400&fit=crop&q=80',
       alt: 'Syrian Spices and Traditional Blends',
       link: '/category/food-spices'
     },
     {
-      src: '/assets/images/products/31.png',
+      src: 'https://images.unsplash.com/photo-1540189549336-e6e99c3679fe?w=600&h=400&fit=crop&q=80',
       alt: 'Syrian Traditional Crafts',
       link: '/category/traditional-crafts'
     }
@@ -539,7 +539,7 @@ export class HomepageComponent implements OnInit {
         images: [
           {
             id: 'damascus-knife-1',
-            url: '/assets/images/products/exp1.png',
+            url: 'https://images.unsplash.com/photo-1606760227091-3dd870d97f1d?w=600&h=400&fit=crop&q=80',
             alt: 'Damascus Steel Knife',
             isPrimary: true,
             order: 1
@@ -635,7 +635,7 @@ export class HomepageComponent implements OnInit {
         images: [
           {
             id: 'aleppo-soap-1',
-            url: '/assets/images/products/1.png',
+            url: 'https://images.unsplash.com/photo-1608571423902-eed4a5ad8108?w=600&h=400&fit=crop&q=80',
             alt: 'Aleppo Soap',
             isPrimary: true,
             order: 1
@@ -730,7 +730,7 @@ export class HomepageComponent implements OnInit {
         images: [
           {
             id: 'syrian-brocade-1',
-            url: '/assets/images/products/5.png',
+            url: 'https://images.unsplash.com/photo-1558171813-4c088753af8f?w=600&h=400&fit=crop&q=80',
             alt: 'Syrian Brocade',
             isPrimary: true,
             order: 1
@@ -826,7 +826,7 @@ export class HomepageComponent implements OnInit {
         images: [
           {
             id: 'syrian-spices-1',
-            url: '/assets/images/products/8.png',
+            url: 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=600&h=400&fit=crop&q=80',
             alt: 'Syrian Spices',
             isPrimary: true,
             order: 1
@@ -921,7 +921,7 @@ export class HomepageComponent implements OnInit {
         images: [
           {
             id: 'chess-set-1',
-            url: '/assets/images/products/31.png',
+            url: 'https://images.unsplash.com/photo-1540189549336-e6e99c3679fe?w=600&h=400&fit=crop&q=80',
             alt: 'Chess Set',
             isPrimary: true,
             order: 1
@@ -1017,7 +1017,7 @@ export class HomepageComponent implements OnInit {
         images: [
           {
             id: 'oud-perfume-1',
-            url: '/assets/images/products/3.png',
+            url: 'https://images.unsplash.com/photo-1596040033229-a9821ebd058d?w=600&h=400&fit=crop&q=80',
             alt: 'Oud Perfume',
             isPrimary: true,
             order: 1
@@ -1121,7 +1121,7 @@ export class HomepageComponent implements OnInit {
         type: 'product_spotlight',
         status: 'active',
         heroImage: {
-          url: '/assets/images/products/exp1.png',
+          url: 'https://images.unsplash.com/photo-1606760227091-3dd870d97f1d?w=600&h=400&fit=crop&q=80',
           alt: {
             english: 'Damascus Steel Heritage',
             arabic: 'تراث الفولاذ الدمشقي'
@@ -1214,7 +1214,7 @@ export class HomepageComponent implements OnInit {
         type: 'seasonal',
         status: 'active',
         heroImage: {
-          url: '/assets/images/products/1.png',
+          url: 'https://images.unsplash.com/photo-1608571423902-eed4a5ad8108?w=600&h=400&fit=crop&q=80',
           alt: {
             english: 'Aleppo Soap Heritage',
             arabic: 'تراث صابون حلب'
@@ -1307,7 +1307,7 @@ export class HomepageComponent implements OnInit {
         type: 'seasonal',
         status: 'active',
         heroImage: {
-          url: '/assets/images/products/8.png',
+          url: 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=600&h=400&fit=crop&q=80',
           alt: {
             english: 'Ramadan Special',
             arabic: 'عرض رمضان الخاص'
@@ -1633,35 +1633,35 @@ export class HomepageComponent implements OnInit {
   getHeroDualPanelOfferBanners(): Array<any> {
     return [
       {
-        src: '/assets/images/products/exp1.png',
+        src: 'https://images.unsplash.com/photo-1606760227091-3dd870d97f1d?w=600&h=400&fit=crop&q=80',
         alt: 'Damascus Steel Heritage Collection',
         link: '/category/damascus-steel',
         titleAr: 'خصم 30% على الصناعات الدمشقية',
         titleEn: '30% OFF Damascus Crafts'
       },
       {
-        src: '/assets/images/products/1.png',
+        src: 'https://images.unsplash.com/photo-1608571423902-eed4a5ad8108?w=600&h=400&fit=crop&q=80',
         alt: 'Ramadan Special Offers',
         link: '/campaigns/ramadan-offers',
         titleAr: 'عروض رمضان المباركة',
         titleEn: 'Blessed Ramadan Offers'
       },
       {
-        src: '/assets/images/products/5.png',
+        src: 'https://images.unsplash.com/photo-1558171813-4c088753af8f?w=600&h=400&fit=crop&q=80',
         alt: 'Authentic Aleppo Products',
         link: '/category/aleppo-specialties',
         titleAr: 'منتجات حلب الأصيلة',
         titleEn: 'Authentic Aleppo Products'
       },
       {
-        src: '/assets/images/products/8.png',
+        src: 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=600&h=400&fit=crop&q=80',
         alt: 'Free Delivery Over $100',
         link: '/shipping-info',
         titleAr: 'توصيل مجاني للطلبات فوق 100$',
         titleEn: 'Free Delivery Over $100'
       },
       {
-        src: '/assets/images/products/31.png',
+        src: 'https://images.unsplash.com/photo-1540189549336-e6e99c3679fe?w=600&h=400&fit=crop&q=80',
         alt: 'Discover Syrian Heritage',
         link: '/heritage-collection',
         titleAr: 'اكتشف التراث السوري',
@@ -1707,7 +1707,7 @@ export class HomepageComponent implements OnInit {
       images: [
         {
           id: 'damascus-knife-1',
-          url: '/assets/images/products/exp1.png',
+          url: 'https://images.unsplash.com/photo-1606760227091-3dd870d97f1d?w=600&h=400&fit=crop&q=80',
           alt: 'Damascus Steel Knife',
           isPrimary: true,
           order: 1
@@ -2251,7 +2251,7 @@ export class HomepageComponent implements OnInit {
       titleAr: 'تخفيضات التكنولوجيا والإلكترونيات',
       description: 'Discover the latest technology and electronics with amazing discounts up to 50% off',
       descriptionAr: 'اكتشف أحدث التقنيات والإلكترونيات مع خصومات مذهلة تصل إلى 50%',
-      imageUrl: '/assets/images/products/exp1.png',
+      imageUrl: 'https://images.unsplash.com/photo-1606760227091-3dd870d97f1d?w=600&h=400&fit=crop&q=80',
       offerUrl: '/offer/tech-electronics',
       discount: 'Up to 50% OFF',
       isActive: true,
@@ -2264,7 +2264,7 @@ export class HomepageComponent implements OnInit {
       titleAr: 'عرض خاص على الأجهزة المنزلية',
       description: 'Transform your home with premium appliances at unbeatable prices',
       descriptionAr: 'حول منزلك مع الأجهزة المميزة بأسعار لا تقاوم',
-      imageUrl: '/assets/images/products/digi1.png',
+      imageUrl: 'https://images.unsplash.com/photo-1551028719-00167b16eac5?w=600&h=400&fit=crop&q=80',
       offerUrl: '/offer/home-appliances',
       discount: 'Up to 40% OFF',
       isActive: true,
@@ -2277,7 +2277,7 @@ export class HomepageComponent implements OnInit {
       titleAr: 'الموضة ونمط الحياة',
       description: 'Express your style with our curated collection of fashion and lifestyle products',
       descriptionAr: 'عبر عن أسلوبك مع مجموعتنا المنتقاة من منتجات الموضة ونمط الحياة',
-      imageUrl: '/assets/images/products/5.png',
+      imageUrl: 'https://images.unsplash.com/photo-1558171813-4c088753af8f?w=600&h=400&fit=crop&q=80',
       offerUrl: '/offer/fashion-lifestyle',
       discount: 'Up to 60% OFF',
       isActive: true,

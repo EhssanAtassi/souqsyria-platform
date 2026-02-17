@@ -25,7 +25,15 @@ import {
   InternalServerErrorException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, Between, LessThanOrEqual, MoreThanOrEqual, In, Like, IsNull } from 'typeorm';
+import {
+  Repository,
+  Between,
+  LessThanOrEqual,
+  MoreThanOrEqual,
+  In,
+  Like,
+  IsNull,
+} from 'typeorm';
 import { HeroBanner } from '../entities/hero-banner.entity';
 import {
   CreateHeroBannerDto,
@@ -60,7 +68,10 @@ export class HeroBannersService {
    * @param userId User ID creating the banner
    * @returns Created banner entity
    */
-  async create(createDto: CreateHeroBannerDto, userId?: number): Promise<HeroBanner> {
+  async create(
+    createDto: CreateHeroBannerDto,
+    userId?: number,
+  ): Promise<HeroBanner> {
     this.logger.log(`Creating new hero banner: ${createDto.nameEn}`);
 
     // Validate schedule dates
@@ -79,7 +90,10 @@ export class HeroBannersService {
       this.logger.log(`Hero banner created successfully: ${savedBanner.id}`);
       return savedBanner;
     } catch (error: unknown) {
-      this.logger.error(`Failed to create hero banner: ${(error as Error).message}`, (error as Error).stack);
+      this.logger.error(
+        `Failed to create hero banner: ${(error as Error).message}`,
+        (error as Error).stack,
+      );
       throw new InternalServerErrorException('Failed to create hero banner');
     }
   }
@@ -90,7 +104,9 @@ export class HeroBannersService {
    * @param queryDto Query parameters
    * @returns Paginated banners with metadata
    */
-  async findAll(queryDto: QueryHeroBannersDto): Promise<PaginatedHeroBannersResponseDto<HeroBanner>> {
+  async findAll(
+    queryDto: QueryHeroBannersDto,
+  ): Promise<PaginatedHeroBannersResponseDto<HeroBanner>> {
     this.logger.log('Fetching hero banners with filters');
 
     const {
@@ -120,7 +136,9 @@ export class HeroBannersService {
     }
 
     if (approvalStatus) {
-      queryBuilder.andWhere('banner.approvalStatus = :approvalStatus', { approvalStatus });
+      queryBuilder.andWhere('banner.approvalStatus = :approvalStatus', {
+        approvalStatus,
+      });
     }
 
     if (type) {
@@ -133,11 +151,15 @@ export class HeroBannersService {
     }
 
     if (syrianRegion) {
-      queryBuilder.andWhere('banner.syrianRegion = :syrianRegion', { syrianRegion });
+      queryBuilder.andWhere('banner.syrianRegion = :syrianRegion', {
+        syrianRegion,
+      });
     }
 
     if (unescoRecognition !== undefined) {
-      queryBuilder.andWhere('banner.unescoRecognition = :unescoRecognition', { unescoRecognition });
+      queryBuilder.andWhere('banner.unescoRecognition = :unescoRecognition', {
+        unescoRecognition,
+      });
     }
 
     if (search) {
@@ -184,7 +206,9 @@ export class HeroBannersService {
       hasPreviousPage: page > 1,
     };
 
-    this.logger.log(`Fetched ${banners.length} hero banners (total: ${totalItems})`);
+    this.logger.log(
+      `Fetched ${banners.length} hero banners (total: ${totalItems})`,
+    );
 
     return {
       data: banners,
@@ -252,7 +276,11 @@ export class HeroBannersService {
    * @returns Updated banner entity
    * @throws NotFoundException if banner not found
    */
-  async update(id: string, updateDto: UpdateHeroBannerDto, userId?: number): Promise<HeroBanner> {
+  async update(
+    id: string,
+    updateDto: UpdateHeroBannerDto,
+    userId?: number,
+  ): Promise<HeroBanner> {
     this.logger.log(`Updating hero banner: ${id}`);
 
     const banner = await this.findOne(id);
@@ -274,7 +302,10 @@ export class HeroBannersService {
       this.logger.log(`Hero banner updated successfully: ${id}`);
       return updatedBanner;
     } catch (error: unknown) {
-      this.logger.error(`Failed to update hero banner: ${(error as Error).message}`, (error as Error).stack);
+      this.logger.error(
+        `Failed to update hero banner: ${(error as Error).message}`,
+        (error as Error).stack,
+      );
       throw new InternalServerErrorException('Failed to update hero banner');
     }
   }
@@ -297,7 +328,10 @@ export class HeroBannersService {
       this.logger.log(`Hero banner soft deleted successfully: ${id}`);
       return banner;
     } catch (error: unknown) {
-      this.logger.error(`Failed to delete hero banner: ${(error as Error).message}`, (error as Error).stack);
+      this.logger.error(
+        `Failed to delete hero banner: ${(error as Error).message}`,
+        (error as Error).stack,
+      );
       throw new InternalServerErrorException('Failed to delete hero banner');
     }
   }
@@ -331,7 +365,10 @@ export class HeroBannersService {
       this.logger.log(`Hero banner restored successfully: ${id}`);
       return banner;
     } catch (error: unknown) {
-      this.logger.error(`Failed to restore hero banner: ${(error as Error).message}`, (error as Error).stack);
+      this.logger.error(
+        `Failed to restore hero banner: ${(error as Error).message}`,
+        (error as Error).stack,
+      );
       throw new InternalServerErrorException('Failed to restore hero banner');
     }
   }
@@ -364,7 +401,9 @@ export class HeroBannersService {
     await this.heroBannerRepository.save(banner);
 
     // TODO: Store detailed impression data in separate analytics table
-    this.logger.log(`Impression tracked successfully for banner: ${trackDto.bannerId}`);
+    this.logger.log(
+      `Impression tracked successfully for banner: ${trackDto.bannerId}`,
+    );
   }
 
   /**
@@ -392,7 +431,9 @@ export class HeroBannersService {
     await this.heroBannerRepository.save(banner);
 
     // TODO: Store detailed click data in separate analytics table
-    this.logger.log(`Click tracked successfully for banner: ${trackDto.bannerId}`);
+    this.logger.log(
+      `Click tracked successfully for banner: ${trackDto.bannerId}`,
+    );
   }
 
   /**
@@ -417,7 +458,9 @@ export class HeroBannersService {
     });
 
     // TODO: Store CTA-specific data in analytics table
-    this.logger.log(`CTA click tracked successfully for banner: ${trackDto.bannerId}`);
+    this.logger.log(
+      `CTA click tracked successfully for banner: ${trackDto.bannerId}`,
+    );
   }
 
   /**
@@ -447,7 +490,9 @@ export class HeroBannersService {
     await this.heroBannerRepository.save(banner);
 
     // TODO: Store detailed conversion data in separate analytics table
-    this.logger.log(`Conversion tracked successfully for banner: ${trackDto.bannerId} (Revenue: ${trackDto.revenueAmount} SYP)`);
+    this.logger.log(
+      `Conversion tracked successfully for banner: ${trackDto.bannerId} (Revenue: ${trackDto.revenueAmount} SYP)`,
+    );
   }
 
   /**
@@ -461,8 +506,10 @@ export class HeroBannersService {
 
     const banner = await this.findOne(id);
 
-    const revenuePerImpression = banner.impressions > 0 ? banner.revenue / banner.impressions : 0;
-    const revenuePerClick = banner.clicks > 0 ? banner.revenue / banner.clicks : 0;
+    const revenuePerImpression =
+      banner.impressions > 0 ? banner.revenue / banner.impressions : 0;
+    const revenuePerClick =
+      banner.clicks > 0 ? banner.revenue / banner.clicks : 0;
 
     return {
       bannerId: banner.id,
@@ -495,8 +542,13 @@ export class HeroBannersService {
 
     const banner = await this.findOne(id);
 
-    if (banner.approvalStatus !== 'draft' && banner.approvalStatus !== 'rejected') {
-      throw new BadRequestException(`Banner cannot be submitted for approval in ${banner.approvalStatus} status`);
+    if (
+      banner.approvalStatus !== 'draft' &&
+      banner.approvalStatus !== 'rejected'
+    ) {
+      throw new BadRequestException(
+        `Banner cannot be submitted for approval in ${banner.approvalStatus} status`,
+      );
     }
 
     banner.approvalStatus = 'pending';
@@ -518,7 +570,9 @@ export class HeroBannersService {
     const banner = await this.findOne(id);
 
     if (banner.approvalStatus !== 'pending') {
-      throw new BadRequestException(`Banner cannot be approved in ${banner.approvalStatus} status`);
+      throw new BadRequestException(
+        `Banner cannot be approved in ${banner.approvalStatus} status`,
+      );
     }
 
     banner.approvalStatus = 'approved';
@@ -537,13 +591,19 @@ export class HeroBannersService {
    * @param reason Rejection reason
    * @returns Rejected banner
    */
-  async reject(id: string, adminId: number, reason: string): Promise<HeroBanner> {
+  async reject(
+    id: string,
+    adminId: number,
+    reason: string,
+  ): Promise<HeroBanner> {
     this.logger.log(`Rejecting banner: ${id} by admin: ${adminId}`);
 
     const banner = await this.findOne(id);
 
     if (banner.approvalStatus !== 'pending') {
-      throw new BadRequestException(`Banner cannot be rejected in ${banner.approvalStatus} status`);
+      throw new BadRequestException(
+        `Banner cannot be rejected in ${banner.approvalStatus} status`,
+      );
     }
 
     banner.approvalStatus = 'rejected';
@@ -565,12 +625,17 @@ export class HeroBannersService {
    * @param isActive Active status to set
    * @returns Number of updated banners
    */
-  async bulkUpdateActiveStatus(ids: string[], isActive: boolean): Promise<number> {
-    this.logger.log(`Bulk updating active status for ${ids.length} banners to ${isActive}`);
+  async bulkUpdateActiveStatus(
+    ids: string[],
+    isActive: boolean,
+  ): Promise<number> {
+    this.logger.log(
+      `Bulk updating active status for ${ids.length} banners to ${isActive}`,
+    );
 
     const result = await this.heroBannerRepository.update(
       { id: In(ids) },
-      { isActive }
+      { isActive },
     );
 
     this.logger.log(`Bulk updated ${result.affected} banners`);
@@ -638,7 +703,7 @@ export class HeroBannersService {
       },
       {
         isActive: false,
-      }
+      },
     );
 
     this.logger.log(`Deactivated ${result.affected} expired banners`);
@@ -661,7 +726,9 @@ export class HeroBannersService {
     const end = new Date(endDate);
 
     if (start >= end) {
-      throw new BadRequestException('Schedule end date must be after start date');
+      throw new BadRequestException(
+        'Schedule end date must be after start date',
+      );
     }
 
     // Validate not too far in the past
@@ -670,7 +737,9 @@ export class HeroBannersService {
     oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
 
     if (start < oneYearAgo) {
-      throw new BadRequestException('Schedule start date cannot be more than 1 year in the past');
+      throw new BadRequestException(
+        'Schedule start date cannot be more than 1 year in the past',
+      );
     }
 
     // Validate not too far in the future
@@ -678,7 +747,9 @@ export class HeroBannersService {
     twoYearsFromNow.setFullYear(twoYearsFromNow.getFullYear() + 2);
 
     if (end > twoYearsFromNow) {
-      throw new BadRequestException('Schedule end date cannot be more than 2 years in the future');
+      throw new BadRequestException(
+        'Schedule end date cannot be more than 2 years in the future',
+      );
     }
   }
 }

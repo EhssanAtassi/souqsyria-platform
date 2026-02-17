@@ -236,7 +236,7 @@ export class CartConflictResolver {
     const mergedItems = new Map<number, CartItem>();
     let itemsAdded = 0;
     let itemsUpdated = 0;
-    let itemsRemoved = 0;
+    const itemsRemoved = 0;
 
     // Index server items by variant ID for fast lookup
     const serverItemsMap = new Map<number, CartItem>();
@@ -253,11 +253,7 @@ export class CartConflictResolver {
 
       if (serverItem) {
         // Item exists on both sides - merge
-        const mergedItem = this.mergeItem(
-          clientItem,
-          serverItem,
-          conflicts,
-        );
+        const mergedItem = this.mergeItem(clientItem, serverItem, conflicts);
         mergedItems.set(variantId, mergedItem);
 
         if (mergedItem.quantity !== serverItem.quantity) {
@@ -363,17 +359,12 @@ export class CartConflictResolver {
    * @param resolution - Conflict resolution result to validate
    * @returns Validation errors (empty if valid)
    */
-  static validateResolution(
-    resolution: ConflictResolution,
-  ): string[] {
+  static validateResolution(resolution: ConflictResolution): string[] {
     const errors: string[] = [];
     const cart = resolution.resolvedCart;
 
     // Check total items limit (100)
-    const totalItems = cart.items.reduce(
-      (sum, item) => sum + item.quantity,
-      0,
-    );
+    const totalItems = cart.items.reduce((sum, item) => sum + item.quantity, 0);
     if (totalItems > 100) {
       errors.push(
         `Cart exceeds 100 item limit: ${totalItems} items after merge`,
@@ -399,9 +390,7 @@ export class CartConflictResolver {
     // Check price lock validity
     for (const item of cart.items) {
       if (!item.added_at || !item.locked_until) {
-        errors.push(
-          `Item ${item.variant.id} missing price lock timestamps`,
-        );
+        errors.push(`Item ${item.variant.id} missing price lock timestamps`);
       }
     }
 
@@ -431,9 +420,7 @@ export class CartConflictResolver {
     if (conflicts.length > 0) {
       lines.push(`\nConflict Details:`);
       for (const conflict of conflicts) {
-        lines.push(
-          `  - ${conflict.type}: ${conflict.resolution}`,
-        );
+        lines.push(`  - ${conflict.type}: ${conflict.resolution}`);
       }
     }
 

@@ -495,8 +495,7 @@ export class PermissionsGuard implements CanActivate {
     const businessPermissions =
       user.role?.rolePermissions?.map((rp) => rp.permission.name) || [];
     const adminPermissions =
-      user.assignedRole?.rolePermissions?.map((rp) => rp.permission.name) ||
-      [];
+      user.assignedRole?.rolePermissions?.map((rp) => rp.permission.name) || [];
     this.logger.debug(
       `🏢 Business Role Permissions: ${businessPermissions.join(', ') || 'none'}`,
     );
@@ -917,14 +916,12 @@ export class PermissionsGuard implements CanActivate {
    */
   private logAuditEvent(dto: LogPermissionCheckDto): void {
     // Fire-and-forget: Don't await, don't block request
-    this.securityAuditService
-      .logPermissionCheck(dto)
-      .catch((error) => {
-        // Log error but don't throw (graceful degradation)
-        this.logger.error(
-          `Failed to log audit event: ${error.message}`,
-          error.stack,
-        );
-      });
+    this.securityAuditService.logPermissionCheck(dto).catch((error) => {
+      // Log error but don't throw (graceful degradation)
+      this.logger.error(
+        `Failed to log audit event: ${error.message}`,
+        error.stack,
+      );
+    });
   }
 }

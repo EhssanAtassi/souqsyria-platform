@@ -45,7 +45,13 @@ export interface RoleTemplate {
   useCases?: string[];
 
   /** Category for organizing templates in UI */
-  category: 'support' | 'content' | 'marketing' | 'finance' | 'operations' | 'admin';
+  category:
+    | 'support'
+    | 'content'
+    | 'marketing'
+    | 'finance'
+    | 'operations'
+    | 'admin';
 }
 
 /**
@@ -319,7 +325,9 @@ export function getRoleTemplates(): RoleTemplate[] {
  * @param templateId - Unique template identifier
  * @returns Role template or undefined if not found
  */
-export function getRoleTemplateById(templateId: string): RoleTemplate | undefined {
+export function getRoleTemplateById(
+  templateId: string,
+): RoleTemplate | undefined {
   return ROLE_TEMPLATES.find((template) => template.id === templateId);
 }
 

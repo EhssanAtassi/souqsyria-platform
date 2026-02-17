@@ -78,7 +78,10 @@ export class TransactionEventService {
    * @param triggeredBy - User ID who triggered the event
    * @returns Base event metadata
    */
-  private createEventBase(source: string, triggeredBy?: number): IDomainEventBase {
+  private createEventBase(
+    source: string,
+    triggeredBy?: number,
+  ): IDomainEventBase {
     return {
       timestamp: new Date(),
       correlationId: uuidv4(),
@@ -92,11 +95,14 @@ export class TransactionEventService {
    * @param eventName - Event name
    * @param payload - Event payload
    */
-  private async emit<T extends IDomainEventBase>(eventName: string, payload: T): Promise<void> {
-    this.logger.debug(
-      `Emitting event: ${eventName}`,
-      { correlationId: payload.correlationId, source: payload.source }
-    );
+  private async emit<T extends IDomainEventBase>(
+    eventName: string,
+    payload: T,
+  ): Promise<void> {
+    this.logger.debug(`Emitting event: ${eventName}`, {
+      correlationId: payload.correlationId,
+      source: payload.source,
+    });
 
     try {
       await this.eventEmitter.emitAsync(eventName, payload);
@@ -104,7 +110,7 @@ export class TransactionEventService {
     } catch (error: unknown) {
       this.logger.error(
         `Failed to emit event: ${eventName}`,
-        error instanceof Error ? (error as Error).stack : String(error)
+        error instanceof Error ? (error as Error).stack : String(error),
       );
       // Don't throw - event emission failures shouldn't break the main flow
     }
@@ -121,7 +127,12 @@ export class TransactionEventService {
   async emitOrderCreated(data: {
     order: IOrderReference;
     customer: IUserReference;
-    items: Array<{ productId: number; variantId?: number; quantity: number; unitPrice: number }>;
+    items: Array<{
+      productId: number;
+      variantId?: number;
+      quantity: number;
+      unitPrice: number;
+    }>;
     amounts: IAmountBreakdown;
     triggeredBy?: number;
   }): Promise<string> {
