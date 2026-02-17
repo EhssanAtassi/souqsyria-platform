@@ -1,0 +1,1390 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SouqSyria — Mega Menu Prototype</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Cairo:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <style>
+    /* ═══════════════════════════════════════
+       DESIGN TOKENS
+       ═══════════════════════════════════════ */
+    :root {
+      --golden: #C8A860;
+      --golden-dark: #9A7B32;
+      --golden-light: #FAF6EB;
+      --golden-glow: rgba(200, 168, 96, 0.25);
+      --golden-border: rgba(200, 168, 96, 0.3);
+      --text-1: #1F2937;
+      --text-2: #6B7280;
+      --text-3: #9CA3AF;
+      --border: #F3F4F6;
+      --border-2: #E5E7EB;
+      --surface: #FFFFFF;
+      --hover-bg: #FEFDFB;
+      --page-bg: #F5F5F5;
+      --shadow: 0 10px 40px rgba(0,0,0,0.12), 0 2px 12px rgba(0,0,0,0.06);
+      --radius: 12px;
+      --fast: 200ms cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    /* ═══════════════════════════════════════
+       RESET & BASE
+       ═══════════════════════════════════════ */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--page-bg);
+      color: var(--text-1);
+      min-height: 100vh;
+    }
+
+    /* ═══════════════════════════════════════
+       HEADER — Row 1: Logo + Search
+       ═══════════════════════════════════════ */
+    .header-top {
+      background: #1A1A2E;
+      padding: 12px 32px;
+      display: flex;
+      align-items: center;
+      gap: 24px;
+    }
+    .logo {
+      color: var(--golden);
+      font-size: 22px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+    .search-bar {
+      flex: 1;
+      max-width: 560px;
+      margin: 0 auto;
+      position: relative;
+    }
+    .search-bar input {
+      width: 100%;
+      padding: 10px 44px 10px 16px;
+      border-radius: 8px;
+      border: 1px solid rgba(255,255,255,0.15);
+      background: rgba(255,255,255,0.1);
+      color: #fff;
+      font-size: 14px;
+      outline: none;
+    }
+    .search-bar input::placeholder { color: rgba(255,255,255,0.5); }
+    .search-bar .material-icons {
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: rgba(255,255,255,0.5);
+      font-size: 20px;
+    }
+    .header-icons {
+      display: flex;
+      gap: 16px;
+      color: rgba(255,255,255,0.7);
+    }
+    .header-icons .material-icons { font-size: 24px; cursor: pointer; }
+
+    /* ═══════════════════════════════════════
+       CATEGORY NAV BAR — Row 3
+       ═══════════════════════════════════════ */
+    .nav-bar-wrapper {
+      position: relative;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border-2);
+    }
+    .nav-bar {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      align-items: stretch;
+      padding: 0 32px;
+    }
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 12px 18px;
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text-1);
+      cursor: pointer;
+      border-bottom: 3px solid transparent;
+      transition: all var(--fast);
+      position: relative;
+      user-select: none;
+    }
+    .nav-item:hover,
+    .nav-item.active {
+      color: var(--golden-dark);
+      border-bottom-color: var(--golden);
+      background: var(--golden-light);
+    }
+    .nav-item .material-icons {
+      font-size: 18px;
+      transition: transform var(--fast);
+    }
+    .nav-item.active .material-icons.arrow {
+      transform: rotate(180deg);
+    }
+    .nav-item .emoji { font-size: 16px; }
+
+    /* ═══════════════════════════════════════
+       MEGA DROPDOWN — Container
+       ═══════════════════════════════════════ */
+    .mega-dropdown {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      z-index: 100;
+      display: none;
+    }
+    .mega-dropdown.open {
+      display: block;
+      animation: dropIn 250ms cubic-bezier(0.4, 0, 0.2, 1) forwards;
+    }
+    @keyframes dropIn {
+      from { opacity: 0; transform: translateY(-6px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .mega-panel {
+      max-width: 1000px;
+      margin: 0 auto;
+      background: var(--surface);
+      border-radius: 0 0 var(--radius) var(--radius);
+      box-shadow: var(--shadow);
+      border-top: 3px solid var(--golden);
+      padding: 24px;
+    }
+
+    /* Hover bridge — prevents dropdown from closing when moving mouse */
+    .mega-dropdown::before {
+      content: '';
+      position: absolute;
+      top: -10px;
+      left: 0;
+      right: 0;
+      height: 10px;
+    }
+
+    /* ═══════════════════════════════════════
+       SIDEBAR LAYOUT (Damascus Steel, Food)
+       ═══════════════════════════════════════ */
+    .layout-sidebar {
+      display: flex;
+      gap: 28px;
+      min-height: 320px;
+    }
+    .sidebar-left {
+      width: 260px;
+      flex-shrink: 0;
+      border-right: 1px solid var(--border);
+      padding-right: 24px;
+      display: flex;
+      flex-direction: column;
+    }
+    .sidebar-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding-bottom: 12px;
+      margin-bottom: 12px;
+      border-bottom: 2px solid var(--golden-border);
+    }
+    .sidebar-header .emoji { font-size: 20px; }
+    .sidebar-header h3 {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--golden-dark);
+    }
+    .subcat-list {
+      list-style: none;
+      flex: 1;
+    }
+    .subcat-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 9px 10px;
+      border-radius: 6px;
+      cursor: pointer;
+      color: var(--text-1);
+      font-size: 13.5px;
+      font-weight: 500;
+      transition: all var(--fast);
+    }
+    .subcat-item:hover {
+      background: var(--golden-light);
+      color: var(--golden-dark);
+      padding-left: 14px;
+    }
+    .subcat-item:hover .material-icons { color: var(--golden); opacity: 1; }
+    .subcat-item .emoji { font-size: 16px; }
+    .subcat-item .name { flex: 1; }
+    .subcat-item .material-icons {
+      font-size: 16px;
+      color: var(--text-3);
+      opacity: 0;
+      transition: all var(--fast);
+    }
+    .subcat-children {
+      list-style: none;
+      padding: 2px 0 6px 40px;
+    }
+    .subcat-children li {
+      padding: 4px 8px;
+      font-size: 12.5px;
+      color: var(--text-2);
+      border-radius: 4px;
+      cursor: pointer;
+      transition: all var(--fast);
+    }
+    .subcat-children li:hover {
+      color: var(--golden-dark);
+      background: rgba(200,168,96,0.08);
+    }
+    .view-all-btn {
+      margin-top: auto;
+      padding-top: 12px;
+    }
+    .view-all-btn a {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--golden-dark);
+      text-decoration: none;
+      padding: 6px 14px;
+      border: 1px solid var(--golden-border);
+      border-radius: 6px;
+      transition: all var(--fast);
+    }
+    .view-all-btn a:hover {
+      background: var(--golden-light);
+      border-color: var(--golden);
+    }
+
+    /* Featured products — right side */
+    .sidebar-right {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+    .featured-label {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-3);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 14px;
+    }
+    .product-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      flex: 1;
+    }
+    .product-card {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      padding: 14px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all var(--fast);
+      position: relative;
+      text-decoration: none;
+      color: inherit;
+    }
+    .product-card:hover {
+      border-color: var(--golden-border);
+      box-shadow: 0 4px 16px var(--golden-glow);
+      transform: translateY(-2px);
+    }
+    .product-card:hover .p-name { color: var(--golden-dark); }
+    .product-card img {
+      width: 80px;
+      height: 80px;
+      border-radius: 8px;
+      object-fit: cover;
+      background: var(--border);
+    }
+    .p-name {
+      font-size: 12.5px;
+      font-weight: 500;
+      text-align: center;
+      line-height: 1.3;
+      transition: color var(--fast);
+    }
+    .p-price {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--golden-dark);
+    }
+    .trending-badge {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      background: var(--golden);
+      color: #fff;
+      font-size: 10px;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(200,168,96,0.4); }
+      50%      { box-shadow: 0 0 0 6px rgba(200,168,96,0); }
+    }
+    .promo-banner {
+      margin-top: 14px;
+      background: linear-gradient(135deg, #C8A860, #9A7B32);
+      color: #fff;
+      padding: 10px 16px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12.5px;
+      font-weight: 500;
+    }
+    .promo-banner .material-icons { font-size: 18px; }
+
+    /* ═══════════════════════════════════════
+       FULLWIDTH LAYOUT (Beauty, Textiles)
+       ═══════════════════════════════════════ */
+    .layout-fullwidth {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .fw-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding-bottom: 10px;
+      border-bottom: 2px solid var(--golden-border);
+    }
+    .fw-header .emoji { font-size: 20px; }
+    .fw-header h3 {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--golden-dark);
+      flex: 1;
+    }
+    .columns-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 28px;
+    }
+    .column h4 {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--golden-dark);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      padding-bottom: 8px;
+      margin-bottom: 8px;
+      border-bottom: 2px solid var(--golden-border);
+    }
+    .column ul { list-style: none; }
+    .column ul li {
+      padding: 6px 8px;
+      font-size: 13.5px;
+      color: var(--text-1);
+      border-radius: 4px;
+      cursor: pointer;
+      transition: all var(--fast);
+    }
+    .column ul li:hover {
+      background: var(--golden-light);
+      color: var(--golden-dark);
+      padding-left: 12px;
+    }
+    .tiles-row {
+      display: flex;
+      gap: 12px;
+      padding-top: 14px;
+      border-top: 1px solid var(--border);
+    }
+    .tile {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 16px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all var(--fast);
+    }
+    .tile:hover { transform: translateY(-2px); box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+    .tile .emoji { font-size: 18px; }
+
+    /* ═══════════════════════════════════════
+       ELECTRONICS — Deep-Browse Layout
+       ═══════════════════════════════════════ */
+    .layout-electronics {
+      display: flex;
+      min-height: 380px;
+    }
+    .elec-sidebar {
+      width: 220px;
+      flex-shrink: 0;
+      border-right: 1px solid var(--border);
+      padding-right: 0;
+      overflow-y: auto;
+    }
+    .elec-sidebar-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 14px;
+      font-size: 13.5px;
+      font-weight: 500;
+      color: var(--text-1);
+      cursor: pointer;
+      border-left: 3px solid transparent;
+      transition: all var(--fast);
+    }
+    .elec-sidebar-item:hover,
+    .elec-sidebar-item.active {
+      background: var(--golden-light);
+      color: var(--golden-dark);
+      border-left-color: var(--golden);
+    }
+    .elec-sidebar-item .material-icons { font-size: 20px; color: var(--text-3); }
+    .elec-sidebar-item:hover .material-icons,
+    .elec-sidebar-item.active .material-icons { color: var(--golden); }
+    .elec-sidebar-item .name { flex: 1; }
+    .elec-sidebar-item .arrow { font-size: 16px; opacity: 0.4; }
+    .elec-sidebar-item:hover .arrow,
+    .elec-sidebar-item.active .arrow { opacity: 1; }
+
+    .elec-main {
+      flex: 1;
+      padding: 0 24px;
+      display: none; /* JS toggles visibility */
+    }
+    .elec-main.active { display: block; }
+
+    .elec-main-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding-bottom: 12px;
+      margin-bottom: 14px;
+      border-bottom: 2px solid var(--golden-border);
+    }
+    .elec-main-header h3 {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--golden-dark);
+      flex: 1;
+    }
+    .elec-main-header .see-all {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--golden-dark);
+      text-decoration: none;
+      padding: 4px 12px;
+      border: 1px solid var(--golden-border);
+      border-radius: 6px;
+      transition: all var(--fast);
+    }
+    .elec-main-header .see-all:hover {
+      background: var(--golden-light);
+    }
+
+    .elec-subcols {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+    }
+    .elec-subcol h4 {
+      font-size: 12.5px;
+      font-weight: 700;
+      color: var(--golden-dark);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      padding-bottom: 6px;
+      margin-bottom: 6px;
+      border-bottom: 1px solid var(--border);
+    }
+    .elec-subcol ul { list-style: none; }
+    .elec-subcol ul li {
+      padding: 5px 6px;
+      font-size: 13px;
+      color: var(--text-1);
+      border-radius: 4px;
+      cursor: pointer;
+      transition: all var(--fast);
+    }
+    .elec-subcol ul li:hover {
+      background: var(--golden-light);
+      color: var(--golden-dark);
+      padding-left: 10px;
+    }
+    .elec-subcol ul li .badge {
+      display: inline-block;
+      padding: 1px 6px;
+      font-size: 9px;
+      font-weight: 700;
+      border-radius: 4px;
+      margin-left: 4px;
+      text-transform: uppercase;
+      vertical-align: middle;
+    }
+    .badge-new { background: #DBEAFE; color: #1D4ED8; }
+    .badge-hot { background: #FEE2E2; color: #DC2626; }
+
+    .elec-brands {
+      margin-top: 16px;
+      padding-top: 12px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .elec-brands-label {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-3);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+    .elec-brand {
+      padding: 4px 10px;
+      font-size: 11.5px;
+      font-weight: 500;
+      border: 1px solid var(--border-2);
+      border-radius: 6px;
+      color: var(--text-2);
+      cursor: pointer;
+      transition: all var(--fast);
+    }
+    .elec-brand:hover {
+      border-color: var(--golden);
+      color: var(--golden-dark);
+      background: var(--golden-light);
+    }
+
+    /* Pinned badge on nav item */
+    .pin-badge {
+      background: var(--golden);
+      color: #fff;
+      font-size: 8px;
+      font-weight: 700;
+      padding: 1px 5px;
+      border-radius: 3px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-left: 2px;
+    }
+
+    /* ═══════════════════════════════════════
+       PAGE CONTENT (below header)
+       ═══════════════════════════════════════ */
+    .page-content {
+      max-width: 1200px;
+      margin: 40px auto;
+      padding: 0 32px;
+      color: var(--text-2);
+      font-size: 15px;
+      line-height: 1.8;
+    }
+    .page-content h1 {
+      font-size: 28px;
+      color: var(--text-1);
+      margin-bottom: 16px;
+    }
+    .hint-bar {
+      background: var(--golden-light);
+      border: 1px solid var(--golden-border);
+      border-radius: 8px;
+      padding: 14px 20px;
+      margin-bottom: 24px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 14px;
+      color: var(--golden-dark);
+      font-weight: 500;
+    }
+    .hint-bar .material-icons { font-size: 20px; }
+
+    /* ═══════════════════════════════════════
+       REDUCED MOTION
+       ═══════════════════════════════════════ */
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation: none !important; transition: none !important; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════
+     HEADER — Row 1: Logo + Search + Icons
+     ═══════════════════════════════════════ -->
+<header class="header-top">
+  <div class="logo">🌾 SouqSyria</div>
+  <div class="search-bar">
+    <input type="text" placeholder="Search SouqSyria...">
+    <span class="material-icons">search</span>
+  </div>
+  <div class="header-icons">
+    <span class="material-icons">favorite_border</span>
+    <span class="material-icons">shopping_cart</span>
+    <span class="material-icons">person_outline</span>
+  </div>
+</header>
+
+<!-- ═══════════════════════════════════════
+     CATEGORY NAV — Row 3 (hover to open)
+     ═══════════════════════════════════════ -->
+<nav class="nav-bar-wrapper">
+  <div class="nav-bar">
+    <div class="nav-item" data-menu="damascus">
+      <span class="emoji">⚔️</span>
+      Damascus Steel
+      <span class="material-icons arrow">expand_more</span>
+    </div>
+    <div class="nav-item" data-menu="electronics">
+      <span class="material-icons" style="font-size:18px">devices</span>
+      Electronics
+      <span class="pin-badge">Pinned</span>
+      <span class="material-icons arrow">expand_more</span>
+    </div>
+    <div class="nav-item" data-menu="food">
+      <span class="emoji">🌶️</span>
+      Food & Spices
+      <span class="material-icons arrow">expand_more</span>
+    </div>
+    <div class="nav-item" data-menu="beauty">
+      <span class="emoji">✨</span>
+      Beauty & Wellness
+      <span class="material-icons arrow">expand_more</span>
+    </div>
+    <div class="nav-item" data-menu="textiles">
+      <span class="emoji">🧵</span>
+      Textiles & Fabrics
+      <span class="material-icons arrow">expand_more</span>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════
+       DROPDOWNS — One per category
+       ═══════════════════════════════════ -->
+
+  <!-- DAMASCUS STEEL — Sidebar Layout -->
+  <div class="mega-dropdown" id="menu-damascus">
+    <div class="mega-panel">
+      <div class="layout-sidebar">
+        <div class="sidebar-left">
+          <div class="sidebar-header">
+            <span class="emoji">⚔️</span>
+            <h3>Damascus Steel</h3>
+          </div>
+          <ul class="subcat-list">
+            <li class="subcat-item">
+              <span class="emoji">🔪</span>
+              <span class="name">Knives & Blades</span>
+              <span class="material-icons">chevron_right</span>
+            </li>
+            <ul class="subcat-children">
+              <li>Chef Knives</li>
+              <li>Hunting Knives</li>
+              <li>Pocket Knives</li>
+            </ul>
+            <li class="subcat-item">
+              <span class="emoji">⚔️</span>
+              <span class="name">Decorative Swords</span>
+              <span class="material-icons">chevron_right</span>
+            </li>
+            <ul class="subcat-children">
+              <li>Display Swords</li>
+              <li>Ceremonial</li>
+              <li>Miniatures</li>
+            </ul>
+            <li class="subcat-item">
+              <span class="emoji">🔨</span>
+              <span class="name">Tools & Hardware</span>
+              <span class="material-icons">chevron_right</span>
+            </li>
+            <ul class="subcat-children">
+              <li>Axes</li>
+              <li>Chisels</li>
+              <li>Files</li>
+            </ul>
+          </ul>
+          <div class="view-all-btn">
+            <a href="#">View All Damascus Steel <span class="material-icons" style="font-size:14px">arrow_forward</span></a>
+          </div>
+        </div>
+        <div class="sidebar-right">
+          <div class="featured-label">Featured Products</div>
+          <div class="product-grid">
+            <a class="product-card" href="#">
+              <span class="trending-badge">Trending</span>
+              <img src="https://images.unsplash.com/photo-1593618998160-e34014e67f23?w=200&h=200&fit=crop" alt="Chef Knife 8 inch">
+              <span class="p-name">Chef Knife 8"</span>
+              <span class="p-price">75,000 SYP</span>
+            </a>
+            <a class="product-card" href="#">
+              <img src="https://images.unsplash.com/photo-1566576912321-d58ddd7a6088?w=200&h=200&fit=crop" alt="Santoku Knife">
+              <span class="p-name">Santoku Knife</span>
+              <span class="p-price">62,500 SYP</span>
+            </a>
+            <a class="product-card" href="#">
+              <img src="https://images.unsplash.com/photo-1594226801341-41427b4e5c22?w=200&h=200&fit=crop" alt="Bread Knife">
+              <span class="p-name">Bread Knife</span>
+              <span class="p-price">45,000 SYP</span>
+            </a>
+            <a class="product-card" href="#">
+              <img src="https://images.unsplash.com/photo-1593618998160-e34014e67f23?w=200&h=200&fit=crop" alt="Paring Knife">
+              <span class="p-name">Paring Knife</span>
+              <span class="p-price">35,000 SYP</span>
+            </a>
+          </div>
+          <div class="promo-banner">
+            <span class="material-icons">local_shipping</span>
+            Free shipping on orders over 50,000 SYP
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ELECTRONICS — Deep-Browse Layout (pinned) -->
+  <div class="mega-dropdown" id="menu-electronics">
+    <div class="mega-panel" style="max-width:1100px">
+      <div class="layout-electronics">
+        <!-- Left: Category sidebar -->
+        <div class="elec-sidebar">
+          <div class="elec-sidebar-item active" data-elec-panel="phones">
+            <span class="material-icons">smartphone</span>
+            <span class="name">Phones & Tablets</span>
+            <span class="material-icons arrow">chevron_right</span>
+          </div>
+          <div class="elec-sidebar-item" data-elec-panel="computers">
+            <span class="material-icons">laptop</span>
+            <span class="name">Computers</span>
+            <span class="material-icons arrow">chevron_right</span>
+          </div>
+          <div class="elec-sidebar-item" data-elec-panel="tv">
+            <span class="material-icons">tv</span>
+            <span class="name">TV & Audio</span>
+            <span class="material-icons arrow">chevron_right</span>
+          </div>
+          <div class="elec-sidebar-item" data-elec-panel="gaming">
+            <span class="material-icons">sports_esports</span>
+            <span class="name">Gaming</span>
+            <span class="material-icons arrow">chevron_right</span>
+          </div>
+          <div class="elec-sidebar-item" data-elec-panel="cameras">
+            <span class="material-icons">photo_camera</span>
+            <span class="name">Cameras</span>
+            <span class="material-icons arrow">chevron_right</span>
+          </div>
+          <div class="elec-sidebar-item" data-elec-panel="smarthome">
+            <span class="material-icons">home</span>
+            <span class="name">Smart Home</span>
+            <span class="material-icons arrow">chevron_right</span>
+          </div>
+          <div class="elec-sidebar-item" data-elec-panel="accessories">
+            <span class="material-icons">cable</span>
+            <span class="name">Accessories</span>
+            <span class="material-icons arrow">chevron_right</span>
+          </div>
+        </div>
+
+        <!-- Phones & Tablets panel -->
+        <div class="elec-main active" id="elec-phones">
+          <div class="elec-main-header">
+            <h3>📱 Phones & Tablets</h3>
+            <a href="#" class="see-all">See All →</a>
+          </div>
+          <div class="elec-subcols">
+            <div class="elec-subcol">
+              <h4>Smartphones</h4>
+              <ul>
+                <li>Samsung Galaxy <span class="badge badge-hot">Hot</span></li>
+                <li>Apple iPhone</li>
+                <li>Xiaomi / Redmi</li>
+                <li>Huawei</li>
+                <li>Oppo / Realme</li>
+                <li>Budget Phones</li>
+              </ul>
+            </div>
+            <div class="elec-subcol">
+              <h4>Tablets</h4>
+              <ul>
+                <li>Apple iPad</li>
+                <li>Samsung Tab</li>
+                <li>Android Tablets</li>
+                <li>Kids Tablets</li>
+                <li>E-Readers</li>
+              </ul>
+            </div>
+            <div class="elec-subcol">
+              <h4>Phone Accessories</h4>
+              <ul>
+                <li>Cases & Covers <span class="badge badge-hot">Hot</span></li>
+                <li>Screen Protectors</li>
+                <li>Chargers & Cables</li>
+                <li>Power Banks</li>
+                <li>Earphones</li>
+                <li>Mounts & Holders</li>
+              </ul>
+            </div>
+          </div>
+          <div class="elec-brands">
+            <span class="elec-brands-label">Top Brands:</span>
+            <span class="elec-brand">Samsung</span>
+            <span class="elec-brand">Apple</span>
+            <span class="elec-brand">Xiaomi</span>
+            <span class="elec-brand">Huawei</span>
+            <span class="elec-brand">Oppo</span>
+          </div>
+        </div>
+
+        <!-- Computers panel -->
+        <div class="elec-main" id="elec-computers">
+          <div class="elec-main-header">
+            <h3>💻 Computers</h3>
+            <a href="#" class="see-all">See All →</a>
+          </div>
+          <div class="elec-subcols">
+            <div class="elec-subcol">
+              <h4>Laptops</h4>
+              <ul>
+                <li>Gaming Laptops <span class="badge badge-hot">Hot</span></li>
+                <li>Business Laptops</li>
+                <li>Student Laptops</li>
+                <li>MacBooks</li>
+                <li>Chromebooks</li>
+              </ul>
+            </div>
+            <div class="elec-subcol">
+              <h4>Desktops</h4>
+              <ul>
+                <li>Gaming PCs</li>
+                <li>All-in-One PCs</li>
+                <li>Mini PCs <span class="badge badge-new">New</span></li>
+                <li>Workstations</li>
+              </ul>
+            </div>
+            <div class="elec-subcol">
+              <h4>Components</h4>
+              <ul>
+                <li>Graphics Cards</li>
+                <li>Processors (CPU)</li>
+                <li>RAM / Memory</li>
+                <li>SSD & Hard Drives</li>
+                <li>Motherboards</li>
+                <li>Power Supplies</li>
+              </ul>
+            </div>
+          </div>
+          <div class="elec-brands">
+            <span class="elec-brands-label">Top Brands:</span>
+            <span class="elec-brand">Dell</span>
+            <span class="elec-brand">HP</span>
+            <span class="elec-brand">Lenovo</span>
+            <span class="elec-brand">Apple</span>
+            <span class="elec-brand">ASUS</span>
+            <span class="elec-brand">Acer</span>
+          </div>
+        </div>
+
+        <!-- TV & Audio panel -->
+        <div class="elec-main" id="elec-tv">
+          <div class="elec-main-header">
+            <h3>📺 TV & Audio</h3>
+            <a href="#" class="see-all">See All →</a>
+          </div>
+          <div class="elec-subcols">
+            <div class="elec-subcol">
+              <h4>Televisions</h4>
+              <ul>
+                <li>Smart TVs <span class="badge badge-hot">Hot</span></li>
+                <li>OLED / QLED</li>
+                <li>4K / 8K TVs</li>
+                <li>TV Mounts & Stands</li>
+              </ul>
+            </div>
+            <div class="elec-subcol">
+              <h4>Audio</h4>
+              <ul>
+                <li>Headphones</li>
+                <li>Bluetooth Speakers</li>
+                <li>Soundbars</li>
+                <li>Home Theater</li>
+                <li>Microphones <span class="badge badge-new">New</span></li>
+              </ul>
+            </div>
+            <div class="elec-subcol">
+              <h4>Monitors</h4>
+              <ul>
+                <li>Gaming Monitors</li>
+                <li>Office Monitors</li>
+                <li>Ultrawide</li>
+                <li>4K Monitors</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <!-- Gaming panel -->
+        <div class="elec-main" id="elec-gaming">
+          <div class="elec-main-header">
+            <h3>🎮 Gaming</h3>
+            <a href="#" class="see-all">See All →</a>
+          </div>
+          <div class="elec-subcols">
+            <div class="elec-subcol">
+              <h4>Consoles</h4>
+              <ul>
+                <li>PlayStation 5 <span class="badge badge-hot">Hot</span></li>
+                <li>Xbox Series X|S</li>
+                <li>Nintendo Switch</li>
+                <li>Retro Consoles</li>
+              </ul>
+            </div>
+            <div class="elec-subcol">
+              <h4>PC Gaming</h4>
+              <ul>
+                <li>Gaming Keyboards</li>
+                <li>Gaming Mice</li>
+                <li>Gaming Headsets</li>
+                <li>Gaming Chairs</li>
+                <li>Streaming Gear <span class="badge badge-new">New</span></li>
+              </ul>
+            </div>
+            <div class="elec-subcol">
+              <h4>Games & Content</h4>
+              <ul>
+                <li>PS5 Games</li>
+                <li>Xbox Games</li>
+                <li>Switch Games</li>
+                <li>Gift Cards</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <!-- Cameras panel -->
+        <div class="elec-main" id="elec-cameras">
+          <div class="elec-main-header">
+            <h3>📷 Cameras</h3>
+            <a href="#" class="see-all">See All →</a>
+          </div>
+          <div class="elec-subcols">
+            <div class="elec-subcol">
+              <h4>Cameras</h4>
+              <ul>
+                <li>DSLR Cameras</li>
+                <li>Mirrorless</li>
+                <li>Action Cameras</li>
+                <li>Instant Cameras</li>
+                <li>Drones <span class="badge badge-new">New</span></li>
+              </ul>
+            </div>
+            <div class="elec-subcol">
+              <h4>Lenses & Accessories</h4>
+              <ul>
+                <li>Camera Lenses</li>
+                <li>Tripods</li>
+                <li>Memory Cards</li>
+                <li>Camera Bags</li>
+                <li>Lighting Equipment</li>
+              </ul>
+            </div>
+            <div class="elec-subcol">
+              <h4>Video</h4>
+              <ul>
+                <li>Camcorders</li>
+                <li>Webcams</li>
+                <li>Video Editing</li>
+                <li>Stabilizers</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <!-- Smart Home panel -->
+        <div class="elec-main" id="elec-smarthome">
+          <div class="elec-main-header">
+            <h3>🏠 Smart Home</h3>
+            <a href="#" class="see-all">See All →</a>
+          </div>
+          <div class="elec-subcols">
+            <div class="elec-subcol">
+              <h4>Smart Devices</h4>
+              <ul>
+                <li>Smart Speakers</li>
+                <li>Smart Displays</li>
+                <li>Smart Plugs</li>
+                <li>Robot Vacuums <span class="badge badge-hot">Hot</span></li>
+              </ul>
+            </div>
+            <div class="elec-subcol">
+              <h4>Security</h4>
+              <ul>
+                <li>Security Cameras</li>
+                <li>Video Doorbells</li>
+                <li>Smart Locks</li>
+                <li>Alarm Systems</li>
+              </ul>
+            </div>
+            <div class="elec-subcol">
+              <h4>Lighting & Climate</h4>
+              <ul>
+                <li>Smart Bulbs</li>
+                <li>LED Strips</li>
+                <li>Smart Thermostats</li>
+                <li>Air Purifiers</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <!-- Accessories panel -->
+        <div class="elec-main" id="elec-accessories">
+          <div class="elec-main-header">
+            <h3>🔌 Accessories</h3>
+            <a href="#" class="see-all">See All →</a>
+          </div>
+          <div class="elec-subcols">
+            <div class="elec-subcol">
+              <h4>Wearables</h4>
+              <ul>
+                <li>Smartwatches</li>
+                <li>Fitness Trackers</li>
+                <li>VR Headsets <span class="badge badge-new">New</span></li>
+                <li>Smart Glasses</li>
+              </ul>
+            </div>
+            <div class="elec-subcol">
+              <h4>Power & Storage</h4>
+              <ul>
+                <li>Power Banks</li>
+                <li>USB Flash Drives</li>
+                <li>External Hard Drives</li>
+                <li>UPS / Surge Protectors</li>
+              </ul>
+            </div>
+            <div class="elec-subcol">
+              <h4>Connectivity</h4>
+              <ul>
+                <li>Routers & Modems</li>
+                <li>USB Hubs</li>
+                <li>Adapters & Cables</li>
+                <li>Bluetooth Receivers</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOD & SPICES — Sidebar Layout -->
+  <div class="mega-dropdown" id="menu-food">
+    <div class="mega-panel">
+      <div class="layout-sidebar">
+        <div class="sidebar-left">
+          <div class="sidebar-header">
+            <span class="emoji">🌶️</span>
+            <h3>Food & Spices</h3>
+          </div>
+          <ul class="subcat-list">
+            <li class="subcat-item">
+              <span class="emoji">🌿</span>
+              <span class="name">Spices & Herbs</span>
+              <span class="material-icons">chevron_right</span>
+            </li>
+            <ul class="subcat-children">
+              <li>Aleppo Pepper</li>
+              <li>Za'atar</li>
+              <li>Sumac</li>
+              <li>Cumin</li>
+            </ul>
+            <li class="subcat-item">
+              <span class="emoji">🍬</span>
+              <span class="name">Sweets & Desserts</span>
+              <span class="material-icons">chevron_right</span>
+            </li>
+            <ul class="subcat-children">
+              <li>Baklava</li>
+              <li>Maamoul</li>
+              <li>Halawa</li>
+              <li>Nougat</li>
+            </ul>
+            <li class="subcat-item">
+              <span class="emoji">🫒</span>
+              <span class="name">Oils & Vinegars</span>
+              <span class="material-icons">chevron_right</span>
+            </li>
+            <ul class="subcat-children">
+              <li>Olive Oil</li>
+              <li>Pomegranate Molasses</li>
+              <li>Grape Vinegar</li>
+            </ul>
+          </ul>
+          <div class="view-all-btn">
+            <a href="#">View All Food & Spices <span class="material-icons" style="font-size:14px">arrow_forward</span></a>
+          </div>
+        </div>
+        <div class="sidebar-right">
+          <div class="featured-label">Featured Products</div>
+          <div class="product-grid">
+            <a class="product-card" href="#">
+              <span class="trending-badge">Trending</span>
+              <img src="https://images.unsplash.com/photo-1596040033229-a0b3b4f88dd2?w=200&h=200&fit=crop" alt="Aleppo Pepper">
+              <span class="p-name">Aleppo Pepper Flakes</span>
+              <span class="p-price">8,500 SYP</span>
+            </a>
+            <a class="product-card" href="#">
+              <img src="https://images.unsplash.com/photo-1532336414038-cf19250c5757?w=200&h=200&fit=crop" alt="Za'atar">
+              <span class="p-name">Premium Za'atar Mix</span>
+              <span class="p-price">12,000 SYP</span>
+            </a>
+          </div>
+          <div class="promo-banner" style="margin-top:auto">
+            <span class="material-icons">redeem</span>
+            Buy 3 spice blends, get 1 free!
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BEAUTY — Fullwidth Layout -->
+  <div class="mega-dropdown" id="menu-beauty">
+    <div class="mega-panel">
+      <div class="layout-fullwidth">
+        <div class="fw-header">
+          <span class="emoji">✨</span>
+          <h3>Beauty & Wellness</h3>
+        </div>
+        <div class="columns-grid">
+          <div class="column">
+            <h4>Skincare</h4>
+            <ul>
+              <li>Aleppo Soap</li>
+              <li>Olive Oil Creams</li>
+              <li>Rose Water</li>
+              <li>Dead Sea Products</li>
+              <li>Face Masks</li>
+            </ul>
+          </div>
+          <div class="column">
+            <h4>Haircare</h4>
+            <ul>
+              <li>Laurel Oil</li>
+              <li>Herbal Shampoo</li>
+              <li>Hair Masks</li>
+              <li>Essential Oils</li>
+            </ul>
+          </div>
+          <div class="column">
+            <h4>Natural Remedies</h4>
+            <ul>
+              <li>Herbal Teas</li>
+              <li>Black Seed Oil</li>
+              <li>Propolis</li>
+              <li>Medicinal Herbs</li>
+            </ul>
+          </div>
+        </div>
+        <div class="tiles-row">
+          <div class="tile" style="background:#E8F5E9;color:#2E7D32"><span class="emoji">🧼</span> Aleppo Soap</div>
+          <div class="tile" style="background:#FCE4EC;color:#C62828"><span class="emoji">🌹</span> Rose Water</div>
+          <div class="tile" style="background:#F1F8E9;color:#558B2F"><span class="emoji">🫒</span> Olive Oil</div>
+          <div class="tile" style="background:#FFF3E0;color:#E65100"><span class="emoji">🌿</span> Black Seed</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TEXTILES — Fullwidth Layout -->
+  <div class="mega-dropdown" id="menu-textiles">
+    <div class="mega-panel">
+      <div class="layout-fullwidth">
+        <div class="fw-header">
+          <span class="emoji">🧵</span>
+          <h3>Textiles & Fabrics</h3>
+        </div>
+        <div class="columns-grid">
+          <div class="column">
+            <h4>Brocade & Silk</h4>
+            <ul>
+              <li>Damascus Brocade</li>
+              <li>Raw Silk</li>
+              <li>Silk Scarves</li>
+              <li>Embroidered Fabrics</li>
+            </ul>
+          </div>
+          <div class="column">
+            <h4>Traditional Wear</h4>
+            <ul>
+              <li>Abayas</li>
+              <li>Keffiyeh</li>
+              <li>Traditional Dresses</li>
+              <li>Handwoven Shawls</li>
+            </ul>
+          </div>
+          <div class="column">
+            <h4>Home Textiles</h4>
+            <ul>
+              <li>Tablecloths</li>
+              <li>Cushion Covers</li>
+              <li>Curtains</li>
+              <li>Bed Linens</li>
+            </ul>
+          </div>
+        </div>
+        <div class="tiles-row">
+          <div class="tile" style="background:#F3E5F5;color:#7B1FA2"><span class="emoji">🎀</span> Brocade</div>
+          <div class="tile" style="background:#E3F2FD;color:#1565C0"><span class="emoji">🧣</span> Silk</div>
+          <div class="tile" style="background:#FFF8E1;color:#F57F17"><span class="emoji">🌾</span> Cotton</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</nav>
+
+<!-- ═══════════════════════════════════════
+     PAGE CONTENT — Shows behind the menu
+     ═══════════════════════════════════════ -->
+<main class="page-content">
+  <div class="hint-bar">
+    <span class="material-icons">touch_app</span>
+    Hover over the categories above to see the mega menu in action. Each category has its own layout.
+  </div>
+  <h1>Welcome to SouqSyria</h1>
+  <p>
+    Discover authentic Syrian craftsmanship — from legendary Damascus steel blades to luxurious Aleppo soap,
+    aromatic spice blends, and handwoven textiles. Our marketplace connects you directly with Syrian artisans
+    and producers, preserving centuries of cultural heritage through every product.
+  </p>
+  <br>
+  <p>
+    <strong>Damascus Steel</strong> and <strong>Food & Spices</strong> use a <em>sidebar layout</em> — subcategories on the left, featured products on the right.<br>
+    <strong>Beauty & Wellness</strong> and <strong>Textiles</strong> use a <em>fullwidth column layout</em> — multi-column category grid with icon tiles.
+  </p>
+</main>
+
+<!-- ═══════════════════════════════════════
+     JAVASCRIPT — Hover intent + show/hide
+     ═══════════════════════════════════════ -->
+<script>
+  (function() {
+    const navItems = document.querySelectorAll('.nav-item[data-menu]');
+    const dropdowns = document.querySelectorAll('.mega-dropdown');
+    let showTimer = null;
+    let hideTimer = null;
+    let activeMenu = null;
+
+    /**
+     * Show a dropdown with hover-intent delay
+     * @param {string} menuId - The menu identifier
+     */
+    function showMenu(menuId) {
+      clearTimeout(hideTimer);
+      if (activeMenu === menuId) return;
+
+      showTimer = setTimeout(() => {
+        // Close any open menu first
+        closeAll();
+
+        const dropdown = document.getElementById('menu-' + menuId);
+        const navItem = document.querySelector(`[data-menu="${menuId}"]`);
+        if (dropdown && navItem) {
+          dropdown.classList.add('open');
+          navItem.classList.add('active');
+          activeMenu = menuId;
+        }
+      }, 120); // 120ms hover intent
+    }
+
+    /** Close all dropdowns */
+    function closeAll() {
+      dropdowns.forEach(d => d.classList.remove('open'));
+      navItems.forEach(n => n.classList.remove('active'));
+      activeMenu = null;
+    }
+
+    /** Start hide timer with delay (forgiving mouse movement) */
+    function startHide() {
+      clearTimeout(showTimer);
+      hideTimer = setTimeout(() => {
+        closeAll();
+      }, 280); // 280ms grace period
+    }
+
+    /** Cancel hide (mouse re-entered nav or dropdown) */
+    function cancelHide() {
+      clearTimeout(hideTimer);
+    }
+
+    // Nav item listeners
+    navItems.forEach(item => {
+      item.addEventListener('mouseenter', () => showMenu(item.dataset.menu));
+      item.addEventListener('mouseleave', startHide);
+    });
+
+    // Dropdown listeners — keep open when hovering the panel
+    dropdowns.forEach(dropdown => {
+      dropdown.addEventListener('mouseenter', cancelHide);
+      dropdown.addEventListener('mouseleave', startHide);
+    });
+
+    // Close on Escape
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        closeAll();
+        clearTimeout(showTimer);
+        clearTimeout(hideTimer);
+      }
+    });
+
+    // ═══════════════════════════════════════
+    // ELECTRONICS — Inner panel switching
+    // ═══════════════════════════════════════
+    const elecItems = document.querySelectorAll('[data-elec-panel]');
+    const elecPanels = document.querySelectorAll('.elec-main');
+
+    elecItems.forEach(item => {
+      item.addEventListener('mouseenter', () => {
+        const panelId = 'elec-' + item.dataset.elecPanel;
+
+        // Deactivate all
+        elecItems.forEach(i => i.classList.remove('active'));
+        elecPanels.forEach(p => p.classList.remove('active'));
+
+        // Activate hovered
+        item.classList.add('active');
+        const panel = document.getElementById(panelId);
+        if (panel) panel.classList.add('active');
+      });
+    });
+  })();
+</script>
+
+</body>
+</html>
