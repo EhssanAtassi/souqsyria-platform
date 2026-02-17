@@ -88,6 +88,18 @@ export class CategoryResponseDto {
   @ApiProperty({ example: true })
   showInNav: boolean;
 
+  @ApiPropertyOptional({
+    enum: ['sidebar', 'fullwidth', 'deep-browse', 'none'],
+    example: 'none',
+  })
+  megaMenuType?: string;
+
+  @ApiPropertyOptional({ example: false })
+  isPinnedInNav?: boolean;
+
+  @ApiPropertyOptional()
+  megaMenuConfig?: Record<string, any>;
+
   @ApiProperty({ example: 0 })
   depthLevel: number;
 

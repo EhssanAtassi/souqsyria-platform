@@ -24,6 +24,7 @@ import {
   NavigationConfig,
   SearchFilters
 } from '../../interfaces/navigation.interface';
+import { CartItem } from '../../interfaces/cart.interface';
 
 // Category Navigation (Row 3 nav bar only — legacy mega menus removed)
 import { CategoryNavigationComponent } from '../category-navigation/index';
@@ -119,6 +120,9 @@ export class HeaderComponent implements OnInit {
   @Output() topBarLinkClick = new EventEmitter<string>();
   @Output() quickAccessClick = new EventEmitter<string>();
 
+  /** Emitted when user removes an item via mini-cart dropdown (SS-CART-010) */
+  @Output() cartRemoveItem = new EventEmitter<CartItem>();
+
   //#endregion
 
   //#region Public State
@@ -192,11 +196,47 @@ export class HeaderComponent implements OnInit {
           this.categoryTree.set(response.data);
           this.categoryTreeLoaded = true;
           this.categoryTreeLoading.set(false);
+          this.enrichCategoriesFromTree(response.data);
         },
         error: () => {
           this.categoryTreeLoading.set(false);
         }
       });
+  }
+
+  /**
+   * Merges mega menu fields from API tree response into static categories.
+   * @description Static data provides instant rendering; API data applies admin
+   * overrides for megaMenuType, isPinnedInNav, and megaMenuConfig when available.
+   * @param treeNodes - Root-level category tree nodes from GET /categories/tree
+   */
+  private enrichCategoriesFromTree(treeNodes: CategoryTreeNode[]): void {
+    if (!treeNodes?.length) return;
+
+    // Build slug→node lookup for O(1) matching
+    const treeBySlug = new Map<string, CategoryTreeNode>();
+    treeNodes.forEach(node => treeBySlug.set(node.slug, node));
+
+    // Enrich each static category if API provides mega menu overrides
+    this.categories = this.categories.map(cat => {
+      // Extract slug from the category URL (e.g., '/category/electronics' → 'electronics')
+      const slug = cat.url?.split('/').pop();
+      const apiNode = slug ? treeBySlug.get(slug) : null;
+      if (!apiNode) return cat;
+
+      // Only override if API explicitly provides the field
+      const enriched = { ...cat };
+      if (apiNode.megaMenuType) {
+        enriched.megaMenuType = apiNode.megaMenuType as Category['megaMenuType'];
+      }
+      if (apiNode.isPinnedInNav !== undefined) {
+        enriched.isPinnedInNav = apiNode.isPinnedInNav;
+      }
+      if (apiNode.megaMenuConfig) {
+        enriched.megaMenuConfig = apiNode.megaMenuConfig as Category['megaMenuConfig'];
+      }
+      return enriched;
+    });
   }
 
   //#endregion
@@ -256,6 +296,23 @@ export class HeaderComponent implements OnInit {
     this.megaMenuDropdownOpen.set(false);
   }
 
+  /**
+   * Get the Category data for the currently hovered nav item
+   * @description Searches the active categories array (what Row 3 actually displays),
+   * then config.featuredCategories, then HEADER_NAV_CATEGORIES as fallback.
+   * This handles the ID mismatch between SYRIAN_CATEGORIES (e.g. 'beauty-wellness')
+   * and HEADER_NAV_CATEGORIES (e.g. 'beauty') when parent components override categories.
+   * @returns Category object with subcategories, featured products, etc., or null
+   */
+  getHoveredCategoryData(): Category | null {
+    if (!this.activeMegaMenu) return null;
+    // Search active categories first (what Row 3 is actually displaying)
+    return this.categories.find(c => c.id === this.activeMegaMenu)
+      || this.config.featuredCategories.find(c => c.id === this.activeMegaMenu)
+      || HEADER_NAV_CATEGORIES.find(c => c.id === this.activeMegaMenu)
+      || null;
+  }
+
   //#endregion
 
   //#region Mobile Category Navigation
@@ -296,6 +353,7 @@ export class HeaderComponent implements OnInit {
   onLoginClick(): void { this.loginClick.emit(); }
   onLogoutClick(): void { this.logoutClick.emit(); }
   onCartClick(): void { this.cartClick.emit(); }
+  onCartRemoveItem(item: CartItem): void { this.cartRemoveItem.emit(item); }
   onWishlistClick(): void { this.wishlistClick.emit(); }
   onTopBarLinkClick(linkId: string): void { this.topBarLinkClick.emit(linkId); }
   onQuickAccessItemClick(itemId: string): void { this.quickAccessClick.emit(itemId); }

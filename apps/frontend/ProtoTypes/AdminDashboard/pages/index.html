@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SouqSyria Admin Dashboard - Prototype</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: { 500: '#C4A962', 600: '#b8942d' },
+            charcoal: '#1A1A1A',
+            forest: '#2D5A3D',
+          },
+          fontFamily: { sans: ['Inter', 'sans-serif'] }
+        }
+      }
+    }
+  </script>
+</head>
+<body class="bg-gradient-to-br from-charcoal via-forest to-charcoal min-h-screen font-sans">
+  <div class="container mx-auto px-4 py-12">
+    <!-- Header -->
+    <div class="text-center mb-12">
+      <div class="inline-flex items-center justify-center w-20 h-20 bg-primary-500 rounded-2xl mb-6 shadow-lg">
+        <span class="text-3xl font-bold text-charcoal">SS</span>
+      </div>
+      <h1 class="text-4xl font-bold text-white mb-3">SouqSyria Admin Dashboard</h1>
+      <p class="text-gray-400 text-lg">Interactive HTML Prototype</p>
+      <p class="text-gray-500 mt-2">Multi-Vendor E-Commerce Marketplace for Syrian Products</p>
+    </div>
+
+    <!-- Prototype Pages -->
+    <div class="max-w-4xl mx-auto">
+      <h2 class="text-xl font-semibold text-white mb-6 flex items-center gap-2">
+        <span class="material-icons-round text-primary-500">folder_open</span>
+        Prototype Pages
+      </h2>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <!-- Login -->
+        <a href="login.html" class="bg-white/10 hover:bg-white/20 rounded-xl p-6 transition-all group">
+          <div class="flex items-center gap-4 mb-3">
+            <div class="w-12 h-12 bg-primary-500/20 rounded-lg flex items-center justify-center group-hover:bg-primary-500/30 transition-colors">
+              <span class="material-icons-round text-primary-500 text-[24px]">login</span>
+            </div>
+            <div>
+              <h3 class="font-semibold text-white">Login</h3>
+              <p class="text-sm text-gray-400">Authentication page</p>
+            </div>
+          </div>
+          <p class="text-sm text-gray-500">Admin login with 2FA support</p>
+        </a>
+
+        <!-- Dashboard -->
+        <a href="dashboard.html" class="bg-white/10 hover:bg-white/20 rounded-xl p-6 transition-all group">
+          <div class="flex items-center gap-4 mb-3">
+            <div class="w-12 h-12 bg-blue-500/20 rounded-lg flex items-center justify-center group-hover:bg-blue-500/30 transition-colors">
+              <span class="material-icons-round text-blue-400 text-[24px]">dashboard</span>
+            </div>
+            <div>
+              <h3 class="font-semibold text-white">Dashboard</h3>
+              <p class="text-sm text-gray-400">Main overview</p>
+            </div>
+          </div>
+          <p class="text-sm text-gray-500">KPIs, charts, recent orders, top vendors</p>
+        </a>
+
+        <!-- Orders List -->
+        <a href="orders.html" class="bg-white/10 hover:bg-white/20 rounded-xl p-6 transition-all group">
+          <div class="flex items-center gap-4 mb-3">
+            <div class="w-12 h-12 bg-green-500/20 rounded-lg flex items-center justify-center group-hover:bg-green-500/30 transition-colors">
+              <span class="material-icons-round text-green-400 text-[24px]">shopping_cart</span>
+            </div>
+            <div>
+              <h3 class="font-semibold text-white">Orders</h3>
+              <p class="text-sm text-gray-400">Order management</p>
+            </div>
+          </div>
+          <p class="text-sm text-gray-500">List, filter, bulk actions, status tabs</p>
+        </a>
+
+        <!-- Order Detail -->
+        <a href="order-detail.html" class="bg-white/10 hover:bg-white/20 rounded-xl p-6 transition-all group">
+          <div class="flex items-center gap-4 mb-3">
+            <div class="w-12 h-12 bg-purple-500/20 rounded-lg flex items-center justify-center group-hover:bg-purple-500/30 transition-colors">
+              <span class="material-icons-round text-purple-400 text-[24px]">receipt_long</span>
+            </div>
+            <div>
+              <h3 class="font-semibold text-white">Order Detail</h3>
+              <p class="text-sm text-gray-400">Single order view</p>
+            </div>
+          </div>
+          <p class="text-sm text-gray-500">Items, customer, vendor breakdown, timeline</p>
+        </a>
+
+        <!-- Vendors -->
+        <a href="vendors.html" class="bg-white/10 hover:bg-white/20 rounded-xl p-6 transition-all group">
+          <div class="flex items-center gap-4 mb-3">
+            <div class="w-12 h-12 bg-amber-500/20 rounded-lg flex items-center justify-center group-hover:bg-amber-500/30 transition-colors">
+              <span class="material-icons-round text-amber-400 text-[24px]">store</span>
+            </div>
+            <div>
+              <h3 class="font-semibold text-white">Vendors</h3>
+              <p class="text-sm text-gray-400">Vendor management</p>
+            </div>
+          </div>
+          <p class="text-sm text-gray-500">List, approval workflow, UNESCO badges</p>
+        </a>
+
+        <!-- Products (Coming Soon) -->
+        <div class="bg-white/5 rounded-xl p-6 opacity-60 cursor-not-allowed">
+          <div class="flex items-center gap-4 mb-3">
+            <div class="w-12 h-12 bg-gray-500/20 rounded-lg flex items-center justify-center">
+              <span class="material-icons-round text-gray-500 text-[24px]">inventory_2</span>
+            </div>
+            <div>
+              <h3 class="font-semibold text-gray-400">Products</h3>
+              <p class="text-sm text-gray-500">Coming Soon</p>
+            </div>
+          </div>
+          <p class="text-sm text-gray-600">Product catalog management</p>
+        </div>
+      </div>
+
+      <!-- Features Section -->
+      <div class="mt-12">
+        <h2 class="text-xl font-semibold text-white mb-6 flex items-center gap-2">
+          <span class="material-icons-round text-primary-500">check_circle</span>
+          Prototype Features
+        </h2>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div class="bg-white/5 rounded-xl p-5">
+            <h3 class="font-medium text-white mb-3">UI Components</h3>
+            <ul class="space-y-2 text-sm text-gray-400">
+              <li class="flex items-center gap-2"><span class="material-icons-round text-green-500 text-[16px]">check</span> Collapsible sidebar navigation</li>
+              <li class="flex items-center gap-2"><span class="material-icons-round text-green-500 text-[16px]">check</span> Header with search & notifications</li>
+              <li class="flex items-center gap-2"><span class="material-icons-round text-green-500 text-[16px]">check</span> KPI stat cards with trends</li>
+              <li class="flex items-center gap-2"><span class="material-icons-round text-green-500 text-[16px]">check</span> Interactive Chart.js charts</li>
+              <li class="flex items-center gap-2"><span class="material-icons-round text-green-500 text-[16px]">check</span> Data tables with sorting</li>
+              <li class="flex items-center gap-2"><span class="material-icons-round text-green-500 text-[16px]">check</span> Status badges & filters</li>
+            </ul>
+          </div>
+
+          <div class="bg-white/5 rounded-xl p-5">
+            <h3 class="font-medium text-white mb-3">Syrian-Specific Features</h3>
+            <ul class="space-y-2 text-sm text-gray-400">
+              <li class="flex items-center gap-2"><span class="material-icons-round text-green-500 text-[16px]">check</span> Arabic customer names</li>
+              <li class="flex items-center gap-2"><span class="material-icons-round text-green-500 text-[16px]">check</span> SYP currency formatting</li>
+              <li class="flex items-center gap-2"><span class="material-icons-round text-green-500 text-[16px]">check</span> Syrian governorates (14 regions)</li>
+              <li class="flex items-center gap-2"><span class="material-icons-round text-green-500 text-[16px]">check</span> Traditional products (Aleppo Soap, Damascus Steel)</li>
+              <li class="flex items-center gap-2"><span class="material-icons-round text-green-500 text-[16px]">check</span> UNESCO artisan certification badges</li>
+              <li class="flex items-center gap-2"><span class="material-icons-round text-green-500 text-[16px]">check</span> COD payment support</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tech Stack -->
+      <div class="mt-12">
+        <h2 class="text-xl font-semibold text-white mb-6 flex items-center gap-2">
+          <span class="material-icons-round text-primary-500">code</span>
+          Tech Stack
+        </h2>
+
+        <div class="flex flex-wrap gap-3">
+          <span class="px-4 py-2 bg-white/10 rounded-lg text-sm text-gray-300">Tailwind CSS</span>
+          <span class="px-4 py-2 bg-white/10 rounded-lg text-sm text-gray-300">Chart.js</span>
+          <span class="px-4 py-2 bg-white/10 rounded-lg text-sm text-gray-300">Material Icons</span>
+          <span class="px-4 py-2 bg-white/10 rounded-lg text-sm text-gray-300">Inter Font</span>
+          <span class="px-4 py-2 bg-white/10 rounded-lg text-sm text-gray-300">Vanilla JS</span>
+        </div>
+      </div>
+
+      <!-- Color Palette -->
+      <div class="mt-12">
+        <h2 class="text-xl font-semibold text-white mb-6 flex items-center gap-2">
+          <span class="material-icons-round text-primary-500">palette</span>
+          Brand Colors
+        </h2>
+
+        <div class="flex flex-wrap gap-4">
+          <div class="flex items-center gap-3">
+            <div class="w-12 h-12 bg-primary-500 rounded-lg shadow-lg"></div>
+            <div>
+              <p class="text-sm font-medium text-white">Golden Wheat</p>
+              <p class="text-xs text-gray-500">#C4A962</p>
+            </div>
+          </div>
+          <div class="flex items-center gap-3">
+            <div class="w-12 h-12 bg-charcoal rounded-lg shadow-lg border border-white/10"></div>
+            <div>
+              <p class="text-sm font-medium text-white">Charcoal</p>
+              <p class="text-xs text-gray-500">#1A1A1A</p>
+            </div>
+          </div>
+          <div class="flex items-center gap-3">
+            <div class="w-12 h-12 bg-forest rounded-lg shadow-lg"></div>
+            <div>
+              <p class="text-sm font-medium text-white">Forest Green</p>
+              <p class="text-xs text-gray-500">#2D5A3D</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="text-center mt-16 text-gray-500 text-sm">
+      <p>SouqSyria Admin Dashboard Prototype</p>
+      <p class="mt-1">Built for multi-vendor e-commerce marketplace</p>
+    </div>
+  </div>
+</body>
+</html>

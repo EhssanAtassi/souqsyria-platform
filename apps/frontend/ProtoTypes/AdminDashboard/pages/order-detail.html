@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Order #ORD-2024-1247 - SouqSyria Admin</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: { 50: '#faf8f2', 100: '#f5f0e0', 500: '#C4A962', 600: '#b8942d', 700: '#96782a' },
+            charcoal: '#1A1A1A',
+            forest: { 500: '#2D5A3D', 600: '#244a32' },
+          },
+          fontFamily: { sans: ['Inter', 'sans-serif'] }
+        }
+      }
+    }
+  </script>
+</head>
+<body class="bg-gray-50 font-sans">
+  <div class="flex min-h-screen">
+    <!-- Sidebar (minimal for detail page) -->
+    <aside class="w-64 bg-charcoal text-white flex flex-col">
+      <div class="p-6 border-b border-white/10">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 bg-primary-500 rounded-lg flex items-center justify-center">
+            <span class="text-lg font-bold text-charcoal">SS</span>
+          </div>
+          <span class="font-semibold text-lg">SouqSyria</span>
+        </div>
+      </div>
+      <nav class="flex-1 p-4 space-y-1">
+        <a href="dashboard.html" class="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-white/10 text-gray-300 hover:text-white">
+          <span class="material-icons-round text-[22px]">dashboard</span>
+          Dashboard
+        </a>
+        <a href="orders.html" class="flex items-center gap-3 px-4 py-3 rounded-lg bg-primary-500/20 text-primary-500">
+          <span class="material-icons-round text-[22px]">shopping_cart</span>
+          Orders
+        </a>
+        <a href="#" class="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-white/10 text-gray-300 hover:text-white">
+          <span class="material-icons-round text-[22px]">inventory_2</span>
+          Products
+        </a>
+        <a href="vendors.html" class="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-white/10 text-gray-300 hover:text-white">
+          <span class="material-icons-round text-[22px]">store</span>
+          Vendors
+        </a>
+      </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <div class="flex-1 flex flex-col">
+      <!-- Header -->
+      <header class="bg-white border-b border-gray-200 px-6 py-4">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-4">
+            <a href="orders.html" class="p-2 hover:bg-gray-100 rounded-lg text-gray-500">
+              <span class="material-icons-round">arrow_back</span>
+            </a>
+            <div>
+              <h1 class="text-xl font-semibold text-gray-900">Order #ORD-2024-1247</h1>
+              <p class="text-sm text-gray-500">January 31, 2024 at 10:23 AM</p>
+            </div>
+          </div>
+          <div class="flex items-center gap-3">
+            <button class="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50">
+              <span class="material-icons-round text-[18px]">print</span>
+              Print Invoice
+            </button>
+            <button class="flex items-center gap-2 px-4 py-2 bg-primary-500 text-charcoal rounded-lg hover:bg-primary-600 font-medium">
+              <span class="material-icons-round text-[18px]">check_circle</span>
+              Confirm Order
+            </button>
+          </div>
+        </div>
+      </header>
+
+      <!-- Order Content -->
+      <main class="flex-1 p-6 overflow-auto">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <!-- Left Column: Order Details -->
+          <div class="lg:col-span-2 space-y-6">
+            <!-- Order Status -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+              <div class="flex items-center justify-between mb-6">
+                <h2 class="text-lg font-semibold text-gray-900">Order Status</h2>
+                <span class="px-3 py-1.5 bg-amber-100 text-amber-700 text-sm font-medium rounded-full flex items-center gap-1">
+                  <span class="w-2 h-2 bg-amber-500 rounded-full animate-pulse"></span>
+                  Pending Confirmation
+                </span>
+              </div>
+              <!-- Timeline -->
+              <div class="flex items-center justify-between relative">
+                <div class="absolute top-5 left-0 right-0 h-0.5 bg-gray-200"></div>
+                <div class="absolute top-5 left-0 w-[12%] h-0.5 bg-primary-500"></div>
+
+                <div class="relative flex flex-col items-center z-10">
+                  <div class="w-10 h-10 bg-primary-500 rounded-full flex items-center justify-center text-white">
+                    <span class="material-icons-round text-[18px]">receipt_long</span>
+                  </div>
+                  <span class="text-xs text-gray-600 mt-2 font-medium">Placed</span>
+                  <span class="text-xs text-gray-400">10:23 AM</span>
+                </div>
+                <div class="relative flex flex-col items-center z-10">
+                  <div class="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center text-gray-400">
+                    <span class="material-icons-round text-[18px]">check_circle</span>
+                  </div>
+                  <span class="text-xs text-gray-400 mt-2">Confirmed</span>
+                </div>
+                <div class="relative flex flex-col items-center z-10">
+                  <div class="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center text-gray-400">
+                    <span class="material-icons-round text-[18px]">inventory_2</span>
+                  </div>
+                  <span class="text-xs text-gray-400 mt-2">Processing</span>
+                </div>
+                <div class="relative flex flex-col items-center z-10">
+                  <div class="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center text-gray-400">
+                    <span class="material-icons-round text-[18px]">local_shipping</span>
+                  </div>
+                  <span class="text-xs text-gray-400 mt-2">Shipped</span>
+                </div>
+                <div class="relative flex flex-col items-center z-10">
+                  <div class="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center text-gray-400">
+                    <span class="material-icons-round text-[18px]">where_to_vote</span>
+                  </div>
+                  <span class="text-xs text-gray-400 mt-2">Delivered</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Order Items -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100">
+              <div class="p-6 border-b border-gray-100">
+                <h2 class="text-lg font-semibold text-gray-900">Order Items</h2>
+              </div>
+              <div class="divide-y divide-gray-100">
+                <!-- Item 1 -->
+                <div class="p-6 flex gap-4">
+                  <div class="w-20 h-20 bg-gray-100 rounded-lg flex items-center justify-center text-3xl">🧼</div>
+                  <div class="flex-1">
+                    <div class="flex items-start justify-between">
+                      <div>
+                        <h3 class="font-medium text-gray-900">صابون الغار الحلبي - طبيعي 100%</h3>
+                        <p class="text-sm text-gray-500">Aleppo Laurel Soap - 100% Natural</p>
+                        <p class="text-sm text-gray-400 mt-1">SKU: ALP-SOAP-001 | Weight: 200g</p>
+                      </div>
+                      <p class="font-semibold text-gray-900">45,000 SYP</p>
+                    </div>
+                    <div class="mt-3 flex items-center gap-4">
+                      <span class="text-sm text-gray-500">Qty: 2</span>
+                      <span class="text-sm text-gray-300">|</span>
+                      <a href="vendors.html" class="text-sm text-primary-600 hover:underline flex items-center gap-1">
+                        <span class="material-icons-round text-[14px]">store</span>
+                        Aleppo Traditional Crafts
+                      </a>
+                    </div>
+                  </div>
+                </div>
+                <!-- Item 2 -->
+                <div class="p-6 flex gap-4">
+                  <div class="w-20 h-20 bg-gray-100 rounded-lg flex items-center justify-center text-3xl">🗡️</div>
+                  <div class="flex-1">
+                    <div class="flex items-start justify-between">
+                      <div>
+                        <h3 class="font-medium text-gray-900">سكين دمشقي - صناعة يدوية</h3>
+                        <p class="text-sm text-gray-500">Damascus Steel Knife - Handcrafted</p>
+                        <p class="text-sm text-gray-400 mt-1">SKU: DAM-KNF-015 | Blade: 15cm</p>
+                      </div>
+                      <p class="font-semibold text-gray-900">65,000 SYP</p>
+                    </div>
+                    <div class="mt-3 flex items-center gap-4">
+                      <span class="text-sm text-gray-500">Qty: 1</span>
+                      <span class="text-sm text-gray-300">|</span>
+                      <a href="vendors.html" class="text-sm text-primary-600 hover:underline flex items-center gap-1">
+                        <span class="material-icons-round text-[14px]">store</span>
+                        Damascus Artisans
+                        <span class="px-1.5 py-0.5 bg-amber-100 text-amber-700 text-[10px] font-medium rounded">UNESCO</span>
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <!-- Order Summary -->
+              <div class="p-6 bg-gray-50 rounded-b-xl">
+                <div class="space-y-2">
+                  <div class="flex justify-between text-sm">
+                    <span class="text-gray-500">Subtotal (3 items)</span>
+                    <span class="text-gray-900">110,000 SYP</span>
+                  </div>
+                  <div class="flex justify-between text-sm">
+                    <span class="text-gray-500">Discount (WELCOME10)</span>
+                    <span class="text-green-600">-11,000 SYP</span>
+                  </div>
+                  <div class="flex justify-between text-sm">
+                    <span class="text-gray-500">Shipping (Damascus)</span>
+                    <span class="text-gray-900">26,000 SYP</span>
+                  </div>
+                  <hr class="my-2">
+                  <div class="flex justify-between font-semibold">
+                    <span class="text-gray-900">Total</span>
+                    <span class="text-gray-900 text-lg">125,000 SYP</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Vendor Breakdown -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100">
+              <div class="p-6 border-b border-gray-100">
+                <h2 class="text-lg font-semibold text-gray-900">Vendor Breakdown</h2>
+              </div>
+              <div class="overflow-x-auto">
+                <table class="w-full">
+                  <thead class="bg-gray-50 text-xs text-gray-500 uppercase">
+                    <tr>
+                      <th class="px-6 py-3 text-left">Vendor</th>
+                      <th class="px-6 py-3 text-left">Items</th>
+                      <th class="px-6 py-3 text-left">Subtotal</th>
+                      <th class="px-6 py-3 text-left">Commission (12%)</th>
+                      <th class="px-6 py-3 text-left">Vendor Payout</th>
+                    </tr>
+                  </thead>
+                  <tbody class="divide-y divide-gray-100">
+                    <tr>
+                      <td class="px-6 py-4">
+                        <div class="flex items-center gap-2">
+                          <div class="w-8 h-8 bg-forest-500 rounded-full flex items-center justify-center text-white text-xs font-semibold">AT</div>
+                          <span class="font-medium text-gray-900">Aleppo Traditional Crafts</span>
+                        </div>
+                      </td>
+                      <td class="px-6 py-4 text-sm text-gray-600">2x Soap</td>
+                      <td class="px-6 py-4 text-sm text-gray-900">45,000 SYP</td>
+                      <td class="px-6 py-4 text-sm text-red-600">-5,400 SYP</td>
+                      <td class="px-6 py-4 text-sm font-medium text-green-600">39,600 SYP</td>
+                    </tr>
+                    <tr>
+                      <td class="px-6 py-4">
+                        <div class="flex items-center gap-2">
+                          <div class="w-8 h-8 bg-primary-500 rounded-full flex items-center justify-center text-charcoal text-xs font-semibold">DA</div>
+                          <span class="font-medium text-gray-900">Damascus Artisans</span>
+                          <span class="px-1.5 py-0.5 bg-amber-100 text-amber-700 text-[10px] font-medium rounded">UNESCO</span>
+                        </div>
+                      </td>
+                      <td class="px-6 py-4 text-sm text-gray-600">1x Knife</td>
+                      <td class="px-6 py-4 text-sm text-gray-900">65,000 SYP</td>
+                      <td class="px-6 py-4 text-sm text-red-600">-7,800 SYP</td>
+                      <td class="px-6 py-4 text-sm font-medium text-green-600">57,200 SYP</td>
+                    </tr>
+                  </tbody>
+                  <tfoot class="bg-gray-50">
+                    <tr>
+                      <td class="px-6 py-4 font-semibold" colspan="2">Totals</td>
+                      <td class="px-6 py-4 font-semibold">110,000 SYP</td>
+                      <td class="px-6 py-4 font-semibold text-red-600">-13,200 SYP</td>
+                      <td class="px-6 py-4 font-semibold text-green-600">96,800 SYP</td>
+                    </tr>
+                  </tfoot>
+                </table>
+              </div>
+            </div>
+
+            <!-- Internal Notes -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+              <h2 class="text-lg font-semibold text-gray-900 mb-4">Internal Notes</h2>
+              <textarea class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none resize-none" rows="3" placeholder="Add internal notes about this order..."></textarea>
+              <button class="mt-3 px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg text-sm font-medium">Save Note</button>
+            </div>
+          </div>
+
+          <!-- Right Column: Customer & Shipping -->
+          <div class="space-y-6">
+            <!-- Customer Info -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+              <h2 class="text-lg font-semibold text-gray-900 mb-4">Customer</h2>
+              <div class="flex items-center gap-4 mb-4">
+                <div class="w-14 h-14 bg-gray-200 rounded-full flex items-center justify-center text-xl font-medium text-gray-600">م</div>
+                <div>
+                  <p class="font-medium text-gray-900">محمد أحمد</p>
+                  <p class="text-sm text-gray-500">mohamed.ahmad@email.com</p>
+                </div>
+              </div>
+              <div class="space-y-3 text-sm">
+                <div class="flex items-center gap-2 text-gray-600">
+                  <span class="material-icons-round text-[18px] text-gray-400">phone</span>
+                  +963 11 234 5678
+                </div>
+                <div class="flex items-center gap-2 text-gray-600">
+                  <span class="material-icons-round text-[18px] text-gray-400">shopping_bag</span>
+                  12 previous orders
+                </div>
+                <div class="flex items-center gap-2 text-gray-600">
+                  <span class="material-icons-round text-[18px] text-gray-400">schedule</span>
+                  Customer since Oct 2023
+                </div>
+              </div>
+              <a href="#" class="mt-4 block text-center px-4 py-2 border border-gray-300 rounded-lg text-sm text-gray-700 hover:bg-gray-50">
+                View Customer Profile
+              </a>
+            </div>
+
+            <!-- Shipping Address -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+              <div class="flex items-center justify-between mb-4">
+                <h2 class="text-lg font-semibold text-gray-900">Shipping Address</h2>
+                <button class="text-primary-600 text-sm hover:underline">Edit</button>
+              </div>
+              <div class="space-y-2 text-sm text-gray-600">
+                <p class="font-medium text-gray-900">محمد أحمد</p>
+                <p>شارع الحمرا، بناء 45، طابق 3</p>
+                <p>دمشق، سوريا</p>
+                <p>Damascus Governorate</p>
+                <p class="pt-2 flex items-center gap-2">
+                  <span class="material-icons-round text-[18px] text-gray-400">phone</span>
+                  +963 11 234 5678
+                </p>
+              </div>
+              <div class="mt-4 p-3 bg-blue-50 rounded-lg flex items-start gap-2">
+                <span class="material-icons-round text-blue-600 text-[18px]">info</span>
+                <p class="text-sm text-blue-700">Delivery within 2-3 business days for Damascus area</p>
+              </div>
+            </div>
+
+            <!-- Payment Info -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+              <h2 class="text-lg font-semibold text-gray-900 mb-4">Payment</h2>
+              <div class="flex items-center gap-3 p-3 bg-amber-50 rounded-lg mb-4">
+                <div class="w-10 h-10 bg-amber-100 rounded-full flex items-center justify-center">
+                  <span class="material-icons-round text-amber-600">payments</span>
+                </div>
+                <div>
+                  <p class="font-medium text-gray-900">Cash on Delivery (COD)</p>
+                  <p class="text-sm text-amber-600">Payment pending</p>
+                </div>
+              </div>
+              <div class="space-y-2 text-sm">
+                <div class="flex justify-between">
+                  <span class="text-gray-500">Amount Due</span>
+                  <span class="font-medium text-gray-900">125,000 SYP</span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-gray-500">Status</span>
+                  <span class="px-2 py-0.5 bg-amber-100 text-amber-700 text-xs font-medium rounded-full">Unpaid</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+              <h2 class="text-lg font-semibold text-gray-900 mb-4">Actions</h2>
+              <div class="space-y-2">
+                <button class="w-full flex items-center gap-3 px-4 py-3 bg-green-50 hover:bg-green-100 text-green-700 rounded-lg text-left">
+                  <span class="material-icons-round">check_circle</span>
+                  <span>Confirm Order</span>
+                </button>
+                <button class="w-full flex items-center gap-3 px-4 py-3 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-lg text-left">
+                  <span class="material-icons-round">email</span>
+                  <span>Send Email to Customer</span>
+                </button>
+                <button class="w-full flex items-center gap-3 px-4 py-3 bg-gray-50 hover:bg-gray-100 text-gray-700 rounded-lg text-left">
+                  <span class="material-icons-round">edit</span>
+                  <span>Edit Order</span>
+                </button>
+                <button class="w-full flex items-center gap-3 px-4 py-3 bg-red-50 hover:bg-red-100 text-red-700 rounded-lg text-left">
+                  <span class="material-icons-round">cancel</span>
+                  <span>Cancel Order</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+</body>
+</html>

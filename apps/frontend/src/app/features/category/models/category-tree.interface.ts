@@ -129,6 +129,15 @@ export interface CategoryTreeNode {
 
   /** Child categories forming tree hierarchy */
   children: CategoryTreeNode[];
+
+  /** Mega menu layout type from backend */
+  megaMenuType?: string;
+
+  /** Whether category is pinned in navigation */
+  isPinnedInNav?: boolean;
+
+  /** JSON mega menu configuration */
+  megaMenuConfig?: Record<string, any>;
 }
 
 /**

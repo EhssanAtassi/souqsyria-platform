@@ -398,7 +398,7 @@ export class HomepageService extends AbstractHomepageService {
         images: [
           {
             id: 'damascus-knife-1',
-            url: 'https://images.unsplash.com/photo-1589698423558-7537249a5144?w=600&h=400&fit=crop&q=80',
+            url: 'https://images.unsplash.com/photo-1606760227091-3dd870d97f1d?w=600&h=400&fit=crop&q=80',
             alt: 'Damascus Steel Knife',
             isPrimary: true,
             order: 1
@@ -585,7 +585,7 @@ export class HomepageService extends AbstractHomepageService {
         type: 'product_spotlight',
         status: 'active',
         heroImage: {
-          url: 'https://images.unsplash.com/photo-1589698423558-7537249a5144?w=600&h=400&fit=crop&q=80',
+          url: 'https://images.unsplash.com/photo-1606760227091-3dd870d97f1d?w=600&h=400&fit=crop&q=80',
           alt: {
             english: 'Damascus Steel Heritage',
             arabic: 'تراث الفولاذ الدمشقي'

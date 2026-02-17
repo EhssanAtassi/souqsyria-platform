@@ -636,7 +636,7 @@ export const FEATURED_CATEGORIES: Category[] = SYRIAN_CATEGORIES.filter(category
 export const HEADER_NAV_CATEGORIES: Category[] = [
   // Damascus Steel - links to existing Syrian heritage category
   SYRIAN_CATEGORIES.find(c => c.id === 'damascus-steel')!,
-  // Electronics - new general e-commerce category
+  // Electronics - deep-browse layout with 7 category groups (pinned in nav)
   {
     id: 'electronics',
     name: 'Electronics',
@@ -644,14 +644,199 @@ export const HEADER_NAV_CATEGORIES: Category[] = [
     icon: 'devices',
     featured: true,
     url: '/category/electronics',
-    megaMenuType: 'sidebar',
+    megaMenuType: 'deep-browse',
+    isPinnedInNav: true,
+    megaMenuConfig: {
+      /** @audit-fix W-4: Added nameAr for all brand chips for Arabic RTL mode */
+      brandChips: [
+        { name: 'Samsung', nameAr: 'سامسونج', slug: 'samsung' },
+        { name: 'Apple', nameAr: 'آبل', slug: 'apple' },
+        { name: 'Xiaomi', nameAr: 'شاومي', slug: 'xiaomi' },
+        { name: 'Huawei', nameAr: 'هواوي', slug: 'huawei' },
+        { name: 'Oppo', nameAr: 'أوبو', slug: 'oppo' },
+        { name: 'Dell', nameAr: 'ديل', slug: 'dell' },
+        { name: 'HP', nameAr: 'إتش بي', slug: 'hp' },
+        { name: 'Lenovo', nameAr: 'لينوفو', slug: 'lenovo' }
+      ]
+    },
     subcategories: [
-      { id: 'smartphones', name: 'Smartphones', nameAr: 'هواتف ذكية', url: '/category/electronics/smartphones', icon: 'smartphone' },
-      { id: 'laptops', name: 'Laptops & Computers', nameAr: 'حواسيب محمولة', url: '/category/electronics/laptops', icon: 'laptop' },
-      { id: 'tablets', name: 'Tablets', nameAr: 'أجهزة لوحية', url: '/category/electronics/tablets', icon: 'tablet' },
-      { id: 'audio', name: 'Audio & Headphones', nameAr: 'سماعات وصوتيات', url: '/category/electronics/audio', icon: 'headphones' },
-      { id: 'cameras', name: 'Cameras & Photography', nameAr: 'كاميرات وتصوير', url: '/category/electronics/cameras', icon: 'photo_camera' },
-      { id: 'accessories', name: 'Accessories', nameAr: 'إكسسوارات', url: '/category/electronics/accessories', icon: 'cable' }
+      // Panel 1: Phones & Tablets
+      {
+        id: 'phones-tablets',
+        name: 'Phones & Tablets',
+        nameAr: 'هواتف وأجهزة لوحية',
+        url: '/category/electronics/phones-tablets',
+        icon: 'smartphone',
+        showInMegaMenu: true,
+        children: [
+          { id: 'smartphones', name: 'Smartphones', nameAr: 'هواتف ذكية', url: '/category/electronics/smartphones', showInMegaMenu: true },
+          { id: 'samsung-galaxy', name: 'Samsung Galaxy', nameAr: 'سامسونج جالاكسي', url: '/category/electronics/samsung-galaxy', showInMegaMenu: true },
+          { id: 'apple-iphone', name: 'Apple iPhone', nameAr: 'آيفون', url: '/category/electronics/apple-iphone', showInMegaMenu: true },
+          { id: 'xiaomi-redmi', name: 'Xiaomi / Redmi', nameAr: 'شاومي / ريدمي', url: '/category/electronics/xiaomi-redmi', showInMegaMenu: true },
+          { id: 'huawei-phones', name: 'Huawei', nameAr: 'هواوي', url: '/category/electronics/huawei-phones', showInMegaMenu: true },
+          { id: 'oppo-realme', name: 'Oppo / Realme', nameAr: 'أوبو / ريلمي', url: '/category/electronics/oppo-realme', showInMegaMenu: true },
+          { id: 'budget-phones', name: 'Budget Phones', nameAr: 'هواتف اقتصادية', url: '/category/electronics/budget-phones', showInMegaMenu: true },
+          { id: 'tablets', name: 'Tablets', nameAr: 'أجهزة لوحية', url: '/category/electronics/tablets', showInMegaMenu: true },
+          { id: 'apple-ipad', name: 'Apple iPad', nameAr: 'آيباد', url: '/category/electronics/apple-ipad', showInMegaMenu: true },
+          { id: 'samsung-tab', name: 'Samsung Tab', nameAr: 'سامسونج تاب', url: '/category/electronics/samsung-tab', showInMegaMenu: true },
+          { id: 'android-tablets', name: 'Android Tablets', nameAr: 'أجهزة لوحية أندرويد', url: '/category/electronics/android-tablets', showInMegaMenu: true },
+          { id: 'kids-tablets', name: 'Kids Tablets', nameAr: 'أجهزة لوحية للأطفال', url: '/category/electronics/kids-tablets', showInMegaMenu: true },
+          { id: 'e-readers', name: 'E-Readers', nameAr: 'أجهزة قراءة إلكترونية', url: '/category/electronics/e-readers', showInMegaMenu: true },
+          { id: 'phone-cases', name: 'Cases & Covers', nameAr: 'أغطية وحافظات', url: '/category/electronics/phone-cases', showInMegaMenu: true },
+          { id: 'screen-protectors', name: 'Screen Protectors', nameAr: 'واقيات شاشة', url: '/category/electronics/screen-protectors', showInMegaMenu: true },
+          { id: 'chargers-cables', name: 'Chargers & Cables', nameAr: 'شواحن وكابلات', url: '/category/electronics/chargers-cables', showInMegaMenu: true },
+          { id: 'power-banks', name: 'Power Banks', nameAr: 'بطاريات متنقلة', url: '/category/electronics/power-banks', showInMegaMenu: true },
+          { id: 'earphones', name: 'Earphones', nameAr: 'سماعات أذن', url: '/category/electronics/earphones', showInMegaMenu: true },
+          { id: 'mounts-holders', name: 'Mounts & Holders', nameAr: 'حوامل', url: '/category/electronics/mounts-holders', showInMegaMenu: true }
+        ]
+      },
+      // Panel 2: Computers
+      {
+        id: 'computers',
+        name: 'Computers',
+        nameAr: 'حواسيب',
+        url: '/category/electronics/computers',
+        icon: 'laptop',
+        showInMegaMenu: true,
+        children: [
+          { id: 'gaming-laptops', name: 'Gaming Laptops', nameAr: 'لابتوبات ألعاب', url: '/category/electronics/gaming-laptops', showInMegaMenu: true },
+          { id: 'business-laptops', name: 'Business Laptops', nameAr: 'لابتوبات أعمال', url: '/category/electronics/business-laptops', showInMegaMenu: true },
+          { id: 'student-laptops', name: 'Student Laptops', nameAr: 'لابتوبات طلابية', url: '/category/electronics/student-laptops', showInMegaMenu: true },
+          { id: 'macbooks', name: 'MacBooks', nameAr: 'ماك بوك', url: '/category/electronics/macbooks', showInMegaMenu: true },
+          { id: 'chromebooks', name: 'Chromebooks', nameAr: 'كروم بوك', url: '/category/electronics/chromebooks', showInMegaMenu: true },
+          { id: 'gaming-pcs', name: 'Gaming PCs', nameAr: 'حواسيب ألعاب', url: '/category/electronics/gaming-pcs', showInMegaMenu: true },
+          { id: 'all-in-one', name: 'All-in-One PCs', nameAr: 'حواسيب متكاملة', url: '/category/electronics/all-in-one', showInMegaMenu: true },
+          { id: 'mini-pcs', name: 'Mini PCs', nameAr: 'حواسيب صغيرة', url: '/category/electronics/mini-pcs', showInMegaMenu: true },
+          { id: 'workstations', name: 'Workstations', nameAr: 'محطات عمل', url: '/category/electronics/workstations', showInMegaMenu: true },
+          { id: 'graphics-cards', name: 'Graphics Cards', nameAr: 'بطاقات رسومية', url: '/category/electronics/graphics-cards', showInMegaMenu: true },
+          { id: 'processors', name: 'Processors (CPU)', nameAr: 'معالجات', url: '/category/electronics/processors', showInMegaMenu: true },
+          { id: 'ram-memory', name: 'RAM / Memory', nameAr: 'ذاكرة وصول عشوائي', url: '/category/electronics/ram-memory', showInMegaMenu: true },
+          { id: 'ssd-hdd', name: 'SSD & Hard Drives', nameAr: 'أقراص تخزين', url: '/category/electronics/ssd-hdd', showInMegaMenu: true },
+          { id: 'motherboards', name: 'Motherboards', nameAr: 'لوحات أم', url: '/category/electronics/motherboards', showInMegaMenu: true },
+          { id: 'power-supplies', name: 'Power Supplies', nameAr: 'وحدات تغذية', url: '/category/electronics/power-supplies', showInMegaMenu: true }
+        ]
+      },
+      // Panel 3: TV & Audio
+      {
+        id: 'tv-audio',
+        name: 'TV & Audio',
+        nameAr: 'تلفزيون وصوتيات',
+        url: '/category/electronics/tv-audio',
+        icon: 'tv',
+        showInMegaMenu: true,
+        children: [
+          { id: 'smart-tvs', name: 'Smart TVs', nameAr: 'تلفزيونات ذكية', url: '/category/electronics/smart-tvs', showInMegaMenu: true },
+          { id: 'oled-qled', name: 'OLED / QLED', nameAr: 'أوليد / كيوليد', url: '/category/electronics/oled-qled', showInMegaMenu: true },
+          { id: '4k-8k-tvs', name: '4K / 8K TVs', nameAr: 'تلفزيونات فوركي', url: '/category/electronics/4k-8k-tvs', showInMegaMenu: true },
+          { id: 'tv-mounts', name: 'TV Mounts & Stands', nameAr: 'حوامل تلفزيون', url: '/category/electronics/tv-mounts', showInMegaMenu: true },
+          { id: 'headphones', name: 'Headphones', nameAr: 'سماعات رأس', url: '/category/electronics/headphones', showInMegaMenu: true },
+          { id: 'bluetooth-speakers', name: 'Bluetooth Speakers', nameAr: 'مكبرات بلوتوث', url: '/category/electronics/bluetooth-speakers', showInMegaMenu: true },
+          { id: 'soundbars', name: 'Soundbars', nameAr: 'مكبرات صوت', url: '/category/electronics/soundbars', showInMegaMenu: true },
+          { id: 'home-theater', name: 'Home Theater', nameAr: 'مسرح منزلي', url: '/category/electronics/home-theater', showInMegaMenu: true },
+          { id: 'microphones', name: 'Microphones', nameAr: 'ميكروفونات', url: '/category/electronics/microphones', showInMegaMenu: true },
+          { id: 'gaming-monitors', name: 'Gaming Monitors', nameAr: 'شاشات ألعاب', url: '/category/electronics/gaming-monitors', showInMegaMenu: true },
+          { id: 'office-monitors', name: 'Office Monitors', nameAr: 'شاشات مكتبية', url: '/category/electronics/office-monitors', showInMegaMenu: true },
+          { id: 'ultrawide-monitors', name: 'Ultrawide', nameAr: 'شاشات عريضة', url: '/category/electronics/ultrawide-monitors', showInMegaMenu: true },
+          { id: '4k-monitors', name: '4K Monitors', nameAr: 'شاشات فوركي', url: '/category/electronics/4k-monitors', showInMegaMenu: true }
+        ]
+      },
+      // Panel 4: Gaming
+      {
+        id: 'gaming',
+        name: 'Gaming',
+        nameAr: 'ألعاب',
+        url: '/category/electronics/gaming',
+        icon: 'sports_esports',
+        showInMegaMenu: true,
+        children: [
+          { id: 'ps5', name: 'PlayStation 5', nameAr: 'بلايستيشن 5', url: '/category/electronics/ps5', showInMegaMenu: true },
+          { id: 'xbox', name: 'Xbox Series X|S', nameAr: 'إكس بوكس', url: '/category/electronics/xbox', showInMegaMenu: true },
+          { id: 'nintendo-switch', name: 'Nintendo Switch', nameAr: 'نينتندو سويتش', url: '/category/electronics/nintendo-switch', showInMegaMenu: true },
+          { id: 'retro-consoles', name: 'Retro Consoles', nameAr: 'أجهزة كلاسيكية', url: '/category/electronics/retro-consoles', showInMegaMenu: true },
+          { id: 'gaming-keyboards', name: 'Gaming Keyboards', nameAr: 'لوحات مفاتيح', url: '/category/electronics/gaming-keyboards', showInMegaMenu: true },
+          { id: 'gaming-mice', name: 'Gaming Mice', nameAr: 'فأرات ألعاب', url: '/category/electronics/gaming-mice', showInMegaMenu: true },
+          { id: 'gaming-headsets', name: 'Gaming Headsets', nameAr: 'سماعات ألعاب', url: '/category/electronics/gaming-headsets', showInMegaMenu: true },
+          { id: 'gaming-chairs', name: 'Gaming Chairs', nameAr: 'كراسي ألعاب', url: '/category/electronics/gaming-chairs', showInMegaMenu: true },
+          { id: 'streaming-gear', name: 'Streaming Gear', nameAr: 'معدات بث', url: '/category/electronics/streaming-gear', showInMegaMenu: true },
+          { id: 'ps5-games', name: 'PS5 Games', nameAr: 'ألعاب بلايستيشن', url: '/category/electronics/ps5-games', showInMegaMenu: true },
+          { id: 'xbox-games', name: 'Xbox Games', nameAr: 'ألعاب إكس بوكس', url: '/category/electronics/xbox-games', showInMegaMenu: true },
+          { id: 'switch-games', name: 'Switch Games', nameAr: 'ألعاب سويتش', url: '/category/electronics/switch-games', showInMegaMenu: true },
+          { id: 'gift-cards', name: 'Gift Cards', nameAr: 'بطاقات هدايا', url: '/category/electronics/gift-cards', showInMegaMenu: true }
+        ]
+      },
+      // Panel 5: Cameras
+      {
+        id: 'cameras',
+        name: 'Cameras',
+        nameAr: 'كاميرات',
+        url: '/category/electronics/cameras',
+        icon: 'photo_camera',
+        showInMegaMenu: true,
+        children: [
+          { id: 'dslr', name: 'DSLR Cameras', nameAr: 'كاميرات دي إس إل آر', url: '/category/electronics/dslr', showInMegaMenu: true },
+          { id: 'mirrorless', name: 'Mirrorless', nameAr: 'كاميرات بدون مرآة', url: '/category/electronics/mirrorless', showInMegaMenu: true },
+          { id: 'action-cameras', name: 'Action Cameras', nameAr: 'كاميرات أكشن', url: '/category/electronics/action-cameras', showInMegaMenu: true },
+          { id: 'instant-cameras', name: 'Instant Cameras', nameAr: 'كاميرات فورية', url: '/category/electronics/instant-cameras', showInMegaMenu: true },
+          { id: 'drones', name: 'Drones', nameAr: 'طائرات درون', url: '/category/electronics/drones', showInMegaMenu: true },
+          { id: 'camera-lenses', name: 'Camera Lenses', nameAr: 'عدسات كاميرا', url: '/category/electronics/camera-lenses', showInMegaMenu: true },
+          { id: 'tripods', name: 'Tripods', nameAr: 'حوامل ثلاثية', url: '/category/electronics/tripods', showInMegaMenu: true },
+          { id: 'memory-cards', name: 'Memory Cards', nameAr: 'بطاقات ذاكرة', url: '/category/electronics/memory-cards', showInMegaMenu: true },
+          { id: 'camera-bags', name: 'Camera Bags', nameAr: 'حقائب كاميرا', url: '/category/electronics/camera-bags', showInMegaMenu: true },
+          { id: 'lighting', name: 'Lighting Equipment', nameAr: 'معدات إضاءة', url: '/category/electronics/lighting', showInMegaMenu: true },
+          { id: 'camcorders', name: 'Camcorders', nameAr: 'كاميرات فيديو', url: '/category/electronics/camcorders', showInMegaMenu: true },
+          { id: 'webcams', name: 'Webcams', nameAr: 'كاميرات ويب', url: '/category/electronics/webcams', showInMegaMenu: true },
+          { id: 'video-editing', name: 'Video Editing', nameAr: 'تحرير فيديو', url: '/category/electronics/video-editing', showInMegaMenu: true },
+          { id: 'stabilizers', name: 'Stabilizers', nameAr: 'مثبتات', url: '/category/electronics/stabilizers', showInMegaMenu: true }
+        ]
+      },
+      // Panel 6: Smart Home
+      {
+        id: 'smart-home',
+        name: 'Smart Home',
+        nameAr: 'المنزل الذكي',
+        url: '/category/electronics/smart-home',
+        icon: 'home',
+        showInMegaMenu: true,
+        children: [
+          { id: 'smart-speakers', name: 'Smart Speakers', nameAr: 'مكبرات ذكية', url: '/category/electronics/smart-speakers', showInMegaMenu: true },
+          { id: 'smart-displays', name: 'Smart Displays', nameAr: 'شاشات ذكية', url: '/category/electronics/smart-displays', showInMegaMenu: true },
+          { id: 'smart-plugs', name: 'Smart Plugs', nameAr: 'قوابس ذكية', url: '/category/electronics/smart-plugs', showInMegaMenu: true },
+          { id: 'robot-vacuums', name: 'Robot Vacuums', nameAr: 'مكانس روبوت', url: '/category/electronics/robot-vacuums', showInMegaMenu: true },
+          { id: 'security-cameras', name: 'Security Cameras', nameAr: 'كاميرات مراقبة', url: '/category/electronics/security-cameras', showInMegaMenu: true },
+          { id: 'video-doorbells', name: 'Video Doorbells', nameAr: 'أجراس فيديو', url: '/category/electronics/video-doorbells', showInMegaMenu: true },
+          { id: 'smart-locks', name: 'Smart Locks', nameAr: 'أقفال ذكية', url: '/category/electronics/smart-locks', showInMegaMenu: true },
+          { id: 'alarm-systems', name: 'Alarm Systems', nameAr: 'أنظمة إنذار', url: '/category/electronics/alarm-systems', showInMegaMenu: true },
+          { id: 'smart-bulbs', name: 'Smart Bulbs', nameAr: 'مصابيح ذكية', url: '/category/electronics/smart-bulbs', showInMegaMenu: true },
+          { id: 'led-strips', name: 'LED Strips', nameAr: 'شرائط ليد', url: '/category/electronics/led-strips', showInMegaMenu: true },
+          { id: 'smart-thermostats', name: 'Smart Thermostats', nameAr: 'ثرموستات ذكية', url: '/category/electronics/smart-thermostats', showInMegaMenu: true },
+          { id: 'air-purifiers', name: 'Air Purifiers', nameAr: 'منقيات هواء', url: '/category/electronics/air-purifiers', showInMegaMenu: true }
+        ]
+      },
+      // Panel 7: Accessories
+      // @audit-fix W-6: Renamed from 'accessories' to 'electronics-accessories' to avoid
+      // duplicate ID collision with fashion accessories or other category 'accessories'
+      {
+        id: 'electronics-accessories',
+        name: 'Accessories',
+        nameAr: 'إكسسوارات',
+        url: '/category/electronics/accessories',
+        icon: 'cable',
+        showInMegaMenu: true,
+        children: [
+          { id: 'smartwatches', name: 'Smartwatches', nameAr: 'ساعات ذكية', url: '/category/electronics/smartwatches', showInMegaMenu: true },
+          { id: 'fitness-trackers', name: 'Fitness Trackers', nameAr: 'أجهزة لياقة', url: '/category/electronics/fitness-trackers', showInMegaMenu: true },
+          { id: 'vr-headsets', name: 'VR Headsets', nameAr: 'نظارات واقع افتراضي', url: '/category/electronics/vr-headsets', showInMegaMenu: true },
+          { id: 'smart-glasses', name: 'Smart Glasses', nameAr: 'نظارات ذكية', url: '/category/electronics/smart-glasses', showInMegaMenu: true },
+          { id: 'power-banks-acc', name: 'Power Banks', nameAr: 'بطاريات متنقلة', url: '/category/electronics/power-banks-acc', showInMegaMenu: true },
+          { id: 'usb-flash', name: 'USB Flash Drives', nameAr: 'فلاش ميموري', url: '/category/electronics/usb-flash', showInMegaMenu: true },
+          { id: 'external-drives', name: 'External Hard Drives', nameAr: 'أقراص خارجية', url: '/category/electronics/external-drives', showInMegaMenu: true },
+          { id: 'ups-surge', name: 'UPS / Surge Protectors', nameAr: 'وحدات طاقة احتياطية', url: '/category/electronics/ups-surge', showInMegaMenu: true },
+          { id: 'routers', name: 'Routers & Modems', nameAr: 'راوترات ومودم', url: '/category/electronics/routers', showInMegaMenu: true },
+          { id: 'usb-hubs', name: 'USB Hubs', nameAr: 'موزعات يو إس بي', url: '/category/electronics/usb-hubs', showInMegaMenu: true },
+          { id: 'adapters-cables', name: 'Adapters & Cables', nameAr: 'محولات وكابلات', url: '/category/electronics/adapters-cables', showInMegaMenu: true },
+          { id: 'bluetooth-receivers', name: 'Bluetooth Receivers', nameAr: 'مستقبلات بلوتوث', url: '/category/electronics/bluetooth-receivers', showInMegaMenu: true }
+        ]
+      }
     ]
   },
   // Fashion - new general e-commerce category

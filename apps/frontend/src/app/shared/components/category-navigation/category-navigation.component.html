@@ -46,6 +46,14 @@
             [attr.aria-expanded]="isMegaMenuActive(category.id)"
           >
             {{ getCategoryText(category) }}
+            <!-- Pinned Badge: golden indicator for categories pinned in nav bar -->
+            <span
+              *ngIf="category.isPinnedInNav"
+              class="sq-pinned-badge"
+              [attr.aria-label]="config.language === 'ar' ? 'مثبت' : 'Pinned'"
+            >
+              {{ config.language === 'ar' ? 'مثبت' : 'PINNED' }}
+            </span>
           </a>
           <!-- Underline Indicator -->
           <div

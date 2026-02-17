@@ -1,6 +1,7 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './shared/guards/auth.guard';
 import { guestSessionGuard } from './features/auth/guards/guest-session.guard';
+import { checkoutStockGuard } from './features/checkout/guards/checkout-stock.guard';
 
 /**
  * Application routing configuration
@@ -268,10 +269,10 @@ export const routes: Routes = [
     pathMatch: 'full'
   },
 
-  // Checkout
+  // Checkout (SS-CART-007: stock guard validates OOS items before checkout)
   {
     path: 'checkout',
-    canActivate: [guestSessionGuard],
+    canActivate: [guestSessionGuard, checkoutStockGuard],
     loadComponent: () => import('./features/checkout/checkout.component').then(m => m.CheckoutComponent),
     title: 'Checkout - SouqSyria'
   },

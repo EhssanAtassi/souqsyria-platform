@@ -68,7 +68,7 @@ export class HomepageSectionsService {
           en: 'Handcrafted by Master Artisans',
           ar: 'صناعة يدوية من الحرفيين المهرة'
         },
-        imageUrl: 'https://images.unsplash.com/photo-1589698423558-7537249a5144?w=600&h=400&fit=crop&q=80',
+        imageUrl: 'https://images.unsplash.com/photo-1606760227091-3dd870d97f1d?w=600&h=400&fit=crop&q=80',
         originalPrice: 625.00,
         discountedPrice: 205.00,
         currency: 'USD',
@@ -78,7 +78,7 @@ export class HomepageSectionsService {
       },
       subcategories: [
         // FEATURED Large Cards (First 2)
-        { id: 'knives', name: { en: 'Damascus Knives', ar: 'السكاكين الدمشقية' }, imageUrl: 'https://images.unsplash.com/photo-1589698423558-7537249a5144?w=400&h=300&fit=crop&q=80', itemCount: 12, route: '/category/damascus-steel/knives', featured: true },
+        { id: 'knives', name: { en: 'Damascus Knives', ar: 'السكاكين الدمشقية' }, imageUrl: 'https://images.unsplash.com/photo-1606760227091-3dd870d97f1d?w=400&h=300&fit=crop&q=80', itemCount: 12, route: '/category/damascus-steel/knives', featured: true },
         { id: 'swords', name: { en: 'Swords & Blades', ar: 'السيوف والنصال' }, imageUrl: 'https://images.unsplash.com/photo-1608571423902-eed4a5ad8108?w=400&h=300&fit=crop&q=80', itemCount: 8, route: '/category/damascus-steel/swords', featured: true },
         // REGULAR Small Cards (Next 5)
         { id: 'jewelry', name: { en: 'Metal Jewelry', ar: 'المجوهرات المعدنية' }, iconClass: 'local_jewelry', itemCount: 15, route: '/category/jewelry' },
@@ -121,8 +121,8 @@ export class HomepageSectionsService {
       },
       subcategories: [
         // FEATURED Large Cards (First 2)
-        { id: 'aleppo-soap', name: { en: 'Aleppo Soap', ar: 'صابون حلب' }, imageUrl: 'https://images.unsplash.com/photo-1519167758481-83f29da8c42f?w=400&h=300&fit=crop&q=80', itemCount: 18, route: '/category/beauty/aleppo-soap', featured: true },
-        { id: 'brocade', name: { en: 'Syrian Brocade', ar: 'البروكار السوري' }, imageUrl: 'https://images.unsplash.com/photo-1558618666-fcd25c85f82e?w=400&h=300&fit=crop&q=80', itemCount: 7, route: '/category/textiles/brocade', featured: true },
+        { id: 'aleppo-soap', name: { en: 'Aleppo Soap', ar: 'صابون حلب' }, imageUrl: 'https://images.unsplash.com/photo-1558171813-4c088753af8f?w=400&h=300&fit=crop&q=80', itemCount: 18, route: '/category/beauty/aleppo-soap', featured: true },
+        { id: 'brocade', name: { en: 'Syrian Brocade', ar: 'البروكار السوري' }, imageUrl: 'https://images.unsplash.com/photo-1540189549336-e6e99c3679fe?w=400&h=300&fit=crop&q=80', itemCount: 7, route: '/category/textiles/brocade', featured: true },
         // REGULAR Small Cards (Next 5)
         { id: 'oils', name: { en: 'Natural Oils', ar: 'الزيوت الطبيعية' }, iconClass: 'water_drop', itemCount: 14, route: '/category/beauty/oils' },
         { id: 'fabrics', name: { en: 'Traditional Fabrics', ar: 'الأقمشة التقليدية' }, iconClass: 'checkroom', itemCount: 11, route: '/category/textiles' },
@@ -154,7 +154,7 @@ export class HomepageSectionsService {
           en: 'From Traditional Syrian Markets',
           ar: 'من الأسواق السورية التقليدية'
         },
-        imageUrl: 'https://images.unsplash.com/photo-1596040033229-a0b3b4f88dd2?w=600&h=400&fit=crop&q=80',
+        imageUrl: 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=600&h=400&fit=crop&q=80',
         originalPrice: 45.00,
         discountedPrice: 15.00,
         currency: 'USD',
@@ -163,7 +163,7 @@ export class HomepageSectionsService {
       },
       subcategories: [
         // FEATURED Large Cards (First 2)
-        { id: 'spices', name: { en: 'Spice Blends', ar: 'خلطات البهارات' }, imageUrl: 'https://images.unsplash.com/photo-1596040033229-a0b3b4f88dd2?w=400&h=300&fit=crop&q=80', itemCount: 22, route: '/category/spices', featured: true },
+        { id: 'spices', name: { en: 'Spice Blends', ar: 'خلطات البهارات' }, imageUrl: 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=400&h=300&fit=crop&q=80', itemCount: 22, route: '/category/spices', featured: true },
         { id: 'sweets', name: { en: 'Syrian Sweets', ar: 'الحلويات السورية' }, imageUrl: 'https://images.unsplash.com/photo-1509440159596-0249088772ff?w=400&h=300&fit=crop&q=80', itemCount: 16, route: '/category/sweets', featured: true },
         // REGULAR Small Cards (Next 5)
         { id: 'ceramics', name: { en: 'Hand Ceramics', ar: 'الخزف اليدوي' }, iconClass: 'breakfast_dining', itemCount: 8, route: '/category/ceramics' },

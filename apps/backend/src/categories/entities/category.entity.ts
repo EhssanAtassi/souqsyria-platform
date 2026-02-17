@@ -29,7 +29,7 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { User } from '../../users/entities/user.entity';
 import { ProductEntity } from '../../products/entities/product.entity';
 
@@ -387,6 +387,55 @@ export class Category {
   })
   @Column({ name: 'show_in_nav', default: true })
   showInNav: boolean;
+
+  // ================================
+  // MEGA MENU CONFIGURATION
+  // ================================
+
+  /**
+   * Mega menu layout type for this category
+   * @description Determines which frontend component renders the dropdown
+   */
+  @ApiProperty({
+    description: 'Mega menu layout type for navigation dropdown',
+    enum: ['sidebar', 'fullwidth', 'deep-browse', 'none'],
+    example: 'sidebar',
+    default: 'none',
+  })
+  @Column({
+    name: 'mega_menu_type',
+    type: 'enum',
+    enum: ['sidebar', 'fullwidth', 'deep-browse', 'none'],
+    default: 'none',
+  })
+  megaMenuType: 'sidebar' | 'fullwidth' | 'deep-browse' | 'none';
+
+  /**
+   * Whether this category is pinned in the navigation bar
+   * @description Pinned categories always appear in Row 3 regardless of sort order
+   */
+  @ApiProperty({
+    description: 'Whether category is pinned in nav bar with golden badge',
+    example: false,
+    default: false,
+  })
+  @Column({ name: 'is_pinned_in_nav', default: false })
+  isPinnedInNav: boolean;
+
+  /**
+   * JSON configuration for mega menu content
+   * @description Stores promo banners, brand chips, featured product IDs, category groups
+   */
+  @ApiPropertyOptional({
+    description: 'JSON config for mega menu content (promo banners, brand chips, etc.)',
+    nullable: true,
+    example: {
+      promoBanner: { text: 'Up to 40% off', textAr: 'خصم يصل إلى 40%', link: '/offers/electronics' },
+      brandChips: [{ name: 'Samsung', slug: 'samsung' }],
+    },
+  })
+  @Column({ name: 'mega_menu_config', type: 'json', nullable: true })
+  megaMenuConfig: Record<string, any>;
 
   // ================================
   // PERFORMANCE & ANALYTICS

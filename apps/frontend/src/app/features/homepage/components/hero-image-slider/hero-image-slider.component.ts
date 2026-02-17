@@ -17,24 +17,53 @@ import { interval } from 'rxjs';
 
 /**
  * Banner interface for hero slider
+ *
+ * @description Represents a single hero banner slide with bilingual support
+ * and optional CTA text
+ *
+ * @swagger
+ * components:
+ *   schemas:
+ *     HeroBanner:
+ *       type: object
+ *       properties:
+ *         id: { type: number }
+ *         title: { type: string }
+ *         titleAr: { type: string }
+ *         subtitle: { type: string }
+ *         image: { type: string }
+ *         link: { type: string }
+ *         ctaText: { type: string, description: 'Optional CTA button label, defaults to Shop Now' }
  */
 export interface HeroBanner {
+  /** Unique slide identifier */
   id: number;
+  /** English title displayed in Playfair Display */
   title: string;
+  /** Arabic title displayed in Cairo font */
   titleAr: string;
+  /** English subtitle / tagline */
   subtitle: string;
+  /** Image URL (Unsplash CDN or local asset) */
   image: string;
+  /** Navigation link on click */
   link: string;
+  /** Optional CTA button text (default: 'Shop Now') */
+  ctaText?: string;
 }
 
 /**
- * Hero Image Slider Component
+ * Hero Image Slider Component — Premium Redesign
  *
- * Displays full-width hero banner carousel with:
- * - Auto-play functionality (5 second intervals)
- * - Manual navigation (arrows + dot indicators)
- * - Progress bar animation
- * - Pause on hover
+ * @description Full-width hero banner carousel with cinematic effects:
+ * - Ken Burns zoom effect on active slides
+ * - Staggered text entrance animations (title → titleAr → subtitle → CTA)
+ * - Glassmorphism navigation arrows (hidden until hover)
+ * - Animated pill-shape dot indicators with golden wheat glow
+ * - Progress bar with pulsing glow
+ * - Slide counter (e.g. "2 / 5")
+ * - Image error fallback (gradient placeholder)
+ * - CTA button with arrow icon
  *
  * @Input banners - Array of hero banner data
  */
@@ -54,19 +83,34 @@ export interface HeroBanner {
 export class HeroImageSliderComponent implements OnInit {
   private readonly destroyRef = inject(DestroyRef);
 
-  // Input: Banner data from parent
+  /** Banner data from parent component */
   banners = input<HeroBanner[]>([]);
 
-  // Slider state
+  /** Current active slide index */
   currentSlide = signal<number>(0);
+
+  /** Whether autoplay is active (pauses on hover) */
   isAutoplayActive = signal<boolean>(true);
+
+  /** Progress bar percentage (0–100) */
   slideProgress = signal<number>(0);
 
-  readonly AUTOPLAY_INTERVAL = 5000; // 5 seconds
-  readonly PROGRESS_INTERVAL = 50;   // 50ms for smooth animation
+  /**
+   * Tracks which slide images have errored out
+   * Key: slide index, Value: true if broken
+   */
+  imageErrors = signal<Record<number, boolean>>({});
 
-  // Computed values
+  /** Autoplay interval in milliseconds */
+  readonly AUTOPLAY_INTERVAL = 5000;
+
+  /** Progress bar update tick in milliseconds */
+  readonly PROGRESS_INTERVAL = 50;
+
+  /** Total number of slides */
   totalSlides = computed(() => this.banners().length);
+
+  /** Currently active banner data */
   currentBanner = computed(() => this.banners()[this.currentSlide()]);
 
   ngOnInit(): void {
@@ -76,7 +120,7 @@ export class HeroImageSliderComponent implements OnInit {
   }
 
   /**
-   * Navigate to next slide
+   * Navigate to next slide (wraps around)
    */
   nextSlide(): void {
     const next = (this.currentSlide() + 1) % this.totalSlides();
@@ -85,7 +129,7 @@ export class HeroImageSliderComponent implements OnInit {
   }
 
   /**
-   * Navigate to previous slide
+   * Navigate to previous slide (wraps around)
    */
   previousSlide(): void {
     const current = this.currentSlide();
@@ -96,6 +140,7 @@ export class HeroImageSliderComponent implements OnInit {
 
   /**
    * Navigate to specific slide by index
+   * @param index - Target slide index
    */
   goToSlide(index: number): void {
     this.currentSlide.set(index);
@@ -103,17 +148,28 @@ export class HeroImageSliderComponent implements OnInit {
   }
 
   /**
-   * Pause autoplay (on hover)
+   * Pause autoplay on mouse enter
    */
   pauseAutoplay(): void {
     this.isAutoplayActive.set(false);
   }
 
   /**
-   * Resume autoplay (on mouse leave)
+   * Resume autoplay on mouse leave
    */
   resumeAutoplay(): void {
     this.isAutoplayActive.set(true);
+  }
+
+  /**
+   * Handle image load error — shows gradient fallback
+   * @param index - Index of the broken slide image
+   */
+  onImageError(index: number): void {
+    this.imageErrors.update(errors => ({
+      ...errors,
+      [index]: true
+    }));
   }
 
   /**
@@ -121,7 +177,6 @@ export class HeroImageSliderComponent implements OnInit {
    * @private
    */
   private startAutoplay(): void {
-    // Main autoplay interval (5 seconds)
     interval(this.AUTOPLAY_INTERVAL)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(() => {
@@ -130,7 +185,6 @@ export class HeroImageSliderComponent implements OnInit {
         }
       });
 
-    // Progress bar animation (50ms updates)
     interval(this.PROGRESS_INTERVAL)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(() => {

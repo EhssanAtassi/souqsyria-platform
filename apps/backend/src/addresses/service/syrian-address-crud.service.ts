@@ -66,7 +66,7 @@ export class SyrianAddressCrudService {
    * @description Creates a new address using the Syrian administrative
    * hierarchy. Validates the governorate -> city -> district chain,
    * ensures delivery is supported in the area, validates phone format,
-   * and handles default address logic.
+   * and handles default address logic atomically in a transaction.
    *
    * @param user - The user creating the address
    * @param dto - Syrian address data including governorateId, cityId, etc.
@@ -114,39 +114,56 @@ export class SyrianAddressCrudService {
       ? await this.districtRepo.findOne({ where: { id: dto.districtId } })
       : null;
 
-    // Step 3: Handle default address logic
-    if (dto.isDefault) {
-      await this.addressRepo.update(
-        { user: { id: user.id } },
-        { isDefault: false },
+    // Step 3: Handle default address logic and creation inside a transaction
+    // to prevent race conditions when setting default addresses
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+
+    try {
+      // Clear existing default address if this address should be the default
+      if (dto.isDefault) {
+        await queryRunner.manager.update(
+          Address,
+          { user: { id: user.id } },
+          { isDefault: false },
+        );
+      }
+
+      // Create address entity using repository create method
+      const address = this.addressRepo.create({
+        user,
+        fullName: dto.fullName,
+        phone: dto.phone,
+        governorate,
+        syrianCity,
+        district,
+        addressLine1: dto.street, // Map street to addressLine1 for backward compatibility
+        building: dto.building,
+        floor: dto.floor,
+        additionalDetails: dto.additionalDetails,
+        isDefault: dto.isDefault || false,
+        label: dto.label || 'home',
+        addressType: 'shipping', // Default for Syrian addresses
+      });
+
+      // Save using the queryRunner manager to ensure it's part of the transaction
+      const savedAddress = await queryRunner.manager.save(Address, address);
+
+      await queryRunner.commitTransaction();
+
+      this.logger.log(
+        `Created Syrian address ${savedAddress.id} for user ${user.id} ` +
+          `in ${governorate?.nameEn} -> ${syrianCity?.nameEn}`,
       );
+
+      return savedAddress;
+    } catch (error) {
+      await queryRunner.rollbackTransaction();
+      throw error;
+    } finally {
+      await queryRunner.release();
     }
-
-    // Step 4: Create address entity
-    const address = this.addressRepo.create({
-      user,
-      fullName: dto.fullName,
-      phone: dto.phone,
-      governorate,
-      syrianCity,
-      district,
-      addressLine1: dto.street, // Map street to addressLine1 for backward compatibility
-      building: dto.building,
-      floor: dto.floor,
-      additionalDetails: dto.additionalDetails,
-      isDefault: dto.isDefault || false,
-      label: dto.label || 'home',
-      addressType: 'shipping', // Default for Syrian addresses
-    });
-
-    const savedAddress = await this.addressRepo.save(address);
-
-    this.logger.log(
-      `Created Syrian address ${savedAddress.id} for user ${user.id} ` +
-        `in ${governorate?.nameEn} -> ${syrianCity?.nameEn}`,
-    );
-
-    return savedAddress;
   }
 
   /**
@@ -154,7 +171,7 @@ export class SyrianAddressCrudService {
    *
    * @description Updates an existing Syrian address. If governorate, city,
    * or district IDs are being changed, re-validates the hierarchy. Handles
-   * default address toggling logic.
+   * default address toggling logic atomically in a transaction.
    *
    * @param user - The user updating the address
    * @param id - Address ID to update
@@ -229,22 +246,38 @@ export class SyrianAddressCrudService {
       address.additionalDetails = dto.additionalDetails;
     if (dto.label !== undefined) address.label = dto.label;
 
-    // Step 5: Handle default address logic
-    if (dto.isDefault === true) {
-      await this.addressRepo.update(
-        { user: { id: user.id } },
-        { isDefault: false },
-      );
-      address.isDefault = true;
-    } else if (dto.isDefault === false) {
-      address.isDefault = false;
+    // Step 5: Handle default address logic inside a transaction
+    // to prevent race conditions when setting default addresses
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+
+    try {
+      // Clear existing default address if this address should be set as default
+      if (dto.isDefault === true) {
+        await queryRunner.manager.update(
+          Address,
+          { user: { id: user.id } },
+          { isDefault: false },
+        );
+        address.isDefault = true;
+      } else if (dto.isDefault === false) {
+        address.isDefault = false;
+      }
+
+      const updatedAddress = await queryRunner.manager.save(address);
+
+      await queryRunner.commitTransaction();
+
+      this.logger.log(`Updated Syrian address ${id} for user ${user.id}`);
+
+      return updatedAddress;
+    } catch (error) {
+      await queryRunner.rollbackTransaction();
+      throw error;
+    } finally {
+      await queryRunner.release();
     }
-
-    const updatedAddress = await this.addressRepo.save(address);
-
-    this.logger.log(`Updated Syrian address ${id} for user ${user.id}`);
-
-    return updatedAddress;
   }
 
   /**

@@ -50,9 +50,7 @@ import { CategoryAnalyticsEventParams } from '../models/category.interface';
  * }
  * ```
  */
-@Injectable({
-  providedIn: 'root'
-})
+@Injectable()
 export class CategoryAnalyticsService {
   //#region Configuration
 

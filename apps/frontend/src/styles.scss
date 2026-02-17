@@ -235,6 +235,36 @@
   --mdc-filled-text-field-focus-label-text-color: var(--forest-dark);
 }
 
+/**
+ * Material Outlined Form Field - SouqSyria Golden Wheat Theme
+ * @description Global outlined text field overrides using MDC CSS custom properties.
+ * Applies to all mat-form-field with appearance="outline" across the app.
+ */
+.mat-mdc-form-field:has(.mdc-text-field--outlined) {
+  --mdc-outlined-text-field-outline-color: rgba(152, 133, 97, 0.38);
+  --mdc-outlined-text-field-hover-outline-color: var(--golden-wheat-primary);
+  --mdc-outlined-text-field-focus-outline-color: var(--golden-wheat-primary);
+  --mdc-outlined-text-field-focus-label-text-color: var(--golden-wheat-primary);
+  --mdc-outlined-text-field-label-text-color: var(--color-text-secondary);
+  --mdc-outlined-text-field-caret-color: var(--golden-wheat-primary);
+  --mdc-outlined-text-field-input-text-color: var(--forest-dark);
+  --mdc-outlined-text-field-error-outline-color: var(--color-error);
+  --mdc-outlined-text-field-error-focus-outline-color: var(--color-error);
+  --mdc-outlined-text-field-error-label-text-color: var(--color-error);
+}
+
+/**
+ * Fix MDC outlined notch rendering seam.
+ * @description The .mdc-notched-outline__notch acquires border-left/border-right
+ * in Angular Material 18's MDC implementation, creating a visible vertical divider
+ * inside the input field. The notch segment should only carry top/bottom borders;
+ * left/right borders are handled by the leading and trailing segments.
+ */
+.mdc-notched-outline__notch {
+  border-left: none !important;
+  border-right: none !important;
+}
+
 /* Material Paginator - SouqSyria Colors */
 .mat-mdc-paginator {
   background: transparent !important;

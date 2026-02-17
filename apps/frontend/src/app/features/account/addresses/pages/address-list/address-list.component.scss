@@ -3,27 +3,88 @@
  * @description Responsive grid layout for address cards with Material Design and Syrian marketplace theme
  */
 
+/** ============================================
+ *  DESIGN TOKENS - Using SouqSyria Global Theme
+ *  ============================================ */
+
+/** Primary colors from SouqSyria golden wheat palette */
+$primary-color: var(--golden-wheat-primary, #988561);
+$primary-medium: var(--golden-wheat-medium, #b9a779);
+$primary-light: var(--golden-wheat-light, #edebe0);
+
+/** Secondary colors */
+$accent-color: var(--forest-medium, #054239);
+$accent-light: var(--forest-light, #428177);
+
+/** Success, warning, and error colors */
+$success-color: var(--color-success, #2e7d32);
+$success-bg: var(--color-success-bg, #e8f5e9);
+$warning-color: var(--color-warning-text, #e65100);
+$warning-bg: var(--color-warning-bg, #fff3e0);
+$error-color: var(--color-error, #d32f2f);
+$error-bg: var(--color-error-bg, #fdecea);
+
+/** Info and action colors */
+$info-color: var(--color-info, #2196f3);
+$info-light: #eff6ff;
+$info-medium: #dbeafe;
+
+/** Text colors */
+$text-primary: var(--forest-dark, #002623);
+$text-secondary: var(--color-text-secondary, #666666);
+$text-muted: var(--color-text-muted, #999999);
+
+/** Background and surface colors */
+$surface-light: var(--color-surface-neutral, #f5f5f5);
+$surface-white: var(--charcoal-light, #ffffff);
+
+/** Border colors */
+$border-color: #e5e7eb;
+$border-light: #f3f4f6;
+
+/** Spacing tokens following Material Design 8px grid */
+$spacing-xs: 0.25rem;  /* 4px */
+$spacing-sm: 0.5rem;   /* 8px */
+$spacing-md: 1rem;     /* 16px */
+$spacing-lg: 1.5rem;   /* 24px */
+$spacing-xl: 2rem;     /* 32px */
+$spacing-2xl: 2.5rem;  /* 40px */
+
+/** Border radius tokens */
+$border-radius-sm: 4px;
+$border-radius: 8px;
+$border-radius-md: 10px;
+$border-radius-lg: 12px;
+$border-radius-xl: 16px;
+$border-radius-full: 20px;
+
+/** Shadow tokens */
+$shadow-sm: 0 1px 4px rgba(0, 0, 0, 0.05);
+$shadow-md: 0 2px 8px rgba(0, 0, 0, 0.08);
+$shadow-lg: 0 4px 16px rgba(0, 0, 0, 0.1);
+$shadow-xl: 0 8px 24px rgba(0, 0, 0, 0.12);
+
 .address-list-container {
-  padding: 2rem;
+  padding: $spacing-xl;
   max-width: 1400px;
   margin: 0 auto;
-  background: linear-gradient(135deg, #fef7cd 0%, #ffffff 50%, #d1fae5 100%);
+  background: linear-gradient(135deg, $primary-light 0%, $surface-white 50%, #d1fae5 100%);
   min-height: 100vh;
-  border-radius: 12px;
+  border-radius: $border-radius-lg;
 
   .page-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 2.5rem;
-    padding-bottom: 1.5rem;
+    margin-bottom: $spacing-2xl;
+    padding-bottom: $spacing-lg;
     border-bottom: 3px solid transparent;
-    border-image: linear-gradient(90deg, #d97706, #f59e0b, #10b981) 1;
+    border-image: linear-gradient(90deg, $primary-color, $primary-medium, $success-color) 1;
 
     .page-title {
       font-size: 2.25rem;
       font-weight: 700;
-      background: linear-gradient(135deg, #d97706, #f59e0b);
+      background: linear-gradient(135deg, $primary-color, $primary-medium);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       background-clip: text;
@@ -40,21 +101,21 @@
 
     button {
       height: 48px;
-      padding: 0 1.5rem;
-      border-radius: 8px;
+      padding: 0 $spacing-lg;
+      border-radius: $border-radius;
       font-weight: 600;
-      background: linear-gradient(135deg, #059669, #10b981);
-      color: white;
+      background: linear-gradient(135deg, $success-color, #10b981);
+      color: $surface-white;
       transition: all 0.2s ease;
 
       &:hover {
-        background: linear-gradient(135deg, #047857, #059669);
+        background: linear-gradient(135deg, #047857, $success-color);
         transform: translateY(-2px);
         box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
       }
 
       mat-icon {
-        margin-right: 0.5rem;
+        margin-right: $spacing-sm;
         font-size: 1.25rem;
         width: 1.25rem;
         height: 1.25rem;
@@ -68,19 +129,19 @@
     align-items: center;
     justify-content: center;
     padding: 4rem 0;
-    gap: 1rem;
+    gap: $spacing-md;
 
     p {
-      color: rgba(0, 0, 0, 0.6);
+      color: $text-secondary;
     }
   }
 
   .form-section {
-    margin-bottom: 2rem;
-    padding: 2rem;
-    background-color: #ffffff;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    margin-bottom: $spacing-xl;
+    padding: $spacing-xl;
+    background-color: $surface-white;
+    border-radius: $border-radius;
+    box-shadow: $shadow-md;
   }
 
   .empty-state {
@@ -100,7 +161,7 @@
       font-size: 6rem;
       width: 6rem;
       height: 6rem;
-      color: #d1d5db;
+      color: $text-muted;
       margin-bottom: 1.5rem;
       animation: float 3s ease-in-out infinite;
       filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.1));
@@ -118,7 +179,7 @@
 
     p {
       font-size: 1.0625rem;
-      color: #6b7280;
+      color: $text-secondary;
       margin-bottom: 2.5rem;
       line-height: 1.6;
       max-width: 400px;
@@ -156,7 +217,7 @@
 
     .address-card {
       position: relative;
-      background: white;
+      background: $surface-white;
       border-radius: 12px;
       border: 2px solid transparent;
       transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -229,7 +290,7 @@
               font-size: 1.125rem;
               width: 1.125rem;
               height: 1.125rem;
-              color: #3b82f6;
+              color: $info-color;
             }
 
             &:hover {
@@ -318,7 +379,7 @@
           transition: all 0.2s ease;
 
           &[color='primary'] {
-            color: #3b82f6;
+            color: $info-color;
             border: 1px solid #bfdbfe;
 
             &:hover {
@@ -338,7 +399,7 @@
           }
 
           &[color='warn'] {
-            color: #dc2626;
+            color: $error-color;
             border: 1px solid #fecaca;
 
             &:hover {
@@ -388,7 +449,80 @@
   }
 }
 
-// RTL Support for Arabic layout
+/** ============================================
+ *  P1 #5 FIX: Touch targets below 44px on mobile
+ *  ============================================
+ *  Ensures all interactive elements meet WCAG 2.5.5 (44x44px minimum)
+ */
+@media (max-width: 599px) {
+  .address-list-container {
+    .page-header button,
+    .empty-state button,
+    .address-grid .address-card mat-card-actions button {
+      min-height: 44px;
+      min-width: 44px;
+    }
+  }
+}
+
+/** ============================================
+ *  P0 #7 FIX: Improved responsive breakpoints
+ *  ============================================
+ *  Mobile-first approach with proper grid fixes for 360-640px
+ */
+
+// Tablet breakpoint: 600px - 959px (2 columns)
+@media (min-width: 600px) and (max-width: 959px) {
+  .address-list-container {
+    .address-grid {
+      grid-template-columns: repeat(2, 1fr);
+      gap: $spacing-lg;
+    }
+  }
+}
+
+// Mobile breakpoint: 360px - 599px (single column with optimizations)
+@media (max-width: 599px) {
+  .address-list-container {
+    padding: $spacing-lg $spacing-md;
+
+    .address-grid {
+      // P0 #7 FIX: Single column grid on mobile
+      grid-template-columns: 1fr;
+      gap: $spacing-lg;
+
+      .address-card {
+        mat-card-actions {
+          // P0 #7 FIX: Vertical button stack on mobile
+          flex-direction: column;
+          gap: $spacing-sm;
+
+          button {
+            width: 100%;
+            justify-content: center;
+            min-height: 44px;
+          }
+        }
+      }
+    }
+
+    .page-header {
+      // P0 #7 FIX: Vertical header layout on mobile
+      flex-direction: column;
+      align-items: stretch;
+      gap: $spacing-md;
+
+      button {
+        width: 100%;
+        min-height: 48px;
+      }
+    }
+  }
+}
+
+/** ============================================
+ *  RTL SUPPORT FOR ARABIC LAYOUT
+ *  ============================================ */
 [dir='rtl'],
 :host-context([dir='rtl']) {
   .address-list-container {

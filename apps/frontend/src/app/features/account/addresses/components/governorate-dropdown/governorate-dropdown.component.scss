@@ -3,14 +3,52 @@
  * @description Responsive layout for hierarchical Syrian location selection (Governorate > City > District)
  */
 
+/** ============================================
+ *  DESIGN TOKENS - Using SouqSyria Global Theme
+ *  ============================================ */
+
+/** Primary colors */
+$primary-color: var(--golden-wheat-primary, #988561);
+$primary-light: var(--golden-wheat-light, #edebe0);
+
+/** Info colors */
+$info-color: var(--color-info, #2196f3);
+$info-light: #eff6ff;
+$info-medium: #dbeafe;
+
+/** Text colors */
+$text-primary: var(--forest-dark, #002623);
+$text-secondary: var(--color-text-secondary, #666666);
+$text-muted: var(--color-text-muted, #999999);
+
+/** Background colors */
+$surface-white: var(--charcoal-light, #ffffff);
+$surface-light: var(--color-surface-neutral, #f5f5f5);
+
+/** Border colors */
+$border-color: #e5e7eb;
+$border-light: #f3f4f6;
+
+/** Spacing tokens */
+$spacing-sm: 0.5rem;
+$spacing-md: 1rem;
+$spacing-lg: 1.5rem;
+
+/** Border radius tokens */
+$border-radius: 8px;
+
+/** Shadow tokens */
+$shadow-md: 0 2px 8px rgba(0, 0, 0, 0.08);
+$shadow-lg: 0 4px 16px rgba(0, 0, 0, 0.1);
+
 .governorate-dropdown-container {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 1rem;
-  padding: 1rem;
-  background: linear-gradient(135deg, #eff6ff 0%, #f9fafb 100%);
-  border-radius: 8px;
-  border: 1px solid #e5e7eb;
+  gap: $spacing-md;
+  padding: $spacing-md;
+  background: linear-gradient(135deg, $info-light 0%, $surface-light 100%);
+  border-radius: $border-radius;
+  border: 1px solid $border-color;
 
   .full-width {
     width: 100%;
@@ -22,17 +60,17 @@
       width: 100%;
 
       .mat-mdc-form-field-label {
-        color: #374151;
+        color: $text-primary;
         font-weight: 600;
         font-size: 0.9375rem;
       }
 
       .mat-mdc-select {
-        color: #111827;
+        color: $text-primary;
         font-weight: 500;
 
         &[disabled] {
-          color: #9ca3af;
+          color: $text-muted;
           cursor: not-allowed;
 
           .mat-mdc-select-trigger {
@@ -43,18 +81,18 @@
       }
 
       .mat-mdc-select-arrow {
-        color: #6b7280;
+        color: $text-secondary;
       }
 
       &.mat-focused {
         .mat-mdc-form-field-label {
-          color: #3b82f6;
+          color: $info-color;
         }
 
         .mdc-notched-outline__leading,
         .mdc-notched-outline__notch,
         .mdc-notched-outline__trailing {
-          border-color: #3b82f6 !important;
+          border-color: $info-color !important;
           border-width: 2px !important;
         }
       }
@@ -69,7 +107,7 @@
         }
 
         .mat-mdc-form-field-label {
-          color: #9ca3af;
+          color: $text-muted;
         }
       }
 
@@ -80,7 +118,7 @@
       }
 
       .mat-mdc-form-field-hint {
-        color: #6b7280;
+        color: $text-secondary;
         font-size: 0.75rem;
         font-style: italic;
       }
@@ -88,7 +126,7 @@
 
     // Select panel customization
     .mat-mdc-select-panel {
-      background: white;
+      background: $surface-white;
       box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
       border-radius: 8px;
       max-height: 320px;
@@ -96,7 +134,7 @@
       .mat-mdc-option {
         font-size: 0.9375rem;
         padding: 0.75rem 1rem;
-        color: #374151;
+        color: $text-primary;
         transition: all 0.15s ease;
 
         &:hover {
@@ -122,6 +160,16 @@
     }
   }
 
+  /** ============================================
+   *  P0 #7 FIX: Responsive breakpoints
+   *  ============================================ */
+
+  // Tablet: 2 columns
+  @media (min-width: 600px) and (max-width: 767px) {
+    grid-template-columns: repeat(2, 1fr);
+    gap: $spacing-md;
+  }
+
   // Tablet and desktop: three-column grid
   @media (min-width: 768px) {
     grid-template-columns: repeat(3, 1fr);
@@ -131,8 +179,8 @@
 
   // Large desktop: more spacing
   @media (min-width: 1024px) {
-    gap: 1.5rem;
-    padding: 1.5rem;
+    gap: $spacing-lg;
+    padding: $spacing-lg;
   }
 }
 
@@ -178,8 +226,29 @@
   }
 }
 
-// Mobile optimizations
-@media (max-width: 600px) {
+/** ============================================
+ *  P1 #5 FIX: Touch targets below 44px on mobile
+ *  ============================================ */
+@media (max-width: 599px) {
+  .governorate-dropdown-container {
+    ::ng-deep {
+      mat-form-field,
+      .mat-mdc-form-field,
+      .mat-mdc-select {
+        min-height: 44px;
+      }
+
+      .mat-mdc-select-trigger {
+        min-height: 44px;
+      }
+    }
+  }
+}
+
+/** ============================================
+ *  P0 #7 FIX: Mobile optimizations
+ *  ============================================ */
+@media (max-width: 599px) {
   .governorate-dropdown-container {
     gap: 0.75rem;
     padding: 0.75rem;

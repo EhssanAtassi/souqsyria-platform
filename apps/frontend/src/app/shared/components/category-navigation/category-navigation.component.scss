@@ -60,6 +60,39 @@
   }
 }
 
+/**
+ * Pinned badge — golden gradient indicator for categories pinned in nav bar
+ * @audit-fix C-3: Documented relationship to golden wheat palette (C8A860 base).
+ * Colors are lighter decorative variants intentionally different from the
+ * mega menu tokens for the subtle badge aesthetic.
+ */
+$pinned-badge-text: #7A5A1E;            // Dark gold (derived from golden wheat dark)
+$pinned-badge-bg-start: #FAF0D0;        // Light gold gradient start
+$pinned-badge-bg-end: #E8D5A0;          // Light gold gradient end
+$pinned-badge-border: rgba(200, 168, 96, 0.4);  // Golden wheat (#C8A860) at 40% opacity
+
+.sq-pinned-badge {
+  display: inline-flex;
+  align-items: center;
+  margin-left: 6px;
+  padding: 1px 6px;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: $pinned-badge-text;
+  background: linear-gradient(135deg, $pinned-badge-bg-start 0%, $pinned-badge-bg-end 100%);
+  border: 1px solid $pinned-badge-border;
+  border-radius: 4px;
+  line-height: 1.6;
+  vertical-align: middle;
+  user-select: none;
+
+  .rtl & {
+    margin-left: 0;
+    margin-right: 6px;
+  }
+}
+
 // Underline indicator animation
 .sq-cat-underline {
   position: absolute;

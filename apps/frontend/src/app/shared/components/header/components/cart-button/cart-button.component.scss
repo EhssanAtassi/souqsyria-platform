@@ -1,7 +1,28 @@
 /**
  * Cart button component styles
- * @description Golden gradient button with hover lift and badge shadow
+ * @description Golden gradient button with hover lift, badge shadow, and bounce animation
  */
 :host {
   display: contents;
+}
+
+/** Badge bounce keyframes — triggers when item count changes */
+@keyframes badgeBounce {
+  0% { transform: scale(1); }
+  30% { transform: scale(1.4); }
+  50% { transform: scale(0.9); }
+  70% { transform: scale(1.15); }
+  100% { transform: scale(1); }
+}
+
+/** Applied via [class.badge-bounce] when count changes */
+.badge-bounce {
+  animation: badgeBounce 400ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/** Disable badge bounce for users who prefer reduced motion (WCAG 2.3.3) */
+@media (prefers-reduced-motion: reduce) {
+  .badge-bounce {
+    animation: none !important;
+  }
 }

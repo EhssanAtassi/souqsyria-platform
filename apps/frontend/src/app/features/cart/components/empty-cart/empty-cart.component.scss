@@ -1,0 +1,194 @@
+@use '../../../../../styles/breakpoints' as bp;
+
+/**
+ * Empty Cart Component Styles
+ * Centered layout with Syrian gold illustration theme
+ */
+
+/** Fade + scale entrance for the empty cart illustration */
+@keyframes emptyCartEntrance {
+  from {
+    opacity: 0;
+    transform: scale(0.85) translateY(12px);
+  }
+  to {
+    opacity: 0.85;
+    transform: scale(1) translateY(0);
+  }
+}
+
+/** Staggered fade-in for recommendation grid items */
+@keyframes recommendFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.empty-cart {
+  text-align: center;
+  padding: 48px 16px;
+
+  &__illustration {
+    margin-bottom: 24px;
+
+    svg {
+      opacity: 0;
+      animation: emptyCartEntrance 500ms cubic-bezier(0.4, 0, 0.2, 1) 100ms both;
+    }
+  }
+
+  &__title {
+    font-size: clamp(1.25rem, 1rem + 1.5vw, 1.75rem); // fluid typography for small screens
+    font-weight: 700;
+    color: #374151;
+    margin: 0 0 12px;
+  }
+
+  &__subtitle {
+    font-size: 1rem;
+    color: #6b7280;
+    margin: 0 0 32px;
+    max-width: 400px;
+    margin-inline: auto;
+  }
+
+  &__actions {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 48px;
+  }
+
+  &__btn {
+    display: inline-flex;
+    align-items: center;
+    padding: 12px 24px;
+    min-height: 44px;
+    border-radius: 8px;
+    font-size: 0.9375rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: none;
+
+    &--primary {
+      background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+      color: white;
+
+      &:hover {
+        background: linear-gradient(135deg, #1d4ed8, #1e40af);
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+      }
+    }
+
+    &--secondary {
+      background: white;
+      color: #374151;
+      border: 2px solid #e5e7eb;
+
+      &:hover {
+        border-color: #3b82f6;
+        color: #3b82f6;
+        background-color: #eff6ff;
+      }
+    }
+  }
+
+  // Recommendations section
+  &__recommendations {
+    max-width: 1000px;
+    margin: 0 auto;
+  }
+
+  &__recommendations-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #111827;
+    margin: 0 0 24px;
+    text-align: start;
+
+    [dir='rtl'] & {
+      line-height: 1.7;
+    }
+  }
+
+  // RTL Arabic typography enhancements
+  [dir='rtl'] &__subtitle {
+    line-height: 1.7;
+    word-spacing: 0.05em;
+  }
+
+  &__recommendations-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 16px;
+
+    // Staggered fade-in for first 8 items
+    > * {
+      opacity: 0;
+      animation: recommendFadeIn 400ms cubic-bezier(0.4, 0, 0.2, 1) both;
+    }
+    > *:nth-child(1) { animation-delay: 100ms; }
+    > *:nth-child(2) { animation-delay: 180ms; }
+    > *:nth-child(3) { animation-delay: 260ms; }
+    > *:nth-child(4) { animation-delay: 340ms; }
+    > *:nth-child(5) { animation-delay: 420ms; }
+    > *:nth-child(6) { animation-delay: 500ms; }
+    > *:nth-child(7) { animation-delay: 580ms; }
+    > *:nth-child(8) { animation-delay: 660ms; }
+  }
+}
+
+// Responsive
+@include bp.below-md {
+  .empty-cart {
+    padding: 32px 16px;
+
+    // title uses clamp() for fluid sizing — no override needed
+
+    &__actions {
+      flex-direction: column;
+      align-items: center;
+
+      .empty-cart__btn {
+        width: 100%;
+        max-width: min(90vw, 300px); // prevent overflow on narrow viewports (< 360px)
+        justify-content: center;
+      }
+    }
+
+    &__recommendations-grid {
+      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+      gap: 12px;
+    }
+  }
+}
+
+// Extra small screens (iPhone SE)
+@media (max-width: 360px) {
+  .empty-cart {
+    &__recommendations-grid {
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+  }
+}
+
+/** Disable all animations for users who prefer reduced motion (WCAG 2.3.3) */
+@media (prefers-reduced-motion: reduce) {
+  .empty-cart__illustration svg,
+  .empty-cart__recommendations-grid > * {
+    animation: none !important;
+    opacity: 0.85; // svg final opacity
+  }
+  .empty-cart__recommendations-grid > * {
+    opacity: 1;
+  }
+}

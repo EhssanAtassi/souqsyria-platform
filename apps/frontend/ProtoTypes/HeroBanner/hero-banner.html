@@ -1,0 +1,925 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SouqSyria - Hero Banner Prototype</title>
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Material Icons -->
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons|Material+Icons+Round|Material+Icons+Outlined" rel="stylesheet">
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            // Syrian-inspired color palette
+            primary: {
+              50: '#faf8f3',
+              100: '#f5f0e6',
+              200: '#ebe1cc',
+              300: '#ddd0ab',
+              400: '#c9b888',
+              500: '#C4A052', // Main Gold
+              600: '#b08a3e',
+              700: '#926f33',
+              800: '#77592e',
+              900: '#624a29',
+            },
+            secondary: {
+              50: '#f4f6f7',
+              100: '#e3e7ea',
+              200: '#c9d1d7',
+              300: '#a4b1bb',
+              400: '#778997',
+              500: '#5c6e7c',
+              600: '#4f5d69',
+              700: '#444e58',
+              800: '#3c444c',
+              900: '#353b42',
+            },
+            accent: {
+              red: '#E63946',
+              green: '#2A9D8F',
+              blue: '#457B9D',
+            },
+            surface: {
+              DEFAULT: '#FFFFFF',
+              variant: '#F8F9FA',
+              elevated: '#FFFFFF',
+            },
+            outline: {
+              DEFAULT: '#DADCE0',
+              variant: '#E8EAED',
+            },
+            'on-surface': {
+              DEFAULT: '#1F1F1F',
+              variant: '#5F6368',
+            },
+          },
+          fontFamily: {
+            'sans': ['Inter', 'Cairo', 'system-ui', 'sans-serif'],
+            'arabic': ['Cairo', 'Inter', 'system-ui', 'sans-serif'],
+          },
+          boxShadow: {
+            'soft': '0 2px 8px rgba(0, 0, 0, 0.08)',
+            'medium': '0 4px 16px rgba(0, 0, 0, 0.12)',
+            'strong': '0 8px 32px rgba(0, 0, 0, 0.16)',
+            'card': '0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06)',
+          },
+          animation: {
+            'fade-in': 'fadeIn 0.5s ease-out',
+            'slide-up': 'slideUp 0.3s ease-out',
+            'progress': 'progress 5s linear',
+            'shimmer': 'shimmer 2s infinite',
+          },
+          keyframes: {
+            fadeIn: {
+              '0%': { opacity: '0' },
+              '100%': { opacity: '1' },
+            },
+            slideUp: {
+              '0%': { opacity: '0', transform: 'translateY(10px)' },
+              '100%': { opacity: '1', transform: 'translateY(0)' },
+            },
+            progress: {
+              '0%': { width: '0%' },
+              '100%': { width: '100%' },
+            },
+            shimmer: {
+              '0%': { backgroundPosition: '-200% 0' },
+              '100%': { backgroundPosition: '200% 0' },
+            },
+          },
+        },
+      },
+    }
+  </script>
+
+  <style>
+    /* RTL Support */
+    [dir="rtl"] {
+      font-family: 'Cairo', 'Inter', system-ui, sans-serif;
+    }
+
+    /* Flip icons for RTL */
+    [dir="rtl"] .flip-rtl {
+      transform: scaleX(-1);
+    }
+
+    /* Line clamp utilities (for older browsers) */
+    .line-clamp-1 {
+      display: -webkit-box;
+      -webkit-line-clamp: 1;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .line-clamp-2 {
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    /* Carousel Transitions */
+    .carousel-slide {
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+      z-index: 0;
+      transition: opacity 500ms ease-in-out, visibility 500ms ease-in-out;
+    }
+
+    .carousel-slide.active {
+      opacity: 1;
+      visibility: visible;
+      pointer-events: auto;
+      z-index: 1;
+    }
+
+    /* Progress bar on active dot */
+    .carousel-dot.active::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      height: 100%;
+      width: 0;
+      background: rgba(255, 255, 255, 0.5);
+      border-radius: inherit;
+      animation: progress 5s linear forwards;
+    }
+
+    .carousel-container:hover .carousel-dot.active::after,
+    .carousel-container.paused .carousel-dot.active::after {
+      animation-play-state: paused;
+    }
+
+    /* Promo Card Hover Effect */
+    .promo-card {
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .promo-card:hover {
+      transform: translateY(-4px);
+    }
+
+    .promo-card:hover .promo-image {
+      transform: scale(1.05);
+    }
+
+    .promo-image {
+      transition: transform 0.4s ease;
+    }
+
+    /* Arrow Button Animation */
+    .arrow-btn {
+      transition: all 0.2s ease;
+    }
+
+    .arrow-btn:hover {
+      background: white;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    .arrow-btn:active {
+      transform: translateY(-50%) scale(0.95);
+    }
+
+    /* Badge pulse animation */
+    .badge-new {
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(196, 160, 82, 0.4); }
+      50% { box-shadow: 0 0 0 8px rgba(196, 160, 82, 0); }
+    }
+
+    /* CTA Button Hover */
+    .cta-button {
+      transition: all 0.2s ease;
+    }
+
+    .cta-button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(196, 160, 82, 0.4);
+    }
+
+    /* Reduced motion support */
+    @media (prefers-reduced-motion: reduce) {
+      .carousel-slide {
+        transition: none;
+      }
+      .carousel-dot.active::after {
+        animation: none;
+      }
+      .promo-card,
+      .promo-image,
+      .arrow-btn,
+      .cta-button {
+        transition: none;
+      }
+      .promo-card:hover {
+        transform: none;
+      }
+      .badge-new {
+        animation: none;
+      }
+    }
+
+    /* Touch feedback */
+    @media (hover: none) {
+      .arrow-btn:active {
+        background: white;
+      }
+    }
+
+    /* Swipe indicator on mobile */
+    .swipe-hint {
+      animation: swipeHint 1.5s ease-in-out 2;
+    }
+
+    @keyframes swipeHint {
+      0%, 100% { transform: translateX(0); opacity: 1; }
+      50% { transform: translateX(-10px); opacity: 0.5; }
+    }
+  </style>
+</head>
+
+<body class="bg-surface-variant min-h-screen">
+
+  <!-- Language Toggle (Demo) -->
+  <div class="fixed top-4 right-4 z-50 flex items-center gap-2 bg-white rounded-full px-3 py-2 shadow-medium">
+    <button id="langEN" class="px-3 py-1 rounded-full text-sm font-medium transition-colors bg-primary-500 text-white">
+      EN
+    </button>
+    <button id="langAR" class="px-3 py-1 rounded-full text-sm font-medium transition-colors text-on-surface-variant hover:bg-gray-100">
+      عربي
+    </button>
+  </div>
+
+  <!-- Hero Banner Section -->
+  <section class="max-w-[1400px] mx-auto px-4 md:px-6 py-4 md:py-6">
+
+    <!-- Hero Grid: Desktop 70/30, Tablet/Mobile Stacked -->
+    <div class="flex flex-col lg:flex-row gap-4 lg:gap-6">
+
+      <!-- Main Carousel (70% on desktop) -->
+      <div class="w-full lg:w-[70%]">
+        <div class="carousel-container relative w-full h-[280px] md:h-[350px] lg:h-[420px] rounded-xl lg:rounded-2xl overflow-hidden bg-gray-100 group"
+             role="region"
+             aria-label="Hero banner carousel"
+             aria-roledescription="carousel"
+             tabindex="0">
+
+          <!-- Slides -->
+          <div id="carousel-slides" class="relative w-full h-full">
+
+            <!-- Slide 1: Damascus Steel -->
+            <div class="carousel-slide absolute inset-0 active"
+                 role="group"
+                 aria-roledescription="slide"
+                 aria-label="1 of 6">
+              <!-- Background Image -->
+              <div class="absolute inset-0 bg-gradient-to-br from-gray-800 to-gray-900">
+                <img src="https://images.unsplash.com/photo-1593618998160-e34014e67546?w=1200&h=600&fit=crop"
+                     alt="Damascus Steel Collection"
+                     class="w-full h-full object-cover opacity-80">
+              </div>
+              <!-- Gradient Overlay -->
+              <div class="absolute inset-0 bg-gradient-to-r from-black/70 via-black/40 to-transparent rtl:bg-gradient-to-l"></div>
+              <!-- Content -->
+              <div class="absolute inset-0 p-6 md:p-10 lg:p-12 flex flex-col justify-center max-w-[65%]">
+                <!-- Badge -->
+                <span class="inline-flex items-center gap-1 px-3 py-1 bg-primary-500 text-white text-xs md:text-sm font-medium rounded-full w-fit mb-3 md:mb-4 badge-new">
+                  <span class="material-icons-round text-[14px]">auto_awesome</span>
+                  <span data-en="Heritage Collection" data-ar="مجموعة التراث">Heritage Collection</span>
+                </span>
+                <!-- Title -->
+                <h2 class="text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-bold text-white mb-2 md:mb-3 leading-tight"
+                    data-en="Authentic Damascus Steel Collection"
+                    data-ar="مجموعة الفولاذ الدمشقي الأصيل">
+                  Authentic Damascus Steel Collection
+                </h2>
+                <!-- Subtitle -->
+                <p class="text-sm md:text-base lg:text-lg text-white/80 mb-4 md:mb-6 max-w-md leading-relaxed"
+                   data-en="Handcrafted by Syrian artisans using 1000-year-old techniques"
+                   data-ar="صناعة يدوية سورية باستخدام تقنيات عمرها ألف عام">
+                  Handcrafted by Syrian artisans using 1000-year-old techniques
+                </p>
+                <!-- CTA Button -->
+                <a href="#" class="cta-button inline-flex items-center gap-2 px-6 py-3 bg-primary-500 hover:bg-primary-600 text-white font-semibold rounded-xl w-fit">
+                  <span data-en="Shop Now" data-ar="تسوق الآن">Shop Now</span>
+                  <span class="material-icons-round text-[20px] flip-rtl">arrow_forward</span>
+                </a>
+              </div>
+            </div>
+
+            <!-- Slide 2: Ramadan -->
+            <div class="carousel-slide absolute inset-0"
+                 role="group"
+                 aria-roledescription="slide"
+                 aria-label="2 of 6">
+              <div class="absolute inset-0 bg-gradient-to-br from-purple-900 to-indigo-900">
+                <img src="https://images.unsplash.com/photo-1564890369478-c89ca6d9cde9?w=1200&h=600&fit=crop"
+                     alt="Ramadan Essentials"
+                     class="w-full h-full object-cover opacity-70">
+              </div>
+              <div class="absolute inset-0 bg-gradient-to-r from-black/70 via-black/40 to-transparent rtl:bg-gradient-to-l"></div>
+              <div class="absolute inset-0 p-6 md:p-10 lg:p-12 flex flex-col justify-center max-w-[65%]">
+                <span class="inline-flex items-center gap-1 px-3 py-1 bg-accent-red text-white text-xs md:text-sm font-medium rounded-full w-fit mb-3 md:mb-4">
+                  <span class="material-icons-round text-[14px]">schedule</span>
+                  <span data-en="Limited Time" data-ar="لفترة محدودة">Limited Time</span>
+                </span>
+                <h2 class="text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-bold text-white mb-2 md:mb-3 leading-tight"
+                    data-en="Ramadan Essentials"
+                    data-ar="مستلزمات رمضان">
+                  Ramadan Essentials
+                </h2>
+                <p class="text-sm md:text-base lg:text-lg text-white/80 mb-4 md:mb-6 max-w-md leading-relaxed"
+                   data-en="Up to 50% off on selected items"
+                   data-ar="خصم حتى 50% على منتجات مختارة">
+                  Up to 50% off on selected items
+                </p>
+                <a href="#" class="cta-button inline-flex items-center gap-2 px-6 py-3 bg-accent-red hover:bg-red-600 text-white font-semibold rounded-xl w-fit">
+                  <span data-en="Explore Deals" data-ar="اكتشف العروض">Explore Deals</span>
+                  <span class="material-icons-round text-[20px] flip-rtl">arrow_forward</span>
+                </a>
+              </div>
+            </div>
+
+            <!-- Slide 3: Aleppo Soap -->
+            <div class="carousel-slide absolute inset-0"
+                 role="group"
+                 aria-roledescription="slide"
+                 aria-label="3 of 6">
+              <div class="absolute inset-0 bg-gradient-to-br from-green-800 to-emerald-900">
+                <img src="https://images.unsplash.com/photo-1600857544200-b2f666a9a2ec?w=1200&h=600&fit=crop"
+                     alt="Aleppo Soap"
+                     class="w-full h-full object-cover opacity-80">
+              </div>
+              <div class="absolute inset-0 bg-gradient-to-r from-black/70 via-black/40 to-transparent rtl:bg-gradient-to-l"></div>
+              <div class="absolute inset-0 p-6 md:p-10 lg:p-12 flex flex-col justify-center max-w-[65%]">
+                <span class="inline-flex items-center gap-1 px-3 py-1 bg-accent-green text-white text-xs md:text-sm font-medium rounded-full w-fit mb-3 md:mb-4">
+                  <span class="material-icons-round text-[14px]">verified</span>
+                  <span data-en="Best Seller" data-ar="الأكثر مبيعاً">Best Seller</span>
+                </span>
+                <h2 class="text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-bold text-white mb-2 md:mb-3 leading-tight"
+                    data-en="Premium Aleppo Laurel Soap"
+                    data-ar="صابون حلب الفاخر بالغار">
+                  Premium Aleppo Laurel Soap
+                </h2>
+                <p class="text-sm md:text-base lg:text-lg text-white/80 mb-4 md:mb-6 max-w-md leading-relaxed"
+                   data-en="Natural skincare tradition since centuries"
+                   data-ar="تقليد العناية الطبيعية بالبشرة منذ قرون">
+                  Natural skincare tradition since centuries
+                </p>
+                <a href="#" class="cta-button inline-flex items-center gap-2 px-6 py-3 bg-accent-green hover:bg-teal-600 text-white font-semibold rounded-xl w-fit">
+                  <span data-en="Discover" data-ar="اكتشف">Discover</span>
+                  <span class="material-icons-round text-[20px] flip-rtl">arrow_forward</span>
+                </a>
+              </div>
+            </div>
+
+            <!-- Slide 4: Brocade -->
+            <div class="carousel-slide absolute inset-0"
+                 role="group"
+                 aria-roledescription="slide"
+                 aria-label="4 of 6">
+              <div class="absolute inset-0 bg-gradient-to-br from-amber-800 to-orange-900">
+                <img src="https://images.unsplash.com/photo-1558171813-4c088753af8f?w=1200&h=600&fit=crop"
+                     alt="Damascus Brocade"
+                     class="w-full h-full object-cover opacity-80">
+              </div>
+              <div class="absolute inset-0 bg-gradient-to-r from-black/70 via-black/40 to-transparent rtl:bg-gradient-to-l"></div>
+              <div class="absolute inset-0 p-6 md:p-10 lg:p-12 flex flex-col justify-center max-w-[65%]">
+                <span class="inline-flex items-center gap-1 px-3 py-1 bg-primary-500 text-white text-xs md:text-sm font-medium rounded-full w-fit mb-3 md:mb-4">
+                  <span class="material-icons-round text-[14px]">new_releases</span>
+                  <span data-en="New Arrivals" data-ar="وصل حديثاً">New Arrivals</span>
+                </span>
+                <h2 class="text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-bold text-white mb-2 md:mb-3 leading-tight"
+                    data-en="Damascus Brocade Collection"
+                    data-ar="مجموعة البروكار الدمشقي">
+                  Damascus Brocade Collection
+                </h2>
+                <p class="text-sm md:text-base lg:text-lg text-white/80 mb-4 md:mb-6 max-w-md leading-relaxed"
+                   data-en="Luxury fabrics with heritage patterns"
+                   data-ar="أقمشة فاخرة بنقوش تراثية">
+                  Luxury fabrics with heritage patterns
+                </p>
+                <a href="#" class="cta-button inline-flex items-center gap-2 px-6 py-3 bg-primary-500 hover:bg-primary-600 text-white font-semibold rounded-xl w-fit">
+                  <span data-en="View Collection" data-ar="شاهد المجموعة">View Collection</span>
+                  <span class="material-icons-round text-[20px] flip-rtl">arrow_forward</span>
+                </a>
+              </div>
+            </div>
+
+            <!-- Slide 5: Free Shipping -->
+            <div class="carousel-slide absolute inset-0"
+                 role="group"
+                 aria-roledescription="slide"
+                 aria-label="5 of 6">
+              <div class="absolute inset-0 bg-gradient-to-br from-blue-800 to-cyan-900">
+                <img src="https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=1200&h=600&fit=crop"
+                     alt="Free Shipping"
+                     class="w-full h-full object-cover opacity-70">
+              </div>
+              <div class="absolute inset-0 bg-gradient-to-r from-black/70 via-black/40 to-transparent rtl:bg-gradient-to-l"></div>
+              <div class="absolute inset-0 p-6 md:p-10 lg:p-12 flex flex-col justify-center max-w-[65%]">
+                <span class="inline-flex items-center gap-1 px-3 py-1 bg-accent-blue text-white text-xs md:text-sm font-medium rounded-full w-fit mb-3 md:mb-4">
+                  <span class="material-icons-round text-[14px]">local_shipping</span>
+                  <span data-en="Free Delivery" data-ar="توصيل مجاني">Free Delivery</span>
+                </span>
+                <h2 class="text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-bold text-white mb-2 md:mb-3 leading-tight"
+                    data-en="Free Shipping Nationwide"
+                    data-ar="شحن مجاني لجميع أنحاء سوريا">
+                  Free Shipping Nationwide
+                </h2>
+                <p class="text-sm md:text-base lg:text-lg text-white/80 mb-4 md:mb-6 max-w-md leading-relaxed"
+                   data-en="On orders over 50,000 SYP"
+                   data-ar="للطلبات فوق 50,000 ل.س">
+                  On orders over 50,000 SYP
+                </p>
+                <a href="#" class="cta-button inline-flex items-center gap-2 px-6 py-3 bg-accent-blue hover:bg-blue-600 text-white font-semibold rounded-xl w-fit">
+                  <span data-en="Start Shopping" data-ar="ابدأ التسوق">Start Shopping</span>
+                  <span class="material-icons-round text-[20px] flip-rtl">arrow_forward</span>
+                </a>
+              </div>
+            </div>
+
+            <!-- Slide 6: New Arrivals -->
+            <div class="carousel-slide absolute inset-0"
+                 role="group"
+                 aria-roledescription="slide"
+                 aria-label="6 of 6">
+              <div class="absolute inset-0 bg-gradient-to-br from-rose-800 to-pink-900">
+                <img src="https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=1200&h=600&fit=crop"
+                     alt="New Arrivals"
+                     class="w-full h-full object-cover opacity-80">
+              </div>
+              <div class="absolute inset-0 bg-gradient-to-r from-black/70 via-black/40 to-transparent rtl:bg-gradient-to-l"></div>
+              <div class="absolute inset-0 p-6 md:p-10 lg:p-12 flex flex-col justify-center max-w-[65%]">
+                <span class="inline-flex items-center gap-1 px-3 py-1 bg-rose-500 text-white text-xs md:text-sm font-medium rounded-full w-fit mb-3 md:mb-4">
+                  <span class="material-icons-round text-[14px]">fiber_new</span>
+                  <span data-en="New" data-ar="جديد">New</span>
+                </span>
+                <h2 class="text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-bold text-white mb-2 md:mb-3 leading-tight"
+                    data-en="New Arrivals This Week"
+                    data-ar="وصل حديثاً هذا الأسبوع">
+                  New Arrivals This Week
+                </h2>
+                <p class="text-sm md:text-base lg:text-lg text-white/80 mb-4 md:mb-6 max-w-md leading-relaxed"
+                   data-en="Fresh products added daily"
+                   data-ar="منتجات جديدة تضاف يومياً">
+                  Fresh products added daily
+                </p>
+                <a href="#" class="cta-button inline-flex items-center gap-2 px-6 py-3 bg-rose-500 hover:bg-rose-600 text-white font-semibold rounded-xl w-fit">
+                  <span data-en="See What's New" data-ar="شاهد الجديد">See What's New</span>
+                  <span class="material-icons-round text-[20px] flip-rtl">arrow_forward</span>
+                </a>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Navigation Arrows -->
+          <button id="prevBtn"
+                  class="arrow-btn absolute start-3 md:start-4 top-1/2 -translate-y-1/2 z-10 w-10 h-10 md:w-11 md:h-11 bg-white/90 border border-outline/30 rounded-full shadow-soft flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity focus:opacity-100"
+                  aria-label="Previous slide"
+                  aria-controls="carousel-slides">
+            <span class="material-icons-round text-on-surface text-[20px] md:text-[24px] flip-rtl">chevron_left</span>
+          </button>
+
+          <button id="nextBtn"
+                  class="arrow-btn absolute end-3 md:end-4 top-1/2 -translate-y-1/2 z-10 w-10 h-10 md:w-11 md:h-11 bg-white/90 border border-outline/30 rounded-full shadow-soft flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity focus:opacity-100"
+                  aria-label="Next slide"
+                  aria-controls="carousel-slides">
+            <span class="material-icons-round text-on-surface text-[20px] md:text-[24px] flip-rtl">chevron_right</span>
+          </button>
+
+          <!-- Dot Indicators -->
+          <div class="absolute bottom-4 start-1/2 -translate-x-1/2 flex gap-2 z-10" role="tablist" aria-label="Slide indicators">
+            <button class="carousel-dot relative h-2 rounded-full transition-all duration-300 w-6 bg-white"
+                    role="tab"
+                    aria-selected="true"
+                    aria-label="Go to slide 1"
+                    data-slide="0"></button>
+            <button class="carousel-dot relative h-2 rounded-full transition-all duration-300 w-2 bg-white/50 hover:bg-white/80"
+                    role="tab"
+                    aria-selected="false"
+                    aria-label="Go to slide 2"
+                    data-slide="1"></button>
+            <button class="carousel-dot relative h-2 rounded-full transition-all duration-300 w-2 bg-white/50 hover:bg-white/80"
+                    role="tab"
+                    aria-selected="false"
+                    aria-label="Go to slide 3"
+                    data-slide="2"></button>
+            <button class="carousel-dot relative h-2 rounded-full transition-all duration-300 w-2 bg-white/50 hover:bg-white/80"
+                    role="tab"
+                    aria-selected="false"
+                    aria-label="Go to slide 4"
+                    data-slide="3"></button>
+            <button class="carousel-dot relative h-2 rounded-full transition-all duration-300 w-2 bg-white/50 hover:bg-white/80"
+                    role="tab"
+                    aria-selected="false"
+                    aria-label="Go to slide 5"
+                    data-slide="4"></button>
+            <button class="carousel-dot relative h-2 rounded-full transition-all duration-300 w-2 bg-white/50 hover:bg-white/80"
+                    role="tab"
+                    aria-selected="false"
+                    aria-label="Go to slide 6"
+                    data-slide="5"></button>
+          </div>
+
+          <!-- Slide Counter -->
+          <div class="absolute bottom-4 end-4 z-10 px-3 py-1 bg-black/50 rounded-full text-xs text-white font-medium">
+            <span id="currentSlide">1</span>
+            <span class="mx-1">/</span>
+            <span id="totalSlides">6</span>
+          </div>
+
+          <!-- Pause/Play Button (Optional) -->
+          <button id="pauseBtn"
+                  class="absolute top-4 end-4 z-10 w-8 h-8 bg-black/50 hover:bg-black/70 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                  aria-label="Pause auto-play">
+            <span class="material-icons-round text-white text-[18px]" id="pauseIcon">pause</span>
+          </button>
+
+        </div>
+      </div>
+
+      <!-- Side Promo Cards (30% on desktop) -->
+      <div class="w-full lg:w-[30%] flex flex-col sm:flex-row lg:flex-col gap-3 md:gap-4">
+
+        <!-- Promo Card 1: Damascus Steel -->
+        <a href="#" class="promo-card relative flex-1 lg:flex-none lg:h-[calc(50%-0.5rem)] min-h-[160px] sm:min-h-[180px] rounded-xl overflow-hidden shadow-card hover:shadow-medium group"
+           style="background: linear-gradient(135deg, #f8f4e8 0%, #e8e0d0 100%);">
+
+          <!-- Simple flexbox: Content left, Small image right -->
+          <div class="flex h-full items-center">
+            <!-- Content Area (70%) -->
+            <div class="w-[70%] p-4 flex flex-col justify-center">
+              <h3 class="text-base sm:text-lg font-semibold text-on-surface mb-1 leading-tight"
+                  data-en="Damascus Steel Collection"
+                  data-ar="مجموعة الفولاذ الدمشقي">
+                Damascus Steel Collection
+              </h3>
+              <p class="text-xs sm:text-sm text-on-surface-variant mb-3 line-clamp-2"
+                 data-en="100% handmade authentic Damascus steel"
+                 data-ar="صناعة يدوية أصيلة 100%">
+                100% handmade authentic Damascus steel
+              </p>
+              <span class="inline-flex items-center gap-1 text-sm font-semibold text-primary-600 group-hover:gap-2 transition-all">
+                <span data-en="Shop Now" data-ar="تسوق الآن">Shop Now</span>
+                <span class="material-icons-round text-[18px] flip-rtl">arrow_forward</span>
+              </span>
+            </div>
+
+            <!-- Small Product Image (30%) - image may contain discount badge -->
+            <div class="w-[30%] h-full flex items-center justify-center p-2">
+              <img src="https://images.unsplash.com/photo-1593618998160-e34014e67546?w=200&h=200&fit=crop"
+                   alt="Damascus Steel Knife"
+                   class="promo-image w-full h-auto max-h-[120px] object-contain rounded-lg">
+            </div>
+          </div>
+        </a>
+
+        <!-- Promo Card 2: Aleppo Soap -->
+        <a href="#" class="promo-card relative flex-1 lg:flex-none lg:h-[calc(50%-0.5rem)] min-h-[160px] sm:min-h-[180px] rounded-xl overflow-hidden shadow-card hover:shadow-medium group"
+           style="background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);">
+
+          <!-- Simple flexbox: Content left, Small image right -->
+          <div class="flex h-full items-center">
+            <!-- Content Area (70%) -->
+            <div class="w-[70%] p-4 flex flex-col justify-center">
+              <h3 class="text-base sm:text-lg font-semibold text-on-surface mb-1 leading-tight"
+                  data-en="Premium Aleppo Soap"
+                  data-ar="صابون حلب الفاخر">
+                Premium Aleppo Soap
+              </h3>
+              <p class="text-xs sm:text-sm text-on-surface-variant mb-3 line-clamp-2"
+                 data-en="Experience the best natural soap in the world"
+                 data-ar="تجربة أفضل صابون طبيعي في العالم">
+                Experience the best natural soap in the world
+              </p>
+              <span class="inline-flex items-center gap-1 text-sm font-semibold text-accent-green group-hover:gap-2 transition-all">
+                <span data-en="Shop Now" data-ar="تسوق الآن">Shop Now</span>
+                <span class="material-icons-round text-[18px] flip-rtl">arrow_forward</span>
+              </span>
+            </div>
+
+            <!-- Small Product Image (30%) - image may contain discount badge -->
+            <div class="w-[30%] h-full flex items-center justify-center p-2">
+              <img src="https://images.unsplash.com/photo-1600857544200-b2f666a9a2ec?w=200&h=200&fit=crop"
+                   alt="Aleppo Soap"
+                   class="promo-image w-full h-auto max-h-[120px] object-contain rounded-lg">
+            </div>
+          </div>
+        </a>
+
+      </div>
+
+    </div>
+
+  </section>
+
+  <!-- Info Section (below hero, similar to Hepsiburada quick access) -->
+  <section class="max-w-[1400px] mx-auto px-4 md:px-6 pb-6">
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
+
+      <!-- Info Card 1 -->
+      <div class="flex items-center gap-3 p-4 bg-white rounded-xl shadow-soft hover:shadow-medium transition-shadow">
+        <div class="w-10 h-10 md:w-12 md:h-12 rounded-full bg-primary-50 flex items-center justify-center flex-shrink-0">
+          <span class="material-icons-round text-primary-500 text-[20px] md:text-[24px]">local_shipping</span>
+        </div>
+        <div class="min-w-0">
+          <h4 class="text-sm md:text-base font-semibold text-on-surface truncate"
+              data-en="Free Shipping"
+              data-ar="شحن مجاني">Free Shipping</h4>
+          <p class="text-xs text-on-surface-variant truncate"
+             data-en="On orders over 50,000 SYP"
+             data-ar="للطلبات فوق 50,000 ل.س">On orders over 50,000 SYP</p>
+        </div>
+      </div>
+
+      <!-- Info Card 2 -->
+      <div class="flex items-center gap-3 p-4 bg-white rounded-xl shadow-soft hover:shadow-medium transition-shadow">
+        <div class="w-10 h-10 md:w-12 md:h-12 rounded-full bg-accent-green/10 flex items-center justify-center flex-shrink-0">
+          <span class="material-icons-round text-accent-green text-[20px] md:text-[24px]">verified_user</span>
+        </div>
+        <div class="min-w-0">
+          <h4 class="text-sm md:text-base font-semibold text-on-surface truncate"
+              data-en="Secure Payment"
+              data-ar="دفع آمن">Secure Payment</h4>
+          <p class="text-xs text-on-surface-variant truncate"
+             data-en="100% secure checkout"
+             data-ar="دفع آمن 100%">100% secure checkout</p>
+        </div>
+      </div>
+
+      <!-- Info Card 3 -->
+      <div class="flex items-center gap-3 p-4 bg-white rounded-xl shadow-soft hover:shadow-medium transition-shadow">
+        <div class="w-10 h-10 md:w-12 md:h-12 rounded-full bg-accent-blue/10 flex items-center justify-center flex-shrink-0">
+          <span class="material-icons-round text-accent-blue text-[20px] md:text-[24px]">support_agent</span>
+        </div>
+        <div class="min-w-0">
+          <h4 class="text-sm md:text-base font-semibold text-on-surface truncate"
+              data-en="24/7 Support"
+              data-ar="دعم على مدار الساعة">24/7 Support</h4>
+          <p class="text-xs text-on-surface-variant truncate"
+             data-en="Dedicated customer service"
+             data-ar="خدمة عملاء مخصصة">Dedicated customer service</p>
+        </div>
+      </div>
+
+      <!-- Info Card 4 -->
+      <div class="flex items-center gap-3 p-4 bg-white rounded-xl shadow-soft hover:shadow-medium transition-shadow">
+        <div class="w-10 h-10 md:w-12 md:h-12 rounded-full bg-accent-red/10 flex items-center justify-center flex-shrink-0">
+          <span class="material-icons-round text-accent-red text-[20px] md:text-[24px]">autorenew</span>
+        </div>
+        <div class="min-w-0">
+          <h4 class="text-sm md:text-base font-semibold text-on-surface truncate"
+              data-en="Easy Returns"
+              data-ar="إرجاع سهل">Easy Returns</h4>
+          <p class="text-xs text-on-surface-variant truncate"
+             data-en="30-day return policy"
+             data-ar="سياسة إرجاع 30 يوم">30-day return policy</p>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- JavaScript for Carousel and Language Toggle -->
+  <script>
+    // Carousel State
+    const carousel = {
+      currentIndex: 0,
+      totalSlides: 6,
+      autoPlayInterval: null,
+      autoPlayDelay: 5000,
+      isPaused: false,
+      isTransitioning: false,
+    };
+
+    // DOM Elements
+    const slides = document.querySelectorAll('.carousel-slide');
+    const dots = document.querySelectorAll('.carousel-dot');
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
+    const pauseBtn = document.getElementById('pauseBtn');
+    const pauseIcon = document.getElementById('pauseIcon');
+    const currentSlideEl = document.getElementById('currentSlide');
+    const carouselContainer = document.querySelector('.carousel-container');
+
+    // Go to specific slide
+    function goToSlide(index) {
+      if (carousel.isTransitioning) return;
+
+      // Normalize index
+      if (index < 0) index = carousel.totalSlides - 1;
+      if (index >= carousel.totalSlides) index = 0;
+
+      carousel.isTransitioning = true;
+
+      // Update slides
+      slides.forEach((slide, i) => {
+        slide.classList.toggle('active', i === index);
+      });
+
+      // Update dots
+      dots.forEach((dot, i) => {
+        if (i === index) {
+          dot.classList.add('active');
+          dot.classList.remove('bg-white/50', 'hover:bg-white/80', 'w-2');
+          dot.classList.add('bg-white', 'w-6');
+          dot.setAttribute('aria-selected', 'true');
+        } else {
+          dot.classList.remove('active');
+          dot.classList.add('bg-white/50', 'hover:bg-white/80', 'w-2');
+          dot.classList.remove('bg-white', 'w-6');
+          dot.setAttribute('aria-selected', 'false');
+        }
+      });
+
+      // Update counter
+      currentSlideEl.textContent = index + 1;
+
+      // Update state
+      carousel.currentIndex = index;
+
+      // Reset transition lock
+      setTimeout(() => {
+        carousel.isTransitioning = false;
+      }, 500);
+
+      // Reset auto-play timer
+      resetAutoPlay();
+    }
+
+    // Next slide
+    function nextSlide() {
+      goToSlide(carousel.currentIndex + 1);
+    }
+
+    // Previous slide
+    function prevSlide() {
+      goToSlide(carousel.currentIndex - 1);
+    }
+
+    // Auto-play
+    function startAutoPlay() {
+      if (carousel.isPaused) return;
+      carousel.autoPlayInterval = setInterval(nextSlide, carousel.autoPlayDelay);
+    }
+
+    function stopAutoPlay() {
+      if (carousel.autoPlayInterval) {
+        clearInterval(carousel.autoPlayInterval);
+        carousel.autoPlayInterval = null;
+      }
+    }
+
+    function resetAutoPlay() {
+      stopAutoPlay();
+      startAutoPlay();
+    }
+
+    function togglePause() {
+      carousel.isPaused = !carousel.isPaused;
+      pauseIcon.textContent = carousel.isPaused ? 'play_arrow' : 'pause';
+      pauseBtn.setAttribute('aria-label', carousel.isPaused ? 'Resume auto-play' : 'Pause auto-play');
+      carouselContainer.classList.toggle('paused', carousel.isPaused);
+
+      if (carousel.isPaused) {
+        stopAutoPlay();
+      } else {
+        startAutoPlay();
+      }
+    }
+
+    // Event Listeners
+    prevBtn.addEventListener('click', prevSlide);
+    nextBtn.addEventListener('click', nextSlide);
+    pauseBtn.addEventListener('click', togglePause);
+
+    dots.forEach((dot, i) => {
+      dot.addEventListener('click', () => goToSlide(i));
+    });
+
+    // Pause on hover
+    carouselContainer.addEventListener('mouseenter', stopAutoPlay);
+    carouselContainer.addEventListener('mouseleave', () => {
+      if (!carousel.isPaused) startAutoPlay();
+    });
+
+    // Keyboard navigation
+    carouselContainer.addEventListener('keydown', (e) => {
+      switch (e.key) {
+        case 'ArrowLeft':
+          document.dir === 'rtl' ? nextSlide() : prevSlide();
+          break;
+        case 'ArrowRight':
+          document.dir === 'rtl' ? prevSlide() : nextSlide();
+          break;
+        case 'Home':
+          goToSlide(0);
+          break;
+        case 'End':
+          goToSlide(carousel.totalSlides - 1);
+          break;
+        case ' ':
+          e.preventDefault();
+          togglePause();
+          break;
+      }
+    });
+
+    // Touch Swipe Support
+    let touchStartX = 0;
+    let touchEndX = 0;
+    const minSwipeDistance = 50;
+
+    carouselContainer.addEventListener('touchstart', (e) => {
+      touchStartX = e.changedTouches[0].screenX;
+    }, { passive: true });
+
+    carouselContainer.addEventListener('touchend', (e) => {
+      touchEndX = e.changedTouches[0].screenX;
+      handleSwipe();
+    }, { passive: true });
+
+    function handleSwipe() {
+      const distance = touchEndX - touchStartX;
+      const isRTL = document.dir === 'rtl';
+
+      if (Math.abs(distance) > minSwipeDistance) {
+        if (distance > 0) {
+          // Swipe right
+          isRTL ? nextSlide() : prevSlide();
+        } else {
+          // Swipe left
+          isRTL ? prevSlide() : nextSlide();
+        }
+      }
+    }
+
+    // Start auto-play
+    startAutoPlay();
+
+    // Language Toggle
+    const langEN = document.getElementById('langEN');
+    const langAR = document.getElementById('langAR');
+
+    function setLanguage(lang) {
+      const isArabic = lang === 'ar';
+      document.documentElement.lang = lang;
+      document.documentElement.dir = isArabic ? 'rtl' : 'ltr';
+
+      // Update button styles
+      if (isArabic) {
+        langAR.classList.add('bg-primary-500', 'text-white');
+        langAR.classList.remove('text-on-surface-variant', 'hover:bg-gray-100');
+        langEN.classList.remove('bg-primary-500', 'text-white');
+        langEN.classList.add('text-on-surface-variant', 'hover:bg-gray-100');
+      } else {
+        langEN.classList.add('bg-primary-500', 'text-white');
+        langEN.classList.remove('text-on-surface-variant', 'hover:bg-gray-100');
+        langAR.classList.remove('bg-primary-500', 'text-white');
+        langAR.classList.add('text-on-surface-variant', 'hover:bg-gray-100');
+      }
+
+      // Update all text elements with data-en/data-ar attributes
+      document.querySelectorAll('[data-en][data-ar]').forEach(el => {
+        el.textContent = el.getAttribute(isArabic ? 'data-ar' : 'data-en');
+      });
+
+      // Update font family
+      document.body.style.fontFamily = isArabic
+        ? "'Cairo', 'Inter', system-ui, sans-serif"
+        : "'Inter', 'Cairo', system-ui, sans-serif";
+    }
+
+    langEN.addEventListener('click', () => setLanguage('en'));
+    langAR.addEventListener('click', () => setLanguage('ar'));
+
+    // Reduced motion support
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      stopAutoPlay();
+      carousel.isPaused = true;
+      pauseIcon.textContent = 'play_arrow';
+    }
+  </script>
+
+</body>
+</html>

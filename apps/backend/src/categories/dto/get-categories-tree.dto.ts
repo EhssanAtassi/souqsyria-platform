@@ -172,6 +172,24 @@ export class CategoryTreeRootDto {
   })
   productCount?: number;
 
+  @ApiPropertyOptional({
+    enum: ['sidebar', 'fullwidth', 'deep-browse', 'none'],
+    description: 'Mega menu layout type for this category',
+    example: 'sidebar',
+  })
+  megaMenuType?: string;
+
+  @ApiPropertyOptional({
+    description: 'Whether category is pinned in navigation bar',
+    example: false,
+  })
+  isPinnedInNav?: boolean;
+
+  @ApiPropertyOptional({
+    description: 'JSON mega menu configuration (promo banners, brand chips, etc.)',
+  })
+  megaMenuConfig?: Record<string, any>;
+
   @ApiProperty({
     type: [CategoryTreeChildDto],
     description: 'Second-level categories (children)',

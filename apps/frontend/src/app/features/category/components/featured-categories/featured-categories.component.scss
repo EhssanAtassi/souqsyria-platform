@@ -18,45 +18,16 @@
   }
 }
 
-// Categories grid
-.categories-grid {
-  // Mobile: horizontal scroll
-  @media (max-width: 767px) {
-    display: flex;
-    overflow-x: auto;
-    scroll-snap-type: x mandatory;
-    -webkit-overflow-scrolling: touch;
-    scrollbar-width: none; // Firefox
-    -ms-overflow-style: none; // IE/Edge
-
-    &::-webkit-scrollbar {
-      display: none; // Chrome/Safari
-    }
-
-    .category-card {
-      flex: 0 0 calc(33.333% - 0.667rem);
-      scroll-snap-align: start;
-      min-width: 100px;
-    }
-  }
-
-  // Tablet: 4 columns with scroll
-  @media (min-width: 768px) and (max-width: 1023px) {
-    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-  }
-
-  // Desktop: 6 columns
-  @media (min-width: 1024px) {
-    grid-template-columns: repeat(6, 1fr);
-  }
-}
+// Categories grid — responsive columns handled by Tailwind template classes:
+// grid-cols-3 md:grid-cols-4 lg:grid-cols-6
+// No SCSS grid overrides needed to avoid display:flex vs display:grid conflict.
 
 // Category card
 .category-card {
   transition: transform 200ms ease-in-out;
 
   &:focus-visible {
-    outline: 2px solid var(--primary-500, #3b82f6);
+    outline: 2px solid var(--primary-500, #B8943D);
     outline-offset: 4px;
     border-radius: 0.5rem;
   }
@@ -91,14 +62,15 @@
   }
 }
 
-// Category name
+// Category name — mobile-first (small by default, larger on md+)
 .category-name {
   line-height: 1.4;
-  min-height: 2.8rem; // 2 lines minimum
+  font-size: 0.75rem;
+  min-height: 2.4rem;
 
-  @media (max-width: 767px) {
-    font-size: 0.75rem;
-    min-height: 2.4rem;
+  @media (min-width: 768px) {
+    font-size: inherit;
+    min-height: 2.8rem;
   }
 }
 
@@ -154,9 +126,7 @@
 // RTL adjustments
 .rtl {
   .categories-grid {
-    @media (max-width: 767px) {
-      direction: rtl;
-    }
+    direction: rtl;
   }
 
   .category-name {
