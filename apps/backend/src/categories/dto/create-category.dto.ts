@@ -4,9 +4,11 @@
  */
 import {
   IsBoolean,
+  IsEnum,
   IsHexColor,
   IsNotEmpty,
   IsNumber,
+  IsObject,
   IsOptional,
   IsString,
   IsUrl,
@@ -14,9 +16,80 @@ import {
   Matches,
   Max,
   Min,
+  ValidateNested,
 } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { Transform } from 'class-transformer';
+import { Transform, Type } from 'class-transformer';
+
+/**
+ * Valid mega menu layout types
+ * @description Centralized enum values for type-safe mega menu layout selection
+ * @audit-fix W-8: Extracted to const for shared reference between entity and DTO
+ */
+export const MEGA_MENU_TYPES = ['sidebar', 'fullwidth', 'deep-browse', 'none'] as const;
+export type MegaMenuType = (typeof MEGA_MENU_TYPES)[number];
+
+/**
+ * Brand chip DTO for megaMenuConfig validation
+ * @description Validates individual brand chip entries within megaMenuConfig.brandChips
+ * @audit-fix C-5: Added nested DTO validation for megaMenuConfig
+ */
+export class BrandChipDto {
+  @IsString()
+  @IsNotEmpty()
+  name: string;
+
+  @IsOptional()
+  @IsString()
+  nameAr?: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @Matches(/^[a-z0-9-]+$/, { message: 'Brand slug must be lowercase alphanumeric with hyphens' })
+  slug: string;
+}
+
+/**
+ * Promo banner DTO for megaMenuConfig validation
+ * @description Validates promo banner entries within megaMenuConfig.promoBanner
+ */
+export class PromoBannerDto {
+  @IsString()
+  @IsNotEmpty()
+  text: string;
+
+  @IsOptional()
+  @IsString()
+  textAr?: string;
+
+  @IsOptional()
+  @IsString()
+  link?: string;
+}
+
+/**
+ * Mega menu configuration DTO
+ * @description Validates JSON structure for megaMenuConfig column
+ * @audit-fix C-5: Added structured validation instead of raw Record<string, any>
+ */
+export class MegaMenuConfigDto {
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => PromoBannerDto)
+  promoBanner?: PromoBannerDto;
+
+  @IsOptional()
+  @ValidateNested({ each: true })
+  @Type(() => BrandChipDto)
+  brandChips?: BrandChipDto[];
+
+  @IsOptional()
+  @IsNumber({}, { each: true })
+  featuredProductIds?: number[];
+
+  /** Index signature for TypeORM compatibility with Record<string, any> column type */
+  [key: string]: any;
+}
 
 export class CreateCategoryDto {
   @ApiProperty({
@@ -147,6 +220,47 @@ export class CreateCategoryDto {
   @IsOptional()
   @IsBoolean()
   showInNav?: boolean = true;
+
+  // Mega Menu Configuration
+  /** @audit-fix W-8: Uses MEGA_MENU_TYPES const for type-safe enum validation */
+  @ApiPropertyOptional({
+    example: 'sidebar',
+    enum: MEGA_MENU_TYPES,
+    description: 'Mega menu layout type for navigation dropdown',
+    default: 'none',
+  })
+  @IsOptional()
+  @IsEnum(MEGA_MENU_TYPES, {
+    message: `megaMenuType must be one of: ${MEGA_MENU_TYPES.join(', ')}`,
+  })
+  megaMenuType?: MegaMenuType;
+
+  @ApiPropertyOptional({
+    example: false,
+    description: 'Whether category is pinned in navigation bar',
+    default: false,
+  })
+  @IsOptional()
+  @IsBoolean()
+  isPinnedInNav?: boolean = false;
+
+  /**
+   * @audit-fix C-5: Structured DTO validation with nested brand chips + promo banner
+   * @description Validates JSON structure to prevent XSS via unvalidated text fields
+   */
+  @ApiPropertyOptional({
+    description: 'JSON configuration for mega menu content (promo banners, brand chips, etc.)',
+    example: {
+      promoBanner: { text: 'Sale', textAr: 'تخفيضات', link: '/sale' },
+      brandChips: [{ name: 'Samsung', nameAr: 'سامسونج', slug: 'samsung' }],
+    },
+    type: MegaMenuConfigDto,
+  })
+  @IsOptional()
+  @IsObject()
+  @ValidateNested()
+  @Type(() => MegaMenuConfigDto)
+  megaMenuConfig?: MegaMenuConfigDto;
 
   // SEO Fields
   @ApiPropertyOptional({

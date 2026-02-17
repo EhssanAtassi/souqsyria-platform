@@ -51,7 +51,8 @@ import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
 import { CategoryTreeNode } from '../../models/category-tree.interface';
-import { Category, Subcategory, MenuColumn, FeaturedTile, MegaMenuFeaturedProduct } from '../../../../shared/interfaces/navigation.interface';
+import { Category, Subcategory, MenuColumn, FeaturedTile, MegaMenuFeaturedProduct, NavigationConfig } from '../../../../shared/interfaces/navigation.interface';
+import { MegaMenuDeepBrowseComponent } from '../../../../shared/components/category-navigation/mega-menu-deep-browse/mega-menu-deep-browse.component';
 import { trigger, transition, style, animate } from '@angular/animations';
 
 /**
@@ -78,7 +79,7 @@ import { trigger, transition, style, animate } from '@angular/animations';
 @Component({
   selector: 'app-mega-menu',
   standalone: true,
-  imports: [CommonModule, RouterLink, MatIconModule],
+  imports: [CommonModule, RouterLink, MatIconModule, MegaMenuDeepBrowseComponent],
   templateUrl: './mega-menu.component.html',
   styleUrls: ['./mega-menu.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -231,11 +232,14 @@ export class MegaMenuComponent implements OnInit, OnDestroy {
 
   /**
    * Check if hovered category uses sidebar layout
-   * @description Sidebar layout: left subcategory list + right featured products
-   * @returns True if megaMenuType is 'sidebar' or has subcategories without menuColumns
+   * @description Sidebar layout: left subcategory list + right featured products.
+   * Default layout when no megaMenuType is explicitly set (unless fullwidth/deep-browse).
+   * @returns True if megaMenuType is 'sidebar' or fallback default
    */
   get isSidebarLayout(): boolean {
     if (!this.hoveredCategory) return true;
+    if (this.hoveredCategory.megaMenuType === 'fullwidth') return false;
+    if (this.hoveredCategory.megaMenuType === 'deep-browse') return false;
     return this.hoveredCategory.megaMenuType === 'sidebar' ||
            (!this.hoveredCategory.menuColumns && !!this.hoveredCategory.subcategories?.length);
   }
@@ -247,6 +251,29 @@ export class MegaMenuComponent implements OnInit, OnDestroy {
    */
   get isFullwidthLayout(): boolean {
     return this.hoveredCategory?.megaMenuType === 'fullwidth';
+  }
+
+  /**
+   * Check if hovered category uses deep-browse layout
+   * @description Deep-browse layout: left sidebar with category groups + right switchable panels
+   * @returns True if megaMenuType is 'deep-browse'
+   */
+  get isDeepBrowseLayout(): boolean {
+    return this.hoveredCategory?.megaMenuType === 'deep-browse';
+  }
+
+  /**
+   * Build NavigationConfig for child components from current state
+   * @returns NavigationConfig object for deep-browse/sidebar/fullwidth child components
+   */
+  get navigationConfig(): NavigationConfig {
+    return {
+      showArabic: true,
+      language: this.isRtl() ? 'ar' : 'en',
+      rtl: this.isRtl(),
+      locations: [],
+      featuredCategories: []
+    };
   }
 
   /**

@@ -370,6 +370,9 @@ export class CategoriesPublicController {
         icon: root.iconUrl,
         image: root.bannerUrl,
         productCount: root.productCount,
+        megaMenuType: root.megaMenuType || 'none',
+        isPinnedInNav: root.isPinnedInNav || false,
+        megaMenuConfig: root.megaMenuConfig || null,
         children: (root.children || []).map((child) => ({
           id: child.id,
           name: sanitizedLanguage === 'ar' ? child.nameAr : child.nameEn,

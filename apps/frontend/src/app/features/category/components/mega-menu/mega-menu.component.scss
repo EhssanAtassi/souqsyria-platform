@@ -3,37 +3,37 @@
  *
  * @description Premium mega menu styles with glassmorphism, golden wheat accents,
  * category-specific sidebar/fullwidth layouts, and smooth animations.
+ * Tokens imported from shared _mega-menu-tokens.scss partial.
  *
- * @version 2.0.0 — Golden Wheat Redesign
+ * @version 2.1.0 — Shared tokens partial (audit fix C-1/C-2/C-3)
  */
 
-// ═══════════════════════════════════════
-// DESIGN TOKENS
-// ═══════════════════════════════════════
+@use 'mega-menu-tokens' as *;
 
-$golden-wheat: #C8A860;
-$golden-wheat-dark: #9A7B32;
-$golden-wheat-light: #FAF6EB;
-$golden-wheat-glow: rgba(200, 168, 96, 0.25);
-$golden-wheat-border: rgba(200, 168, 96, 0.3);
+// Local aliases — map prefixed tokens to short names used in rules below
+$golden-wheat: $mm-golden-wheat;
+$golden-wheat-dark: $mm-golden-wheat-dark;
+$golden-wheat-light: $mm-golden-wheat-light;
+$golden-wheat-glow: $mm-golden-wheat-glow;
+$golden-wheat-border: $mm-golden-wheat-border;
 
-$text-primary: #1F2937;    // gray-800
-$text-secondary: #6B7280;  // gray-500
-$text-tertiary: #9CA3AF;   // gray-400
+$text-primary: $mm-text-primary;
+$text-secondary: $mm-text-secondary;
+$text-tertiary: $mm-text-tertiary;
 
-$border-light: #F3F4F6;    // gray-100
-$border-medium: #E5E7EB;   // gray-200
-$bg-surface: #FFFFFF;
-$bg-hover: #FEFDFB;        // warm white
+$border-light: $mm-border-light;
+$border-medium: $mm-border-medium;
+$bg-surface: $mm-bg-surface;
+$bg-hover: $mm-bg-hover;
 
-$shadow-dropdown: 0 10px 40px rgba(0, 0, 0, 0.12), 0 2px 12px rgba(0, 0, 0, 0.06);
-$shadow-card: 0 2px 8px rgba(0, 0, 0, 0.06);
-$shadow-card-hover: 0 4px 16px rgba(200, 168, 96, 0.2);
+$shadow-dropdown: $mm-shadow-dropdown;
+$shadow-card: $mm-shadow-card;
+$shadow-card-hover: $mm-shadow-card-hover;
 
-$radius-dropdown: 12px;
-$radius-card: 8px;
-$transition-fast: 200ms cubic-bezier(0.4, 0, 0.2, 1);
-$transition-medium: 300ms cubic-bezier(0.4, 0, 0.2, 1);
+$radius-dropdown: $mm-radius-dropdown;
+$radius-card: $mm-radius-card;
+$transition-fast: $mm-transition-fast;
+$transition-medium: $mm-transition-medium;
 
 // ═══════════════════════════════════════
 // DROPDOWN MODE — CATEGORY-SPECIFIC
@@ -504,6 +504,20 @@ $transition-medium: 300ms cubic-bezier(0.4, 0, 0.2, 1);
   display: flex;
   justify-content: flex-end;
   padding-top: 8px;
+}
+
+// ═══════════════════════════════════════
+// DEEP-BROWSE LAYOUT WRAPPER
+// ═══════════════════════════════════════
+
+.sq-mega-deep-browse {
+  // Deep-browse child component handles its own padding
+  padding: 0;
+}
+
+// Widen the dropdown container when deep-browse is active
+:host-context(.sq-mega-dropdown:has(.sq-mega-deep-browse)) {
+  max-width: 1100px;
 }
 
 

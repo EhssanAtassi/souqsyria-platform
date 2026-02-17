@@ -164,6 +164,20 @@
       </div>
     </ng-container>
 
+    <!-- ─── DEEP-BROWSE LAYOUT: sidebar groups + switchable panels ─── -->
+    <ng-container *ngIf="isDeepBrowseLayout">
+      <div class="sq-mega-inner sq-mega-deep-browse">
+        <app-mega-menu-deep-browse
+          [category]="hoveredCategory"
+          [config]="navigationConfig"
+          (subcategoryClick)="navigateToUrl($event.url)"
+          (viewAllClick)="navigateToUrl($event.url)"
+          (menuMouseEnter)="menuMouseEnter.emit()"
+          (menuMouseLeave)="menuMouseLeave.emit()"
+        ></app-mega-menu-deep-browse>
+      </div>
+    </ng-container>
+
   </div>
 </ng-container>
 

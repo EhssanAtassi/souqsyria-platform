@@ -139,6 +139,12 @@ export interface Category {
 
   /** Featured products for sidebar mega menus */
   megaMenuFeaturedProducts?: MegaMenuFeaturedProduct[];
+
+  /** Whether this category is pinned in the nav bar */
+  isPinnedInNav?: boolean;
+
+  /** JSON configuration for mega menu (promo banners, brand chips, etc.) */
+  megaMenuConfig?: MegaMenuCategoryConfig;
 }
 
 /**
@@ -295,7 +301,40 @@ export interface NavigationConfig {
  * - 'fullwidth': Multi-column grid with image tiles (900-1100px), used for Beauty, Textiles
  * - 'none': No mega menu, direct link only
  */
-export type MegaMenuType = 'sidebar' | 'fullwidth' | 'none';
+export type MegaMenuType = 'sidebar' | 'fullwidth' | 'deep-browse' | 'none';
+
+/**
+ * JSON configuration stored per-category for mega menu content
+ * @description Holds promo banners, brand chips, category groups, and featured product IDs
+ */
+export interface MegaMenuCategoryConfig {
+  /** Promotional banner displayed inside the mega menu dropdown */
+  promoBanner?: {
+    text: string;
+    textAr: string;
+    link: string;
+    bgColor?: string;
+  };
+
+  /** Brand chips displayed at the bottom of deep-browse layout */
+  brandChips?: {
+    name: string;
+    nameAr?: string;
+    slug: string;
+    logo?: string;
+  }[];
+
+  /** Featured product IDs for sidebar layout */
+  featuredProductIds?: number[];
+
+  /** Category group definitions for deep-browse layout (left sidebar panels) */
+  categoryGroups?: {
+    name: string;
+    nameAr: string;
+    icon?: string;
+    childSlugs: string[];
+  }[];
+}
 
 /**
  * Interface for mega menu column layout
