@@ -213,7 +213,7 @@ $shadow-xl: 0 8px 24px rgba(0, 0, 0, 0.12);
 
   .address-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 360px), 1fr));
     gap: 1.75rem;
 
     .address-card {
@@ -544,6 +544,10 @@ $shadow-xl: 0 8px 24px rgba(0, 0, 0, 0.12);
     }
 
     .empty-state {
+      p {
+        line-height: 1.75;
+      }
+
       button {
         mat-icon {
           margin-right: 0;
@@ -569,6 +573,10 @@ $shadow-xl: 0 8px 24px rgba(0, 0, 0, 0.12);
               .info-icon {
                 margin-left: 0.75rem;
                 margin-right: 0;
+              }
+
+              .info-text {
+                line-height: 1.75;
               }
             }
           }
@@ -808,7 +816,8 @@ $shadow-xl: 0 8px 24px rgba(0, 0, 0, 0.12);
       .address-card {
         mat-card-actions {
           button {
-            height: 40px;
+            min-height: 44px;
+            min-width: 44px;
             font-size: 0.75rem;
           }
         }

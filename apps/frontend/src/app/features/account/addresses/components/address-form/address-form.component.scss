@@ -193,11 +193,12 @@ $shadow-lg: 0 4px 12px rgba(0, 0, 0, 0.12);
               font-size: 0.875rem;
               color: $text-secondary;
 
-            mat-icon {
-              font-size: 1.125rem;
-              width: 1.125rem;
-              height: 1.125rem;
-              margin: 0;
+              mat-icon {
+                font-size: 1.125rem;
+                width: 1.125rem;
+                height: 1.125rem;
+                margin: 0;
+              }
             }
           }
         }
@@ -316,7 +317,7 @@ $shadow-lg: 0 4px 12px rgba(0, 0, 0, 0.12);
 
         .mat-mdc-form-field-error {
           color: $error-color;
-          font-size: 0.8125rem;
+          font-size: 0.9375rem;
           margin-top: $spacing-xs;
         }
 
@@ -441,7 +442,6 @@ $shadow-lg: 0 4px 12px rgba(0, 0, 0, 0.12);
       }
     }
   }
-}
 }
 
 /** ============================================

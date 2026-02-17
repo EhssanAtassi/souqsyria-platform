@@ -43,7 +43,7 @@
     />
 
     <!-- Validation errors for location -->
-    <div class="location-errors" *ngIf="form.get('governorateId')?.touched || form.get('cityId')?.touched">
+    <div class="location-errors" role="alert" aria-live="polite" *ngIf="form.get('governorateId')?.touched || form.get('cityId')?.touched">
       <mat-error *ngIf="hasError('governorateId', 'required')">
         {{ 'addresses.validation.governorateRequired' | translate }}
       </mat-error>

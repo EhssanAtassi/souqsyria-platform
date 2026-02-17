@@ -11,8 +11,8 @@ import {
   City,
   District
 } from '../interfaces/address.interface';
-import { catchError, tap } from 'rxjs/operators';
-import { of } from 'rxjs';
+import { catchError, tap, shareReplay } from 'rxjs/operators';
+import { of, Observable } from 'rxjs';
 
 /**
  * @description Address API Service for Syrian address management
@@ -88,6 +88,31 @@ export class AddressApiService {
    * Set to false after successful load, true after mutations (create/update/delete/setDefault)
    */
   private _addressesDirty = true;
+
+  /**
+   * @description In-memory cache for cities by governorate ID
+   */
+  private citiesCache = new Map<number, City[]>();
+
+  /**
+   * @description In-memory cache for districts by city ID
+   */
+  private districtsCache = new Map<number, District[]>();
+
+  /**
+   * @description In-flight governorates request for deduplication
+   */
+  private governoratesRequest$: Observable<Governorate[]> | null = null;
+
+  /**
+   * @description In-flight cities request for deduplication
+   */
+  private citiesRequest$: Observable<City[]> | null = null;
+
+  /**
+   * @description In-flight districts request for deduplication
+   */
+  private districtsRequest$: Observable<District[]> | null = null;
 
   /**
    * @description Show a translated error notification to the user
@@ -247,70 +272,124 @@ export class AddressApiService {
 
   /**
    * @description Load all Syrian governorates
+   * Implements in-memory caching and request deduplication for performance.
    * @returns Observable that emits the loaded governorates array
    */
   loadGovernorates() {
+    // Return cached data immediately if available
+    if (this.governorates().length > 0) {
+      return of(this.governorates());
+    }
+
+    // Return in-flight request if one exists (deduplication)
+    if (this.governoratesRequest$) {
+      return this.governoratesRequest$;
+    }
+
     this.isLoadingGovernorates.set(true);
     this.error.set(null);
 
-    return this.http.get<Governorate[]>(`${this.baseUrl}/governorates`).pipe(
+    this.governoratesRequest$ = this.http.get<Governorate[]>(`${this.baseUrl}/governorates`).pipe(
       tap((data) => {
         this.governorates.set(data);
         this.isLoadingGovernorates.set(false);
+        this.governoratesRequest$ = null;
       }),
+      shareReplay(1),
       catchError((err) => {
+        this.governoratesRequest$ = null;
         this.error.set('Failed to load governorates');
         this.isLoadingGovernorates.set(false);
         this.showError('addresses.errors.governoratesLoadFailed');
         return of([]);
       })
     );
+
+    return this.governoratesRequest$;
   }
 
   /**
    * @description Load cities for a specific governorate
+   * Implements in-memory caching and request deduplication for performance.
    * @param governorateId - Governorate ID
    * @returns Observable that emits the loaded cities array
    */
   loadCities(governorateId: number) {
+    // Check cache first
+    if (this.citiesCache.has(governorateId)) {
+      const cached = this.citiesCache.get(governorateId)!;
+      this.cities.set(cached);
+      return of(cached);
+    }
+
+    // Return in-flight request if one exists (deduplication)
+    if (this.citiesRequest$) {
+      return this.citiesRequest$;
+    }
+
     this.isLoadingCities.set(true);
     this.error.set(null);
 
-    return this.http.get<City[]>(`${this.baseUrl}/governorates/${governorateId}/cities`).pipe(
+    this.citiesRequest$ = this.http.get<City[]>(`${this.baseUrl}/governorates/${governorateId}/cities`).pipe(
       tap((data) => {
         this.cities.set(data);
+        this.citiesCache.set(governorateId, data);
         this.isLoadingCities.set(false);
+        this.citiesRequest$ = null;
       }),
+      shareReplay(1),
       catchError((err) => {
+        this.citiesRequest$ = null;
         this.error.set('Failed to load cities');
         this.isLoadingCities.set(false);
         this.showError('addresses.errors.citiesLoadFailed');
         return of([]);
       })
     );
+
+    return this.citiesRequest$;
   }
 
   /**
    * @description Load districts for a specific city
+   * Implements in-memory caching and request deduplication for performance.
    * @param cityId - City ID
    * @returns Observable that emits the loaded districts array
    */
   loadDistricts(cityId: number) {
+    // Check cache first
+    if (this.districtsCache.has(cityId)) {
+      const cached = this.districtsCache.get(cityId)!;
+      this.districts.set(cached);
+      return of(cached);
+    }
+
+    // Return in-flight request if one exists (deduplication)
+    if (this.districtsRequest$) {
+      return this.districtsRequest$;
+    }
+
     this.isLoadingDistricts.set(true);
     this.error.set(null);
 
-    return this.http.get<District[]>(`${this.baseUrl}/cities/${cityId}/districts`).pipe(
+    this.districtsRequest$ = this.http.get<District[]>(`${this.baseUrl}/cities/${cityId}/districts`).pipe(
       tap((data) => {
         this.districts.set(data);
+        this.districtsCache.set(cityId, data);
         this.isLoadingDistricts.set(false);
+        this.districtsRequest$ = null;
       }),
+      shareReplay(1),
       catchError((err) => {
+        this.districtsRequest$ = null;
         this.error.set('Failed to load districts');
         this.isLoadingDistricts.set(false);
         this.showError('addresses.errors.districtsLoadFailed');
         return of([]);
       })
     );
+
+    return this.districtsRequest$;
   }
 
   /**

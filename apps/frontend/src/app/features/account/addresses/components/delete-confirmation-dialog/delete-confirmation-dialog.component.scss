@@ -258,9 +258,18 @@ $shadow-lg: 0 4px 12px rgba(0, 0, 0, 0.12);
 :host-context([dir='rtl']) {
   .delete-confirmation-dialog {
     mat-dialog-content {
+      .confirmation-message,
+      p {
+        line-height: 1.75;
+      }
+
       .warning-box {
         border-left: none;
         border-right: 5px solid #f59e0b;
+
+        p {
+          line-height: 1.75;
+        }
       }
 
       .address-preview {
@@ -270,6 +279,7 @@ $shadow-lg: 0 4px 12px rgba(0, 0, 0, 0.12);
 
         .address-line {
           flex-direction: row-reverse;
+          line-height: 1.75;
         }
       }
     }
@@ -318,8 +328,8 @@ $shadow-lg: 0 4px 12px rgba(0, 0, 0, 0.12);
 @media (max-width: 600px) {
   .delete-confirmation-dialog {
     min-width: unset;
-    width: calc(100vw - 2rem);
-    max-width: unset;
+    width: calc(100% - 2rem);
+    max-width: calc(100vw - 2rem);
     margin: 1rem;
 
     h2[mat-dialog-title] {
