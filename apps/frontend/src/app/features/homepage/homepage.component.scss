@@ -362,6 +362,58 @@
   }
 }
 
+/**
+ * Shop by Category Section — API-Connected Premium Cards
+ * @description Golden wheat theme cards with glass-morphism icons,
+ * staggered entrance animation, and graceful loading skeletons.
+ */
+.sq-shop-by-category {
+  /** Card entrance animation (staggered via inline animation-delay) */
+  .sq-category-card {
+    animation: sq-fadeInUp 0.45s ease-out both;
+  }
+
+  /** Icon circle hover glow ring */
+  .sq-icon-circle {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+  }
+}
+
+/**
+ * Staggered fade-in-up entrance keyframe
+ * @description Used by category cards with per-card animation-delay
+ */
+@keyframes sq-fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/**
+ * Reduced motion: disable entrance animation for accessibility
+ * @see WCAG 2.1 §2.3.3 — Animation from Interactions
+ */
+@media (prefers-reduced-motion: reduce) {
+  .sq-shop-by-category .sq-category-card {
+    animation: none !important;
+  }
+}
+
+/**
+ * High contrast mode: ensure card borders are visible
+ * @see WCAG 2.1 §1.4.11 — Non-text Contrast
+ */
+@media (forced-colors: active) {
+  .sq-shop-by-category .sq-category-card {
+    border: 2px solid ButtonText !important;
+  }
+}
+
 // Utility for line clamping
 .line-clamp-2 {
   display: -webkit-box;

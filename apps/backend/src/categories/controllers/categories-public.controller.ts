@@ -810,6 +810,10 @@ export class CategoriesPublicController {
         icon: category.iconUrl || '',
         productCount: category.productCount,
         sortOrder: category.featuredPriority || category.sortOrder,
+        /** @description Theme color hex for frontend card icon background */
+        themeColor: category.themeColor || '#C8A860',
+        /** @description Featured discount label e.g. '15%' for badge display */
+        featuredDiscount: category.featuredDiscount || '',
       }));
 
       // 4. Set long cache headers for featured content

@@ -184,6 +184,15 @@ export interface FeaturedCategory {
 
   /** Display order priority (lower = higher priority) */
   sortOrder: number;
+
+  /** Theme color hex for card icon background (from backend themeColor field) */
+  themeColor?: string;
+
+  /** Featured discount label e.g. '15%' (from backend featuredDiscount field) */
+  featuredDiscount?: string;
+
+  /** Route path for navigation (computed on frontend from slug) */
+  route?: string;
 }
 
 /**

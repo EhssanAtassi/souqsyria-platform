@@ -446,8 +446,16 @@ export class HomepageComponent implements OnInit {
   }
 
   /**
-   * Loads featured categories from backend API (S1 Categories Sprint)
-   * @description Fetches featured categories for homepage display
+   * Loads featured categories from backend API with graceful fallback
+   *
+   * @description Fetches featured categories from GET /api/categories/featured.
+   * Maps API response fields (themeColor, featuredDiscount, slug) to the template
+   * shape (color, discount, route). Falls back to hardcoded data when API returns
+   * empty results or errors, ensuring the homepage always displays categories.
+   *
+   * @swagger
+   * x-api-endpoint: GET /api/categories/featured?limit=6
+   * x-fallback: hardcoded featuredCategories array
    */
   private loadFeaturedCategories(): void {
     this.isLoadingFeaturedCategories.set(true);
@@ -456,14 +464,30 @@ export class HomepageComponent implements OnInit {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (response) => {
+          // Store raw API data for components that use FeaturedCategory interface
           this.featuredCategoriesFromApi.set(response.data);
+
+          if (response.data && response.data.length > 0) {
+            // Map API data to the template-friendly shape used by the cards grid
+            this.featuredCategories = response.data.map(cat => ({
+              name: cat.name,
+              nameAr: cat.nameAr,
+              icon: cat.icon || 'category',
+              color: cat.themeColor || '#C8A860',
+              discount: cat.featuredDiscount || '',
+              route: '/category/' + cat.slug,
+            }));
+            console.log(`✅ Loaded ${response.data.length} featured categories from API`);
+          } else {
+            console.log('ℹ️ API returned empty featured categories — using hardcoded fallback');
+            // Keep existing hardcoded featuredCategories data (already set on the property)
+          }
           this.isLoadingFeaturedCategories.set(false);
-          console.log(`✅ Loaded ${response.data.length} featured categories from API`);
         },
         error: (error) => {
-          console.error('Failed to load featured categories:', error);
+          console.warn('⚠️ Featured categories API failed — using hardcoded fallback:', error?.message || error);
+          // Keep existing hardcoded featuredCategories (graceful degradation)
           this.isLoadingFeaturedCategories.set(false);
-          this.showErrorNotification('Failed to load featured categories');
         }
       });
   }
