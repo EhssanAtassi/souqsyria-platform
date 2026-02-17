@@ -1,3 +1,5 @@
+@use '../../../_account-tokens' as t;
+
 /**
  * @fileoverview Styles for delete confirmation dialog
  * @description Warning dialog with address preview, Syrian theme, and validation messages
@@ -6,7 +8,7 @@
 .delete-confirmation-dialog {
   min-width: 480px;
   max-width: 600px;
-  border-radius: 12px;
+  border-radius: t.$card-radius-sm;
   overflow: hidden;
 
   h2[mat-dialog-title] {
@@ -50,7 +52,7 @@
       margin-bottom: 1.5rem;
       background: linear-gradient(135deg, #fffbeb, #fef3c7);
       border-left: 5px solid #f59e0b;
-      border-radius: 8px;
+      border-radius: t.$radius-md;
       box-shadow: 0 2px 8px rgba(245, 158, 11, 0.1);
 
       mat-icon {
@@ -99,7 +101,7 @@
           padding: 0.375rem 0.75rem;
           font-size: 0.8125rem;
           font-weight: 600;
-          border-radius: 16px;
+          border-radius: t.$card-radius;
 
           mat-icon {
             font-size: 1rem;
@@ -155,7 +157,7 @@
     button {
       min-width: 120px;
       height: 48px;
-      border-radius: 8px;
+      border-radius: t.$radius-md;
       font-weight: 600;
       font-size: 1rem;
       transition: all 0.2s ease;
@@ -232,7 +234,7 @@
 }
 
 // Responsive adjustments for tablets
-@media (max-width: 768px) {
+@include t.mobile {
   .delete-confirmation-dialog {
     min-width: 400px;
 
@@ -266,7 +268,7 @@
 }
 
 // Mobile devices
-@media (max-width: 600px) {
+@include t.mobile {
   .delete-confirmation-dialog {
     min-width: unset;
     width: calc(100vw - 2rem);

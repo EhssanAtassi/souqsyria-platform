@@ -1,3 +1,5 @@
+@use '../../../_account-tokens' as t;
+
 /**
  * @fileoverview Styles for governorate cascading dropdown component
  * @description Responsive layout for hierarchical Syrian location selection (Governorate > City > District)
@@ -9,7 +11,7 @@
   gap: 1rem;
   padding: 1rem;
   background: linear-gradient(135deg, #eff6ff 0%, #f9fafb 100%);
-  border-radius: 8px;
+  border-radius: t.$radius-md;
   border: 1px solid #e5e7eb;
 
   .full-width {
@@ -90,7 +92,7 @@
     .mat-mdc-select-panel {
       background: white;
       box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
-      border-radius: 8px;
+      border-radius: t.$radius-md;
       max-height: 320px;
 
       .mat-mdc-option {
@@ -123,14 +125,14 @@
   }
 
   // Tablet and desktop: three-column grid
-  @media (min-width: 768px) {
+  @include t.md-up {
     grid-template-columns: repeat(3, 1fr);
     gap: 1.25rem;
     padding: 1.25rem;
   }
 
   // Large desktop: more spacing
-  @media (min-width: 1024px) {
+  @include t.desktop {
     gap: 1.5rem;
     padding: 1.5rem;
   }
@@ -153,7 +155,7 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      border-radius: 8px;
+      border-radius: t.$radius-md;
       z-index: 10;
     }
   }
@@ -179,7 +181,7 @@
 }
 
 // Mobile optimizations
-@media (max-width: 600px) {
+@include t.mobile {
   .governorate-dropdown-container {
     gap: 0.75rem;
     padding: 0.75rem;
